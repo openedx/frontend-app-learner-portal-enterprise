@@ -1,0 +1,46 @@
+{
+  "count": 4,
+  "num_pages": 1,
+  "current_page": 1,
+  "results": [
+    {
+      "usage_type": "Percentage",
+      "benefit_value": 100,
+      "redemptions_remaining": 4,
+      "code": "EPKAUH7MZ7WALXZV",
+      "catalog": "9014df44-e8eb-41c0-ab39-fb9a508ac716",
+      "coupon_start_date": "2019-07-14T00:00:00Z",
+      "coupon_end_date": "2019-07-31T00:00:00Z"
+    },
+    {
+      "usage_type": "Percentage",
+      "benefit_value": 100,
+      "redemptions_remaining": 1,
+      "code": "XUFEXU3MXSWBYMLY",
+      "catalog": "97207126-7f9b-43c7-ab6d-c77260069126",
+      "coupon_start_date": "2019-04-30T00:00:00Z",
+      "coupon_end_date": "2020-04-30T00:00:00Z"
+    },
+    {
+      "usage_type": "Percentage",
+      "benefit_value": 50,
+      "redemptions_remaining": 1,
+      "code": "FUT4VBONG3BA7R76",
+      "catalog": "88fce376-946e-419e-967b-ea6e68a44d23",
+      "coupon_start_date": "2019-07-15T00:00:00Z",
+      "coupon_end_date": "2019-07-30T00:00:00Z"
+    },
+    {
+      "usage_type": "Absolute",
+      "benefit_value": 10,
+      "redemptions_remaining": 1,
+      "code": "2YL4L3QW32SZGVCY",
+      "catalog": "88fce376-946e-419e-967b-ea6e68a44d23",
+      "coupon_start_date": "2018-11-01T00:00:00Z",
+      "coupon_end_date": "2019-11-30T00:00:00Z"
+    }
+  ],
+  "next": null,
+  "start": 0,
+  "previous": null
+}
