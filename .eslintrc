@@ -1,0 +1,34 @@
+{
+  "extends": "eslint-config-edx",
+  "parser": "babel-eslint",
+  "rules": {
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": ["config/*.js", "**/*.test.jsx", "**/*.test.js"]
+      }
+    ],
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      {
+        "components": ["Link"],
+        "specialLink": ["to"]
+      }
+    ],
+    "jsx-a11y/label-has-for": [
+      "error",
+      {
+        "required": {
+          "every": ["nesting", "id"]
+        },
+        "allowChildren": true
+      }
+    ]
+  },
+  "env": {
+    "jest": true
+  },
+  "globals": {
+    "newrelic": false
+  }
+}
