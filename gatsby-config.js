@@ -56,7 +56,6 @@ module.exports = {
           'ACCESS_TOKEN_COOKIE_NAME',
           'USER_INFO_COOKIE_NAME',
           'SEGMENT_KEY',
-          'UNBRANDED_LANDING_PAGE',
           'IDP_SLUG',
           'ENABLE_PATH_PREFIX',
         ],
