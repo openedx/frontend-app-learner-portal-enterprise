@@ -9,7 +9,7 @@ const DashboardMainContent = () => {
   const { pageContext: { enterpriseName } } = useContext(AppContext);
   return (
     <CourseEnrollments sidebarComponent={<DashboardSidebar />}>
-      <h3>Browse courses</h3>
+      <h2 className="h3">Browse courses</h2>
       <p>
         You are not enrolled in any courses sponsored by {enterpriseName}.
         To start taking a course, browse the catalog below.

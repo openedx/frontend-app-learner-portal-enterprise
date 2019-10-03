@@ -65,7 +65,11 @@ class DashboardSidebar extends React.Component {
     return (
       <>
         {isFeatureEnabled('enterprise_offers') && (
-          <SidebarBlock title={`Learning Benefits from ${enterpriseName}`} className="mb-5">
+          <SidebarBlock
+            title={`Learning Benefits from ${enterpriseName}`}
+            titleOptions={{ tag: 'h3', className: 'h4' }}
+            className="mb-5"
+          >
             {isOffersLoading && (
               <div className="mb-5">
                 <LoadingSpinner screenReaderText={`loading learning benefits for ${enterpriseName}`} />
@@ -74,7 +78,11 @@ class DashboardSidebar extends React.Component {
             {this.renderOffers(offers)}
           </SidebarBlock>
         )}
-        <SidebarBlock title="Need help?" className="mb-5">
+        <SidebarBlock
+          title="Need help?"
+          titleOptions={{ tag: 'h3', className: 'h4' }}
+          className="mb-5"
+        >
           <p>
             For technical support, visit the
             {' '}
