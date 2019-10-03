@@ -48,7 +48,7 @@ class DashboardSidebar extends React.Component {
     const { pageContext: { enterpriseName, enterpriseEmail } } = this.context;
     if (enterpriseEmail) {
       return (
-        <a href={`mailto:${enterpriseEmail}`}>
+        <a className="text-underline" href={`mailto:${enterpriseEmail}`}>
           contact your {enterpriseName} learning coordinator
         </a>
       );
@@ -77,8 +77,8 @@ class DashboardSidebar extends React.Component {
         <SidebarBlock title="Need help?" className="mb-5">
           <p>
             For technical support, visit the
-            {' '}
-            <a href="https://support.edx.org/hc/en-us">edX Help Center</a>.
+
+            <a className="text-underline" href="https://support.edx.org/hc/en-us">edX Help Center</a>.
           </p>
           <p>
             To request more benefits or specific courses,
