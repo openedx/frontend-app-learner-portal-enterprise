@@ -77,7 +77,7 @@ class DashboardSidebar extends React.Component {
         <SidebarBlock title="Need help?" className="mb-5">
           <p>
             For technical support, visit the
-
+            {' '}
             <a className="text-underline" href="https://support.edx.org/hc/en-us">edX Help Center</a>.
           </p>
           <p>
