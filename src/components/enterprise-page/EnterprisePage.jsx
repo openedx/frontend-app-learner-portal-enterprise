@@ -84,7 +84,7 @@ EnterprisePage.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  username: state.authentication.username,
+  username: state.userAccount.username,
 });
 
 export default connect(mapStateToProps)(EnterprisePage);
