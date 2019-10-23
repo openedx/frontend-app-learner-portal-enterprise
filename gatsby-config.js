@@ -12,9 +12,9 @@ require('dotenv').config({
 let pagesApiUrl;
 // All env vars will be passed in as strings
 if (process.env.UNBRANDED_LANDING_PAGE === 'True') {
-  pagesApiUrl = `${process.env.DESIGNER_BASE_URL}/api/v1/pages/?type=pages.IndexPage,pages.ProgramPage,pages.EnterprisePage`;
+  pagesApiUrl = `${process.env.DESIGNER_BASE_URL}/api/v1/pages/?type=pages.EnterprisePage`;
 } else {
-  pagesApiUrl = `${process.env.DESIGNER_BASE_URL}/api/v1/pages/?hostname=${process.env.HOSTNAME}&type=pages.IndexPage,pages.ProgramPage,pages.EnterprisePage`;
+  pagesApiUrl = `${process.env.DESIGNER_BASE_URL}/api/v1/pages/?hostname=${process.env.HOSTNAME}&type=pages.EnterprisePage`;
 }
 
 module.exports = {

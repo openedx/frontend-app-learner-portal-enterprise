@@ -6,10 +6,10 @@ import { breakpoints } from '@edx/paragon';
 
 import { withAuthentication } from '@edx/frontend-learner-portal-base/src/components/with-authentication';
 import { Layout, MainContent, Sidebar } from '@edx/frontend-learner-portal-base/src/components/layout';
-import { Hero } from '@edx/frontend-learner-portal-base/src/components/hero';
 
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
+import Hero from './Hero';
 
 import { EnterprisePage } from '../enterprise-page';
 
@@ -23,7 +23,7 @@ const DashboardPage = (props) => {
         footerLogo="https://files.edx.org/openedx-logos/edx-openedx-logo-tag.png"
       >
         <Helmet title={enterpriseName} />
-        <Hero title={enterpriseName} />
+        <Hero />
         <div className="container py-5">
           <div className="row">
             <MainContent>

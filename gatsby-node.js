@@ -40,13 +40,14 @@ exports.createPages = async ({ graphql, actions }) => graphql(`
           }
         }
         branding {
-          cover_image
-          banner_border_color
-          texture_image
           organization_logo {
             url
             alt
           }
+          cover_image
+          texture_image
+          banner_border_color
+          banner_background_color
         }
       }
     }
