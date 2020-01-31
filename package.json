@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "author": "edX",
   "dependencies": {
-    "@edx/edx-bootstrap": "^2.2.2",
     "@edx/frontend-analytics": "^2.0.0",
     "@edx/frontend-auth": "^5.3.4",
     "@edx/frontend-component-footer": "^3.0.4",
