@@ -11,6 +11,7 @@ import '../../assets/favicon.ico';
 
 export default function App() {
   return (
+    // TODO: Switch to AppProvider but there is some error there
     <Provider store={store}>
       <Router>
         <Switch>
