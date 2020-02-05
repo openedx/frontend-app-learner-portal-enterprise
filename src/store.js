@@ -4,7 +4,7 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 import { createLogger } from 'redux-logger';
 import { routerMiddleware } from 'react-router-redux';
 
-import apiClient from '@edx/frontend-learner-portal-base/src/apiClient';
+// import apiClient from '@edx/frontend-learner-portal-base/src/apiClient';
 import history from '@edx/frontend-learner-portal-base/src/history';
 
 import rootReducer from './rootReducer';
@@ -15,9 +15,10 @@ const routerHistoryMiddleware = routerMiddleware(history);
 const middleware = [thunkMiddleware, loggerMiddleware, routerHistoryMiddleware];
 
 let initialState = {};
-if (typeof window !== 'undefined') {
-  initialState = apiClient.getAuthenticationState();
-}
+
+// if (typeof window !== 'undefined') {
+//   initialState = apiClient.getAuthenticationState();
+// }
 
 const store = createStore(
   rootReducer,

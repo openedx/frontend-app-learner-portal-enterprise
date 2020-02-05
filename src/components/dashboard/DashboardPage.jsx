@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
-
-import { withAuthentication } from '@edx/frontend-learner-portal-base/src/components/with-authentication';
 import { Layout, MainContent, Sidebar } from '@edx/frontend-learner-portal-base/src/components/layout';
 import { LoadingSpinner } from '@edx/frontend-learner-portal-base/src/components/loading-spinner';
+import { fetchUserAccountSuccess } from '@edx/frontend-auth';
+import { getAuthenticatedUser, hydrateAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { EnterprisePage } from '../enterprise-page';
 import { DashboardMainContent } from './main-content';
@@ -39,12 +40,17 @@ const DashboardPage = (props) => {
   }
 
   useEffect(() => {
+    async function hydrateUser() {
+      await hydrateAuthenticatedUser();
+    }
+    hydrateUser();
+    const user = getAuthenticatedUser();
+    console.log(user);
     fetchEntepriseCustomerConfig(enterpriseSlug)
       .then((response) => {
         const json = response.data;
         const { results } = json;
         const enterpriseConfig = results.pop();
-        setIsLoading(false);
         if (enterpriseConfig) {
           setPageContext({
             enterpriseName: enterpriseConfig.name,
@@ -57,17 +63,22 @@ const DashboardPage = (props) => {
               },
             },
           });
+          setIsLoading(false);
         }
       })
       .catch((error) => {
         console.log(error);
-        setIsLoading(false);
         setPageContext(initialPageContext);
+        setIsLoading(false);
       });
   }, [enterpriseSlug]);
 
   if (isLoading) {
-    return <LoadingSpinner screenReaderText="loading" />;
+    return (
+      <EnterprisePage pageContext={pageContext}>
+        <LoadingSpinner screenReaderText="loading" />
+      </EnterprisePage>
+    );
   }
 
   return (
@@ -105,4 +116,8 @@ DashboardPage.propTypes = {
   }).isRequired,
 };
 
-export default withAuthentication(DashboardPage);
+const mapDispatchToProps = (dispatch) => ({
+  setUserAccount: user => dispatch(fetchUserAccountSuccess(user)),
+});
+
+export default connect(null, mapDispatchToProps)(DashboardPage);

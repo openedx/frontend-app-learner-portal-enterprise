@@ -80,12 +80,12 @@ EnterprisePage.propTypes = {
     enterpriseUUID: PropTypes.string,
     enterpriseEmail: PropTypes.string,
   }).isRequired,
-  username: PropTypes.string.isRequired,
+  // username: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
   username: state.userAccount.username,
 });
 
-export default connect(mapStateToProps)(EnterprisePage);
-
+// export default connect(mapStateToProps)(EnterprisePage);
+export default EnterprisePage;

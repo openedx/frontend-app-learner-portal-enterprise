@@ -1,23 +1,21 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import React, { useEffect } from 'react';
+import { Route, Switch } from 'react-router-dom';
+import { AppProvider } from '@edx/frontend-platform/react';
 
 import { DashboardPage } from '../dashboard';
 
 import store from '../../store';
 
 import '../../assets/favicon.ico';
-// import '../../index.scss';
 
-export default function App() {
+function App() {
   return (
-    // TODO: Switch to AppProvider but there is some error there
-    <Provider store={store}>
-      <Router>
-        <Switch>
-          <Route path="/:enterpriseSlug" component={DashboardPage} />
-        </Switch>
-      </Router>
-    </Provider>
+    <AppProvider store={store}>
+      <Switch>
+        <Route path="/:enterpriseSlug" component={DashboardPage} />
+      </Switch>
+    </AppProvider>
   );
 }
+
+export default App;
