@@ -43,12 +43,15 @@ const DashboardPage = (props) => {
     async function hydrateUser() {
       await hydrateAuthenticatedUser();
     }
-    hydrateUser();
-    const user = getAuthenticatedUser();
-    console.log(user);
-    fetchEntepriseCustomerConfig(enterpriseSlug)
-      .then((response) => {
-        const json = response.data;
+    const promise1 = hydrateUser();
+    const promise2 = fetchEntepriseCustomerConfig(enterpriseSlug);
+
+    Promise.all([promise1, promise2])
+      .then(function(values) {
+        const user = getAuthenticatedUser();
+        console.log(user);
+        const responsePromise2 = values[1];
+        const json = responsePromise2.data;
         const { results } = json;
         const enterpriseConfig = results.pop();
         if (enterpriseConfig) {
@@ -63,8 +66,14 @@ const DashboardPage = (props) => {
               },
             },
           });
-          setIsLoading(false);
         }
+        props.setUserAccount({
+          username: user.username,
+          profileImage: {
+            imageURLMedium: user.profileImage.imageURLMedium
+          }
+        })
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log(error);
@@ -72,6 +81,7 @@ const DashboardPage = (props) => {
         setIsLoading(false);
       });
   }, [enterpriseSlug]);
+
 
   if (isLoading) {
     return (
