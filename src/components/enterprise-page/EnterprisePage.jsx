@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 import { AppContext } from '@edx/frontend-learner-portal-base/src/components/app-context';
 
 const EnterprisePage = ({
   children,
   pageContext,
-  username,
 }) => (
   <AppContext.Provider
     value={{
@@ -32,7 +30,7 @@ const EnterprisePage = ({
           },
           {
             type: 'item',
-            href: `${process.env.LMS_BASE_URL}/u/${username}`,
+            href: `${process.env.LMS_BASE_URL}/u/${pageContext.user.username}`,
             content: 'My Profile',
           },
           {
@@ -79,13 +77,10 @@ EnterprisePage.propTypes = {
     enterpriseName: PropTypes.string,
     enterpriseUUID: PropTypes.string,
     enterpriseEmail: PropTypes.string,
+    user: PropTypes.shape({
+      username: PropTypes.string,
+    }),
   }).isRequired,
-  // username: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = state => ({
-  username: state.userAccount.username,
-});
-
-// export default connect(mapStateToProps)(EnterprisePage);
 export default EnterprisePage;

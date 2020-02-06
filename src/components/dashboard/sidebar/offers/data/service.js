@@ -1,8 +1,8 @@
-import apiClient from '@edx/frontend-learner-portal-base/src/apiClient';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 const fetchOffers = () => {
   const offersUrl = `${process.env.ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/`;
-  return apiClient.get(offersUrl);
+  return getAuthenticatedHttpClient().get(offersUrl);
 };
 
 // eslint-disable-next-line import/prefer-default-export

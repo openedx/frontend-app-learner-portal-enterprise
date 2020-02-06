@@ -7,7 +7,7 @@ import { breakpoints } from '@edx/paragon';
 import { Layout, MainContent, Sidebar } from '@edx/frontend-learner-portal-base/src/components/layout';
 import { LoadingSpinner } from '@edx/frontend-learner-portal-base/src/components/loading-spinner';
 import { fetchUserAccountSuccess } from '@edx/frontend-auth';
-import { getAuthenticatedUser, hydrateAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getAuthenticatedUser, hydrateAuthenticatedUser, setAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { EnterprisePage } from '../enterprise-page';
 import { DashboardMainContent } from './main-content';
@@ -19,7 +19,7 @@ import { fetchEntepriseCustomerConfig } from './data/service';
 const DashboardPage = (props) => {
   const initialPageContext = {
     enterpriseName: null,
-    enterpriseUUID: null,
+    enterpriseUUID: 'f7bd4890-ac0c-4cd2-b202-64444d07171e',
     enterpriseEmail: 'a@a.com',
     pageBranding: {
       organization_logo: {
@@ -28,6 +28,7 @@ const DashboardPage = (props) => {
       banner_border_color: '#cccccc',
       banner_background_color: '#efefef',
     },
+    user: {},
   };
   const { enterpriseName } = initialPageContext;
   const { match: { params: { enterpriseSlug } } } = props;
@@ -47,20 +48,20 @@ const DashboardPage = (props) => {
     const promise2 = fetchEntepriseCustomerConfig(enterpriseSlug);
 
     Promise.all([promise1, promise2])
-      .then(function(values) {
+      .then((values) => {
         const user = getAuthenticatedUser();
-        console.log(user);
         const responsePromise2 = values[1];
         const json = responsePromise2.data;
         const { results } = json;
         const enterpriseConfig = results.pop();
         if (enterpriseConfig) {
           setPageContext({
+            user,
             enterpriseName: enterpriseConfig.name,
             enterpriseUUID: enterpriseConfig.uuid,
-            enterpriseEmail: initialPageContext.enterpriseEmail,
+            enterpriseEmail: enterpriseConfig.enterpriseEmail,
             pageBranding: {
-              ...initialPageContext.pageBranding,
+              ...enterpriseConfig.pageBranding,
               organization_logo: {
                 url: enterpriseConfig.branding_configuration.logo,
               },
@@ -70,9 +71,10 @@ const DashboardPage = (props) => {
         props.setUserAccount({
           username: user.username,
           profileImage: {
-            imageURLMedium: user.profileImage.imageURLMedium
-          }
-        })
+            imageURLMedium: user.profileImage.imageURLMedium,
+          },
+        });
+        setAuthenticatedUser(user);
         setIsLoading(false);
       })
       .catch((error) => {

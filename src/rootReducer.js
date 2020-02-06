@@ -6,20 +6,7 @@ import { reducer as emailSettings } from '@edx/frontend-learner-portal-base/src/
 
 import { reducer as offers } from './components/dashboard/sidebar/offers';
 
-const initialUserAccountState = {
-  profileImage: {
-    imageUrlMedium: null,
-  },
-  username: 'stank',
-};
-
-const identityReducer = (state = initialUserAccountState, action) => {
-  const newState = { ...state };
-  return newState;
-};
-
 const rootReducer = combineReducers({
-  // authentication: identityReducer,
   emailSettings,
   courseEnrollments,
   offers,
