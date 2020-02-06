@@ -14,11 +14,7 @@ const routerHistoryMiddleware = routerMiddleware(history);
 
 const middleware = [thunkMiddleware, loggerMiddleware, routerHistoryMiddleware];
 
-let initialState = {};
-
-// if (typeof window !== 'undefined') {
-//   initialState = apiClient.getAuthenticationState();
-// }
+const initialState = {};
 
 const store = createStore(
   rootReducer,
