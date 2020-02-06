@@ -47,7 +47,7 @@ const DashboardPage = (props) => {
     const promise2 = fetchEntepriseCustomerConfig(enterpriseSlug);
 
     Promise.all([promise1, promise2])
-      .then(function(values) {
+      .then((values) => {
         const user = getAuthenticatedUser();
         console.log(user);
         const responsePromise2 = values[1];

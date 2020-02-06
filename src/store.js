@@ -4,7 +4,6 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 import { createLogger } from 'redux-logger';
 import { routerMiddleware } from 'react-router-redux';
 
-// import apiClient from '@edx/frontend-learner-portal-base/src/apiClient';
 import history from '@edx/frontend-learner-portal-base/src/history';
 
 import rootReducer from './rootReducer';
