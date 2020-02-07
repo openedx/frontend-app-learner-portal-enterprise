@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
-import { Layout, MainContent, Sidebar } from '@edx/frontend-learner-portal-base/src/components/layout';
-import { LoadingSpinner } from '@edx/frontend-learner-portal-base/src/components/loading-spinner';
-import { fetchUserAccountSuccess } from '@edx/frontend-auth';
-import { getAuthenticatedUser, hydrateAuthenticatedUser, setAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { EnterprisePage } from '../enterprise-page';
+import { Layout, MainContent, Sidebar } from '../layout';
+import { LoadingSpinner } from '../loading-spinner';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
 import Hero from './Hero';
@@ -17,6 +14,7 @@ import Hero from './Hero';
 import { fetchEntepriseCustomerConfig } from './data/service';
 
 const DashboardPage = (props) => {
+  // TODO: Fix this initial context
   const initialPageContext = {
     enterpriseName: null,
     enterpriseUUID: 'f7bd4890-ac0c-4cd2-b202-64444d07171e',
@@ -28,7 +26,6 @@ const DashboardPage = (props) => {
       banner_border_color: '#cccccc',
       banner_background_color: '#efefef',
     },
-    user: {},
   };
   const { enterpriseName } = initialPageContext;
   const { match: { params: { enterpriseSlug } } } = props;
@@ -41,22 +38,12 @@ const DashboardPage = (props) => {
   }
 
   useEffect(() => {
-    async function hydrateUser() {
-      await hydrateAuthenticatedUser();
-    }
-    const promise1 = hydrateUser();
-    const promise2 = fetchEntepriseCustomerConfig(enterpriseSlug);
-
-    Promise.all([promise1, promise2])
-      .then((values) => {
-        const user = getAuthenticatedUser();
-        const responsePromise2 = values[1];
-        const json = responsePromise2.data;
-        const { results } = json;
+    fetchEntepriseCustomerConfig(enterpriseSlug)
+      .then((response) => {
+        const { results } = response.data;
         const enterpriseConfig = results.pop();
         if (enterpriseConfig) {
           setPageContext({
-            user,
             enterpriseName: enterpriseConfig.name,
             enterpriseUUID: enterpriseConfig.uuid,
             enterpriseEmail: enterpriseConfig.enterpriseEmail,
@@ -67,15 +54,8 @@ const DashboardPage = (props) => {
               },
             },
           });
+          setIsLoading(false);
         }
-        props.setUserAccount({
-          username: user.username,
-          profileImage: {
-            imageURLMedium: user.profileImage.imageURLMedium,
-          },
-        });
-        setAuthenticatedUser(user);
-        setIsLoading(false);
       })
       .catch((error) => {
         console.log(error);
@@ -124,12 +104,9 @@ DashboardPage.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
       enterpriseName: PropTypes.string,
+      enterpriseSlug: PropTypes.string,
     }),
   }).isRequired,
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  setUserAccount: user => dispatch(fetchUserAccountSuccess(user)),
-});
-
-export default connect(null, mapDispatchToProps)(DashboardPage);
+export default DashboardPage;

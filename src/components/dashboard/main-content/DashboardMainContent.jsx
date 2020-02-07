@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 
-import { AppContext } from '@edx/frontend-learner-portal-base/src/components/app-context';
-import { CourseEnrollments } from '@edx/frontend-learner-portal-base/src/components/course-enrollments';
+import { AppContext } from '@edx/frontend-platform/react';
 
+import { CourseEnrollments } from '../../course-enrollments';
 import { DashboardSidebar } from '../sidebar';
 
 const DashboardMainContent = () => {

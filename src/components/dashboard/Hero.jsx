@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-learner-portal-base/src/components/app-context';
+import { AppContext } from '@edx/frontend-platform/react';
 
 const Hero = () => {
   const {

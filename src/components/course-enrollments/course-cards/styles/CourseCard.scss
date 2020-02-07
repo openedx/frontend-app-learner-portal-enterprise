@@ -1,0 +1,74 @@
+@import "~@edx/paragon/scss/edx/theme.scss";
+
+.course {
+  @extend .position-relative;
+
+  &:first-child {
+    @extend .pt-3;
+  }
+
+  &:last-child {
+    @extend .border-0;
+    @extend .mb-0;
+  }
+
+  &.is-micromasters {
+    min-height: 170px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-image: url('../images/mm-badge.svg');
+      background-position: right center;
+      background-repeat: no-repeat;
+      opacity: 0.05;
+      z-index: 0;
+    }
+
+    @include media-breakpoint-down(sm) {
+      &::before {
+        background-position: right bottom;
+      }
+    }
+  }
+
+  .course-title > a {
+    @extend .h4;
+    @extend .m-0;
+    @extend .text-dark;
+    text-decoration: none;
+  }
+
+  .notifications {
+    li:last-child {
+      .notification { 
+        @extend .mb-0;
+      }
+    }
+
+    .notification {
+      background: #f4f7ff;
+      border-color: #d3daf0;
+    }
+  }
+
+  .btn-outline-primary {
+    background-color: $white;
+  }
+
+  @include media-breakpoint-down(xs) {
+    .btn-xs-block {
+      width: 100%;
+    }
+  }
+
+  .course-misc-text {
+    small { 
+      display: block;
+    }
+  }
+}

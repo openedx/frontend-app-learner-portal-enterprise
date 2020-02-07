@@ -1,0 +1,91 @@
+[
+  {
+    "certificate_download_url": null,
+    "course_run_id": "course-v1:edX+DemoX+Demo_Course",
+    "course_run_status": "in_progress",
+    "start_date": "2013-02-05T05:00:00Z",
+    "end_date": "2019-09-14T00:00:00Z",
+    "display_name": "edX Demonstration Course",
+    "course_run_url": "http://localhost:18000/courses/course-v1:edX+DemoX+Demo_Course/course/",
+    "due_dates": [
+      {
+        "name": "Assignment 1",
+        "date": "2019-08-26",
+        "url": "https://edx.org"
+      },
+      {
+        "name": "Assignment 2",
+        "date": "2019-08-30",
+        "url": "https://edx.org"
+      }
+    ],
+    "pacing": "self",
+    "org_name": "edX",
+    "emails_enabled": true
+  },
+  {
+    "certificate_download_url": "https://edx.org",
+    "course_run_id": "course-v1:edX+DemoX+Demo_Course_2",
+    "course_run_status": "in_progress",
+    "start_date": "2013-02-05T05:00:00Z",
+    "end_date": "2019-10-23T00:00:00Z",
+    "display_name": "edX Demonstration Course 2",
+    "course_run_url": "http://localhost:18000/courses/course-v1:edX+DemoX+Demo_Course/course/",
+    "due_dates": [],
+    "pacing": "instructor",
+    "org_name": "edX",
+    "emails_enabled": false
+  },
+  {
+    "certificate_download_url": "https://edx.org",
+    "course_run_id": "course-v1:edX+DemoX+Demo_Course_3",
+    "course_run_status": "upcoming",
+    "start_date": "2013-09-05T05:00:00Z",
+    "end_date": "2019-09-23T00:00:00Z",
+    "display_name": "edX Demonstration Course 3",
+    "course_run_url": "http://localhost:18000/courses/course-v1:edX+DemoX+Demo_Course/course/",
+    "due_dates": [],
+    "pacing": "self",
+    "org_name": "edX",
+    "emails_enabled": false
+  },
+  {
+    "certificate_download_url": "https://edx.org",
+    "course_run_id": "course-v1:edX+DemoX+Demo_Course_4",
+    "course_run_status": "upcoming",
+    "start_date": "2013-02-05T05:00:00Z",
+    "end_date": "2019-03-23T00:00:00Z",
+    "display_name": "edX Demonstration Course 4",
+    "course_run_url": "http://localhost:18000/courses/course-v1:edX+DemoX+Demo_Course/course/",
+    "due_dates": [],
+    "pacing": "instructor",
+    "org_name": "edX",
+    "emails_enabled": false
+  },
+  {
+    "certificate_download_url": null,
+    "course_run_id": "course-v1:edX+DemoX+Demo_Course_5",
+    "course_run_status": "completed",
+    "start_date": "2013-02-05T05:00:00Z",
+    "end_date": "2019-03-23T00:00:00Z",
+    "display_name": "edX Demonstration Course 5",
+    "course_run_url": "http://localhost:18000/courses/course-v1:edX+DemoX+Demo_Course/course/",
+    "due_dates": [],
+    "pacing": "instructor",
+    "org_name": "edX",
+    "emails_enabled": true
+  },
+  {
+    "certificate_download_url": "https://edx.org",
+    "course_run_id": "course-v1:edX+DemoX+Demo_Course_6",
+    "course_run_status": "completed",
+    "start_date": "2013-02-05T05:00:00Z",
+    "end_date": "2019-03-23T00:00:00Z",
+    "display_name": "edX Demonstration Course 6",
+    "course_run_url": "http://localhost:18000/courses/course-v1:edX+DemoX+Demo_Course/course/",
+    "due_dates": [],
+    "pacing": "self",
+    "org_name": "edX",
+    "emails_enabled": null
+  }
+]

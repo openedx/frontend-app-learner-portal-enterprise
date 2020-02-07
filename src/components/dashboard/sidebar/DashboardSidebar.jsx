@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { AppContext } from '@edx/frontend-platform/react';
 
-import { isFeatureEnabled } from '@edx/frontend-learner-portal-base/src/features';
-import { AppContext } from '@edx/frontend-learner-portal-base/src/components/app-context';
-import { SidebarBlock } from '@edx/frontend-learner-portal-base/src/components/layout';
-import { LoadingSpinner } from '@edx/frontend-learner-portal-base/src/components/loading-spinner';
-
+import { SidebarBlock } from '../../layout';
+import { LoadingSpinner } from '../../loading-spinner';
 import { fetchOffers, Offer } from './offers';
+import { isFeatureEnabled } from '../../../features';
 
 class DashboardSidebar extends React.Component {
   static contextType = AppContext;

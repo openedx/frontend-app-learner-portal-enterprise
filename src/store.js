@@ -3,8 +3,7 @@ import thunkMiddleware from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 import { createLogger } from 'redux-logger';
 import { routerMiddleware } from 'react-router-redux';
-
-import history from '@edx/frontend-learner-portal-base/src/history';
+import { history } from '@edx/frontend-platform/react';
 
 import rootReducer from './rootReducer';
 
