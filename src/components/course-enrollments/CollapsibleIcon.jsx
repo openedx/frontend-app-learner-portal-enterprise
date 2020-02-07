@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const CollapsibleIcon = props => (
   <FontAwesomeIcon
-    className="text-primary"
+    className="text-primary mr-2"
     icon={props.icon}
     size="2x"
   />

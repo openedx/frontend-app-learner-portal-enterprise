@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
+import { logError } from '@edx/frontend-platform/logging';
 
 import { EnterprisePage } from '../enterprise-page';
 import { Layout, MainContent, Sidebar } from '../layout';
@@ -16,12 +17,12 @@ import { fetchEntepriseCustomerConfig } from './data/service';
 const DashboardPage = (props) => {
   // TODO: Fix this initial context
   const initialPageContext = {
-    enterpriseName: null,
-    enterpriseUUID: 'f7bd4890-ac0c-4cd2-b202-64444d07171e',
-    enterpriseEmail: 'a@a.com',
+    enterpriseName: undefined,
+    enterpriseUUID: undefined,
+    enterpriseEmail: undefined,
     pageBranding: {
       organization_logo: {
-        url: null,
+        url: undefined,
       },
       banner_border_color: '#cccccc',
       banner_background_color: '#efefef',
@@ -58,7 +59,7 @@ const DashboardPage = (props) => {
         }
       })
       .catch((error) => {
-        console.log(error);
+        logError(new Error(error));
         setPageContext(initialPageContext);
         setIsLoading(false);
       });

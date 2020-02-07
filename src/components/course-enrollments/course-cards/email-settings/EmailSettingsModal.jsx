@@ -110,12 +110,12 @@ class EmailSettingsModal extends Component {
     return (
       <Modal
         title={`Email Settings for ${title}`}
-        body={
+        body={(
           <>
             {error && (
               <StatusAlert
                 alertType="danger"
-                dialog={
+                dialog={(
                   <div className="d-flex">
                     <div>
                       <FontAwesomeIcon className="mr-3" icon={faExclamationTriangle} />
@@ -124,7 +124,7 @@ class EmailSettingsModal extends Component {
                       An error occurred while saving your email settings. Please try again.
                     </div>
                   </div>
-                }
+                )}
                 dismissible={false}
                 open
               />
@@ -143,7 +143,7 @@ class EmailSettingsModal extends Component {
               </label>
             </div>
           </>
-        }
+        )}
         onClose={this.handleOnClose}
         buttons={[
           <StatefulButton
