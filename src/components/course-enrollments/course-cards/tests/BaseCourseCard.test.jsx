@@ -1,22 +1,32 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
-import * as analytics from '@edx/frontend-platform/analytics';
 
 import BaseCourseCard from '../BaseCourseCard';
+
+jest.mock('@edx/frontend-platform/analytics', () => ({
+  sendTrackEvent: jest.fn(),
+}));
+
+jest.mock('@edx/frontend-platform/auth');
+getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
+
+const mockStore = configureMockStore([thunk]);
 
 describe('<BaseCourseCard />', () => {
   describe('email settings modal', () => {
     let wrapper;
-    analytics.sendTrackEvent = jest.fn();
 
     beforeEach(() => {
       const pageContext = {
         enterpriseName: 'test-enterprise-name',
       };
       wrapper = mount((
-        <Provider>
+        <Provider store={mockStore()}>
           <AppContext.Provider value={{ pageContext }}>
             <BaseCourseCard
               type="completed"

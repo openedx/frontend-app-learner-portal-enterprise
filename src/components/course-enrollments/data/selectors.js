@@ -3,8 +3,7 @@ import { createSelector } from 'reselect';
 export const getIsLoading = state => state.courseEnrollments.isLoading;
 export const getCourseRuns = state => state.courseEnrollments.courseRuns;
 export const getError = state => state.courseEnrollments.error;
-export const getIsMarkCourseCompleteSuccess = state =>
-  state.courseEnrollments.isMarkCourseCompleteSuccess;
+export const getIsMarkCourseCompleteSuccess = state => state.courseEnrollments.isMarkCourseCompleteSuccess;
 
 const transformCourseRun = (originalCourseRun) => {
   const courseRun = { ...originalCourseRun };
@@ -44,8 +43,7 @@ export const getCourseRunsByStatus = createSelector(
     if (courseRuns && courseRuns.length > 0) {
       const transformedCourseRuns = courseRuns.map(transformCourseRun);
       Object.keys(courseRunsByStatus).forEach((status) => {
-        courseRunsByStatus[status] = transformedCourseRuns.filter(courseRun =>
-          courseRun.courseRunStatus === status);
+        courseRunsByStatus[status] = transformedCourseRuns.filter(courseRun => courseRun.courseRunStatus === status);
       });
     }
     return courseRunsByStatus;

@@ -5,13 +5,17 @@ import renderer from 'react-test-renderer';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { breakpoints } from '@edx/paragon';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import '../../../__mocks__/reactResponsive.mock';
 
-import { AppContext } from '../../app-context';
 import { CourseEnrollments } from '../CourseEnrollments';
 
 const mockStore = configureMockStore([thunk]);
+
+jest.mock('@edx/frontend-platform/auth');
+getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 describe('<CourseEnrollments />', () => {
   const mockFetchCourseEnrollments = jest.fn();
@@ -76,9 +80,6 @@ describe('<CourseEnrollments />', () => {
         programUUID: 'test-program-uuid',
       };
       const store = mockStore({
-        userAccount: {
-          username: 'edx',
-        },
         emailSettings: {
           loading: false,
           error: null,
