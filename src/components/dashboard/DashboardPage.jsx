@@ -15,7 +15,6 @@ import Hero from './Hero';
 import { fetchEntepriseCustomerConfig } from './data/service';
 
 const DashboardPage = (props) => {
-  // TODO: Fix this initial context
   const initialPageContext = {
     enterpriseName: undefined,
     enterpriseUUID: undefined,
@@ -24,11 +23,10 @@ const DashboardPage = (props) => {
       organization_logo: {
         url: undefined,
       },
-      banner_border_color: '#cccccc',
-      banner_background_color: '#efefef',
+      banner_border_color: undefined,
+      banner_background_color: undefined,
     },
   };
-  const { enterpriseName } = initialPageContext;
   const { match: { params: { enterpriseSlug } } } = props;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -80,7 +78,7 @@ const DashboardPage = (props) => {
         headerLogo={pageContext.pageBranding.organization_logo.url}
         footerLogo="https://files.edx.org/openedx-logos/edx-openedx-logo-tag.png"
       >
-        <Helmet title={enterpriseName} />
+        <Helmet title={pageContext.enterpriseName} />
         <Hero />
         <div className="container py-5">
           <div className="row">
