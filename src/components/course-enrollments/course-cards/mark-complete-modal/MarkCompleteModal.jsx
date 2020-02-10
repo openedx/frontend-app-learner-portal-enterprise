@@ -1,13 +1,12 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform';
 
+import MarkCompleteModalContext from './MarkCompleteModalContext';
 import ModalBody from './ModalBody';
 import { markCourseAsCompleteRequest } from './data/service';
-
-export const MarkCompleteModalContext = createContext();
 
 const initialState = {
   confirmButtonState: 'default',

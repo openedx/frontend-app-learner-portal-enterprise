@@ -9,8 +9,6 @@ import { fetchOffers, Offer } from './offers';
 import { isFeatureEnabled } from '../../../features';
 
 class DashboardSidebar extends React.Component {
-  static contextType = AppContext;
-
   componentDidMount() {
     this.props.fetchOffers();
   }
@@ -97,6 +95,8 @@ class DashboardSidebar extends React.Component {
     );
   }
 }
+
+DashboardSidebar.contextType = AppContext;
 
 DashboardSidebar.defaultProps = {
   fetchOffers: null,

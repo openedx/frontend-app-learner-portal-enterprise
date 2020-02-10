@@ -14,9 +14,12 @@ import CollapsibleIcon from './CollapsibleIcon';
 import './styles/CourseSection.scss';
 
 class CourseSection extends React.Component {
-  state = {
-    isOpen: true,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpen: true,
+    };
+  }
 
   getFormattedSectionTitle = () => {
     const { isOpen } = this.state;

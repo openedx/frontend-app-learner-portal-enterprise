@@ -19,8 +19,6 @@ import * as selectors from './data/selectors';
 import * as actions from './data/actions';
 
 export class CourseEnrollments extends Component {
-  static contextType = AppContext;
-
   componentDidMount() {
     const {
       pageContext: {
@@ -49,15 +47,15 @@ export class CourseEnrollments extends Component {
   }
 
   hasCourseRuns = () => (
-    this.hasCourseRunsWithStatus('completed') ||
-    this.hasCourseRunsWithStatus('in_progress') ||
-    this.hasCourseRunsWithStatus('upcoming')
+    this.hasCourseRunsWithStatus('completed')
+    || this.hasCourseRunsWithStatus('in_progress')
+    || this.hasCourseRunsWithStatus('upcoming')
   )
 
   renderError = () => (
     <StatusAlert
       alertType="danger"
-      dialog={
+      dialog={(
         <div className="d-flex">
           <div>
             <FontAwesomeIcon className="mr-2" icon={faExclamationTriangle} />
@@ -66,7 +64,7 @@ export class CourseEnrollments extends Component {
             An error occurred while retrieving your course enrollments. Please try again.
           </div>
         </div>
-      }
+      )}
       dismissible={false}
       open
     />
@@ -77,7 +75,7 @@ export class CourseEnrollments extends Component {
     return (
       <StatusAlert
         alertType="success"
-        dialog={
+        dialog={(
           <div className="d-flex">
             <div>
               <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
@@ -86,7 +84,7 @@ export class CourseEnrollments extends Component {
               Your course was marked as complete.
             </div>
           </div>
-        }
+        )}
         onClose={() => {
           modifyIsMarkCourseCompleteSuccess({ isSuccess: false });
         }}
@@ -107,7 +105,8 @@ export class CourseEnrollments extends Component {
 
     if (isLoading) {
       return <LoadingSpinner screenReaderText="loading course enrollments" />;
-    } else if (error) {
+    }
+    if (error) {
       return this.renderError();
     }
 
@@ -146,6 +145,8 @@ export class CourseEnrollments extends Component {
     );
   }
 }
+
+CourseEnrollments.contextType = AppContext;
 
 const mapStateToProps = state => ({
   courseRuns: selectors.getCourseRunsByStatus(state),

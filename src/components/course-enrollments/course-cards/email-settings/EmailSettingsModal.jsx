@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Input, Modal, StatusAlert, StatefulButton } from '@edx/paragon';
+import {
+  Input,
+  Modal,
+  StatusAlert,
+  StatefulButton,
+} from '@edx/paragon';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -10,14 +15,17 @@ import { updateEmailSettings } from './data';
 import './styles/EmailSettingsModal.scss';
 
 class EmailSettingsModal extends Component {
-  state = {
-    hasEmailsEnabled: false,
-    isSubmitting: false,
-    isSuccessful: false,
-    isFormChanged: false,
-    hasSavedForm: false,
-    error: null,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasEmailsEnabled: false,
+      isSubmitting: false,
+      isSuccessful: false,
+      isFormChanged: false,
+      hasSavedForm: false,
+      error: null,
+    };
+  }
 
   componentDidUpdate(prevProps) {
     const { hasEmailsEnabled } = this.props;
@@ -34,9 +42,11 @@ class EmailSettingsModal extends Component {
     const { isSubmitting, isSuccessful } = this.state;
     if (isSubmitting) {
       return 'pending';
-    } else if (isSuccessful) {
+    }
+    if (isSuccessful) {
       return 'complete';
     }
+
     return 'default';
   }
 
@@ -137,6 +147,7 @@ class EmailSettingsModal extends Component {
                 disabled={isSubmitting}
                 onChange={this.handleEmailSettingsChange}
               />
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="form-check-label ml-2 font-weight-normal" htmlFor={`email-settings-${courseRunId}`}>
                 Receive course emails such as reminders, schedule updates, and
                 other critical announcements.

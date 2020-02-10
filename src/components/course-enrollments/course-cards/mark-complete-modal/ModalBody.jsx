@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 
-import { MarkCompleteModalContext } from './MarkCompleteModal';
 import ModalError from './ModalError';
+import MarkCompleteModalContext from './MarkCompleteModalContext';
 
 const ModalBody = () => {
   const {

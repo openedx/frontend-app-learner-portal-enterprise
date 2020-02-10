@@ -3,14 +3,14 @@ import { StatusAlert } from '@edx/paragon';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { MarkCompleteModalContext } from './MarkCompleteModal';
+import MarkCompleteModalContext from './MarkCompleteModalContext';
 
 const ModalError = () => {
   const { courseLink, courseTitle } = useContext(MarkCompleteModalContext);
   return (
     <StatusAlert
       alertType="danger"
-      dialog={
+      dialog={(
         <div className="d-flex">
           <div>
             <FontAwesomeIcon className="mr-3" icon={faExclamationTriangle} />
@@ -23,7 +23,7 @@ const ModalError = () => {
             as complete. Please try again.
           </div>
         </div>
-      }
+      )}
       dismissible={false}
       open
     />

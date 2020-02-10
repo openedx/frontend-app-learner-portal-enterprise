@@ -14,15 +14,18 @@ import { EmailSettingsModal } from './email-settings';
 import './styles/CourseCard.scss';
 
 class BaseCourseCard extends Component {
-  state = {
-    modals: {
-      emailSettings: {
-        open: false,
-        options: {},
+  constructor(props) {
+    super(props);
+    this.state = {
+      modals: {
+        emailSettings: {
+          open: false,
+          options: {},
+        },
       },
-    },
-    hasEmailsEnabled: this.props.hasEmailsEnabled,
-  };
+      hasEmailsEnabled: this.props.hasEmailsEnabled,
+    };
+  }
 
   getDropdownMenuItems = () => {
     const { hasEmailsEnabled, title, dropdownMenuItems } = this.props;
