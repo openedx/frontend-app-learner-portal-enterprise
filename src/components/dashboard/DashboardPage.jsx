@@ -7,87 +7,69 @@ import { breakpoints } from '@edx/paragon';
 import { Layout, MainContent, Sidebar } from '@edx/frontend-learner-portal-base/src/components/layout';
 import { LoadingSpinner } from '@edx/frontend-learner-portal-base/src/components/loading-spinner';
 import { fetchUserAccountSuccess } from '@edx/frontend-auth';
-import { getAuthenticatedUser, hydrateAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { EnterprisePage } from '../enterprise-page';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
 import Hero from './Hero';
 
-import { fetchEntepriseCustomerConfig } from './data/service';
+import { useAppSetup } from './data/hooks';
 
 const DashboardPage = (props) => {
   const initialPageContext = {
     enterpriseName: null,
     enterpriseUUID: null,
-    enterpriseEmail: 'a@a.com',
+    enterpriseEmail: null,
     pageBranding: {
       organization_logo: {
         url: null,
       },
-      banner_border_color: '#cccccc',
-      banner_background_color: '#efefef',
+      banner_border_color: null,
+      banner_background_color: null,
     },
   };
-  const { enterpriseName } = initialPageContext;
-  const { match: { params: { enterpriseSlug } } } = props;
+  const {
+    match: { params: { enterpriseSlug } },
+    setUserAccount,
+    username,
+  } = props;
 
-  const [isLoading, setIsLoading] = useState(true);
   const [pageContext, setPageContext] = useState(initialPageContext);
-
-  if (!enterpriseSlug) {
-    throw Error('Missing enterprise slug in the URL');
-  }
+  const [user, enterpriseConfig] = useAppSetup(enterpriseSlug);
 
   useEffect(() => {
-    async function hydrateUser() {
-      await hydrateAuthenticatedUser();
-    }
-    const promise1 = hydrateUser();
-    const promise2 = fetchEntepriseCustomerConfig(enterpriseSlug);
-
-    Promise.all([promise1, promise2])
-      .then((values) => {
-        const user = getAuthenticatedUser();
-        console.log(user);
-        const responsePromise2 = values[1];
-        const json = responsePromise2.data;
-        const { results } = json;
-        const enterpriseConfig = results.pop();
-        if (enterpriseConfig) {
-          setPageContext({
-            enterpriseName: enterpriseConfig.name,
-            enterpriseUUID: enterpriseConfig.uuid,
-            enterpriseEmail: initialPageContext.enterpriseEmail,
-            pageBranding: {
-              ...initialPageContext.pageBranding,
-              organization_logo: {
-                url: enterpriseConfig.branding_configuration.logo,
-              },
-            },
-          });
-        }
-        props.setUserAccount({
-          username: user.username,
-          profileImage: {
-            imageURLMedium: user.profileImage.imageURLMedium
-          }
-        })
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        setPageContext(initialPageContext);
-        setIsLoading(false);
+    if (user && !username) {
+      setUserAccount({
+        username: user.username,
+        profileImage: {
+          imageURLMedium: user.profileImage.imageUrlMedium,
+        },
       });
-  }, [enterpriseSlug]);
+    }
+  }, [user]);
 
+  useEffect(() => {
+    if (enterpriseConfig) {
+      setPageContext({
+        enterpriseName: enterpriseConfig.name,
+        enterpriseUUID: enterpriseConfig.uuid,
+        enterpriseEmail: enterpriseConfig.contact_email,
+        pageBranding: {
+          organization_logo: {
+            url: enterpriseConfig.branding_configuration.logo,
+          },
+          banner_border_color: enterpriseConfig.branding_configuration.banner_border_color,
+          banner_background_color: enterpriseConfig.branding_configuration.banner_background_color,
+        },
+      });
+    }
+  }, [enterpriseConfig]);
 
-  if (isLoading) {
+  if (!username || !enterpriseConfig || !pageContext.enterpriseUUID) {
     return (
-      <EnterprisePage pageContext={pageContext}>
+      <div className="pt-5">
         <LoadingSpinner screenReaderText="loading" />
-      </EnterprisePage>
+      </div>
     );
   }
 
@@ -97,7 +79,7 @@ const DashboardPage = (props) => {
         headerLogo={pageContext.pageBranding.organization_logo.url}
         footerLogo="https://files.edx.org/openedx-logos/edx-openedx-logo-tag.png"
       >
-        <Helmet title={enterpriseName} />
+        <Helmet title={pageContext.enterpriseName} />
         <Hero />
         <div className="container py-5">
           <div className="row">
@@ -121,13 +103,23 @@ const DashboardPage = (props) => {
 DashboardPage.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
-      enterpriseName: PropTypes.string,
+      enterpriseSlug: PropTypes.string,
     }),
   }).isRequired,
+  setUserAccount: PropTypes.func.isRequired,
+  username: PropTypes.string,
 };
 
-const mapDispatchToProps = (dispatch) => ({
+DashboardPage.defaultProps = {
+  username: null,
+};
+
+const mapStateToProps = state => ({
+  username: state.userAccount.username,
+});
+
+const mapDispatchToProps = dispatch => ({
   setUserAccount: user => dispatch(fetchUserAccountSuccess(user)),
 });
 
-export default connect(null, mapDispatchToProps)(DashboardPage);
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardPage);
