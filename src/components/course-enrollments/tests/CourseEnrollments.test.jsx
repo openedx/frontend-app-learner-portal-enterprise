@@ -191,20 +191,6 @@ describe('<CourseEnrollments />', () => {
       mockClearCourseEnrollments.mockReset();
     });
 
-    it('for program page', () => {
-      const programUUID = 'test-program-uuid';
-      const pageContext = { programUUID };
-      mount((
-        <AppContext.Provider value={{ pageContext }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(mockFetchCourseEnrollments.mock.calls.length).toEqual(1);
-      expect(mockFetchCourseEnrollments).toBeCalledWith({
-        programUUID,
-      });
-    });
-
     it('for enterprise page', () => {
       const enterpriseUUID = 'test-enterprise-uuid';
       const pageContext = {

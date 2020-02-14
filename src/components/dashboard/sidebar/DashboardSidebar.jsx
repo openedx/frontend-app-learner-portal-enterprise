@@ -10,7 +10,9 @@ import { isFeatureEnabled } from '../../../features';
 
 class DashboardSidebar extends React.Component {
   componentDidMount() {
-    this.props.fetchOffers();
+    if (isFeatureEnabled('enterprise_offers')) {
+      this.props.fetchOffers();
+    }
   }
 
   renderOffers(offers) {

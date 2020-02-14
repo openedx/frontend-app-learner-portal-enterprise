@@ -45,11 +45,8 @@ export const updateIsMarkCourseCompleteSuccess = ({ isSuccess }) => ({
   },
 });
 
-const transformCourseEnrollmentsResponse = ({ responseData, options }) => {
+const transformCourseEnrollmentsResponse = ({ responseData }) => {
   const camelCaseResponseData = camelCaseObject(responseData);
-  if (options.programUUID) {
-    return camelCaseResponseData.courseRuns;
-  }
   return [...camelCaseResponseData];
 };
 
@@ -59,15 +56,12 @@ export const fetchCourseEnrollments = options => (
     let serviceMethod;
     if (options.enterpriseUUID) {
       serviceMethod = () => service.fetchEnterpriseCourseEnrollments(options.enterpriseUUID);
-    } else if (options.programUUID) {
-      serviceMethod = () => service.fetchProgramCourseEnrollments(options.programUUID);
     }
     if (serviceMethod) {
       return serviceMethod()
         .then((response) => {
           const transformedResponse = transformCourseEnrollmentsResponse({
             responseData: response.data,
-            options,
           });
           dispatch(fetchCourseEnrollmentsSuccess(transformedResponse));
         })

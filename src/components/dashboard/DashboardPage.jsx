@@ -41,13 +41,14 @@ const DashboardPage = (props) => {
       .then((response) => {
         const { results } = response.data;
         const enterpriseConfig = results.pop();
+
         if (enterpriseConfig) {
           setPageContext({
             enterpriseName: enterpriseConfig.name,
             enterpriseUUID: enterpriseConfig.uuid,
-            enterpriseEmail: enterpriseConfig.enterpriseEmail,
+            enterpriseEmail: enterpriseConfig.contact_email,
             pageBranding: {
-              ...enterpriseConfig.pageBranding,
+              ...enterpriseConfig.branding_configuration,
               organization_logo: {
                 url: enterpriseConfig.branding_configuration.logo,
               },
@@ -63,12 +64,11 @@ const DashboardPage = (props) => {
       });
   }, [enterpriseSlug]);
 
-
   if (isLoading) {
     return (
-      <EnterprisePage pageContext={pageContext}>
+      <div className="pt-5">
         <LoadingSpinner screenReaderText="loading" />
-      </EnterprisePage>
+      </div>
     );
   }
 
@@ -102,7 +102,6 @@ const DashboardPage = (props) => {
 DashboardPage.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.shape({
-      enterpriseName: PropTypes.string,
       enterpriseSlug: PropTypes.string,
     }),
   }).isRequired,
