@@ -1,4 +1,4 @@
-import { camelCaseObject } from '@edx/frontend-learner-portal-base/src/utils';
+import { camelCaseObject } from '@edx/frontend-platform';
 
 import {
   FETCH_OFFERS_REQUEST,

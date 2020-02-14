@@ -1,0 +1,19 @@
+@import "~@edx/paragon/scss/edx/theme.scss";
+
+@import "~@edx/frontend-component-site-header/src/index";
+
+header {
+    background: $white;
+
+    a.logo img{
+        max-height: 50px;
+    }
+}
+
+footer a img {
+    max-height: 50px;
+}
+
+.text-underline { 
+    text-decoration: underline; 
+}
