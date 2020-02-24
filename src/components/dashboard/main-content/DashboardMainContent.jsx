@@ -15,7 +15,7 @@ const DashboardMainContent = () => {
         To start taking a course, browse the catalog below.
       </p>
       <p>
-        <a href={process.env.ENTERPRISE_CATALOG_MFE_URL} className="btn btn-primary">
+        <a href={process.env.CATALOG_BASE_URL} className="btn btn-primary">
           Browse full catalog
         </a>
       </p>

@@ -16,7 +16,7 @@ const EnterprisePage = ({
           mainMenu: [
             {
               type: 'item',
-              href: process.env.ENTERPRISE_CATALOG_MFE_URL,
+              href: process.env.CATALOG_BASE_URL,
               content: 'Catalog',
             },
             {
