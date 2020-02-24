@@ -17,6 +17,7 @@ import { fetchEntepriseCustomerConfig } from './data/service';
 const DashboardPage = (props) => {
   const initialPageContext = {
     enterpriseName: undefined,
+    enterpriseSlug: undefined,
     enterpriseUUID: undefined,
     enterpriseEmail: undefined,
     pageBranding: {
@@ -46,6 +47,7 @@ const DashboardPage = (props) => {
           setPageContext({
             enterpriseName: enterpriseConfig.name,
             enterpriseUUID: enterpriseConfig.uuid,
+            enterpriseSlug: enterpriseConfig.slug,
             enterpriseEmail: enterpriseConfig.contact_email,
             pageBranding: {
               ...enterpriseConfig.branding_configuration,
