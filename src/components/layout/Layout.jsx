@@ -19,7 +19,10 @@ const Layout = ({
   const { pageContext } = context;
 
   const user = getAuthenticatedUser();
-  const { username, profileImage } = user;
+  const {
+    username,
+    profileImage = {},
+  } = user;
 
   function getHeaderMenuItems(key) {
     const { header } = context;
