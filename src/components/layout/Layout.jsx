@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
@@ -8,73 +8,65 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import EdXLogo from '../../assets/edx-logo.svg';
-
 import './styles/Layout.scss';
 
-class Layout extends Component {
-  getUserMenuItems = () => {
-    const { header: { userMenu } } = this.context;
-    return userMenu || [];
-  };
+const Layout = ({
+  children,
+  headerLogo,
+  footerLogo,
+}) => {
+  const context = useContext(AppContext);
+  const { pageContext } = context;
 
-  getMainMenuItems = () => {
-    const { header: { mainMenu } } = this.context;
-    return mainMenu || [];
-  };
+  const user = getAuthenticatedUser();
+  const {
+    username,
+    profileImage = {},
+  } = user;
 
-  render() {
-    const {
-      siteUrl, siteName, children, headerLogo, footerLogo,
-    } = this.props;
-
-    const user = getAuthenticatedUser();
-    const { username, profileImage } = user;
-
-    return (
-      <IntlProvider locale="en">
-        <>
-          <Helmet titleTemplate="%s - edX" defaultTitle="edX">
-            <html lang="en" />
-          </Helmet>
-          <SiteHeader
-            logo={headerLogo || EdXLogo}
-            logoDestination={siteUrl}
-            logoAltText={siteName}
-            loggedIn={!!username}
-            username={username}
-            avatar={profileImage.imageUrlMedium}
-            mainMenu={this.getMainMenuItems()}
-            userMenu={this.getUserMenuItems()}
-            loggedOutItems={[
-              { type: 'item', href: '#', content: 'Login' },
-              { type: 'item', href: '#', content: 'Sign Up' },
-            ]}
-            skipNavId="content"
-          />
-          <main id="content">
-            {children}
-          </main>
-          <SiteFooter logo={footerLogo || EdXLogo} />
-        </>
-      </IntlProvider>
-    );
+  function getHeaderMenuItems(key) {
+    const { header } = context;
+    return header[key] || [];
   }
-}
 
-Layout.contextType = AppContext;
+  return (
+    <IntlProvider locale="en">
+      <>
+        <Helmet titleTemplate="%s - edX" defaultTitle="edX">
+          <html lang="en" />
+        </Helmet>
+        <SiteHeader
+          logo={headerLogo || EdXLogo}
+          logoDestination={`${process.env.BASE_URL}/${pageContext.enterpriseSlug}`}
+          logoAltText={pageContext.enterpriseName}
+          loggedIn={!!username}
+          username={username}
+          avatar={profileImage.imageUrlMedium}
+          mainMenu={getHeaderMenuItems('mainMenu')}
+          userMenu={getHeaderMenuItems('userMenu')}
+          loggedOutItems={[
+            { type: 'item', href: '#', content: 'Login' },
+            { type: 'item', href: '#', content: 'Sign Up' },
+          ]}
+          skipNavId="content"
+        />
+        <main id="content">
+          {children}
+        </main>
+        <SiteFooter logo={footerLogo || EdXLogo} />
+      </>
+    </IntlProvider>
+  );
+};
 
 Layout.defaultProps = {
   children: [],
-  siteName: 'edX',
-  siteUrl: 'https://edx.org/',
   headerLogo: null,
   footerLogo: null,
 };
 
 Layout.propTypes = {
   children: PropTypes.node,
-  siteName: PropTypes.string,
-  siteUrl: PropTypes.string,
   headerLogo: PropTypes.string,
   footerLogo: PropTypes.string,
 };

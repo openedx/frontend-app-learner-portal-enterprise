@@ -43,7 +43,7 @@ const EnterprisePage = ({
             },
             {
               type: 'item',
-              href: `${process.env.ORDERS_MFE_URL}/orders`,
+              href: process.env.ORDER_HISTORY_URL,
               content: 'Order History',
             },
             {
@@ -79,6 +79,7 @@ EnterprisePage.propTypes = {
     pageType: PropTypes.string,
     pageBranding: PropTypes.shape({}),
     enterpriseName: PropTypes.string,
+    enterpriseSlug: PropTypes.string,
     enterpriseUUID: PropTypes.string,
     enterpriseEmail: PropTypes.string,
   }).isRequired,
