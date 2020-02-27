@@ -44,19 +44,20 @@ class DashboardSidebar extends React.Component {
   }
 
   renderLearningCoordinatorHelpText() {
-    const { enterpriseConfig: { name: enterpriseName, contactEmail } } = this.context;
+    const { enterpriseConfig: { name, contactEmail } } = this.context;
+
     if (contactEmail) {
       return (
         <a className="text-underline" href={`mailto:${contactEmail}`}>
-          contact your {contactEmail} learning coordinator
+          contact your {name} learning coordinator
         </a>
       );
     }
-    return `contact your ${enterpriseName} learning coordinator`;
+    return `contact your ${name} learning coordinator`;
   }
 
   render() {
-    const { enterpriseConfig: { name: enterpriseName } } = this.context;
+    const { enterpriseConfig: { name } } = this.context;
     const {
       offers,
       isOffersLoading,
@@ -65,13 +66,13 @@ class DashboardSidebar extends React.Component {
       <>
         {isFeatureEnabled('enterprise_offers') && (
           <SidebarBlock
-            title={`Learning Benefits from ${enterpriseName}`}
+            title={`Learning Benefits from ${name}`}
             titleOptions={{ tag: 'h3', className: 'h4' }}
             className="mb-5"
           >
             {isOffersLoading && (
               <div className="mb-5">
-                <LoadingSpinner screenReaderText={`loading learning benefits for ${enterpriseName}`} />
+                <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
               </div>
             )}
             {this.renderOffers(offers)}

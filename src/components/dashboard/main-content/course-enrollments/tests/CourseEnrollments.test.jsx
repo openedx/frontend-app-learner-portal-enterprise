@@ -77,7 +77,7 @@ describe('<CourseEnrollments />', () => {
         completed: [sampleCourseRun],
       };
       const enterpriseConfig = {
-        programUUID: 'test-program-uuid',
+        uuid: 'test-program-uuid',
       };
       const store = mockStore({
         emailSettings: {

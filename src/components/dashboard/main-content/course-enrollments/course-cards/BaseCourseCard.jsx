@@ -193,9 +193,9 @@ class BaseCourseCard extends Component {
   };
 
   renderSponsoredByEnterpriseMessage = () => {
-    const { enterpriseConfig: { name: enterpriseName } } = this.context;
-    if (enterpriseName) {
-      return <small>Sponsored by {enterpriseName}.</small>;
+    const { enterpriseConfig: { name } } = this.context;
+    if (name) {
+      return <small>Sponsored by {name}.</small>;
     }
     return null;
   };
