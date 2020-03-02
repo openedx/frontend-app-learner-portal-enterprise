@@ -15,7 +15,7 @@ export default function App() {
     <AppProvider store={store}>
       <Switch>
         <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
-        <PageRoute exact path="/:enterpriseSlug/course/:courseSlug" component={CoursePage} />
+        <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
         <PageRoute path="*" component={NotFoundPage} />
       </Switch>
     </AppProvider>
