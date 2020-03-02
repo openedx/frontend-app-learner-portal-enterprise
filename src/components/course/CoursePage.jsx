@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { Breadcrumb, breakpoints, Button } from '@edx/paragon';
@@ -6,23 +6,40 @@ import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import {
-  faTachometerAlt, faTag, faRocket, faRoad, faUniversity, faGraduationCap, faCertificate,
+  faTachometerAlt,
+  faTag,
+  faRocket,
+  faRoad,
+  faUniversity,
+  faGraduationCap,
+  faCertificate,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout, MainContent, Sidebar } from '../layout';
+import { useCourseDetails, useSelectCourseRun } from './data/hooks';
 
 export default function CoursePage() {
   const { courseKey } = useParams();
-  const course = {
-    title: 'Demonstration Course',
-    key: courseKey,
-    imageUrl: `${process.env.LMS_BASE_URL}/asset-v1:edX+DemoX+Demo_Course+type@asset+block@images_course_image.jpg`,
-    shortDescription: '<p>Explore how entrepreneurship and innovation tackle complex social problems in emerging economies.</p>',
-    fullDescription: '<p>This business and management course, taught by Harvard Business School professor Tarun Khanna, takes an inter-disciplinary approach to understanding and solving complex social problems. You will learn about prior attempts to address these problems, identify points of opportunity for smart entrepreneurial efforts, and propose and develop your own creative solutions.</p><p>The focus of this course is on individual agency—what can you do to address a defined problem? While we will use the lens of health to explore entrepreneurial opportunities, you will learn how both problems and solutions are inevitably of a multi-disciplinary nature, and we will draw on a range of sectors and fields of study.</p>',
-    outcome: '<ul><li>An awareness of the opportunities for entrepreneurship in fast-growing emerging markets</li><li>An understanding of a conceptual framework for evaluating such opportunities</li><li>An appreciation of the types of problems that lend themselves to entrepreneurial solutions</li></ul>',
-  };
+  const [course, activeCourseRun] = useCourseDetails(courseKey);
+  // const course = {
+  //   title: 'Demonstration Course',
+  //   key: courseKey,
+  //   imageUrl: `${process.env.LMS_BASE_URL}/asset-v1:edX+DemoX+Demo_Course+type@asset+block@images_course_image.jpg`,
+  //   shortDescription: '<p>Explore how entrepreneurship and innovation tackle complex social problems in emerging economies.</p>',
+  //   fullDescription: '<p>This business and management course, taught by Harvard Business School professor Tarun Khanna, takes an inter-disciplinary approach to understanding and solving complex social problems. You will learn about prior attempts to address these problems, identify points of opportunity for smart entrepreneurial efforts, and propose and develop your own creative solutions.</p><p>The focus of this course is on individual agency—what can you do to address a defined problem? While we will use the lens of health to explore entrepreneurial opportunities, you will learn how both problems and solutions are inevitably of a multi-disciplinary nature, and we will draw on a range of sectors and fields of study.</p>',
+  //   outcome: '<ul>\r\n<li>Fundamental concepts from probability, statistics, stochastic modeling, and optimization to develop systematic frameworks for decision-making in a dynamic setting</li>\r\n<li>How to use historical data to learn the underlying model and pattern</li>\r\n<li>Optimization methods and software to solve decision problems under uncertainty in business applications</li>\r\n</ul>',
+  //   prerequisites: '<p>Undergraduate probability, statistics and linear algebra. Students should have working knowledge of Python and familiarity with basic programming concepts in some procedural programming language.</p>',
+  //   syllabus: '<ul>\r\n<li>Introduction to Probability: Random variables; Normal, Binomial, Exponential distributions; applications</li>\r\n<li>Estimation: sampling; confidence intervals; hypothesis testing</li>\r\n<li>Regression: linear regression; dummy variables; applications</li>\r\n<li>Linear Optimization; Non-linear optimization; Discrete Optimization; applications</li>\r\n<li>Dynamic Optimization; decision trees</li>\r\n</ul>',
+  // };
+
+  if (!course || !activeCourseRun) {
+    return null;
+  }
+
+  console.log(course);
+  console.log(activeCourseRun);
 
   return (
     <EnterprisePage>
@@ -32,22 +49,23 @@ export default function CoursePage() {
           <EnterpriseBanner />
           <div>
             <div className="container" style={{ boxShadow: '0 8px 16px 0 rgba(0,0,0,.15)' }}>
-              <div className="row pt-4 pb-4">
+              <div className="row py-4">
                 <div className="col-12 col-lg-7">
                   <Breadcrumb
                     links={[
                       { label: 'Catalog', url: process.env.CATALOG_BASE_URL },
                       { label: 'Test Subject 1', url: `${process.env.LMS_BASE_URL}/subject/test-subject-1` },
                     ]}
-                    spacer="/"
+                    spacer={<span>/</span>}
                   />
                   <h2>{course.title}</h2>
-                  {/* eslint-disable react/no-danger */}
-                  <div
-                    className="lead font-weight-normal"
-                    dangerouslySetInnerHTML={{ __html: course.shortDescription }}
-                  />
-                  {/* eslint-enable react/no-danger */}
+                  {course.shortDescription && (
+                    <div
+                      className="lead font-weight-normal"
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{ __html: course.shortDescription }}
+                    />
+                  )}
                   <div className="enroll" style={{ width: 270 }}>
                     <Button className="btn-success btn-block rounded-0 py-2">
                       <span className="d-block font-weight-bold">Enroll</span>
@@ -56,7 +74,7 @@ export default function CoursePage() {
                   </div>
                 </div>
                 <div className="col-8 col-lg-4 offset-lg-1 mt-3 mt-lg-0">
-                  <img src={course.imageUrl} alt="course preview" className="w-100" />
+                  <img src={course.image.src} alt="course preview" className="w-100" />
                 </div>
               </div>
             </div>
@@ -64,21 +82,32 @@ export default function CoursePage() {
           <div className="container py-5">
             <div className="row">
               <MainContent>
-                <div className="mb-5">
-                  <h3>About this course</h3>
-                  {/* eslint-disable-next-line react/no-danger */}
-                  <div dangerouslySetInnerHTML={{ __html: course.fullDescription }} />
-                </div>
-                <div className="mb-5">
-                  <h3>What you&apos;ll learn</h3>
-                  {/* eslint-disable-next-line react/no-danger */}
-                  <div dangerouslySetInnerHTML={{ __html: course.outcome }} />
-                </div>
+                {course.fullDescription && (
+                  <div className="mb-5">
+                    <h3>About this course</h3>
+                    {/* eslint-disable-next-line react/no-danger */}
+                    <div dangerouslySetInnerHTML={{ __html: course.fullDescription }} />
+                  </div>
+                )}
+                {course.outcome && (
+                  <div className="mb-5">
+                    <h3>What you&apos;ll learn</h3>
+                    {/* eslint-disable-next-line react/no-danger */}
+                    <div dangerouslySetInnerHTML={{ __html: course.outcome }} />
+                  </div>
+                )}
                 <div className="mb-5">
                   <h3>Meet your instructors</h3>
                   {/* eslint-disable-next-line react/no-danger */}
                   <div dangerouslySetInnerHTML={{ __html: course.outcome }} />
                 </div>
+                {course.syllabusRaw && (
+                  <div className="mb-5">
+                    <h3>Syllabus</h3>
+                    {/* eslint-disable-next-line react/no-danger */}
+                    <div dangerouslySetInnerHTML={{ __html: course.syllabusRaw }} />
+                  </div>
+                )}
                 <div className="mb-5">
                   <h3 className="mb-4">
                     Pursue a Verified Certificate to highlight the knowledge and skills you gain
@@ -121,24 +150,32 @@ export default function CoursePage() {
                 {matches => matches && (
                   <Sidebar>
                     <ul className="pl-0 mb-5">
-                      <li className="row d-flex border-bottom no-gutters py-3">
-                        <div className="col d-flex align-items-center">
-                          <FontAwesomeIcon className="mr-3" icon={faClock} />
-                          <span>Length:</span>
-                        </div>
-                        <div className="col">
-                          <span>6 weeks</span>
-                        </div>
-                      </li>
-                      <li className="row d-flex border-bottom no-gutters py-3">
-                        <div className="col d-flex align-items-center">
-                          <FontAwesomeIcon className="mr-3" icon={faTachometerAlt} />
-                          <span>Effort:</span>
-                        </div>
-                        <div className="col">
-                          <span>3-5 hours per week</span>
-                        </div>
-                      </li>
+                      {activeCourseRun.weeksToComplete && (
+                        <li className="row d-flex border-bottom no-gutters py-3">
+                          <div className="col d-flex align-items-center">
+                            <FontAwesomeIcon className="mr-3" icon={faClock} />
+                            <span>Length:</span>
+                          </div>
+                          <div className="col">
+                            <span>{activeCourseRun.weeksToComplete} weeks</span>
+                          </div>
+                        </li>
+                      )}
+                      {activeCourseRun.minEffort && activeCourseRun.maxEffort && (
+                        <li className="row d-flex border-bottom no-gutters py-3">
+                          <div className="col d-flex align-items-center">
+                            <FontAwesomeIcon className="mr-3" icon={faTachometerAlt} />
+                            <span>Effort:</span>
+                          </div>
+                          <div className="col">
+                            <span>
+                              {activeCourseRun.minEffort}-{activeCourseRun.maxEffort}
+                              {' '}
+                              hours per week
+                            </span>
+                          </div>
+                        </li>
+                      )}
                       <li className="row d-flex border-bottom no-gutters py-3">
                         <div className="col d-flex align-items-center">
                           <FontAwesomeIcon className="mr-3" icon={faTag} />
@@ -166,15 +203,17 @@ export default function CoursePage() {
                           <span>Business &amp; Management</span>
                         </div>
                       </li>
-                      <li className="row d-flex border-bottom no-gutters py-3">
-                        <div className="col d-flex align-items-center">
-                          <FontAwesomeIcon className="mr-3" icon={faCertificate} />
-                          <span>Level:</span>
-                        </div>
-                        <div className="col">
-                          <span>Introductory</span>
-                        </div>
-                      </li>
+                      {activeCourseRun.levelType && (
+                        <li className="row d-flex border-bottom no-gutters py-3">
+                          <div className="col d-flex align-items-center">
+                            <FontAwesomeIcon className="mr-3" icon={faCertificate} />
+                            <span>Level:</span>
+                          </div>
+                          <div className="col">
+                            <span>{course.levelType}</span>
+                          </div>
+                        </li>
+                      )}
                       <li className="row d-flex no-gutters py-3">
                         <div className="col d-flex align-items-center">
                           <FontAwesomeIcon className="mr-3" icon={faUniversity} />
@@ -187,7 +226,8 @@ export default function CoursePage() {
                     </ul>
                     <div className="prerequisites">
                       <h3>Prerequisites</h3>
-                      <p>None</p>
+                      {/* eslint-disable-next-line react/no-danger */}
+                      <div dangerouslySetInnerHTML={{ __html: course.prerequisitesRaw }} />
                     </div>
                   </Sidebar>
                 )}
