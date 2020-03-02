@@ -3,7 +3,7 @@ import camelcaseKeys from 'camelcase-keys';
 
 import { fetchCourseDetails } from './service';
 
-function useSelectCourseRunFromCourse(course) {
+function useActiveCourseRunFromCourse(course) {
   const [activeCourseRun, setActiveCourseRun] = useState(undefined);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function useSelectCourseRunFromCourse(course) {
 // eslint-disable-next-line import/prefer-default-export
 export function useCourseDetails(courseKey) {
   const [course, setCourse] = useState(undefined);
-  const activeCourseRun = useSelectCourseRunFromCourse(course);
+  const activeCourseRun = useActiveCourseRunFromCourse(course);
 
   useEffect(() => {
     fetchCourseDetails(courseKey)
