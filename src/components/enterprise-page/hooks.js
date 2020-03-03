@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import camelcaseKeys from 'camelcase-keys';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { fetchEntepriseCustomerConfig } from './service';
@@ -29,18 +30,18 @@ export function useEnterpriseCustomerConfig() {
   useEffect(() => {
     fetchEntepriseCustomerConfig(enterpriseSlug)
       .then((response) => {
-        const { results } = response.data;
+        const { results } = camelcaseKeys(response.data, { deep: true });
         const config = results.pop();
         if (config) {
           const {
             name,
             uuid,
             slug,
-            contact_email: contactEmail,
-            branding_configuration: {
+            contactEmail,
+            brandingConfiguration: {
               logo,
-              banner_background_color: bannerBackgroundColor,
-              banner_border_color: bannerBorderColor,
+              bannerBackgroundColor,
+              bannerBorderColor,
             },
           } = config;
           setEnterpriseConfig({
