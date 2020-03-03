@@ -20,6 +20,8 @@ import {
   useCourseTranscriptLanguages,
 } from './data/hooks';
 
+import './styles/CourseSidebar.scss';
+
 export default function CourseSidebar() {
   const { course, activeCourseRun } = useContext(CourseContext);
   const { primarySubject } = useCourseSubjects(course);
@@ -41,7 +43,7 @@ export default function CourseSidebar() {
 
   return (
     <>
-      <ul className="pl-0 mb-5">
+      <ul className="pl-0 mb-5 course-details-sidebar">
         {activeCourseRun.weeksToComplete && (
           <CourseSidebarListItem
             icon={faClock}

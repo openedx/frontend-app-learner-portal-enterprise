@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
 
+import { PreviewExpand } from '../preview-expand';
 import CourseContext from './CourseContext';
 import CourseSidebar from './CourseSidebar';
 import CreatedBy from './CreatedBy';
@@ -13,25 +14,31 @@ export default function CourseMainContent() {
   return (
     <>
       {course.fullDescription && (
-        <div className="mb-5">
-          <h3>About this course</h3>
-          {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.fullDescription }} />
-        </div>
+        <PreviewExpand>
+          <div className="mb-5">
+            <h3>About this course</h3>
+            {/* eslint-disable-next-line react/no-danger */}
+            <div dangerouslySetInnerHTML={{ __html: course.fullDescription }} />
+          </div>
+        </PreviewExpand>
       )}
       {course.outcome && (
-        <div className="mb-5">
-          <h3>What you&apos;ll learn</h3>
-          {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.outcome }} />
-        </div>
+        <PreviewExpand>
+          <div className="mb-5">
+            <h3>What you&apos;ll learn</h3>
+            {/* eslint-disable-next-line react/no-danger */}
+            <div dangerouslySetInnerHTML={{ __html: course.outcome }} />
+          </div>
+        </PreviewExpand>
       )}
       {course.syllabusRaw && (
-        <div className="mb-5">
-          <h3>Syllabus</h3>
-          {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.syllabusRaw }} />
-        </div>
+        <PreviewExpand>
+          <div className="mb-5">
+            <h3>Syllabus</h3>
+            {/* eslint-disable-next-line react/no-danger */}
+            <div dangerouslySetInnerHTML={{ __html: course.syllabusRaw }} />
+          </div>
+        </PreviewExpand>
       )}
       <CreatedBy />
       {activeCourseRun.type === 'verified' && <VerifiedCertPitch />}
