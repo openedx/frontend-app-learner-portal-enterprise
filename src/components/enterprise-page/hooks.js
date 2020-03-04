@@ -15,8 +15,8 @@ export function useEnterpriseCustomerConfig() {
     branding: {
       logoUrl: undefined,
       banner: {
-        borderColor: undefined,
-        backgroundColor: undefined,
+        borderColor: '#007D88',
+        backgroundColor: '#D7E3FC',
       },
     },
   };
@@ -52,8 +52,8 @@ export function useEnterpriseCustomerConfig() {
             branding: {
               logo,
               banner: {
-                borderColor: bannerBorderColor,
-                backgroundColor: bannerBackgroundColor,
+                backgroundColor: bannerBackgroundColor || initialConfig.branding.banner.backgroundColor,
+                borderColor: bannerBorderColor || initialConfig.branding.banner.borderColor,
               },
             },
           });

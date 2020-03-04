@@ -1,0 +1,7 @@
+@import "~@edx/paragon/scss/edx/utilities-only";
+
+.enroll-wrapper {
+  .btn:focus:before {
+    @extend .rounded-0;
+  }
+}

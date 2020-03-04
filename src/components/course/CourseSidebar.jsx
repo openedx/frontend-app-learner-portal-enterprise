@@ -12,6 +12,7 @@ import ISO6391 from 'iso-639-1';
 
 import CourseContext from './CourseContext';
 import CourseSidebarListItem from './CourseSidebarListItem';
+import CourseAssociatedPrograms from './CourseAssociatedPrograms';
 
 import {
   useCourseSubjects,
@@ -24,22 +25,10 @@ import './styles/CourseSidebar.scss';
 
 export default function CourseSidebar() {
   const { course, activeCourseRun } = useContext(CourseContext);
-  const { primarySubject } = useCourseSubjects(course);
+  const [, primarySubject] = useCourseSubjects(course);
   const [partners, institutionLabel] = useCoursePartners(course);
   const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);
   const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);
-
-  const formatProgramType = (programType) => {
-    switch (programType.toLowerCase()) {
-      case 'micromasters':
-      case 'microbachelors':
-        return <>{programType}<sup>&reg;</sup> Program</>;
-      case 'masters':
-        return 'Master\'s';
-      default:
-        return programType;
-    }
-  };
 
   return (
     <>
@@ -112,22 +101,7 @@ export default function CourseSidebar() {
         )}
       </ul>
       {course.programs && course.programs.length > 0 && (
-        <div className="associated-programs mb-5">
-          <h3>Associated Programs</h3>
-          <ul className="pl-0" style={{ listStyleType: 'none' }}>
-            {course.programs.map(program => (
-              <li key={program.uuid} className="mb-3">
-                <a
-                  href={`${process.env.MARKETING_SITE_URL}/${program.marketingUrl}`}
-                  className="font-weight-bold"
-                >
-                  {program.title}
-                </a>
-                <div>{formatProgramType(program.type)}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <CourseAssociatedPrograms />
       )}
       {course.prerequisitesRaw && (
         <div className="prerequisites mb-5">

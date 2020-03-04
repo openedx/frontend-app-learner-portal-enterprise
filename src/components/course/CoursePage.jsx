@@ -12,13 +12,19 @@ import CourseHeader from './CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useCourseDetails } from './data/hooks';
+import {
+  useCourseDetails,
+  useUserEnrollments,
+  useUserEntitlements,
+} from './data/hooks';
 
 export default function CoursePage() {
   const { courseKey } = useParams();
   const [course, activeCourseRun] = useCourseDetails(courseKey);
+  const [userEnrollments] = useUserEnrollments();
+  const [userEntitlements] = useUserEntitlements();
 
-  if (!course || !activeCourseRun) {
+  if (!course || !activeCourseRun || !userEnrollments) {
     return null;
   }
 
@@ -28,9 +34,13 @@ export default function CoursePage() {
         <Layout>
           <Helmet title={`${course.title} - ${enterpriseConfig.name}`} />
           <EnterpriseBanner />
-          <CourseContext.Provider value={{ course, activeCourseRun }}>
+          <CourseContext.Provider
+            value={{
+              course, activeCourseRun, userEnrollments, userEntitlements,
+            }}
+          >
             <CourseHeader />
-            <div className="container py-5">
+            <div className="container-fluid py-5">
               <div className="row">
                 <MainContent>
                   <CourseMainContent />

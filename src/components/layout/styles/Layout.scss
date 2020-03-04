@@ -8,10 +8,6 @@ header.site-header-mobile {
     a.logo img {
         max-height: 50px;
     }
-
-    div.container-fluid {
-        @extend .container;
-    }
 }
 
 footer a img {

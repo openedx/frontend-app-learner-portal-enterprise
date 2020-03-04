@@ -1,20 +1,22 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
-import { Breadcrumb, Button } from '@edx/paragon';
+import { Breadcrumb } from '@edx/paragon';
 
 import CourseContext from './CourseContext';
+import EnrollButton from './EnrollButton';
 
 import { useCourseSubjects, useCoursePartners } from './data/hooks';
 
+import './styles/CourseHeader.scss';
+
 export default function CourseHeader() {
-  const { course, activeCourseRun } = useContext(CourseContext);
-  const { primarySubject } = useCourseSubjects(course);
+  const { course } = useContext(CourseContext);
+  const [, primarySubject] = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 
   return (
     <div style={{ boxShadow: '0 8px 16px 0 rgba(0,0,0,.15)' }}>
-      <div className="container">
+      <div className="container-fluid">
         <div className="row py-4">
           <div className="col-12 col-lg-7">
             {primarySubject && (
@@ -26,7 +28,6 @@ export default function CourseHeader() {
                     url: primarySubject.url,
                   },
                 ]}
-                spacer={<span>/</span>}
               />
             )}
             <div className={classNames({ 'mb-4': !course.shortDescription })}>
@@ -56,13 +57,8 @@ export default function CourseHeader() {
                 ))}
               </div>
             )}
-            <div className="enroll mb-3" style={{ width: 270 }}>
-              <Button className="btn-success btn-block rounded-0 py-2">
-                <span className="d-block font-weight-bold mb-1">Enroll</span>
-                <small className="d-block">
-                  Started {moment(activeCourseRun.start).format('MMM D, YYYY')}
-                </small>
-              </Button>
+            <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+              <EnrollButton />
             </div>
           </div>
           {course.image && course.image.src && (

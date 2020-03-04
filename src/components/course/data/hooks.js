@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import camelcaseKeys from 'camelcase-keys';
 
-import { fetchCourseDetails } from './service';
+import {
+  fetchCourseDetails,
+  fetchUserEnrollments,
+  fetchUserEntitlements,
+} from './service';
 
 function useActiveCourseRunFromCourse(course) {
   const [activeCourseRun, setActiveCourseRun] = useState(undefined);
@@ -17,21 +21,25 @@ function useActiveCourseRunFromCourse(course) {
     }
   }, [course]);
 
-  return activeCourseRun;
+  return [activeCourseRun];
 }
 
 export function useCourseDetails(courseKey) {
   const [course, setCourse] = useState(undefined);
-  const activeCourseRun = useActiveCourseRunFromCourse(course);
+  const [activeCourseRun] = useActiveCourseRunFromCourse(course);
 
   useEffect(() => {
-    fetchCourseDetails(courseKey)
-      .then((response) => {
-        const { data: courseData } = response;
-        const transformedCourseData = camelcaseKeys(courseData, { deep: true });
-
-        setCourse(transformedCourseData);
-      });
+    if (courseKey) {
+      fetchCourseDetails(courseKey)
+        .then((response) => {
+          const { data: courseData } = response;
+          const transformedCourseData = camelcaseKeys(courseData, { deep: true });
+          setCourse(transformedCourseData);
+        })
+        .catch((error) => {
+          throw new Error(error.message);
+        });
+    }
   }, [courseKey]);
 
   return [course, activeCourseRun];
@@ -44,20 +52,17 @@ export function useCourseSubjects(course) {
   useEffect(() => {
     if (course) {
       setSubjects(course.subjects);
+      if (course.subjects.length > 0) {
+        const newSubject = {
+          ...course.subjects[0],
+          url: `${process.env.MARKETING_SITE_URL}/course/subject/${course.subjects[0].slug}`,
+        };
+        setPrimarySubject(newSubject);
+      }
     }
   }, [course]);
 
-  useEffect(() => {
-    if (subjects.length > 0) {
-      const newSubject = {
-        ...subjects[0],
-        url: `${process.env.MARKETING_SITE_URL}/course/subject/${subjects[0].slug}`,
-      };
-      setPrimarySubject(newSubject);
-    }
-  }, [subjects]);
-
-  return { subjects, primarySubject };
+  return [subjects, primarySubject];
 }
 
 export function useCoursePartners(course) {
@@ -71,16 +76,13 @@ export function useCoursePartners(course) {
         fullUrl: `${process.env.MARKETING_SITE_URL}/${owner.marketingUrl}`,
       }));
       setPartners(newOwners);
+      if (newOwners.length > 1) {
+        setLabel('Institutions');
+      } else {
+        setLabel('Institution');
+      }
     }
   }, [course]);
-
-  useEffect(() => {
-    if (partners.length > 1) {
-      setLabel('Institutions');
-    } else {
-      setLabel('Institution');
-    }
-  }, [partners]);
 
   return [partners, label];
 }
@@ -92,16 +94,13 @@ export function useCourseRunWeeksToComplete(courseRun) {
   useEffect(() => {
     if (courseRun) {
       setWeeksToComplete(courseRun.weeksToComplete);
+      if (courseRun.weeksToComplete > 1 || courseRun.weeksToComplete === 0) {
+        setLabel('weeks');
+      } else {
+        setLabel('week');
+      }
     }
   }, [courseRun]);
-
-  useEffect(() => {
-    if (weeksToComplete > 1 || weeksToComplete === 0) {
-      setLabel('weeks');
-    } else {
-      setLabel('week');
-    }
-  }, [weeksToComplete]);
 
   return [weeksToComplete, label];
 }
@@ -113,16 +112,47 @@ export function useCourseTranscriptLanguages(courseRun) {
   useEffect(() => {
     if (courseRun) {
       setLanguages(courseRun.transcriptLanguages);
+      if (courseRun.transcriptLanguages.length > 1) {
+        setLabel('Video Transcripts');
+      } else {
+        setLabel('Video Transcript');
+      }
     }
   }, [courseRun]);
 
-  useEffect(() => {
-    if (languages.length > 1) {
-      setLabel('Video Transcripts');
-    } else {
-      setLabel('Video Transcript');
-    }
-  }, [languages]);
-
   return [languages, label];
+}
+
+export function useUserEnrollments() {
+  const [userEnrollments, setUserEnrollments] = useState(undefined);
+  useEffect(() => {
+    fetchUserEnrollments()
+      .then((response) => {
+        const { data: enrollmentsData } = response;
+        const transformedEnrollmentsData = camelcaseKeys(enrollmentsData, { deep: true });
+        setUserEnrollments(transformedEnrollmentsData);
+      })
+      .catch((error) => {
+        throw new Error(error.message);
+      });
+  }, []);
+
+  return [userEnrollments];
+}
+
+export function useUserEntitlements() {
+  const [userEntitlements, setUserEntitlements] = useState(undefined);
+  useEffect(() => {
+    fetchUserEntitlements()
+      .then((response) => {
+        const { data: entitlementsData } = response;
+        const transformedEntitlementsData = camelcaseKeys(entitlementsData.results, { deep: true });
+        setUserEntitlements(transformedEntitlementsData);
+      })
+      .catch((error) => {
+        throw new Error(error.message);
+      });
+  }, []);
+
+  return [userEntitlements];
 }
