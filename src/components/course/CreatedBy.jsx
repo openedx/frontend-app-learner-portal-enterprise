@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 
-import CourseContext from './CourseContext';
+import { CourseContext } from './CourseContextProvider';
 
 import { useCoursePartners } from './data/hooks';
 
 export default function CreatedBy() {
-  const { course, activeCourseRun } = useContext(CourseContext);
+  const { state } = useContext(CourseContext);
+  const { course, activeCourseRun } = state;
   const [partners] = useCoursePartners(course);
 
   if (!partners.length && !activeCourseRun.staff.length) {

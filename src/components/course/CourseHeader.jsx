@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { Breadcrumb } from '@edx/paragon';
 
-import CourseContext from './CourseContext';
+import { CourseContext } from './CourseContextProvider';
 import EnrollButton from './EnrollButton';
 
 import { useCourseSubjects, useCoursePartners } from './data/hooks';
@@ -10,7 +10,8 @@ import { useCourseSubjects, useCoursePartners } from './data/hooks';
 import './styles/CourseHeader.scss';
 
 export default function CourseHeader() {
-  const { course } = useContext(CourseContext);
+  const { state } = useContext(CourseContext);
+  const { course } = state;
   const [, primarySubject] = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 

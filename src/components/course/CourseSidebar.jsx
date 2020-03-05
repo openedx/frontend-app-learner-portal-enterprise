@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import ISO6391 from 'iso-639-1';
 
-import CourseContext from './CourseContext';
+import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
 
@@ -24,7 +24,8 @@ import {
 import './styles/CourseSidebar.scss';
 
 export default function CourseSidebar() {
-  const { course, activeCourseRun } = useContext(CourseContext);
+  const { state } = useContext(CourseContext);
+  const { course, activeCourseRun } = state;
   const [, primarySubject] = useCourseSubjects(course);
   const [partners, institutionLabel] = useCoursePartners(course);
   const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);

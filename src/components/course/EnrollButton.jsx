@@ -1,54 +1,29 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useState, useMemo, useCallback,
+} from 'react';
 import moment from 'moment';
 import { Button } from '@edx/paragon';
 
-import CourseContext from './CourseContext';
+import { CourseContext } from './CourseContextProvider';
 
 import { enrollUser } from './data/service';
 
-function hasCourseStarted(start) {
-  const today = new Date();
-  const startDate = new Date(start);
-  return startDate && today >= startDate;
-}
-
-function isUserEnrolledInCourse({ userEnrollments, key }) {
-  return userEnrollments.some(({ courseDetails: { courseId } }) => courseId === key);
-}
-
-function isUserEntitledForCourse({ userEntitlements, courseUuid }) {
-  return userEntitlements.some(({ courseUuid: uuid }) => uuid === courseUuid);
-}
-
-function weeksRemainingUntilEnd(courseRun) {
-  const today = new Date();
-  const end = new Date(courseRun.end);
-  const secondsDifference = Math.abs(end - today) / 1000;
-  const days = Math.floor(secondsDifference / 86400);
-  return Math.floor(days / 7);
-}
-
-function hasTimeToComplete(courseRun) {
-  return courseRun.weeksToComplete <= weeksRemainingUntilEnd(courseRun);
-}
-
-function isArchived(courseRun) {
-  if (courseRun.availability) {
-    return courseRun.availability.toLowerCase() === 'archived';
-  }
-  return false;
-}
-
-function isCourseSelfPaced(pacingType) {
-  return pacingType === 'self_paced';
-}
+import {
+  hasCourseStarted,
+  isUserEnrolledInCourse,
+  isUserEntitledForCourse,
+  isCourseSelfPaced,
+  hasTimeToComplete,
+  isArchived,
+} from './data/utils';
 
 export default function EnrollButton() {
+  const { state } = useContext(CourseContext);
   const {
     activeCourseRun,
     userEnrollments,
     userEntitlements,
-  } = useContext(CourseContext);
+  } = state;
   const {
     availability,
     key,
@@ -61,14 +36,25 @@ export default function EnrollButton() {
   const [emailOptIn] = useState(false);
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
 
+  /*
+   * TODO: this behavior mimics the existing B2C enrollment flow. instead, we will
+   * want to redirect learners to the basket flow instead of the track selection page
+   */
   useEffect(() => {
     if (enrollmentSubmitted) {
+      // redirect to track selection page
       window.location.href = `${process.env.LMS_BASE_URL}/course_modes/choose/${key}`;
     }
   }, [enrollmentSubmitted]);
 
-  const isCourseStarted = hasCourseStarted(start);
-  const isUserEnrolled = isUserEnrolledInCourse({ userEnrollments, key });
+  const isCourseStarted = useMemo(
+    () => hasCourseStarted(start),
+    [start],
+  );
+  const isUserEnrolled = useMemo(
+    () => isUserEnrolledInCourse({ userEnrollments, key }),
+    [userEnrollments, key],
+  );
 
   const renderButtonLabel = () => {
     if (!isEnrollable) {
@@ -105,16 +91,19 @@ export default function EnrollButton() {
     return <>View Course</>;
   };
 
-  const enroll = () => {
-    setIsEnrollDisabled(true);
-    enrollUser({ course_id: key, email_opt_in: emailOptIn })
-      .then(() => {
-        setEnrollmentSubmitted(true);
-      })
-      .catch((error) => {
-        throw new Error(error.message);
-      });
-  };
+  const enroll = useCallback(
+    () => {
+      setIsEnrollDisabled(true);
+      enrollUser({ course_id: key, email_opt_in: emailOptIn })
+        .then(() => {
+          setEnrollmentSubmitted(true);
+        })
+        .catch((error) => {
+          throw new Error(error.message);
+        });
+    },
+    [],
+  );
 
   if (!isUserEnrolled && isEnrollable) {
     return (

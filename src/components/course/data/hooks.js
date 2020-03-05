@@ -8,7 +8,7 @@ import {
 } from './service';
 
 function useActiveCourseRunFromCourse(course) {
-  const [activeCourseRun, setActiveCourseRun] = useState(undefined);
+  const [activeCourseRun, setActiveCourseRun] = useState({});
 
   useEffect(() => {
     if (!course || !course.courseRuns) {
@@ -25,7 +25,7 @@ function useActiveCourseRunFromCourse(course) {
 }
 
 export function useCourseDetails(courseKey) {
-  const [course, setCourse] = useState(undefined);
+  const [course, setCourse] = useState({});
   const [activeCourseRun] = useActiveCourseRunFromCourse(course);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export function useCourseSubjects(course) {
   const [primarySubject, setPrimarySubject] = useState(undefined);
 
   useEffect(() => {
-    if (course) {
+    if (course && course.subjects) {
       setSubjects(course.subjects);
       if (course.subjects.length > 0) {
         const newSubject = {
@@ -70,7 +70,7 @@ export function useCoursePartners(course) {
   const [label, setLabel] = useState(undefined);
 
   useEffect(() => {
-    if (course) {
+    if (course && course.owners) {
       const newOwners = course.owners.map(owner => ({
         ...owner,
         fullUrl: `${process.env.MARKETING_SITE_URL}/${owner.marketingUrl}`,
@@ -92,7 +92,7 @@ export function useCourseRunWeeksToComplete(courseRun) {
   const [label, setLabel] = useState(undefined);
 
   useEffect(() => {
-    if (courseRun) {
+    if (courseRun && courseRun.weeksToComplete) {
       setWeeksToComplete(courseRun.weeksToComplete);
       if (courseRun.weeksToComplete > 1 || courseRun.weeksToComplete === 0) {
         setLabel('weeks');
@@ -110,7 +110,7 @@ export function useCourseTranscriptLanguages(courseRun) {
   const [label, setLabel] = useState(undefined);
 
   useEffect(() => {
-    if (courseRun) {
+    if (courseRun && courseRun.transcriptLanguages) {
       setLanguages(courseRun.transcriptLanguages);
       if (courseRun.transcriptLanguages.length > 1) {
         setLabel('Video Transcripts');
@@ -124,7 +124,7 @@ export function useCourseTranscriptLanguages(courseRun) {
 }
 
 export function useUserEnrollments() {
-  const [userEnrollments, setUserEnrollments] = useState(undefined);
+  const [userEnrollments, setUserEnrollments] = useState([]);
   useEffect(() => {
     fetchUserEnrollments()
       .then((response) => {
@@ -141,7 +141,7 @@ export function useUserEnrollments() {
 }
 
 export function useUserEntitlements() {
-  const [userEntitlements, setUserEntitlements] = useState(undefined);
+  const [userEntitlements, setUserEntitlements] = useState([]);
   useEffect(() => {
     fetchUserEntitlements()
       .then((response) => {

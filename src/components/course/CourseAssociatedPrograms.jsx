@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import CourseContext from './CourseContext';
+import { CourseContext } from './CourseContextProvider';
 
 import MicroMastersSvgIcon from '../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../assets/icons/professional.svg';
@@ -9,9 +9,10 @@ import XSeriesSvgIcon from '../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../assets/icons/credit.svg';
 
 export default function CourseAssociatedPrograms() {
-  const { course } = useContext(CourseContext);
+  const { state } = useContext(CourseContext);
+  const { course } = state;
 
-  const formatProgramType = (programType) => {
+  function formatProgramType(programType) {
     switch (programType.toLowerCase()) {
       case 'micromasters':
       case 'microbachelors':
@@ -21,9 +22,9 @@ export default function CourseAssociatedPrograms() {
       default:
         return programType;
     }
-  };
+  }
 
-  const getProgramIcon = (type) => {
+  function getProgramIcon(type) {
     switch (type) {
       case 'XSeries':
         return XSeriesSvgIcon;
@@ -36,7 +37,8 @@ export default function CourseAssociatedPrograms() {
       default:
         return VerifiedSvgIcon;
     }
-  };
+  }
+
   return (
     <div className="associated-programs mb-5">
       <h3>Associated Programs</h3>

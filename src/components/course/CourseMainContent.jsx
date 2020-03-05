@@ -3,33 +3,34 @@ import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
 
 import { PreviewExpand } from '../preview-expand';
-import CourseContext from './CourseContext';
+import { CourseContext } from './CourseContextProvider';
 import CourseSidebar from './CourseSidebar';
 import CreatedBy from './CreatedBy';
 import VerifiedCertPitch from './VerifiedCertPitch';
 
-export default function CourseMainContent() {
-  const { course, activeCourseRun } = useContext(CourseContext);
+function formatSponsorTextList(sponsors) {
+  const names = sponsors.map(sponsor => sponsor.name);
+  let sponsorTextList;
 
-  function formatSponsorTextList(sponsors) {
-    const names = sponsors.map(sponsor => sponsor.name);
-    let sponsorTextList;
-
-    if (names.length === 1) {
-      [sponsorTextList] = names;
-    }
-
-    if (names.length === 2) {
-      sponsorTextList = names.join(' and ');
-    }
-
-    if (names.length > 2) {
-      const lastName = names.pop();
-      sponsorTextList = `${names.join(', ')}, and ${lastName}`;
-    }
-
-    return sponsorTextList;
+  if (names.length === 1) {
+    [sponsorTextList] = names;
   }
+
+  if (names.length === 2) {
+    sponsorTextList = names.join(' and ');
+  }
+
+  if (names.length > 2) {
+    const lastName = names.pop();
+    sponsorTextList = `${names.join(', ')}, and ${lastName}`;
+  }
+
+  return sponsorTextList;
+}
+
+export default function CourseMainContent() {
+  const { state } = useContext(CourseContext);
+  const { course, activeCourseRun } = state;
 
   return (
     <>
