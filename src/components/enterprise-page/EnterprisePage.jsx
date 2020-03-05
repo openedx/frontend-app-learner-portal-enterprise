@@ -87,7 +87,7 @@ export default function EnterprisePage({ children }) {
         enterpriseConfig,
       }}
     >
-      {children(enterpriseConfig)}
+      {children}
     </AppContext.Provider>
   );
 }

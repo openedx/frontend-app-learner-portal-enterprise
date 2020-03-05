@@ -27,19 +27,17 @@ export default function CoursePage() {
 
   return (
     <EnterprisePage>
-      {() => (
-        <Layout>
-          <EnterpriseBanner />
-          <CourseContextProvider>
-            <Course
-              course={course}
-              activeCourseRun={activeCourseRun}
-              userEnrollments={userEnrollments}
-              userEntitlements={userEntitlements}
-            />
-          </CourseContextProvider>
-        </Layout>
-      )}
+      <Layout>
+        <EnterpriseBanner />
+        <CourseContextProvider>
+          <Course
+            course={course}
+            activeCourseRun={activeCourseRun}
+            userEnrollments={userEnrollments}
+            userEntitlements={userEntitlements}
+          />
+        </CourseContextProvider>
+      </Layout>
     </EnterprisePage>
   );
 }
