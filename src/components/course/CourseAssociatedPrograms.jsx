@@ -8,36 +8,36 @@ import VerifiedSvgIcon from '../../assets/icons/verified.svg';
 import XSeriesSvgIcon from '../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../assets/icons/credit.svg';
 
+function formatProgramType(programType) {
+  switch (programType.toLowerCase()) {
+    case 'micromasters':
+    case 'microbachelors':
+      return <>{programType}<sup>&reg;</sup> Program</>;
+    case 'masters':
+      return 'Master\'s';
+    default:
+      return programType;
+  }
+}
+
+function getProgramIcon(type) {
+  switch (type) {
+    case 'XSeries':
+      return XSeriesSvgIcon;
+    case 'Professional Certificate':
+      return ProfessionalSvgIcon;
+    case 'MicroMasters':
+      return MicroMastersSvgIcon;
+    case 'Credit':
+      return CreditSvgIcon;
+    default:
+      return VerifiedSvgIcon;
+  }
+}
+
 export default function CourseAssociatedPrograms() {
   const { state } = useContext(CourseContext);
   const { course } = state;
-
-  function formatProgramType(programType) {
-    switch (programType.toLowerCase()) {
-      case 'micromasters':
-      case 'microbachelors':
-        return <>{programType}<sup>&reg;</sup> Program</>;
-      case 'masters':
-        return 'Master\'s';
-      default:
-        return programType;
-    }
-  }
-
-  function getProgramIcon(type) {
-    switch (type) {
-      case 'XSeries':
-        return XSeriesSvgIcon;
-      case 'Professional Certificate':
-        return ProfessionalSvgIcon;
-      case 'MicroMasters':
-        return MicroMastersSvgIcon;
-      case 'Credit':
-        return CreditSvgIcon;
-      default:
-        return VerifiedSvgIcon;
-    }
-  }
 
   return (
     <div className="associated-programs mb-5">
