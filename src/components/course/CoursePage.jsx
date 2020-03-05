@@ -7,12 +7,13 @@ import { Layout } from '../layout';
 import { CourseContextProvider } from './CourseContextProvider';
 import Course from './Course';
 
-import { isEmpty } from '../../utils';
 import {
   useCourseDetails,
   useUserEnrollments,
   useUserEntitlements,
 } from './data/hooks';
+
+import { isEmpty } from '../../utils';
 
 export default function CoursePage() {
   const { courseKey } = useParams();
