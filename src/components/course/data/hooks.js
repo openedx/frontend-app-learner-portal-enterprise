@@ -1,6 +1,6 @@
-import { useContext, useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import camelcaseKeys from 'camelcase-keys';
-import { AppContext } from '@edx/frontend-platform/react';
+import { logError } from '@edx/frontend-platform/logging';
 
 import {
   fetchCourseDetails,
@@ -10,10 +10,11 @@ import {
 } from './service';
 
 function useActiveCourseRunFromCourse(course) {
-  const [activeCourseRun, setActiveCourseRun] = useState({});
+  const [activeCourseRun, setActiveCourseRun] = useState(undefined);
 
   useEffect(() => {
     if (!course || !course.courseRuns) {
+      setActiveCourseRun(null);
       return;
     }
     if (course.courseRuns.length === 1) {
@@ -27,7 +28,7 @@ function useActiveCourseRunFromCourse(course) {
 }
 
 export function useCourseDetails(courseKey) {
-  const [course, setCourse] = useState({});
+  const [course, setCourse] = useState(undefined);
   const [activeCourseRun] = useActiveCourseRunFromCourse(course);
 
   useEffect(() => {
@@ -39,7 +40,8 @@ export function useCourseDetails(courseKey) {
           setCourse(transformedCourseData);
         })
         .catch((error) => {
-          throw new Error(error.message);
+          setCourse(null);
+          logError(new Error(error));
         });
     }
   }, [courseKey]);
@@ -135,7 +137,7 @@ export function useUserEnrollments() {
         setUserEnrollments(transformedEnrollmentsData);
       })
       .catch((error) => {
-        throw new Error(error.message);
+        logError(new Error(error));
       });
   }, []);
 
@@ -152,7 +154,7 @@ export function useUserEntitlements() {
         setUserEntitlements(transformedEntitlementsData);
       })
       .catch((error) => {
-        throw new Error(error.message);
+        logError(new Error(error));
       });
   }, []);
 
@@ -175,7 +177,7 @@ export function useCourseInEnterpriseCatalog({
           setIsCourseInCatalog(transformedResponseData.containsContentItems);
         })
         .catch((error) => {
-          throw new Error(error.message);
+          logError(new Error(error));
         });
     }
   }, [courseKey, enterpriseConfig]);

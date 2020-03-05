@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
@@ -10,12 +9,11 @@ import Course from './Course';
 
 import {
   useCourseDetails,
-  useCourseInEnterpriseCatalog,
   useUserEnrollments,
   useUserEntitlements,
 } from './data/hooks';
 
-import { isEmpty } from '../../utils';
+// import { isEmpty } from '../../utils';
 
 export default function CoursePage() {
   const { courseKey } = useParams();
@@ -23,7 +21,7 @@ export default function CoursePage() {
   const [userEnrollments] = useUserEnrollments();
   const [userEntitlements] = useUserEntitlements();
 
-  if (isEmpty(course) || isEmpty(activeCourseRun)) {
+  if (course === undefined) {
     return null;
   }
 
@@ -31,14 +29,20 @@ export default function CoursePage() {
     <EnterprisePage>
       <Layout>
         <EnterpriseBanner />
-        <CourseContextProvider>
-          <Course
-            course={course}
-            activeCourseRun={activeCourseRun}
-            userEnrollments={userEnrollments}
-            userEntitlements={userEntitlements}
-          />
-        </CourseContextProvider>
+        {course === null ? (
+          <div className="container-fluid py-4">
+            <p>Course Not Found</p>
+          </div>
+        ) : (
+          <CourseContextProvider>
+            <Course
+              course={course}
+              activeCourseRun={activeCourseRun}
+              userEnrollments={userEnrollments}
+              userEntitlements={userEntitlements}
+            />
+          </CourseContextProvider>
+        )}
       </Layout>
     </EnterprisePage>
   );
