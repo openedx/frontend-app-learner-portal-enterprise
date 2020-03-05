@@ -7,7 +7,7 @@ import MediaQuery from 'react-responsive';
 import { breakpoints, StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { LoadingSpinner } from '../loading-spinner';
+import { LoadingSpinner } from '../../../loading-spinner';
 import CourseSection from './CourseSection';
 import {
   InProgressCourseCard,
@@ -21,14 +21,14 @@ import * as actions from './data/actions';
 export class CourseEnrollments extends Component {
   componentDidMount() {
     const {
-      pageContext: {
-        enterpriseUUID,
+      enterpriseConfig: {
+        uuid: enterpriseUuid,
       },
     } = this.context;
     const { fetchCourseEnrollments } = this.props;
     const options = {};
-    if (enterpriseUUID) {
-      options.enterpriseUUID = enterpriseUUID;
+    if (enterpriseUuid) {
+      options.enterpriseUUID = enterpriseUuid;
     }
     fetchCourseEnrollments(options);
   }

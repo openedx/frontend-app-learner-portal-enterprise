@@ -1,4 +1,5 @@
-@import "~@edx/paragon/scss/edx/theme.scss";
+@import "~@edx/paragon/scss/edx/utilities-only";
+@import "~bootstrap/scss/type";
 
 .course {
   @extend .position-relative;

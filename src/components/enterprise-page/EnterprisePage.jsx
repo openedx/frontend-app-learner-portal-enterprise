@@ -3,12 +3,24 @@ import PropTypes from 'prop-types';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
-const EnterprisePage = ({
-  children,
-  pageContext,
-}) => {
+import { LoadingSpinner } from '../loading-spinner';
+
+import { useEnterpriseCustomerConfig } from './data/hooks';
+
+export default function EnterprisePage({ children }) {
+  const [enterpriseConfig] = useEnterpriseCustomerConfig();
+
   const user = getAuthenticatedUser();
   const { username } = user;
+
+  if (!enterpriseConfig || !enterpriseConfig.name) {
+    return (
+      <div className="py-5">
+        <LoadingSpinner screenReaderText="loading company details" />
+      </div>
+    );
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -65,24 +77,14 @@ const EnterprisePage = ({
             },
           },
         },
-        pageContext,
+        enterpriseConfig,
       }}
     >
       {children}
     </AppContext.Provider>
   );
-};
+}
 
 EnterprisePage.propTypes = {
-  children: PropTypes.element.isRequired,
-  pageContext: PropTypes.shape({
-    pageType: PropTypes.string,
-    pageBranding: PropTypes.shape({}),
-    enterpriseName: PropTypes.string,
-    enterpriseSlug: PropTypes.string,
-    enterpriseUUID: PropTypes.string,
-    enterpriseEmail: PropTypes.string,
-  }).isRequired,
+  children: PropTypes.node.isRequired,
 };
-
-export default EnterprisePage;

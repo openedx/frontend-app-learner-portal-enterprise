@@ -22,7 +22,7 @@ const MarkCompleteModal = ({
   onSuccess,
   onClose,
 }) => {
-  const { pageContext: { enterpriseUUID } } = useContext(AppContext);
+  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
     setState,

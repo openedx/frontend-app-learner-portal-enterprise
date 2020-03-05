@@ -14,6 +14,8 @@ import ReactDOM from 'react-dom';
 
 import { App } from './components/app';
 
+import './index.scss';
+
 subscribe(APP_READY, () => {
   ReactDOM.render(<App />, document.getElementById('root'));
 });

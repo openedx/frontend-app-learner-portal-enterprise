@@ -17,7 +17,7 @@ const CompletedCourseCard = props => {
             <img src={CertificateImg} alt="verified certificate preview" />
           </div>
           <div className="d-flex align-items-center">
-            <p className="mb-0 lead">
+            <p className="mb-0 lead font-weight-normal">
               View your certificate on
               {' '}
               <a className="text-underline" href={`${process.env.LMS_BASE_URL}/u/${username}`}>your profile →</a>
@@ -25,7 +25,7 @@ const CompletedCourseCard = props => {
           </div>
         </div>
       ) : (
-        <p className="lead mb-3">
+        <p className="lead mb-3 font-weight-normal">
           To earn a certificate,
           {' '}
           <a className="text-underline" href={props.linkToCourse}>retake this course →</a>

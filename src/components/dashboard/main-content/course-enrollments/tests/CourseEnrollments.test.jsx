@@ -8,7 +8,7 @@ import { breakpoints } from '@edx/paragon';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import '../../../__mocks__/reactResponsive.mock';
+import '../../../../../__mocks__/reactResponsive.mock';
 
 import { CourseEnrollments } from '../CourseEnrollments';
 
@@ -38,11 +38,11 @@ describe('<CourseEnrollments />', () => {
 
   describe('renders course enrollments correctly', () => {
     it('with no course enrollments', () => {
-      const pageContext = {
-        enterpriseUUID: 'test-enterprise-uuid',
+      const enterpriseConfig = {
+        uuid: 'test-enterprise-uuid',
       };
       const wrapper = mount((
-        <AppContext.Provider value={{ pageContext }}>
+        <AppContext.Provider value={{ enterpriseConfig }}>
           <CourseEnrollments {...initialProps} />
         </AppContext.Provider>
       ));
@@ -76,7 +76,7 @@ describe('<CourseEnrollments />', () => {
         upcoming: [],
         completed: [sampleCourseRun],
       };
-      const pageContext = {
+      const enterpriseConfig = {
         programUUID: 'test-program-uuid',
       };
       const store = mockStore({
@@ -88,7 +88,7 @@ describe('<CourseEnrollments />', () => {
       });
       const wrapper = mount((
         <Provider store={store}>
-          <AppContext.Provider value={{ pageContext }}>
+          <AppContext.Provider value={{ enterpriseConfig }}>
             <CourseEnrollments
               {...initialProps}
               courseRuns={courseRuns}
@@ -104,12 +104,12 @@ describe('<CourseEnrollments />', () => {
     });
 
     it('with error', () => {
-      const pageContext = {
-        enterpriseUUID: 'test-enterprise-uuid',
+      const enterpriseConfig = {
+        uuid: 'test-enterprise-uuid',
       };
       const tree = renderer
         .create((
-          <AppContext.Provider value={{ pageContext }}>
+          <AppContext.Provider value={{ enterpriseConfig }}>
             <CourseEnrollments
               {...initialProps}
               error={new Error('Network Error')}
@@ -121,12 +121,12 @@ describe('<CourseEnrollments />', () => {
     });
 
     it('with loading', () => {
-      const pageContext = {
-        enterpriseUUID: 'test-enterprise-uuid',
+      const enterpriseConfig = {
+        uuid: 'test-enterprise-uuid',
       };
       const tree = renderer
         .create((
-          <AppContext.Provider value={{ pageContext }}>
+          <AppContext.Provider value={{ enterpriseConfig }}>
             <CourseEnrollments
               {...initialProps}
               isLoading
@@ -138,12 +138,12 @@ describe('<CourseEnrollments />', () => {
     });
 
     it('with mark course as complete success status alert', () => {
-      const pageContext = {
-        enterpriseUUID: 'test-enterprise-uuid',
+      const enterpriseConfig = {
+        uuid: 'test-enterprise-uuid',
       };
       const tree = renderer
         .create((
-          <AppContext.Provider value={{ pageContext }}>
+          <AppContext.Provider value={{ enterpriseConfig }}>
             <CourseEnrollments
               {...initialProps}
               isMarkCourseCompleteSuccess
@@ -160,11 +160,11 @@ describe('<CourseEnrollments />', () => {
 
     it('is not shown at screen widths greater than or equal to large breakpoint', () => {
       global.innerWidth = breakpoints.large.minWidth;
-      const pageContext = {
-        enterpriseUUID: 'test-enterprise-uuid',
+      const enterpriseConfig = {
+        uuid: 'test-enterprise-uuid',
       };
       wrapper = mount((
-        <AppContext.Provider value={{ pageContext }}>
+        <AppContext.Provider value={{ enterpriseConfig }}>
           <CourseEnrollments {...initialProps} />
         </AppContext.Provider>
       ));
@@ -173,11 +173,11 @@ describe('<CourseEnrollments />', () => {
 
     it('is shown at screen widths less than large breakpoint', () => {
       global.innerWidth = breakpoints.small.minWidth;
-      const pageContext = {
-        enterpriseUUID: 'test-enterprise-uuid',
+      const enterpriseConfig = {
+        uuid: 'test-enterprise-uuid',
       };
       wrapper = mount((
-        <AppContext.Provider value={{ pageContext }}>
+        <AppContext.Provider value={{ enterpriseConfig }}>
           <CourseEnrollments {...initialProps} />
         </AppContext.Provider>
       ));
@@ -192,28 +192,28 @@ describe('<CourseEnrollments />', () => {
     });
 
     it('for enterprise page', () => {
-      const enterpriseUUID = 'test-enterprise-uuid';
-      const pageContext = {
-        enterpriseUUID,
+      const uuid = 'test-enterprise-uuid';
+      const enterpriseConfig = {
+        uuid,
       };
       mount((
-        <AppContext.Provider value={{ pageContext }}>
+        <AppContext.Provider value={{ enterpriseConfig }}>
           <CourseEnrollments {...initialProps} />
         </AppContext.Provider>
       ));
       expect(mockFetchCourseEnrollments.mock.calls.length).toEqual(1);
       expect(mockFetchCourseEnrollments).toBeCalledWith({
-        enterpriseUUID,
+        uuid,
       });
     });
   });
 
   it('properly closes mark course as complete success status alert', () => {
-    const pageContext = {
-      enterpriseUUID: 'test-enterprise-uuid',
+    const enterpriseConfig = {
+      uuid: 'test-enterprise-uuid',
     };
     const wrapper = mount((
-      <AppContext.Provider value={{ pageContext }}>
+      <AppContext.Provider value={{ enterpriseConfig }}>
         <CourseEnrollments
           {...initialProps}
           isMarkCourseCompleteSuccess

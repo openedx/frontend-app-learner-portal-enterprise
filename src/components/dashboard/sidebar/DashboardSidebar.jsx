@@ -44,11 +44,11 @@ class DashboardSidebar extends React.Component {
   }
 
   renderLearningCoordinatorHelpText() {
-    const { pageContext: { enterpriseName, enterpriseEmail } } = this.context;
-    if (enterpriseEmail) {
+    const { enterpriseConfig: { name: enterpriseName, contactEmail } } = this.context;
+    if (contactEmail) {
       return (
-        <a className="text-underline" href={`mailto:${enterpriseEmail}`}>
-          contact your {enterpriseName} learning coordinator
+        <a className="text-underline" href={`mailto:${contactEmail}`}>
+          contact your {contactEmail} learning coordinator
         </a>
       );
     }
@@ -56,7 +56,7 @@ class DashboardSidebar extends React.Component {
   }
 
   render() {
-    const { pageContext: { enterpriseName } } = this.context;
+    const { enterpriseConfig: { name: enterpriseName } } = this.context;
     const {
       offers,
       isOffersLoading,
