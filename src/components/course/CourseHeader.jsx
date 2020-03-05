@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Breadcrumb } from '@edx/paragon';
 
@@ -9,7 +10,9 @@ import { useCourseSubjects, useCoursePartners } from './data/hooks';
 
 import './styles/CourseHeader.scss';
 
-export default function CourseHeader() {
+export default function CourseHeader({
+  isCourseInCatalog,
+}) {
   const { state } = useContext(CourseContext);
   const { course } = state;
   const [, primarySubject] = useCourseSubjects(course);
@@ -58,9 +61,15 @@ export default function CourseHeader() {
                 ))}
               </div>
             )}
-            <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
-              <EnrollButton />
-            </div>
+            {isCourseInCatalog ? (
+              <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+                <EnrollButton />
+              </div>
+            ) : (
+              <p className="font-weight-bold">
+                This course is not part of your company&apos;s curated course catalog.
+              </p>
+            )}
           </div>
           {course.image && course.image.src && (
             <div className="col-8 col-lg-4 offset-lg-1 mt-3 mt-lg-0">
@@ -72,3 +81,7 @@ export default function CourseHeader() {
     </div>
   );
 }
+
+CourseHeader.propTypes = {
+  isCourseInCatalog: PropTypes.bool.isRequired,
+};

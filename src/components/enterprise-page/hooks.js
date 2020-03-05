@@ -23,10 +23,6 @@ export function useEnterpriseCustomerConfig() {
   const { enterpriseSlug } = useParams();
   const [enterpriseConfig, setEnterpriseConfig] = useState(initialConfig);
 
-  if (!enterpriseSlug) {
-    throw Error('Missing enterprise slug in the URL');
-  }
-
   useEffect(() => {
     fetchEntepriseCustomerConfig(enterpriseSlug)
       .then((response) => {

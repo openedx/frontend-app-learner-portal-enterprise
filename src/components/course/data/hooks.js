@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import camelcaseKeys from 'camelcase-keys';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import {
   fetchCourseDetails,
+  fetchEnterpriseCustomerContainsContent,
   fetchUserEnrollments,
   fetchUserEntitlements,
 } from './service';
@@ -155,4 +157,28 @@ export function useUserEntitlements() {
   }, []);
 
   return [userEntitlements];
+}
+
+export function useCourseInEnterpriseCatalog({
+  courseKey,
+  enterpriseConfig,
+}) {
+  const [isCourseInCatalog, setIsCourseInCatalog] = useState(undefined);
+
+  useEffect(() => {
+    if (courseKey && enterpriseConfig) {
+      const { uuid: enterpriseUuid } = enterpriseConfig;
+      fetchEnterpriseCustomerContainsContent({ enterpriseUuid, courseKey })
+        .then((response) => {
+          const { data: responseData } = response;
+          const transformedResponseData = camelcaseKeys(responseData);
+          setIsCourseInCatalog(transformedResponseData.containsContentItems);
+        })
+        .catch((error) => {
+          throw new Error(error.message);
+        });
+    }
+  }, [courseKey, enterpriseConfig]);
+
+  return [isCourseInCatalog];
 }

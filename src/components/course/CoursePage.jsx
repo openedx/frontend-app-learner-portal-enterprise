@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
@@ -9,6 +10,7 @@ import Course from './Course';
 
 import {
   useCourseDetails,
+  useCourseInEnterpriseCatalog,
   useUserEnrollments,
   useUserEntitlements,
 } from './data/hooks';

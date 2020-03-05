@@ -37,8 +37,8 @@ export default function EnrollButton() {
   const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
 
   /*
-   * TODO: this behavior mimics the existing B2C enrollment flow. instead, we will
-   * want to redirect learners to the basket flow instead of the track selection page
+   * TODO: this behavior mimics the existing B2C enrollment flow. we will want
+   * to redirect learners to the basket flow instead of the track selection page
    */
   useEffect(() => {
     if (enrollmentSubmitted) {

@@ -6,10 +6,13 @@ import { breakpoints } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { MainContent, Sidebar } from '../layout';
+import { LoadingSpinner } from '../loading-spinner';
 import { CourseContext } from './CourseContextProvider';
 import CourseHeader from './CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
+
+import { useCourseInEnterpriseCatalog } from './data/hooks';
 
 import { isEmpty } from '../../utils';
 
@@ -21,6 +24,10 @@ export default function Course({
 }) {
   const { enterpriseConfig } = useContext(AppContext);
   const { state, dispatch } = useContext(CourseContext);
+  const [isCourseInCatalog] = useCourseInEnterpriseCatalog({
+    courseKey: course.key,
+    enterpriseConfig,
+  });
 
   useEffect(() => {
     dispatch({ type: 'set-course', payload: course });
@@ -38,14 +45,18 @@ export default function Course({
     dispatch({ type: 'set-entitlements', payload: userEntitlements });
   }, [userEntitlements]);
 
-  if (isEmpty(state.course) || isEmpty(state.activeCourseRun)) {
-    return null;
+  if (isEmpty(state.course) || isEmpty(state.activeCourseRun) || isCourseInCatalog === undefined) {
+    return (
+      <div className="py-5">
+        <LoadingSpinner screenReaderText="loading course details" />
+      </div>
+    );
   }
 
   return (
     <>
       <Helmet title={`${state.course.title} - ${enterpriseConfig.name}`} />
-      <CourseHeader />
+      <CourseHeader isCourseInCatalog={isCourseInCatalog} />
       <div className="container-fluid py-5">
         <div className="row">
           <MainContent>
@@ -67,6 +78,7 @@ export default function Course({
 Course.propTypes = {
   course: PropTypes.shape({
     title: PropTypes.string.isRequired,
+    key: PropTypes.string.isRequired,
   }).isRequired,
   activeCourseRun: PropTypes.shape({}).isRequired,
   userEnrollments: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
