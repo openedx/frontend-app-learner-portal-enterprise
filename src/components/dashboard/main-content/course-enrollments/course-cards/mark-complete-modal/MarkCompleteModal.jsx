@@ -22,7 +22,7 @@ const MarkCompleteModal = ({
   onSuccess,
   onClose,
 }) => {
-  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
+  const { enterpriseConfig: { uuid } } = useContext(AppContext);
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
     setState,
@@ -31,13 +31,13 @@ const MarkCompleteModal = ({
   const handleConfirmButtonClick = async () => {
     setState({ confirmButtonState: 'pending' });
     try {
-      const res = await markCourseAsCompleteRequest({
-        enterprise_id: enterpriseUUID,
+      const response = await markCourseAsCompleteRequest({
+        enterprise_id: uuid,
         course_id: courseId,
         marked_done: 'True',
       });
       onSuccess({
-        response: camelCaseObject(res.data),
+        response: camelCaseObject(response.data),
         /**
          * We're passing a function to reset the `MarkCompleteModal` state
          * to its initial state here. That way, the consumer of this component

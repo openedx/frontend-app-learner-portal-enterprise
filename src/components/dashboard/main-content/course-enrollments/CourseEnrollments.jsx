@@ -22,13 +22,13 @@ export class CourseEnrollments extends Component {
   componentDidMount() {
     const {
       enterpriseConfig: {
-        uuid: enterpriseUuid,
+        uuid,
       },
     } = this.context;
     const { fetchCourseEnrollments } = this.props;
     const options = {};
-    if (enterpriseUuid) {
-      options.enterpriseUUID = enterpriseUuid;
+    if (uuid) {
+      options.uuid = uuid;
     }
     fetchCourseEnrollments(options);
   }
