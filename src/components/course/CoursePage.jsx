@@ -13,8 +13,6 @@ import {
   useUserEntitlements,
 } from './data/hooks';
 
-// import { isEmpty } from '../../utils';
-
 export default function CoursePage() {
   const { courseKey } = useParams();
   const [course, activeCourseRun] = useCourseDetails(courseKey);
