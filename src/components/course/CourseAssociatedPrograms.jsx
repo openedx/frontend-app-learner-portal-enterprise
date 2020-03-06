@@ -59,11 +59,7 @@ export default function CourseAssociatedPrograms() {
               </div>
             </div>
             <div className="col">
-              <a
-                href={`${process.env.MARKETING_SITE_URL}/${program.marketingUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={`${process.env.MARKETING_SITE_URL}/${program.marketingUrl}`}>
                 {program.title}
               </a>
             </div>

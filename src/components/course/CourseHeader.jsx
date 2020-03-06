@@ -19,7 +19,7 @@ export default function CourseHeader({
   const [partners] = useCoursePartners(course);
 
   return (
-    <div style={{ boxShadow: '0 8px 16px 0 rgba(0,0,0,.15)' }}>
+    <div className="course-header">
       <div className="container-fluid">
         <div className="row py-4">
           <div className="col-12 col-lg-7">

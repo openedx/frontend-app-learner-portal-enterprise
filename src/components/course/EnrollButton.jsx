@@ -68,13 +68,18 @@ export default function EnrollButton() {
       }
       if (isCourseSelfPaced(pacingType)) {
         if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isArchived(activeCourseRun)) {
-          return <>Enroll<div><small>Starts {moment().format('MMM D, YYYY')}</small></div></>;
+          return (
+            <>
+              <span className="enroll-label">Enroll</span>
+              <div><small>Starts {moment().format('MMM D, YYYY')}</small></div>
+            </>
+          );
         }
         return <>Enroll</>;
       }
       return (
         <>
-          Enroll
+          <span className="enroll-label">Enroll</span>
           <div>
             <small>
               {isCourseStarted ? 'Started' : 'Starts'}

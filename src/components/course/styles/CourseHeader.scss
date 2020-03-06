@@ -1,7 +1,16 @@
 @import "~@edx/paragon/scss/edx/utilities-only";
 
-.enroll-wrapper {
-  .btn:focus:before {
-    @extend .rounded-0;
+.course-header {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,.15);
+
+  .enroll-wrapper {
+    .btn {
+      &:focus:before {
+        @extend .rounded-0;
+      }
+      .enroll-label {
+        font-size: 1.125rem;
+      }
+    }
   }
 }
