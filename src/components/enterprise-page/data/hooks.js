@@ -5,31 +5,20 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { fetchEntepriseCustomerConfig } from './service';
 
-const initialConfig = {
-  name: undefined,
-  slug: undefined,
-  uuid: undefined,
-  contactEmail: undefined,
-  branding: {
-    logoUrl: undefined,
-    banner: {
-      borderColor: '#007D88',
-      backgroundColor: '#D7E3FC',
-    },
-  },
-};
+const defaultBorderColor = '#007D88';
+const defaultBackgroundColor = '#D7E3FC';
 
 // eslint-disable-next-line import/prefer-default-export
 export function useEnterpriseCustomerConfig() {
   const { enterpriseSlug } = useParams();
-  const [enterpriseConfig, setEnterpriseConfig] = useState(initialConfig);
+  const [enterpriseConfig, setEnterpriseConfig] = useState(undefined);
 
   useEffect(() => {
     fetchEntepriseCustomerConfig(enterpriseSlug)
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
-        if (config) {
+        if (config && config.enableLearnerPortal) {
           const {
             name,
             uuid,
@@ -49,15 +38,18 @@ export function useEnterpriseCustomerConfig() {
             branding: {
               logo,
               banner: {
-                backgroundColor: bannerBackgroundColor || initialConfig.branding.banner.backgroundColor,
-                borderColor: bannerBorderColor || initialConfig.branding.banner.borderColor,
+                backgroundColor: bannerBackgroundColor || defaultBackgroundColor,
+                borderColor: bannerBorderColor || defaultBorderColor,
               },
             },
           });
+        } else {
+          setEnterpriseConfig(null);
         }
       })
       .catch((error) => {
         logError(new Error(error));
+        setEnterpriseConfig(null);
       });
   }, [enterpriseSlug]);
 
