@@ -1,26 +1,26 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 
-const Hero = () => {
+export default function EnterpriseBanner() {
   const {
-    pageContext: {
-      enterpriseName,
-      pageBranding: {
-        banner_background_color: backgroundColor,
-        banner_border_color: borderColor,
+    enterpriseConfig: {
+      name: enterpriseName,
+      branding: {
+        banner: {
+          backgroundColor,
+          borderColor,
+        },
       },
     },
   } = useContext(AppContext);
 
   return (
     <div style={{ backgroundColor }}>
-      <div className="container">
+      <div className="container-fluid">
         <h1 className="mb-0 py-3 pl-3" style={{ borderLeft: `15px solid ${borderColor}` }}>
           {enterpriseName}
         </h1>
       </div>
     </div>
   );
-};
-
-export default Hero;
+}

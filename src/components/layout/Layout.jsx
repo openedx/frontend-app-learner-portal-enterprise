@@ -10,13 +10,9 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import EdXLogo from '../../assets/edx-logo.svg';
 import './styles/Layout.scss';
 
-const Layout = ({
-  children,
-  headerLogo,
-  footerLogo,
-}) => {
+export default function Layout({ children }) {
   const context = useContext(AppContext);
-  const { pageContext } = context;
+  const { enterpriseConfig } = context;
 
   const user = getAuthenticatedUser();
   const {
@@ -36,39 +32,28 @@ const Layout = ({
           <html lang="en" />
         </Helmet>
         <SiteHeader
-          logo={headerLogo || EdXLogo}
-          logoDestination={`${process.env.BASE_URL}/${pageContext.enterpriseSlug}`}
-          logoAltText={pageContext.enterpriseName}
+          logo={enterpriseConfig.branding.logo || EdXLogo}
+          logoDestination={`${process.env.BASE_URL}/${enterpriseConfig.slug}`}
+          logoAltText={`${enterpriseConfig.name} logo`}
           loggedIn={!!username}
           username={username}
           avatar={profileImage.imageUrlMedium}
           mainMenu={getHeaderMenuItems('mainMenu')}
           userMenu={getHeaderMenuItems('userMenu')}
-          loggedOutItems={[
-            { type: 'item', href: '#', content: 'Login' },
-            { type: 'item', href: '#', content: 'Sign Up' },
-          ]}
+          loggedOutItems={[]}
           skipNavId="content"
         />
         <main id="content">
           {children}
         </main>
-        <SiteFooter logo={footerLogo || EdXLogo} />
+        <SiteFooter
+          logo="https://files.edx.org/openedx-logos/edx-openedx-logo-tag.png"
+        />
       </>
     </IntlProvider>
   );
-};
-
-Layout.defaultProps = {
-  children: [],
-  headerLogo: null,
-  footerLogo: null,
-};
+}
 
 Layout.propTypes = {
-  children: PropTypes.node,
-  headerLogo: PropTypes.string,
-  footerLogo: PropTypes.string,
+  children: PropTypes.node.isRequired,
 };
-
-export default Layout;

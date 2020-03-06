@@ -22,12 +22,12 @@ describe('<BaseCourseCard />', () => {
     let wrapper;
 
     beforeEach(() => {
-      const pageContext = {
-        enterpriseName: 'test-enterprise-name',
+      const enterpriseConfig = {
+        name: 'test-enterprise-name',
       };
       wrapper = mount((
         <Provider store={mockStore()}>
-          <AppContext.Provider value={{ pageContext }}>
+          <AppContext.Provider value={{ enterpriseConfig }}>
             <BaseCourseCard
               type="completed"
               title="edX Demonstration Course"

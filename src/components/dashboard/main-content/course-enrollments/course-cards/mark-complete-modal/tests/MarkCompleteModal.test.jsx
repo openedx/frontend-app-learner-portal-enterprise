@@ -18,8 +18,8 @@ describe('<MarkCompleteModal />', () => {
     courseLink: 'https://edx.org',
   };
 
-  const pageContext = {
-    enterpriseUUID: 'example-enterprise-uuid',
+  const enterpriseConfig = {
+    uuid: 'example-enterprise-uuid',
   };
 
   it('handles confirm click with success', () => {
@@ -30,7 +30,7 @@ describe('<MarkCompleteModal />', () => {
         },
       }));
     const wrapper = mount((
-      <AppContext.Provider value={{ pageContext }}>
+      <AppContext.Provider value={{ enterpriseConfig }}>
         <MarkCompleteModal
           {...initialProps}
         />
@@ -49,7 +49,7 @@ describe('<MarkCompleteModal />', () => {
     service.markCourseAsCompleteRequest = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('test error')));
     const wrapper = mount((
-      <AppContext.Provider value={{ pageContext }}>
+      <AppContext.Provider value={{ enterpriseConfig }}>
         <MarkCompleteModal
           {...initialProps}
         />
@@ -69,7 +69,7 @@ describe('<MarkCompleteModal />', () => {
   it('handles close modal', () => {
     const mockOnClose = jest.fn();
     const wrapper = mount((
-      <AppContext.Provider value={{ pageContext }}>
+      <AppContext.Provider value={{ enterpriseConfig }}>
         <MarkCompleteModal
           {...initialProps}
           onClose={mockOnClose}

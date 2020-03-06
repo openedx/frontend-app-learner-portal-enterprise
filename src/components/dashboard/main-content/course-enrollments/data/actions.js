@@ -54,8 +54,8 @@ export const fetchCourseEnrollments = options => (
   (dispatch) => {
     dispatch(fetchCourseEnrollmentsRequest());
     let serviceMethod;
-    if (options.enterpriseUUID) {
-      serviceMethod = () => service.fetchEnterpriseCourseEnrollments(options.enterpriseUUID);
+    if (options.uuid) {
+      serviceMethod = () => service.fetchEnterpriseCourseEnrollments(options.uuid);
     }
     if (serviceMethod) {
       return serviceMethod()

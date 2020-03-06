@@ -2,11 +2,11 @@ import React, { useContext } from 'react';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { CourseEnrollments } from '../../course-enrollments';
 import { DashboardSidebar } from '../sidebar';
+import { CourseEnrollments } from './course-enrollments';
 
 const DashboardMainContent = () => {
-  const { pageContext: { enterpriseName } } = useContext(AppContext);
+  const { enterpriseConfig: { name: enterpriseName } } = useContext(AppContext);
   return (
     <CourseEnrollments sidebarComponent={<DashboardSidebar />}>
       <h2 className="h3">Browse courses</h2>
