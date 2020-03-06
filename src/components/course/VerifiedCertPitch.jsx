@@ -1,21 +1,31 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRoad, faRocket } from '@fortawesome/free-solid-svg-icons';
 
+import './styles/VerifiedCertPitch.scss';
+
+function VerifiedCertPitchIcon({ icon }) {
+  return (
+    <div className="icon d-flex bg-primary mr-3 p-2 align-items-center justify-content-center">
+      <FontAwesomeIcon className="text-white" icon={icon} />
+    </div>
+  );
+}
+
+VerifiedCertPitchIcon.propTypes = {
+  icon: PropTypes.shape({}).isRequired,
+};
+
 export default function VerifiedCertPitch() {
   return (
-    <div className="mb-5">
+    <div className="verified-cert-pitch mb-5">
       <h3 className="mb-4">
         Pursue a Verified Certificate to highlight the knowledge and skills you gain
       </h3>
-      <ul className="pl-0 mb-0" style={{ listStyleType: 'none' }}>
+      <ul className="pl-0 mb-0 list-unstyled">
         <li className="d-flex mb-4">
-          <div
-            className="d-flex bg-primary p-2 align-items-center justify-content-center mr-3"
-            style={{ borderRadius: '50%', height: 44, width: 44 }}
-          >
-            <FontAwesomeIcon className="text-white" icon={faRocket} />
-          </div>
+          <VerifiedCertPitchIcon icon={faRocket} />
           <div>
             <h4 className="h5">Official and Verified</h4>
             <span>
@@ -25,12 +35,7 @@ export default function VerifiedCertPitch() {
           </div>
         </li>
         <li className="d-flex mb-4">
-          <div
-            className="d-flex bg-primary p-2 align-items-center justify-content-center mr-3"
-            style={{ borderRadius: '50%', height: 44, width: 44 }}
-          >
-            <FontAwesomeIcon className="text-white" icon={faRoad} />
-          </div>
+          <VerifiedCertPitchIcon icon={faRoad} />
           <div>
             <h4 className="h5">Easily Shareable</h4>
             <span>

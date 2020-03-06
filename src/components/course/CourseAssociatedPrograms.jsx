@@ -11,7 +11,7 @@ export default function CourseAssociatedPrograms() {
   return (
     <div className="associated-programs mb-5">
       <h3>Associated Programs</h3>
-      <ul className="pl-0" style={{ listStyleType: 'none' }}>
+      <ul className="pl-0 list-unstyled">
         {course.programs.map(program => (
           <li key={program.uuid} className="mb-3 row">
             <div className="col d-flex">
