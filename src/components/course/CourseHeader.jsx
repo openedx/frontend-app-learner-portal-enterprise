@@ -6,7 +6,6 @@ import { Breadcrumb } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
 import EnrollButton from './EnrollButton';
 
-
 import {
   isArchived,
   getDefaultProgram,
