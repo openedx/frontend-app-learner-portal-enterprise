@@ -4,6 +4,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { LoadingSpinner } from '../loading-spinner';
+import NotFoundPage from '../NotFoundPage';
 
 import { useEnterpriseCustomerConfig } from './data/hooks';
 
@@ -12,6 +13,12 @@ export default function EnterprisePage({ children }) {
 
   const user = getAuthenticatedUser();
   const { username } = user;
+
+  // We explicitly set enterpriseConfig to null if there is no configuration, the learner portal is
+  // not enabled, or there was an error fetching the configuration. In all these cases, we want to 404.
+  if (enterpriseConfig === null) {
+    return <NotFoundPage />;
+  }
 
   if (!enterpriseConfig || !enterpriseConfig.name) {
     return (
