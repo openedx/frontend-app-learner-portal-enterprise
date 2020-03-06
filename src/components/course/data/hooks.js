@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import camelcaseKeys from 'camelcase-keys';
 import { logError } from '@edx/frontend-platform/logging';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import {
   fetchCourseDetails,
@@ -36,7 +36,7 @@ export function useCourseDetails(courseKey) {
       fetchCourseDetails(courseKey)
         .then((response) => {
           const { data: courseData } = response;
-          const transformedCourseData = camelcaseKeys(courseData, { deep: true });
+          const transformedCourseData = camelCaseObject(courseData);
           setCourse(transformedCourseData);
         })
         .catch((error) => {
@@ -133,7 +133,7 @@ export function useUserEnrollments() {
     fetchUserEnrollments()
       .then((response) => {
         const { data: enrollmentsData } = response;
-        const transformedEnrollmentsData = camelcaseKeys(enrollmentsData, { deep: true });
+        const transformedEnrollmentsData = camelCaseObject(enrollmentsData);
         setUserEnrollments(transformedEnrollmentsData);
       })
       .catch((error) => {
@@ -150,7 +150,7 @@ export function useUserEntitlements() {
     fetchUserEntitlements()
       .then((response) => {
         const { data: entitlementsData } = response;
-        const transformedEntitlementsData = camelcaseKeys(entitlementsData.results, { deep: true });
+        const transformedEntitlementsData = camelCaseObject(entitlementsData.results);
         setUserEntitlements(transformedEntitlementsData);
       })
       .catch((error) => {
@@ -173,7 +173,7 @@ export function useCourseInEnterpriseCatalog({
       fetchEnterpriseCustomerContainsContent({ enterpriseUuid, courseKey })
         .then((response) => {
           const { data: responseData } = response;
-          const transformedResponseData = camelcaseKeys(responseData);
+          const transformedResponseData = camelCaseObject(responseData);
           setIsCourseInCatalog(transformedResponseData.containsContentItems);
         })
         .catch((error) => {
