@@ -19,7 +19,7 @@ export default function CoursePage() {
   const [userEnrollments] = useUserEnrollments();
   const [userEntitlements] = useUserEntitlements();
 
-  if (course === undefined) {
+  if (course === undefined || activeCourseRun === undefined) {
     return null;
   }
 

@@ -64,36 +64,38 @@ export default function EnrollButton() {
     }
     if (!isUserEnrolled) {
       if (isUserEntitledForCourse({ userEntitlements, courseUuid })) {
-        return <>View on Dashboard</>;
+        return <span className="enroll-btn-label">View on Dashboard</span>;
       }
       if (isCourseSelfPaced(pacingType)) {
         if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isArchived(activeCourseRun)) {
           return (
             <>
-              <span className="enroll-label">Enroll</span>
+              <span className="enroll-btn-label">Enroll</span>
               <div><small>Starts {moment().format('MMM D, YYYY')}</small></div>
             </>
           );
         }
-        return <>Enroll</>;
+        return <span className="enroll-btn-label">Enroll</span>;
       }
       return (
         <>
-          <span className="enroll-label">Enroll</span>
-          <div>
-            <small>
-              {isCourseStarted ? 'Started' : 'Starts'}
-              {' '}
-              {moment(start).format('MMM D, YYYY')}
-            </small>
-          </div>
+          <span className="enroll-btn-label">Enroll</span>
+          {!isArchived(activeCourseRun) && (
+            <div>
+              <small>
+                {isCourseStarted ? 'Started' : 'Starts'}
+                {' '}
+                {moment(start).format('MMM D, YYYY')}
+              </small>
+            </div>
+          )}
         </>
       );
     }
     if (isUserEnrolled && !isCourseStarted) {
-      return <>You are Enrolled</>;
+      return <span className="enroll-btn-label">You are Enrolled</span>;
     }
-    return <>View Course</>;
+    return <span className="enroll-btn-label">View Course</span>;
   };
 
   const enroll = useCallback(
@@ -125,17 +127,19 @@ export default function EnrollButton() {
 
     if (!isUserEnrolled && !isEnrollable) {
       return (
-        <div className="alert alert-secondary text-center rounded-0">{renderButtonLabel()}</div>
+        <div className="alert alert-secondary text-center rounded-0">
+          {renderButtonLabel()}
+        </div>
       );
     }
 
     if (isUserEnrolled) {
       return (
         <a
+          className="btn btn-success btn-block rounded-0 py-2"
           href={isCourseStarted
             ? `${process.env.LMS_BASE_URL}/courses/${key}/info`
             : `${process.env.LMS_BASE_URL}/dashboard`}
-          className="btn btn-success btn-block rounded-0 py-2"
         >
           {renderButtonLabel()}
         </a>
@@ -150,15 +154,8 @@ export default function EnrollButton() {
   };
 
   return (
-    <>
-      {isArchived(activeCourseRun) && (
-        <div className="mb-2 font-weight-bold">
-          Archived: Future Dates To Be Announced
-        </div>
-      )}
-      <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
-        {renderEnrollCta()}
-      </div>
-    </>
+    <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+      {renderEnrollCta()}
+    </div>
   );
 }

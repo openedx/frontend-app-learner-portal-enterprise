@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Breadcrumb } from '@edx/paragon';
@@ -6,17 +6,26 @@ import { Breadcrumb } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
 import EnrollButton from './EnrollButton';
 
+
+import {
+  isArchived,
+  getDefaultProgram,
+  formatProgramType,
+} from './data/utils';
 import { useCourseSubjects, useCoursePartners } from './data/hooks';
 
 import './styles/CourseHeader.scss';
 
-export default function CourseHeader({
-  isCourseInCatalog,
-}) {
+export default function CourseHeader({ isCourseInCatalog }) {
   const { state } = useContext(CourseContext);
-  const { course } = state;
+  const { course, activeCourseRun } = state;
   const [, primarySubject] = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
+
+  const defaultProgram = useMemo(
+    () => getDefaultProgram(course.programs),
+    [course],
+  );
 
   return (
     <div className="course-header">
@@ -45,7 +54,7 @@ export default function CourseHeader({
               />
             )}
             {partners.length > 0 && (
-              <div className="mb-4">
+              <div className="mb-5">
                 {partners.map(partner => (
                   <a
                     className="d-inline-block mr-4"
@@ -62,7 +71,19 @@ export default function CourseHeader({
               </div>
             )}
             {isCourseInCatalog ? (
-              <EnrollButton />
+              <>
+                {isArchived(activeCourseRun) && (
+                  <p className="font-weight-bold">
+                    Archived: Future Dates To Be Announced
+                  </p>
+                )}
+                <EnrollButton />
+                {defaultProgram && (
+                  <p className="font-weight-bold">
+                    This course is part of a {formatProgramType(defaultProgram.type)}.
+                  </p>
+                )}
+              </>
             ) : (
               <p className="font-weight-bold">
                 This course is not part of your company&apos;s curated course catalog.
@@ -70,7 +91,7 @@ export default function CourseHeader({
             )}
           </div>
           {course.image && course.image.src && (
-            <div className="col-8 col-lg-4 offset-lg-1 mt-3 mt-lg-0">
+            <div className="col-12 col-lg-4 offset-lg-1 mt-3 mt-lg-0">
               <img src={course.image.src} alt="course preview" className="w-100" />
             </div>
           )}

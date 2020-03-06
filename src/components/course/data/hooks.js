@@ -14,7 +14,6 @@ function useActiveCourseRunFromCourse(course) {
 
   useEffect(() => {
     if (!course || !course.courseRuns) {
-      setActiveCourseRun(null);
       return;
     }
     if (course.courseRuns.length === 1) {
