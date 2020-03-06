@@ -17,7 +17,7 @@ export default function Layout({ children }) {
   const user = getAuthenticatedUser();
   const {
     username,
-    profileImage = {},
+    profileImage,
   } = user;
 
   function getHeaderMenuItems(key) {
