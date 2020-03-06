@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import camelcaseKeys from 'camelcase-keys';
 import { logError } from '@edx/frontend-platform/logging';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { fetchEntepriseCustomerConfig } from './service';
 
@@ -27,7 +27,7 @@ export function useEnterpriseCustomerConfig() {
   useEffect(() => {
     fetchEntepriseCustomerConfig(enterpriseSlug)
       .then((response) => {
-        const { results } = camelcaseKeys(response.data, { deep: true });
+        const { results } = camelCaseObject(response.data);
         const config = results.pop();
         if (config) {
           const {
