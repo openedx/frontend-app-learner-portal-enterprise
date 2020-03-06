@@ -107,43 +107,58 @@ export default function EnrollButton() {
           throw new Error(error.message);
         });
     },
-    [],
+    [key, emailOptIn],
   );
 
-  if (!isUserEnrolled && isEnrollable) {
+  const renderEnrollCta = () => {
+    if (!isUserEnrolled && isEnrollable) {
+      return (
+        <Button
+          className="btn-success btn-block rounded-0 py-2"
+          onClick={enroll}
+          disabled={isEnrollDisabled}
+        >
+          {renderButtonLabel()}
+        </Button>
+      );
+    }
+
+    if (!isUserEnrolled && !isEnrollable) {
+      return (
+        <div className="alert alert-secondary text-center rounded-0">{renderButtonLabel()}</div>
+      );
+    }
+
+    if (isUserEnrolled) {
+      return (
+        <a
+          href={isCourseStarted
+            ? `${process.env.LMS_BASE_URL}/courses/${key}/info`
+            : `${process.env.LMS_BASE_URL}/dashboard`}
+          className="btn btn-success btn-block rounded-0 py-2"
+        >
+          {renderButtonLabel()}
+        </a>
+      );
+    }
+
     return (
-      <Button
-        className="btn-success btn-block rounded-0 py-2"
-        onClick={enroll}
-        disabled={isEnrollDisabled}
-      >
+      <Button className="btn-success btn-block rounded-0 py-2">
         {renderButtonLabel()}
       </Button>
     );
-  }
-
-  if (!isUserEnrolled && !isEnrollable) {
-    return (
-      <div className="alert alert-secondary text-center rounded-0">{renderButtonLabel()}</div>
-    );
-  }
-
-  if (isUserEnrolled) {
-    return (
-      <a
-        href={isCourseStarted
-          ? `${process.env.LMS_BASE_URL}/courses/${key}/info`
-          : `${process.env.LMS_BASE_URL}/dashboard`}
-        className="btn btn-success btn-block rounded-0 py-2"
-      >
-        {renderButtonLabel()}
-      </a>
-    );
-  }
+  };
 
   return (
-    <Button className="btn-success btn-block rounded-0 py-2">
-      {renderButtonLabel()}
-    </Button>
+    <>
+      {isArchived(activeCourseRun) && (
+        <div className="mb-2 font-weight-bold">
+          Archived: Future Dates To Be Announced
+        </div>
+      )}
+      <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+        {renderEnrollCta()}
+      </div>
+    </>
   );
 }

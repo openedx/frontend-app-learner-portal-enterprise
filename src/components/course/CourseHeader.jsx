@@ -62,9 +62,7 @@ export default function CourseHeader({
               </div>
             )}
             {isCourseInCatalog ? (
-              <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
-                <EnrollButton />
-              </div>
+              <EnrollButton />
             ) : (
               <p className="font-weight-bold">
                 This course is not part of your company&apos;s curated course catalog.
