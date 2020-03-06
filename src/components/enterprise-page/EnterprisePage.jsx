@@ -12,7 +12,7 @@ export default function EnterprisePage({ children }) {
   const [enterpriseConfig] = useEnterpriseCustomerConfig();
 
   const user = getAuthenticatedUser();
-  const { username } = user;
+  const { username, profileImage } = user;
 
   // We explicitly set enterpriseConfig to null if there is no configuration, the learner portal is
   // not enabled, or there was an error fetching the configuration. In all these cases, we want to 404.
@@ -20,7 +20,8 @@ export default function EnterprisePage({ children }) {
     return <NotFoundPage />;
   }
 
-  if (!enterpriseConfig || !enterpriseConfig.name) {
+  // Render the app as loading while waiting on the configuration or additional user metadata
+  if (!enterpriseConfig || !enterpriseConfig.name || !profileImage) {
     return (
       <div className="py-5">
         <LoadingSpinner screenReaderText="loading company details" />
