@@ -1,8 +1,7 @@
 import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-// eslint-disable-next-line import/prefer-default-export
-export class CourseService {
+export default class CourseService {
   constructor(options = {}) {
     const { courseKey, enterpriseUuid } = options;
 
@@ -48,7 +47,7 @@ export class CourseService {
 
   fetchEnterpriseCustomerContainsContent() {
     const options = { course_run_ids: this.courseKey };
-    const url = `${process.env.ENTERPRISE_CATALOG_API_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
+    const url = `${process.env.ENTERPRISE_CATALOG_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
     return this.authenticatedHttpClient.get(url);
   }
 

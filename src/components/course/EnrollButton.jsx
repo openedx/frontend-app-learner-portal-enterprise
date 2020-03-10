@@ -7,7 +7,7 @@ import { Button } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
 
-import { CourseService } from './data/service';
+import CourseService from './data/service';
 
 import {
   hasCourseStarted,
