@@ -2,50 +2,33 @@ import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import {
-  fetchCourseDetails,
-  fetchEnterpriseCustomerContainsContent,
-  fetchUserEnrollments,
-  fetchUserEntitlements,
-} from './service';
+import { CourseService } from './service';
 
-function useActiveCourseRunFromCourse(course) {
-  const [activeCourseRun, setActiveCourseRun] = useState(undefined);
+export function useAllCourseData({ courseKey, enterpriseConfig }) {
+  const [courseData, setCourseData] = useState();
+  const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
-    if (!course || !course.courseRuns) {
-      return;
-    }
-    if (course.courseRuns.length === 1) {
-      setActiveCourseRun(course.courseRuns[0]);
-    } else if (course.courseRuns.length > 1) {
-      setActiveCourseRun(course.courseRuns.pop());
-    }
-  }, [course]);
-
-  return [activeCourseRun];
-}
-
-export function useCourseDetails(courseKey) {
-  const [course, setCourse] = useState(undefined);
-  const [activeCourseRun] = useActiveCourseRunFromCourse(course);
-
-  useEffect(() => {
-    if (courseKey) {
-      fetchCourseDetails(courseKey)
-        .then((response) => {
-          const { data: courseData } = response;
-          const transformedCourseData = camelCaseObject(courseData);
-          setCourse(transformedCourseData);
-        })
-        .catch((error) => {
-          setCourse(null);
-          logError(new Error(error));
+    const fetchData = async () => {
+      if (courseKey && enterpriseConfig) {
+        const courseService = new CourseService({
+          enterpriseUuid: enterpriseConfig.uuid,
+          courseKey,
         });
-    }
-  }, [courseKey]);
+        try {
+          const data = await courseService.fetchAllCourseData();
+          setCourseData(data);
+        } catch (error) {
+          logError(error);
+          setFetchError(error);
+        }
+      }
+      return undefined;
+    };
+    fetchData();
+  }, [courseKey, enterpriseConfig]);
 
-  return [course, activeCourseRun];
+  return [camelCaseObject(courseData), fetchError];
 }
 
 export function useCourseSubjects(course) {
@@ -124,62 +107,4 @@ export function useCourseTranscriptLanguages(courseRun) {
   }, [courseRun]);
 
   return [languages, label];
-}
-
-export function useUserEnrollments() {
-  const [userEnrollments, setUserEnrollments] = useState([]);
-  useEffect(() => {
-    fetchUserEnrollments()
-      .then((response) => {
-        const { data: enrollmentsData } = response;
-        const transformedEnrollmentsData = camelCaseObject(enrollmentsData);
-        setUserEnrollments(transformedEnrollmentsData);
-      })
-      .catch((error) => {
-        logError(new Error(error));
-      });
-  }, []);
-
-  return [userEnrollments];
-}
-
-export function useUserEntitlements() {
-  const [userEntitlements, setUserEntitlements] = useState([]);
-  useEffect(() => {
-    fetchUserEntitlements()
-      .then((response) => {
-        const { data: entitlementsData } = response;
-        const transformedEntitlementsData = camelCaseObject(entitlementsData.results);
-        setUserEntitlements(transformedEntitlementsData);
-      })
-      .catch((error) => {
-        logError(new Error(error));
-      });
-  }, []);
-
-  return [userEntitlements];
-}
-
-export function useCourseInEnterpriseCatalog({
-  courseKey,
-  enterpriseConfig,
-}) {
-  const [isCourseInCatalog, setIsCourseInCatalog] = useState(undefined);
-
-  useEffect(() => {
-    if (courseKey && enterpriseConfig) {
-      const { uuid: enterpriseUuid } = enterpriseConfig;
-      fetchEnterpriseCustomerContainsContent({ enterpriseUuid, courseKey })
-        .then((response) => {
-          const { data: responseData } = response;
-          const transformedResponseData = camelCaseObject(responseData);
-          setIsCourseInCatalog(transformedResponseData.containsContentItems);
-        })
-        .catch((error) => {
-          logError(new Error(error));
-        });
-    }
-  }, [courseKey, enterpriseConfig]);
-
-  return [isCourseInCatalog];
 }

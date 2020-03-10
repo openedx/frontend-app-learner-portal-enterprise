@@ -12,6 +12,13 @@ export function hasCourseStarted(start) {
   return startDate && today >= startDate;
 }
 
+export function getActiveCourseRun(course) {
+  if (!course || !course.courseRuns || course.courseRuns.length === 0) {
+    return undefined;
+  }
+  return course.courseRuns.pop();
+}
+
 export function isUserEnrolledInCourse({ userEnrollments, key }) {
   return userEnrollments.some(({ courseDetails: { courseId } }) => courseId === key);
 }

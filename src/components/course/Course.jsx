@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
@@ -7,80 +7,75 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
-import { CourseContext } from './CourseContextProvider';
+import { CourseContextProvider } from './CourseContextProvider';
 import CourseHeader from './CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useCourseInEnterpriseCatalog } from './data/hooks';
+import { useAllCourseData } from './data/hooks';
+import { getActiveCourseRun } from './data/utils';
+import NotFoundPage from '../NotFoundPage';
 
-import { isEmpty } from '../../utils';
-
-export default function Course({
-  course,
-  activeCourseRun,
-  userEnrollments,
-  userEntitlements,
-}) {
+export default function Course() {
+  const { courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
-  const { state, dispatch } = useContext(CourseContext);
-  const [isCourseInCatalog] = useCourseInEnterpriseCatalog({
-    courseKey: course.key,
+
+  const [courseData, fetchError] = useAllCourseData({
+    courseKey,
     enterpriseConfig,
   });
 
-  useEffect(() => {
-    dispatch({ type: 'set-course', payload: course });
-  }, [course]);
+  const initialState = useMemo(
+    () => {
+      if (courseData) {
+        const {
+          courseDetails, userEnrollments, userEntitlements, catalog,
+        } = courseData;
+        return {
+          course: courseDetails,
+          activeCourseRun: getActiveCourseRun(courseDetails),
+          userEnrollments,
+          userEntitlements,
+          catalog,
+        };
+      }
+      return undefined;
+    },
+    [courseData],
+  );
 
-  useEffect(() => {
-    dispatch({ type: 'set-course-run', payload: activeCourseRun });
-  }, [activeCourseRun]);
+  if (fetchError) {
+    return <NotFoundPage />;
+  }
 
-  useEffect(() => {
-    dispatch({ type: 'set-enrollments', payload: userEnrollments });
-  }, [userEnrollments]);
-
-  useEffect(() => {
-    dispatch({ type: 'set-entitlements', payload: userEntitlements });
-  }, [userEntitlements]);
-
-  if (isEmpty(state.course) || isEmpty(state.activeCourseRun) || isCourseInCatalog === undefined) {
+  if (!initialState) {
     return (
       <div className="py-5">
-        <LoadingSpinner screenReaderText="loading course details" />
+        <LoadingSpinner screenReaderText="loading course" />
       </div>
     );
   }
 
   return (
     <>
-      <Helmet title={`${state.course.title} - ${enterpriseConfig.name}`} />
-      <CourseHeader isCourseInCatalog={isCourseInCatalog} />
-      <div className="container-fluid py-5">
-        <div className="row">
-          <MainContent>
-            <CourseMainContent />
-          </MainContent>
-          <MediaQuery minWidth={breakpoints.large.minWidth}>
-            {matches => matches && (
+      <Helmet title={`${initialState.course.title} - ${enterpriseConfig.name}`} />
+      <CourseContextProvider initialState={initialState}>
+        <CourseHeader />
+        <div className="container-fluid py-5">
+          <div className="row">
+            <MainContent>
+              <CourseMainContent />
+            </MainContent>
+            <MediaQuery minWidth={breakpoints.large.minWidth}>
+              {matches => matches && (
               <Sidebar>
                 <CourseSidebar />
               </Sidebar>
-            )}
-          </MediaQuery>
+              )}
+            </MediaQuery>
+          </div>
         </div>
-      </div>
+      </CourseContextProvider>
     </>
   );
 }
-
-Course.propTypes = {
-  course: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    key: PropTypes.string.isRequired,
-  }).isRequired,
-  activeCourseRun: PropTypes.shape({}).isRequired,
-  userEnrollments: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  userEntitlements: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-};

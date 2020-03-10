@@ -24,6 +24,7 @@ export default function EnrollButton() {
     userEnrollments,
     userEntitlements,
   } = state;
+  console.log('userEnrollments', userEnrollments);
   const {
     availability,
     key,

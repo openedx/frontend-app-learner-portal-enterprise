@@ -15,9 +15,9 @@ import { useCourseSubjects, useCoursePartners } from './data/hooks';
 
 import './styles/CourseHeader.scss';
 
-export default function CourseHeader({ isCourseInCatalog }) {
+export default function CourseHeader() {
   const { state } = useContext(CourseContext);
-  const { course, activeCourseRun } = state;
+  const { course, activeCourseRun, catalog } = state;
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 
@@ -69,7 +69,7 @@ export default function CourseHeader({ isCourseInCatalog }) {
                 ))}
               </div>
             )}
-            {isCourseInCatalog ? (
+            {catalog.containsContentItems ? (
               <>
                 {isArchived(activeCourseRun) && (
                   <p className="font-weight-bold">
@@ -99,7 +99,3 @@ export default function CourseHeader({ isCourseInCatalog }) {
     </div>
   );
 }
-
-CourseHeader.propTypes = {
-  isCourseInCatalog: PropTypes.bool.isRequired,
-};
