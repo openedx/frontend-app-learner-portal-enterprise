@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { CourseService } from './service';
+import CourseService from './service';
 
 export function useAllCourseData({ courseKey, enterpriseConfig }) {
   const [courseData, setCourseData] = useState();

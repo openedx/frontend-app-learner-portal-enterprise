@@ -1,8 +1,7 @@
 import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-// eslint-disable-next-line import/prefer-default-export
-export class CourseService {
+export default class CourseService {
   constructor(options = {}) {
     const { courseKey, enterpriseUuid } = options;
 
