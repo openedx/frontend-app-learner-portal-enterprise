@@ -3,7 +3,9 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 // eslint-disable-next-line import/prefer-default-export
 export class CourseService {
-  constructor({ courseKey, enterpriseUuid }) {
+  constructor(options = {}) {
+    const { courseKey, enterpriseUuid } = options;
+
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
 
     if (courseKey && enterpriseUuid) {
@@ -30,7 +32,7 @@ export class CourseService {
   }
 
   fetchCourseDetails() {
-    const url = `${process.env.DISCOVERY_API_URL}/v1/courses/${this.courseKey}`;
+    const url = `${process.env.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}`;
     return this.authenticatedHttpClient.get(url);
   }
 
@@ -46,7 +48,7 @@ export class CourseService {
 
   fetchEnterpriseCustomerContainsContent() {
     const options = { course_run_ids: this.courseKey };
-    const url = `${process.env.ENTERPRISE_CATALOG_API_URL}/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
+    const url = `${process.env.ENTERPRISE_CATALOG_API_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
     return this.authenticatedHttpClient.get(url);
   }
 

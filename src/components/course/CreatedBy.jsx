@@ -43,7 +43,7 @@ export default function CreatedBy() {
                 style={{ width: 72, height: 72 }}
               />
               <div>
-                <a href={`${process.env.MARKETING_SITE_URL}/bio/${staff.slug}`} className="font-weight-bold">
+                <a href={`${process.env.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`} className="font-weight-bold">
                   {formatStaffFullName(staff)}
                 </a>
                 {staff.position && (
