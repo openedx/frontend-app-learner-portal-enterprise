@@ -34,6 +34,13 @@ export default function CourseMainContent() {
 
   return (
     <>
+      <MediaQuery minWidth={breakpoints.large.minWidth}>
+        {matches => !matches && (
+        <div className="mb-5">
+          <CourseSidebar />
+        </div>
+        )}
+      </MediaQuery>
       {course.fullDescription && (
         <PreviewExpand
           className="mb-5"
@@ -140,13 +147,6 @@ export default function CourseMainContent() {
           </p>
         </div>
       )}
-      <MediaQuery minWidth={breakpoints.large.minWidth}>
-        {matches => !matches && (
-        <div className="mb-5">
-          <CourseSidebar />
-        </div>
-        )}
-      </MediaQuery>
     </>
   );
 }

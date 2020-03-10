@@ -26,7 +26,7 @@ import './styles/CourseSidebar.scss';
 export default function CourseSidebar() {
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
-  const [, primarySubject] = useCourseSubjects(course);
+  const { primarySubject } = useCourseSubjects(course);
   const [partners, institutionLabel] = useCoursePartners(course);
   const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);
   const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);

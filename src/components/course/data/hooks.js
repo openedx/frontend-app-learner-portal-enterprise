@@ -65,7 +65,7 @@ export function useCourseSubjects(course) {
     }
   }, [course]);
 
-  return [subjects, primarySubject];
+  return { subjects, primarySubject };
 }
 
 export function useCoursePartners(course) {

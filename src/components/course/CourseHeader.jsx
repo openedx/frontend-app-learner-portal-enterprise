@@ -18,7 +18,7 @@ import './styles/CourseHeader.scss';
 export default function CourseHeader({ isCourseInCatalog }) {
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
-  const [, primarySubject] = useCourseSubjects(course);
+  const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
