@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Breadcrumb } from '@edx/paragon';
 

@@ -2,11 +2,12 @@ import React, {
   useContext, useEffect, useState, useMemo, useCallback,
 } from 'react';
 import moment from 'moment';
+import { logError } from '@edx/frontend-platform/logging';
 import { Button } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
 
-import { enrollUser } from './data/service';
+import { CourseService } from './data/service';
 
 import {
   hasCourseStarted,
@@ -17,6 +18,8 @@ import {
   isArchived,
 } from './data/utils';
 
+const courseService = new CourseService();
+
 export default function EnrollButton() {
   const { state } = useContext(CourseContext);
   const {
@@ -24,7 +27,6 @@ export default function EnrollButton() {
     userEnrollments,
     userEntitlements,
   } = state;
-  console.log('userEnrollments', userEnrollments);
   const {
     availability,
     key,
@@ -102,11 +104,12 @@ export default function EnrollButton() {
   const enroll = useCallback(
     () => {
       setIsEnrollDisabled(true);
-      enrollUser({ course_id: key, email_opt_in: emailOptIn })
+      courseService.enrollUser({ course_id: key, email_opt_in: emailOptIn })
         .then(() => {
           setEnrollmentSubmitted(true);
         })
         .catch((error) => {
+          logError(error);
           throw new Error(error.message);
         });
     },

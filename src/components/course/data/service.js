@@ -5,8 +5,11 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 export class CourseService {
   constructor({ courseKey, enterpriseUuid }) {
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
-    this.courseKey = courseKey;
-    this.enterpriseUuid = enterpriseUuid;
+
+    if (courseKey && enterpriseUuid) {
+      this.courseKey = courseKey;
+      this.enterpriseUuid = enterpriseUuid;
+    }
   }
 
   async fetchAllCourseData() {
