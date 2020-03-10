@@ -62,12 +62,12 @@ export default function CourseMainContent() {
             {course.sponsors.map((sponsor) => (
               <div className="col-lg-6 mb-3" key={sponsor.name}>
                 <div className="mb-2">
-                  <a href={`${process.env.MARKETING_SITE_URL}/${sponsor.marketingUrl}`} aria-hidden="true" tabIndex="-1">
+                  <a href={`${process.env.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`} aria-hidden="true" tabIndex="-1">
                     <img src={sponsor.logoImageUrl} alt={`${sponsor.name} logo`} />
                   </a>
                 </div>
                 <a
-                  href={`${process.env.MARKETING_SITE_URL}/${sponsor.marketingUrl}`}
+                  href={`${process.env.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
                   className="text-underline"
                 >
                   {sponsor.name}

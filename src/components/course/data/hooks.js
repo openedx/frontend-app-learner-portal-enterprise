@@ -41,7 +41,7 @@ export function useCourseSubjects(course) {
       if (course.subjects.length > 0) {
         const newSubject = {
           ...course.subjects[0],
-          url: `${process.env.MARKETING_SITE_URL}/course/subject/${course.subjects[0].slug}`,
+          url: `${process.env.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
         };
         setPrimarySubject(newSubject);
       }
@@ -59,7 +59,7 @@ export function useCoursePartners(course) {
     if (course && course.owners) {
       const newOwners = course.owners.map(owner => ({
         ...owner,
-        fullUrl: `${process.env.MARKETING_SITE_URL}/${owner.marketingUrl}`,
+        fullUrl: `${process.env.MARKETING_SITE_BASE_URL}/${owner.marketingUrl}`,
       }));
       setPartners(newOwners);
       if (newOwners.length > 1) {
