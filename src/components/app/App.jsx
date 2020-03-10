@@ -4,6 +4,7 @@ import { AppProvider, PageRoute } from '@edx/frontend-platform/react';
 
 import { DashboardPage } from '../dashboard';
 import NotFoundPage from '../NotFoundPage';
+import { CoursePage } from '../course';
 
 import store from '../../store';
 
@@ -13,7 +14,8 @@ export default function App() {
   return (
     <AppProvider store={store}>
       <Switch>
-        <PageRoute path="/:enterpriseSlug" component={DashboardPage} />
+        <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
+        <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
         <PageRoute path="*" component={NotFoundPage} />
       </Switch>
     </AppProvider>

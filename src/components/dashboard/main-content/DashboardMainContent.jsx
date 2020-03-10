@@ -6,12 +6,12 @@ import { DashboardSidebar } from '../sidebar';
 import { CourseEnrollments } from './course-enrollments';
 
 const DashboardMainContent = () => {
-  const { enterpriseConfig: { name: enterpriseName } } = useContext(AppContext);
+  const { enterpriseConfig: { name } } = useContext(AppContext);
   return (
     <CourseEnrollments sidebarComponent={<DashboardSidebar />}>
       <h2 className="h3">Browse courses</h2>
       <p>
-        You are not enrolled in any courses sponsored by {enterpriseName}.
+        You are not enrolled in any courses sponsored by {name}.
         To start taking a course, browse the catalog below.
       </p>
       <p>

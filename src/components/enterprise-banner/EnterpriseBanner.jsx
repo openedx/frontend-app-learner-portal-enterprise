@@ -4,7 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 export default function EnterpriseBanner() {
   const {
     enterpriseConfig: {
-      name: enterpriseName,
+      name,
       branding: {
         banner: {
           backgroundColor,
@@ -18,7 +18,7 @@ export default function EnterpriseBanner() {
     <div style={{ backgroundColor }}>
       <div className="container-fluid">
         <h1 className="mb-0 py-3 pl-3" style={{ borderLeft: `15px solid ${borderColor}` }}>
-          {enterpriseName}
+          {name}
         </h1>
       </div>
     </div>
