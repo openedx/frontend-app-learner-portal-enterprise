@@ -35,7 +35,7 @@ export default function CourseHeader() {
                 links={[
                   { label: 'Catalog', url: process.env.CATALOG_BASE_URL },
                   {
-                    label: primarySubject.name,
+                    label: `${primarySubject.name} Courses`,
                     url: primarySubject.url,
                   },
                 ]}

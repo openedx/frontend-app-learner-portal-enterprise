@@ -18,8 +18,6 @@ import {
   isArchived,
 } from './data/utils';
 
-const courseService = new CourseService();
-
 export default function EnrollButton() {
   const { state } = useContext(CourseContext);
   const {
@@ -58,6 +56,8 @@ export default function EnrollButton() {
     () => isUserEnrolledInCourse({ userEnrollments, key }),
     [userEnrollments, key],
   );
+
+  const courseService = useMemo(() => new CourseService(), []);
 
   const renderButtonLabel = () => {
     if (!isEnrollable) {
