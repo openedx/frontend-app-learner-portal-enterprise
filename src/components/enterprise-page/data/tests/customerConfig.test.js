@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks';
 
 import { useEnterpriseCustomerConfig } from '../hooks';
 import { fetchEntepriseCustomerConfig } from '../service';
@@ -11,6 +11,13 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ enterpriseSlug: 'test-enterprise' }),
 }));
+
+// somehow jest does not seems to recognize/load the logging module
+// need to sort this out and ideally remove this
+jest.mock('@edx/frontend-platform/logging', () => ({
+  logError: () => {},
+}
+));
 
 const responseWithNullBrandingConfig = {
   data: {
@@ -28,19 +35,74 @@ const responseWithNullBrandingConfig = {
   },
 };
 
+const responseWithBrandingConfig = {
+  ...responseWithNullBrandingConfig,
+  data: {
+    results: [
+      {
+        ...responseWithNullBrandingConfig.data.results[0],
+        branding_configuration: {
+          logo: 'testlog.png',
+          bannerBackgroundColor: 'testcolor',
+          bannerBorderColor: 'testcolor',
+        },
+      },
+    ],
+  },
+};
+
+const responseWithBrandingConfigNullValues = {
+  ...responseWithNullBrandingConfig,
+  data: {
+    results: [
+      {
+        ...responseWithNullBrandingConfig.data.results[0],
+        branding_configuration: {
+          logo: null,
+          bannerBackgroundColor: null,
+          bannerBorderColor: null,
+        },
+      },
+    ],
+  },
+};
+
 describe('customer config with various states of branding_configuration', () => {
-  xtest('null branding_configuration uses default values and does not fail', () => {
+  test('null branding_configuration uses default values and does not fail', async () => {
     fetchEntepriseCustomerConfig.mockResolvedValue(responseWithNullBrandingConfig);
 
-    const { result } = renderHook(() => useEnterpriseCustomerConfig());
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig());
 
-    expect(result.current).toBeDefined();
+    // since there is an async fetch in the hook
+    await waitForNextUpdate();
+
+    expect(result.error).not.toBeDefined();
+    expect(result.current).toHaveLength(1);
+    expect(result.current[0]).not.toBeNull();
   });
 
-  xtest('null values for fields in branding_config uses defaults and does not fail', () => {
+  test('null values for fields in branding_config uses defaults and does not fail', async () => {
+    fetchEntepriseCustomerConfig.mockResolvedValue(responseWithBrandingConfigNullValues);
+
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig());
+
+    // since there is an async fetch in the hook
+    await waitForNextUpdate();
+
+    expect(result.error).not.toBeDefined();
+    expect(result.current).toHaveLength(1);
+    expect(result.current[0]).not.toBeNull();
   });
 
-  xtest('valid branding_config results in correct values for logo and other branding settings', () => {
+  test('valid branding_config results in correct values for logo and other branding settings', async () => {
+    fetchEntepriseCustomerConfig.mockResolvedValue(responseWithBrandingConfig);
 
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig());
+
+    await waitForNextUpdate();
+
+    expect(result.error).not.toBeDefined();
+    expect(result.current).toHaveLength(1);
+    expect(result.current[0]).not.toBeNull();
   });
 });
