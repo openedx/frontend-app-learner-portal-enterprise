@@ -14,13 +14,22 @@ const defaultBrandingConfig = {
   bannerBorderColor: defaultBorderColor,
 };
 
+/**
+ * If enterpriseSlug is passed, it will be used instead of the useParams hook output
+ * @param {string} [enterpriseSlug] enterprise slug.
+ * @returns {object} EnterpriseConfig
+ */
 // eslint-disable-next-line import/prefer-default-export
-export function useEnterpriseCustomerConfig() {
-  const { enterpriseSlug } = useParams();
+export function useEnterpriseCustomerConfig(enterpriseSlug) {
+  const slugFromUseParams = () => {
+    const { enterpriseSlug: slugFromParams } = useParams();
+    return slugFromParams;
+  };
+  const enterpriseSlugFinal = enterpriseSlug || slugFromUseParams();
   const [enterpriseConfig, setEnterpriseConfig] = useState(undefined);
 
   useEffect(() => {
-    fetchEntepriseCustomerConfig(enterpriseSlug)
+    fetchEntepriseCustomerConfig(enterpriseSlugFinal)
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
@@ -45,8 +54,8 @@ export function useEnterpriseCustomerConfig() {
             branding: {
               logo,
               banner: {
-                backgroundColor: bannerBackgroundColor,
-                borderColor: bannerBorderColor,
+                backgroundColor: bannerBackgroundColor || defaultBorderColor,
+                borderColor: bannerBorderColor || defaultBrandingConfig,
               },
             },
           });
@@ -58,7 +67,7 @@ export function useEnterpriseCustomerConfig() {
         logError(new Error(error));
         setEnterpriseConfig(null);
       });
-  }, [enterpriseSlug]);
+  }, [enterpriseSlugFinal]);
 
-  return [enterpriseConfig];
+  return enterpriseConfig;
 }

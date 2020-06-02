@@ -9,7 +9,7 @@ import NotFoundPage from '../NotFoundPage';
 import { useEnterpriseCustomerConfig } from './data/hooks';
 
 export default function EnterprisePage({ children }) {
-  const [enterpriseConfig] = useEnterpriseCustomerConfig();
+  const enterpriseConfig = useEnterpriseCustomerConfig();
 
   const user = getAuthenticatedUser();
   const { username, profileImage } = user;
