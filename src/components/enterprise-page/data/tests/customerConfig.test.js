@@ -1,6 +1,10 @@
 import { renderHook } from '@testing-library/react-hooks';
 
-import { useEnterpriseCustomerConfig } from '../hooks';
+import {
+  useEnterpriseCustomerConfig,
+  defaultBorderColor,
+  defaultBackgroundColor,
+} from '../hooks';
 import { fetchEnterpriseCustomerConfig } from '../service';
 
 const TEST_ENTERPRISE_SLUG = 'test-enterprise';
@@ -36,7 +40,7 @@ const responseWithBrandingConfig = {
       {
         ...responseWithNullBrandingConfig.data.results[0],
         branding_configuration: {
-          logo: 'testlog.png',
+          logo: 'testlogo.png',
           bannerBackgroundColor: 'testcolor',
           bannerBorderColor: 'testcolor',
         },
@@ -73,6 +77,9 @@ describe('customer config with various states of branding_configuration', () => 
 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
+    expect(result.current.branding.logo).toBeNull();
+    expect(result.current.branding.banner.backgroundColor).toBe(defaultBackgroundColor);
+    expect(result.current.branding.banner.borderColor).toBe(defaultBorderColor);
   });
 
   test('null values for fields in branding_config uses defaults and does not fail', async () => {
@@ -85,6 +92,9 @@ describe('customer config with various states of branding_configuration', () => 
 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
+    expect(result.current.branding.logo).toBeNull();
+    expect(result.current.branding.banner.backgroundColor).toBe(defaultBackgroundColor);
+    expect(result.current.branding.banner.borderColor).toBe(defaultBorderColor);
   });
 
   test('valid branding_config results in correct values for logo and other branding settings', async () => {
@@ -96,5 +106,8 @@ describe('customer config with various states of branding_configuration', () => 
 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
+    expect(result.current.branding.logo).toBe('testlogo.png');
+    expect(result.current.branding.banner.backgroundColor).toBe('testcolor');
+    expect(result.current.branding.banner.borderColor).toBe('testcolor');
   });
 });

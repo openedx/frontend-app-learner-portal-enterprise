@@ -5,8 +5,8 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { fetchEnterpriseCustomerConfig } from './service';
 
-const defaultBorderColor = '#007D88';
-const defaultBackgroundColor = '#D7E3FC';
+export const defaultBorderColor = '#007D88';
+export const defaultBackgroundColor = '#D7E3FC';
 
 const defaultBrandingConfig = {
   logo: null,
@@ -54,8 +54,8 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             branding: {
               logo,
               banner: {
-                backgroundColor: bannerBackgroundColor || defaultBorderColor,
-                borderColor: bannerBorderColor || defaultBrandingConfig,
+                backgroundColor: bannerBackgroundColor || defaultBackgroundColor,
+                borderColor: bannerBorderColor || defaultBorderColor,
               },
             },
           });
