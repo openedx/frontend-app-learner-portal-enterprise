@@ -1,34 +1,43 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { fetchEntepriseCustomerConfig } from './service';
+import { fetchEnterpriseCustomerConfig } from './service';
 
-const defaultBorderColor = '#007D88';
-const defaultBackgroundColor = '#D7E3FC';
+export const defaultBorderColor = '#007D88';
+export const defaultBackgroundColor = '#D7E3FC';
 
+const defaultBrandingConfig = {
+  logo: null,
+  bannerBackgroundColor: defaultBackgroundColor,
+  bannerBorderColor: defaultBorderColor,
+};
+
+/**
+ * @param {string} [enterpriseSlug] enterprise slug.
+ * @returns {object} EnterpriseConfig
+ */
 // eslint-disable-next-line import/prefer-default-export
-export function useEnterpriseCustomerConfig() {
-  const { enterpriseSlug } = useParams();
+export function useEnterpriseCustomerConfig(enterpriseSlug) {
   const [enterpriseConfig, setEnterpriseConfig] = useState(undefined);
 
   useEffect(() => {
-    fetchEntepriseCustomerConfig(enterpriseSlug)
+    fetchEnterpriseCustomerConfig(enterpriseSlug)
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
         if (config && config.enableLearnerPortal) {
+          const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
+          const {
+            logo,
+            bannerBackgroundColor,
+            bannerBorderColor,
+          } = brandingConfiguration;
           const {
             name,
             uuid,
             slug,
             contactEmail,
-            brandingConfiguration: {
-              logo,
-              bannerBackgroundColor,
-              bannerBorderColor,
-            },
           } = config;
           setEnterpriseConfig({
             name,
@@ -53,5 +62,5 @@ export function useEnterpriseCustomerConfig() {
       });
   }, [enterpriseSlug]);
 
-  return [enterpriseConfig];
+  return enterpriseConfig;
 }

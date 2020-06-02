@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -9,7 +10,8 @@ import NotFoundPage from '../NotFoundPage';
 import { useEnterpriseCustomerConfig } from './data/hooks';
 
 export default function EnterprisePage({ children }) {
-  const [enterpriseConfig] = useEnterpriseCustomerConfig();
+  const { enterpriseSlug } = useParams();
+  const enterpriseConfig = useEnterpriseCustomerConfig(enterpriseSlug);
 
   const user = getAuthenticatedUser();
   const { username, profileImage } = user;
