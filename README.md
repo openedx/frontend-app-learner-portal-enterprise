@@ -28,7 +28,7 @@ To setup test data, and other backend, please follow these steps, you will setup
  - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/edx/edx-platform/blob/master/lms/envs/devstack.py#L326)
  - Restart any services such as `make lms-restart` for applying changes
  - Pick a user such as enterprise_learner_1 to use as learner account (password is the same as the test edx account documented on devstack)
- - Go to http://localhost:8734/test-enterprise/ to browse the applicatoin for the `test-enterprise` customer
+ - Go to http://localhost:8734/test-enterprise/ to browse the application for the `test-enterprise` customer
 
 ### Testing
 

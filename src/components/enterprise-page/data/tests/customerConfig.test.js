@@ -11,8 +11,7 @@ jest.mock('../service');
 // need to sort this out and ideally remove this
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: () => {},
-}
-));
+}));
 
 const responseWithNullBrandingConfig = {
   data: {
