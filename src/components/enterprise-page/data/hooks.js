@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { fetchEntepriseCustomerConfig } from './service';
+import { fetchEnterpriseCustomerConfig } from './service';
 
 const defaultBorderColor = '#007D88';
 const defaultBackgroundColor = '#D7E3FC';
@@ -29,7 +29,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   const [enterpriseConfig, setEnterpriseConfig] = useState(undefined);
 
   useEffect(() => {
-    fetchEntepriseCustomerConfig(enterpriseSlugFinal)
+    fetchEnterpriseCustomerConfig(enterpriseSlugFinal)
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
