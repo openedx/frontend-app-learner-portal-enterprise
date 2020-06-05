@@ -134,7 +134,7 @@ export class CourseEnrollments extends Component {
           courseRuns={courseRuns.upcoming}
         />
         <CourseSection
-          title="Completed courses"
+          title="Archived courses"
           component={CompletedCourseCard}
           courseRuns={courseRuns.completed}
         />

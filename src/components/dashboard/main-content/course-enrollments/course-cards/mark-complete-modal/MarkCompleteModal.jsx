@@ -8,6 +8,9 @@ import MarkCompleteModalContext from './MarkCompleteModalContext';
 import ModalBody from './ModalBody';
 import { markCourseAsCompleteRequest } from './data/service';
 
+export const MARK_ARCHIVED_DEFAULT_LABEL = 'Archive this course';
+export const MARK_ARCHIVED_PENDING_LABEL = 'Archiving the course...';
+
 const initialState = {
   confirmButtonState: 'default',
   confirmError: null,
@@ -76,8 +79,8 @@ const MarkCompleteModal = ({
         buttons={[
           <StatefulButton
             labels={{
-              default: 'Mark as complete',
-              pending: 'Marking as complete...',
+              default: MARK_ARCHIVED_DEFAULT_LABEL,
+              pending: MARK_ARCHIVED_PENDING_LABEL,
             }}
             disabledStates={['pending']}
             className="confirm-mark-complete-btn btn-primary"

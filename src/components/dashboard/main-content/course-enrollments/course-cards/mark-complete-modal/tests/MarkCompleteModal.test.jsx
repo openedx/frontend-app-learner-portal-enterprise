@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import MarkCompleteModal from '../MarkCompleteModal';
+import MarkCompleteModal, { MARK_ARCHIVED_DEFAULT_LABEL, MARK_ARCHIVED_PENDING_LABEL } from '../MarkCompleteModal';
 import * as service from '../data/service';
 
 jest.mock('../data/service');
@@ -42,7 +42,7 @@ describe('<MarkCompleteModal />', () => {
       enterprise_id: 'example-enterprise-uuid',
       marked_done: 'True',
     });
-    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual('Marking as complete...');
+    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_ARCHIVED_PENDING_LABEL);
   });
 
   it('handles confirm click with error', async () => {
@@ -63,7 +63,7 @@ describe('<MarkCompleteModal />', () => {
       enterprise_id: 'example-enterprise-uuid',
       marked_done: 'True',
     });
-    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual('Mark as complete');
+    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_ARCHIVED_DEFAULT_LABEL);
   });
 
   it('handles close modal', () => {
