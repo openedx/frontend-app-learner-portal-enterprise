@@ -28,6 +28,12 @@ class CourseSection extends React.Component {
     return <h2>{sectionTitle}</h2>;
   };
 
+  getFormattedOptionalSubtitle = () => {
+    const { subtitle } = this.props;
+    if (!subtitle) { return null; }
+    return <p className="mt-2">{subtitle}</p>;
+  }
+
   getCourseRunProps = ({
     linkToCertificate,
     notifications,
@@ -90,6 +96,7 @@ class CourseSection extends React.Component {
           onClose={() => this.handleCollapsibleToggle(false)}
           defaultOpen
         >
+          {this.getFormattedOptionalSubtitle()}
           {this.renderCourseCards()}
         </Collapsible>
       </div>
@@ -119,6 +126,11 @@ CourseSection.propTypes = {
     hasEmailsEnabled: PropTypes.bool,
   })).isRequired,
   title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+};
+
+CourseSection.defaultProps = {
+  subtitle: null,
 };
 
 export default CourseSection;
