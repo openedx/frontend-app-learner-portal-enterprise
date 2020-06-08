@@ -21,7 +21,7 @@ import * as actions from './data/actions';
 const ARCHIVED_COURSES_SECTION_SUBTITLE = `This section contains both the 
   courses you have completed in the past and
   courses that have been voluntarily removed
-  from your [in progress] list.'
+  from your "In Progress" list.
 `;
 
 export class CourseEnrollments extends Component {

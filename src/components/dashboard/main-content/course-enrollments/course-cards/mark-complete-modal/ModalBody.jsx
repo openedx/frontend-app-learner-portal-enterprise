@@ -18,9 +18,9 @@ const ModalBody = () => {
         <a href={courseLink}>{courseTitle}</a>?
         {' '}
         You will remain enrolled, but the course will
-        no longer appear as [in progress]. As long as
+        no longer appear as &quot;In Progress&quot;. As long as
         your license is valid, you can resume the course
-        by clicking [Continue Learning] under your list
+        by clicking &quot;Continue Learning&quot; under your list
         of archived courses
       </p>
     </>
