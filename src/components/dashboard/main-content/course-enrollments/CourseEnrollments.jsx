@@ -78,7 +78,7 @@ export class CourseEnrollments extends Component {
               <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
             </div>
             <div>
-              Your course was marked as complete.
+              Your course was archived.
             </div>
           </div>
         )}

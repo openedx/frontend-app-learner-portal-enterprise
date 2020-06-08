@@ -74,7 +74,7 @@ const MarkCompleteModal = ({
       }}
     >
       <Modal
-        title="Mark course as complete"
+        title="Archive this course"
         body={<ModalBody />}
         buttons={[
           <StatefulButton

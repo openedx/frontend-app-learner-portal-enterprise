@@ -16,11 +16,11 @@ const ModalError = () => {
             <FontAwesomeIcon className="mr-3" icon={faExclamationTriangle} />
           </div>
           <div>
-            Unable to mark
+            Unable to archive
             {' '}
-            <a className="text-link" href={courseLink}>{courseTitle}</a>
+            <a className="text-link" href={courseLink}>{courseTitle}</a>.
             {' '}
-            as complete. Please try again.
+            Please try again.
           </div>
         </div>
       )}
