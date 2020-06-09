@@ -31,7 +31,7 @@ class CourseSection extends React.Component {
   getFormattedOptionalSubtitle = () => {
     const { subtitle } = this.props;
     if (!subtitle) { return null; }
-    return <p className="mt-2">{subtitle}</p>;
+    return <p className="mt-3 mb-0">{subtitle}</p>;
   }
 
   getCourseRunProps = ({
