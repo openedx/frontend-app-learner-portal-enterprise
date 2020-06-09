@@ -49,22 +49,23 @@ But wait, it wont' work yet. As long as you get some reasonable response here, y
 
 Next setup a `test-enterprise` customer who will have learners associated with it (Details at [The Enterprise management commands](https://github.com/edx/edx-enterprise/blob/master/enterprise/management/commands/seed_enterprise_devstack_data.py#L47)):
 
+ - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/edx/edx-platform/blob/master/lms/envs/devstack.py#L326). Set the flag `ENABLE_ENTERPRISE_INTEGRATION` to True
+ - From the devstack directory, restart lms using `make lms-restart` for applying changes
  - Seed test data:
    - Go into the lms shell:
    ```$ cd <devstack_dir>
       $ make lms-shell
       $ ./manage.py lms seed_enterprise_devstack_data
    ```
- - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/edx/edx-platform/blob/master/lms/envs/devstack.py#L326). Set the flag `ENABLE_ENTERPRISE_INTEGRATION` to True
- - From the devstack directory, restart lms using `make lms-restart` for applying changes
- - Now go to http://localhost:18000/admin/enterprise/ and login as edx/edx
+ - Go to http://localhost:18000/admin/enterprise/ and login as edx/edx
  - If you can see an `Enterprise` section in the admin page you are all set so far, otherwise stop and ask someone!
+ - Next, ensure the Learner portal is enable for this Enterprise user by checking the box `Enable Learner Portal` in this page http://localhost:18000/admin/enterprise/enterprisecustomer/ and clicking on 'Test-enterprise' customer
 
 
- [WIP not done yet!]
- - Pick a user such as enterprise_learner_1 to use as learner account (password is the same as the test edx account documented on devstack)
- - Go to http://localhost:8734/test-enterprise/ to browse the application for the `test-enterprise` customer
 
+## Use learner portal with the edx-enterprise stack
+
+[ WIP TODO ]
 
 ### Presubmission
 
