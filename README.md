@@ -51,14 +51,31 @@ Next we will setup a `test-enterprise` customer who will have learners associate
     - Check the box `Enable Learner Portal` and hit `Save` 
 
 
+## Get familiar with learner and customer accounts
+
+* Visit http://localhost:18000/admin/enterprise/
+* Login as edx/edx
+* Go to http://localhost:18000/admin/enterprise/enterprisecustomer/ and locate the `slug` for the customer named 'Test enterprise'
+    * This is probably `test-enterprise`
+* Now click on the Test Enterprise user link
+* Click on `Manage learners`
+* This page should list at least one learner account like enterprise_learner_1@example.com (username), password is the same as `edx` user
+
+
 
 ## Use learner portal with the edx-enterprise stack
 
-[ WIP TODO ]
-* logging in as enterprise admin:
-* logging in as learner:
+* Log out of any users if you logged in previously, or use a new incognito window, and browse to http://localhost:8374/test-enterprise
+* The `test-enterprise`, you will note, is the slug for this enterprise customer
+* Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8734/test-enterprise/
+* You should see a page that lists two courses
+
+You are now in the Learner portal for the enterpriser customer `Test Enterprise`, as a learner!
+
 
 ## Setup enterprise stack for local changes
+
+You need this, if you need to make changes to the API endpoints or anything else in edx-enterprise project
 
 We have edx-enterprise Django module running inside of the LMS (which is started by devstack). Refer to [Devstack Doc](https://github.com/edx/devstack) for details. This is what serves endpoints used by the application. To make changes, you will replace that available install of edx-enterprise with your local version
 
@@ -101,7 +118,10 @@ Testing is supported with Jest and Enzyme. To run tests, use:
 
 `npm test`
 
-TODO: More content
+
+### Code layout / components
+
+TODO/WIP
 
 ### Required reading
 
