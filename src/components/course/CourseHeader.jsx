@@ -33,7 +33,7 @@ export default function CourseHeader() {
             {primarySubject && (
               <Breadcrumb
                 links={[
-                  { label: 'Catalog', url: process.env.CATALOG_BASE_URL },
+                  { label: 'Find a course', url: process.env.CATALOG_BASE_URL },
                   {
                     label: `${primarySubject.name} Courses`,
                     url: primarySubject.url,

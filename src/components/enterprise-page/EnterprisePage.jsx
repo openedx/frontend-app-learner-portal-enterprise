@@ -39,7 +39,7 @@ export default function EnterprisePage({ children }) {
             {
               type: 'item',
               href: process.env.CATALOG_BASE_URL,
-              content: 'Catalog',
+              content: 'Find a course',
             },
             {
               type: 'item',
