@@ -37,7 +37,7 @@ describe('<MarkCompleteModal />', () => {
       </AppContext.Provider>
     ));
     wrapper.find('.confirm-mark-complete-btn').hostNodes().simulate('click');
-    expect(service.markCourseAsCompleteRequest).toBeCalledWith({
+    expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: 'course-v1:my-test-course',
       enterprise_id: 'example-enterprise-uuid',
       marked_done: 'True',
@@ -58,7 +58,7 @@ describe('<MarkCompleteModal />', () => {
     await act(async () => {
       wrapper.find('.confirm-mark-complete-btn').hostNodes().simulate('click');
     });
-    expect(service.markCourseAsCompleteRequest).toBeCalledWith({
+    expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: 'course-v1:my-test-course',
       enterprise_id: 'example-enterprise-uuid',
       marked_done: 'True',

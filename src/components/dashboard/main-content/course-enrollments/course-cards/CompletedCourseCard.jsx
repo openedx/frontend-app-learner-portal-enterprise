@@ -1,39 +1,108 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+
+import {
+  updateCourseRunStatus,
+  updateIsUnarchiveCourseCompleteSuccess,
+} from '../data/actions';
 
 import BaseCourseCard from './BaseCourseCard';
 
-import CertificateImg from './images/edx-verified-mini-cert.png';
+import { UnarchiveModal } from './unarchive-modal';
 
-const getDropdownMenuItems = ({ markedDone }) => {
-  // Only courses that are manually archived (markedDone)
-  // should show a unarchive option.
-  if (!markedDone) { return []; }
-  return ([
-    {
-      key: 'unarchive-course',
-      type: 'button',
-      onClick: () => {
-        /* setIsMarkCompleteModalOpen(true);
-        sendTrackEvent('edx.learner_portal.course.mark_complete.modal.opened', {
-          course_run_id: courseRunId,
-        }); */
-      },
-      children: (
-        <div role="menuitem">
-          Un-Archive course
-          <span className="sr-only">for test title</span>
-        </div>
-      ),
-    },
-  ]);
-};
+import CertificateImg from './images/edx-verified-mini-cert.png';
 
 const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
   const { username } = user;
-  const { markedDone } = props;
+  const {
+    markedDone,
+    title,
+    linkToCourse,
+    courseRunId,
+    modifyCourseRunStatus,
+    modifyIsUnarchiveCourseCompleteStatus,
+  } = props;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleUnarchiveOnClose = () => {
+    setIsModalOpen(false);
+    sendTrackEvent('edx.learner_portal.course.unarchive.modal.closed', {
+      course_run_id: courseRunId,
+    });
+  };
+
+  const handleUnarchiveOnSuccess = ({ response, resetModalState }) => {
+    sendTrackEvent('edx.learner_portal.course.unarchive.saved', {
+      course_run_id: courseRunId,
+    });
+    setIsModalOpen(false);
+    resetModalState();
+    modifyCourseRunStatus({
+      status: response.courseRunStatus,
+      courseId: response.courseRunId,
+    });
+    modifyIsUnarchiveCourseCompleteStatus({
+      isSuccess: true,
+    });
+  };
+
+  const getDropdownMenuItems = () => {
+    // Only courses that are manually archived (markedDone)
+    // should show a unarchive option.
+    if (!markedDone) { return []; }
+    return ([
+      {
+        key: 'unarchive-course',
+        type: 'button',
+        onClick: () => {
+          setIsModalOpen(true);
+          sendTrackEvent('edx.learner_portal.course.unarchive.modal.opened', {
+            course_run_id: courseRunId,
+          });
+        },
+        children: (
+          <div role="menuitem">
+            Un-Archive course
+            <span className="sr-only">for test title</span>
+          </div>
+        ),
+      },
+    ]);
+  };
+
+  const renderCertificateInfo = () => (
+    props.linkToCertificate ? (
+      <div className="d-flex mb-3">
+        <div className="mr-3">
+          <img src={CertificateImg} alt="verified certificate preview" />
+        </div>
+        <div className="d-flex align-items-center">
+          <p className="lead mb-0 font-weight-normal">
+            View your certificate on{' '}
+            <a
+              className="text-underline"
+              href={`${process.env.LMS_BASE_URL}/u/${username}`}
+            >
+              your profile →
+            </a>
+          </p>
+        </div>
+      </div>
+    ) : (
+      <p className="lead mb-3 font-weight-normal">
+        To earn a certificate,{' '}
+        <a className="text-underline" href={props.linkToCourse}>
+          retake this course →
+        </a>
+      </p>
+    )
+  );
+
   return (
     <BaseCourseCard
       dropdownMenuItems={getDropdownMenuItems({ markedDone })}
@@ -41,31 +110,15 @@ const CompletedCourseCard = (props) => {
       hasViewCertificateLink={false}
       {...props}
     >
-      {props.linkToCertificate ? (
-        <div className="d-flex mb-3">
-          <div className="mr-3">
-            <img src={CertificateImg} alt="verified certificate preview" />
-          </div>
-          <div className="d-flex align-items-center">
-            <p className="lead mb-0 font-weight-normal">
-              View your certificate on{' '}
-              <a
-                className="text-underline"
-                href={`${process.env.LMS_BASE_URL}/u/${username}`}
-              >
-                your profile →
-              </a>
-            </p>
-          </div>
-        </div>
-      ) : (
-        <p className="lead mb-3 font-weight-normal">
-          To earn a certificate,{' '}
-          <a className="text-underline" href={props.linkToCourse}>
-            retake this course →
-          </a>
-        </p>
-      )}
+      {renderCertificateInfo()}
+      <UnarchiveModal
+        isOpen={isModalOpen}
+        courseTitle={title}
+        courseLink={linkToCourse}
+        courseId={courseRunId}
+        onClose={handleUnarchiveOnClose}
+        onSuccess={handleUnarchiveOnSuccess}
+      />
     </BaseCourseCard>
   );
 };
@@ -76,10 +129,21 @@ CompletedCourseCard.propTypes = {
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
   markedDone: PropTypes.bool.isRequired,
+  modifyCourseRunStatus: PropTypes.func.isRequired,
+  modifyIsUnarchiveCourseCompleteStatus: PropTypes.func.isRequired,
 };
 
 CompletedCourseCard.defaultProps = {
   linkToCertificate: null,
 };
 
-export default CompletedCourseCard;
+const mapDispatchToProps = dispatch => ({
+  modifyCourseRunStatus: (options) => {
+    dispatch(updateCourseRunStatus(options));
+  },
+  modifyIsUnarchiveCourseCompleteStatus: (options) => {
+    dispatch(updateIsUnarchiveCourseCompleteSuccess(options));
+  },
+});
+
+export default connect(null, mapDispatchToProps)(CompletedCourseCard);

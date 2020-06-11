@@ -5,6 +5,7 @@ import {
   CLEAR_COURSE_ENROLLMENTS,
   UPDATE_COURSE_RUN_STATUS,
   UPDATE_IS_MARK_COURSE_COMPLETE_SUCCESS,
+  UPDATE_IS_UNARCHIVE_COURSE_COMPLETE_SUCCESS,
 } from './constants';
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
   courseRuns: [],
   error: null,
   isMarkCourseCompleteSuccess: false,
+  isUnarchiveCourseCompleteSuccess: false,
 };
 
 const courseEnrollmentsReducer = (state = initialState, action) => {
@@ -54,6 +56,11 @@ const courseEnrollmentsReducer = (state = initialState, action) => {
       return {
         ...state,
         isMarkCourseCompleteSuccess: action.payload.isSuccess,
+      };
+    case UPDATE_IS_UNARCHIVE_COURSE_COMPLETE_SUCCESS:
+      return {
+        ...state,
+        isUnarchiveCourseSuccess: action.payload.isSuccess,
       };
     case CLEAR_COURSE_ENROLLMENTS:
       return initialState;
