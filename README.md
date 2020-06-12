@@ -55,8 +55,9 @@ Next we will setup a `test-enterprise` customer who will have learners associate
 
 * Visit http://localhost:18000/admin/enterprise/
 * Login as edx/edx
-* Go to http://localhost:18000/admin/enterprise/enterprisecustomer/ and locate the `slug` for the customer named 'Test enterprise'
+* Visit the Enterprise Customers link, it should be http://localhost:18000/admin/enterprise/enterprisecustomer/ and locate the `slug` for the customer named 'Test enterprise'
     * This is probably `test-enterprise`
+    * The `slug` is used as a url path to visit the enterprise portal for this customer, more on that later
 * Now click on the Test Enterprise user link
 * Click on `Manage learners`
 * This page should list at least one learner account like enterprise_learner_1@example.com (username), password is the same as `edx` user
@@ -67,8 +68,8 @@ Next we will setup a `test-enterprise` customer who will have learners associate
 
 * Log out of any users if you logged in previously, or use a new incognito window, and browse to http://localhost:8374/test-enterprise
 * The `test-enterprise`, you will note, is the slug for this enterprise customer
-* Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8734/test-enterprise/
-* You should see a page that lists two courses
+* Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8374/test-enterprise/
+* You can now go to 'Explore Courses' and enroll in courses
 
 You are now in the Learner portal for the enterpriser customer `Test Enterprise`, as a learner!
 
