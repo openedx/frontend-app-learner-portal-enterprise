@@ -53,13 +53,18 @@ Next we will setup a `test-enterprise` customer who will have learners associate
 
 ## Get familiar with learner and customer accounts
 
-* Visit http://localhost:18000/admin/enterprise/
+In this section you will:
+ * Locate the enterprise customer test-enterprise in the Django admin page for enterprise
+ * Learn how to navigate to the admin portal for that customer and view learner accounts setup during previous steps
+ 
+* Visit http://localhost:18000/admin/enterprise/ : the Django admin portal for enterprise
 * Login as edx/edx
-* Visit the Enterprise Customers link, it should be http://localhost:18000/admin/enterprise/enterprisecustomer/ and locate the `slug` for the customer named 'Test enterprise'
+* Visit the `Enterprise Customers` link, it should be http://localhost:18000/admin/enterprise/enterprisecustomer/ 
+    * Locate the `slug` for the customer named 'Test enterprise'
     * This is probably `test-enterprise`
     * The `slug` is used as a url path to visit the enterprise portal for this customer, more on that later
-* Now click on the Test Enterprise user link
-* Click on `Manage learners`
+* Now click on the `Test Enterprise` user link
+* Click on `Manage learners` to view learner accounts
 * This page should list at least one learner account like enterprise_learner_1@example.com (username), password is the same as `edx` user
 
 
