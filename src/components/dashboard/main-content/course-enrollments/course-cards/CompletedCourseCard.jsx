@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -15,6 +16,8 @@ import { UnarchiveModal } from './unarchive-modal';
 
 import CertificateImg from './images/edx-verified-mini-cert.png';
 
+const courseEnded = (endDate) => moment(endDate) < moment();
+
 const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
   const { username } = user;
@@ -25,9 +28,11 @@ const CompletedCourseCard = (props) => {
     courseRunId,
     modifyCourseRunStatus,
     modifyIsUnarchiveCourseCompleteStatus,
+    endDate,
   } = props;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   const handleUnarchiveOnClose = () => {
     setIsModalOpen(false);
@@ -55,6 +60,8 @@ const CompletedCourseCard = (props) => {
     // Only courses that are manually archived (markedDone)
     // should show a unarchive option.
     if (!markedDone) { return []; }
+    // if course is ended, you cannot unarchive it
+    if (courseEnded(endDate)) { return []; }
     return ([
       {
         key: 'unarchive-course',
@@ -131,15 +138,17 @@ CompletedCourseCard.propTypes = {
   markedDone: PropTypes.bool.isRequired,
   modifyCourseRunStatus: PropTypes.func.isRequired,
   modifyIsUnarchiveCourseCompleteStatus: PropTypes.func.isRequired,
+  endDate: PropTypes.string,
 };
 
 CompletedCourseCard.defaultProps = {
   linkToCertificate: null,
+  endDate: null,
 };
 
 const mapDispatchToProps = dispatch => ({
   modifyCourseRunStatus: (options) => {
-    dispatch(updateCourseRunStatus(options));
+    dispatch(updateCourseRunStatus({ ...options, status: 'in_progress' }));
   },
   modifyIsUnarchiveCourseCompleteStatus: (options) => {
     dispatch(updateIsUnarchiveCourseCompleteSuccess(options));
