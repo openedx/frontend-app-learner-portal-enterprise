@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { Breadcrumb } from '@edx/paragon';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import EnrollButton from './EnrollButton';
@@ -16,6 +17,7 @@ import './styles/CourseHeader.scss';
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
+  const { enterpriseConfig } = useContext(AppContext);
   const { course, activeCourseRun, catalog } = state;
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
@@ -33,7 +35,7 @@ export default function CourseHeader() {
             {primarySubject && (
               <Breadcrumb
                 links={[
-                  { label: 'Find a course', url: process.env.CATALOG_BASE_URL },
+                  { label: 'Find a Course', url: `/${enterpriseConfig.slug}/search` },
                   {
                     label: `${primarySubject.name} Courses`,
                     url: primarySubject.url,
