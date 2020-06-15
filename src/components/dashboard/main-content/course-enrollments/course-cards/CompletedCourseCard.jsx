@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { courseEnded } from '../../../../../utils/common';
+import ContinueLearningButton from './ContinueLearningButton';
 
 import {
   updateCourseRunStatus,
@@ -15,8 +17,6 @@ import BaseCourseCard from './BaseCourseCard';
 import { UnarchiveModal } from './unarchive-modal';
 
 import CertificateImg from './images/edx-verified-mini-cert.png';
-
-const courseEnded = (endDate) => moment(endDate) < moment();
 
 const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
@@ -82,6 +82,17 @@ const CompletedCourseCard = (props) => {
     ]);
   };
 
+  const renderButtons = () => {
+    if (courseEnded(endDate)) { return null; }
+    return (
+      <ContinueLearningButton
+        linkToCourse={linkToCourse}
+        title={title}
+        courseRunId
+      />
+    );
+  };
+
   const renderCertificateInfo = () => (
     props.linkToCertificate ? (
       <div className="d-flex mb-3">
@@ -112,6 +123,7 @@ const CompletedCourseCard = (props) => {
 
   return (
     <BaseCourseCard
+      buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems({ markedDone })}
       type="completed"
       hasViewCertificateLink={false}
