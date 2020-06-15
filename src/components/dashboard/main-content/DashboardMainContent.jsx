@@ -6,7 +6,7 @@ import { DashboardSidebar } from '../sidebar';
 import { CourseEnrollments } from './course-enrollments';
 
 const DashboardMainContent = () => {
-  const { enterpriseConfig: { name } } = useContext(AppContext);
+  const { enterpriseConfig: { name, slug } } = useContext(AppContext);
   return (
     <CourseEnrollments sidebarComponent={<DashboardSidebar />}>
       <h2 className="h3">Browse courses</h2>
@@ -15,7 +15,7 @@ const DashboardMainContent = () => {
         To start taking a course, browse the catalog below.
       </p>
       <p>
-        <a href={process.env.CATALOG_BASE_URL} className="btn btn-primary">
+        <a href={`/${slug}/search`} className="btn btn-primary">
           Browse full catalog
         </a>
       </p>

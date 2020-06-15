@@ -38,8 +38,8 @@ export default function EnterprisePage({ children }) {
           mainMenu: [
             {
               type: 'item',
-              href: process.env.CATALOG_BASE_URL,
-              content: 'Find a course',
+              href: `/${enterpriseConfig.slug}/search`,
+              content: 'Find a Course',
             },
             {
               type: 'item',
@@ -50,7 +50,7 @@ export default function EnterprisePage({ children }) {
           userMenu: [
             {
               type: 'item',
-              href: process.env.LMS_BASE_URL,
+              href: `/${enterpriseConfig.slug}`,
               content: 'Dashboard',
             },
             {
@@ -62,11 +62,6 @@ export default function EnterprisePage({ children }) {
               type: 'item',
               href: `${process.env.LMS_BASE_URL}/account/settings`,
               content: 'Account Settings',
-            },
-            {
-              type: 'item',
-              href: process.env.ORDER_HISTORY_URL,
-              content: 'Order History',
             },
             {
               type: 'item',
