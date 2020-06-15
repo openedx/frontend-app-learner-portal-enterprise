@@ -75,7 +75,7 @@ const CompletedCourseCard = (props) => {
         children: (
           <div role="menuitem">
             Unarchive course
-            <span className="sr-only">for test title</span>
+            <span className="sr-only">for {title}</span>
           </div>
         ),
       },
