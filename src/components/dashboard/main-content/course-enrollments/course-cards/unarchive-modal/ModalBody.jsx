@@ -13,7 +13,7 @@ const ModalBody = () => {
     <>
       {confirmError && <ModalError />}
       <p className="m-0">
-        Are you sure you want to unarchive this course
+        Are you sure you want to unarchive
         {' '}
         <a href={courseLink}>{courseTitle}</a>?
         {' '}
@@ -22,7 +22,7 @@ const ModalBody = () => {
       <p className="mt-1">
         As long as
         your license is valid, you can resume the course
-        by clicking &quot;Continue Learning&quot;
+        by clicking &quot;Continue Learning&quot;.
       </p>
     </>
   );
