@@ -7,7 +7,7 @@ import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import {
   updateCourseRunStatus,
-  updateIsUnarchiveCourseCompleteSuccess,
+  updateIsUnarchiveCourseSuccess,
 } from '../data/actions';
 
 import BaseCourseCard from './BaseCourseCard';
@@ -27,7 +27,7 @@ const CompletedCourseCard = (props) => {
     linkToCourse,
     courseRunId,
     modifyCourseRunStatus,
-    modifyIsUnarchiveCourseCompleteStatus,
+    modifyIsUnarchiveCourseStatus,
     endDate,
   } = props;
 
@@ -50,8 +50,9 @@ const CompletedCourseCard = (props) => {
     modifyCourseRunStatus({
       status: response.courseRunStatus,
       courseId: response.courseRunId,
+      markedDone: response.markedDone.toLowerCase() === 'true',
     });
-    modifyIsUnarchiveCourseCompleteStatus({
+    modifyIsUnarchiveCourseStatus({
       isSuccess: true,
     });
   };
@@ -59,9 +60,8 @@ const CompletedCourseCard = (props) => {
   const getDropdownMenuItems = () => {
     // Only courses that are manually archived (markedDone)
     // should show a unarchive option.
-    if (!markedDone) { return []; }
     // if course is ended, you cannot unarchive it
-    if (courseEnded(endDate)) { return []; }
+    if (!markedDone || courseEnded(endDate)) { return []; }
     return ([
       {
         key: 'unarchive-course',
@@ -137,7 +137,7 @@ CompletedCourseCard.propTypes = {
   linkToCertificate: PropTypes.string,
   markedDone: PropTypes.bool.isRequired,
   modifyCourseRunStatus: PropTypes.func.isRequired,
-  modifyIsUnarchiveCourseCompleteStatus: PropTypes.func.isRequired,
+  modifyIsUnarchiveCourseStatus: PropTypes.func.isRequired,
   endDate: PropTypes.string,
 };
 
@@ -148,10 +148,11 @@ CompletedCourseCard.defaultProps = {
 
 const mapDispatchToProps = dispatch => ({
   modifyCourseRunStatus: (options) => {
+    // TODO remove this override of status once api is fixed
     dispatch(updateCourseRunStatus({ ...options, status: 'in_progress' }));
   },
-  modifyIsUnarchiveCourseCompleteStatus: (options) => {
-    dispatch(updateIsUnarchiveCourseCompleteSuccess(options));
+  modifyIsUnarchiveCourseStatus: (options) => {
+    dispatch(updateIsUnarchiveCourseSuccess(options));
   },
 });
 

@@ -96,6 +96,29 @@ export class CourseEnrollments extends Component {
     );
   };
 
+  renderUnarchiveCourseSuccessAlert = () => {
+    const { modifyIsUnarchiveCourseSuccess } = this.props;
+    return (
+      <StatusAlert
+        alertType="success"
+        dialog={(
+          <div className="d-flex">
+            <div>
+              <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
+            </div>
+            <div>
+              Your course was un-archived.
+            </div>
+          </div>
+        )}
+        onClose={() => {
+          modifyIsUnarchiveCourseSuccess({ isSuccess: false });
+        }}
+        open
+      />
+    );
+  };
+
   render() {
     const {
       children,
@@ -104,6 +127,7 @@ export class CourseEnrollments extends Component {
       error,
       sidebarComponent,
       isMarkCourseCompleteSuccess,
+      isUnarchiveCourseSuccess,
     } = this.props;
 
     if (isLoading) {
@@ -116,6 +140,7 @@ export class CourseEnrollments extends Component {
     return (
       <>
         {isMarkCourseCompleteSuccess && this.renderMarkCourseCompleteSuccessAlert()}
+        {isUnarchiveCourseSuccess && this.renderUnarchiveCourseSuccessAlert()}
         {/*
           Only render children if there are no course runs.
           This allows the parent component to customize what
@@ -157,6 +182,7 @@ const mapStateToProps = state => ({
   isLoading: selectors.getIsLoading(state),
   error: selectors.getError(state),
   isMarkCourseCompleteSuccess: selectors.getIsMarkCourseCompleteSuccess(state),
+  isUnarchiveCourseSuccess: selectors.getIsUnarchiveCourseSuccess(state),
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -168,6 +194,9 @@ const mapDispatchToProps = dispatch => ({
   },
   modifyIsMarkCourseCompleteSuccess: (options) => {
     dispatch(actions.updateIsMarkCourseCompleteSuccess(options));
+  },
+  modifyIsUnarchiveCourseSuccess: (options) => {
+    dispatch(actions.updateIsUnarchiveCourseSuccess(options));
   },
 });
 
@@ -183,6 +212,8 @@ CourseEnrollments.propTypes = {
   sidebarComponent: PropTypes.element.isRequired,
   isMarkCourseCompleteSuccess: PropTypes.bool.isRequired,
   modifyIsMarkCourseCompleteSuccess: PropTypes.func.isRequired,
+  isUnarchiveCourseSuccess: PropTypes.bool.isRequired,
+  modifyIsUnarchiveCourseSuccess: PropTypes.func.isRequired,
   error: PropTypes.instanceOf(Error),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),

@@ -8,7 +8,7 @@ import UnarchiveModalContext from './UnarchiveModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from '../mark-complete-modal/data/service';
 
-export const MARK_UNARCHIVED_DEFAULT_LABEL = 'Unarchived course';
+export const MARK_UNARCHIVED_DEFAULT_LABEL = 'Unarchive course';
 export const MARK_UNARCHIVED_PENDING_LABEL = 'Unarchiving course...';
 
 const initialState = {
