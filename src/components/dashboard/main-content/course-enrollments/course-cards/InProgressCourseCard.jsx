@@ -31,7 +31,7 @@ const InProgressCourseCard = ({
     <ContinueLearningButton
       linkToCourse={linkToCourse}
       title={title}
-      courseRunId
+      courseRunId={courseRunId}
     />
   );
 

@@ -20,11 +20,9 @@ const ModalBody = () => {
         You will remain enrolled, but the course will
         no longer appear as &quot;In Progress&quot;.
       </p>
-      <p className="mt-1">
-        As long as
-        your license is valid, you can resume the course
-        by clicking &quot;Continue Learning&quot; under your list
-        of archived courses.
+      <p className="mt-2">
+        As long as your license is valid, you can resume the course by clicking
+        &quot;Continue Learning&quot; under your list of archived courses.
       </p>
     </>
   );

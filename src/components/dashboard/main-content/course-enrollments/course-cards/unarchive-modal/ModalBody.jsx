@@ -15,14 +15,12 @@ const ModalBody = () => {
       <p className="m-0">
         Are you sure you want to unarchive
         {' '}
-        <a href={courseLink}>{courseTitle}</a>?
+        <a href={courseLink}>{courseTitle}</a>
         {' '}
         The course will show up in your &quot;In Progress&quot; section.
       </p>
-      <p className="mt-1">
-        As long as
-        your license is valid, you can resume the course
-        by clicking &quot;Continue Learning&quot;.
+      <p className="mt-2">
+        As long as your license is valid, you can resume the course by clicking &quot;Continue Learning&quot;.
       </p>
     </>
   );

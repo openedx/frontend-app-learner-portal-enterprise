@@ -16,7 +16,7 @@ const ModalError = () => {
             <FontAwesomeIcon className="mr-3" icon={faExclamationTriangle} />
           </div>
           <div>
-            Failure unarchiving
+            An error occurred while unarchiving
             {' '}
             <a className="text-link" href={courseLink}>{courseTitle}</a>.
             {' '}

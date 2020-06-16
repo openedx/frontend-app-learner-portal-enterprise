@@ -4,18 +4,16 @@ import { connect } from 'react-redux';
 
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { sendTrackEvent } from '@edx/frontend-platform/analytics';
-import { courseEnded } from '../../../../../utils/common';
+
+import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
+import { UnarchiveModal } from './unarchive-modal';
 
 import {
   updateCourseRunStatus,
   updateIsUnarchiveCourseSuccess,
 } from '../data/actions';
-
-import BaseCourseCard from './BaseCourseCard';
-
-import { UnarchiveModal } from './unarchive-modal';
-
+import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
 
 const CompletedCourseCard = (props) => {
@@ -32,7 +30,6 @@ const CompletedCourseCard = (props) => {
   } = props;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
 
   const handleUnarchiveOnClose = () => {
     setIsModalOpen(false);
@@ -61,7 +58,7 @@ const CompletedCourseCard = (props) => {
     // Only courses that are manually archived (markedDone)
     // should show a unarchive option.
     // if course is ended, you cannot unarchive it
-    if (!markedDone || courseEnded(endDate)) { return []; }
+    if (!markedDone || isCourseEnded(endDate)) { return []; }
     return ([
       {
         key: 'unarchive-course',
@@ -83,12 +80,12 @@ const CompletedCourseCard = (props) => {
   };
 
   const renderButtons = () => {
-    if (courseEnded(endDate)) { return null; }
+    if (isCourseEnded(endDate)) { return null; }
     return (
       <ContinueLearningButton
         linkToCourse={linkToCourse}
         title={title}
-        courseRunId
+        courseRunId={courseRunId}
       />
     );
   };
@@ -124,7 +121,7 @@ const CompletedCourseCard = (props) => {
   return (
     <BaseCourseCard
       buttons={renderButtons()}
-      dropdownMenuItems={getDropdownMenuItems({ markedDone })}
+      dropdownMenuItems={getDropdownMenuItems()}
       type="completed"
       hasViewCertificateLink={false}
       {...props}
