@@ -4,6 +4,7 @@ import { Breadcrumb } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
+import CourseRunSelector from './CourseRunSelector';
 import EnrollButton from './EnrollButton';
 
 import {
@@ -70,6 +71,7 @@ export default function CourseHeader() {
                 ))}
               </div>
             )}
+            <CourseRunSelector />
             {catalog.containsContentItems ? (
               <>
                 {isArchived(activeCourseRun) && (

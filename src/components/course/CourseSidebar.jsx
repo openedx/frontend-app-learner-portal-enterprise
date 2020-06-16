@@ -20,6 +20,7 @@ import {
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
 } from './data/hooks';
+import { isDefined } from './data/utils';
 
 import './styles/CourseSidebar.scss';
 
@@ -34,14 +35,14 @@ export default function CourseSidebar() {
   return (
     <>
       <ul className="pl-0 mb-5 course-details-sidebar">
-        {activeCourseRun.weeksToComplete && (
+        {isDefined(activeCourseRun.weeksToComplete) && (
           <CourseSidebarListItem
             icon={faClock}
             label="Length"
             content={`${weeksToComplete} ${weeksLabel}`}
           />
         )}
-        {activeCourseRun.minEffort && activeCourseRun.maxEffort && (
+        {isDefined(activeCourseRun.minEffort) && isDefined(activeCourseRun.maxEffort) && (
           <CourseSidebarListItem
             icon={faTachometerAlt}
             label="Effort"

@@ -1,20 +1,23 @@
 import React, { createContext, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import {
+  SET_COURSE_RUN, SET_COURSE, SET_ENROLLMENTS, SET_ENTITLEMENTS, SET_IS_COURSE_IN_CATALOG,
+} from './data/constants';
 
 export const CourseContext = createContext();
 export const CourseContextConsumer = CourseContext.Consumer;
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'set-course':
+    case SET_COURSE:
       return { ...state, course: action.payload };
-    case 'set-course-run':
+    case SET_COURSE_RUN:
       return { ...state, activeCourseRun: action.payload };
-    case 'set-enrollments':
+    case SET_ENROLLMENTS:
       return { ...state, userEnrollments: action.payload };
-    case 'set-entitlements':
+    case SET_ENTITLEMENTS:
       return { ...state, userEntitlements: action.payload };
-    case 'set-is-course-in-catalog':
+    case SET_IS_COURSE_IN_CATALOG:
       return {
         ...state,
         catalog: action.payload,
