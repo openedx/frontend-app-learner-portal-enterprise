@@ -40,7 +40,7 @@ describe('<MarkCompleteModal />', () => {
     expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: 'course-v1:my-test-course',
       enterprise_id: 'example-enterprise-uuid',
-      marked_done: 'True',
+      marked_done: true,
     });
     expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_ARCHIVED_PENDING_LABEL);
   });
@@ -61,7 +61,7 @@ describe('<MarkCompleteModal />', () => {
     expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: 'course-v1:my-test-course',
       enterprise_id: 'example-enterprise-uuid',
-      marked_done: 'True',
+      marked_done: true,
     });
     expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_ARCHIVED_DEFAULT_LABEL);
   });

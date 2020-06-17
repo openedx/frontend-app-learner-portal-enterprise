@@ -24,6 +24,7 @@ const CompletedCourseCard = (props) => {
     title,
     linkToCourse,
     courseRunId,
+    courseRunStatus,
     modifyCourseRunStatus,
     modifyIsUnarchiveCourseStatus,
     endDate,
@@ -47,7 +48,7 @@ const CompletedCourseCard = (props) => {
     modifyCourseRunStatus({
       status: response.courseRunStatus,
       courseId: response.courseRunId,
-      markedDone: response.markedDone.toLowerCase() === 'true',
+      markedDone: response.markedDone,
     });
     modifyIsUnarchiveCourseStatus({
       isSuccess: true,
@@ -55,9 +56,10 @@ const CompletedCourseCard = (props) => {
   };
 
   const getDropdownMenuItems = () => {
-    // Only courses that are manually archived (markedDone)
-    // should show a unarchive option.
-    // if course is ended, you cannot unarchive it
+    // Only courses that are manually archived (markedDone) should show a unarchive option.
+    // if course is ended or completed, you cannot unarchive it
+    // TODO: we also need to add || courseRunStatus === 'completed' once api returns correct status
+    //   right now it always returns completed upon using Archive
     if (!markedDone || isCourseEnded(endDate)) { return []; }
     return ([
       {
@@ -80,7 +82,7 @@ const CompletedCourseCard = (props) => {
   };
 
   const renderButtons = () => {
-    if (isCourseEnded(endDate)) { return null; }
+    if (isCourseEnded(endDate) || courseRunStatus === 'completed') { return null; }
     return (
       <ContinueLearningButton
         linkToCourse={linkToCourse}
@@ -145,6 +147,7 @@ CompletedCourseCard.propTypes = {
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
   markedDone: PropTypes.bool.isRequired,
+  courseRunStatus: PropTypes.string.isRequired,
   modifyCourseRunStatus: PropTypes.func.isRequired,
   modifyIsUnarchiveCourseStatus: PropTypes.func.isRequired,
   endDate: PropTypes.string,
@@ -157,7 +160,9 @@ CompletedCourseCard.defaultProps = {
 
 const mapDispatchToProps = dispatch => ({
   modifyCourseRunStatus: (options) => {
-    // TODO remove this override of status once api is fixed
+    // TODO remove this override of status once api is fixed or we find a better way to categorize the cards
+    // right now categorization is by status only, but it gets confusing if marked_done is false and
+    // status=complete for example
     dispatch(updateCourseRunStatus({ ...options, status: 'in_progress' }));
   },
   modifyIsUnarchiveCourseStatus: (options) => {

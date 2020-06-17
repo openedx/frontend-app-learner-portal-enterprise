@@ -86,7 +86,7 @@ const InProgressCourseCard = ({
     modifyCourseRunStatus({
       status: response.courseRunStatus,
       courseId: response.courseRunId,
-      markedDone: response.markedDone.toLowerCase() === 'true',
+      markedDone: response.markedDone,
     });
     modifyIsMarkCourseCompleteSuccess({
       isSuccess: true,

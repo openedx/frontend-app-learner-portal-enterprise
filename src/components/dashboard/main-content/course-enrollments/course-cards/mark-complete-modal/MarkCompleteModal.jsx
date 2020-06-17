@@ -37,7 +37,7 @@ const MarkCompleteModal = ({
       const response = await updateCourseCompleteStatusRequest({
         enterprise_id: uuid,
         course_id: courseId,
-        marked_done: 'True',
+        marked_done: true,
       });
       onSuccess({
         response: camelCaseObject(response.data),

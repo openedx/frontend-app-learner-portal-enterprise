@@ -21,6 +21,7 @@ describe('<CourseEnrollments />', () => {
   const mockFetchCourseEnrollments = jest.fn();
   const mockClearCourseEnrollments = jest.fn();
   const mockModifyIsMarkCourseCompleteSuccess = jest.fn();
+  const mockModifyIsUnarchiveCourseSuccess = jest.fn();
   const initialProps = {
     courseRuns: {
       in_progress: [],
@@ -34,6 +35,8 @@ describe('<CourseEnrollments />', () => {
     clearCourseEnrollments: mockClearCourseEnrollments,
     isMarkCourseCompleteSuccess: false,
     modifyIsMarkCourseCompleteSuccess: mockModifyIsMarkCourseCompleteSuccess,
+    isUnarchiveCourseSuccess: false,
+    modifyIsUnarchiveCourseSuccess: mockModifyIsUnarchiveCourseSuccess,
   };
 
   describe('renders course enrollments correctly', () => {
@@ -223,5 +226,21 @@ describe('<CourseEnrollments />', () => {
     ));
     wrapper.find('.alert .btn.close').simulate('click');
     expect(mockModifyIsMarkCourseCompleteSuccess).toBeCalledTimes(1);
+  });
+
+  it('properly closes mark course as archived success status alert', () => {
+    const enterpriseConfig = {
+      uuid: 'test-enterprise-uuid',
+    };
+    const wrapper = mount((
+      <AppContext.Provider value={{ enterpriseConfig }}>
+        <CourseEnrollments
+          {...initialProps}
+          isUnarchiveCourseSuccess
+        />
+      </AppContext.Provider>
+    ));
+    wrapper.find('.alert .btn.close').simulate('click');
+    expect(mockModifyIsUnarchiveCourseSuccess).toBeCalledTimes(1);
   });
 });

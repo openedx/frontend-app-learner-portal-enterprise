@@ -37,7 +37,7 @@ const UnarchiveModal = ({
       const response = await updateCourseCompleteStatusRequest({
         enterprise_id: uuid,
         course_id: courseId,
-        marked_done: 'False',
+        marked_done: false,
       });
       onSuccess({
         response: camelCaseObject(response.data),
