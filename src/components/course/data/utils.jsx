@@ -16,7 +16,7 @@ export function getActiveCourseRun(course) {
   if (!course || !course.courseRuns || course.courseRuns.length === 0) {
     return undefined;
   }
-  return course.courseRuns.pop();
+  return course.courseRuns[course.courseRuns.length - 1];
 }
 
 export function isUserEnrolledInCourse({ userEnrollments, key }) {
@@ -105,4 +105,8 @@ export function getProgramIcon(type) {
     default:
       return VerifiedSvgIcon;
   }
+}
+
+export function isDefined(value) {
+  return value !== undefined && value !== null;
 }
