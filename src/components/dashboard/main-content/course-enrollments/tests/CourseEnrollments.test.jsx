@@ -19,7 +19,7 @@ import {
 // component to test
 import { CourseEnrollments } from '../CourseEnrollments';
 
-// TODO: mock auth, we should consider using a authprovider in the test
+// TODO: Need to confirm if this is the best way to mock auth.
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
@@ -47,7 +47,6 @@ const initialProps = {
 };
 
 test('loads enrollments component', async () => {
-
   render(
     <Provider store={store}>
       <AppContext.Provider value={{ enterpriseConfig }}>
@@ -56,5 +55,6 @@ test('loads enrollments component', async () => {
     </Provider>,
   );
   expect(screen.getByText('My courses in progress')).toBeInTheDocument();
+  expect(screen.getByText('Archived courses')).toBeInTheDocument();
   expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
 });
