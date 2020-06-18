@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { Provider } from 'react-redux';
 
@@ -16,13 +16,21 @@ import {
   defaultInitialEnrollmentProps,
 } from './enrollment-testutils';
 
+
 // component to test
 import { CourseEnrollments } from '../CourseEnrollments';
+
+import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 
 // TODO: Need to confirm if this is the best way to mock auth.
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
+jest.mock('../course-cards/mark-complete-modal/data/service');
+
+beforeEach(() => {
+  updateCourseCompleteStatusRequest.mockImplementation(() => {});
+});
 
 const genericMockFn = () => jest.fn();
 const store = createMockStore(configureMockStore);
@@ -36,7 +44,7 @@ const inProgCourseRun = { ...completedCourseRun, courseRunStatus: 'in_progress' 
 const defaultInitialProps = defaultInitialEnrollmentProps({ genericMockFn });
 
 // TODO not sure why and if we need the sidebarComponent here
-const initialProps = {
+const initProps = {
   ...defaultInitialProps,
   courseRuns: {
     in_progress: [inProgCourseRun],
@@ -46,7 +54,7 @@ const initialProps = {
   sidebarComponent: <div className="sidebar-example" />,
 };
 
-test('loads enrollments component', async () => {
+function renderEnrollmentsComponent(initialProps) {
   render(
     <Provider store={store}>
       <AppContext.Provider value={{ enterpriseConfig }}>
@@ -54,7 +62,29 @@ test('loads enrollments component', async () => {
       </AppContext.Provider>
     </Provider>,
   );
+}
+
+test('loads enrollments component', () => {
+  renderEnrollmentsComponent(initProps);
   expect(screen.getByText('My courses in progress')).toBeInTheDocument();
   expect(screen.getByText('Archived courses')).toBeInTheDocument();
   expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
+});
+
+test('unarchive action generates course status update', () => {
+  renderEnrollmentsComponent({
+    ...initProps,
+    courseRuns: {
+      ...initProps.courseRuns,
+      completed: [{ ...completedCourseRun, markedDone: true }],
+    },
+  });
+  expect(screen.getByRole('button', { name: 'Unarchive course' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Unarchive course' }));
+
+  // TODO This test only validates 'half way', we ideally want to update it to
+  // validate the UI results. Skipping at the time of writing since need to
+  // figure out the right markup for testability. This give a base level of confidence
+  // that unarchive is not failing, that's all.
+  expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
 });
