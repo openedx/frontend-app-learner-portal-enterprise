@@ -26,28 +26,30 @@ export default function CourseRunSelector() {
   if (multipleRunsAvailable) {
     if (!editing) {
       return (
-        <button type="button" onClick={() => setEditing(true)} className="btn btn-link my-0 p-0">
+        <button type="button" onClick={() => setEditing(true)} className="btn btn-link mb-1 p-0">
           more dates
         </button>
       );
     }
     return (
-      <div className="input-group">
+      <div className="d-flex align-middle">
         <Input
           name="courseRun"
-          className="col-4"
+          className="col-4 mb-2"
           type="select"
           label="Start Date:"
           defaultValue={activeCourseRun.uuid}
-          options={courseRuns.map(({ start, uuid }) => (
-            {
-              label: moment(start).format('MMM D, YYYY'),
-              value: uuid,
-            }
-          ))}
+          options={
+            courseRuns.map(({ start, uuid }) => (
+              {
+                label: moment(start).format('MMM D, YYYY'),
+                value: uuid,
+              }
+            ))
+          }
           ref={selectRef}
         />
-        <button type="button" className="btn btn-primary ml-2 py-1" onClick={() => handleClick()}>
+        <button type="button" className="btn btn-primary ml-2" onClick={() => handleClick()}>
           go
         </button>
       </div>
