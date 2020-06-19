@@ -5,13 +5,13 @@ import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
 import Search from './Search';
 
-export default function SearchPage() {
-  return (
-    <EnterprisePage>
-      <Layout>
-        <EnterpriseBanner />
-        <Search />
-      </Layout>
-    </EnterprisePage>
-  );
-}
+const SearchPage = () => (
+  <EnterprisePage>
+    <Layout>
+      <EnterpriseBanner />
+      <Search />
+    </Layout>
+  </EnterprisePage>
+);
+
+export default SearchPage;

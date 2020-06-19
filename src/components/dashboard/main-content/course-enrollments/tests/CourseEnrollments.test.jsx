@@ -43,7 +43,6 @@ const inProgCourseRun = { ...completedCourseRun, courseRunStatus: 'in_progress' 
 
 const defaultInitialProps = defaultInitialEnrollmentProps({ genericMockFn });
 
-// TODO not sure why and if we need the sidebarComponent here
 const initProps = {
   ...defaultInitialProps,
   courseRuns: {
@@ -51,7 +50,6 @@ const initProps = {
     upcoming: [],
     completed: [completedCourseRun],
   },
-  sidebarComponent: <div className="sidebar-example" />,
 };
 
 function renderEnrollmentsComponent(initialProps) {

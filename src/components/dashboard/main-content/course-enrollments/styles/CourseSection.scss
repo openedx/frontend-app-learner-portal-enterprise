@@ -1,9 +1,11 @@
 @import "~@edx/paragon/scss/edx/utilities-only";
 
-.collapsible-trigger {
-  @extend .px-0;
-}
+.course-section {
+  .collapsible-trigger {
+    @extend .px-0;
+  }
 
-.collapsible-body {
-  @extend .p-0;
+  .collapsible-body {
+    @extend .p-0;
+  }
 }
