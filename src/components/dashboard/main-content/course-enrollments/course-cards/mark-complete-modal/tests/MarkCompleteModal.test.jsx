@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import MarkCompleteModal from '../MarkCompleteModal';
+import MarkCompleteModal, { MARK_ARCHIVED_DEFAULT_LABEL, MARK_ARCHIVED_PENDING_LABEL } from '../MarkCompleteModal';
 import * as service from '../data/service';
 
 jest.mock('../data/service');
@@ -37,12 +37,12 @@ describe('<MarkCompleteModal />', () => {
       </AppContext.Provider>
     ));
     wrapper.find('.confirm-mark-complete-btn').hostNodes().simulate('click');
-    expect(service.markCourseAsCompleteRequest).toBeCalledWith({
+    expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: 'course-v1:my-test-course',
       enterprise_id: 'example-enterprise-uuid',
-      marked_done: 'True',
+      marked_done: true,
     });
-    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual('Marking as complete...');
+    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_ARCHIVED_PENDING_LABEL);
   });
 
   it('handles confirm click with error', async () => {
@@ -58,12 +58,12 @@ describe('<MarkCompleteModal />', () => {
     await act(async () => {
       wrapper.find('.confirm-mark-complete-btn').hostNodes().simulate('click');
     });
-    expect(service.markCourseAsCompleteRequest).toBeCalledWith({
+    expect(service.updateCourseCompleteStatusRequest).toBeCalledWith({
       course_id: 'course-v1:my-test-course',
       enterprise_id: 'example-enterprise-uuid',
-      marked_done: 'True',
+      marked_done: true,
     });
-    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual('Mark as complete');
+    expect(wrapper.find('.confirm-mark-complete-btn').hostNodes().text()).toEqual(MARK_ARCHIVED_DEFAULT_LABEL);
   });
 
   it('handles close modal', () => {

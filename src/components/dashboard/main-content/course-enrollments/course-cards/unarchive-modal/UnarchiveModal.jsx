@@ -4,12 +4,12 @@ import { Modal, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform';
 
-import MarkCompleteModalContext from './MarkCompleteModalContext';
+import UnarchiveModalContext from './UnarchiveModalContext';
 import ModalBody from './ModalBody';
-import { updateCourseCompleteStatusRequest } from './data/service';
+import { updateCourseCompleteStatusRequest } from '../mark-complete-modal/data/service';
 
-export const MARK_ARCHIVED_DEFAULT_LABEL = 'Archive course';
-export const MARK_ARCHIVED_PENDING_LABEL = 'Archiving course...';
+export const MARK_UNARCHIVED_DEFAULT_LABEL = 'Unarchive course';
+export const MARK_UNARCHIVED_PENDING_LABEL = 'Unarchiving course...';
 
 const initialState = {
   confirmButtonState: 'default',
@@ -17,7 +17,7 @@ const initialState = {
   confirmSuccessful: false,
 };
 
-const MarkCompleteModal = ({
+const UnarchiveModal = ({
   courseId,
   isOpen,
   courseTitle,
@@ -37,19 +37,10 @@ const MarkCompleteModal = ({
       const response = await updateCourseCompleteStatusRequest({
         enterprise_id: uuid,
         course_id: courseId,
-        marked_done: true,
+        marked_done: false,
       });
       onSuccess({
         response: camelCaseObject(response.data),
-        /**
-         * We're passing a function to reset the `MarkCompleteModal` state
-         * to its initial state here. That way, the consumer of this component
-         * can call this function to reset the modal state. When the `open` prop
-         * on the Paragon `Modal` component changes to false, it doesn't trigger
-         * the `onClose` callback, another place where we reset to initial state.
-         * Because of this, passing the `resetModalState` function gives control
-         * to the consumer of this component to reset to initial state as needed.
-         */
         resetModalState: () => setState({ ...initialState }),
       });
     } catch (error) {
@@ -66,7 +57,7 @@ const MarkCompleteModal = ({
   };
 
   return (
-    <MarkCompleteModalContext.Provider
+    <UnarchiveModalContext.Provider
       value={{
         courseTitle,
         courseLink,
@@ -74,30 +65,30 @@ const MarkCompleteModal = ({
       }}
     >
       <Modal
-        title="Archive course"
+        title="Unarchive course"
         body={<ModalBody />}
         buttons={[
           <StatefulButton
             labels={{
-              default: MARK_ARCHIVED_DEFAULT_LABEL,
-              pending: MARK_ARCHIVED_PENDING_LABEL,
+              default: MARK_UNARCHIVED_DEFAULT_LABEL,
+              pending: MARK_UNARCHIVED_PENDING_LABEL,
             }}
             disabledStates={['pending']}
-            className="confirm-mark-complete-btn btn-primary"
+            className="confirm-unarchive-btn btn-primary"
             state={confirmButtonState}
             onClick={handleConfirmButtonClick}
-            key="confirm-mark-complete-btn"
+            key="confirm-unarchive-btn"
           />,
         ]}
         open={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
         closeText="Cancel"
       />
-    </MarkCompleteModalContext.Provider>
+    </UnarchiveModalContext.Provider>
   );
 };
 
-MarkCompleteModal.propTypes = {
+UnarchiveModal.propTypes = {
   courseId: PropTypes.string.isRequired,
   courseTitle: PropTypes.string.isRequired,
   courseLink: PropTypes.string.isRequired,
@@ -106,8 +97,8 @@ MarkCompleteModal.propTypes = {
   isOpen: PropTypes.bool,
 };
 
-MarkCompleteModal.defaultProps = {
+UnarchiveModal.defaultProps = {
   isOpen: false,
 };
 
-export default MarkCompleteModal;
+export default UnarchiveModal;

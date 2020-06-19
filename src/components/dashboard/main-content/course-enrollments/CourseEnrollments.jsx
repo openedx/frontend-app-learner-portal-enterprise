@@ -18,6 +18,9 @@ import {
 import * as selectors from './data/selectors';
 import * as actions from './data/actions';
 
+const ARCHIVED_COURSES_SECTION_SUBTITLE = `This section contains both the courses you have completed
+  in the past and courses that have been voluntarily removed from your "In Progress" list.`;
+
 export class CourseEnrollments extends Component {
   componentDidMount() {
     const {
@@ -78,12 +81,35 @@ export class CourseEnrollments extends Component {
               <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
             </div>
             <div>
-              Your course was marked as complete.
+              Your course was archived.
             </div>
           </div>
         )}
         onClose={() => {
           modifyIsMarkCourseCompleteSuccess({ isSuccess: false });
+        }}
+        open
+      />
+    );
+  };
+
+  renderUnarchiveCourseSuccessAlert = () => {
+    const { modifyIsUnarchiveCourseSuccess } = this.props;
+    return (
+      <StatusAlert
+        alertType="success"
+        dialog={(
+          <div className="d-flex">
+            <div>
+              <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
+            </div>
+            <div>
+              Your course was unarchived.
+            </div>
+          </div>
+        )}
+        onClose={() => {
+          modifyIsUnarchiveCourseSuccess({ isSuccess: false });
         }}
         open
       />
@@ -98,6 +124,7 @@ export class CourseEnrollments extends Component {
       error,
       sidebarComponent,
       isMarkCourseCompleteSuccess,
+      isUnarchiveCourseSuccess,
     } = this.props;
 
     if (isLoading) {
@@ -110,6 +137,7 @@ export class CourseEnrollments extends Component {
     return (
       <>
         {isMarkCourseCompleteSuccess && this.renderMarkCourseCompleteSuccessAlert()}
+        {isUnarchiveCourseSuccess && this.renderUnarchiveCourseSuccessAlert()}
         {/*
           Only render children if there are no course runs.
           This allows the parent component to customize what
@@ -134,7 +162,8 @@ export class CourseEnrollments extends Component {
           courseRuns={courseRuns.upcoming}
         />
         <CourseSection
-          title="Completed courses"
+          title="Archived courses"
+          subtitle={ARCHIVED_COURSES_SECTION_SUBTITLE}
           component={CompletedCourseCard}
           courseRuns={courseRuns.completed}
         />
@@ -150,6 +179,7 @@ const mapStateToProps = state => ({
   isLoading: selectors.getIsLoading(state),
   error: selectors.getError(state),
   isMarkCourseCompleteSuccess: selectors.getIsMarkCourseCompleteSuccess(state),
+  isUnarchiveCourseSuccess: selectors.getIsUnarchiveCourseSuccess(state),
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -161,6 +191,9 @@ const mapDispatchToProps = dispatch => ({
   },
   modifyIsMarkCourseCompleteSuccess: (options) => {
     dispatch(actions.updateIsMarkCourseCompleteSuccess(options));
+  },
+  modifyIsUnarchiveCourseSuccess: (options) => {
+    dispatch(actions.updateIsUnarchiveCourseSuccess(options));
   },
 });
 
@@ -176,6 +209,8 @@ CourseEnrollments.propTypes = {
   sidebarComponent: PropTypes.element.isRequired,
   isMarkCourseCompleteSuccess: PropTypes.bool.isRequired,
   modifyIsMarkCourseCompleteSuccess: PropTypes.func.isRequired,
+  isUnarchiveCourseSuccess: PropTypes.bool.isRequired,
+  modifyIsUnarchiveCourseSuccess: PropTypes.func.isRequired,
   error: PropTypes.instanceOf(Error),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),

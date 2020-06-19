@@ -1,226 +1,90 @@
 import React from 'react';
+
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
-import renderer from 'react-test-renderer';
+
+// test deps
 import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import { breakpoints } from '@edx/paragon';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+
+// requirements
 import { AppContext } from '@edx/frontend-platform/react';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import {
+  createMockStore,
+  createCompletedCourseRun,
+  defaultInitialEnrollmentProps,
+} from './enrollment-testutils';
 
-import '../../../../../__mocks__/reactResponsive.mock';
 
+// component to test
 import { CourseEnrollments } from '../CourseEnrollments';
 
-const mockStore = configureMockStore([thunk]);
+import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 
+// TODO: Need to confirm if this is the best way to mock auth.
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
-describe('<CourseEnrollments />', () => {
-  const mockFetchCourseEnrollments = jest.fn();
-  const mockClearCourseEnrollments = jest.fn();
-  const mockModifyIsMarkCourseCompleteSuccess = jest.fn();
-  const initialProps = {
-    courseRuns: {
-      in_progress: [],
-      upcoming: [],
-      completed: [],
-    },
-    isLoading: false,
-    error: null,
-    sidebarComponent: <div className="sidebar-example" />,
-    fetchCourseEnrollments: mockFetchCourseEnrollments,
-    clearCourseEnrollments: mockClearCourseEnrollments,
-    isMarkCourseCompleteSuccess: false,
-    modifyIsMarkCourseCompleteSuccess: mockModifyIsMarkCourseCompleteSuccess,
-  };
+jest.mock('../course-cards/mark-complete-modal/data/service');
 
-  describe('renders course enrollments correctly', () => {
-    it('with no course enrollments', () => {
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      const wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(wrapper.exists('.course-section')).toBeFalsy();
-    });
+beforeEach(() => {
+  updateCourseCompleteStatusRequest.mockImplementation(() => {});
+});
 
-    it('with valid course enrollments', () => {
-      const sampleCourseRun = {
-        courseRunId: 'course-v1:edX+DemoX+Demo_Course',
-        courseRunStatus: 'completed',
-        linkToCourse: 'https://edx.org/',
-        title: 'edX Demonstration Course',
-        notifications: [],
-        startDate: '2017-02-05T05:00:00Z',
-        endDate: '2018-08-18T05:00:00Z',
-        hasEmailsEnabled: true,
-      };
-      const courseRuns = {
-        in_progress: [{
-          ...sampleCourseRun,
-          courseRunId: 'course-v1:edX+DemoX+Demo_Course_2',
-          courseRunStatus: 'in_progress',
-          title: 'edX Demonstration Course 2',
-          notifications: [{
-            name: 'Assignment 1',
-            url: 'https://edx.org/',
-            date: '2019-05-31T07:50:00Z',
-          }],
-          microMastersTitle: 'Example MicroMasters Program',
-        }],
-        upcoming: [],
-        completed: [sampleCourseRun],
-      };
-      const enterpriseConfig = {
-        uuid: 'test-program-uuid',
-      };
-      const store = mockStore({
-        emailSettings: {
-          loading: false,
-          error: null,
-          data: null,
-        },
-      });
-      const wrapper = mount((
-        <Provider store={store}>
-          <AppContext.Provider value={{ enterpriseConfig }}>
-            <CourseEnrollments
-              {...initialProps}
-              courseRuns={courseRuns}
-            />
-          </AppContext.Provider>
-        </Provider>
-      ));
+const genericMockFn = () => jest.fn();
+const store = createMockStore(configureMockStore);
 
-      expect(wrapper.html()).not.toBeNull();
-      expect(wrapper.find('.course-section').length).toEqual(2);
-      expect(wrapper.find('.course-section').first().find('.course').length).toEqual(1);
-      expect(wrapper.find('.course-section').last().find('.course').length).toEqual(1);
-    });
+const enterpriseConfig = {
+  uuid: 'test-enterprise-uuid',
+};
+const completedCourseRun = createCompletedCourseRun();
+const inProgCourseRun = { ...completedCourseRun, courseRunStatus: 'in_progress' };
 
-    it('with error', () => {
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      const tree = renderer
-        .create((
-          <AppContext.Provider value={{ enterpriseConfig }}>
-            <CourseEnrollments
-              {...initialProps}
-              error={new Error('Network Error')}
-            />
-          </AppContext.Provider>
-        ))
-        .toJSON();
-      expect(tree).toMatchSnapshot();
-    });
+const defaultInitialProps = defaultInitialEnrollmentProps({ genericMockFn });
 
-    it('with loading', () => {
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      const tree = renderer
-        .create((
-          <AppContext.Provider value={{ enterpriseConfig }}>
-            <CourseEnrollments
-              {...initialProps}
-              isLoading
-            />
-          </AppContext.Provider>
-        ))
-        .toJSON();
-      expect(tree).toMatchSnapshot();
-    });
+// TODO not sure why and if we need the sidebarComponent here
+const initProps = {
+  ...defaultInitialProps,
+  courseRuns: {
+    in_progress: [inProgCourseRun],
+    upcoming: [],
+    completed: [completedCourseRun],
+  },
+  sidebarComponent: <div className="sidebar-example" />,
+};
 
-    it('with mark course as complete success status alert', () => {
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      const tree = renderer
-        .create((
-          <AppContext.Provider value={{ enterpriseConfig }}>
-            <CourseEnrollments
-              {...initialProps}
-              isMarkCourseCompleteSuccess
-            />
-          </AppContext.Provider>
-        ))
-        .toJSON();
-      expect(tree).toMatchSnapshot();
-    });
-  });
-
-  describe('sidebar', () => {
-    let wrapper;
-
-    it('is not shown at screen widths greater than or equal to large breakpoint', () => {
-      global.innerWidth = breakpoints.large.minWidth;
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(wrapper.find('.sidebar-example').exists()).toBeFalsy();
-    });
-
-    it('is shown at screen widths less than large breakpoint', () => {
-      global.innerWidth = breakpoints.small.minWidth;
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(wrapper.find('.sidebar-example').exists()).toBeTruthy();
-    });
-  });
-
-  describe('calls appropriate fetch method depending on page type', () => {
-    beforeEach(() => {
-      mockFetchCourseEnrollments.mockReset();
-      mockClearCourseEnrollments.mockReset();
-    });
-
-    it('for enterprise page', () => {
-      const uuid = 'test-enterprise-uuid';
-      const enterpriseConfig = {
-        uuid,
-      };
-      mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(mockFetchCourseEnrollments.mock.calls.length).toEqual(1);
-      expect(mockFetchCourseEnrollments).toBeCalledWith({
-        uuid,
-      });
-    });
-  });
-
-  it('properly closes mark course as complete success status alert', () => {
-    const enterpriseConfig = {
-      uuid: 'test-enterprise-uuid',
-    };
-    const wrapper = mount((
+function renderEnrollmentsComponent(initialProps) {
+  render(
+    <Provider store={store}>
       <AppContext.Provider value={{ enterpriseConfig }}>
-        <CourseEnrollments
-          {...initialProps}
-          isMarkCourseCompleteSuccess
-        />
+        <CourseEnrollments {...initialProps} />
       </AppContext.Provider>
-    ));
-    wrapper.find('.alert .btn.close').simulate('click');
-    expect(mockModifyIsMarkCourseCompleteSuccess).toBeCalledTimes(1);
+    </Provider>,
+  );
+}
+
+test('loads enrollments component', () => {
+  renderEnrollmentsComponent(initProps);
+  expect(screen.getByText('My courses in progress')).toBeInTheDocument();
+  expect(screen.getByText('Archived courses')).toBeInTheDocument();
+  expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
+});
+
+test('unarchive action generates course status update', () => {
+  renderEnrollmentsComponent({
+    ...initProps,
+    courseRuns: {
+      ...initProps.courseRuns,
+      completed: [{ ...completedCourseRun, markedDone: true }],
+    },
   });
+  expect(screen.getByRole('button', { name: 'Unarchive course' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Unarchive course' }));
+
+  // TODO This test only validates 'half way', we ideally want to update it to
+  // validate the UI results. Skipping at the time of writing since need to
+  // figure out the right markup for testability. This give a base level of confidence
+  // that unarchive is not failing, that's all.
+  expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
 });

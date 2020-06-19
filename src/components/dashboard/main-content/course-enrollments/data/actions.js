@@ -7,6 +7,7 @@ import {
   UPDATE_COURSE_RUN_STATUS,
   CLEAR_COURSE_ENROLLMENTS,
   UPDATE_IS_MARK_COURSE_COMPLETE_SUCCESS,
+  UPDATE_IS_UNARCHIVE_COURSE_SUCCESS,
 } from './constants';
 import * as service from './service';
 
@@ -30,16 +31,24 @@ const fetchCourseEnrollmentsFailure = error => ({
 
 const clearCourseEnrollmentsFn = () => ({ type: CLEAR_COURSE_ENROLLMENTS });
 
-export const updateCourseRunStatus = ({ courseId, status }) => ({
+export const updateCourseRunStatus = ({ courseId, status, markedDone }) => ({
   type: UPDATE_COURSE_RUN_STATUS,
   payload: {
     courseId,
     status,
+    markedDone,
   },
 });
 
 export const updateIsMarkCourseCompleteSuccess = ({ isSuccess }) => ({
   type: UPDATE_IS_MARK_COURSE_COMPLETE_SUCCESS,
+  payload: {
+    isSuccess,
+  },
+});
+
+export const updateIsUnarchiveCourseSuccess = ({ isSuccess }) => ({
+  type: UPDATE_IS_UNARCHIVE_COURSE_SUCCESS,
   payload: {
     isSuccess,
   },

@@ -5,6 +5,7 @@ import {
   CLEAR_COURSE_ENROLLMENTS,
   UPDATE_COURSE_RUN_STATUS,
   UPDATE_IS_MARK_COURSE_COMPLETE_SUCCESS,
+  UPDATE_IS_UNARCHIVE_COURSE_SUCCESS,
 } from './constants';
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
   courseRuns: [],
   error: null,
   isMarkCourseCompleteSuccess: false,
+  isUnarchiveCourseSuccess: false,
 };
 
 const courseEnrollmentsReducer = (state = initialState, action) => {
@@ -36,11 +38,12 @@ const courseEnrollmentsReducer = (state = initialState, action) => {
         error: action.payload.error,
       };
     case UPDATE_COURSE_RUN_STATUS: {
-      const { courseId, status } = action.payload;
+      const { courseId, status, markedDone } = action.payload;
       const courseRuns = [...state.courseRuns];
       const courseRunIndex = courseRuns.findIndex(run => run.courseRunId === courseId);
       if (courseRunIndex !== -1) {
         courseRuns[courseRunIndex].courseRunStatus = status;
+        if (markedDone) { courseRuns[courseRunIndex].markedDone = markedDone; }
         return {
           ...state,
           courseRuns,
@@ -54,6 +57,11 @@ const courseEnrollmentsReducer = (state = initialState, action) => {
       return {
         ...state,
         isMarkCourseCompleteSuccess: action.payload.isSuccess,
+      };
+    case UPDATE_IS_UNARCHIVE_COURSE_SUCCESS:
+      return {
+        ...state,
+        isUnarchiveCourseSuccess: action.payload.isSuccess,
       };
     case CLEAR_COURSE_ENROLLMENTS:
       return initialState;

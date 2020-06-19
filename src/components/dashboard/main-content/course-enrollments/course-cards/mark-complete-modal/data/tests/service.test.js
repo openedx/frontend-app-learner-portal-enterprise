@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { markCourseAsCompleteRequest } from '../service';
+import { updateCourseCompleteStatusRequest, ENROLL_ENDPOINT } from '../service';
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
@@ -11,15 +11,15 @@ axiosMock.onAny().reply(200);
 axios.patch = jest.fn();
 
 describe('mark complete modal service', () => {
-  const url = 'http://localhost:18000/enterprise_learner_portal/api/v1/enterprise_course_enrollments/';
+  const url = `${process.env.LMS_BASE_URL}${ENROLL_ENDPOINT}`;
 
   it('calls apiClient patch with no parameters', () => {
-    markCourseAsCompleteRequest();
+    updateCourseCompleteStatusRequest();
     expect(axios.patch).toBeCalledWith(url);
   });
 
   it('calls apiClient patch with parameters', () => {
-    markCourseAsCompleteRequest({
+    updateCourseCompleteStatusRequest({
       course_id: 'test-course-id',
       enterprise_id: 'test-enterprise-id',
     });

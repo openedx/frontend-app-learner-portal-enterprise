@@ -28,13 +28,20 @@ class CourseSection extends React.Component {
     return <h2>{sectionTitle}</h2>;
   };
 
+  getFormattedOptionalSubtitle = () => {
+    const { subtitle } = this.props;
+    if (!subtitle) { return null; }
+    return <p className="mt-3 mb-0">{subtitle}</p>;
+  }
+
   getCourseRunProps = ({
     linkToCertificate,
     notifications,
     courseRunStatus,
+    markedDone,
     ...rest
   }) => {
-    const courseRunProps = {};
+    const courseRunProps = { courseRunStatus };
     switch (courseRunStatus) {
       case 'in_progress':
         courseRunProps.linkToCertificate = linkToCertificate;
@@ -42,6 +49,7 @@ class CourseSection extends React.Component {
         break;
       case 'completed':
         courseRunProps.linkToCertificate = linkToCertificate;
+        courseRunProps.markedDone = markedDone;
         break;
       default:
         break;
@@ -90,6 +98,7 @@ class CourseSection extends React.Component {
           onClose={() => this.handleCollapsibleToggle(false)}
           defaultOpen
         >
+          {this.getFormattedOptionalSubtitle()}
           {this.renderCourseCards()}
         </Collapsible>
       </div>
@@ -119,6 +128,11 @@ CourseSection.propTypes = {
     hasEmailsEnabled: PropTypes.bool,
   })).isRequired,
   title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+};
+
+CourseSection.defaultProps = {
+  subtitle: null,
 };
 
 export default CourseSection;

@@ -7,6 +7,8 @@ import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import BaseCourseCard from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
+import ContinueLearningButton from './ContinueLearningButton';
+
 import Notification from './Notification';
 
 import {
@@ -26,18 +28,11 @@ const InProgressCourseCard = ({
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
 
   const renderButtons = () => (
-    <a
-      className="btn btn-outline-primary btn-xs-block"
-      href={linkToCourse}
-      onClick={() => {
-        sendTrackEvent('edx.learner_portal.course.continued', {
-          course_run_id: courseRunId,
-        });
-      }}
-    >
-      Continue Learning
-      <span className="sr-only">for {title}</span>
-    </a>
+    <ContinueLearningButton
+      linkToCourse={linkToCourse}
+      title={title}
+      courseRunId={courseRunId}
+    />
   );
 
   const filteredNotifications = notifications.filter((notification) => {
@@ -66,7 +61,7 @@ const InProgressCourseCard = ({
         },
         children: (
           <div role="menuitem">
-            Mark as complete
+            Archive course
             <span className="sr-only">for {title}</span>
           </div>
         ),
@@ -91,6 +86,7 @@ const InProgressCourseCard = ({
     modifyCourseRunStatus({
       status: response.courseRunStatus,
       courseId: response.courseRunId,
+      markedDone: response.markedDone,
     });
     modifyIsMarkCourseCompleteSuccess({
       isSuccess: true,

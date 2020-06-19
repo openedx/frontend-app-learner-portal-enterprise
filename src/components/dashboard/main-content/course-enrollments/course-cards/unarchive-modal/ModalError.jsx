@@ -3,10 +3,10 @@ import { StatusAlert } from '@edx/paragon';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import MarkCompleteModalContext from './MarkCompleteModalContext';
+import UnarchiveModalContext from './UnarchiveModalContext';
 
 const ModalError = () => {
-  const { courseLink, courseTitle } = useContext(MarkCompleteModalContext);
+  const { courseLink, courseTitle } = useContext(UnarchiveModalContext);
   return (
     <StatusAlert
       alertType="danger"
@@ -16,7 +16,7 @@ const ModalError = () => {
             <FontAwesomeIcon className="mr-3" icon={faExclamationTriangle} />
           </div>
           <div>
-            Unable to archive
+            An error occurred while unarchiving
             {' '}
             <a className="text-link" href={courseLink}>{courseTitle}</a>.
             {' '}
