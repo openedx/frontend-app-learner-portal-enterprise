@@ -6,11 +6,13 @@ import { fetchEnterpriseCustomerConfig } from './service';
 
 export const defaultBorderColor = '#007D88';
 export const defaultBackgroundColor = '#D7E3FC';
+export const defaultSearchBackgroundColor = '#1a337b';
 
 const defaultBrandingConfig = {
   logo: null,
   bannerBackgroundColor: defaultBackgroundColor,
   bannerBorderColor: defaultBorderColor,
+  searchBackgroundColor: defaultSearchBackgroundColor,
 };
 
 /**
@@ -49,6 +51,9 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
               banner: {
                 backgroundColor: bannerBackgroundColor || defaultBackgroundColor,
                 borderColor: bannerBorderColor || defaultBorderColor,
+              },
+              search: {
+                backgroundColor: defaultSearchBackgroundColor,
               },
             },
           });

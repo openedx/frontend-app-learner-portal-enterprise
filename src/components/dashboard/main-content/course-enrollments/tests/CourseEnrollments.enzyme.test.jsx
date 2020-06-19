@@ -4,7 +4,6 @@ import { mount } from 'enzyme';
 import renderer from 'react-test-renderer';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { breakpoints } from '@edx/paragon';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -30,7 +29,6 @@ describe('<CourseEnrollments />', () => {
     },
     isLoading: false,
     error: null,
-    sidebarComponent: <div className="sidebar-example" />,
     fetchCourseEnrollments: mockFetchCourseEnrollments,
     clearCourseEnrollments: mockClearCourseEnrollments,
     isMarkCourseCompleteSuccess: false,
@@ -156,36 +154,6 @@ describe('<CourseEnrollments />', () => {
         ))
         .toJSON();
       expect(tree).toMatchSnapshot();
-    });
-  });
-
-  describe('sidebar', () => {
-    let wrapper;
-
-    it('is not shown at screen widths greater than or equal to large breakpoint', () => {
-      global.innerWidth = breakpoints.large.minWidth;
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(wrapper.find('.sidebar-example').exists()).toBeFalsy();
-    });
-
-    it('is shown at screen widths less than large breakpoint', () => {
-      global.innerWidth = breakpoints.small.minWidth;
-      const enterpriseConfig = {
-        uuid: 'test-enterprise-uuid',
-      };
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <CourseEnrollments {...initialProps} />
-        </AppContext.Provider>
-      ));
-      expect(wrapper.find('.sidebar-example').exists()).toBeTruthy();
     });
   });
 

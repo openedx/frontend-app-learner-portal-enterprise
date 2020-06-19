@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { faExclamationTriangle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import MediaQuery from 'react-responsive';
-import { breakpoints, StatusAlert } from '@edx/paragon';
+import { StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { LoadingSpinner } from '../../../loading-spinner';
@@ -122,7 +121,6 @@ export class CourseEnrollments extends Component {
       courseRuns,
       isLoading,
       error,
-      sidebarComponent,
       isMarkCourseCompleteSuccess,
       isUnarchiveCourseSuccess,
     } = this.props;
@@ -149,13 +147,6 @@ export class CourseEnrollments extends Component {
           component={InProgressCourseCard}
           courseRuns={courseRuns.in_progress}
         />
-        <MediaQuery minWidth={breakpoints.large.minWidth}>
-          {matches => !matches && (
-            <div className="mb-5">
-              {sidebarComponent}
-            </div>
-          )}
-        </MediaQuery>
         <CourseSection
           title="Upcoming courses"
           component={UpcomingCourseCard}
@@ -206,7 +197,6 @@ CourseEnrollments.propTypes = {
     completed: PropTypes.array.isRequired,
   }).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  sidebarComponent: PropTypes.element.isRequired,
   isMarkCourseCompleteSuccess: PropTypes.bool.isRequired,
   modifyIsMarkCourseCompleteSuccess: PropTypes.func.isRequired,
   isUnarchiveCourseSuccess: PropTypes.bool.isRequired,
