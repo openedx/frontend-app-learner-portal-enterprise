@@ -32,10 +32,10 @@ export default function CourseRunSelector() {
       );
     }
     return (
-      <div className="d-flex align-middle">
+      <div className="d-inline-flex mb-2">
         <Input
           name="courseRun"
-          className="col-4 mb-2"
+          className="mr-2"
           type="select"
           label="Start Date:"
           defaultValue={activeCourseRun.uuid}

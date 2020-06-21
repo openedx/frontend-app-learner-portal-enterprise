@@ -12,7 +12,7 @@ const SearchHeader = () => {
     <div style={{ backgroundColor: branding.search.backgroundColor }}>
       <div className="container-fluid">
         <div className="row pt-4 pb-3">
-          <div className="col-12 col-lg-8">
+          <div className="col-12 col-md-10 col-lg-8">
             <SearchBox className="mb-3" />
           </div>
           <div className="col-12">

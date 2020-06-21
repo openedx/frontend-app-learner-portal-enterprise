@@ -12,6 +12,9 @@ import { useStylesForCustomBrandColors } from './data/hooks';
 import EdXLogo from '../../assets/edx-logo.svg';
 import './styles/Layout.scss';
 
+export const TITLE_TEMPLATE = '%s - edX';
+export const DEFAULT_TITLE = 'edx';
+
 export default function Layout({ children }) {
   const { enterpriseConfig, header } = useContext(AppContext);
   const brandStyles = useStylesForCustomBrandColors(enterpriseConfig);
@@ -24,7 +27,7 @@ export default function Layout({ children }) {
   return (
     <IntlProvider locale="en">
       <>
-        <Helmet titleTemplate="%s - edX" defaultTitle="edX">
+        <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
           <html lang="en" />
           {brandStyles.map(brandStyle => (
             <style type="text/css">{brandStyle}</style>

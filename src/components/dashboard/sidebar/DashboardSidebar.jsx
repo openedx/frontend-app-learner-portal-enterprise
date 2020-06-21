@@ -38,22 +38,24 @@ class DashboardSidebar extends React.Component {
       <p>
         To request more benefits,
         {' '}
-        {this.renderLearningCoordinatorHelpText()}.
+        {this.renderContactHelpText()}.
       </p>
     );
   }
 
-  renderLearningCoordinatorHelpText() {
-    const { enterpriseConfig: { name, contactEmail } } = this.context;
+  renderContactHelpText() {
+    const { enterpriseConfig: { contactEmail } } = this.context;
+
+    const message = 'contact your organization\'s edX administrator';
 
     if (contactEmail) {
       return (
         <a className="text-underline" href={`mailto:${contactEmail}`}>
-          contact your {name} learning coordinator
+          {message}
         </a>
       );
     }
-    return `contact your ${name} learning coordinator`;
+    return message;
   }
 
   render() {
@@ -84,14 +86,11 @@ class DashboardSidebar extends React.Component {
           className="mb-5"
         >
           <p>
-            For technical support, visit the
-            {' '}
+            For technical support, visit the{' '}
             <a className="text-underline" href="https://support.edx.org/hc/en-us">edX Help Center</a>.
           </p>
           <p>
-            To request more benefits or specific courses,
-            {' '}
-            {this.renderLearningCoordinatorHelpText()}.
+            To request more benefits or specific courses, {this.renderContactHelpText()}.
           </p>
         </SidebarBlock>
       </>
