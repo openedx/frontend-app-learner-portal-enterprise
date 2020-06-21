@@ -21,7 +21,7 @@ const SearchResults = ({ nbHits }) => {
   );
 
   return (
-    <div className="container my-5">
+    <div className="container-fluid my-5">
       <h2>{resultsHeading}</h2>
       <Hits hitComponent={SearchCourseCard} />
     </div>

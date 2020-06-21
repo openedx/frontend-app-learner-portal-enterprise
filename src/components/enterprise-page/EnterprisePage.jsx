@@ -7,11 +7,15 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 
-import { useEnterpriseCustomerConfig } from './data/hooks';
+import {
+  useEnterpriseCustomerConfig,
+  useEnterpriseCustomerSubscriptionPlan,
+} from './data/hooks';
 
 export default function EnterprisePage({ children }) {
   const { enterpriseSlug } = useParams();
   const enterpriseConfig = useEnterpriseCustomerConfig(enterpriseSlug);
+  const subscriptionPlan = useEnterpriseCustomerSubscriptionPlan(enterpriseConfig);
 
   const user = getAuthenticatedUser();
   const { username, profileImage } = user;
@@ -25,8 +29,8 @@ export default function EnterprisePage({ children }) {
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!enterpriseConfig || !enterpriseConfig.name || !profileImage) {
     return (
-      <div className="py-5">
-        <LoadingSpinner screenReaderText="loading company details" />
+      <div className="container-fluid py-5">
+        <LoadingSpinner screenReaderText="loading organization details" />
       </div>
     );
   }
@@ -83,6 +87,7 @@ export default function EnterprisePage({ children }) {
           },
         },
         enterpriseConfig,
+        subscriptionPlan,
       }}
     >
       {children}

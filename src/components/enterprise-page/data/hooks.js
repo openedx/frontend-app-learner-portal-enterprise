@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { fetchEnterpriseCustomerConfig } from './service';
+import {
+  fetchEnterpriseCustomerConfig,
+  fetchEnterpriseCustomerSubscriptionPlan,
+} from './service';
 
 export const defaultBorderColor = '#007D88';
 export const defaultBackgroundColor = '#D7E3FC';
@@ -21,7 +24,7 @@ const defaultBrandingConfig = {
  */
 // eslint-disable-next-line import/prefer-default-export
 export function useEnterpriseCustomerConfig(enterpriseSlug) {
-  const [enterpriseConfig, setEnterpriseConfig] = useState(undefined);
+  const [enterpriseConfig, setEnterpriseConfig] = useState();
 
   useEffect(() => {
     fetchEnterpriseCustomerConfig(enterpriseSlug)
@@ -68,4 +71,29 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   }, [enterpriseSlug]);
 
   return enterpriseConfig;
+}
+
+export function useEnterpriseCustomerSubscriptionPlan(enterpriseConfig) {
+  const [subscriptionPlan, setSubscriptionPlan] = useState();
+
+  useEffect(() => {
+    if (enterpriseConfig && enterpriseConfig.uuid) {
+      fetchEnterpriseCustomerSubscriptionPlan(enterpriseConfig.uuid)
+        .then((response) => {
+          const { results } = camelCaseObject(response.data);
+          const activePlans = results.filter(plan => plan.isActive);
+          if (activePlans.length) {
+            setSubscriptionPlan(activePlans.pop());
+          } else {
+            setSubscriptionPlan(null);
+          }
+        })
+        .catch((error) => {
+          logError(new Error(error));
+          setSubscriptionPlan(null);
+        });
+    }
+  }, [enterpriseConfig]);
+
+  return subscriptionPlan;
 }

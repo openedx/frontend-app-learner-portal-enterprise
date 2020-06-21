@@ -10,25 +10,23 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import EdXLogo from '../../assets/edx-logo.svg';
 import './styles/Layout.scss';
 
+export const TITLE_TEMPLATE = '%s - edX';
+export const DEFAULT_TITLE = 'edx';
+
 export default function Layout({ children }) {
-  const context = useContext(AppContext);
-  const { enterpriseConfig } = context;
+  const { enterpriseConfig, header } = useContext(AppContext);
 
   const user = getAuthenticatedUser();
-  const {
-    username,
-    profileImage,
-  } = user;
+  const { username, profileImage } = user;
 
   function getHeaderMenuItems(key) {
-    const { header } = context;
     return header[key] || [];
   }
 
   return (
     <IntlProvider locale="en">
       <>
-        <Helmet titleTemplate="%s - edX" defaultTitle="edX">
+        <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
           <html lang="en" />
         </Helmet>
         <SiteHeader

@@ -4,7 +4,6 @@ import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { EnterpriseBanner } from '../enterprise-banner';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
@@ -12,10 +11,11 @@ import { DashboardSidebar } from './sidebar';
 export default function Dashboard() {
   const { enterpriseConfig } = useContext(AppContext);
 
+  const PAGE_TITLE = `My courses - ${enterpriseConfig.name}`;
+
   return (
     <>
-      <Helmet title={enterpriseConfig.name} />
-      <EnterpriseBanner />
+      <Helmet title={PAGE_TITLE} />
       <div className="container-fluid py-5">
         <div className="row">
           <MainContent>
