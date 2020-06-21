@@ -19,7 +19,7 @@ const defaultBrandingConfig = {
  */
 // eslint-disable-next-line import/prefer-default-export
 export function useEnterpriseCustomerConfig(enterpriseSlug) {
-  const [enterpriseConfig, setEnterpriseConfig] = useState(undefined);
+  const [enterpriseConfig, setEnterpriseConfig] = useState();
 
   useEffect(() => {
     fetchEnterpriseCustomerConfig(enterpriseSlug)

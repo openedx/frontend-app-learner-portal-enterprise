@@ -7,6 +7,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 
+import { isDefined, isDefinedAndNull } from '../../utils/common';
 import { useEnterpriseCustomerConfig } from './data/hooks';
 
 export default function EnterprisePage({ children }) {
@@ -16,19 +17,19 @@ export default function EnterprisePage({ children }) {
   const user = getAuthenticatedUser();
   const { username, profileImage } = user;
 
-  // We explicitly set enterpriseConfig to null if there is no configuration, the learner portal is
-  // not enabled, or there was an error fetching the configuration. In all these cases, we want to 404.
-  if (enterpriseConfig === null) {
-    return <NotFoundPage />;
-  }
-
   // Render the app as loading while waiting on the configuration or additional user metadata
-  if (!enterpriseConfig || !enterpriseConfig.name || !profileImage) {
+  if (!isDefined(enterpriseConfig) || !isDefined(profileImage)) {
     return (
       <div className="py-5">
         <LoadingSpinner screenReaderText="loading company details" />
       </div>
     );
+  }
+
+  // We explicitly set enterpriseConfig to null if there is no configuration, the learner portal is
+  // not enabled, or there was an error fetching the configuration. In all these cases, we want to 404.
+  if (isDefinedAndNull(enterpriseConfig)) {
+    return <NotFoundPage />;
   }
 
   return (

@@ -11,25 +11,25 @@ import EdXLogo from '../../assets/edx-logo.svg';
 import './styles/Layout.scss';
 
 export default function Layout({ children }) {
-  const context = useContext(AppContext);
-  const { enterpriseConfig } = context;
+  const { enterpriseConfig, header } = useContext(AppContext);
 
   const user = getAuthenticatedUser();
-  const {
-    username,
-    profileImage,
-  } = user;
+  const { username, profileImage } = user;
 
-  function getHeaderMenuItems(key) {
-    const { header } = context;
-    return header[key] || [];
-  }
+  const getHeaderMenuItems = key => header[key] || [];
 
   return (
     <IntlProvider locale="en">
       <>
         <Helmet titleTemplate="%s - edX" defaultTitle="edX">
           <html lang="en" />
+          <style type="text/css">
+            {`
+              body {
+                  background-color: blue;
+              }
+            `}
+          </style>
         </Helmet>
         <SiteHeader
           logo={enterpriseConfig.branding.logo || EdXLogo}

@@ -14,13 +14,13 @@ import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
 
+import { isDefined, isDefinedAndNotNull } from '../../utils/common';
 import {
   useCourseSubjects,
   useCoursePartners,
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
 } from './data/hooks';
-import { isDefined } from './data/utils';
 
 import './styles/CourseSidebar.scss';
 
@@ -35,19 +35,23 @@ export default function CourseSidebar() {
   return (
     <>
       <ul className="pl-0 mb-5 course-details-sidebar">
-        {isDefined(activeCourseRun.weeksToComplete) && (
-          <CourseSidebarListItem
-            icon={faClock}
-            label="Length"
-            content={`${weeksToComplete} ${weeksLabel}`}
-          />
-        )}
-        {isDefined(activeCourseRun.minEffort) && isDefined(activeCourseRun.maxEffort) && (
-          <CourseSidebarListItem
-            icon={faTachometerAlt}
-            label="Effort"
-            content={`${activeCourseRun.minEffort}-${activeCourseRun.maxEffort} hours per week`}
-          />
+        {isDefined(activeCourseRun) && (
+          <>
+            {isDefinedAndNotNull(activeCourseRun.weeksToComplete) && (
+              <CourseSidebarListItem
+                icon={faClock}
+                label="Length"
+                content={`${weeksToComplete} ${weeksLabel}`}
+              />
+            )}
+            {isDefinedAndNotNull([activeCourseRun.minEffort, activeCourseRun.maxEffort]) && (
+              <CourseSidebarListItem
+                icon={faTachometerAlt}
+                label="Effort"
+                content={`${activeCourseRun.minEffort}-${activeCourseRun.maxEffort} hours per week`}
+              />
+            )}
+          </>
         )}
         <CourseSidebarListItem
           icon={faTag}
