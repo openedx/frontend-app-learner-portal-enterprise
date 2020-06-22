@@ -62,10 +62,7 @@ const BaseFacetList = ({
                 <span className={classNames('facet-item-label', 'ml-1', { 'is-refined': item.isRefined })}>
                   {item.label}
                 </span>
-                <span
-                  className="badge badge-pill text-white ml-2"
-                  style={{ backgroundColor: branding.search.backgroundColor }}
-                >
+                <span className="badge badge-pill ml-2 bg-brand-primary text-brand-primary">
                   {item.count}
                 </span>
               </label>

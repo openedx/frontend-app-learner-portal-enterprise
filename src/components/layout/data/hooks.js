@@ -84,11 +84,14 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
 
       .bg-brand-${colorName} {
         background-color: ${brandColors[colorName].regular.hex()} !important;
-        color: ${brandColors[colorName].textColor.hex()} !important;
       }
 
       .border-brand-${colorName} {
         border-color: ${brandColors[colorName].regular.hex()} !important;
+      }
+
+      .text-brand-${colorName} {
+        color: ${brandColors[colorName].textColor.hex()} !important;
       }
     `
   ));
