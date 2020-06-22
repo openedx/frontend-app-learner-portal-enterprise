@@ -9,7 +9,9 @@ export default function EnterpriseBanner() {
   return (
     <div className="enterprise-banner bg-brand-secondary">
       <div className="container-fluid">
-        <h1 className="mb-0 py-3 pl-3 border-brand-tertiary">{enterpriseConfig.name}</h1>
+        <h1 className="mb-0 py-3 pl-3 border-brand-tertiary text-brand-secondary">
+          {enterpriseConfig.name}
+        </h1>
       </div>
     </div>
   );

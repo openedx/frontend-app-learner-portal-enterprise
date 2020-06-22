@@ -50,15 +50,17 @@ export default function Course() {
 
   if (!initialState) {
     return (
-      <div className="py-5">
+      <div className="container-fluid py-5">
         <LoadingSpinner screenReaderText="loading course" />
       </div>
     );
   }
 
+  const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;
+
   return (
     <>
-      <Helmet title={`${initialState.course.title} - ${enterpriseConfig.name}`} />
+      <Helmet title={PAGE_TITLE} />
       <CourseContextProvider initialState={initialState}>
         <CourseHeader />
         <div className="container-fluid py-5">

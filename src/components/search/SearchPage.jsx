@@ -3,15 +3,18 @@ import React from 'react';
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
+import { UserSubsidy } from '../enterprise-user-subsidy';
 import Search from './Search';
 
-export default function SearchPage() {
-  return (
-    <EnterprisePage>
-      <Layout>
-        <EnterpriseBanner />
+const SearchPage = () => (
+  <EnterprisePage>
+    <Layout>
+      <EnterpriseBanner />
+      <UserSubsidy>
         <Search />
-      </Layout>
-    </EnterprisePage>
-  );
-}
+      </UserSubsidy>
+    </Layout>
+  </EnterprisePage>
+);
+
+export default SearchPage;
