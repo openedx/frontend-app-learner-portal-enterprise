@@ -15,7 +15,7 @@ const DashboardMainContent = () => {
         To start taking a course, browse the catalog below.
       </p>
       <p>
-        <a href={`/${slug}/search`} className="btn btn-primary">
+        <a href={`/${slug}/search`} className="btn btn-primary brand-btn-primary">
           Browse full catalog
         </a>
       </p>

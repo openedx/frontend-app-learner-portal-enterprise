@@ -2,8 +2,9 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import {
   useEnterpriseCustomerConfig,
-  defaultBorderColor,
-  defaultBackgroundColor,
+  defaultPrimaryColor,
+  defaultSecondaryColor,
+  defaultTertiaryColor,
 } from '../hooks';
 import { fetchEnterpriseCustomerConfig } from '../service';
 
@@ -41,8 +42,8 @@ const responseWithBrandingConfig = {
         ...responseWithNullBrandingConfig.data.results[0],
         branding_configuration: {
           logo: 'testlogo.png',
-          bannerBackgroundColor: 'testcolor',
-          bannerBorderColor: 'testcolor',
+          bannerBackgroundColor: 'secondaryColor',
+          bannerBorderColor: 'tertiaryColor',
         },
       },
     ],
@@ -78,8 +79,9 @@ describe('customer config with various states of branding_configuration', () => 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
     expect(result.current.branding.logo).toBeNull();
-    expect(result.current.branding.banner.backgroundColor).toBe(defaultBackgroundColor);
-    expect(result.current.branding.banner.borderColor).toBe(defaultBorderColor);
+    expect(result.current.branding.colors.primary).toBe(defaultPrimaryColor);
+    expect(result.current.branding.colors.secondary).toBe(defaultSecondaryColor);
+    expect(result.current.branding.colors.tertiary).toBe(defaultTertiaryColor);
   });
 
   test('null values for fields in branding_config uses defaults and does not fail', async () => {
@@ -93,8 +95,9 @@ describe('customer config with various states of branding_configuration', () => 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
     expect(result.current.branding.logo).toBeNull();
-    expect(result.current.branding.banner.backgroundColor).toBe(defaultBackgroundColor);
-    expect(result.current.branding.banner.borderColor).toBe(defaultBorderColor);
+    expect(result.current.branding.colors.primary).toBe(defaultPrimaryColor);
+    expect(result.current.branding.colors.secondary).toBe(defaultSecondaryColor);
+    expect(result.current.branding.colors.tertiary).toBe(defaultTertiaryColor);
   });
 
   test('valid branding_config results in correct values for logo and other branding settings', async () => {
@@ -107,7 +110,8 @@ describe('customer config with various states of branding_configuration', () => 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
     expect(result.current.branding.logo).toBe('testlogo.png');
-    expect(result.current.branding.banner.backgroundColor).toBe('testcolor');
-    expect(result.current.branding.banner.borderColor).toBe('testcolor');
+    expect(result.current.branding.colors.primary).toBe(defaultPrimaryColor);
+    expect(result.current.branding.colors.secondary).toBe('secondaryColor');
+    expect(result.current.branding.colors.tertiary).toBe('tertiaryColor');
   });
 });

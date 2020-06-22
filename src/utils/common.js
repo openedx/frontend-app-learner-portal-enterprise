@@ -36,8 +36,6 @@ export const isDefinedAndNotNull = (value) => {
 };
 
 export const isDefinedAndNull = (value) => {
-  console.log('isDefinedAndNull', value);
   const values = createArrayFromValue(value);
-  console.log('isDefinedAndNull', values);
   return values.every(item => isDefined(item) && item === null);
 };
