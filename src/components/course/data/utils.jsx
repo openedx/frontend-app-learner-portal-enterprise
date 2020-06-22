@@ -106,7 +106,3 @@ export function getProgramIcon(type) {
       return VerifiedSvgIcon;
   }
 }
-
-export function isDefined(value) {
-  return value !== undefined && value !== null;
-}

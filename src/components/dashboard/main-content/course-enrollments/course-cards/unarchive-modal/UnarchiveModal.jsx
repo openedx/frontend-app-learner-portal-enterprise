@@ -74,7 +74,7 @@ const UnarchiveModal = ({
               pending: MARK_UNARCHIVED_PENDING_LABEL,
             }}
             disabledStates={['pending']}
-            className="confirm-unarchive-btn btn-primary"
+            className="confirm-unarchive-btn btn-primary btn-brand-primary"
             state={confirmButtonState}
             onClick={handleConfirmButtonClick}
             key="confirm-unarchive-btn"

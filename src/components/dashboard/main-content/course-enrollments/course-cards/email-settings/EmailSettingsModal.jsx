@@ -164,7 +164,7 @@ class EmailSettingsModal extends Component {
               complete: 'Saved',
             }}
             disabledStates={this.getDisabledStates()}
-            className="save-email-settings-btn btn-primary"
+            className="save-email-settings-btn btn-primary btn-brand-primary"
             state={this.getButtonState()}
             onClick={this.handleSaveButtonClick}
             key="save-email-settings-btn"

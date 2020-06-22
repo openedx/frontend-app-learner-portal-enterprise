@@ -83,7 +83,7 @@ const MarkCompleteModal = ({
               pending: MARK_ARCHIVED_PENDING_LABEL,
             }}
             disabledStates={['pending']}
-            className="confirm-mark-complete-btn btn-primary"
+            className="confirm-mark-complete-btn btn-primary btn-brand-primary"
             state={confirmButtonState}
             onClick={handleConfirmButtonClick}
             key="confirm-mark-complete-btn"

@@ -1,35 +1,34 @@
 import React, { useContext } from 'react';
-import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
 import SiteHeader from '@edx/frontend-component-site-header';
 import SiteFooter from '@edx/frontend-component-footer';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
+import { useStylesForCustomBrandColors } from './data/hooks';
+
 import EdXLogo from '../../assets/edx-logo.svg';
 import './styles/Layout.scss';
 
 export default function Layout({ children }) {
-  const context = useContext(AppContext);
-  const { enterpriseConfig } = context;
+  const { enterpriseConfig, header } = useContext(AppContext);
+  const brandStyles = useStylesForCustomBrandColors(enterpriseConfig);
 
   const user = getAuthenticatedUser();
-  const {
-    username,
-    profileImage,
-  } = user;
+  const { username, profileImage } = user;
 
-  function getHeaderMenuItems(key) {
-    const { header } = context;
-    return header[key] || [];
-  }
+  const getHeaderMenuItems = key => header[key] || [];
 
   return (
     <IntlProvider locale="en">
       <>
         <Helmet titleTemplate="%s - edX" defaultTitle="edX">
           <html lang="en" />
+          {brandStyles.map(brandStyle => (
+            <style type="text/css">{brandStyle}</style>
+          ))}
         </Helmet>
         <SiteHeader
           logo={enterpriseConfig.branding.logo || EdXLogo}
