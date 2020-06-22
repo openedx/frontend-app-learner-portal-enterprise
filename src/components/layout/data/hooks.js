@@ -3,8 +3,8 @@ import Color from 'color';
 
 import { isDefinedAndNotNull, isDefined } from '../../../utils/common';
 
-const COLOR_LIGHTEN_DARKEN_MODIFER = 0.2;
-const COLOR_MIX_MODIFER = 0.1;
+const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
+const COLOR_MIX_MODIFIER = 0.1;
 
 // eslint-disable-next-line import/prefer-default-export
 export const useStylesForCustomBrandColors = (enterpriseConfig) => {
@@ -27,20 +27,20 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
           dark: darkColor,
           primary: {
             regular: primaryColor,
-            light: primaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFER),
-            dark: primaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFER),
+            light: primaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
+            dark: primaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
             textColor: getA11yTextColor(primaryColor),
           },
           secondary: {
             regular: secondaryColor,
-            light: secondaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFER),
-            dark: secondaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFER),
+            light: secondaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
+            dark: secondaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
             textColor: getA11yTextColor(secondaryColor),
           },
           tertiary: {
             regular: tertiaryColor,
-            light: tertiaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFER),
-            dark: tertiaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFER),
+            light: tertiaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
+            dark: tertiaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
             textColor: getA11yTextColor(tertiaryColor),
           },
         };
@@ -57,37 +57,37 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
   const colors = ['primary', 'secondary', 'tertiary'];
   const styles = colors.map((colorName) => (
     `
-      .brand-btn-${colorName} {
+      .btn-brand-${colorName} {
         background-color: ${brandColors[colorName].regular.hex()} !important;
         border-color: ${brandColors[colorName].regular.hex()} !important;
         color: ${brandColors[colorName].textColor.hex()} !important;
       }
-      .brand-btn-${colorName}:hover {
+      .btn-brand-${colorName}:hover {
         background-color: ${brandColors[colorName].dark.hex()} !important;
         border-color: ${brandColors[colorName].dark.hex()} !important;
       }
-      .brand-btn-${colorName}:focus:before {
+      .btn-brand-${colorName}:focus:before {
         border-color: ${brandColors[colorName].regular.hex()} !important;
       }
 
-      .brand-btn-outline-${colorName} {
+      .btn-brand-outline-${colorName} {
         border-color: ${brandColors[colorName].regular.hex()} !important;
         color: ${brandColors[colorName].regular.hex()} !important;
       }
-      .brand-btn-outline-${colorName}:hover {
+      .btn-outline-${colorName}:hover {
         border-color: ${brandColors[colorName].dark.hex()} !important;
-        background-color: ${brandColors.white.mix(brandColors[colorName].light, COLOR_MIX_MODIFER).hex()} !important;
+        background-color: ${brandColors.white.mix(brandColors[colorName].light, COLOR_MIX_MODIFIER).hex()} !important;
       }
-      .brand-btn-outline-${colorName}:focus:before {
+      .btn-brand-outline-${colorName}:focus:before {
         border-color: ${brandColors[colorName].regular.hex()} !important;
       }
 
-      .brand-bg-${colorName} {
+      .bg-brand-${colorName} {
         background-color: ${brandColors[colorName].regular.hex()} !important;
         color: ${brandColors[colorName].textColor.hex()} !important;
       }
 
-      .brand-border-${colorName} {
+      .border-brand-${colorName} {
         border-color: ${brandColors[colorName].regular.hex()} !important;
       }
     `

@@ -5,16 +5,11 @@ export const isCourseEnded = endDate => moment(endDate) < moment();
 export const createArrayFromValue = (value) => {
   const values = [];
   switch (typeof value) {
-    case 'string':
-    case 'object':
-    case 'undefined':
-      values.push(value);
-      break;
     case 'array':
       values.concat(value);
       break;
     default:
-      // do nothing
+      values.push(value);
       break;
   }
   return values;

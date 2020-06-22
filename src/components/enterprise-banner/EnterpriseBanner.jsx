@@ -7,9 +7,9 @@ export default function EnterpriseBanner() {
   const { enterpriseConfig } = useContext(AppContext);
 
   return (
-    <div className="enterprise-banner brand-bg-secondary">
+    <div className="enterprise-banner bg-brand-secondary">
       <div className="container-fluid">
-        <h1 className="mb-0 py-3 pl-3 brand-border-tertiary">{enterpriseConfig.name}</h1>
+        <h1 className="mb-0 py-3 pl-3 border-brand-tertiary">{enterpriseConfig.name}</h1>
       </div>
     </div>
   );

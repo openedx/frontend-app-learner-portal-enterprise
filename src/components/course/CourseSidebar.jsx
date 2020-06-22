@@ -14,7 +14,7 @@ import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
 
-import { isDefined, isDefinedAndNotNull } from '../../utils/common';
+import { isDefinedAndNotNull } from '../../utils/common';
 import {
   useCourseSubjects,
   useCoursePartners,
@@ -35,7 +35,7 @@ export default function CourseSidebar() {
   return (
     <>
       <ul className="pl-0 mb-5 course-details-sidebar">
-        {isDefined(activeCourseRun) && (
+        {isDefinedAndNotNull(activeCourseRun) && (
           <>
             {isDefinedAndNotNull(activeCourseRun.weeksToComplete) && (
               <CourseSidebarListItem

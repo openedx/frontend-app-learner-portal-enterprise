@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef } from 'react';
 import moment from 'moment';
-import { Input } from '@edx/paragon';
+import { Button, Input } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
 import { SET_COURSE_RUN } from './data/constants';
@@ -49,9 +49,13 @@ export default function CourseRunSelector() {
           }
           ref={selectRef}
         />
-        <button type="button" className="btn btn-primary ml-2" onClick={() => handleClick()}>
+        <Button
+          buttonType="primary"
+          className="btn-brand-primary ml-2"
+          onClick={() => handleClick()}
+        >
           go
-        </button>
+        </Button>
       </div>
     );
   }
