@@ -13,7 +13,7 @@ const initialState = {
   courseRuns: [],
   error: null,
   isMarkCourseCompleteSuccess: false,
-  isUnarchiveCourseSuccess: false,
+  isMoveToInProgressCourseSuccess: false,
 };
 
 const courseEnrollmentsReducer = (state = initialState, action) => {
@@ -61,7 +61,7 @@ const courseEnrollmentsReducer = (state = initialState, action) => {
     case UPDATE_IS_UNARCHIVE_COURSE_SUCCESS:
       return {
         ...state,
-        isUnarchiveCourseSuccess: action.payload.isSuccess,
+        isMoveToInProgressCourseSuccess: action.payload.isSuccess,
       };
     case CLEAR_COURSE_ENROLLMENTS:
       return initialState;

@@ -102,7 +102,7 @@ exports[`<CourseEnrollments /> renders course enrollments correctly with mark co
         </svg>
       </div>
       <div>
-        Your course was archived.
+        Your course was saved for later.
       </div>
     </div>
   </div>

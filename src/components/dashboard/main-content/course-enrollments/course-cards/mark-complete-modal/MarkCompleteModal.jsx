@@ -8,8 +8,8 @@ import MarkCompleteModalContext from './MarkCompleteModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from './data/service';
 
-export const MARK_ARCHIVED_DEFAULT_LABEL = 'Archive course';
-export const MARK_ARCHIVED_PENDING_LABEL = 'Archiving course...';
+export const MARK_ARCHIVED_DEFAULT_LABEL = 'Save course for later';
+export const MARK_ARCHIVED_PENDING_LABEL = 'Saving course for later...';
 
 const initialState = {
   confirmButtonState: 'default',
@@ -74,7 +74,7 @@ const MarkCompleteModal = ({
       }}
     >
       <Modal
-        title="Archive course"
+        title="Save course for later"
         body={<ModalBody />}
         buttons={[
           <StatefulButton

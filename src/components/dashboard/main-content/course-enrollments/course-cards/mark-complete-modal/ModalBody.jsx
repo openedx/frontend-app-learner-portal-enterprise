@@ -13,16 +13,16 @@ const ModalBody = () => {
     <>
       {confirmError && <ModalError />}
       <p className="m-0">
-        Are you sure you want to archive
+        Are you sure you want to save
         {' '}
-        <a href={courseLink}>{courseTitle}</a>?
+        <a href={courseLink}>{courseTitle}</a>
         {' '}
-        You will remain enrolled, but the course will
+        for later? You will remain enrolled, but the course will
         no longer appear as &quot;In Progress&quot;.
       </p>
       <p className="mt-2">
         As long as your license is valid, you can resume the course by clicking
-        &quot;Continue Learning&quot; under your list of archived courses.
+        &quot;Move course to In Progress&quot; under your list of courses saved for later.
       </p>
     </>
   );

@@ -57,8 +57,8 @@ const defaultInitialEnrollmentProps = ({ genericMockFn = () => {} }) => ({
   clearCourseEnrollments: genericMockFn(),
   isMarkCourseCompleteSuccess: false,
   modifyIsMarkCourseCompleteSuccess: genericMockFn(),
-  isUnarchiveCourseSuccess: false,
-  modifyIsUnarchiveCourseSuccess: genericMockFn(),
+  isMoveToInProgressCourseSuccess: false,
+  modifyIsMoveToInProgressCourseSuccess: genericMockFn(),
 });
 
 export {

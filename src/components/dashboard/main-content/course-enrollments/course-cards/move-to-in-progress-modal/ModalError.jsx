@@ -3,10 +3,10 @@ import { StatusAlert } from '@edx/paragon';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import UnarchiveModalContext from './UnarchiveModalContext';
+import MoveToInProgressModalContext from './MoveToInProgressModalContext';
 
 const ModalError = () => {
-  const { courseLink, courseTitle } = useContext(UnarchiveModalContext);
+  const { courseLink, courseTitle } = useContext(MoveToInProgressModalContext);
   return (
     <StatusAlert
       alertType="danger"

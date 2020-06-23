@@ -15,7 +15,7 @@ import {
   isUserEntitledForCourse,
   isCourseSelfPaced,
   hasTimeToComplete,
-  isArchived,
+  isSavedForLater,
 } from './data/utils';
 
 export default function EnrollButton() {
@@ -70,7 +70,7 @@ export default function EnrollButton() {
         return <span className="enroll-btn-label">View on Dashboard</span>;
       }
       if (isCourseSelfPaced(pacingType)) {
-        if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isArchived(activeCourseRun)) {
+        if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isSavedForLater(activeCourseRun)) {
           return (
             <>
               <span className="enroll-btn-label">Enroll</span>
@@ -83,7 +83,7 @@ export default function EnrollButton() {
       return (
         <>
           <span className="enroll-btn-label">Enroll</span>
-          {!isArchived(activeCourseRun) && (
+          {!isSavedForLater(activeCourseRun) && (
             <div>
               <small>
                 {isCourseStarted ? 'Started' : 'Starts'}
