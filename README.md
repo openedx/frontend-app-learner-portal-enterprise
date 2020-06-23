@@ -22,7 +22,7 @@ then, start the dev server:
 
 Visit http://localhost:8734
 
-At this point, it will ask you to login. Use the user indicated in devstack (edx@example.com, edx). When logged in, expect to see a 404 since we are not setup
+At this point, it will ask you to login. Use the user indicated in devstack (edx@example.com, edx). When logged in, expect to see a 404 since we are not setup.
 
 Our goal is to setup a enterprise customer, obtains its slug, then visit it such as http://localhostL8734/{enterprise_slug}
 
@@ -71,9 +71,9 @@ In this section you will:
 
 ## Use learner portal with the edx-enterprise stack
 
-* Log out of any users if you logged in previously, or use a new incognito window, and browse to http://localhost:8374/test-enterprise
+* Log out of any users if you logged in previously, or use a new incognito window, and browse to http://localhost:8734/test-enterprise
 * The `test-enterprise`, you will note, is the slug for this enterprise customer
-* Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8374/test-enterprise/
+* Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8734/test-enterprise/
 * You can now go to 'Explore Courses' and enroll in courses
 
 You are now in the Learner portal for the enterpriser customer `Test Enterprise`, as a learner!
@@ -88,13 +88,13 @@ We have edx-enterprise Django module running inside of the LMS (which is started
 * Setup devstack if not already and at least have the `lms` service running. Typically cd'ing to the devstack folder, and running `make dev.up` or `make dev.nfs.up` will do it
 * Ensure you can browse to LMS at least, http://localhost:18000
 
-* Sync edx-enterprise into the src/ folder of your work folder (e.g. ~/work/src/edx-enterprise).
+* Sync edx-enterprise into the src/ folder of your work folder (e.g. ~/work/src/edx-enterprise)
 * Ensure this env var is set in your env for the docker mount to be located correctly, e.g.,: `DEVSTACK_WORKSPACE=/Users/$USER/work` , in your shell config file
 * Either start new shell or run `exec "$SHELL"` for changes to take effect in the shell
 * Start backend services needed (refer to .env.development file). Refer to [Devstack Doc](https://github.com/edx/devstack) for details
 
 If all worked you should be able to navigate to http://localhost:18000/admin/enterprise/
-But wait, it wont' work yet. As long as you get some reasonable response here, you are good (probably a login page)
+But wait, it won't work yet. As long as you get some reasonable response here, you are good (probably a login page).
 
 
 #### Making changes to edx-enterprise stack locally
@@ -104,11 +104,12 @@ Make any changes in edx-enterprise stack then
 * In your devstack folder run
   ```
   $ make lms-shell
-  $ pip install -e /edx/src/edx-enterprise to uninstall the published edx-enterprise package and instead install your local copy from src.
+  $ pip install -e /edx/src/edx-enterprise
   $ exit # back to regular shell
   ```
+  This will uninstall the published edx-enterprise package and instead install your local copy from src.
 
-* Now any changes you make to edx-enterprise should show up when you invoke the endpoints such as http://localhost:18000/enterprise_learner_portal/api/v1/enterprise_course_enrollments/ should reflect your changes
+* Now any changes you make to edx-enterprise should reflect your changes
 * If you do not see your changes, restart lms and wait some time:
   ```
   $ make lms-restart
