@@ -47,7 +47,7 @@ export const updateIsMarkCourseCompleteSuccess = ({ isSuccess }) => ({
   },
 });
 
-export const updateIsUnarchiveCourseSuccess = ({ isSuccess }) => ({
+export const updateIsMoveToInProgressCourseSuccess = ({ isSuccess }) => ({
   type: UPDATE_IS_UNARCHIVE_COURSE_SUCCESS,
   payload: {
     isSuccess,

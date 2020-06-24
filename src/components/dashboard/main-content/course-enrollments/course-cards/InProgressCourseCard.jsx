@@ -61,7 +61,7 @@ const InProgressCourseCard = ({
         },
         children: (
           <div role="menuitem">
-            Archive course
+            Save course for later
             <span className="sr-only">for {title}</span>
           </div>
         ),

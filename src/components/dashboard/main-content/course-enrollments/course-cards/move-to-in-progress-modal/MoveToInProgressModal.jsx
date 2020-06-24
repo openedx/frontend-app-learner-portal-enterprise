@@ -4,12 +4,12 @@ import { Modal, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform';
 
-import UnarchiveModalContext from './UnarchiveModalContext';
+import MoveToInProgressModalContext from './MoveToInProgressModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from '../mark-complete-modal/data/service';
 
-export const MARK_UNARCHIVED_DEFAULT_LABEL = 'Unarchive course';
-export const MARK_UNARCHIVED_PENDING_LABEL = 'Unarchiving course...';
+export const MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL = 'Move course to In Progress';
+export const MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL = 'Moving course to "In Progress"...';
 
 const initialState = {
   confirmButtonState: 'default',
@@ -17,7 +17,7 @@ const initialState = {
   confirmSuccessful: false,
 };
 
-const UnarchiveModal = ({
+const MoveToInProgressModal = ({
   courseId,
   isOpen,
   courseTitle,
@@ -57,7 +57,7 @@ const UnarchiveModal = ({
   };
 
   return (
-    <UnarchiveModalContext.Provider
+    <MoveToInProgressModalContext.Provider
       value={{
         courseTitle,
         courseLink,
@@ -65,30 +65,30 @@ const UnarchiveModal = ({
       }}
     >
       <Modal
-        title="Unarchive course"
+        title="Move course to &quot;In Progress&quot;"
         body={<ModalBody />}
         buttons={[
           <StatefulButton
             labels={{
-              default: MARK_UNARCHIVED_DEFAULT_LABEL,
-              pending: MARK_UNARCHIVED_PENDING_LABEL,
+              default: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
+              pending: MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL,
             }}
             disabledStates={['pending']}
-            className="confirm-unarchive-btn btn-primary btn-brand-primary"
+            className="confirm-move-to-in-progress-btn btn-primary btn-brand-primary"
             state={confirmButtonState}
             onClick={handleConfirmButtonClick}
-            key="confirm-unarchive-btn"
+            key="confirm-move-to-in-progress-btn"
           />,
         ]}
         open={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
         closeText="Cancel"
       />
-    </UnarchiveModalContext.Provider>
+    </MoveToInProgressModalContext.Provider>
   );
 };
 
-UnarchiveModal.propTypes = {
+MoveToInProgressModal.propTypes = {
   courseId: PropTypes.string.isRequired,
   courseTitle: PropTypes.string.isRequired,
   courseLink: PropTypes.string.isRequired,
@@ -97,8 +97,8 @@ UnarchiveModal.propTypes = {
   isOpen: PropTypes.bool,
 };
 
-UnarchiveModal.defaultProps = {
+MoveToInProgressModal.defaultProps = {
   isOpen: false,
 };
 
-export default UnarchiveModal;
+export default MoveToInProgressModal;

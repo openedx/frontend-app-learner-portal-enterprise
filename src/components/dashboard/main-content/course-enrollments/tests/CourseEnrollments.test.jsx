@@ -65,11 +65,11 @@ function renderEnrollmentsComponent(initialProps) {
 test('loads enrollments component', () => {
   renderEnrollmentsComponent(initProps);
   expect(screen.getByText('My courses in progress')).toBeInTheDocument();
-  expect(screen.getByText('Archived courses')).toBeInTheDocument();
+  expect(screen.getByText('Courses saved for later')).toBeInTheDocument();
   expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
 });
 
-test('unarchive action generates course status update', () => {
+test('move to in progress action generates course status update', () => {
   renderEnrollmentsComponent({
     ...initProps,
     courseRuns: {
@@ -77,12 +77,12 @@ test('unarchive action generates course status update', () => {
       completed: [{ ...completedCourseRun, markedDone: true }],
     },
   });
-  expect(screen.getByRole('button', { name: 'Unarchive course' })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Unarchive course' }));
+  expect(screen.getByRole('button', { name: 'Move course to In Progress' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Move course to In Progress' }));
 
   // TODO This test only validates 'half way', we ideally want to update it to
   // validate the UI results. Skipping at the time of writing since need to
   // figure out the right markup for testability. This give a base level of confidence
-  // that unarchive is not failing, that's all.
+  // that move to in progress is not failing, that's all.
   expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
 });

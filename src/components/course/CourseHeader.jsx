@@ -8,7 +8,7 @@ import CourseRunSelector from './CourseRunSelector';
 import EnrollButton from './EnrollButton';
 
 import {
-  isArchived,
+  isSavedForLater,
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
@@ -74,9 +74,9 @@ export default function CourseHeader() {
             <CourseRunSelector />
             {catalog.containsContentItems ? (
               <>
-                {isArchived(activeCourseRun) && (
+                {isSavedForLater(activeCourseRun) && (
                   <p className="font-weight-bold">
-                    Archived: Future Dates To Be Announced
+                    Saved for Later: Future Dates To Be Announced
                   </p>
                 )}
                 <EnrollButton />

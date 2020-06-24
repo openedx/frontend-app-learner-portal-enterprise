@@ -17,7 +17,7 @@ import {
 import * as selectors from './data/selectors';
 import * as actions from './data/actions';
 
-const ARCHIVED_COURSES_SECTION_SUBTITLE = `This section contains both the courses you have completed
+const SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE = `This section contains both the courses you have completed
   in the past and courses that have been voluntarily removed from your "In Progress" list.`;
 
 export class CourseEnrollments extends Component {
@@ -80,7 +80,7 @@ export class CourseEnrollments extends Component {
               <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
             </div>
             <div>
-              Your course was archived.
+              Your course was saved for later.
             </div>
           </div>
         )}
@@ -92,8 +92,8 @@ export class CourseEnrollments extends Component {
     );
   };
 
-  renderUnarchiveCourseSuccessAlert = () => {
-    const { modifyIsUnarchiveCourseSuccess } = this.props;
+  renderMoveToInProgressCourseSuccessAlert = () => {
+    const { modifyIsMoveToInProgressCourseSuccess } = this.props;
     return (
       <StatusAlert
         alertType="success"
@@ -103,12 +103,12 @@ export class CourseEnrollments extends Component {
               <FontAwesomeIcon className="mr-2" icon={faCheckCircle} />
             </div>
             <div>
-              Your course was unarchived.
+              Your course was moved to In Progress.
             </div>
           </div>
         )}
         onClose={() => {
-          modifyIsUnarchiveCourseSuccess({ isSuccess: false });
+          modifyIsMoveToInProgressCourseSuccess({ isSuccess: false });
         }}
         open
       />
@@ -122,7 +122,7 @@ export class CourseEnrollments extends Component {
       isLoading,
       error,
       isMarkCourseCompleteSuccess,
-      isUnarchiveCourseSuccess,
+      isMoveToInProgressCourseSuccess,
     } = this.props;
 
     if (isLoading) {
@@ -135,7 +135,7 @@ export class CourseEnrollments extends Component {
     return (
       <>
         {isMarkCourseCompleteSuccess && this.renderMarkCourseCompleteSuccessAlert()}
-        {isUnarchiveCourseSuccess && this.renderUnarchiveCourseSuccessAlert()}
+        {isMoveToInProgressCourseSuccess && this.renderMoveToInProgressCourseSuccessAlert()}
         {/*
           Only render children if there are no course runs.
           This allows the parent component to customize what
@@ -153,8 +153,8 @@ export class CourseEnrollments extends Component {
           courseRuns={courseRuns.upcoming}
         />
         <CourseSection
-          title="Archived courses"
-          subtitle={ARCHIVED_COURSES_SECTION_SUBTITLE}
+          title="Courses saved for later"
+          subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
           component={CompletedCourseCard}
           courseRuns={courseRuns.completed}
         />
@@ -170,7 +170,7 @@ const mapStateToProps = state => ({
   isLoading: selectors.getIsLoading(state),
   error: selectors.getError(state),
   isMarkCourseCompleteSuccess: selectors.getIsMarkCourseCompleteSuccess(state),
-  isUnarchiveCourseSuccess: selectors.getIsUnarchiveCourseSuccess(state),
+  isMoveToInProgressCourseSuccess: selectors.getIsMoveToInProgressCourseSuccess(state),
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -183,8 +183,8 @@ const mapDispatchToProps = dispatch => ({
   modifyIsMarkCourseCompleteSuccess: (options) => {
     dispatch(actions.updateIsMarkCourseCompleteSuccess(options));
   },
-  modifyIsUnarchiveCourseSuccess: (options) => {
-    dispatch(actions.updateIsUnarchiveCourseSuccess(options));
+  modifyIsMoveToInProgressCourseSuccess: (options) => {
+    dispatch(actions.updateIsMoveToInProgressCourseSuccess(options));
   },
 });
 
@@ -199,8 +199,8 @@ CourseEnrollments.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   isMarkCourseCompleteSuccess: PropTypes.bool.isRequired,
   modifyIsMarkCourseCompleteSuccess: PropTypes.func.isRequired,
-  isUnarchiveCourseSuccess: PropTypes.bool.isRequired,
-  modifyIsUnarchiveCourseSuccess: PropTypes.func.isRequired,
+  isMoveToInProgressCourseSuccess: PropTypes.bool.isRequired,
+  modifyIsMoveToInProgressCourseSuccess: PropTypes.func.isRequired,
   error: PropTypes.instanceOf(Error),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),

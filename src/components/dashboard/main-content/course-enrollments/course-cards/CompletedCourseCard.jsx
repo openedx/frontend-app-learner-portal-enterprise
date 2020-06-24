@@ -7,11 +7,11 @@ import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
-import { UnarchiveModal } from './unarchive-modal';
+import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import {
   updateCourseRunStatus,
-  updateIsUnarchiveCourseSuccess,
+  updateIsMoveToInProgressCourseSuccess,
 } from '../data/actions';
 import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
@@ -26,21 +26,21 @@ const CompletedCourseCard = (props) => {
     courseRunId,
     courseRunStatus,
     modifyCourseRunStatus,
-    modifyIsUnarchiveCourseStatus,
+    modifyIsMoveToInProgressCourseStatus,
     endDate,
   } = props;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleUnarchiveOnClose = () => {
+  const handleMoveToInProgressOnClose = () => {
     setIsModalOpen(false);
-    sendTrackEvent('edx.learner_portal.course.unarchive.modal.closed', {
+    sendTrackEvent('edx.learner_portal.course.move_to_in_progress.modal.closed', {
       course_run_id: courseRunId,
     });
   };
 
-  const handleUnarchiveOnSuccess = ({ response, resetModalState }) => {
-    sendTrackEvent('edx.learner_portal.course.unarchive.saved', {
+  const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
+    sendTrackEvent('edx.learner_portal.course.move_to_in_progress.saved', {
       course_run_id: courseRunId,
     });
     setIsModalOpen(false);
@@ -50,30 +50,30 @@ const CompletedCourseCard = (props) => {
       courseId: response.courseRunId,
       markedDone: response.markedDone,
     });
-    modifyIsUnarchiveCourseStatus({
+    modifyIsMoveToInProgressCourseStatus({
       isSuccess: true,
     });
   };
 
   const getDropdownMenuItems = () => {
-    // Only courses that are manually archived (markedDone) should show a unarchive option.
-    // if course is ended or completed, you cannot unarchive it
+    // Only courses that are manually saved for later (markedDone) should show an option to move back to in progress.
+    // if course is ended or completed, you cannot move it back to in progress
     // TODO: we also need to add || courseRunStatus === 'completed' once api returns correct status
-    //   right now it always returns completed upon using Archive
+    //   right now it always returns completed upon using Save course for later
     if (!markedDone || isCourseEnded(endDate)) { return []; }
     return ([
       {
-        key: 'unarchive-course',
+        key: 'move-course-to-in-progress',
         type: 'button',
         onClick: () => {
           setIsModalOpen(true);
-          sendTrackEvent('edx.learner_portal.course.unarchive.modal.opened', {
+          sendTrackEvent('edx.learner_portal.course.move_to_in_progress.modal.opened', {
             course_run_id: courseRunId,
           });
         },
         children: (
           <div role="menuitem">
-            Unarchive course
+            Move to In Progress
             <span className="sr-only">for {title}</span>
           </div>
         ),
@@ -129,13 +129,13 @@ const CompletedCourseCard = (props) => {
       {...props}
     >
       {renderCertificateInfo()}
-      <UnarchiveModal
+      <MoveToInProgressModal
         isOpen={isModalOpen}
         courseTitle={title}
         courseLink={linkToCourse}
         courseId={courseRunId}
-        onClose={handleUnarchiveOnClose}
-        onSuccess={handleUnarchiveOnSuccess}
+        onClose={handleMoveToInProgressOnClose}
+        onSuccess={handleMoveToInProgressOnSuccess}
       />
     </BaseCourseCard>
   );
@@ -149,7 +149,7 @@ CompletedCourseCard.propTypes = {
   markedDone: PropTypes.bool.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   modifyCourseRunStatus: PropTypes.func.isRequired,
-  modifyIsUnarchiveCourseStatus: PropTypes.func.isRequired,
+  modifyIsMoveToInProgressCourseStatus: PropTypes.func.isRequired,
   endDate: PropTypes.string,
 };
 
@@ -165,8 +165,8 @@ const mapDispatchToProps = dispatch => ({
     // status=complete for example
     dispatch(updateCourseRunStatus({ ...options, status: 'in_progress' }));
   },
-  modifyIsUnarchiveCourseStatus: (options) => {
-    dispatch(updateIsUnarchiveCourseSuccess(options));
+  modifyIsMoveToInProgressCourseStatus: (options) => {
+    dispatch(updateIsMoveToInProgressCourseSuccess(options));
   },
 });
 

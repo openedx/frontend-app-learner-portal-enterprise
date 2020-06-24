@@ -7,11 +7,11 @@ export const ENROLL_ENDPOINT = '/enterprise_learner_portal/api/v1/enterprise_cou
  * @typedef {object} RequestOptions
  * @property {string} course_id CourseId
  * @property {string} enterprise_id EnterpriseId
- * @property {string} marked_done True/False. True archives a course.
+ * @property {string} marked_done True/False. True saves a course for later.
  */
 
 /**
- * Request to archive/unarchive a course.
+ * Request to save course for later / move course to in progress.
  * @param {RequestOptions} options
  * @requires {Promise} Request promise.
  */
