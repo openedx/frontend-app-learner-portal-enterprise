@@ -78,6 +78,17 @@ In this section you will:
 
 You are now in the Learner portal for the enterpriser customer `Test Enterprise`, as a learner!
 
+## Next up: enroll one or more learners into your own course!
+
+It is very useful to create multiple courses and enroll the learners into them for testing
+
+For this, an easy way is to use the Studio! Usually at http://localhost:18010
+
+* Once there, create a course using the Create Course button
+* Once course is created, click 'View Live' to see the course
+* Grab the course id from the url which will be similar to: http://localhost:18010/course/course-v1:testinguniversity+cs111111+summer2020
+  * In this case the course id is `course-v1:testinguniversity+cs111111+summer2020`
+* Now use the `Manage learners` page described in an earlier section, to enroll one or more learners into this course! See [get-familiar-with-learner-and-customer-accounts](#get-familiar-with-learner-and-customer-accounts) for how to do this.
 
 ## Setup enterprise stack for local changes
 
