@@ -70,9 +70,9 @@ export default function Course() {
             </MainContent>
             <MediaQuery minWidth={breakpoints.large.minWidth}>
               {matches => matches && (
-              <Sidebar>
-                <CourseSidebar />
-              </Sidebar>
+                <Sidebar>
+                  <CourseSidebar />
+                </Sidebar>
               )}
             </MediaQuery>
           </div>

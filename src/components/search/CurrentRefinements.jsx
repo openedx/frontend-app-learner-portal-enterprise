@@ -1,74 +1,123 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import qs from 'query-string';
+import { useHistory } from 'react-router-dom';
 import { Button } from '@edx/paragon';
 import { connectCurrentRefinements } from 'react-instantsearch-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-export const NUM_CURRENT_REFINEMENTS_TO_DISPLAY = 3;
+import ClearCurrentRefinements from './ClearCurrentRefinements';
 
-const CurrentRefinements = ({ items, refine }) => {
+import {
+  NUM_CURRENT_REFINEMENTS_TO_DISPLAY,
+  QUERY_PARAM_FOR_SEARCH_QUERY,
+} from './data/constants';
+import { useRefinementsFromQueryParams } from './data/hooks';
+
+const CurrentRefinements = ({ items }) => {
   if (!items || !items.length) {
     return null;
   }
 
+  const history = useHistory();
   const [showAllRefinements, setShowAllRefinements] = useState(false);
 
-  const activeRefinements = useMemo(
+  const activeRefinementsByAttribute = useMemo(
     () => {
-      const refinements = [];
-      items.forEach(({ items: activeSelectionsForAttribute }) => {
-        refinements.push(...activeSelectionsForAttribute);
+      const refinements = {};
+      items.forEach((facet) => {
+        const { attribute } = facet;
+        refinements[attribute] = facet.items;
       });
       return refinements;
     },
     [items],
   );
 
+  const activeRefinementsAsFlatArray = useMemo(
+    () => {
+      const refinements = [];
+      Object.entries(activeRefinementsByAttribute).forEach(([key, value]) => {
+        const updatedValue = [...value].map((item) => ({
+          ...item,
+          attribute: key,
+        }));
+        refinements.push(...updatedValue);
+      });
+      return refinements;
+    },
+    [activeRefinementsByAttribute],
+  );
+
   const visibleActiveRefinements = useMemo(
     () => {
       if (showAllRefinements) {
-        return activeRefinements;
+        return activeRefinementsAsFlatArray;
       }
-      return activeRefinements.slice(0, NUM_CURRENT_REFINEMENTS_TO_DISPLAY);
+      return activeRefinementsAsFlatArray.slice(0, NUM_CURRENT_REFINEMENTS_TO_DISPLAY);
     },
-    [activeRefinements, showAllRefinements],
+    [activeRefinementsAsFlatArray, showAllRefinements],
   );
 
+  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+
+  const handleRefinementBadgeClick = (item) => {
+    const refinements = { ...refinementsFromQueryParams };
+
+    Object.entries(refinements).forEach(([key, value]) => {
+      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
+        const updatedValue = [...value];
+        const foundIndex = updatedValue.findIndex(facetLabel => facetLabel === item.label);
+
+        if (key === item.attribute && foundIndex !== -1) {
+          updatedValue.splice(foundIndex, 1);
+        }
+
+        if (updatedValue.length > 0) {
+          refinements[key] = updatedValue.join(',');
+        } else {
+          delete refinements[key];
+        }
+      }
+    });
+
+    if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
+      setShowAllRefinements(false);
+    }
+
+    history.push({ search: qs.stringify(refinements) });
+  };
+
   return (
-    <ul className="list-unstyled d-flex flex-wrap align-items-center">
-      {visibleActiveRefinements.map(({ label, value }) => (
-        <li className="mr-2" key={label}>
+    <ul className="list-unstyled d-flex flex-wrap align-items-center mb-0">
+      {visibleActiveRefinements.map(item => (
+        <li className="mr-2" key={item.label}>
           <Button
-            className="badge badge-light font-weight-light"
-            onClick={() => {
-              if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
-                setShowAllRefinements(false);
-              }
-              refine(value);
-            }}
+            className="badge badge-light mb-2 font-weight-light"
+            onClick={() => handleRefinementBadgeClick(item)}
           >
-            <span className="mr-2">{label}</span>
+            <span className="mr-2">{item.label}</span>
             <FontAwesomeIcon icon={faTimes} />
-            <span className="sr-only">Remove the filter {label}</span>
+            <span className="sr-only">Remove the filter {item.label}</span>
           </Button>
         </li>
       ))}
-      {!showAllRefinements && activeRefinements.length > NUM_CURRENT_REFINEMENTS_TO_DISPLAY && (
+      {!showAllRefinements && activeRefinementsAsFlatArray.length > NUM_CURRENT_REFINEMENTS_TO_DISPLAY && (
         <li className="mr-2">
           <Button
-            className="badge badge-light font-weight-light"
+            className="badge badge-light mb-2 font-weight-light"
             onClick={() => setShowAllRefinements(true)}
           >
-            +{activeRefinements.length - NUM_CURRENT_REFINEMENTS_TO_DISPLAY}
-            <span className="sr-only">Show all {activeRefinements.length} filters</span>
+            +{activeRefinementsAsFlatArray.length - NUM_CURRENT_REFINEMENTS_TO_DISPLAY}
+            <span className="sr-only">Show all {activeRefinementsAsFlatArray.length} filters</span>
           </Button>
         </li>
       )}
       {showAllRefinements && (
         <li className="mr-2">
           <Button
-            className="text-white text-underline px-1 py-0"
+            className="text-white text-underline px-1 py-0 mb-2"
             onClick={() => setShowAllRefinements(false)}
           >
             show less
@@ -76,12 +125,7 @@ const CurrentRefinements = ({ items, refine }) => {
         </li>
       )}
       <li>
-        <Button
-          className="text-white text-underline px-1 py-0"
-          onClick={() => refine(items)}
-        >
-          clear all
-        </Button>
+        <ClearCurrentRefinements className="text-white text-underline px-1 py-0 mb-2" />
       </li>
     </ul>
   );
@@ -89,7 +133,6 @@ const CurrentRefinements = ({ items, refine }) => {
 
 CurrentRefinements.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  refine: PropTypes.func.isRequired,
 };
 
 export default connectCurrentRefinements(CurrentRefinements);

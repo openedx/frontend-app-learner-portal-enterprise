@@ -1,23 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
+import qs from 'query-string';
 import { SearchField } from '@edx/paragon';
 import { connectSearchBox } from 'react-instantsearch-dom';
+
+import { QUERY_PARAM_FOR_SEARCH_QUERY } from './data/constants';
 
 const INITIAL_QUERY_VALUE = '';
 
 const SearchBox = ({
   className,
-  refine,
   defaultRefinement,
+  refinementsFromQueryParams,
 }) => {
-  const [query, setQuery] = useState(defaultRefinement || INITIAL_QUERY_VALUE);
+  const history = useHistory();
 
-  useEffect(
-    () => {
-      refine(query);
-    },
-    [query],
-  );
+  const query = defaultRefinement || INITIAL_QUERY_VALUE;
+
+  const handleSubmit = (searchQuery) => {
+    const refinements = { ...refinementsFromQueryParams };
+    refinements.q = searchQuery;
+    Object.entries(refinements).forEach(([key, value]) => {
+      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
+        refinements[key] = value.join(',');
+      }
+    });
+    history.push({ search: qs.stringify(refinements) });
+  };
+
+  const handleClear = () => {
+    const refinements = { ...refinementsFromQueryParams };
+    delete refinements.q;
+    history.push({ search: qs.stringify(refinements) });
+  };
 
   return (
     <div className={className}>
@@ -28,8 +44,8 @@ const SearchBox = ({
       <SearchField.Advanced
         className="border-0 bg-white"
         value={query}
-        onSubmit={setQuery}
-        onClear={() => setQuery(INITIAL_QUERY_VALUE)}
+        onSubmit={handleSubmit}
+        onClear={handleClear}
       >
         <SearchField.Input className="form-control-lg" aria-labelledby="search-input-box" />
         <SearchField.ClearButton />
@@ -40,7 +56,7 @@ const SearchBox = ({
 };
 
 SearchBox.propTypes = {
-  refine: PropTypes.func.isRequired,
+  refinementsFromQueryParams: PropTypes.shape().isRequired,
   defaultRefinement: PropTypes.string,
   className: PropTypes.string,
 };

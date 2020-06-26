@@ -1,46 +1,63 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import React, { useMemo } from 'react';
+import { breakpoints } from '@edx/paragon';
 
 import FacetList from './FacetList';
+import CurrentRefinements from './CurrentRefinements';
 
-const searchFilters = [
-  {
-    attribute: 'subjects',
-    title: 'Subject',
-  },
-  {
-    attribute: 'partners',
-    title: 'Partner',
-  },
-  {
-    attribute: 'programs',
-    title: 'Program',
-  },
-  {
-    attribute: 'level_type',
-    title: 'Level',
-  },
-  {
-    attribute: 'availability',
-    title: 'Availability',
-  },
-];
+import MobileFilterMenu from './MobileFilterMenu';
 
-const SearchFilters = ({ className }) => (
-  <div className={classNames('d-flex', className)}>
-    {searchFilters.map(({ title, attribute }) => (
-      <FacetList key={attribute} title={title} attribute={attribute} limit={300} />
-    ))}
-  </div>
-);
+import './styles/MobileSearchFilters.scss';
 
-SearchFilters.propTypes = {
-  className: PropTypes.string,
-};
+import { SEARCH_FACET_FILTERS } from './data/constants';
+import { useRefinementsFromQueryParams } from './data/hooks';
+import { sortItemsByLabelAsc } from './data/utils';
 
-SearchFilters.defaultProps = {
-  className: undefined,
+import { useWindowSize } from '../../utils/hooks';
+
+const SearchFilters = () => {
+  const size = useWindowSize();
+
+  const showMobileMenu = useMemo(
+    () => size.width < breakpoints.small.maxWidth,
+    [size],
+  );
+
+  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+
+  const searchFacets = useMemo(
+    () => SEARCH_FACET_FILTERS.map(({
+      title, attribute, isSortedAlphabetical,
+    }) => (
+      <FacetList
+        key={attribute}
+        title={title}
+        attribute={attribute}
+        limit={300} // this is replicating the B2C search experience
+        transformItems={(items) => {
+          if (isSortedAlphabetical) {
+            return sortItemsByLabelAsc(items);
+          }
+          return items;
+        }}
+        defaultRefinement={refinementsFromQueryParams[attribute]}
+        refinementsFromQueryParams={refinementsFromQueryParams}
+      />
+    )),
+    [refinementsFromQueryParams],
+  );
+
+  return (
+    <>
+      {showMobileMenu ? (
+        <MobileFilterMenu>{searchFacets}</MobileFilterMenu>
+      ) : (
+        <>
+          <div className="d-flex">{searchFacets}</div>
+          <CurrentRefinements />
+        </>
+      )}
+    </>
+  );
 };
 
 export default SearchFilters;

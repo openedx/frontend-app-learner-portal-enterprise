@@ -1,9 +1,9 @@
 @import "~@edx/paragon/scss/edx/utilities-only";
 
 .facet-list .pgn_collapsible {
-  .collapsible-trigger {
-    @extend .border-0;
-  }
+  @extend .rounded-0;
+  @extend .mr-md-3;
+  @extend .mb-md-3;
 
   .collapsible-body {
     @extend .border;
@@ -16,21 +16,25 @@
     overflow-y: scroll;
     border-radius: 2px;
     box-shadow: 1px 2px 4px 0 rgba(0,0,0,.2);
+  }
 
-    .list-group-item {
-      @extend .py-2;
+  .collapsible-trigger {
+    border-radius: 0;
+  }
 
-      .facet-item-label {
-        font-weight: normal;
+  .list-group-item {
+    @extend .py-2;
 
-        &.is-refined {
-          font-weight: 700;
-        }
+    .facet-item-label {
+      font-weight: normal;
+
+      &.is-refined {
+        font-weight: 700;
       }
+    }
 
-      input:focus + .facet-item-label {
-        text-decoration: underline;
-      }
+    input:focus + .facet-item-label {
+      text-decoration: underline;
     }
   }
 }
