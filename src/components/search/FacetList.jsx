@@ -41,6 +41,11 @@ const BaseFacetList = ({
     }
   };
 
+  /**
+   * Handles when a facet option is toggled by either updating the appropriate
+   * query parameter for the facet attribute, or removes the facet attribute if
+   * there's no longer any selected options for that facet attribute.
+   */
   const handleInputOnChange = (item) => {
     const refinements = { ...refinementsFromQueryParams };
 

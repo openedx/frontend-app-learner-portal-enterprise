@@ -11,6 +11,11 @@ const ClearCurrentRefinements = ({ className }) => {
   const history = useHistory();
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
+  /**
+   * Called when clear filters button is clicked. Removes
+   * all non-query keys from refinementsFromQueryParams and
+   * updates the query params.
+   */
   const handleClearAllRefinementsClick = () => {
     const refinements = { ...refinementsFromQueryParams };
     Object.keys(refinements).forEach((key) => {

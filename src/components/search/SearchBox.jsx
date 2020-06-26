@@ -18,6 +18,11 @@ const SearchBox = ({
 
   const query = defaultRefinement || INITIAL_QUERY_VALUE;
 
+  /**
+   * Handles when a search is submitted by adding the user's search
+   * query as a query parameter. Note that it must preserved any other
+   * existing query parameters must be preserved.
+   */
   const handleSubmit = (searchQuery) => {
     const refinements = { ...refinementsFromQueryParams };
     refinements.q = searchQuery;
@@ -29,6 +34,10 @@ const SearchBox = ({
     history.push({ search: qs.stringify(refinements) });
   };
 
+  /**
+   * Handles when a search is cleared by removing the user's search query
+   * from the query parameters.
+   */
   const handleClear = () => {
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.q;

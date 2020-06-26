@@ -22,7 +22,12 @@ const CurrentRefinements = ({ items }) => {
 
   const history = useHistory();
   const [showAllRefinements, setShowAllRefinements] = useState(false);
+  const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
+  /**
+   * Transforms items into an object with a key for each facet attribute
+   * with a list of that facet attribute's active selection(s).
+   */
   const activeRefinementsByAttribute = useMemo(
     () => {
       const refinements = {};
@@ -35,11 +40,16 @@ const CurrentRefinements = ({ items }) => {
     [items],
   );
 
+  /**
+   * Transforms activeRefinementsByAttribute into a flat array of objects,
+   * each with an attribute key so we can still associate which attribute
+   * a refinement is for.
+   */
   const activeRefinementsAsFlatArray = useMemo(
     () => {
       const refinements = [];
       Object.entries(activeRefinementsByAttribute).forEach(([key, value]) => {
-        const updatedValue = [...value].map((item) => ({
+        const updatedValue = value.map((item) => ({
           ...item,
           attribute: key,
         }));
@@ -50,6 +60,10 @@ const CurrentRefinements = ({ items }) => {
     [activeRefinementsByAttribute],
   );
 
+  /**
+   * Determines the correct number of active refinements to show at any
+   * given time based on showAllRefinements.
+   */
   const visibleActiveRefinements = useMemo(
     () => {
       if (showAllRefinements) {
@@ -60,8 +74,10 @@ const CurrentRefinements = ({ items }) => {
     [activeRefinementsAsFlatArray, showAllRefinements],
   );
 
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
-
+  /**
+   * Removes the refinement that was clicked from the query params, which causes
+   * the search results to update.
+   */
   const handleRefinementBadgeClick = (item) => {
     const refinements = { ...refinementsFromQueryParams };
 
@@ -70,6 +86,7 @@ const CurrentRefinements = ({ items }) => {
         const updatedValue = [...value];
         const foundIndex = updatedValue.findIndex(facetLabel => facetLabel === item.label);
 
+        // if the refinement is found, remove it.
         if (key === item.attribute && foundIndex !== -1) {
           updatedValue.splice(foundIndex, 1);
         }
