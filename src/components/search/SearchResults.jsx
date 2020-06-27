@@ -4,6 +4,7 @@ import { connectStats, Hits } from 'react-instantsearch-dom';
 
 import SearchCourseCard from './SearchCourseCard';
 import SearchPagination from './SearchPagination';
+import SearchNoResults from './SearchNoResults';
 
 import { useRefinementsFromQueryParams } from './data/hooks';
 
@@ -37,22 +38,28 @@ const SearchResults = ({ nbHits }) => {
 
   return (
     <div className="search-results container-fluid my-5">
-      <div className="d-flex align-items-center mb-2">
-        <h2 className="flex-grow-1 mb-0">Courses</h2>
-        <SearchPagination
-          defaultRefinement={page}
-          refinementsFromQueryParams={refinementsFromQueryParams}
-          maxPagesDisplayed={5}
-        />
-      </div>
-      <div className="lead mb-4">{resultsHeading}</div>
-      <Hits hitComponent={SearchCourseCard} />
-      <div className="d-flex justify-content-center">
-        <SearchPagination
-          defaultRefinement={page}
-          refinementsFromQueryParams={refinementsFromQueryParams}
-        />
-      </div>
+      {nbHits > 0 ? (
+        <>
+          <div className="d-flex align-items-center mb-2">
+            <h2 className="flex-grow-1 mb-0">Courses</h2>
+            <SearchPagination
+              defaultRefinement={page}
+              refinementsFromQueryParams={refinementsFromQueryParams}
+              maxPagesDisplayed={5}
+            />
+          </div>
+          <div className="lead mb-4">{resultsHeading}</div>
+          <Hits hitComponent={SearchCourseCard} />
+          <div className="d-flex justify-content-center">
+            <SearchPagination
+              defaultRefinement={page}
+              refinementsFromQueryParams={refinementsFromQueryParams}
+            />
+          </div>
+        </>
+      ) : (
+        <SearchNoResults />
+      )}
     </div>
   );
 };
