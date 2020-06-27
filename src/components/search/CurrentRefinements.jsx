@@ -11,7 +11,7 @@ import ClearCurrentRefinements from './ClearCurrentRefinements';
 
 import {
   NUM_CURRENT_REFINEMENTS_TO_DISPLAY,
-  QUERY_PARAM_FOR_SEARCH_QUERY,
+  QUERY_PARAMS_TO_IGNORE,
 } from './data/constants';
 import {
   useRefinementsFromQueryParams,
@@ -50,8 +50,11 @@ const CurrentRefinements = ({ items }) => {
   const handleRefinementBadgeClick = (item) => {
     const refinements = { ...refinementsFromQueryParams };
 
+    // reset to page 1
+    delete refinements.page;
+
     Object.entries(refinements).forEach(([key, value]) => {
-      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
+      if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
         const updatedValue = [...value];
         const foundIndex = updatedValue.findIndex(facetLabel => facetLabel === item.label);
 

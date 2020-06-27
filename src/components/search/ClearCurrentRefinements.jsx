@@ -4,7 +4,7 @@ import qs from 'query-string';
 import { useHistory } from 'react-router-dom';
 import { Button } from '@edx/paragon';
 
-import { QUERY_PARAM_FOR_SEARCH_QUERY } from './data/constants';
+import { QUERY_PARAMS_TO_IGNORE } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
 
 const ClearCurrentRefinements = ({ className }) => {
@@ -18,8 +18,12 @@ const ClearCurrentRefinements = ({ className }) => {
    */
   const handleClearAllRefinementsClick = () => {
     const refinements = { ...refinementsFromQueryParams };
+
+    // reset to page 1
+    delete refinements.page;
+
     Object.keys(refinements).forEach((key) => {
-      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
+      if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
         delete refinements[key];
       }
     });

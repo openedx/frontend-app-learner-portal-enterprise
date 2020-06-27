@@ -45,8 +45,8 @@ const SearchCourseCard = ({ hit }) => {
               />
             </div>
           )}
-          <div className="card-body">
-            <h3 className="card-title h5 my-1">
+          <div className="card-body py-3">
+            <h3 className="card-title h5 mb-1">
               <Truncate lines={3} trimWhitespace>
                 {course.title}
               </Truncate>

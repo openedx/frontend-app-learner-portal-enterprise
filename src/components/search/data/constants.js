@@ -23,4 +23,9 @@ export const SEARCH_FACET_FILTERS = [
 ];
 
 export const QUERY_PARAM_FOR_SEARCH_QUERY = 'q';
+export const QUERY_PARAM_FOR_PAGE = 'page';
+export const QUERY_PARAMS_TO_IGNORE = [
+  QUERY_PARAM_FOR_SEARCH_QUERY,
+  QUERY_PARAM_FOR_PAGE,
+];
 export const NUM_CURRENT_REFINEMENTS_TO_DISPLAY = 3;

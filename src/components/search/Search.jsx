@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import SearchHeader from './SearchHeader';
 import SearchResults from './SearchResults';
-import StateResults from './StateResults';
 
 const searchClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
@@ -41,10 +40,8 @@ const Search = () => {
         searchClient={searchClient}
       >
         <Configure filters={filters} />
-        <StateResults>
-          <SearchHeader />
-          <SearchResults />
-        </StateResults>
+        <SearchHeader />
+        <SearchResults />
       </InstantSearch>
     </>
   );

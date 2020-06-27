@@ -1,6 +1,10 @@
 @import "~@edx/paragon/scss/edx/utilities-only";
 
 .search-results {
+  ul.pagination {
+    @extend .mb-0;
+  }
+
   .ais-Hits-list {
     @extend .row;
     list-style: none;
