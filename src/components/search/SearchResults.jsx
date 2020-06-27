@@ -5,6 +5,8 @@ import { connectStats, Hits } from 'react-instantsearch-dom';
 import SearchCourseCard from './SearchCourseCard';
 import { StateResultsContext } from './StateResults';
 
+import './styles/SearchResults.scss';
+
 const SearchResults = ({ nbHits }) => {
   const { searchState } = useContext(StateResultsContext);
 
@@ -21,8 +23,8 @@ const SearchResults = ({ nbHits }) => {
   );
 
   return (
-    <div className="container-fluid my-5">
-      <h2>{resultsHeading}</h2>
+    <div className="search-results container-fluid my-5">
+      <h2 className="mb-4">{resultsHeading}</h2>
       <Hits hitComponent={SearchCourseCard} />
     </div>
   );
