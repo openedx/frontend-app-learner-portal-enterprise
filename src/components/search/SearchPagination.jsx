@@ -8,14 +8,15 @@ import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { Pagination } from '@edx/paragon';
 
 import { updateRefinementsFromQueryParams } from './data/utils';
+import { useRefinementsFromQueryParams } from './data/hooks';
 
 const SearchPagination = ({
   nbPages,
   currentRefinement,
-  refinementsFromQueryParams,
   maxPagesDisplayed,
 }) => {
   const history = useHistory();
+  const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
   const icons = useMemo(
     () => ({
@@ -75,7 +76,6 @@ const SearchPagination = ({
 
 SearchPagination.propTypes = {
   nbPages: PropTypes.number.isRequired,
-  refinementsFromQueryParams: PropTypes.shape().isRequired,
   currentRefinement: PropTypes.number,
   maxPagesDisplayed: PropTypes.number,
 };
