@@ -1,13 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { useHistory } from 'react-router-dom';
-import { Collapsible, Input } from '@edx/paragon';
+import { Input, Dropdown } from '@edx/paragon';
 import { connectRefinementList } from 'react-instantsearch-dom';
 import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import OutsideClickHandler from 'react-outside-click-handler';
 
 import { QUERY_PARAM_FOR_SEARCH_QUERY } from './data/constants';
 
@@ -20,26 +17,7 @@ const BaseFacetList = ({
   currentRefinement,
   refinementsFromQueryParams,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const history = useHistory();
-
-  useEffect(() => {
-    function checkKeyAndCloseIfEsc({ key }) {
-      if (key === 'Escape') {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('keydown', checkKeyAndCloseIfEsc);
-    return () => { // on unmount, remove event listener
-      document.removeEventListener('keydown', checkKeyAndCloseIfEsc);
-    };
-  }, []);
-
-  const handleOutsideClick = () => {
-    if (isOpen) {
-      setIsOpen(false);
-    }
-  };
 
   /**
    * Handles when a facet option is toggled by either updating the appropriate
@@ -64,65 +42,41 @@ const BaseFacetList = ({
     history.push({ search: qs.stringify(refinements) });
   };
 
-  const renderItems = useCallback(
-    () => {
-      if (!items.length) {
-        return (
-          <p>No options found.</p>
-        );
-      }
-
-      return (
-        <ul className="list-group">
-          {items.map((item, index) => (
-            <li key={item.label} className="list-group-item border-0">
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label htmlFor={`${attribute}-${index}`}>
-                <Input
-                  type="checkbox"
-                  id={`${attribute}-${index}`}
-                  checked={item.isRefined}
-                  onChange={() => handleInputOnChange(item)}
-                />
-                <span className={classNames('facet-item-label', 'ml-1', { 'is-refined': item.isRefined })}>
-                  {item.label}
-                </span>
-                <span className="badge badge-pill ml-2 bg-brand-primary text-brand-primary">
-                  {item.count}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      );
-    },
-    [attribute, items],
-  );
-
   return (
     <div className="facet-list">
-      <OutsideClickHandler onOutsideClick={handleOutsideClick}>
-        <Collapsible
-          open={isOpen}
-          onToggle={setIsOpen}
-          title={(
-            <div
-              className={
-                classNames(
-                  'text-capitalize',
-                  { 'font-weight-bold': currentRefinement.length > 0 },
-                )
-              }
-            >
-              {title}
-            </div>
-          )}
-          iconWhenOpen={<small><FontAwesomeIcon icon={faChevronUp} /></small>}
-          iconWhenClosed={<small><FontAwesomeIcon icon={faChevronDown} /></small>}
+      <Dropdown className="mb-0 mr-md-3">
+        <Dropdown.Button
+          className={
+            classNames(
+              'bg-white', 'text-capitalize', 'rounded-0',
+              { 'font-weight-bold': currentRefinement.length > 0 },
+            )
+          }
         >
-          {renderItems()}
-        </Collapsible>
-      </OutsideClickHandler>
+          {title}
+        </Dropdown.Button>
+        <Dropdown.Menu>
+          {items.map(item => (
+            <Dropdown.Item
+              key={item.label}
+              type="label"
+              className="mb-0 py-2"
+            >
+              <Input
+                type="checkbox"
+                checked={item.isRefined}
+                onChange={() => handleInputOnChange(item)}
+              />
+              <span className={classNames('facet-item-label', { 'is-refined': item.isRefined })}>
+                {item.label}
+              </span>
+              <span className="badge badge-pill ml-2 bg-brand-primary text-brand-primary">
+                {item.count}
+              </span>
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 };
