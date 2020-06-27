@@ -7,11 +7,11 @@ import { Button } from '@edx/paragon';
 
 import ClearCurrentRefinements from './ClearCurrentRefinements';
 
-const MobileFilterMenu = ({ children }) => {
+const MobileFilterMenu = ({ children, className }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <>
+    <div className={className}>
       {!isOpen && (
         <Button
           className="btn btn-block bg-white rounded-0 d-flex align-items-center justify-content-between"
@@ -66,12 +66,17 @@ const MobileFilterMenu = ({ children }) => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 MobileFilterMenu.propTypes = {
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
+};
+
+MobileFilterMenu.defaultProps = {
+  className: undefined,
 };
 
 export default MobileFilterMenu;

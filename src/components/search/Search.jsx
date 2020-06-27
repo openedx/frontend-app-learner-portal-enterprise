@@ -26,7 +26,7 @@ const Search = () => {
       }
 
       // there's no subscription catalog, so filter results by the enterprise customer instead
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      // return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
     [enterpriseConfig, subscriptionPlan],
   );

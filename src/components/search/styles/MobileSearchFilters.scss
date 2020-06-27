@@ -30,14 +30,20 @@
     }
   }
 
-  .facet-list .dropdown {
+  .dropdown {
     @extend .mb-0;
 
     .dropdown-toggle {
-      @extend .border-top;
+      @extend .border-bottom;
       @extend .py-3;
       width: 100%;
-      text-align: left;
+
+      &:after {
+        position: table;
+        float: right;
+        height: 100%;
+        vertical-align: middle;
+      }
     }
 
     &:first-child {
@@ -50,8 +56,9 @@
       box-shadow: none;
       overflow-y: unset;
       max-height: unset;
+      max-width: unset;
       border: none;
-      @extend .border-top;
+      @extend .border-bottom;
     }
 
     .dropdown-item {

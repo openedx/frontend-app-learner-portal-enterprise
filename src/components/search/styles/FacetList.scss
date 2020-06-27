@@ -1,29 +1,42 @@
 @import "~@edx/paragon/scss/edx/utilities-only";
 
 .facet-list {
-  .facet-item-label {
-    font-weight: normal;
-
-    &.is-refined {
-      font-weight: 700;
-    }
-  }
-
-  input:focus + .facet-item-label {
-    text-decoration: underline;
-  }
-
   .dropdown {
     @extend .mb-3;
+
+    .dropdown-toggle {
+      text-align: left;
+      padding-left: 10px;
+      padding-right: 10px;
+
+      &:after {
+        margin-left: 10px;
+      }
+    }
+
+    .facet-item-label {
+      font-weight: normal;
+  
+      &.is-refined {
+        font-weight: 700;
+      }
+    }
+  
+    input:focus + .facet-item-label {
+      text-decoration: underline;
+    }
 
     .dropdown-menu {
       @extend .rounded-0;
 
       max-height: 250px;
-      overflow-y: scroll;
+      overflow: scroll;
+      max-width: 420px;
+      width: max-content;
 
       .dropdown-item {
         padding-left: 30px;
+        white-space: break-spaces;
       }
     }
   }

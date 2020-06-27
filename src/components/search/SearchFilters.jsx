@@ -49,7 +49,7 @@ const SearchFilters = () => {
   return (
     <>
       {showMobileMenu ? (
-        <MobileFilterMenu>{searchFacets}</MobileFilterMenu>
+        <MobileFilterMenu className="mb-3">{searchFacets}</MobileFilterMenu>
       ) : (
         <>
           <div className="d-flex">{searchFacets}</div>
