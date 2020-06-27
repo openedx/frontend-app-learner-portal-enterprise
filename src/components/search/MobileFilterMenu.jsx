@@ -3,12 +3,19 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { connectCurrentRefinements } from 'react-instantsearch-dom';
 import { Button } from '@edx/paragon';
 
 import ClearCurrentRefinements from './ClearCurrentRefinements';
 
-const MobileFilterMenu = ({ children, className }) => {
+import {
+  useActiveRefinementsAsFlatArray,
+} from './data/hooks';
+
+const MobileFilterMenu = ({ children, className, items }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const activeRefinementsAsFlatArray = useActiveRefinementsAsFlatArray(items);
 
   return (
     <div className={className}>
@@ -17,7 +24,14 @@ const MobileFilterMenu = ({ children, className }) => {
           className="btn btn-block bg-white rounded-0 d-flex align-items-center justify-content-between"
           onClick={() => setIsOpen(true)}
         >
-          <span className="mr-2">Filters</span>
+          <div className="mr-2">
+            Filters
+            {activeRefinementsAsFlatArray && activeRefinementsAsFlatArray.length > 0 && (
+              <span className="ml-1">
+                ({activeRefinementsAsFlatArray.length} selected)
+              </span>
+            )}
+          </div>
           <FontAwesomeIcon icon={faCaretDown} />
         </Button>
       )}
@@ -33,7 +47,14 @@ const MobileFilterMenu = ({ children, className }) => {
         <div className="modal-dialog" role="document">
           <div className="modal-content">
             <div className="modal-header d-flex align-items-center">
-              <h5 className="modal-title text-center w-100">All Filters</h5>
+              <h5 className="modal-title text-center w-100">
+                All Filters
+                {activeRefinementsAsFlatArray && activeRefinementsAsFlatArray.length > 0 && (
+                  <span className="ml-1">
+                    ({activeRefinementsAsFlatArray.length} selected)
+                  </span>
+                )}
+              </h5>
               <Button
                 buttonType="link"
                 className="btn-close position-absolute px-2"
@@ -72,6 +93,7 @@ const MobileFilterMenu = ({ children, className }) => {
 
 MobileFilterMenu.propTypes = {
   children: PropTypes.node.isRequired,
+  items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   className: PropTypes.string,
 };
 
@@ -79,4 +101,4 @@ MobileFilterMenu.defaultProps = {
   className: undefined,
 };
 
-export default MobileFilterMenu;
+export default connectCurrentRefinements(MobileFilterMenu);

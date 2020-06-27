@@ -13,7 +13,10 @@ import {
   NUM_CURRENT_REFINEMENTS_TO_DISPLAY,
   QUERY_PARAM_FOR_SEARCH_QUERY,
 } from './data/constants';
-import { useRefinementsFromQueryParams } from './data/hooks';
+import {
+  useRefinementsFromQueryParams,
+  useActiveRefinementsAsFlatArray,
+} from './data/hooks';
 
 const CurrentRefinements = ({ items }) => {
   if (!items || !items.length) {
@@ -24,41 +27,7 @@ const CurrentRefinements = ({ items }) => {
   const [showAllRefinements, setShowAllRefinements] = useState(false);
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
-  /**
-   * Transforms items into an object with a key for each facet attribute
-   * with a list of that facet attribute's active selection(s).
-   */
-  const activeRefinementsByAttribute = useMemo(
-    () => {
-      const refinements = {};
-      items.forEach((facet) => {
-        const { attribute } = facet;
-        refinements[attribute] = facet.items;
-      });
-      return refinements;
-    },
-    [items],
-  );
-
-  /**
-   * Transforms activeRefinementsByAttribute into a flat array of objects,
-   * each with an attribute key so we can still associate which attribute
-   * a refinement is for.
-   */
-  const activeRefinementsAsFlatArray = useMemo(
-    () => {
-      const refinements = [];
-      Object.entries(activeRefinementsByAttribute).forEach(([key, value]) => {
-        const updatedValue = value.map((item) => ({
-          ...item,
-          attribute: key,
-        }));
-        refinements.push(...updatedValue);
-      });
-      return refinements;
-    },
-    [activeRefinementsByAttribute],
-  );
+  const activeRefinementsAsFlatArray = useActiveRefinementsAsFlatArray(items);
 
   /**
    * Determines the correct number of active refinements to show at any
