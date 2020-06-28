@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { useHistory } from 'react-router-dom';
+import { connectCurrentRefinements } from 'react-instantsearch-dom';
 import { Button } from '@edx/paragon';
 
-import { QUERY_PARAM_FOR_SEARCH_QUERY } from './data/constants';
+import { QUERY_PARAMS_TO_IGNORE } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
 
 const ClearCurrentRefinements = ({ className }) => {
@@ -18,11 +19,14 @@ const ClearCurrentRefinements = ({ className }) => {
    */
   const handleClearAllRefinementsClick = () => {
     const refinements = { ...refinementsFromQueryParams };
+    delete refinements.page; // reset to page 1
+
     Object.keys(refinements).forEach((key) => {
-      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
+      if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
         delete refinements[key];
       }
     });
+
     history.push({ search: qs.stringify(refinements) });
   };
 
@@ -44,4 +48,4 @@ ClearCurrentRefinements.defaultProps = {
   className: undefined,
 };
 
-export default ClearCurrentRefinements;
+export default connectCurrentRefinements(ClearCurrentRefinements);

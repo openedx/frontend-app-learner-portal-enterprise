@@ -2,7 +2,13 @@ import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
 
-import { SEARCH_FACET_FILTERS, QUERY_PARAM_FOR_SEARCH_QUERY } from './constants';
+import {
+  SEARCH_FACET_FILTERS,
+  QUERY_PARAM_FOR_SEARCH_QUERY,
+  QUERY_PARAM_FOR_PAGE,
+} from './constants';
+
+import { isNull } from '../../../utils/common';
 
 export const useRefinementsFromQueryParams = () => {
   const { search } = useLocation();
@@ -21,6 +27,10 @@ export const useRefinementsFromQueryParams = () => {
       Object.entries(queryParams).forEach(([key, value]) => {
         if (key === QUERY_PARAM_FOR_SEARCH_QUERY) {
           refinements.q = value;
+        }
+
+        if (key === QUERY_PARAM_FOR_PAGE) {
+          refinements.page = value;
         }
 
         if (activeFacetAttributes.includes(key)) {
@@ -81,4 +91,18 @@ export const useActiveRefinementsAsFlatArray = (items) => {
   );
 
   return activeRefinementsAsFlatArray;
+};
+
+export const useNbHitsFromSearchResults = (searchResults) => {
+  const nbHits = useMemo(
+    () => {
+      if (searchResults && !isNull(searchResults.nbHits)) {
+        return searchResults && searchResults.nbHits;
+      }
+      return null;
+    },
+    [searchResults],
+  );
+
+  return nbHits;
 };

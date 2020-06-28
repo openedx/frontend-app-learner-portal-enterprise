@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import SearchBox from './SearchBox';
 import SearchFilters from './SearchFilters';
@@ -8,10 +8,7 @@ import { useRefinementsFromQueryParams } from './data/hooks';
 const SearchHeader = () => {
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
-  const searchQueryFromQueryParams = useMemo(
-    () => refinementsFromQueryParams.q,
-    [refinementsFromQueryParams],
-  );
+  const searchQueryFromQueryParams = refinementsFromQueryParams.q;
 
   return (
     <div className="bg-brand-primary">

@@ -6,7 +6,7 @@ import { Input, Dropdown } from '@edx/paragon';
 import { connectRefinementList } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 
-import { QUERY_PARAM_FOR_SEARCH_QUERY } from './data/constants';
+import { updateRefinementsFromQueryParams } from './data/utils';
 
 import './styles/FacetList.scss';
 
@@ -26,6 +26,7 @@ const BaseFacetList = ({
    */
   const handleInputOnChange = (item) => {
     const refinements = { ...refinementsFromQueryParams };
+    delete refinements.page; // reset to page 1
 
     if (item.value && item.value.length > 0) {
       refinements[attribute] = [...item.value];
@@ -33,13 +34,8 @@ const BaseFacetList = ({
       delete refinements[attribute];
     }
 
-    Object.entries(refinements).forEach(([key, value]) => {
-      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
-        refinements[key] = value.join(',');
-      }
-    });
-
-    history.push({ search: qs.stringify(refinements) });
+    const updatedRefinements = updateRefinementsFromQueryParams(refinements);
+    history.push({ search: qs.stringify(updatedRefinements) });
   };
 
   const renderItems = useCallback(
