@@ -18,7 +18,7 @@ import {
   useActiveRefinementsAsFlatArray,
 } from './data/hooks';
 
-const CurrentRefinements = ({ items }) => {
+const CurrentRefinements = ({ items, refine }) => {
   if (!items || !items.length) {
     return null;
   }
@@ -48,10 +48,14 @@ const CurrentRefinements = ({ items }) => {
    * the search results to update.
    */
   const handleRefinementBadgeClick = (item) => {
-    const refinements = { ...refinementsFromQueryParams };
+    if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
+      setShowAllRefinements(false);
+    }
 
-    // reset to page 1
-    delete refinements.page;
+    refine(item.value);
+
+    const refinements = { ...refinementsFromQueryParams };
+    delete refinements.page; // reset to page 1
 
     Object.entries(refinements).forEach(([key, value]) => {
       if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
@@ -70,10 +74,6 @@ const CurrentRefinements = ({ items }) => {
         }
       }
     });
-
-    if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
-      setShowAllRefinements(false);
-    }
 
     history.push({ search: qs.stringify(refinements) });
   };
@@ -122,6 +122,7 @@ const CurrentRefinements = ({ items }) => {
 
 CurrentRefinements.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  refine: PropTypes.func.isRequired,
 };
 
 export default connectCurrentRefinements(CurrentRefinements);

@@ -11,6 +11,7 @@ const SearchBox = ({
   className,
   defaultRefinement,
   refinementsFromQueryParams,
+  refine,
 }) => {
   const history = useHistory();
 
@@ -20,11 +21,11 @@ const SearchBox = ({
    * existing query parameters must be preserved.
    */
   const handleSubmit = (searchQuery) => {
+    refine(searchQuery);
+
     const refinements = { ...refinementsFromQueryParams };
     refinements.q = searchQuery;
-
-    // reset to page 1
-    delete refinements.page;
+    delete refinements.page; // reset to page 1
 
     const updatedRefinements = updateRefinementsFromQueryParams(refinements);
     history.push({ search: qs.stringify(updatedRefinements) });
@@ -35,11 +36,11 @@ const SearchBox = ({
    * from the query parameters.
    */
   const handleClear = () => {
+    refine('');
+
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.q;
-
-    // reset to page 1
-    delete refinements.page;
+    delete refinements.page; // reset to page 1
 
     const updatedRefinements = updateRefinementsFromQueryParams(refinements);
     history.push({ search: qs.stringify(updatedRefinements) });
@@ -66,6 +67,7 @@ const SearchBox = ({
 };
 
 SearchBox.propTypes = {
+  refine: PropTypes.func.isRequired,
   refinementsFromQueryParams: PropTypes.shape().isRequired,
   defaultRefinement: PropTypes.string,
   className: PropTypes.string,
