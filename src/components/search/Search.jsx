@@ -7,7 +7,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import SearchHeader from './SearchHeader';
 import SearchResults from './SearchResults';
 
-import { ALGOLIA_INDEX_NAME } from './data/constants';
+import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
 
 const searchClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
@@ -39,7 +39,7 @@ const Search = () => {
         indexName={ALGOLIA_INDEX_NAME}
         searchClient={searchClient}
       >
-        <Configure hitsPerPage={24} filters={filters} />
+        <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />
         <SearchHeader />
         <SearchResults />
       </InstantSearch>

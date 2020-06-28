@@ -8,7 +8,7 @@ import { Button } from '@edx/paragon';
 import { QUERY_PARAMS_TO_IGNORE } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
 
-const ClearCurrentRefinements = ({ className, items, refine }) => {
+const ClearCurrentRefinements = ({ className }) => {
   const history = useHistory();
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
@@ -18,8 +18,6 @@ const ClearCurrentRefinements = ({ className, items, refine }) => {
    * updates the query params.
    */
   const handleClearAllRefinementsClick = () => {
-    refine(items);
-
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.page; // reset to page 1
 
@@ -43,8 +41,6 @@ const ClearCurrentRefinements = ({ className, items, refine }) => {
 };
 
 ClearCurrentRefinements.propTypes = {
-  items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  refine: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

@@ -18,7 +18,7 @@ import {
   useActiveRefinementsAsFlatArray,
 } from './data/hooks';
 
-const CurrentRefinements = ({ items, refine }) => {
+const CurrentRefinements = ({ items }) => {
   if (!items || !items.length) {
     return null;
   }
@@ -51,8 +51,6 @@ const CurrentRefinements = ({ items, refine }) => {
     if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
       setShowAllRefinements(false);
     }
-
-    refine(item.value);
 
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.page; // reset to page 1
@@ -122,7 +120,6 @@ const CurrentRefinements = ({ items, refine }) => {
 
 CurrentRefinements.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  refine: PropTypes.func.isRequired,
 };
 
 export default connectCurrentRefinements(CurrentRefinements);

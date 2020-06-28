@@ -14,7 +14,6 @@ const SearchPagination = ({
   nbPages,
   currentRefinement,
   maxPagesDisplayed,
-  refine,
 }) => {
   const history = useHistory();
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
@@ -46,8 +45,6 @@ const SearchPagination = ({
   };
 
   const handlePageSelect = (page) => {
-    refine(page);
-
     const refinements = { ...refinementsFromQueryParams };
 
     if (page > 1) {
@@ -79,7 +76,6 @@ const SearchPagination = ({
 
 SearchPagination.propTypes = {
   nbPages: PropTypes.number.isRequired,
-  refine: PropTypes.func.isRequired,
   currentRefinement: PropTypes.number,
   maxPagesDisplayed: PropTypes.number,
 };

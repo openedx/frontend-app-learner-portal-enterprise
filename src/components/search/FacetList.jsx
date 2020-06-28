@@ -16,7 +16,6 @@ const BaseFacetList = ({
   items,
   currentRefinement,
   refinementsFromQueryParams,
-  refine,
 }) => {
   const history = useHistory();
 
@@ -26,8 +25,6 @@ const BaseFacetList = ({
    * there's no longer any selected options for that facet attribute.
    */
   const handleInputOnChange = (item) => {
-    refine(item.value);
-
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.page; // reset to page 1
 
@@ -97,7 +94,6 @@ BaseFacetList.propTypes = {
   attribute: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   currentRefinement: PropTypes.arrayOf(PropTypes.string).isRequired,
-  refine: PropTypes.func.isRequired,
   refinementsFromQueryParams: PropTypes.shape().isRequired,
 };
 

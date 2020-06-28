@@ -8,6 +8,8 @@ import {
   QUERY_PARAM_FOR_PAGE,
 } from './constants';
 
+import { isNull } from '../../../utils/common';
+
 export const useRefinementsFromQueryParams = () => {
   const { search } = useLocation();
   const [appliedRefinements, setAppliedRefinements] = useState({});
@@ -89,4 +91,18 @@ export const useActiveRefinementsAsFlatArray = (items) => {
   );
 
   return activeRefinementsAsFlatArray;
+};
+
+export const useNbHitsFromSearchResults = (searchResults) => {
+  const nbHits = useMemo(
+    () => {
+      if (searchResults && !isNull(searchResults.nbHits)) {
+        return searchResults && searchResults.nbHits;
+      }
+      return null;
+    },
+    [searchResults],
+  );
+
+  return nbHits;
 };

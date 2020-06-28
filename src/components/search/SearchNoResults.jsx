@@ -3,7 +3,7 @@ import { StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
-import PopularCourses from './PopularCourses';
+import { PopularCourses } from './popular-courses';
 
 const SearchNoResults = () => {
   const renderDialog = useCallback(
