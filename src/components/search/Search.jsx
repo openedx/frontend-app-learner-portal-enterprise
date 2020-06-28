@@ -6,14 +6,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import SearchHeader from './SearchHeader';
 import SearchResults from './SearchResults';
-import StateResults from './StateResults';
+
+import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
 
 const searchClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
   process.env.ALGOLIA_SEARCH_API_KEY,
 );
-
-export const ALGOLIA_INDEX_NAME = 'enterprise_catalog';
 
 const Search = () => {
   const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
@@ -40,11 +39,9 @@ const Search = () => {
         indexName={ALGOLIA_INDEX_NAME}
         searchClient={searchClient}
       >
-        <Configure filters={filters} />
-        <StateResults>
-          <SearchHeader />
-          <SearchResults />
-        </StateResults>
+        <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />
+        <SearchHeader />
+        <SearchResults />
       </InstantSearch>
     </>
   );

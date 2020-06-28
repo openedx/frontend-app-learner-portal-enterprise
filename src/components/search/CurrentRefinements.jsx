@@ -11,7 +11,7 @@ import ClearCurrentRefinements from './ClearCurrentRefinements';
 
 import {
   NUM_CURRENT_REFINEMENTS_TO_DISPLAY,
-  QUERY_PARAM_FOR_SEARCH_QUERY,
+  QUERY_PARAMS_TO_IGNORE,
 } from './data/constants';
 import {
   useRefinementsFromQueryParams,
@@ -48,10 +48,15 @@ const CurrentRefinements = ({ items }) => {
    * the search results to update.
    */
   const handleRefinementBadgeClick = (item) => {
+    if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
+      setShowAllRefinements(false);
+    }
+
     const refinements = { ...refinementsFromQueryParams };
+    delete refinements.page; // reset to page 1
 
     Object.entries(refinements).forEach(([key, value]) => {
-      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
+      if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
         const updatedValue = [...value];
         const foundIndex = updatedValue.findIndex(facetLabel => facetLabel === item.label);
 
@@ -67,10 +72,6 @@ const CurrentRefinements = ({ items }) => {
         }
       }
     });
-
-    if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
-      setShowAllRefinements(false);
-    }
 
     history.push({ search: qs.stringify(refinements) });
   };

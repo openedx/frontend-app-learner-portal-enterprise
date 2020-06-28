@@ -7,11 +7,16 @@
     padding: 0;
   }
 
-  .ais-Hits-item {
+  .ais-Hits-item,
+  .skeleton-course-card {
     @extend .col-12;
     @extend .col-sm-6;
     @extend .col-md-4;
     @extend .col-lg-3;
     @extend .mb-4;
+  }
+
+  ul.pagination {
+    @extend .mb-0;
   }
 }

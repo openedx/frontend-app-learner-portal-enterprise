@@ -5,9 +5,7 @@ import qs from 'query-string';
 import { SearchField } from '@edx/paragon';
 import { connectSearchBox } from 'react-instantsearch-dom';
 
-import { QUERY_PARAM_FOR_SEARCH_QUERY } from './data/constants';
-
-const INITIAL_QUERY_VALUE = '';
+import { updateRefinementsFromQueryParams } from './data/utils';
 
 const SearchBox = ({
   className,
@@ -15,8 +13,6 @@ const SearchBox = ({
   refinementsFromQueryParams,
 }) => {
   const history = useHistory();
-
-  const query = defaultRefinement || INITIAL_QUERY_VALUE;
 
   /**
    * Handles when a search is submitted by adding the user's search
@@ -26,12 +22,10 @@ const SearchBox = ({
   const handleSubmit = (searchQuery) => {
     const refinements = { ...refinementsFromQueryParams };
     refinements.q = searchQuery;
-    Object.entries(refinements).forEach(([key, value]) => {
-      if (key !== QUERY_PARAM_FOR_SEARCH_QUERY) {
-        refinements[key] = value.join(',');
-      }
-    });
-    history.push({ search: qs.stringify(refinements) });
+    delete refinements.page; // reset to page 1
+
+    const updatedRefinements = updateRefinementsFromQueryParams(refinements);
+    history.push({ search: qs.stringify(updatedRefinements) });
   };
 
   /**
@@ -41,7 +35,10 @@ const SearchBox = ({
   const handleClear = () => {
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.q;
-    history.push({ search: qs.stringify(refinements) });
+    delete refinements.page; // reset to page 1
+
+    const updatedRefinements = updateRefinementsFromQueryParams(refinements);
+    history.push({ search: qs.stringify(updatedRefinements) });
   };
 
   return (
@@ -52,7 +49,7 @@ const SearchBox = ({
       </label>
       <SearchField.Advanced
         className="border-0 bg-white"
-        value={query}
+        value={defaultRefinement}
         onSubmit={handleSubmit}
         onClear={handleClear}
       >
@@ -72,7 +69,7 @@ SearchBox.propTypes = {
 
 SearchBox.defaultProps = {
   className: undefined,
-  defaultRefinement: undefined,
+  defaultRefinement: '',
 };
 
 export default connectSearchBox(SearchBox);
