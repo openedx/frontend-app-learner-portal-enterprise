@@ -55,8 +55,9 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
   }
 
   const colors = ['primary', 'secondary', 'tertiary'];
-  const styles = colors.map((colorName) => (
-    `
+  const styles = colors.map((colorName) => ({
+    key: colorName,
+    styles: (`
       .btn-brand-${colorName} {
         background-color: ${brandColors[colorName].regular.hex()} !important;
         border-color: ${brandColors[colorName].regular.hex()} !important;
@@ -93,8 +94,8 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
       .text-brand-${colorName} {
         color: ${brandColors[colorName].textColor.hex()} !important;
       }
-    `
-  ));
+    `),
+  }));
 
   return styles;
 };

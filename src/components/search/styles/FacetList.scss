@@ -1,35 +1,42 @@
 @import "~@edx/paragon/scss/edx/utilities-only";
 
-.facet-list .pgn_collapsible {
-  .collapsible-trigger {
-    @extend .border-0;
-  }
+.facet-list {
+  .dropdown {
+    @extend .mb-3;
 
-  .collapsible-body {
-    @extend .border;
-    position: absolute;
-    top: 10px;
-    z-index: $zindex-popover;
-    background: $white;
-    max-height: 250px;
-    width: 400px;
-    overflow-y: scroll;
-    border-radius: 2px;
-    box-shadow: 1px 2px 4px 0 rgba(0,0,0,.2);
+    .dropdown-toggle {
+      text-align: left;
+      padding-left: 10px;
+      padding-right: 10px;
 
-    .list-group-item {
-      @extend .py-2;
-
-      .facet-item-label {
-        font-weight: normal;
-
-        &.is-refined {
-          font-weight: 700;
-        }
+      &:after {
+        margin-left: 10px;
       }
+    }
 
-      input:focus + .facet-item-label {
-        text-decoration: underline;
+    .facet-item-label {
+      font-weight: normal;
+  
+      &.is-refined {
+        font-weight: 700;
+      }
+    }
+  
+    input:focus + .facet-item-label {
+      text-decoration: underline;
+    }
+
+    .dropdown-menu {
+      @extend .rounded-0;
+
+      max-height: 250px;
+      overflow: scroll;
+      max-width: 420px;
+      width: max-content;
+
+      .dropdown-item {
+        padding-left: 30px;
+        white-space: break-spaces;
       }
     }
   }

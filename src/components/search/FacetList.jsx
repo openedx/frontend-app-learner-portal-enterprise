@@ -1,13 +1,12 @@
-import React, {
-  useCallback, useContext, useEffect, useState,
-} from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Collapsible, Input } from '@edx/paragon';
+import qs from 'query-string';
+import { useHistory } from 'react-router-dom';
+import { Input, Dropdown } from '@edx/paragon';
 import { connectRefinementList } from 'react-instantsearch-dom';
 import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { AppContext } from '@edx/frontend-platform/react';
+
+import { updateRefinementsFromQueryParams } from './data/utils';
 
 import './styles/FacetList.scss';
 
@@ -16,75 +15,76 @@ const BaseFacetList = ({
   attribute,
   items,
   currentRefinement,
-  refine,
+  refinementsFromQueryParams,
 }) => {
-  const { enterpriseConfig: { branding } } = useContext(AppContext);
-  const [isOpen, setIsOpen] = useState(false);
+  const history = useHistory();
 
-  useEffect(() => {
-    function checkKeyAndCloseIfEsc({ key }) {
-      if (key === 'Escape') {
-        setIsOpen(false);
-      }
+  /**
+   * Handles when a facet option is toggled by either updating the appropriate
+   * query parameter for the facet attribute, or removes the facet attribute if
+   * there's no longer any selected options for that facet attribute.
+   */
+  const handleInputOnChange = (item) => {
+    const refinements = { ...refinementsFromQueryParams };
+    delete refinements.page; // reset to page 1
+
+    if (item.value && item.value.length > 0) {
+      refinements[attribute] = [...item.value];
+    } else {
+      delete refinements[attribute];
     }
-    document.addEventListener('keydown', checkKeyAndCloseIfEsc);
-    return () => { // on unmount, remove event listener
-      document.removeEventListener('keydown', checkKeyAndCloseIfEsc);
-    };
-  }, []);
+
+    const updatedRefinements = updateRefinementsFromQueryParams(refinements);
+    history.push({ search: qs.stringify(updatedRefinements) });
+  };
 
   const renderItems = useCallback(
     () => {
-      if (!items.length) {
-        return (
-          <p>No options found.</p>
-        );
+      if (!items || !items.length) {
+        return <span className="py-2 px-2">No options found.</span>;
       }
-      return (
-        <ul className="list-group">
-          {items.map((item, index) => (
-            <li key={item.label} className="list-group-item border-0">
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label htmlFor={`${attribute}-${index}`}>
-                <Input
-                  type="checkbox"
-                  id={`${attribute}-${index}`}
-                  checked={item.isRefined}
-                  onChange={() => refine(item.value)}
-                />
-                <span className={classNames('facet-item-label', 'ml-1', { 'is-refined': item.isRefined })}>
-                  {item.label}
-                </span>
-                <span className="badge badge-pill ml-2 bg-brand-primary text-brand-primary">
-                  {item.count}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      );
+
+      return items.map(item => (
+        <Dropdown.Item
+          key={item.label}
+          type="label"
+          className="mb-0 py-3"
+        >
+          <Input
+            type="checkbox"
+            checked={item.isRefined}
+            onChange={() => handleInputOnChange(item)}
+          />
+          <span className={classNames('facet-item-label', { 'is-refined': item.isRefined })}>
+            {item.label}
+          </span>
+          <span className="badge badge-pill ml-2 bg-brand-primary text-brand-primary">
+            {item.count}
+          </span>
+        </Dropdown.Item>
+      ));
     },
-    [items, branding],
+    [items],
   );
 
   return (
     <div className="facet-list">
-      <Collapsible
-        className="mr-3 rounded-0"
-        open={isOpen}
-        onToggle={setIsOpen}
-        title={(
-          <div
-            className={classNames('text-capitalize', { 'font-weight-bold': currentRefinement.length > 0 })}
-          >
-            {title}
-          </div>
-        )}
-        iconWhenOpen={<small><FontAwesomeIcon icon={faChevronUp} /></small>}
-        iconWhenClosed={<small><FontAwesomeIcon icon={faChevronDown} /></small>}
-      >
-        {renderItems()}
-      </Collapsible>
+      <Dropdown className="mb-0 mr-md-3">
+        <Dropdown.Button
+          className={
+            classNames(
+              'bg-white', 'text-capitalize', 'rounded-0',
+              'd-flex', 'justify-content-between', 'align-items-center',
+              { 'font-weight-bold': currentRefinement.length > 0 },
+            )
+          }
+        >
+          {title}
+        </Dropdown.Button>
+        <Dropdown.Menu>
+          {renderItems()}
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 };
@@ -92,9 +92,9 @@ const BaseFacetList = ({
 BaseFacetList.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   attribute: PropTypes.string.isRequired,
-  refine: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   currentRefinement: PropTypes.arrayOf(PropTypes.string).isRequired,
+  refinementsFromQueryParams: PropTypes.shape().isRequired,
 };
 
 export default connectRefinementList(BaseFacetList);
