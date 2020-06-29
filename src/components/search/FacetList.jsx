@@ -7,7 +7,6 @@ import { connectRefinementList } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import OutsideClickHandler from 'react-outside-click-handler';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import './styles/FacetList.scss';
@@ -33,12 +32,6 @@ const BaseFacetList = ({
       document.removeEventListener('keydown', checkKeyAndCloseIfEsc);
     };
   }, []);
-
-  const handleOutsideClick = () => {
-    if (isOpen) {
-      setIsOpen(false);
-    }
-  };
 
   const renderItems = useCallback(
     () => {
@@ -76,24 +69,22 @@ const BaseFacetList = ({
 
   return (
     <div className="facet-list">
-      <OutsideClickHandler onOutsideClick={handleOutsideClick}>
-        <Collapsible
-          className="mr-3 rounded-0"
-          open={isOpen}
-          onToggle={setIsOpen}
-          title={(
-            <div
-              className={classNames('text-capitalize', { 'font-weight-bold': currentRefinement.length > 0 })}
-            >
-              {title}
-            </div>
-          )}
-          iconWhenOpen={<small><FontAwesomeIcon icon={faChevronUp} /></small>}
-          iconWhenClosed={<small><FontAwesomeIcon icon={faChevronDown} /></small>}
-        >
-          {renderItems()}
-        </Collapsible>
-      </OutsideClickHandler>
+      <Collapsible
+        className="mr-3 rounded-0"
+        open={isOpen}
+        onToggle={setIsOpen}
+        title={(
+          <div
+            className={classNames('text-capitalize', { 'font-weight-bold': currentRefinement.length > 0 })}
+          >
+            {title}
+          </div>
+        )}
+        iconWhenOpen={<small><FontAwesomeIcon icon={faChevronUp} /></small>}
+        iconWhenClosed={<small><FontAwesomeIcon icon={faChevronDown} /></small>}
+      >
+        {renderItems()}
+      </Collapsible>
     </div>
   );
 };
