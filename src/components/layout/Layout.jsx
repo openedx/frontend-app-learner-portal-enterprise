@@ -29,8 +29,8 @@ export default function Layout({ children }) {
       <>
         <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
           <html lang="en" />
-          {brandStyles.map(brandStyle => (
-            <style type="text/css">{brandStyle}</style>
+          {brandStyles.map(({ key, styles }) => (
+            <style key={key} type="text/css">{styles}</style>
           ))}
         </Helmet>
         <SiteHeader
