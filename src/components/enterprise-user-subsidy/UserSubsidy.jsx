@@ -6,7 +6,7 @@ import { LoadingSpinner } from '../loading-spinner';
 import SubscriptionSubsidy from './SubscriptionSubsidy';
 
 import { useSubscriptionLicenseForUser } from './data/hooks';
-import { LICENSE_STATUS } from './data/constants';
+import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
 
 export const UserSubsidyContext = createContext();
 
@@ -42,7 +42,7 @@ const UserSubsidy = ({ children }) => {
   if (isLoadingSubsidies) {
     return (
       <div className="container-fluid py-5">
-        <LoadingSpinner screenReaderText="loading your edX benefits from your organization" />
+        <LoadingSpinner screenReaderText={LOADING_SCREEN_READER_TEXT} />
       </div>
     );
   }
