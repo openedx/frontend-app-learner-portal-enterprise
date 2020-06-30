@@ -40,6 +40,9 @@ describe('without subscription plan', () => {
       route: `/${TEST_ENTERPRISE_SLUG}`,
     });
 
+    // assert component is initially loading
+    expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
+
     await waitFor(() => {
       expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
     });

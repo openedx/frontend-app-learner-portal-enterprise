@@ -23,7 +23,16 @@
         },
         "allowChildren": true
       }
-    ]
+    ],
+    // Temporarily update the "indent" and "template-curly-spacing" rules
+    // since they are causing eslint to fail for no apparent reason since
+    // upgrading @edx/frontend-build from v3 to v5:
+    //  - TypeError: Cannot read property 'range' of null
+    "indent": [
+      "error", 2,
+      { "ignoredNodes": ["TemplateLiteral", "SwitchCase"] }
+    ],
+    "template-curly-spacing": "off"
   },
   "env": {
     "jest": true

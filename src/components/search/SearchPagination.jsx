@@ -57,7 +57,6 @@ const SearchPagination = ({
     history.push({ search: qs.stringify(updatedRefinements) });
   };
 
-
   return (
     <Pagination
       paginationLabel="search results navigation"

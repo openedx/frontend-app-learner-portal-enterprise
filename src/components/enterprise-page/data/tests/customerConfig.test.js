@@ -66,7 +66,6 @@ const responseWithBrandingConfigNullValues = {
   },
 };
 
-
 describe('customer config with various states of branding_configuration', () => {
   test('null branding_configuration uses default values and does not fail', async () => {
     fetchEnterpriseCustomerConfig.mockResolvedValue(responseWithNullBrandingConfig);

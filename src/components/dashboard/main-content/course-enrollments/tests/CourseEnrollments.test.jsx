@@ -16,7 +16,6 @@ import {
   defaultInitialEnrollmentProps,
 } from './enrollment-testutils';
 
-
 // component to test
 import { CourseEnrollments } from '../CourseEnrollments';
 

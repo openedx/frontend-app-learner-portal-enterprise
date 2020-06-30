@@ -6,7 +6,6 @@ export const getError = state => state.courseEnrollments.error;
 export const getIsMarkCourseCompleteSuccess = state => state.courseEnrollments.isMarkCourseCompleteSuccess;
 export const getIsMoveToInProgressCourseSuccess = state => state.courseEnrollments.isMoveToInProgressCourseSuccess;
 
-
 const transformCourseRun = (originalCourseRun) => {
   const courseRun = { ...originalCourseRun };
 

@@ -36,7 +36,10 @@ export default function CourseHeader() {
             {primarySubject && (
               <Breadcrumb
                 links={[
-                  { label: 'Find a Course', url: `/${enterpriseConfig.slug}/search` },
+                  {
+                    label: 'Find a Course',
+                    url: `/${enterpriseConfig.slug}/search`,
+                  },
                   {
                     label: `${primarySubject.name} Courses`,
                     url: primarySubject.url,
