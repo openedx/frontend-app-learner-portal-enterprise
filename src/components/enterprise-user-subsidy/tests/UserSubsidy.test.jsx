@@ -1,12 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { Router } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
+import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import UserSubsidy from '../UserSubsidy';
 
+import { renderWithRouter } from '../../../utils/tests';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { fetchSubscriptionLicensesForUser } from '../data/service';
 
@@ -15,26 +14,6 @@ jest.mock('../data/service');
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
-
-function renderWithRouter(
-  ui,
-  {
-    route = '/',
-    history = createMemoryHistory({ initialEntries: [route] }),
-  } = {},
-) {
-  // eslint-disable-next-line react/prop-types
-  const Wrapper = ({ children }) => (
-    <Router history={history}>{children}</Router>
-  );
-  return {
-    ...render(ui, { wrapper: Wrapper }),
-    // adding `history` to the returned utilities to allow us
-    // to reference it in our tests (just try to avoid using
-    // this to test implementation details).
-    history,
-  };
-}
 
 // eslint-disable-next-line react/prop-types
 const UserSubsidyWithAppContext = ({ contextValue = {} }) => (
@@ -49,6 +28,40 @@ const UserSubsidyWithAppContext = ({ contextValue = {} }) => (
     </UserSubsidy>
   </AppContext.Provider>
 );
+
+describe('without subscription plan', () => {
+  const contextValue = {
+    subscriptionPlan: null,
+  };
+
+  test('renders children on Dashboard page route', async () => {
+    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
+    renderWithRouter(Component, {
+      route: `/${TEST_ENTERPRISE_SLUG}`,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
+    });
+
+    // assert component is no longer loading
+    expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
+  });
+
+  test('does not redirect to Dashboard page from non-Dashboard page route', async () => {
+    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
+    const { history } = renderWithRouter(Component, {
+      route: `/${TEST_ENTERPRISE_SLUG}/search`,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
+    });
+
+    // assert we did NOT get redirected
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search`);
+  });
+});
 
 describe('with subscription plan', () => {
   const contextValue = {
@@ -132,6 +145,27 @@ describe('with subscription plan', () => {
     // assert status alert message renders
     await waitFor(() => {
       const deactivationMessage = 'enterprise license is no longer active';
+      expect(screen.queryByRole('alert')).toBeInTheDocument();
+      expect(screen.queryByText(deactivationMessage, { exact: false })).toBeInTheDocument();
+    });
+  });
+
+  test('renders unassigned license alert if user does not have an associated license on Dashboard page route', async () => {
+    const promise = Promise.resolve({
+      data: {
+        results: [],
+      },
+    });
+    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+
+    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
+    renderWithRouter(Component, {
+      route: `/${TEST_ENTERPRISE_SLUG}`,
+    });
+
+    // assert status alert message renders
+    await waitFor(() => {
+      const deactivationMessage = 'do not have an enterprise license';
       expect(screen.queryByRole('alert')).toBeInTheDocument();
       expect(screen.queryByText(deactivationMessage, { exact: false })).toBeInTheDocument();
     });
