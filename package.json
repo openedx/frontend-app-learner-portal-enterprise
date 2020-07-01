@@ -34,6 +34,7 @@
     "query-string": "^6.7.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-fullstory": "^1.4.0",
     "react-helmet": "^5.2.1",
     "react-instantsearch-dom": "^6.6.0",
     "react-intl": "^2.8.0",
