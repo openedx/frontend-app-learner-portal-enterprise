@@ -7,7 +7,7 @@ import { connectSearchBox } from 'react-instantsearch-dom';
 
 import { updateRefinementsFromQueryParams } from './data/utils';
 
-const SearchBox = ({
+export const SearchBoxBase = ({
   className,
   defaultRefinement,
   refinementsFromQueryParams,
@@ -61,15 +61,15 @@ const SearchBox = ({
   );
 };
 
-SearchBox.propTypes = {
+SearchBoxBase.propTypes = {
   refinementsFromQueryParams: PropTypes.shape().isRequired,
   defaultRefinement: PropTypes.string,
   className: PropTypes.string,
 };
 
-SearchBox.defaultProps = {
+SearchBoxBase.defaultProps = {
   className: undefined,
   defaultRefinement: '',
 };
 
-export default connectSearchBox(SearchBox);
+export default connectSearchBox(SearchBoxBase);

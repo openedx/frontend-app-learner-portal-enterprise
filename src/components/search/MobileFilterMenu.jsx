@@ -8,11 +8,9 @@ import { Button } from '@edx/paragon';
 
 import ClearCurrentRefinements from './ClearCurrentRefinements';
 
-import {
-  useActiveRefinementsAsFlatArray,
-} from './data/hooks';
+import { useActiveRefinementsAsFlatArray } from './data/hooks';
 
-const MobileFilterMenu = ({ children, className, items }) => {
+export const MobileFilterMenuBase = ({ children, className, items }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const activeRefinementsAsFlatArray = useActiveRefinementsAsFlatArray(items);
@@ -91,14 +89,14 @@ const MobileFilterMenu = ({ children, className, items }) => {
   );
 };
 
-MobileFilterMenu.propTypes = {
+MobileFilterMenuBase.propTypes = {
   children: PropTypes.node.isRequired,
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   className: PropTypes.string,
 };
 
-MobileFilterMenu.defaultProps = {
+MobileFilterMenuBase.defaultProps = {
   className: undefined,
 };
 
-export default connectCurrentRefinements(MobileFilterMenu);
+export default connectCurrentRefinements(MobileFilterMenuBase);

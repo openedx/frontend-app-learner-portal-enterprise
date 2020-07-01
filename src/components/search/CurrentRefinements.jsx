@@ -18,7 +18,7 @@ import {
   useActiveRefinementsAsFlatArray,
 } from './data/hooks';
 
-const CurrentRefinements = ({ items }) => {
+export const CurrentRefinementsBase = ({ items }) => {
   if (!items || !items.length) {
     return null;
   }
@@ -118,8 +118,8 @@ const CurrentRefinements = ({ items }) => {
   );
 };
 
-CurrentRefinements.propTypes = {
+CurrentRefinementsBase.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 };
 
-export default connectCurrentRefinements(CurrentRefinements);
+export default connectCurrentRefinements(CurrentRefinementsBase);

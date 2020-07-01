@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 
+import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from './constants';
 import {
   useDefaultSearchFilters,
   useRefinementsFromQueryParams,
@@ -12,20 +13,7 @@ import {
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_SUBSCRIPTION_CATALOG_UUID = 'test-subscription-catalog-uuid';
 
-const FACET_ATTRIBUTES = {
-  AVAILABLILITY: 'availability',
-  SUBJECTS: 'subjects',
-};
-
 const TEST_QUERY = 'test query';
-const SUBJECTS = {
-  COMPUTER_SCIENCE: 'Computer Science',
-  COMMUNICATION: 'Communication',
-};
-const AVAILABLILITY = {
-  AVAILABLE_NOW: 'Available Now',
-  UPCOMING: 'Upcoming',
-};
 
 jest.mock('react-router-dom', () => ({
   useLocation: () => ({
