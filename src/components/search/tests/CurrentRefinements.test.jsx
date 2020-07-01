@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { CurrentRefinementsBase } from '../CurrentRefinements';
 
-import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/constants';
+import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 
 describe('<CurrentRefinements />', () => {
@@ -47,13 +47,13 @@ describe('<CurrentRefinements />', () => {
 
   test('supports removing an active refinement from the url by clicking on it', async () => {
     const { history } = renderWithRouter(<CurrentRefinementsBase items={items} />, {
-      route: `/?subjects=${SUBJECTS.COMMUNICATION}`,
+      route: `/?subjects=${SUBJECTS.COMPUTER_SCIENCE},${SUBJECTS.COMMUNICATION}`,
     });
 
     // click a specific refinement to remove it
     fireEvent.click(screen.queryByText(SUBJECTS.COMMUNICATION));
 
-    // assert the refinement in the url is removed
-    expect(history.location.search).toEqual('');
+    // assert the clicked refinement in the url is removed but others stay put
+    expect(history.location.search).toEqual('?subjects=Computer%20Science');
   });
 });

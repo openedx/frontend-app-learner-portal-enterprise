@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { MobileFilterMenuBase } from '../MobileFilterMenu';
 
-import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/constants';
+import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 
 describe('<SearchBox />', () => {

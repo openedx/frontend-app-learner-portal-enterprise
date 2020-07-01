@@ -1,4 +1,4 @@
-import { SUBJECTS } from '../constants';
+import { SUBJECTS } from './constants';
 import {
   sortItemsByLabelAsc,
   updateRefinementsFromQueryParams,

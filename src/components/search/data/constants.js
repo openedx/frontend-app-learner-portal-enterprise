@@ -32,19 +32,3 @@ export const QUERY_PARAMS_TO_IGNORE = [
 ];
 export const NUM_CURRENT_REFINEMENTS_TO_DISPLAY = 3;
 export const NUM_RESULTS_PER_PAGE = 24;
-
-// For tests
-export const SUBJECTS = {
-  COMPUTER_SCIENCE: 'Computer Science',
-  COMMUNICATION: 'Communication',
-};
-
-export const AVAILABLILITY = {
-  AVAILABLE_NOW: 'Available Now',
-  UPCOMING: 'Upcoming',
-};
-
-export const FACET_ATTRIBUTES = {
-  AVAILABLILITY: 'availability',
-  SUBJECTS: 'subjects',
-};

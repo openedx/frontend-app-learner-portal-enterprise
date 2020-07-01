@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 
-import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../constants';
+import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from './constants';
 import {
   useDefaultSearchFilters,
   useRefinementsFromQueryParams,
