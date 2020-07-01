@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
+import { identify } from 'react-fullstory';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 
-import { isDefined, isDefinedAndNull } from '../../utils/common';
+import { isDefined, isDefinedAndNull, isDefinedAndNotNull } from '../../utils/common';
 import {
   useEnterpriseCustomerConfig,
   useEnterpriseCustomerSubscriptionPlan,
@@ -19,7 +20,16 @@ export default function EnterprisePage({ children }) {
   const subscriptionPlan = useEnterpriseCustomerSubscriptionPlan(enterpriseConfig);
 
   const user = getAuthenticatedUser();
-  const { username, profileImage } = user;
+  const { userId, username, profileImage } = user;
+
+  useEffect(
+    () => {
+      if (isDefinedAndNotNull(userId)) {
+        identify(userId);
+      }
+    },
+    [userId],
+  );
 
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!isDefined(enterpriseConfig) || !isDefined(profileImage)) {
