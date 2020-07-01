@@ -106,3 +106,20 @@ export const useNbHitsFromSearchResults = (searchResults) => {
 
   return nbHits;
 };
+
+export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan }) => {
+  const filters = useMemo(
+    () => {
+      // if there's a subscriptionPlan, filter results by the subscription catalog
+      if (subscriptionPlan) {
+        return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
+      }
+
+      // there's no subscription catalog, so filter results by the enterprise customer instead
+      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+    },
+    [enterpriseConfig, subscriptionPlan],
+  );
+
+  return filters;
+};
