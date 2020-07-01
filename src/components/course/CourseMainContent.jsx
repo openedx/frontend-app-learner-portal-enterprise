@@ -36,9 +36,9 @@ export default function CourseMainContent() {
     <>
       <MediaQuery minWidth={breakpoints.large.minWidth}>
         {matches => !matches && (
-        <div className="mb-5">
-          <CourseSidebar />
-        </div>
+          <div className="mb-5">
+            <CourseSidebar />
+          </div>
         )}
       </MediaQuery>
       {course.fullDescription && (

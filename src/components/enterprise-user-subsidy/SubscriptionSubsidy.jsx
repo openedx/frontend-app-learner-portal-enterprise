@@ -69,7 +69,7 @@ const SubscriptionSubsidy = ({ subscriptionLicense }) => {
                   further information. You may continue your learning journey by creating a personal
                   account at <a className="text-underline" href="https://edx.org">edx.org</a>.
                 </>
-            )}
+              )}
               dismissible={false}
               open
             />

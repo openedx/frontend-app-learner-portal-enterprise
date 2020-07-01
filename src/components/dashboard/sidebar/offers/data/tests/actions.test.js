@@ -27,7 +27,6 @@ describe('fetchOffers action', () => {
     ];
     const store = mockStore();
 
-
     service.fetchOffers.mockImplementation((
       () => Promise.resolve({ data: { results: [{ foo_bar: 'foo' }] } })
     ));
