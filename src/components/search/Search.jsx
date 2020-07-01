@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
@@ -8,6 +8,7 @@ import SearchHeader from './SearchHeader';
 import SearchResults from './SearchResults';
 
 import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
+import { useDefaultSearchFilters } from './data/hooks';
 
 const searchClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
@@ -16,19 +17,7 @@ const searchClient = algoliasearch(
 
 const Search = () => {
   const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
-
-  const filters = useMemo(
-    () => {
-      // if there's a subscriptionPlan, filter results by the subscription catalog
-      if (subscriptionPlan) {
-        return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
-      }
-
-      // there's no subscription catalog, so filter results by the enterprise customer instead
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
-    },
-    [enterpriseConfig, subscriptionPlan],
-  );
+  const filters = useDefaultSearchFilters({ enterpriseConfig, subscriptionPlan });
 
   const PAGE_TITLE = `Search courses - ${enterpriseConfig.name}`;
 
