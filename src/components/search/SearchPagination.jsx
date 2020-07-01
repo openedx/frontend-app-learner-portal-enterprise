@@ -10,7 +10,7 @@ import { Pagination } from '@edx/paragon';
 import { updateRefinementsFromQueryParams } from './data/utils';
 import { useRefinementsFromQueryParams } from './data/hooks';
 
-const SearchPagination = ({
+export const SearchPaginationBase = ({
   nbPages,
   currentRefinement,
   maxPagesDisplayed,
@@ -73,15 +73,15 @@ const SearchPagination = ({
   );
 };
 
-SearchPagination.propTypes = {
+SearchPaginationBase.propTypes = {
   nbPages: PropTypes.number.isRequired,
   currentRefinement: PropTypes.number,
   maxPagesDisplayed: PropTypes.number,
 };
 
-SearchPagination.defaultProps = {
+SearchPaginationBase.defaultProps = {
   currentRefinement: 1,
   maxPagesDisplayed: 7,
 };
 
-export default connectPagination(SearchPagination);
+export default connectPagination(SearchPaginationBase);
