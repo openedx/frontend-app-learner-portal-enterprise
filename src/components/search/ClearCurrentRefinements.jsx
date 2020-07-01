@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { useHistory } from 'react-router-dom';
-import { connectCurrentRefinements } from 'react-instantsearch-dom';
 import { Button } from '@edx/paragon';
 
 import { QUERY_PARAMS_TO_IGNORE } from './data/constants';
@@ -48,4 +47,4 @@ ClearCurrentRefinements.defaultProps = {
   className: undefined,
 };
 
-export default connectCurrentRefinements(ClearCurrentRefinements);
+export default ClearCurrentRefinements;
