@@ -12,6 +12,21 @@ import {
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_SUBSCRIPTION_CATALOG_UUID = 'test-subscription-catalog-uuid';
 
+const FACET_ATTRIBUTES = {
+  AVAILABLILITY: 'availability',
+  SUBJECTS: 'subjects',
+};
+
+const TEST_QUERY = 'test query';
+const SUBJECTS = {
+  COMPUTER_SCIENCE: 'Computer Science',
+  COMMUNICATION: 'Communication',
+};
+const AVAILABLILITY = {
+  AVAILABLE_NOW: 'Available Now',
+  UPCOMING: 'Upcoming',
+};
+
 jest.mock('react-router-dom', () => ({
   useLocation: () => ({
     search: '?q=test%20query&subjects=Computer%20Science,Communication&availability=Upcoming&ignore=true',
@@ -26,20 +41,20 @@ describe('useRefinementsFromQueryParams hook', () => {
 
     // note: the query parameters are configured above when mocking out `useLocation`
     expect(refinements).toEqual({
-      q: 'test query',
-      subjects: ['Computer Science', 'Communication'],
-      availability: ['Upcoming'],
+      q: TEST_QUERY,
+      subjects: [SUBJECTS.COMPUTER_SCIENCE, SUBJECTS.COMMUNICATION],
+      availability: [AVAILABLILITY.UPCOMING],
     });
   });
 });
 
 describe('useActiveRefinementsByAttribute and useActiveRefinementsAsFlatArray hooks', () => {
   const items = [{
-    attribute: 'subjects',
-    items: [{ label: 'Computer Science' }, { label: 'Communication' }],
+    attribute: FACET_ATTRIBUTES.SUBJECTS,
+    items: [{ label: SUBJECTS.COMPUTER_SCIENCE }, { label: SUBJECTS.COMMUNICATION }],
   }, {
-    attribute: 'availability',
-    items: [{ label: 'Available Now' }],
+    attribute: FACET_ATTRIBUTES.AVAILABLILITY,
+    items: [{ label: AVAILABLILITY.AVAILABLE_NOW }],
   }];
 
   describe('useActiveRefinementsByAttribute', () => {
@@ -49,8 +64,8 @@ describe('useActiveRefinementsByAttribute and useActiveRefinementsAsFlatArray ho
       const refinements = result.current;
 
       expect(refinements).toEqual({
-        subjects: [{ label: 'Computer Science' }, { label: 'Communication' }],
-        availability: [{ label: 'Available Now' }],
+        subjects: [{ label: SUBJECTS.COMPUTER_SCIENCE }, { label: SUBJECTS.COMMUNICATION }],
+        availability: [{ label: AVAILABLILITY.AVAILABLE_NOW }],
       });
     });
   });
@@ -62,9 +77,9 @@ describe('useActiveRefinementsByAttribute and useActiveRefinementsAsFlatArray ho
       const refinementsAsFlatArray = result.current;
 
       expect(refinementsAsFlatArray).toEqual([
-        { label: 'Computer Science', attribute: 'subjects' },
-        { label: 'Communication', attribute: 'subjects' },
-        { label: 'Available Now', attribute: 'availability' },
+        { label: SUBJECTS.COMPUTER_SCIENCE, attribute: FACET_ATTRIBUTES.SUBJECTS },
+        { label: SUBJECTS.COMMUNICATION, attribute: FACET_ATTRIBUTES.SUBJECTS },
+        { label: AVAILABLILITY.AVAILABLE_NOW, attribute: FACET_ATTRIBUTES.AVAILABLILITY },
       ]);
     });
   });
