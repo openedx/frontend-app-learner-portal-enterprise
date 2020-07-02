@@ -36,7 +36,10 @@
 
       .dropdown-item {
         padding-left: 30px;
-        white-space: break-spaces;
+        &:active {
+          background-color: unset;
+          color: unset;
+        }
       }
     }
   }
