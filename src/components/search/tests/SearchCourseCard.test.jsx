@@ -6,8 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import SearchCourseCard from '../SearchCourseCard';
 
 import { renderWithRouter } from '../../../utils/tests';
-
-const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
+import { TEST_ENTERPRISE_SLUG } from '../data/tests/constants';
 
 jest.mock('react-truncate', () => ({
   __esModule: true,
