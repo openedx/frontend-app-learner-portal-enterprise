@@ -14,3 +14,4 @@ export const FACET_ATTRIBUTES = {
 };
 
 export const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
+export const EXPECTED_COURSE_CARD_SKELETON_COUNT = 5;

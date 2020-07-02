@@ -6,7 +6,10 @@ import '@testing-library/jest-dom/extend-expect';
 import SearchCourseCard from '../SearchCourseCard';
 
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../data/tests/constants';
+import {
+  TEST_ENTERPRISE_SLUG,
+  EXPECTED_COURSE_CARD_SKELETON_COUNT,
+} from '../data/tests/constants';
 
 jest.mock('react-truncate', () => ({
   __esModule: true,
@@ -67,7 +70,7 @@ describe('<SearchCourseCard />', () => {
 
     // assert the mocked out <Skeleton /> loading component renders exactly 5 times
     // to verify course card is properly in a loading state.
-    expect(screen.queryAllByTestId('did-i-render')).toHaveLength(5);
+    expect(screen.queryAllByTestId('did-i-render')).toHaveLength(EXPECTED_COURSE_CARD_SKELETON_COUNT);
 
     expect(screen.queryByText(TEST_TITLE)).not.toBeInTheDocument();
     expect(screen.queryByAltText(TEST_PARTNER_NAME)).not.toBeInTheDocument();
