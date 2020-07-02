@@ -59,6 +59,20 @@ const SearchResults = ({
     [nbHits, query],
   );
 
+  const HitComponent = useMemo(
+    () => {
+      if (isSearchStalled) {
+        return SearchCourseCard.Skeleton;
+      }
+      return SearchCourseCard;
+    },
+    [isSearchStalled],
+  );
+
+  const isSearchResolvedWithNonNullNbHits = useMemo(
+    () => !isSearchStalled && isDefinedAndNotNull(nbHits),
+  );
+
   return (
     <div className="search-results container-fluid my-5">
       <>
@@ -67,11 +81,11 @@ const SearchResults = ({
             {isSearchStalled && (
               <Skeleton className="h2 d-block mb-3" width={240} />
             )}
-            {!isSearchStalled && nbHits > 0 && (
+            {isSearchResolvedWithNonNullNbHits && (
               <>Courses</>
             )}
           </h2>
-          {!isSearchStalled && nbHits > 0 && (
+          {isSearchResolvedWithNonNullNbHits && (
             <SearchPagination
               defaultRefinement={page}
               maxPagesDisplayed={5}
@@ -90,14 +104,14 @@ const SearchResults = ({
             </div>
           </>
         )}
-        {!isSearchStalled && nbHits > 0 && (
-          <>
-            <div className="lead mb-4">{resultsHeading}</div>
-            <Hits hitComponent={SearchCourseCard} />
-            <div className="d-flex justify-content-center">
-              <SearchPagination defaultRefinement={page} />
-            </div>
-          </>
+        {isSearchResolvedWithNonNullNbHits && (
+          <div className="lead mb-4">{resultsHeading}</div>
+        )}
+        <Hits hitComponent={HitComponent} />
+        {isSearchResolvedWithNonNullNbHits && (
+          <div className="d-flex justify-content-center">
+            <SearchPagination defaultRefinement={page} />
+          </div>
         )}
         {!isSearchStalled && nbHits === 0 && (
           <SearchNoResults />
