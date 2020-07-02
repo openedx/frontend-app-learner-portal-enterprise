@@ -79,30 +79,28 @@ const SearchResults = ({
           )}
         </div>
         {isSearchStalled && (
-          <Skeleton className="lead mb-4" width={160} />
+          <>
+            <Skeleton className="lead mb-4" width={160} />
+            <div className="row">
+              {[...Array(NUM_RESULTS_PER_PAGE).keys()].map(resultNum => (
+                <div key={resultNum} className="skeleton-course-card">
+                  <SearchCourseCard.Skeleton />
+                </div>
+              ))}
+            </div>
+          </>
         )}
         {!isSearchStalled && nbHits > 0 && (
-          <div className="lead mb-4">{resultsHeading}</div>
-        )}
-        {isSearchStalled && (
-          <div className="row">
-            {[...Array(NUM_RESULTS_PER_PAGE).keys()].map(resultNum => (
-              <div key={resultNum} className="skeleton-course-card">
-                <SearchCourseCard.Skeleton />
-              </div>
-            ))}
-          </div>
-        )}
-        {!isSearchStalled && nbHits > 0 && (
-          <Hits hitComponent={SearchCourseCard} />
+          <>
+            <div className="lead mb-4">{resultsHeading}</div>
+            <Hits hitComponent={SearchCourseCard} />
+            <div className="d-flex justify-content-center">
+              <SearchPagination defaultRefinement={page} />
+            </div>
+          </>
         )}
         {!isSearchStalled && nbHits === 0 && (
           <SearchNoResults />
-        )}
-        {!isSearchStalled && nbHits > 0 && (
-          <div className="d-flex justify-content-center">
-            <SearchPagination defaultRefinement={page} />
-          </div>
         )}
         {!isSearchStalled && isDefinedAndNotNull(error) && (
           <SearchError />
@@ -113,19 +111,20 @@ const SearchResults = ({
 };
 
 SearchResults.propTypes = {
-  searchResults: PropTypes.shape({
-    nbHits: PropTypes.number,
-  }),
   searchState: PropTypes.shape({
     query: PropTypes.string,
     page: PropTypes.number,
   }).isRequired,
-  isSearchStalled: PropTypes.bool.isRequired,
+  searchResults: PropTypes.shape({
+    nbHits: PropTypes.number,
+  }),
+  isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),
 };
 
 SearchResults.defaultProps = {
   searchResults: undefined,
+  isSearchStalled: false,
   error: undefined,
 };
 

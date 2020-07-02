@@ -79,7 +79,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
                   // FIXME: hardcoding the edX partner logo for now until Algolia is aware of partner logos
                   src="https://prod-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-2b8dd916262f.png"
                   className="partner-logo"
-                  alt={partnerDetails.primaryPartner.name}
+                  alt={partnerDetails.primaryPartner}
                 />
               )}
             </div>

@@ -7,10 +7,11 @@ import { connectRefinementList } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 
 import { updateRefinementsFromQueryParams } from './data/utils';
+import { NO_OPTIONS_FOUND } from './data/constants';
 
 import './styles/FacetList.scss';
 
-const BaseFacetList = ({
+export const FacetListBase = ({
   title,
   attribute,
   items,
@@ -41,7 +42,7 @@ const BaseFacetList = ({
   const renderItems = useCallback(
     () => {
       if (!items || !items.length) {
-        return <span className="py-2 px-2">No options found.</span>;
+        return <span className="py-2 px-2">{NO_OPTIONS_FOUND}</span>;
       }
 
       return items.map(item => (
@@ -89,7 +90,7 @@ const BaseFacetList = ({
   );
 };
 
-BaseFacetList.propTypes = {
+FacetListBase.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   attribute: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
@@ -97,4 +98,4 @@ BaseFacetList.propTypes = {
   refinementsFromQueryParams: PropTypes.shape().isRequired,
 };
 
-export default connectRefinementList(BaseFacetList);
+export default connectRefinementList(FacetListBase);
