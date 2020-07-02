@@ -62,6 +62,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               className="card-img-top"
               duration={0}
               height={100}
+              data-testid="card-img-loading"
             />
           ) : (
             <img
@@ -72,7 +73,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           )}
           <div className="partner-logo-wrapper">
             {isLoading && (
-              <Skeleton width={90} height={42} />
+              <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
             )}
             {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
               <img
@@ -86,7 +87,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           <div className="card-body py-3">
             <h3 className="card-title h5 mb-1">
               {isLoading ? (
-                <Skeleton count={2} />
+                <Skeleton count={2} data-testid="course-title-loading" />
               ) : (
                 <Truncate lines={3} trimWhitespace>
                   {course.title}
@@ -94,7 +95,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               )}
             </h3>
             {isLoading ? (
-              <Skeleton duration={0} />
+              <Skeleton duration={0} data-testid="partner-name-loading" />
             ) : (
               <>
                 {course.partners.length > 0 && (
@@ -109,7 +110,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           </div>
           <div className="card-footer bg-white border-0 pt-0 pb-2">
             {isLoading ? (
-              <Skeleton duration={0} />
+              <Skeleton duration={0} data-testid="content-type-loading" />
             ) : (
               <span className="text-muted">Course</span>
             )}
@@ -128,8 +129,8 @@ SearchCourseCard.Skeleton = SkeletonCourseCard;
 
 SearchCourseCard.propTypes = {
   hit: PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
+    key: PropTypes.string,
+    title: PropTypes.string,
   }),
   isLoading: PropTypes.bool,
 };
