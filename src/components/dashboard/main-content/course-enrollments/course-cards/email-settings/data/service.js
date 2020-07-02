@@ -8,7 +8,7 @@ const updateEmailSettings = (courseRunId, hasEmailsEnabled) => {
     // otherwise, the `receive_emails` field should be omitted.
     receive_emails: hasEmailsEnabled ? 'on' : undefined,
   };
-  const emailSettingsUrl = `${process.env.LMS_BASE_URL}/change_email_settings`;
+  const emailSettingsUrl = `${process.env.LMS_BASE_URL}/change_email_settings/`;
   return getAuthenticatedHttpClient().post(
     emailSettingsUrl,
     qs.stringify(queryParams),

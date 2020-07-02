@@ -31,12 +31,12 @@ export default class CourseService {
   }
 
   fetchCourseDetails() {
-    const url = `${process.env.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}`;
+    const url = `${process.env.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}/`;
     return this.authenticatedHttpClient.get(url);
   }
 
   fetchUserEnrollments() {
-    const url = `${process.env.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
+    const url = `${process.env.LMS_BASE_URL}/api/enrollment/v1/enrollment/`;
     return this.authenticatedHttpClient.get(url);
   }
 
