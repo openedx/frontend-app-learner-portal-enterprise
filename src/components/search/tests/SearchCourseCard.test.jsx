@@ -43,7 +43,10 @@ const defaultProps = {
   },
 };
 
-const propsForLoading = { ...defaultProps, isLoading: true };
+const propsForLoading = {
+  hit: {},
+  isLoading: true,
+};
 
 describe('<SearchCourseCard />', () => {
   test('renders the correct data', () => {
@@ -63,8 +66,8 @@ describe('<SearchCourseCard />', () => {
   test('renders the loading state', () => {
     renderWithRouter(<SearchCourseCardWithAppContext {...propsForLoading} />);
 
-    // assert the mocked out loading component renders exactly 5 times to verify
-    // course card is properly in a loading state
+    // assert the mocked out <Skeleton /> loading component renders exactly 5 times
+    // to verify course card is properly in a loading state.
     expect(screen.queryAllByTestId('did-i-render')).toHaveLength(5);
 
     expect(screen.queryByText(TEST_TITLE)).not.toBeInTheDocument();

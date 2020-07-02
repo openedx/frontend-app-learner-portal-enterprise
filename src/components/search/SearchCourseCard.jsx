@@ -70,20 +70,19 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               alt=""
             />
           )}
-          {partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
-            <div className="partner-logo-wrapper">
-              {isLoading ? (
-                <Skeleton width={90} height={42} />
-              ) : (
-                <img
-                  // FIXME: hardcoding the edX partner logo for now until Algolia is aware of partner logos
-                  src="https://prod-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-2b8dd916262f.png"
-                  className="partner-logo"
-                  alt={partnerDetails.primaryPartner}
-                />
-              )}
-            </div>
-          )}
+          <div className="partner-logo-wrapper">
+            {isLoading && (
+              <Skeleton width={90} height={42} />
+            )}
+            {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
+              <img
+                // FIXME: hardcoding the edX partner logo for now until Algolia is aware of partner logos
+                src="https://prod-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-2b8dd916262f.png"
+                className="partner-logo"
+                alt={partnerDetails.primaryPartner}
+              />
+            )}
+          </div>
           <div className="card-body py-3">
             <h3 className="card-title h5 mb-1">
               {isLoading ? (
