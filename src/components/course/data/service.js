@@ -36,7 +36,8 @@ export default class CourseService {
   }
 
   fetchUserEnrollments() {
-    const url = `${process.env.LMS_BASE_URL}/api/enrollment/v1/enrollment/`;
+    // NOTE: this request url cannot use a trailing slash since it causes a 404
+    const url = `${process.env.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
     return this.authenticatedHttpClient.get(url);
   }
 
