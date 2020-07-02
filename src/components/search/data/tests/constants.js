@@ -12,3 +12,5 @@ export const FACET_ATTRIBUTES = {
   AVAILABLILITY: 'availability',
   SUBJECTS: 'subjects',
 };
+
+export const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';

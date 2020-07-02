@@ -7,7 +7,7 @@ import { MobileFilterMenuBase } from '../MobileFilterMenu';
 import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 
-describe('<SearchBox />', () => {
+describe('<MobileFilterMenu />', () => {
   test('renders the modal initially closed, but opens on Filters button click', () => {
     renderWithRouter(
       <MobileFilterMenuBase items={[]}>
