@@ -73,7 +73,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
             )}
             {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
               <img
-                src={partnerDetails.primaryPartner.logoImgUrl}
+                src={partnerDetails.primaryPartner.logoImageUrl}
                 className="partner-logo"
                 alt={partnerDetails.primaryPartner.name}
               />

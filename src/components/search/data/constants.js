@@ -6,7 +6,7 @@ export const SEARCH_FACET_FILTERS = [
     title: 'Subject',
   },
   {
-    attribute: 'partners',
+    attribute: 'partners.name',
     title: 'Partner',
     isSortedAlphabetical: true,
   },
