@@ -6,7 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import SearchCourseCard from '../SearchCourseCard';
 
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../data/tests/constants';
+import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from '../data/tests/constants';
 
 jest.mock('react-truncate', () => ({
   __esModule: true,
@@ -32,14 +32,17 @@ const SearchCourseCardWithAppContext = (props) => (
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMG_URL = 'http://fake.image';
-const TEST_PARTNER_NAME = 'Partner Name';
+const TEST_PARTNER = {
+  name: 'Partner Name',
+  logoImgUrl: TEST_IMAGE_URL,
+};
 
 const defaultProps = {
   hit: {
     key: TEST_COURSE_KEY,
     title: TEST_TITLE,
     card_image_url: TEST_CARD_IMG_URL,
-    partners: [TEST_PARTNER_NAME],
+    partners: [TEST_PARTNER],
   },
 };
 
@@ -53,13 +56,13 @@ describe('<SearchCourseCard />', () => {
     const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
-    expect(screen.getByAltText(TEST_PARTNER_NAME)).toBeInTheDocument();
+    expect(screen.getByAltText(TEST_PARTNER.name)).toBeInTheDocument();
 
     expect(container.querySelector('.discovery-card > a')).toHaveAttribute(
       'href',
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );
-    expect(container.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER_NAME);
+    expect(container.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
     expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 

@@ -45,10 +45,6 @@ const SearchCourseCard = ({ hit, isLoading }) => {
     [course],
   );
 
-  // FIXME: temporarily using the course image for "How to Learn Online" until Algolia is
-  // aware of the correct course card images to be using.
-  const temporaryDefaultCardImage = 'https://prod-discovery.edx-cdn.org/media/course/image/0e575a39-da1e-4e33-bb3b-e96cc6ffc58e-8372a9a276c1.png';
-
   return (
     <div
       className="discovery-card mb-4"
@@ -67,7 +63,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           ) : (
             <img
               className="card-img-top"
-              src={course.cardImageUrl || temporaryDefaultCardImage}
+              src={course.cardImageUrl}
               alt=""
             />
           )}
@@ -77,10 +73,9 @@ const SearchCourseCard = ({ hit, isLoading }) => {
             )}
             {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
               <img
-                // FIXME: hardcoding the edX partner logo for now until Algolia is aware of partner logos
-                src="https://prod-discovery.edx-cdn.org/organization/logos/4f8cb2c9-589b-4d1e-88c1-b01a02db3a9c-2b8dd916262f.png"
+                src={partnerDetails.primaryPartner.logoImgUrl}
                 className="partner-logo"
-                alt={partnerDetails.primaryPartner}
+                alt={partnerDetails.primaryPartner.name}
               />
             )}
           </div>
@@ -101,7 +96,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
                 {course.partners.length > 0 && (
                   <p className="partner text-muted m-0">
                     <Truncate lines={1} trimWhitespace>
-                      {course.partners.join(', ')}
+                      {course.partners.map(partner => partner.name).join(', ')}
                     </Truncate>
                   </p>
                 )}
