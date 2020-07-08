@@ -6,6 +6,8 @@ import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import { isDefinedAndNotNull } from '../../utils/common';
+
 import './styles/SearchCourseCard.scss';
 
 const SearchCourseCard = ({ hit, isLoading }) => {
@@ -33,7 +35,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
 
   const partnerDetails = useMemo(
     () => {
-      if (!Object.keys(course).length) {
+      if (!Object.keys(course).length || !isDefinedAndNotNull(course.partners)) {
         return {};
       }
 
