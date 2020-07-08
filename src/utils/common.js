@@ -4,14 +4,12 @@ export const isCourseEnded = endDate => moment(endDate) < moment();
 
 export const createArrayFromValue = (value) => {
   const values = [];
-  switch (typeof value) {
-    case 'array':
-      values.concat(value);
-      break;
-    default:
-      values.push(value);
-      break;
+
+  if (Array.isArray(value)) {
+    return value;
   }
+
+  values.push(value);
   return values;
 };
 
@@ -27,10 +25,15 @@ export const isNull = (value) => {
 
 export const isDefinedAndNotNull = (value) => {
   const values = createArrayFromValue(value);
-  return values.every(item => isDefined(item) && item !== null);
+  return values.every(item => isDefined(item) && !isNull(item));
 };
 
 export const isDefinedAndNull = (value) => {
   const values = createArrayFromValue(value);
-  return values.every(item => isDefined(item) && item === null);
+  return values.every(item => isDefined(item) && isNull(item));
+};
+
+export const hasTruthyValue = (value) => {
+  const values = createArrayFromValue(value);
+  return values.every(item => !!item);
 };

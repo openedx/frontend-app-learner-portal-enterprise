@@ -14,7 +14,7 @@ import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
 
-import { isDefinedAndNotNull } from '../../utils/common';
+import { isDefinedAndNotNull, hasTruthyValue } from '../../utils/common';
 import {
   useCourseSubjects,
   useCoursePartners,
@@ -37,14 +37,14 @@ export default function CourseSidebar() {
       <ul className="pl-0 mb-5 course-details-sidebar">
         {isDefinedAndNotNull(activeCourseRun) && (
           <>
-            {isDefinedAndNotNull(activeCourseRun.weeksToComplete) && (
+            {hasTruthyValue(activeCourseRun.weeksToComplete) && (
               <CourseSidebarListItem
                 icon={faClock}
                 label="Length"
                 content={`${weeksToComplete} ${weeksLabel}`}
               />
             )}
-            {isDefinedAndNotNull([activeCourseRun.minEffort, activeCourseRun.maxEffort]) && (
+            {hasTruthyValue([activeCourseRun.minEffort, activeCourseRun.maxEffort]) && (
               <CourseSidebarListItem
                 icon={faTachometerAlt}
                 label="Effort"
