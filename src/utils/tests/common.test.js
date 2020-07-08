@@ -2,6 +2,7 @@ import {
   isDefinedAndNotNull,
   createArrayFromValue,
   isDefinedAndNull,
+  hasTruthyValue,
 } from '../common';
 
 function assertTestCaseEquals(testCase, expectedValue) {
@@ -70,6 +71,28 @@ describe('isDefinedAndNull', () => {
 
   it('returns false when passed an array with no nulls', () => {
     const result = isDefinedAndNull(['test', 1]);
+    expect(result).toBeFalsy();
+  });
+});
+
+describe('hasTruthyValue', () => {
+  it('returns true when passed a non-empty string', () => {
+    const result = hasTruthyValue('test');
+    expect(result).toBeTruthy();
+  });
+
+  it('returns true when passed an array with no nulls', () => {
+    const result = hasTruthyValue(['test', 1]);
+    expect(result).toBeTruthy();
+  });
+
+  it('returns false when passed an array with 1 null', () => {
+    const result = hasTruthyValue(['test', null]);
+    expect(result).toBeFalsy();
+  });
+
+  it('returns false when passed an array with 1 empty string', () => {
+    const result = hasTruthyValue(['']);
     expect(result).toBeFalsy();
   });
 });

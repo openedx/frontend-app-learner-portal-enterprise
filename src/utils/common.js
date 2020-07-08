@@ -32,3 +32,8 @@ export const isDefinedAndNull = (value) => {
   const values = createArrayFromValue(value);
   return values.every(item => isDefined(item) && isNull(item));
 };
+
+export const hasTruthyValue = (value) => {
+  const values = createArrayFromValue(value);
+  return values.every(item => !!item);
+};
