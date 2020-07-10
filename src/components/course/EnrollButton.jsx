@@ -44,6 +44,7 @@ export default function EnrollButton() {
   const enrollOptions = {
     license_uuid: subscriptionLicense.uuid,
     course_id: key,
+    course_mode: 'verified',
     enterprise_customer_uuid: enterpriseConfig.uuid,
     next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
     failure_url: global.location,
