@@ -1,13 +1,13 @@
 import React, {
-  useContext, useEffect, useState, useMemo, useCallback,
+  useContext, useMemo,
 } from 'react';
 import moment from 'moment';
-import { logError } from '@edx/frontend-platform/logging';
+import qs from 'query-string';
+import { Link } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
 import { Button } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
-
-import CourseService from './data/service';
 
 import {
   hasCourseStarted,
@@ -17,9 +17,12 @@ import {
   hasTimeToComplete,
   isSavedForLater,
 } from './data/utils';
+import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 export default function EnrollButton() {
   const { state } = useContext(CourseContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const { subscriptionLicense } = useContext(UserSubsidyContext);
   const {
     activeCourseRun,
     userEnrollments,
@@ -33,20 +36,20 @@ export default function EnrollButton() {
     pacingType,
     courseUuid,
   } = activeCourseRun;
-  const [isEnrollDisabled, setIsEnrollDisabled] = useState(false);
-  const [emailOptIn] = useState(false);
-  const [enrollmentSubmitted, setEnrollmentSubmitted] = useState(false);
 
-  /*
-   * TODO: this behavior mimics the existing B2C enrollment flow. we will want
-   * to redirect learners to the basket flow instead of the track selection page
-   */
-  useEffect(() => {
-    if (enrollmentSubmitted) {
-      // redirect to track selection page
-      window.location.href = `${process.env.LMS_BASE_URL}/course_modes/choose/${key}`;
-    }
-  }, [enrollmentSubmitted]);
+  // This enrollment URL assumes that the learner has access to the course through their subscription license, and they
+  // are using the license to enroll.
+  // TODO: Update to conditionally use the DSC flow with a license uuid only when the learner is actually using a
+  // license.
+  const enrollOptions = {
+    license_uuid: subscriptionLicense.uuid,
+    course_id: key,
+    enterprise_customer_uuid: enterpriseConfig.uuid,
+    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
+    failure_url: global.location,
+  };
+  const licenseEnrollmentUrl = `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
+  const enrollLinkClass = 'btn btn-success btn-block rounded-0 py-2';
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
@@ -56,8 +59,6 @@ export default function EnrollButton() {
     () => isUserEnrolledInCourse({ userEnrollments, key }),
     [userEnrollments, key],
   );
-
-  const courseService = useMemo(() => new CourseService(), []);
 
   const renderButtonLabel = () => {
     if (!isEnrollable) {
@@ -101,31 +102,15 @@ export default function EnrollButton() {
     return <span className="enroll-btn-label">View Course</span>;
   };
 
-  const enroll = useCallback(
-    () => {
-      setIsEnrollDisabled(true);
-      courseService.enrollUser({ course_id: key, email_opt_in: emailOptIn })
-        .then(() => {
-          setEnrollmentSubmitted(true);
-        })
-        .catch((error) => {
-          logError(error);
-          throw new Error(error.message);
-        });
-    },
-    [key, emailOptIn],
-  );
-
   const renderEnrollCta = () => {
     if (!isUserEnrolled && isEnrollable) {
       return (
-        <Button
-          className="btn-success btn-block rounded-0 py-2"
-          onClick={enroll}
-          disabled={isEnrollDisabled}
+        <a
+          className={enrollLinkClass}
+          href={licenseEnrollmentUrl}
         >
           {renderButtonLabel()}
-        </Button>
+        </a>
       );
     }
 
@@ -138,15 +123,24 @@ export default function EnrollButton() {
     }
 
     if (isUserEnrolled) {
+      if (isCourseStarted) {
+        return (
+          <a
+            className={enrollLinkClass}
+            href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
+          >
+            {renderButtonLabel()}
+          </a>
+        );
+      }
+
       return (
-        <a
-          className="btn btn-success btn-block rounded-0 py-2"
-          href={isCourseStarted
-            ? `${process.env.LMS_BASE_URL}/courses/${key}/info`
-            : `${process.env.LMS_BASE_URL}/dashboard`}
+        <Link
+          className={enrollLinkClass}
+          to={`/${enterpriseConfig.slug}`}
         >
           {renderButtonLabel()}
-        </a>
+        </Link>
       );
     }
 

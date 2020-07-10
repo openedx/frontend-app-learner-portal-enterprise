@@ -34,7 +34,7 @@ const UserSubsidy = ({ children }) => {
         hasAccessToPortal = false;
       }
 
-      return { hasAccessToPortal };
+      return { hasAccessToPortal, subscriptionLicense };
     },
     [subscriptionLicense],
   );
