@@ -7,7 +7,7 @@ export const ENROLL_ENDPOINT = '/enterprise_learner_portal/api/v1/enterprise_cou
  * @typedef {object} RequestOptions
  * @property {string} course_id CourseId
  * @property {string} enterprise_id EnterpriseId
- * @property {string} marked_done True/False. True saves a course for later.
+ * @property {string} saved_for_later True/False. True saves a course for later.
  */
 
 /**

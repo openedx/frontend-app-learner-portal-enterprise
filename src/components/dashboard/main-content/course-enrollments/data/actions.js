@@ -31,12 +31,12 @@ const fetchCourseEnrollmentsFailure = error => ({
 
 const clearCourseEnrollmentsFn = () => ({ type: CLEAR_COURSE_ENROLLMENTS });
 
-export const updateCourseRunStatus = ({ courseId, status, markedDone }) => ({
+export const updateCourseRunStatus = ({ courseId, status, savedForLater }) => ({
   type: UPDATE_COURSE_RUN_STATUS,
   payload: {
     courseId,
     status,
-    markedDone,
+    savedForLater,
   },
 });
 

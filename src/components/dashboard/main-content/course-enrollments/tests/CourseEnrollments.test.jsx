@@ -73,7 +73,7 @@ test('move to in progress action generates course status update', () => {
     ...initProps,
     courseRuns: {
       ...initProps.courseRuns,
-      completed: [{ ...completedCourseRun, markedDone: true }],
+      completed: [{ ...completedCourseRun, savedForLater: true }],
     },
   });
   expect(screen.getByRole('button', { name: 'Move course to In Progress' })).toBeInTheDocument();

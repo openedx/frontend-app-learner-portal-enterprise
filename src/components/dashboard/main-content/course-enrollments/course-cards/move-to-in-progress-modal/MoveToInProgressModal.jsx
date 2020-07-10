@@ -37,7 +37,7 @@ const MoveToInProgressModal = ({
       const response = await updateCourseCompleteStatusRequest({
         enterprise_id: uuid,
         course_id: courseId,
-        marked_done: false,
+        saved_for_later: false,
       });
       onSuccess({
         response: camelCaseObject(response.data),

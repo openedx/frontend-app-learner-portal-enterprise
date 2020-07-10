@@ -38,7 +38,7 @@ class CourseSection extends React.Component {
     linkToCertificate,
     notifications,
     courseRunStatus,
-    markedDone,
+    savedForLater,
     ...rest
   }) => {
     const courseRunProps = { courseRunStatus };
@@ -49,7 +49,7 @@ class CourseSection extends React.Component {
         break;
       case 'completed':
         courseRunProps.linkToCertificate = linkToCertificate;
-        courseRunProps.markedDone = markedDone;
+        courseRunProps.savedForLater = savedForLater;
         break;
       default:
         break;
