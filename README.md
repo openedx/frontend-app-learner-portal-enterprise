@@ -35,7 +35,7 @@ An enterprise portal will need a couple of roles: The Enterprise customer, and a
 
 Next we will setup a `test-enterprise` customer who will have learners associated with it (Details at [The Enterprise management commands](https://github.com/edx/edx-enterprise/blob/master/enterprise/management/commands/seed_enterprise_devstack_data.py#L47)):
 
- - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/edx/edx-platform/blob/master/lms/envs/devstack.py#L326). Set the flag `ENABLE_ENTERPRISE_INTEGRATION` to True
+ - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/edx/edx-platform/blob/0e2b612c1fb4f3e385f3004801aa5b5ed0221eda/lms/envs/devstack.py#L331). Set the flag `ENABLE_ENTERPRISE_INTEGRATION` to True if it isn't already
  - From the devstack directory, restart lms using `make lms-restart` for applying changes
  - Seed test data:
    - Go into the lms shell:
@@ -74,7 +74,7 @@ In this section you will:
 * Log out of any users if you logged in previously, or use a new incognito window, and browse to http://localhost:8734/test-enterprise
 * The `test-enterprise`, you will note, is the slug for this enterprise customer
 * Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8734/test-enterprise/
-* You can now go to 'Explore Courses' and enroll in courses
+* You can now go to 'Find a Course' and enroll in courses
 
 You are now in the Learner portal for the enterpriser customer `Test Enterprise`, as a learner!
 
