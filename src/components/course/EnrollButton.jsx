@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import moment from 'moment';
 import qs from 'query-string';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button } from '@edx/paragon';
 
@@ -122,15 +123,24 @@ export default function EnrollButton() {
     }
 
     if (isUserEnrolled) {
+      if (isCourseStarted) {
+        return (
+          <a
+            className={enrollLinkClass}
+            href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
+          >
+            {renderButtonLabel()}
+          </a>
+        );
+      }
+
       return (
-        <a
+        <Link
           className={enrollLinkClass}
-          href={isCourseStarted
-            ? `${process.env.LMS_BASE_URL}/courses/${key}/info`
-            : `${process.env.LMS_BASE_URL}/dashboard`}
+          to={`/${enterpriseConfig.slug}`}
         >
           {renderButtonLabel()}
-        </a>
+        </Link>
       );
     }
 
