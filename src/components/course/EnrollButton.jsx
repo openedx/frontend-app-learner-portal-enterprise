@@ -45,7 +45,9 @@ export default function EnrollButton() {
     license_uuid: subscriptionLicense.uuid,
     course_id: key,
     enterprise_customer_uuid: enterpriseConfig.uuid,
-    next: `${process.env.LMS_BASE_URL}/dashboard`,
+    // TODO: this next behavior mimics the existing B2C enrollment flow. we will want to redirect learners to the basket
+    // flow instead of the track selection page.
+    next: `${process.env.LMS_BASE_URL}/course_modes/choose/${key}`,
     failure_url: global.location,
   };
   const licenseEnrollmentUrl = `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
