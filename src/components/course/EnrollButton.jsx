@@ -48,6 +48,7 @@ export default function EnrollButton() {
     failure_url: global.location,
   };
   const licenseEnrollmentUrl = `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
+  const enrollLinkClass = 'btn btn-success btn-block rounded-0 py-2';
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
@@ -104,7 +105,7 @@ export default function EnrollButton() {
     if (!isUserEnrolled && isEnrollable) {
       return (
         <a
-          className="btn btn-success btn-block rounded-0 py-2"
+          className={enrollLinkClass}
           href={licenseEnrollmentUrl}
         >
           {renderButtonLabel()}
@@ -123,7 +124,7 @@ export default function EnrollButton() {
     if (isUserEnrolled) {
       return (
         <a
-          className="btn btn-success btn-block rounded-0 py-2"
+          className={enrollLinkClass}
           href={isCourseStarted
             ? `${process.env.LMS_BASE_URL}/courses/${key}/info`
             : `${process.env.LMS_BASE_URL}/dashboard`}
