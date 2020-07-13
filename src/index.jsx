@@ -26,6 +26,9 @@ subscribe(APP_INIT_ERROR, (error) => {
 
 initialize({
   messages: [],
+  // We don't require authenticated users so that we can perform our own auth redirect to a proxy login that depends on
+  // the route, rather than the LMS like frontend-platform does.
+  // TODO: Switch require auth'd user to false (so the above comment is true) once https://openedx.atlassian.net/browse/ENT-3141 is done
   requireAuthenticatedUser: true,
   hydrateAuthenticatedUser: true,
 });
