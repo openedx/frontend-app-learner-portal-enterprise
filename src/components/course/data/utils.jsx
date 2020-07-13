@@ -39,9 +39,9 @@ export function hasTimeToComplete(courseRun) {
   return courseRun.weeksToComplete <= weeksRemainingUntilEnd(courseRun);
 }
 
-export function isSavedForLater(courseRun) {
+export function isArchived(courseRun) {
   if (courseRun.availability) {
-    return courseRun.availability.toLowerCase() === 'saved_for_later';
+    return courseRun.availability.toLowerCase() === 'archived';
   }
   return false;
 }

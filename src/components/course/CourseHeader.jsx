@@ -8,7 +8,7 @@ import CourseRunSelector from './CourseRunSelector';
 import EnrollButton from './EnrollButton';
 
 import {
-  isSavedForLater,
+  isArchived,
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
@@ -74,12 +74,12 @@ export default function CourseHeader() {
                 ))}
               </div>
             )}
-            <CourseRunSelector />
             {catalog.containsContentItems ? (
               <>
-                {isSavedForLater(activeCourseRun) && (
+                <CourseRunSelector />
+                {isArchived(activeCourseRun) && (
                   <p className="font-weight-bold">
-                    Saved for Later: Future Dates To Be Announced
+                    Archived: Future Dates To Be Announced
                   </p>
                 )}
                 <EnrollButton />
