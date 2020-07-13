@@ -33,10 +33,10 @@ export function useAllCourseData({ courseKey, enterpriseConfig }) {
 
 export function useCourseSubjects(course) {
   const [subjects, setSubjects] = useState([]);
-  const [primarySubject, setPrimarySubject] = useState(undefined);
+  const [primarySubject, setPrimarySubject] = useState(null);
 
   useEffect(() => {
-    if (course && course.subjects) {
+    if (course?.subjects) {
       setSubjects(course.subjects);
       if (course.subjects.length > 0) {
         const newSubject = {
@@ -56,13 +56,9 @@ export function useCoursePartners(course) {
   const [label, setLabel] = useState(undefined);
 
   useEffect(() => {
-    if (course && course.owners) {
-      const newOwners = course.owners.map(owner => ({
-        ...owner,
-        fullUrl: `${process.env.MARKETING_SITE_BASE_URL}/${owner.marketingUrl}`,
-      }));
-      setPartners(newOwners);
-      if (newOwners.length > 1) {
+    if (course?.owners) {
+      setPartners(course.owners);
+      if (course.owners.length > 1) {
         setLabel('Institutions');
       } else {
         setLabel('Institution');

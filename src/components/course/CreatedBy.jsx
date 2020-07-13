@@ -21,13 +21,13 @@ export default function CreatedBy() {
       {partners.length > 0 && (
         <div className="row no-gutters mt-3">
           {partners.map(partner => (
-            <div className="col-lg-6 mb-3" key={partner.fullUrl}>
+            <div className="col-lg-6 mb-3" key={partner.marketingUrl}>
               <div className="mb-2">
-                <a href={partner.fullUrl} aria-hidden="true" tabIndex="-1">
+                <a href={partner.marketingUrl} aria-hidden="true" tabIndex="-1">
                   <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
                 </a>
               </div>
-              <a href={partner.fullUrl} className="text-underline">{partner.name}</a>
+              <a href={partner.marketingUrl} className="text-underline">{partner.name}</a>
             </div>
           ))}
         </div>

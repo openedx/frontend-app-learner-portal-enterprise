@@ -28,7 +28,7 @@ export default function CourseAssociatedPrograms() {
               </div>
             </div>
             <div className="col">
-              <a href={`${process.env.MARKETING_SITE_BASE_URL}/${program.marketingUrl}`}>
+              <a href={program.marketingUrl}>
                 {program.title}
               </a>
             </div>

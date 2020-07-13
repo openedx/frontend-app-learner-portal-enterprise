@@ -62,7 +62,7 @@ export default function CourseHeader() {
                 {partners.map(partner => (
                   <a
                     className="d-inline-block mr-4"
-                    href={partner.fullUrl}
+                    href={partner.marketingUrl}
                     key={partner.key}
                   >
                     <img
