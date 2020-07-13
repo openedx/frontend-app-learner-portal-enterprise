@@ -15,7 +15,7 @@ import {
   isUserEntitledForCourse,
   isCourseSelfPaced,
   hasTimeToComplete,
-  isSavedForLater,
+  isArchived,
 } from './data/utils';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
@@ -71,7 +71,7 @@ export default function EnrollButton() {
         return <span className="enroll-btn-label">View on Dashboard</span>;
       }
       if (isCourseSelfPaced(pacingType)) {
-        if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isSavedForLater(activeCourseRun)) {
+        if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isArchived(activeCourseRun)) {
           return (
             <>
               <span className="enroll-btn-label">Enroll</span>
@@ -84,7 +84,7 @@ export default function EnrollButton() {
       return (
         <>
           <span className="enroll-btn-label">Enroll</span>
-          {!isSavedForLater(activeCourseRun) && (
+          {!isArchived(activeCourseRun) && (
             <div>
               <small>
                 {isCourseStarted ? 'Started' : 'Starts'}
