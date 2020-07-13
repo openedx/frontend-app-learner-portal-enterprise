@@ -38,12 +38,12 @@ const courseEnrollmentsReducer = (state = initialState, action) => {
         error: action.payload.error,
       };
     case UPDATE_COURSE_RUN_STATUS: {
-      const { courseId, status, markedDone } = action.payload;
+      const { courseId, status, savedForLater } = action.payload;
       const courseRuns = [...state.courseRuns];
       const courseRunIndex = courseRuns.findIndex(run => run.courseRunId === courseId);
       if (courseRunIndex !== -1) {
         courseRuns[courseRunIndex].courseRunStatus = status;
-        if (markedDone) { courseRuns[courseRunIndex].markedDone = markedDone; }
+        if (savedForLater) { courseRuns[courseRunIndex].savedForLater = savedForLater; }
         return {
           ...state,
           courseRuns,

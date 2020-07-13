@@ -20,7 +20,7 @@ const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
   const { username } = user;
   const {
-    markedDone,
+    savedForLater,
     title,
     linkToCourse,
     courseRunId,
@@ -48,7 +48,7 @@ const CompletedCourseCard = (props) => {
     modifyCourseRunStatus({
       status: response.courseRunStatus,
       courseId: response.courseRunId,
-      markedDone: response.markedDone,
+      savedForLater: response.savedForLater,
     });
     modifyIsMoveToInProgressCourseStatus({
       isSuccess: true,
@@ -56,11 +56,11 @@ const CompletedCourseCard = (props) => {
   };
 
   const getDropdownMenuItems = () => {
-    // Only courses that are manually saved for later (markedDone) should show an option to move back to in progress.
+    // Only courses that are manually saved for later (savedForLater) should show an option to move back to in progress.
     // if course is ended or completed, you cannot move it back to in progress
     // TODO: we also need to add || courseRunStatus === 'completed' once api returns correct status
     //   right now it always returns completed upon using Save course for later
-    if (!markedDone || isCourseEnded(endDate)) { return []; }
+    if (!savedForLater || isCourseEnded(endDate)) { return []; }
     return ([
       {
         key: 'move-course-to-in-progress',
@@ -146,7 +146,7 @@ CompletedCourseCard.propTypes = {
   courseRunId: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
-  markedDone: PropTypes.bool.isRequired,
+  savedForLater: PropTypes.bool.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   modifyCourseRunStatus: PropTypes.func.isRequired,
   modifyIsMoveToInProgressCourseStatus: PropTypes.func.isRequired,
@@ -161,7 +161,7 @@ CompletedCourseCard.defaultProps = {
 const mapDispatchToProps = dispatch => ({
   modifyCourseRunStatus: (options) => {
     // TODO remove this override of status once api is fixed or we find a better way to categorize the cards
-    // right now categorization is by status only, but it gets confusing if marked_done is false and
+    // right now categorization is by status only, but it gets confusing if saved_for_later is false and
     // status=complete for example
     dispatch(updateCourseRunStatus({ ...options, status: 'in_progress' }));
   },

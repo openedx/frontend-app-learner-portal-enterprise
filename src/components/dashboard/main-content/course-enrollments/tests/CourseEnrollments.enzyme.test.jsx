@@ -60,7 +60,7 @@ describe('<CourseEnrollments />', () => {
         startDate: '2017-02-05T05:00:00Z',
         endDate: '2018-08-18T05:00:00Z',
         hasEmailsEnabled: true,
-        markedDone: false,
+        savedForLater: false,
       };
       const courseRuns = {
         in_progress: [{
