@@ -64,7 +64,7 @@ export default function CourseSidebar() {
             label={institutionLabel}
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
-                <a href={partner.fullUrl}>
+                <a href={partner.marketingUrl}>
                   {partner.key}
                 </a>
               </span>
