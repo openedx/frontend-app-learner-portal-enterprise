@@ -5,7 +5,7 @@ import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
 import LicenseActivation from './LicenseActivation';
 
-const ActivationPage = () => (
+const LicenseActivationPage = () => (
   <EnterprisePage>
     <Layout>
       <EnterpriseBanner />
@@ -14,4 +14,4 @@ const ActivationPage = () => (
   </EnterprisePage>
 );
 
-export default ActivationPage;
+export default LicenseActivationPage;

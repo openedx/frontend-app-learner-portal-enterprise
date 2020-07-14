@@ -23,7 +23,7 @@ export default function LoginRedirect({ children }) {
     next: global.location,
   };
   const proxyLoginUrl = `${process.env.LMS_BASE_URL}/enterprise/proxy_login/?${qs.stringify(options)}`;
-  global.location.assign(proxyLoginUrl);
+  global.location.href = proxyLoginUrl;
   return null;
 }
 

@@ -5,8 +5,8 @@ import { activateLicense } from './service';
 
 // eslint-disable-next-line import/prefer-default-export
 export function useLicenseActivation(activationKey) {
-  const [activationSuccess, setActivationSuccess] = useState();
-  const [activationError, setActivationError] = useState();
+  const [activationSuccess, setActivationSuccess] = useState(false);
+  const [activationError, setActivationError] = useState(false);
 
   useEffect(() => {
     activateLicense(activationKey)

@@ -4,8 +4,9 @@ import { Redirect, useRouteMatch } from 'react-router-dom';
 import { StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { useRenderContactHelpText } from './data/hooks';
 import { LICENSE_STATUS } from './data/constants';
+
+import { useRenderContactHelpText } from '../../utils/hooks';
 
 const SubscriptionSubsidy = ({ subscriptionLicense }) => {
   const { enterpriseConfig } = useContext(AppContext);

@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
@@ -6,6 +6,7 @@ import { isNull } from '../../../utils/common';
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
 
+// eslint-disable-next-line import/prefer-default-export
 export function useSubscriptionLicenseForUser(subscriptionPlan) {
   const [license, setLicense] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -43,24 +44,4 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
   }, [subscriptionPlan]);
 
   return [license, isLoading];
-}
-
-export function useRenderContactHelpText(enterpriseConfig) {
-  const renderContactHelpText = useCallback(
-    () => {
-      const { contactEmail } = enterpriseConfig;
-      const message = 'reach out to your organization\'s edX administrator';
-      if (contactEmail) {
-        return (
-          <a className="text-underline" href={`mailto:${contactEmail}`}>
-            {message}
-          </a>
-        );
-      }
-      return message;
-    },
-    [enterpriseConfig],
-  );
-
-  return renderContactHelpText;
 }

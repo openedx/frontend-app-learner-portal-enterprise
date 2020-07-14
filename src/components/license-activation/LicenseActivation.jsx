@@ -6,7 +6,8 @@ import { StatusAlert } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import { useLicenseActivation } from './data/hooks';
-import { useRenderContactHelpText } from '../enterprise-user-subsidy/data/hooks';
+
+import { useRenderContactHelpText } from '../../utils/hooks';
 
 export default function LicenseActivation() {
   const { activationKey } = useParams();
@@ -21,26 +22,28 @@ export default function LicenseActivation() {
     );
   }
 
+  const PAGE_TITLE = `License Activation - ${enterpriseConfig.name}`;
   if (activationError) {
     return (
-      <div className="container-fluid mt-3">
-        <StatusAlert
-          alertType="danger"
-          className="mb"
-          dialog={(
-            <>
-              An unexpected error occurred while activating your license.
-              Please {renderContactHelpText()} for assistance.
-            </>
-          )}
-          dismissible={false}
-          open
-        />
-      </div>
+      <>
+        <Helmet title={PAGE_TITLE} />
+        <div className="container-fluid mt-3">
+          <StatusAlert
+            alertType="danger"
+            dialog={(
+              <>
+                An unexpected error occurred while activating your license.
+                Please {renderContactHelpText()} for assistance.
+              </>
+            )}
+            dismissible={false}
+            open
+          />
+        </div>
+      </>
     );
   }
 
-  const PAGE_TITLE = `License Activation - ${enterpriseConfig.name}`;
   const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
 
   return (
