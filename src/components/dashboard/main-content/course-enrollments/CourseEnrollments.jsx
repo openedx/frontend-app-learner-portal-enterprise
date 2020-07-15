@@ -12,6 +12,7 @@ import {
   InProgressCourseCard,
   UpcomingCourseCard,
   CompletedCourseCard,
+  SavedForLaterCourseCard,
 } from './course-cards';
 
 import * as selectors from './data/selectors';
@@ -49,6 +50,7 @@ export class CourseEnrollments extends Component {
     this.hasCourseRunsWithStatus('completed')
     || this.hasCourseRunsWithStatus('in_progress')
     || this.hasCourseRunsWithStatus('upcoming')
+    || this.hasCourseRunsWithStatus('savedForLater')
   )
 
   renderError = () => (
@@ -153,10 +155,16 @@ export class CourseEnrollments extends Component {
           courseRuns={courseRuns.upcoming}
         />
         <CourseSection
-          title="Courses saved for later"
+          title="Completed courses"
           subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
           component={CompletedCourseCard}
           courseRuns={courseRuns.completed}
+        />
+        <CourseSection
+          title="Courses saved for later"
+          subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
+          component={SavedForLaterCourseCard}
+          courseRuns={courseRuns.savedForLater}
         />
       </>
     );
@@ -195,6 +203,7 @@ CourseEnrollments.propTypes = {
     in_progress: PropTypes.array.isRequired,
     upcoming: PropTypes.array.isRequired,
     completed: PropTypes.array.isRequired,
+    savedForLater: PropTypes.array.isRequired,
   }).isRequired,
   isLoading: PropTypes.bool.isRequired,
   isMarkCourseCompleteSuccess: PropTypes.bool.isRequired,

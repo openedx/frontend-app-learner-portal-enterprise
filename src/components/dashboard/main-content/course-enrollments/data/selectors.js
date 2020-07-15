@@ -33,20 +33,31 @@ const transformCourseRun = (originalCourseRun) => {
   return courseRun;
 };
 
+export const filterCourseRuns = (courseRuns) => {
+  const courseRunsByStatus = {
+    in_progress: [],
+    upcoming: [],
+    completed: [],
+    savedForLater: [],
+  };
+  if (courseRuns && courseRuns.length > 0) {
+    const transformedCourseRuns = courseRuns.map(transformCourseRun);
+    Object.keys(courseRunsByStatus).forEach((status) => {
+      courseRunsByStatus[status] = transformedCourseRuns.filter((courseRun) => {
+        if (courseRun.courseRunStatus !== 'completed' || (courseRun.courseRunStatus === 'completed' && !courseRun.savedForLater)) {
+          return courseRun.courseRunStatus === status;
+        }
+        if (status === 'savedForLater' && courseRun.savedForLater) {
+          return true;
+        }
+        return false;
+      });
+    });
+  }
+  return courseRunsByStatus;
+}
+
 export const getCourseRunsByStatus = createSelector(
   [getCourseRuns],
-  (courseRuns) => {
-    const courseRunsByStatus = {
-      in_progress: [],
-      upcoming: [],
-      completed: [],
-    };
-    if (courseRuns && courseRuns.length > 0) {
-      const transformedCourseRuns = courseRuns.map(transformCourseRun);
-      Object.keys(courseRunsByStatus).forEach((status) => {
-        courseRunsByStatus[status] = transformedCourseRuns.filter(courseRun => courseRun.courseRunStatus === status);
-      });
-    }
-    return courseRunsByStatus;
-  },
+  filterCourseRuns,
 );

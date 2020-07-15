@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
+import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import {
   updateCourseRunStatus,
@@ -14,16 +16,70 @@ import {
 import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
 
-const CompletedCourseCard = (props) => {
+const SavedForLaterCourseCard = (props) => {
   const user = getAuthenticatedUser();
   const { username } = user;
   const {
+    savedForLater,
     title,
     linkToCourse,
     courseRunId,
     courseRunStatus,
+    modifyCourseRunStatus,
+    modifyIsMoveToInProgressCourseStatus,
     endDate,
   } = props;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleMoveToInProgressOnClose = () => {
+    setIsModalOpen(false);
+    sendTrackEvent('edx.learner_portal.course.move_to_in_progress.modal.closed', {
+      course_run_id: courseRunId,
+    });
+  };
+
+  const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
+    sendTrackEvent('edx.learner_portal.course.move_to_in_progress.saved', {
+      course_run_id: courseRunId,
+    });
+    setIsModalOpen(false);
+    resetModalState();
+    modifyCourseRunStatus({
+      status: response.courseRunStatus,
+      courseId: response.courseRunId,
+      savedForLater: response.savedForLater,
+    });
+    modifyIsMoveToInProgressCourseStatus({
+      isSuccess: true,
+    });
+  };
+
+  const getDropdownMenuItems = () => {
+    // Only courses that are manually saved for later (savedForLater) should show an option to move back to in progress.
+    // if course is ended or completed, you cannot move it back to in progress
+    // TODO: we also need to add || courseRunStatus === 'completed' once api returns correct status
+    //   right now it always returns completed upon using Save course for later
+    if (!savedForLater || isCourseEnded(endDate)) { return []; }
+    return ([
+      {
+        key: 'move-course-to-in-progress',
+        type: 'button',
+        onClick: () => {
+          setIsModalOpen(true);
+          sendTrackEvent('edx.learner_portal.course.move_to_in_progress.modal.opened', {
+            course_run_id: courseRunId,
+          });
+        },
+        children: (
+          <div role="menuitem">
+            Move to In Progress
+            <span className="sr-only">for {title}</span>
+          </div>
+        ),
+      },
+    ]);
+  };
 
   const renderButtons = () => {
     if (isCourseEnded(endDate) || courseRunStatus === 'completed') { return null; }
@@ -67,16 +123,25 @@ const CompletedCourseCard = (props) => {
   return (
     <BaseCourseCard
       buttons={renderButtons()}
+      dropdownMenuItems={getDropdownMenuItems()}
       type="completed"
       hasViewCertificateLink={false}
       {...props}
     >
       {renderCertificateInfo()}
+      <MoveToInProgressModal
+        isOpen={isModalOpen}
+        courseTitle={title}
+        courseLink={linkToCourse}
+        courseId={courseRunId}
+        onClose={handleMoveToInProgressOnClose}
+        onSuccess={handleMoveToInProgressOnSuccess}
+      />
     </BaseCourseCard>
   );
 };
 
-CompletedCourseCard.propTypes = {
+SavedForLaterCourseCard.propTypes = {
   linkToCourse: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
@@ -88,7 +153,7 @@ CompletedCourseCard.propTypes = {
   endDate: PropTypes.string,
 };
 
-CompletedCourseCard.defaultProps = {
+SavedForLaterCourseCard.defaultProps = {
   linkToCertificate: null,
   endDate: null,
 };
@@ -105,4 +170,4 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-export default connect(null, mapDispatchToProps)(CompletedCourseCard);
+export default connect(null, mapDispatchToProps)(SavedForLaterCourseCard);

@@ -27,10 +27,6 @@ getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 jest.mock('../course-cards/mark-complete-modal/data/service');
 
-beforeEach(() => {
-  updateCourseCompleteStatusRequest.mockImplementation(() => {});
-});
-
 const genericMockFn = () => jest.fn();
 const store = createMockStore(configureMockStore);
 
@@ -39,6 +35,7 @@ const enterpriseConfig = {
 };
 const completedCourseRun = createCompletedCourseRun();
 const inProgCourseRun = { ...completedCourseRun, courseRunStatus: 'in_progress' };
+const savedForLaterCourseRun = { ...completedCourseRun, savedForLater: true };
 
 const defaultInitialProps = defaultInitialEnrollmentProps({ genericMockFn });
 
@@ -48,6 +45,7 @@ const initProps = {
     in_progress: [inProgCourseRun],
     upcoming: [],
     completed: [completedCourseRun],
+    savedForLater: [savedForLaterCourseRun],
   },
 };
 
@@ -60,28 +58,49 @@ function renderEnrollmentsComponent(initialProps) {
     </Provider>,
   );
 }
-
-test('loads enrollments component', () => {
-  renderEnrollmentsComponent(initProps);
-  expect(screen.getByText('My courses in progress')).toBeInTheDocument();
-  expect(screen.getByText('Courses saved for later')).toBeInTheDocument();
-  expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
-});
-
-test('move to in progress action generates course status update', () => {
-  renderEnrollmentsComponent({
-    ...initProps,
-    courseRuns: {
-      ...initProps.courseRuns,
-      completed: [{ ...completedCourseRun, savedForLater: true }],
-    },
+describe('Course enrollements', () => {
+  beforeEach(() => {
+    updateCourseCompleteStatusRequest.mockImplementation(() => {});
   });
-  expect(screen.getByRole('button', { name: 'Move course to In Progress' })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Move course to In Progress' }));
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  test('loads enrollments component', () => {
+    renderEnrollmentsComponent(initProps);
+    expect(screen.getByText('My courses in progress')).toBeInTheDocument();
+    expect(screen.getByText('Completed courses')).toBeInTheDocument();
+    expect(screen.getByText('Courses saved for later')).toBeInTheDocument();
+    expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
+  });
 
-  // TODO This test only validates 'half way', we ideally want to update it to
-  // validate the UI results. Skipping at the time of writing since need to
-  // figure out the right markup for testability. This give a base level of confidence
-  // that move to in progress is not failing, that's all.
-  expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
+  test('move to in progress action generates course status update', () => {
+    renderEnrollmentsComponent({
+      ...initProps,
+      courseRuns: {
+        ...initProps.courseRuns,
+      },
+    });
+    expect(screen.getByRole('button', { name: 'Move course to In Progress' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Move course to In Progress' }));
+
+    // TODO This test only validates 'half way', we ideally want to update it to
+    // validate the UI results. Skipping at the time of writing since need to
+    // figure out the right markup for testability. This give a base level of confidence
+    // that move to in progress is not failing, that's all.
+    expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
+  });
+
+  test('move to saved for later action generates course status update', () => {
+    renderEnrollmentsComponent({
+      ...initProps,
+      courseRuns: {
+        ...initProps.courseRuns,
+      },
+    });
+    const saveForLaterButton = screen.getByRole('button', { name: 'Save course for later' });
+    expect(saveForLaterButton).toBeInTheDocument();
+    fireEvent.click(saveForLaterButton);
+
+    expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
+  });
 });
