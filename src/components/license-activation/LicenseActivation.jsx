@@ -9,6 +9,8 @@ import { useLicenseActivation } from './data/hooks';
 
 import { useRenderContactHelpText } from '../../utils/hooks';
 
+export const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
+
 export default function LicenseActivation() {
   const { activationKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
@@ -44,13 +46,11 @@ export default function LicenseActivation() {
     );
   }
 
-  const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
-
   return (
     <>
       <Helmet title={PAGE_TITLE} />
       <div className="container-fluid py-5">
-        {LOADING_MESSAGE}
+        <p>{LOADING_MESSAGE}</p>
         <LoadingSpinner screenReaderText={LOADING_MESSAGE} />
       </div>
     </>
