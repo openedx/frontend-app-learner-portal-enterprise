@@ -26,6 +26,7 @@ describe('<CourseEnrollments />', () => {
       in_progress: [],
       upcoming: [],
       completed: [],
+      savedForLater: [],
     },
     isLoading: false,
     error: null,
@@ -77,6 +78,7 @@ describe('<CourseEnrollments />', () => {
         }],
         upcoming: [],
         completed: [sampleCourseRun],
+        savedForLater: [],
       };
       const enterpriseConfig = {
         uuid: 'test-program-uuid',
