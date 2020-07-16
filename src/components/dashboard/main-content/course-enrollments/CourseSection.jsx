@@ -8,6 +8,7 @@ import {
   InProgressCourseCard,
   UpcomingCourseCard,
   CompletedCourseCard,
+  SavedForLaterCourseCard,
 } from './course-cards';
 import CollapsibleIcon from './CollapsibleIcon';
 
@@ -111,6 +112,7 @@ CourseSection.propTypes = {
     InProgressCourseCard,
     UpcomingCourseCard,
     CompletedCourseCard,
+    SavedForLaterCourseCard,
   ]).isRequired,
   courseRuns: PropTypes.arrayOf(PropTypes.shape({
     courseRunId: PropTypes.string.isRequired,

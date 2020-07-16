@@ -39,6 +39,18 @@ const createCompletedCourseRun = () => {
   return completedCourseRun;
 };
 
+const createRawCourseRun = () => ({
+  displayName: 'Best course',
+  micromastersTitle: 'Greatest Micromasters',
+  resumeCourseRunUrl: 'http://www.resumecourserun.com',
+  certificateDownloadUrl: 'http://www.certificatehere.com',
+  emailsEnabled: true,
+  dueDates: [],
+  completed: false,
+  courseRunStatus: 'in_progress',
+  savedForLater: false,
+});
+
 /**
  * Generates initial props for CourseEnrollments component with sensible defaults.
  *
@@ -66,4 +78,5 @@ export {
   createMockStore,
   createCompletedCourseRun,
   defaultInitialEnrollmentProps,
+  createRawCourseRun,
 };
