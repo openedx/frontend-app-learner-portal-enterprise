@@ -8,8 +8,8 @@ import MarkCompleteModalContext from './MarkCompleteModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from './data/service';
 
-export const MARK_ARCHIVED_DEFAULT_LABEL = 'Save course for later';
-export const MARK_ARCHIVED_PENDING_LABEL = 'Saving course for later...';
+export const MARK_SAVED_FOR_LATER_DEFAULT_LABEL = 'Save course for later';
+export const MARK_SAVED_FOR_LATER_PENDING_LABEL = 'Saving course for later...';
 
 const initialState = {
   confirmButtonState: 'default',
@@ -79,8 +79,8 @@ const MarkCompleteModal = ({
         buttons={[
           <StatefulButton
             labels={{
-              default: MARK_ARCHIVED_DEFAULT_LABEL,
-              pending: MARK_ARCHIVED_PENDING_LABEL,
+              default: MARK_SAVED_FOR_LATER_DEFAULT_LABEL,
+              pending: MARK_SAVED_FOR_LATER_PENDING_LABEL,
             }}
             disabledStates={['pending']}
             className="confirm-mark-complete-btn btn-primary btn-brand-primary"
