@@ -21,5 +21,4 @@ const updateEmailSettings = (courseRunId, hasEmailsEnabled) => {
   );
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { updateEmailSettings };

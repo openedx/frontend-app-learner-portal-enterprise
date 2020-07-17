@@ -34,6 +34,14 @@
     ],
     "template-curly-spacing": "off"
   },
+  "overrides": [
+    {
+      "files": ["**/index.js", "**/service.js", "**/hooks.js", "**/hooks.jsx"],
+      "rules": {
+        "import/prefer-default-export": "off"
+      }
+    }
+  ],
   "env": {
     "jest": true
   },

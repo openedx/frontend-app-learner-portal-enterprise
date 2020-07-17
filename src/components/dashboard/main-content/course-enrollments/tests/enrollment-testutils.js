@@ -75,7 +75,6 @@ const defaultInitialEnrollmentProps = ({ genericMockFn = () => {} }) => ({
 });
 
 export {
-  // eslint-disable-next-line import/prefer-default-export
   createMockStore,
   createCompletedCourseRun,
   defaultInitialEnrollmentProps,

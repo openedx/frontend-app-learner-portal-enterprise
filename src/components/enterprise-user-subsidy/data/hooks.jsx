@@ -6,7 +6,6 @@ import { isNull } from '../../../utils/common';
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
 
-// eslint-disable-next-line import/prefer-default-export
 export function useSubscriptionLicenseForUser(subscriptionPlan) {
   const [license, setLicense] = useState();
   const [isLoading, setIsLoading] = useState(true);

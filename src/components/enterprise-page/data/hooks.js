@@ -22,7 +22,6 @@ const defaultBrandingConfig = {
  * @param {string} [enterpriseSlug] enterprise slug.
  * @returns {object} EnterpriseConfig
  */
-// eslint-disable-next-line import/prefer-default-export
 export function useEnterpriseCustomerConfig(enterpriseSlug) {
   const [enterpriseConfig, setEnterpriseConfig] = useState();
 
