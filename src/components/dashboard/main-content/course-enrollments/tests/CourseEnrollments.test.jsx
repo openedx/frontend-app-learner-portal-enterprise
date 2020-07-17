@@ -17,9 +17,11 @@ import {
 } from './enrollment-testutils';
 
 // component to test
-import { CourseEnrollments } from '../CourseEnrollments';
-
+import { CourseEnrollments, COURSE_SECTION_TITLES } from '../CourseEnrollments';
+import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
+import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
+import { COURSE_STATUSES } from '../data/constants';
 
 // TODO: Need to confirm if this is the best way to mock auth.
 jest.mock('@edx/frontend-platform/auth');
@@ -34,7 +36,7 @@ const enterpriseConfig = {
   uuid: 'test-enterprise-uuid',
 };
 const completedCourseRun = createCompletedCourseRun();
-const inProgCourseRun = { ...completedCourseRun, courseRunStatus: 'in_progress' };
+const inProgCourseRun = { ...completedCourseRun, courseRunStatus: COURSE_STATUSES.inProgress };
 const savedForLaterCourseRun = { ...completedCourseRun, savedForLater: true };
 
 const defaultInitialProps = defaultInitialEnrollmentProps({ genericMockFn });
@@ -67,16 +69,16 @@ describe('Course enrollements', () => {
   });
   test('loads enrollments component', () => {
     renderEnrollmentsComponent(initProps);
-    expect(screen.getByText('My courses in progress')).toBeInTheDocument();
-    expect(screen.getByText('Completed courses')).toBeInTheDocument();
-    expect(screen.getByText('Courses saved for later')).toBeInTheDocument();
-    expect(screen.getAllByText('edX Demonstration Course').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(COURSE_SECTION_TITLES.inProgress)).toBeInTheDocument();
+    expect(screen.getByText(COURSE_SECTION_TITLES.completed)).toBeInTheDocument();
+    expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater)).toBeInTheDocument();
+    expect(screen.getAllByText(inProgCourseRun.title).length).toBeGreaterThanOrEqual(1);
   });
 
   it('generates course status update on move to in progress action', () => {
     renderEnrollmentsComponent({ ...initProps });
-    expect(screen.getByRole('button', { name: 'Move course to In Progress' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Move course to In Progress' }));
+    expect(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
 
     // TODO This test only validates 'half way', we ideally want to update it to
     // validate the UI results. Skipping at the time of writing since need to
@@ -87,7 +89,7 @@ describe('Course enrollements', () => {
 
   it('generates course status update on move to saved for later action', () => {
     renderEnrollmentsComponent({ ...initProps });
-    const saveForLaterButton = screen.getByRole('button', { name: 'Save course for later' });
+    const saveForLaterButton = screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL });
     expect(saveForLaterButton).toBeInTheDocument();
     fireEvent.click(saveForLaterButton);
 

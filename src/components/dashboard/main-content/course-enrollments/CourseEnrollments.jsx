@@ -21,6 +21,13 @@ import * as actions from './data/actions';
 const SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE = `This section contains both the courses you have completed
   in the past and courses that have been voluntarily removed from your "In Progress" list.`;
 
+export const COURSE_SECTION_TITLES = {
+  inProgress: 'My courses in progress',
+  upcoming: 'Upcoming courses',
+  completed: 'Completed courses',
+  savedForLater: 'Courses saved for later',
+};
+
 export class CourseEnrollments extends Component {
   componentDidMount() {
     const {
@@ -145,23 +152,23 @@ export class CourseEnrollments extends Component {
         */}
         {!this.hasCourseRuns() && children}
         <CourseSection
-          title="My courses in progress"
+          title={COURSE_SECTION_TITLES.inProgress}
           component={InProgressCourseCard}
           courseRuns={courseRuns.in_progress}
         />
         <CourseSection
-          title="Upcoming courses"
+          title={COURSE_SECTION_TITLES.upcoming}
           component={UpcomingCourseCard}
           courseRuns={courseRuns.upcoming}
         />
         <CourseSection
-          title="Completed courses"
+          title={COURSE_SECTION_TITLES.completed}
           subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
           component={CompletedCourseCard}
           courseRuns={courseRuns.completed}
         />
         <CourseSection
-          title="Courses saved for later"
+          title={COURSE_SECTION_TITLES.savedForLater}
           subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
           component={SavedForLaterCourseCard}
           courseRuns={courseRuns.savedForLater}

@@ -1,4 +1,5 @@
 import thunk from 'redux-thunk';
+import { COURSE_STATUSES } from '../data/constants';
 
 /**
  * Creates a redux-thunk based store with default emailSettings for the app.
@@ -27,7 +28,7 @@ const createMockStore = (configureMockStore) => {
 const createCompletedCourseRun = () => {
   const completedCourseRun = {
     courseRunId: 'course-v1:edX+DemoX+Demo_Course',
-    courseRunStatus: 'completed',
+    courseRunStatus: COURSE_STATUSES.completed,
     linkToCourse: 'https://edx.org/',
     title: 'edX Demonstration Course',
     notifications: [],
@@ -47,7 +48,7 @@ const createRawCourseRun = () => ({
   emailsEnabled: true,
   dueDates: [],
   completed: false,
-  courseRunStatus: 'in_progress',
+  courseRunStatus: COURSE_STATUSES.inProgress,
   savedForLater: false,
 });
 
