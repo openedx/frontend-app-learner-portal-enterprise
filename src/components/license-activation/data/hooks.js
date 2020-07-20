@@ -3,7 +3,6 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { activateLicense } from './service';
 
-// eslint-disable-next-line import/prefer-default-export
 export function useLicenseActivation(activationKey) {
   const [activationSuccess, setActivationSuccess] = useState(false);
   const [activationError, setActivationError] = useState(false);

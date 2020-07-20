@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-// eslint-disable-next-line import/prefer-default-export
 export const useWindowSize = () => {
   const isClient = typeof window === 'object';
 

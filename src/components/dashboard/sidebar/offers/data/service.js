@@ -5,5 +5,4 @@ const fetchOffers = () => {
   return getAuthenticatedHttpClient().get(offersUrl);
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { fetchOffers };

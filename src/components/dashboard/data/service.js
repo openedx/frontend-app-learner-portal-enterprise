@@ -5,5 +5,4 @@ const fetchEntepriseCustomerConfig = (slug) => {
   return getAuthenticatedHttpClient().get(url);
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { fetchEntepriseCustomerConfig };

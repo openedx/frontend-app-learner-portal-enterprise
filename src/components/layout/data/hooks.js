@@ -6,7 +6,6 @@ import { isDefinedAndNotNull, isDefined } from '../../../utils/common';
 const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
 const COLOR_MIX_MODIFIER = 0.1;
 
-// eslint-disable-next-line import/prefer-default-export
 export const useStylesForCustomBrandColors = (enterpriseConfig) => {
   const brandColors = useMemo(
     () => {
