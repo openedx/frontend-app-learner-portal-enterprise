@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import CourseService from './service';
+import { isCourseInstructorPaced, isCourseSelfPaced, numberWithPrecision } from './utils';
+import {
+  INSTRUCTOR_PACED_TYPE,
+  SELF_PACED_TYPE,
+  SUBSIDY_DISCOUNT_TYPE_ABSOLUTE,
+  SUBSIDY_DISCOUNT_TYPE_PERCENTAGE,
+} from './constants';
 
 export function useAllCourseData({ courseKey, enterpriseConfig }) {
   const [courseData, setCourseData] = useState();
@@ -103,4 +110,99 @@ export function useCourseTranscriptLanguages(courseRun) {
   }, [courseRun]);
 
   return [languages, label];
+}
+
+export function useCoursePacingType(courseRun) {
+  const [pacingType, setPacingType] = useState();
+
+  useEffect(
+    () => {
+      if (isCourseSelfPaced(courseRun.pacingType)) {
+        setPacingType(SELF_PACED_TYPE);
+      }
+
+      if (isCourseInstructorPaced(courseRun.pacingType)) {
+        setPacingType(INSTRUCTOR_PACED_TYPE);
+      }
+    },
+    [courseRun],
+  );
+
+  const pacingTypeContent = useMemo(
+    () => {
+      if (pacingType === INSTRUCTOR_PACED_TYPE) {
+        return 'Instructor-led on a course schedule';
+      }
+
+      if (pacingType === SELF_PACED_TYPE) {
+        return 'Self-paced on your time';
+      }
+
+      return undefined;
+    },
+    [pacingType],
+  );
+
+  return [pacingType, pacingTypeContent];
+}
+
+export function useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [userSubsidy, setUserSubsidy] = useState();
+
+  useEffect(
+    () => {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const courseService = new CourseService({
+          enterpriseUuid: enterpriseConfig.uuid,
+          activeCourseRun,
+        });
+        try {
+          const data = await courseService.fetchAllEnterpriseUserSubsidies();
+          setUserSubsidy(data);
+        } catch (error) {
+          logError(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    },
+    [activeCourseRun, enterpriseConfig],
+  );
+
+  return [userSubsidy, isLoading];
+}
+
+export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
+  const coursePrice = useMemo(
+    () => {
+      const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
+
+      if (!listPrice || !userSubsidy) {
+        return null;
+      }
+
+      const priceDetails = {
+        list: numberWithPrecision(listPrice),
+      };
+      const { discountType, discountValue } = userSubsidy;
+      let discountedPrice;
+
+      if (discountType === SUBSIDY_DISCOUNT_TYPE_PERCENTAGE) {
+        discountedPrice = listPrice - (listPrice * (discountValue / 100));
+      }
+
+      if (discountType === SUBSIDY_DISCOUNT_TYPE_ABSOLUTE) {
+        discountedPrice = Math.max(listPrice - discountValue, 0);
+      }
+
+      priceDetails.discounted = discountedPrice ? numberWithPrecision(discountedPrice) : priceDetails.list;
+      return priceDetails;
+    },
+    [activeCourseRun, userSubsidy],
+  );
+
+  return coursePrice;
 }

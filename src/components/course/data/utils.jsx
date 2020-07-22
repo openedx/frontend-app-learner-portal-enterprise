@@ -50,6 +50,10 @@ export function isCourseSelfPaced(pacingType) {
   return pacingType === 'self_paced';
 }
 
+export function isCourseInstructorPaced(pacingType) {
+  return pacingType === 'instructor_paced';
+}
+
 export function programIsMicroMasters(type) {
   return type.toLowerCase() === 'micromasters';
 }
@@ -106,3 +110,5 @@ export function getProgramIcon(type) {
       return VerifiedSvgIcon;
   }
 }
+
+export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);

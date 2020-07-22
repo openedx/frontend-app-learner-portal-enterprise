@@ -1,16 +1,24 @@
 import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+
+import { LICENSE_SUBSIDY_TYPE } from './constants';
+
+const PROMISE_FULFILLED = 'fulfilled';
 
 export default class CourseService {
   constructor(options = {}) {
-    const { courseKey, enterpriseUuid } = options;
+    const {
+      activeCourseRun,
+      courseKey,
+      enterpriseUuid,
+    } = options;
 
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
 
-    if (courseKey && enterpriseUuid) {
-      this.courseKey = courseKey;
-      this.enterpriseUuid = enterpriseUuid;
-    }
+    this.courseKey = courseKey;
+    this.enterpriseUuid = enterpriseUuid;
+    this.activeCourseRun = activeCourseRun;
   }
 
   async fetchAllCourseData() {
@@ -52,8 +60,32 @@ export default class CourseService {
     return this.authenticatedHttpClient.get(url);
   }
 
-  enrollUser(data) {
-    const url = `${process.env.LMS_BASE_URL}/api/commerce/v0/baskets/`;
-    return this.authenticatedHttpClient.post(url, data);
+  async fetchAllEnterpriseUserSubsidies() {
+    // Promise.allSettled() waits until all promises are resolved, whether successful
+    // or not. in contrast, Promise.all() immediately rejects when any promise errors
+    // which is not ideal since if a user doesn't have a subsidy, the APIs may return
+    // a non-200 status code.
+    //
+    // TODO: include API calls to fetch code/offer subsidies the user may have
+    const data = await Promise.allSettled([
+      this.fetchUserLicenseSubsidy(),
+    ]);
+
+    const licenseSubsidyResult = data[0];
+    if (licenseSubsidyResult && licenseSubsidyResult.status === PROMISE_FULFILLED) {
+      const licenseSubsidy = camelCaseObject(licenseSubsidyResult.value.data);
+      return { ...licenseSubsidy, subsidyType: LICENSE_SUBSIDY_TYPE };
+    }
+
+    return null;
+  }
+
+  fetchUserLicenseSubsidy() {
+    const options = {
+      enterprise_customer_uuid: this.enterpriseUuid,
+      course_key: this.activeCourseRun.key,
+    };
+    const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
+    return this.authenticatedHttpClient.get(url);
   }
 }
