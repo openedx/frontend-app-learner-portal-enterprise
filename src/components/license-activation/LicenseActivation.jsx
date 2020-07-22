@@ -50,7 +50,6 @@ export default function LicenseActivation() {
     <>
       <Helmet title={PAGE_TITLE} />
       <div className="container-fluid py-5">
-        <p>{LOADING_MESSAGE}</p>
         <LoadingSpinner screenReaderText={LOADING_MESSAGE} />
       </div>
     </>

@@ -32,12 +32,20 @@ const CourseSidebarPrice = () => {
     );
   }
 
-  const hasDiscountedPrice = coursePrice?.discounted < coursePrice?.list;
+  const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
   if (hasDiscountedPrice) {
     return (
       <>
         <div className="mb-2">
-          ${coursePrice.discounted} <del>${coursePrice.list}</del> USD
+          {coursePrice.discounted > 0 ? (
+            <>
+              ${coursePrice.discounted} <del>${coursePrice.list}</del> USD
+            </>
+          ) : (
+            <>
+              <del>${coursePrice.list} USD</del>
+            </>
+          )}
         </div>
         <span>Sponsored by {enterpriseConfig.name}</span>
       </>

@@ -2,9 +2,7 @@ import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { LICENSE_SUBSIDY_TYPE } from './constants';
-
-const PROMISE_FULFILLED = 'fulfilled';
+import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
 
 export default class CourseService {
   constructor(options = {}) {
@@ -61,23 +59,36 @@ export default class CourseService {
   }
 
   async fetchAllEnterpriseUserSubsidies() {
+    // TODO: this will likely be expanded to support codes/offers, by appending to
+    // the below array to provide a function that makes the relevant API call(s)
+    // for the specified subsidy type.
+    //
+    // note: these API calls should be ordered by priority. Example: if a user has
+    // a license subsidy, we use that as the user's final subsidy. if not, we check
+    // if the user has a code subsidy, and so on.
+    const SUBSIDY_TYPES = [{
+      type: LICENSE_SUBSIDY_TYPE,
+      fetchFn: this.fetchUserLicenseSubsidy(),
+    }];
+    const promises = SUBSIDY_TYPES.map(subsidy => subsidy.fetchFn);
     // Promise.allSettled() waits until all promises are resolved, whether successful
     // or not. in contrast, Promise.all() immediately rejects when any promise errors
     // which is not ideal since if a user doesn't have a subsidy, the APIs may return
     // a non-200 status code.
-    //
-    // TODO: include API calls to fetch code/offer subsidies the user may have
-    const data = await Promise.allSettled([
-      this.fetchUserLicenseSubsidy(),
-    ]);
+    const data = await Promise.allSettled(promises);
 
-    const licenseSubsidyResult = data[0];
-    if (licenseSubsidyResult && licenseSubsidyResult.status === PROMISE_FULFILLED) {
-      const licenseSubsidy = camelCaseObject(licenseSubsidyResult.value.data);
-      return { ...licenseSubsidy, subsidyType: LICENSE_SUBSIDY_TYPE };
+    let userSubsidy = null;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i]?.status === PROMISE_FULFILLED) {
+        const subsidyData = camelCaseObject(data[i].value.data);
+        userSubsidy = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
+
+        // if a user subsidy is found, break early since the promises are priority ordered
+        break;
+      }
     }
 
-    return null;
+    return userSubsidy;
   }
 
   fetchUserLicenseSubsidy() {

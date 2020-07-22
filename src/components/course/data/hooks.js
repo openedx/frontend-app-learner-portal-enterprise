@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
 import { isCourseInstructorPaced, isCourseSelfPaced, numberWithPrecision } from './utils';
 import {
@@ -180,13 +181,17 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
     () => {
       const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
 
-      if (!listPrice || !userSubsidy) {
+      if (!listPrice) {
         return null;
       }
 
       const priceDetails = {
         list: numberWithPrecision(listPrice),
       };
+      if (!userSubsidy) {
+        return priceDetails;
+      }
+
       const { discountType, discountValue } = userSubsidy;
       let discountedPrice;
 
@@ -198,7 +203,12 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
         discountedPrice = Math.max(listPrice - discountValue, 0);
       }
 
-      priceDetails.discounted = discountedPrice ? numberWithPrecision(discountedPrice) : priceDetails.list;
+      if (isDefinedAndNotNull(discountedPrice)) {
+        priceDetails.discounted = numberWithPrecision(discountedPrice);
+      } else {
+        priceDetails.discounted = priceDetails.list;
+      }
+
       return priceDetails;
     },
     [activeCourseRun, userSubsidy],

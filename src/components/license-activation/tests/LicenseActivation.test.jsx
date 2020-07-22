@@ -37,8 +37,8 @@ describe('LicenseActivation', () => {
       route: TEST_ROUTE,
     });
 
-    // assert component is initially loading and displays the loading message as text and SR text
-    expect(screen.queryAllByText(LOADING_MESSAGE)).toHaveLength(2);
+    // assert component is initially loading and displays the loading message as screenreader text
+    expect(screen.queryAllByText(LOADING_MESSAGE)).toHaveLength(1);
 
     // assert we did NOT get redirected
     expect(history.location.pathname).toEqual(TEST_ROUTE);
