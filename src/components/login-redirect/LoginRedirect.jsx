@@ -9,7 +9,6 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
  *
  * @param {node} children The child nodes to render if there is an authenticated user.
  */
-// TODO: Use this for all pages and remove requirement for authenticated users
 export default function LoginRedirect({ children }) {
   const user = getAuthenticatedUser();
 
@@ -19,10 +18,10 @@ export default function LoginRedirect({ children }) {
 
   const { enterpriseSlug } = useParams();
   const options = {
-    slug: enterpriseSlug,
+    enterprise_slug: enterpriseSlug,
     next: global.location,
   };
-  const proxyLoginUrl = `${process.env.LMS_BASE_URL}/enterprise/proxy_login/?${qs.stringify(options)}`;
+  const proxyLoginUrl = `${process.env.LMS_BASE_URL}/enterprise/proxy-login/?${qs.stringify(options)}`;
   global.location.href = proxyLoginUrl;
   return null;
 }
