@@ -136,7 +136,6 @@ Testing is supported with Jest and Enzyme. To run tests, use:
 
 `npm test`
 
-
 ### Code layout / components
 
 TODO/WIP
