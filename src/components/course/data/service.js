@@ -2,6 +2,7 @@ import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
 
 export default class CourseService {
@@ -58,7 +59,7 @@ export default class CourseService {
     return this.authenticatedHttpClient.get(url);
   }
 
-  async fetchAllEnterpriseUserSubsidies() {
+  async fetchEnterpriseUserSubsidy() {
     // TODO: this will likely be expanded to support codes/offers, by appending to
     // the below array to provide a function that makes the relevant API call(s)
     // for the specified subsidy type.
@@ -80,11 +81,15 @@ export default class CourseService {
     let userSubsidy = null;
     for (let i = 0; i < data.length; i++) {
       if (data[i]?.status === PROMISE_FULFILLED) {
-        const subsidyData = camelCaseObject(data[i].value.data);
-        userSubsidy = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
+        const result = data[i].value.data;
+        const subsidyData = camelCaseObject(result);
 
-        // if a user subsidy is found, break early since the promises are priority ordered
-        break;
+        if (hasValidStartExpirationDates(subsidyData)) {
+          userSubsidy = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
+          // if a non-expired user subsidy is found, break early since the promises
+          // are priority ordered
+          break;
+        }
       }
     }
 

@@ -160,8 +160,8 @@ export function useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig) 
           activeCourseRun,
         });
         try {
-          const data = await courseService.fetchAllEnterpriseUserSubsidies();
-          setUserSubsidy(data);
+          const subsidy = await courseService.fetchEnterpriseUserSubsidy();
+          setUserSubsidy(subsidy);
         } catch (error) {
           logError(error);
         } finally {

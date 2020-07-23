@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
-import { isNull } from '../../../utils/common';
+import { isNull, hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
 
@@ -11,7 +11,12 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (subscriptionPlan && subscriptionPlan.uuid) {
+    if (!subscriptionPlan || isNull(subscriptionPlan) || !hasValidStartExpirationDates(subscriptionPlan)) {
+      setIsLoading(false);
+      return;
+    }
+
+    if (subscriptionPlan?.uuid) {
       fetchSubscriptionLicensesForUser(subscriptionPlan.uuid)
         .then((response) => {
           const { results } = camelCaseObject(response.data);
@@ -36,9 +41,6 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
         .finally(() => {
           setIsLoading(false);
         });
-    }
-    if (isNull(subscriptionPlan)) {
-      setIsLoading(false);
     }
   }, [subscriptionPlan]);
 

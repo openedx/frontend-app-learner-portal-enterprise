@@ -37,3 +37,8 @@ export const hasTruthyValue = (value) => {
   const values = createArrayFromValue(value);
   return values.every(item => !!item);
 };
+
+export const hasValidStartExpirationDates = ({ startDate, expirationDate }) => {
+  const now = moment();
+  return now.isBetween(startDate, expirationDate);
+};
