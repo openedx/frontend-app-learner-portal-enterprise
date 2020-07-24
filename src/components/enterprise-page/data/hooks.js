@@ -30,7 +30,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
-        if (config && config.enableLearnerPortal) {
+        if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
           // TODO: bannerBackgroundColor and bannerBorderColor will be replaced by
           // secondaryColor and tertiaryColor, respectively.
@@ -44,12 +44,14 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             uuid,
             slug,
             contactEmail,
+            hideCourseOriginalPrice,
           } = config;
           setEnterpriseConfig({
             name,
             uuid,
             slug,
             contactEmail,
+            hideCourseOriginalPrice,
             branding: {
               logo,
               colors: {

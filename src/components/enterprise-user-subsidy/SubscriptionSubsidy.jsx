@@ -4,8 +4,12 @@ import { Redirect, useRouteMatch } from 'react-router-dom';
 import { StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import {
+  isDefinedAndNotNull,
+  isNull,
+  hasValidStartExpirationDates,
+} from '../../utils/common';
 import { useRenderContactHelpText } from '../../utils/hooks';
-import { isNull, hasValidStartExpirationDates } from '../../utils/common';
 import { LICENSE_STATUS } from './data/constants';
 
 const SubscriptionSubsidy = ({ plan, license }) => {
@@ -65,7 +69,7 @@ const SubscriptionSubsidy = ({ plan, license }) => {
     );
   }
 
-  if (license?.status !== LICENSE_STATUS.ACTIVATED) {
+  if (isDefinedAndNotNull(license) && license.status !== LICENSE_STATUS.ACTIVATED) {
     if (!match.isExact) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }

@@ -24,9 +24,11 @@ const CourseSidebarPrice = () => {
   if (userSubsidy?.subsidyType === LICENSE_SUBSIDY_TYPE) {
     return (
       <>
-        <div className="mb-2">
-          <del>${coursePrice.list} USD</del>
-        </div>
+        {!enterpriseConfig.hideCourseOriginalPrice && (
+          <div className="mb-2">
+            <del>${coursePrice.list} USD</del>
+          </div>
+        )}
         <span>Included in your subscription</span>
       </>
     );
@@ -39,11 +41,19 @@ const CourseSidebarPrice = () => {
         <div className="mb-2">
           {coursePrice.discounted > 0 ? (
             <>
-              ${coursePrice.discounted} <del>${coursePrice.list}</del> USD
+              ${coursePrice.discounted}
+              {!enterpriseConfig?.hideCourseOriginalPrice && (
+                <>
+                  {' '}
+                  <del>${coursePrice.list}</del>
+                </>
+              )}
+              {' '}
+              USD
             </>
           ) : (
             <>
-              <del>${coursePrice.list} USD</del>
+              ${coursePrice.discounted} USD
             </>
           )}
         </div>
