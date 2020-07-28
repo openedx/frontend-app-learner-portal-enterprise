@@ -4,16 +4,48 @@ import { Redirect, useRouteMatch } from 'react-router-dom';
 import { StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import {
+  isDefinedAndNotNull,
+  isNull,
+  hasValidStartExpirationDates,
+} from '../../utils/common';
+import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
 
-import { useRenderContactHelpText } from '../../utils/hooks';
-
-const SubscriptionSubsidy = ({ subscriptionLicense }) => {
+const SubscriptionSubsidy = ({ plan, license }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const match = useRouteMatch(`/${enterpriseConfig.slug}`);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
-  if (subscriptionLicense === null) {
+  if (!plan) {
+    return null;
+  }
+
+  if (!hasValidStartExpirationDates(plan)) {
+    if (!match.isExact) {
+      return <Redirect to={`/${enterpriseConfig.slug}`} />;
+    }
+    return (
+      <>
+        <div className="container-fluid mt-3">
+          <StatusAlert
+            alertType="danger"
+            className="mb-0"
+            dialog={(
+              <>
+                Your organization does not have an active subscription plan.
+                Please {renderContactHelpText()} for further information.
+              </>
+            )}
+            dismissible={false}
+            open
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (isNull(license)) {
     if (!match.isExact) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
@@ -37,13 +69,13 @@ const SubscriptionSubsidy = ({ subscriptionLicense }) => {
     );
   }
 
-  if (subscriptionLicense && subscriptionLicense.status !== LICENSE_STATUS.ACTIVATED) {
+  if (isDefinedAndNotNull(license) && license.status !== LICENSE_STATUS.ACTIVATED) {
     if (!match.isExact) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
     return (
       <>
-        {subscriptionLicense.status === LICENSE_STATUS.ASSIGNED && (
+        {license.status === LICENSE_STATUS.ASSIGNED && (
           <div className="container-fluid mt-3">
             <StatusAlert
               alertType="warning"
@@ -59,7 +91,7 @@ const SubscriptionSubsidy = ({ subscriptionLicense }) => {
             />
           </div>
         )}
-        {subscriptionLicense.status === LICENSE_STATUS.DEACTIVATED && (
+        {license.status === LICENSE_STATUS.DEACTIVATED && (
           <div className="container-fluid mt-3">
             <StatusAlert
               alertType="danger"
@@ -84,11 +116,18 @@ const SubscriptionSubsidy = ({ subscriptionLicense }) => {
 };
 
 SubscriptionSubsidy.propTypes = {
-  subscriptionLicense: PropTypes.shape(),
+  license: PropTypes.shape({
+    status: PropTypes.string,
+  }),
+  plan: PropTypes.shape({
+    startDate: PropTypes.string,
+    expirationDate: PropTypes.string,
+  }),
 };
 
 SubscriptionSubsidy.defaultProps = {
-  subscriptionLicense: undefined,
+  license: undefined,
+  plan: undefined,
 };
 
 export default SubscriptionSubsidy;

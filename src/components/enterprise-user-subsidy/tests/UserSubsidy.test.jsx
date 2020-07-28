@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -14,6 +15,8 @@ jest.mock('../data/service');
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
+
+const now = moment();
 
 // eslint-disable-next-line react/prop-types
 const UserSubsidyWithAppContext = ({ contextValue = {} }) => (
@@ -66,9 +69,37 @@ describe('without subscription plan', () => {
   });
 });
 
-describe('with subscription plan', () => {
+describe('with subscription plan that is expired or has not yet started', () => {
   const contextValue = {
-    subscriptionPlan: { uuid: TEST_SUBSCRIPTION_UUID },
+    subscriptionPlan: {
+      uuid: TEST_SUBSCRIPTION_UUID,
+      startDate: now.subtract(1, 'w').toISOString(),
+      expirationDate: now.subtract(1, 'd').toISOString(),
+    },
+  };
+
+  test('renders alert if it has not started or has already ended', async () => {
+    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
+    renderWithRouter(Component, {
+      route: `/${TEST_ENTERPRISE_SLUG}`,
+    });
+
+    // assert status alert message renders
+    await waitFor(() => {
+      const activationMessage = 'does not have an active subscription plan';
+      expect(screen.queryByRole('alert')).toBeInTheDocument();
+      expect(screen.queryByText(activationMessage, { exact: false })).toBeInTheDocument();
+    });
+  });
+});
+
+describe('with subscription plan that has started, but not yet ended', () => {
+  const contextValue = {
+    subscriptionPlan: {
+      uuid: TEST_SUBSCRIPTION_UUID,
+      startDate: now.subtract(1, 'w').toISOString(),
+      expirationDate: now.add(1, 'y').toISOString(),
+    },
   };
 
   beforeEach(() => {

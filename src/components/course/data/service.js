@@ -1,16 +1,23 @@
 import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+
+import { hasValidStartExpirationDates } from '../../../utils/common';
+import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
 
 export default class CourseService {
   constructor(options = {}) {
-    const { courseKey, enterpriseUuid } = options;
+    const {
+      activeCourseRun,
+      courseKey,
+      enterpriseUuid,
+    } = options;
 
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
 
-    if (courseKey && enterpriseUuid) {
-      this.courseKey = courseKey;
-      this.enterpriseUuid = enterpriseUuid;
-    }
+    this.courseKey = courseKey;
+    this.enterpriseUuid = enterpriseUuid;
+    this.activeCourseRun = activeCourseRun;
   }
 
   async fetchAllCourseData() {
@@ -52,8 +59,49 @@ export default class CourseService {
     return this.authenticatedHttpClient.get(url);
   }
 
-  enrollUser(data) {
-    const url = `${process.env.LMS_BASE_URL}/api/commerce/v0/baskets/`;
-    return this.authenticatedHttpClient.post(url, data);
+  async fetchEnterpriseUserSubsidy() {
+    // TODO: this will likely be expanded to support codes/offers, by appending to
+    // the below array to provide a function that makes the relevant API call(s)
+    // for the specified subsidy type.
+    //
+    // note: these API calls should be ordered by priority. Example: if a user has
+    // a license subsidy, we use that as the user's final subsidy. if not, we check
+    // if the user has a code subsidy, and so on.
+    const SUBSIDY_TYPES = [{
+      type: LICENSE_SUBSIDY_TYPE,
+      fetchFn: this.fetchUserLicenseSubsidy(),
+    }];
+    const promises = SUBSIDY_TYPES.map(subsidy => subsidy.fetchFn);
+    // Promise.allSettled() waits until all promises are resolved, whether successful
+    // or not. in contrast, Promise.all() immediately rejects when any promise errors
+    // which is not ideal since if a user doesn't have a subsidy, the APIs may return
+    // a non-200 status code.
+    const data = await Promise.allSettled(promises);
+
+    let userSubsidy = null;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i]?.status === PROMISE_FULFILLED) {
+        const result = data[i].value.data;
+        const subsidyData = camelCaseObject(result);
+
+        if (hasValidStartExpirationDates(subsidyData)) {
+          userSubsidy = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
+          // if a non-expired user subsidy is found, break early since the promises
+          // are priority ordered
+          break;
+        }
+      }
+    }
+
+    return userSubsidy;
+  }
+
+  fetchUserLicenseSubsidy() {
+    const options = {
+      enterprise_customer_uuid: this.enterpriseUuid,
+      course_key: this.activeCourseRun.key,
+    };
+    const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
+    return this.authenticatedHttpClient.get(url);
   }
 }

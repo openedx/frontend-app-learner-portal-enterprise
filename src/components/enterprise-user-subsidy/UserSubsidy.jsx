@@ -5,6 +5,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { LoadingSpinner } from '../loading-spinner';
 import SubscriptionSubsidy from './SubscriptionSubsidy';
 
+import { isNull, hasValidStartExpirationDates } from '../../utils/common';
 import { useSubscriptionLicenseForUser } from './data/hooks';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
 
@@ -28,9 +29,12 @@ const UserSubsidy = ({ children }) => {
 
       // determine whether user has access to the Learner Portal if their organization
       // has an active Subscription Plan.
-      if (subscriptionPlan && subscriptionLicense === null) {
+      if (!subscriptionPlan || !hasValidStartExpirationDates(subscriptionPlan)) {
         hasAccessToPortal = false;
-      } else if (subscriptionLicense && subscriptionLicense.status !== LICENSE_STATUS.ACTIVATED) {
+      }
+
+      // determine whether user has access to the Learner Portal if they have an activated license
+      if (isNull(subscriptionLicense) || subscriptionLicense?.status !== LICENSE_STATUS.ACTIVATED) {
         hasAccessToPortal = false;
       }
 
@@ -52,9 +56,11 @@ const UserSubsidy = ({ children }) => {
       {/**
        * SubscriptionSubsidy takes care of redirecting the user to `/${enterpriseConfig.slug}`
        * if their organization has a subscription plan but they don't have appropriate access
-       * to a license (i.e., status="activated") and rendering warning/error status alerts.
+       * to a license (i.e., status="activated"). it also handles the case where the organization
+       * has an active subscription plan but the current date is not between the plan's start and
+       * expiration dates. The component also handles rendering warning/error status alerts.
        */}
-      <SubscriptionSubsidy subscriptionLicense={subscriptionLicense} />
+      <SubscriptionSubsidy plan={subscriptionPlan} license={subscriptionLicense} />
       {/**
        * Potential direction for code organization for blended use case of subscriptions,
        * codes, and offers:
