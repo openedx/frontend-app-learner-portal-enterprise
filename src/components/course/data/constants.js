@@ -13,3 +13,5 @@ export const SUBSIDY_DISCOUNT_TYPE_ABSOLUTE = 'absolute';
 export const LICENSE_SUBSIDY_TYPE = 'license';
 
 export const PROMISE_FULFILLED = 'fulfilled';
+
+export const CURRENCY_USD = 'USD';

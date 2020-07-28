@@ -15,7 +15,7 @@ const CourseSidebarPrice = () => {
   const { activeCourseRun } = state;
   const { enterpriseConfig } = useContext(AppContext);
   const [userSubsidy, isLoading] = useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig);
-  const coursePrice = useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy);
+  const [coursePrice, currency] = useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy);
 
   if (isLoading || !coursePrice) {
     return <Skeleton height={24} />;
@@ -26,7 +26,7 @@ const CourseSidebarPrice = () => {
       <>
         {!enterpriseConfig.hideCourseOriginalPrice && (
           <div className="mb-2">
-            <del>${coursePrice.list} USD</del>
+            <del>${coursePrice.list} {currency}</del>
           </div>
         )}
         <span>Included in your subscription</span>
@@ -49,11 +49,10 @@ const CourseSidebarPrice = () => {
                 </>
               )}
               {' '}
-              USD
             </>
           ) : (
             <>
-              ${coursePrice.discounted} USD
+              ${coursePrice.discounted} {currency}
             </>
           )}
         </div>
@@ -63,7 +62,7 @@ const CourseSidebarPrice = () => {
   }
 
   return (
-    <span>${coursePrice.list} USD</span>
+    <span>${coursePrice.list} {currency}</span>
   );
 };
 

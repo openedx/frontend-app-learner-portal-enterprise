@@ -69,7 +69,7 @@ describe('without subscription plan', () => {
   });
 });
 
-describe('with inactive subscription plan', () => {
+describe('with subscription plan that is expired or has not yet started', () => {
   const contextValue = {
     subscriptionPlan: {
       uuid: TEST_SUBSCRIPTION_UUID,
@@ -78,7 +78,7 @@ describe('with inactive subscription plan', () => {
     },
   };
 
-  test('renders inactive subscription plan alert if it has not started or has already ended', async () => {
+  test('renders alert if it has not started or has already ended', async () => {
     const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
     renderWithRouter(Component, {
       route: `/${TEST_ENTERPRISE_SLUG}`,
@@ -93,7 +93,7 @@ describe('with inactive subscription plan', () => {
   });
 });
 
-describe('with active subscription plan', () => {
+describe('with subscription plan that has started, but not yet ended', () => {
   const contextValue = {
     subscriptionPlan: {
       uuid: TEST_SUBSCRIPTION_UUID,

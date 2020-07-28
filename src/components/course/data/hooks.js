@@ -10,6 +10,7 @@ import {
   SELF_PACED_TYPE,
   SUBSIDY_DISCOUNT_TYPE_ABSOLUTE,
   SUBSIDY_DISCOUNT_TYPE_PERCENTAGE,
+  CURRENCY_USD,
 } from './constants';
 
 export function useAllCourseData({ courseKey, enterpriseConfig }) {
@@ -177,6 +178,8 @@ export function useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig) 
 }
 
 export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
+  const currency = CURRENCY_USD;
+
   const coursePrice = useMemo(
     () => {
       const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
@@ -214,5 +217,5 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
     [activeCourseRun, userSubsidy],
   );
 
-  return coursePrice;
+  return [coursePrice, currency];
 }
