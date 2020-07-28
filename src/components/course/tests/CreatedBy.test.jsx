@@ -2,33 +2,17 @@ import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import CreatedBy from '../CreatedBy';
 import { CourseContextProvider } from '../CourseContextProvider';
+import CreatedBy from '../CreatedBy';
+
+import { TEST_OWNER, TEST_STAFF } from './data/constants';
 
 // eslint-disable-next-line react/prop-types
 const CreatedByWithCourseContext = ({ initialState = {} }) => (
   <CourseContextProvider initialState={initialState}>
-    <CreatedBy>
-      <span data-testid="did-i-render" />
-    </CreatedBy>
+    <CreatedBy />
   </CourseContextProvider>
 );
-
-const TEST_OWNER = {
-  marketingUrl: 'http://test.url',
-  logoImageUrl: 'http://test.image.url',
-  name: 'Partner Name',
-};
-const TEST_STAFF = {
-  profileImageUrl: 'http://test.url',
-  givenName: 'Test',
-  familyName: 'User',
-  slug: 'staff-slug',
-  position: {
-    title: 'Test Title',
-    organizationName: 'edX',
-  },
-};
 
 describe('<CreatedBy />', () => {
   const initialState = {
@@ -60,14 +44,14 @@ describe('<CreatedBy />', () => {
     catalog: {},
   };
 
-  test('renders partner info', async () => {
+  test('renders partner info', () => {
     render(<CreatedByWithCourseContext initialState={initialState} />);
     initialState.course.owners.forEach((owner) => {
       expect(screen.queryByText(owner.name)).toBeInTheDocument();
     });
   });
 
-  test('renders staff info', async () => {
+  test('renders staff info', () => {
     render(<CreatedByWithCourseContext initialState={initialState} />);
     initialState.activeCourseRun.staff.forEach((staffMember) => {
       const fullName = `${staffMember.givenName} ${staffMember.familyName}`;

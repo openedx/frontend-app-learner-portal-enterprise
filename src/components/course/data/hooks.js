@@ -62,7 +62,7 @@ export function useCourseSubjects(course) {
 
 export function useCoursePartners(course) {
   const [partners, setPartners] = useState([]);
-  const [label, setLabel] = useState(undefined);
+  const [label, setLabel] = useState();
 
   useEffect(() => {
     if (course?.owners) {
