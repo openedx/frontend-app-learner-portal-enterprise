@@ -1,6 +1,5 @@
-import React, {
-  useContext, useMemo,
-} from 'react';
+import React, { useContext, useMemo } from 'react';
+import classNames from 'classnames';
 import moment from 'moment';
 import qs from 'query-string';
 import { Link } from 'react-router-dom';
@@ -37,27 +36,36 @@ export default function EnrollButton() {
     courseUuid,
   } = activeCourseRun;
 
-  // This enrollment URL assumes that the learner has access to the course through their subscription license, and they
-  // are using the license to enroll.
-  // TODO: Update to conditionally use the DSC flow with a license uuid only when the learner is actually using a
-  // license.
-  const enrollOptions = {
-    license_uuid: subscriptionLicense.uuid,
-    course_id: key,
-    enterprise_customer_uuid: enterpriseConfig.uuid,
-    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
-    failure_url: global.location,
-  };
-  const licenseEnrollmentUrl = `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
-  const enrollLinkClass = 'btn btn-success btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-success btn-block rounded-0 py-2';
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
     [start],
   );
+
   const isUserEnrolled = useMemo(
     () => isUserEnrolledInCourse({ userEnrollments, key }),
     [userEnrollments, key],
+  );
+
+  const enrollmentUrl = useMemo(
+    () => {
+      if (subscriptionLicense) {
+        const enrollOptions = {
+          license_uuid: subscriptionLicense.uuid,
+          course_id: key,
+          enterprise_customer_uuid: enterpriseConfig.uuid,
+          next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
+          failure_url: global.location,
+        };
+        return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
+      }
+
+      // TODO: the "Enroll" button does not yet support other subsidy types beyond subscription
+      // licenses. as such, the enrollment url for codes/offers is unknown at this time.
+      return null;
+    },
+    [],
   );
 
   const renderButtonLabel = () => {
@@ -102,16 +110,28 @@ export default function EnrollButton() {
     return <span className="enroll-btn-label">View Course</span>;
   };
 
+  const DefaultEnrollCta = useMemo(
+    () => props => (
+      <Button {...props}>
+        {renderButtonLabel()}
+      </Button>
+    ),
+    [],
+  );
+
   const renderEnrollCta = () => {
     if (!isUserEnrolled && isEnrollable) {
-      return (
-        <a
-          className={enrollLinkClass}
-          href={licenseEnrollmentUrl}
-        >
-          {renderButtonLabel()}
-        </a>
-      );
+      if (enrollmentUrl) {
+        return (
+          <a
+            className={classNames('btn', enrollLinkClass)}
+            href={enrollmentUrl}
+          >
+            {renderButtonLabel()}
+          </a>
+        );
+      }
+      return <DefaultEnrollCta className={classNames(enrollLinkClass, 'disabled')} />;
     }
 
     if (!isUserEnrolled && !isEnrollable) {
@@ -126,7 +146,7 @@ export default function EnrollButton() {
       if (isCourseStarted) {
         return (
           <a
-            className={enrollLinkClass}
+            className={classNames('btn', enrollLinkClass)}
             href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
           >
             {renderButtonLabel()}
@@ -136,7 +156,7 @@ export default function EnrollButton() {
 
       return (
         <Link
-          className={enrollLinkClass}
+          className={classNames('btn', enrollLinkClass)}
           to={`/${enterpriseConfig.slug}`}
         >
           {renderButtonLabel()}
@@ -144,11 +164,7 @@ export default function EnrollButton() {
       );
     }
 
-    return (
-      <Button className="btn-success btn-block rounded-0 py-2">
-        {renderButtonLabel()}
-      </Button>
-    );
+    return <DefaultEnrollCta className={enrollLinkClass} />;
   };
 
   return (
