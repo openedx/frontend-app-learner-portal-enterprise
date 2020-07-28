@@ -5,7 +5,6 @@ import {
 } from './data/constants';
 
 export const CourseContext = createContext();
-export const CourseContextConsumer = CourseContext.Consumer;
 
 const reducer = (state, action) => {
   switch (action.type) {
