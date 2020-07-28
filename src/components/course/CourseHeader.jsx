@@ -1,18 +1,22 @@
 import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import { Breadcrumb } from '@edx/paragon';
+import { useLocation } from 'react-router-dom';
+import qs from 'query-string';
+import { Breadcrumb, StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import CourseRunSelector from './CourseRunSelector';
 import EnrollButton from './EnrollButton';
 
+import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
 import {
   isArchived,
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
 import { useCourseSubjects, useCoursePartners } from './data/hooks';
+import { useRenderContactHelpText } from '../../utils/hooks';
 
 import './styles/CourseHeader.scss';
 
@@ -22,14 +26,42 @@ export default function CourseHeader() {
   const { course, activeCourseRun, catalog } = state;
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
+  const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
+  const { search } = useLocation();
+
+  const enrollmentFailed = useMemo(
+    () => qs.parse(search)[ENROLLMENT_FAILED_QUERY_PARAM],
+    [search],
+  );
 
   const defaultProgram = useMemo(
     () => getDefaultProgram(course.programs),
     [course],
   );
 
+  const renderFailedEnrollmentAlert = () => (
+    <>
+      <div className="container-fluid pt-3">
+        <StatusAlert
+          alertType="danger"
+          className="mb-0"
+          dialog={(
+            <>
+              You were not enrolled in your selected course.
+              In order to enroll, you must accept the data sharing consent terms.
+              Please {renderContactHelpText()} for further information.
+            </>
+          )}
+          dismissible={false}
+          open
+        />
+      </div>
+    </>
+  );
+
   return (
     <div className="course-header">
+      {enrollmentFailed && renderFailedEnrollmentAlert()}
       <div className="container-fluid">
         <div className="row py-4">
           <div className="col-12 col-lg-7">

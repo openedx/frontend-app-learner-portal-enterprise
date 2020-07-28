@@ -37,3 +37,5 @@ export const PROGRAM_TYPE_MAP = {
   MICROBACHELORS: 'MicroBachelors',
   MASTERS: 'Masters',
 };
+
+export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';

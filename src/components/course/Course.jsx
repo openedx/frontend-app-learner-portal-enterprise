@@ -19,7 +19,6 @@ import NotFoundPage from '../NotFoundPage';
 export default function Course() {
   const { courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
-
   const [courseData, fetchError] = useAllCourseData({
     courseKey,
     enterpriseConfig,
