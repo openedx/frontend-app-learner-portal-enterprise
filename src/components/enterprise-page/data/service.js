@@ -13,6 +13,6 @@ export function fetchEnterpriseCustomerSubscriptionPlan(enterpriseUuid) {
     // are active to avoid needing to iterate through?
     // is_active: true,
   };
-  const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/subscriptions/?${qs.stringify(queryParams)}`;
+  const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/learner-subscriptions/?${qs.stringify(queryParams)}`;
   return getAuthenticatedHttpClient().get(url);
 }
