@@ -6,8 +6,14 @@ import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button } from '@edx/paragon';
 
+import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from './CourseContextProvider';
 
+import {
+  COURSE_AVAILABILITY_MAP,
+  ENROLL_BUTTON_LABEL_COMING_SOON,
+  ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
+} from './data/constants';
 import {
   hasCourseStarted,
   isUserEnrolledInCourse,
@@ -16,7 +22,6 @@ import {
   hasTimeToComplete,
   isArchived,
 } from './data/utils';
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 export default function EnrollButton() {
   const { state } = useContext(CourseContext);
@@ -70,9 +75,13 @@ export default function EnrollButton() {
 
   const renderButtonLabel = () => {
     if (!isEnrollable) {
-      return availability in ['Upcoming', 'Starting Soon']
-        ? 'Coming Soon'
-        : 'Not Currently Available';
+      const availabilityStates = [
+        COURSE_AVAILABILITY_MAP.UPCOMING,
+        COURSE_AVAILABILITY_MAP.STARTING_SOON,
+      ];
+      return availability in availabilityStates
+        ? ENROLL_BUTTON_LABEL_COMING_SOON
+        : ENROLL_BUTTON_LABEL_NOT_AVAILABLE;
     }
     if (!isUserEnrolled) {
       if (isUserEntitledForCourse({ userEntitlements, courseUuid })) {
@@ -92,7 +101,9 @@ export default function EnrollButton() {
       return (
         <>
           <span className="enroll-btn-label">Enroll</span>
-          {!isArchived(activeCourseRun) && (
+          {isArchived(activeCourseRun) ? (
+            <span className="enroll-btn-label">Enroll</span>
+          ) : (
             <div>
               <small>
                 {isCourseStarted ? 'Started' : 'Starts'}

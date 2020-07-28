@@ -95,7 +95,7 @@ export default function CourseHeader() {
               </p>
             )}
           </div>
-          {course.image && course.image.src && (
+          {course.image?.src && (
             <div className="col-12 col-lg-4 offset-lg-1 mt-3 mt-lg-0">
               <img src={course.image.src} alt="course preview" className="w-100" />
             </div>

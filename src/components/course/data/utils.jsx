@@ -1,5 +1,11 @@
 import React from 'react';
 
+import {
+  COURSE_AVAILABILITY_MAP,
+  PROGRAM_TYPE_MAP,
+  COURSE_PACING_MAP,
+} from './constants';
+
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
 import VerifiedSvgIcon from '../../../assets/icons/verified.svg';
@@ -41,25 +47,25 @@ export function hasTimeToComplete(courseRun) {
 
 export function isArchived(courseRun) {
   if (courseRun.availability) {
-    return courseRun.availability.toLowerCase() === 'archived';
+    return courseRun.availability === COURSE_AVAILABILITY_MAP.ARCHIVED;
   }
   return false;
 }
 
 export function isCourseSelfPaced(pacingType) {
-  return pacingType === 'self_paced';
+  return pacingType === COURSE_PACING_MAP.SELF_PACED;
 }
 
 export function isCourseInstructorPaced(pacingType) {
-  return pacingType === 'instructor_paced';
+  return pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED;
 }
 
 export function programIsMicroMasters(type) {
-  return type.toLowerCase() === 'micromasters';
+  return type === PROGRAM_TYPE_MAP.MICROMASTERS;
 }
 
 export function programIsProfessionalCertificate(type) {
-  return type.toLowerCase() === 'professional certificate';
+  return type === PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE;
 }
 
 export function getDefaultProgram(programs = []) {
@@ -85,11 +91,11 @@ export function getDefaultProgram(programs = []) {
 }
 
 export function formatProgramType(programType) {
-  switch (programType.toLowerCase()) {
-    case 'micromasters':
-    case 'microbachelors':
+  switch (programType) {
+    case PROGRAM_TYPE_MAP.MICROMASTERS:
+    case PROGRAM_TYPE_MAP.MICROBACHELORS:
       return <>{programType}<sup>&reg;</sup> Program</>;
-    case 'masters':
+    case PROGRAM_TYPE_MAP.MASTERS:
       return 'Master\'s';
     default:
       return programType;
@@ -98,13 +104,13 @@ export function formatProgramType(programType) {
 
 export function getProgramIcon(type) {
   switch (type) {
-    case 'XSeries':
+    case PROGRAM_TYPE_MAP.XSERIES:
       return XSeriesSvgIcon;
-    case 'Professional Certificate':
+    case PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE:
       return ProfessionalSvgIcon;
-    case 'MicroMasters':
+    case PROGRAM_TYPE_MAP.MICROMASTERS:
       return MicroMastersSvgIcon;
-    case 'Credit':
+    case PROGRAM_TYPE_MAP.CREDIT:
       return CreditSvgIcon;
     default:
       return VerifiedSvgIcon;

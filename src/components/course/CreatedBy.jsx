@@ -9,7 +9,7 @@ export default function CreatedBy() {
   const { course, activeCourseRun } = state;
   const [partners] = useCoursePartners(course);
 
-  if (!partners.length && !activeCourseRun.staff.length) {
+  if (!partners.length && !activeCourseRun?.staff.length) {
     return null;
   }
 
@@ -21,7 +21,7 @@ export default function CreatedBy() {
       {partners.length > 0 && (
         <div className="row no-gutters mt-3">
           {partners.map(partner => (
-            <div className="col-lg-6 mb-3" key={partner.marketingUrl}>
+            <div className="col-lg-6 mb-3" key={partner.name}>
               <div className="mb-2">
                 <a href={partner.marketingUrl} aria-hidden="true" tabIndex="-1">
                   <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
@@ -32,7 +32,7 @@ export default function CreatedBy() {
           ))}
         </div>
       )}
-      {activeCourseRun.staff && activeCourseRun.staff.length > 0 && (
+      {activeCourseRun?.staff.length > 0 && (
         <div className="row no-gutters mt-3">
           {activeCourseRun.staff.map(staff => (
             <div className="d-flex col-lg-6 mb-3" key={formatStaffFullName(staff)}>
