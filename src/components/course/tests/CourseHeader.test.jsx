@@ -7,6 +7,7 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseHeader from '../CourseHeader';
 
+import { COURSE_AVAILABILITY_MAP } from '../data/constants';
 import { TEST_OWNER } from './data/constants';
 
 /* eslint-disable react/prop-types */
@@ -47,6 +48,7 @@ describe('<CourseHeader />', () => {
     },
     activeCourseRun: {
       isEnrollable: true,
+      key: 'test-course-run-key',
     },
     userEnrollments: [],
     userEntitlements: [],
@@ -129,7 +131,7 @@ describe('<CourseHeader />', () => {
       ...initialCourseState,
       activeCourseRun: {
         ...initialCourseState.activeCourseRun,
-        availability: 'archived',
+        availability: COURSE_AVAILABILITY_MAP.ARCHIVED,
       },
     };
 

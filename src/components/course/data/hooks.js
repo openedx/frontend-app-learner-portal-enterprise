@@ -6,10 +6,8 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
 import { isCourseInstructorPaced, isCourseSelfPaced, numberWithPrecision } from './utils';
 import {
-  INSTRUCTOR_PACED_TYPE,
-  SELF_PACED_TYPE,
-  SUBSIDY_DISCOUNT_TYPE_ABSOLUTE,
-  SUBSIDY_DISCOUNT_TYPE_PERCENTAGE,
+  COURSE_PACING_MAP,
+  SUBSIDY_DISCOUNT_TYPE_MAP,
   CURRENCY_USD,
 } from './constants';
 
@@ -120,11 +118,11 @@ export function useCoursePacingType(courseRun) {
   useEffect(
     () => {
       if (isCourseSelfPaced(courseRun.pacingType)) {
-        setPacingType(SELF_PACED_TYPE);
+        setPacingType(COURSE_PACING_MAP.SELF_PACED);
       }
 
       if (isCourseInstructorPaced(courseRun.pacingType)) {
-        setPacingType(INSTRUCTOR_PACED_TYPE);
+        setPacingType(COURSE_PACING_MAP.INSTRUCTOR_PACED);
       }
     },
     [courseRun],
@@ -132,11 +130,11 @@ export function useCoursePacingType(courseRun) {
 
   const pacingTypeContent = useMemo(
     () => {
-      if (pacingType === INSTRUCTOR_PACED_TYPE) {
+      if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
         return 'Instructor-led on a course schedule';
       }
 
-      if (pacingType === SELF_PACED_TYPE) {
+      if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
         return 'Self-paced on your time';
       }
 
@@ -198,11 +196,11 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
       const { discountType, discountValue } = userSubsidy;
       let discountedPrice;
 
-      if (discountType === SUBSIDY_DISCOUNT_TYPE_PERCENTAGE) {
+      if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
         discountedPrice = listPrice - (listPrice * (discountValue / 100));
       }
 
-      if (discountType === SUBSIDY_DISCOUNT_TYPE_ABSOLUTE) {
+      if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
         discountedPrice = Math.max(listPrice - discountValue, 0);
       }
 
