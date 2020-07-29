@@ -9,11 +9,11 @@ import { Button } from '@edx/paragon';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from './CourseContextProvider';
 
-import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
 import {
   COURSE_AVAILABILITY_MAP,
   ENROLL_BUTTON_LABEL_COMING_SOON,
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
+  ENROLLMENT_FAILED_QUERY_PARAM,
 } from './data/constants';
 import {
   hasCourseStarted,
