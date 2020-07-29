@@ -16,8 +16,6 @@ const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 
-const now = moment();
-
 // eslint-disable-next-line react/prop-types
 const UserSubsidyWithAppContext = ({ contextValue = {} }) => (
   <AppContext.Provider
@@ -70,15 +68,17 @@ describe('without subscription plan', () => {
 });
 
 describe('with subscription plan that is expired or has not yet started', () => {
+  const startDate = moment().subtract(1, 'y');
+  const expirationDate = moment().subtract(1, 'w');
   const contextValue = {
     subscriptionPlan: {
       uuid: TEST_SUBSCRIPTION_UUID,
-      startDate: now.subtract(1, 'w').toISOString(),
-      expirationDate: now.subtract(1, 'd').toISOString(),
+      startDate: startDate.toISOString(),
+      expirationDate: expirationDate.toISOString(),
     },
   };
 
-  test('renders alert if it has not started or has already ended', async () => {
+  test('renders alert if plan has not started or has already ended', async () => {
     const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
     renderWithRouter(Component, {
       route: `/${TEST_ENTERPRISE_SLUG}`,
@@ -97,8 +97,8 @@ describe('with subscription plan that has started, but not yet ended', () => {
   const contextValue = {
     subscriptionPlan: {
       uuid: TEST_SUBSCRIPTION_UUID,
-      startDate: now.subtract(1, 'w').toISOString(),
-      expirationDate: now.add(1, 'y').toISOString(),
+      startDate: moment().subtract(1, 'w').toISOString(),
+      expirationDate: moment().add(1, 'y').toISOString(),
     },
   };
 
