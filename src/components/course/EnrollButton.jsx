@@ -13,6 +13,7 @@ import {
   COURSE_AVAILABILITY_MAP,
   ENROLL_BUTTON_LABEL_COMING_SOON,
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
+  ENROLLMENT_FAILED_QUERY_PARAM,
 } from './data/constants';
 import {
   hasCourseStarted,
@@ -61,7 +62,8 @@ export default function EnrollButton() {
           course_id: key,
           enterprise_customer_uuid: enterpriseConfig.uuid,
           next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
-          failure_url: global.location,
+          // Redirect back to the same page with a failure query param
+          failure_url: `${global.location}/?${ENROLLMENT_FAILED_QUERY_PARAM}=true`,
         };
         return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
       }

@@ -10,6 +10,12 @@ import CourseHeader from '../CourseHeader';
 import { COURSE_AVAILABILITY_MAP } from '../data/constants';
 import { TEST_OWNER } from './data/constants';
 
+jest.mock('react-router-dom', () => ({
+  useLocation: () => ({
+    search: '?enrollment_failed=true',
+  }),
+}));
+
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},
@@ -166,6 +172,18 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByText(messaging)).toBeInTheDocument();
 
     expect(screen.queryByText('Enroll')).not.toBeInTheDocument();
+  });
+
+  test('renders an enrollment failed status alert when the enrollment failed query param is present', () => {
+    render(
+      <CourseHeaderWithContext
+        initialAppState={initialAppState}
+        initialCourseState={initialCourseState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    expect(screen.queryByRole('alert')).toBeInTheDocument();
   });
 
   describe('renders program messaging', () => {
