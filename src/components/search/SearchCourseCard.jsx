@@ -69,18 +69,20 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               alt=""
             />
           )}
-          <div className="partner-logo-wrapper">
-            {isLoading && (
+          {isLoading && (
+            <div className="partner-logo-wrapper">
               <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
-            )}
-            {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
+            </div>
+          )}
+          {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
+            <div className="partner-logo-wrapper">
               <img
                 src={partnerDetails.primaryPartner.logoImageUrl}
                 className="partner-logo"
                 alt={partnerDetails.primaryPartner.name}
               />
-            )}
-          </div>
+            </div>
+          )}
           <div className="card-body py-3">
             <h3 className="card-title h5 mb-1">
               {isLoading ? (
