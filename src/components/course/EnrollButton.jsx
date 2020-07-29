@@ -70,7 +70,7 @@ export default function EnrollButton() {
       // licenses. as such, the enrollment url for codes/offers is unknown at this time.
       return null;
     },
-    [],
+    [subscriptionLicense, enterpriseConfig, key],
   );
 
   const renderButtonLabel = () => {
@@ -100,17 +100,19 @@ export default function EnrollButton() {
       }
       return (
         <>
-          <span className="enroll-btn-label">Enroll</span>
           {isArchived(activeCourseRun) ? (
             <span className="enroll-btn-label">Enroll</span>
           ) : (
-            <div>
-              <small>
-                {isCourseStarted ? 'Started' : 'Starts'}
-                {' '}
-                {moment(start).format('MMM D, YYYY')}
-              </small>
-            </div>
+            <>
+              <span className="enroll-btn-label">Enroll</span>
+              <div>
+                <small>
+                  {isCourseStarted ? 'Started' : 'Starts'}
+                  {' '}
+                  {moment(start).format('MMM D, YYYY')}
+                </small>
+              </div>
+            </>
           )}
         </>
       );
