@@ -49,7 +49,8 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
-    "reselect": "^4.0.0"
+    "reselect": "^4.0.0",
+    "universal-cookie": "^4.0.3"
   },
   "devDependencies": {
     "@edx/frontend-build": "^5.0.6",
