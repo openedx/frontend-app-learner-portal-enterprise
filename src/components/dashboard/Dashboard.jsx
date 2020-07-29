@@ -10,6 +10,7 @@ import { DashboardSidebar } from './sidebar';
 
 export default function Dashboard() {
   const { enterpriseConfig } = useContext(AppContext);
+
   const PAGE_TITLE = `My courses - ${enterpriseConfig.name}`;
 
   return (
