@@ -20,7 +20,12 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
       return;
     }
 
-    if (isDefinedAndNotNull(subscriptionPlan) && hasValidStartExpirationDates(subscriptionPlan)) {
+    if (isDefinedAndNotNull(subscriptionPlan)) {
+      if (!hasValidStartExpirationDates(subscriptionPlan)) {
+        setIsLoading(false);
+        return;
+      }
+
       fetchSubscriptionLicensesForUser(subscriptionPlan.uuid)
         .then((response) => {
           const { results } = camelCaseObject(response.data);
