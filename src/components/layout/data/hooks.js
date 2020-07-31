@@ -74,7 +74,7 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
         border-color: ${brandColors[colorName].regular.hex()} !important;
         color: ${brandColors[colorName].regular.hex()} !important;
       }
-      .btn-outline-${colorName}:hover {
+      .btn-brand-outline-${colorName}:hover {
         border-color: ${brandColors[colorName].dark.hex()} !important;
         background-color: ${brandColors.white.mix(brandColors[colorName].light, COLOR_MIX_MODIFIER).hex()} !important;
       }
@@ -88,6 +88,10 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
 
       .border-brand-${colorName} {
         border-color: ${brandColors[colorName].regular.hex()} !important;
+      }
+
+      .color-brand-${colorName} {
+        color: ${brandColors[colorName].regular.hex()} !important;
       }
 
       .text-brand-${colorName} {

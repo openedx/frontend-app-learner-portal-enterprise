@@ -32,12 +32,11 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
         const config = results.pop();
         if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
-          // TODO: bannerBackgroundColor and bannerBorderColor will be replaced by
-          // secondaryColor and tertiaryColor, respectively.
           const {
             logo,
-            bannerBackgroundColor,
-            bannerBorderColor,
+            primaryColor,
+            secondaryColor,
+            tertiaryColor,
           } = brandingConfiguration;
           const {
             name,
@@ -55,12 +54,9 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             branding: {
               logo,
               colors: {
-                // TODO: this will eventually change to `primaryColor || defaultPrimaryColor`
-                primary: defaultPrimaryColor,
-                // TODO: this will eventually change to `secondaryColor || defaultSecondaryColor`
-                secondary: bannerBackgroundColor || defaultSecondaryColor,
-                // TODO: this will eventually change to `tertiaryColor || defaultTertiaryColor`
-                tertiary: bannerBorderColor || defaultTertiaryColor,
+                primary: primaryColor || defaultPrimaryColor,
+                secondary: secondaryColor || defaultSecondaryColor,
+                tertiary: tertiaryColor || defaultTertiaryColor,
               },
             },
           });
