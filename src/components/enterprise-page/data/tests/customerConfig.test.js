@@ -42,8 +42,8 @@ const responseWithBrandingConfig = {
         ...responseWithNullBrandingConfig.data.results[0],
         branding_configuration: {
           logo: 'testlogo.png',
-          bannerBackgroundColor: 'secondaryColor',
-          bannerBorderColor: 'tertiaryColor',
+          secondaryColor: 'secondaryColor',
+          tertiaryColor: 'tertiaryColor',
         },
       },
     ],

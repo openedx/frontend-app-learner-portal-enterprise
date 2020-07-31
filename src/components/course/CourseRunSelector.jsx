@@ -26,7 +26,7 @@ export default function CourseRunSelector() {
   if (multipleRunsAvailable) {
     if (!editing) {
       return (
-        <button type="button" onClick={() => setEditing(true)} className="btn btn-link mb-1 p-0">
+        <button type="button" onClick={() => setEditing(true)} className="btn btn-link mb-1 p-0 btn-brand-primary">
           more dates
         </button>
       );
