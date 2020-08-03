@@ -9,16 +9,14 @@ export default function CourseRunSelector() {
   const { dispatch, state } = useContext(CourseContext);
   const {
     activeCourseRun,
-    course: {
-      courseRuns,
-    },
+    availableCourseRuns,
   } = state;
   const [editing, setEditing] = useState(false);
   const selectRef = useRef(activeCourseRun.uuid);
-  const multipleRunsAvailable = courseRuns && courseRuns.length > 1;
+  const multipleRunsAvailable = availableCourseRuns?.length > 1;
 
   const handleClick = () => {
-    const selectedCourseRun = courseRuns.find((courseRun) => courseRun.uuid === selectRef.current.value);
+    const selectedCourseRun = availableCourseRuns.find((courseRun) => courseRun.uuid === selectRef.current.value);
     dispatch({ type: SET_COURSE_RUN, payload: selectedCourseRun });
     setEditing(false);
   };
@@ -40,7 +38,7 @@ export default function CourseRunSelector() {
           label="Start Date:"
           defaultValue={activeCourseRun.uuid}
           options={
-            courseRuns.map(({ start, uuid }) => (
+            availableCourseRuns.map(({ start, uuid }) => (
               {
                 label: moment(start).format('MMM D, YYYY'),
                 value: uuid,

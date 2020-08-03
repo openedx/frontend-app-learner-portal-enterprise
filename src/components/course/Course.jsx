@@ -13,7 +13,7 @@ import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
 import { useAllCourseData } from './data/hooks';
-import { getActiveCourseRun } from './data/utils';
+import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 
 export default function Course() {
@@ -34,6 +34,7 @@ export default function Course() {
         return {
           course: courseDetails,
           activeCourseRun: getActiveCourseRun(courseDetails),
+          availableCourseRuns: getAvailableCourseRuns(courseDetails),
           userEnrollments,
           userEntitlements,
           catalog,
@@ -54,6 +55,11 @@ export default function Course() {
         <LoadingSpinner screenReaderText="loading course" />
       </div>
     );
+  }
+
+  // If there isn't an active course run we don't show the course at all
+  if (!initialState.activeCourseRun) {
+    return <NotFoundPage />;
   }
 
   const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;
