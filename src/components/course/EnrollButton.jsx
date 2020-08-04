@@ -75,6 +75,8 @@ export default function EnrollButton() {
     [subscriptionLicense, enterpriseConfig, key],
   );
 
+  // See https://openedx.atlassian.net/wiki/spaces/WS/pages/1045200922/Enroll+button+and+Course+Run+Selector+Logic
+  // for more detailed documentation on the enroll button labeling based off course run states.
   const renderButtonLabel = () => {
     if (!isEnrollable) {
       const availabilityStates = [
@@ -102,20 +104,14 @@ export default function EnrollButton() {
       }
       return (
         <>
-          {isArchived(activeCourseRun) ? (
-            <span className="enroll-btn-label">Enroll</span>
-          ) : (
-            <>
-              <span className="enroll-btn-label">Enroll</span>
-              <div>
-                <small>
-                  {isCourseStarted ? 'Started' : 'Starts'}
-                  {' '}
-                  {moment(start).format('MMM D, YYYY')}
-                </small>
-              </div>
-            </>
-          )}
+          <span className="enroll-btn-label">Enroll</span>
+          <div>
+            <small>
+              {isCourseStarted ? 'Started' : 'Starts'}
+              {' '}
+              {moment(start).format('MMM D, YYYY')}
+            </small>
+          </div>
         </>
       );
     }

@@ -18,13 +18,6 @@ export function hasCourseStarted(start) {
   return startDate && today >= startDate;
 }
 
-export function getActiveCourseRun(course) {
-  if (!course || !course.courseRuns || course.courseRuns.length === 0) {
-    return undefined;
-  }
-  return course.courseRuns[course.courseRuns.length - 1];
-}
-
 export function isUserEnrolledInCourse({ userEnrollments, key }) {
   return userEnrollments.some(({ courseDetails: { courseId } }) => courseId === key);
 }
@@ -118,3 +111,15 @@ export function getProgramIcon(type) {
 }
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
+
+// See https://openedx.atlassian.net/wiki/spaces/WS/pages/1045200922/Enroll+button+and+Course+Run+Selector+Logic
+// for more detailed documentation on course run selection and the enroll button.
+export function getActiveCourseRun(course) {
+  return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
+}
+
+export function getAvailableCourseRuns(course) {
+  return course.courseRuns.filter(
+    courseRun => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
+  );
+}
