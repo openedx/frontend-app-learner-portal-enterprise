@@ -7,16 +7,20 @@ import { SidebarBlock } from '../../layout';
 import { LoadingSpinner } from '../../loading-spinner';
 import { fetchOffers, Offer } from './offers';
 import { isFeatureEnabled } from '../../../features';
+import SidebarCard from './SidebarCard';
 
 class DashboardSidebar extends React.Component {
   componentDidMount() {
     if (isFeatureEnabled('enterprise_offers')) {
       this.props.fetchOffers();
     }
+    if (isFeatureEnabled('offer_summary_card')) {
+      this.props.fetchOffers('full_discount_only=True');
+    }
   }
 
   renderOffers(offers) {
-    const hasOffers = offers && offers.length > 0;
+    const hasOffers = isFeatureEnabled('enterprise_offers') && offers && offers.length > 0;
     if (hasOffers) {
       return offers.map(({
         usageType,
@@ -58,6 +62,21 @@ class DashboardSidebar extends React.Component {
     return message;
   }
 
+  renderOfferSummaryCard() {
+    const { offersCount } = this.props;
+    return (
+      <SidebarCard
+        title="Assigned courses left to redeem"
+        buttonText="Find a course in the catalog"
+        textClassNames={offersCount ? 'big-number' : ''}
+        buttonLink="/search"
+        linkIsLocal
+      >
+        {offersCount || 'You currently have no coupons to redeem.'}
+      </SidebarCard>
+    );
+  }
+
   render() {
     const { enterpriseConfig: { name } } = this.context;
     const {
@@ -93,6 +112,16 @@ class DashboardSidebar extends React.Component {
             To request more benefits or specific courses, {this.renderContactHelpText()}.
           </p>
         </SidebarBlock>
+        {isFeatureEnabled('offer_summary_card') && (
+          <SidebarBlock>
+            {isOffersLoading ? (
+              <div className="mb-5">
+                <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
+              </div>
+            )
+              : this.renderOfferSummaryCard()}
+          </SidebarBlock>
+        )}
       </>
     );
   }
@@ -104,6 +133,7 @@ DashboardSidebar.defaultProps = {
   fetchOffers: null,
   isOffersLoading: false,
   offers: [],
+  offersCount: 0,
 };
 
 DashboardSidebar.propTypes = {
@@ -116,15 +146,17 @@ DashboardSidebar.propTypes = {
     code: PropTypes.string,
     couponEndDate: PropTypes.string,
   })),
+  offersCount: PropTypes.number,
 };
 
 const mapStateToProps = state => ({
   isOffersLoading: state.offers.loading,
   offers: state.offers.offers,
+  offersCount: state.offers.offersCount,
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchOffers: () => dispatch(fetchOffers()),
+  fetchOffers: (query) => (query ? dispatch(fetchOffers(query)) : dispatch(fetchOffers())),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DashboardSidebar);

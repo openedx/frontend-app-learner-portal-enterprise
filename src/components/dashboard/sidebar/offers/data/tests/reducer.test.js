@@ -8,6 +8,7 @@ import {
 const initialState = {
   loading: false,
   offers: [],
+  offersCount: 0,
   error: null,
 };
 
@@ -31,12 +32,14 @@ describe('offers reducer', () => {
     const expected = {
       loading: false,
       offers: ['some data'],
+      offersCount: 4,
       error: null,
     };
     expect(offersReducer(undefined, {
       type: FETCH_OFFERS_SUCCESS,
       payload: {
         offers: ['some data'],
+        offersCount: 4,
       },
     })).toEqual(expected);
   });

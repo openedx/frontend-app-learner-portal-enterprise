@@ -7,6 +7,7 @@ import {
 const initialState = {
   loading: false,
   offers: [],
+  offersCount: 0,
   error: null,
 };
 
@@ -24,6 +25,7 @@ const offersReducer = (state = initialState, action) => {
         loading: false,
         error: null,
         offers: action.payload.offers,
+        offersCount: action.payload.offersCount,
       };
     case FETCH_OFFERS_FAILURE:
       return {

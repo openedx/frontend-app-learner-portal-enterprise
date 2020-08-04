@@ -11,10 +11,11 @@ const fetchOffersRequest = () => ({
   type: FETCH_OFFERS_REQUEST,
 });
 
-const fetchOffersSuccess = offers => ({
+const fetchOffersSuccess = data => ({
   type: FETCH_OFFERS_SUCCESS,
   payload: {
-    offers,
+    offers: data.results,
+    offersCount: data.count,
   },
 });
 
@@ -25,12 +26,12 @@ const fetchOffersFailure = error => ({
   },
 });
 
-const fetchOffers = () => (
+const fetchOffers = (query) => (
   (dispatch) => {
     dispatch(fetchOffersRequest());
-    return service.fetchOffers()
+    return service.fetchOffers(query)
       .then((response) => {
-        dispatch(fetchOffersSuccess(camelCaseObject(response.data.results)));
+        dispatch(fetchOffersSuccess(camelCaseObject(response.data)));
       })
       .catch((error) => {
         dispatch(fetchOffersFailure(error));
