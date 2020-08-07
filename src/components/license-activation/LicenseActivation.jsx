@@ -20,7 +20,12 @@ export default function LicenseActivation() {
 
   if (activationSuccess) {
     return (
-      <Redirect to={`/${enterpriseConfig.slug}`} />
+      <Redirect
+        to={{
+          pathname: `/${enterpriseConfig.slug}`,
+          state: { licenseActivationSuccess: true },
+        }}
+      />
     );
   }
 
