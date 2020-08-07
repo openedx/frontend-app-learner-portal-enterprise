@@ -35,7 +35,7 @@ export default function Dashboard() {
     <>
       <Helmet title={PAGE_TITLE} />
       <div className="container-fluid py-5">
-        {state?.licenseActivationSuccess && renderLicenseActivationSuccess()}
+        {state?.activationSuccess && renderLicenseActivationSuccess()}
         <div className="row">
           <MainContent>
             <DashboardMainContent />

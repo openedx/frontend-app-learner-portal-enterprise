@@ -23,7 +23,7 @@ export default function LicenseActivation() {
       <Redirect
         to={{
           pathname: `/${enterpriseConfig.slug}`,
-          state: { licenseActivationSuccess: true },
+          state: { activationSuccess },
         }}
       />
     );
