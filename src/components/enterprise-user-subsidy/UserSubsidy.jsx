@@ -5,7 +5,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { LoadingSpinner } from '../loading-spinner';
 import SubscriptionSubsidy from './SubscriptionSubsidy';
 
-import { isNull, hasValidStartExpirationDates } from '../../utils/common';
 import { useSubscriptionLicenseForUser } from './data/hooks';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
 
@@ -28,19 +27,14 @@ const UserSubsidy = ({ children }) => {
       let hasAccessToPortal = true;
 
       // determine whether user has access to the Learner Portal if their organization
-      // has an active Subscription Plan.
-      if (!subscriptionPlan || !hasValidStartExpirationDates(subscriptionPlan)) {
-        hasAccessToPortal = false;
-      }
-
-      // determine whether user has access to the Learner Portal if they have an activated license
-      if (isNull(subscriptionLicense) || subscriptionLicense?.status !== LICENSE_STATUS.ACTIVATED) {
-        hasAccessToPortal = false;
+      // has a Subscription Plan and whether user has an activated license.
+      if (subscriptionPlan) {
+        hasAccessToPortal = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
       }
 
       return { hasAccessToPortal, subscriptionLicense };
     },
-    [subscriptionLicense],
+    [subscriptionPlan, subscriptionLicense],
   );
 
   if (isLoadingSubsidies) {
