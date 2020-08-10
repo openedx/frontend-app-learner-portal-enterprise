@@ -39,8 +39,9 @@ export default function LicenseActivation() {
             alertType="danger"
             dialog={(
               <>
-                An unexpected error occurred while activating your license.
-                Please {renderContactHelpText()} for assistance.
+                We were unable to activate a license for this user.
+                {' '}Please double-check that you have a pending license and verify the email to which it was sent.
+                If you run into further issues, please {renderContactHelpText()} for assistance.
               </>
             )}
             dismissible={false}
