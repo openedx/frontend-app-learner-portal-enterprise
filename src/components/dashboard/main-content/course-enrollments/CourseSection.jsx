@@ -12,6 +12,8 @@ import {
 } from './course-cards';
 import CollapsibleIcon from './CollapsibleIcon';
 
+import { COURSE_STATUSES } from './data/constants';
+
 import './styles/CourseSection.scss';
 
 class CourseSection extends React.Component {
@@ -39,18 +41,20 @@ class CourseSection extends React.Component {
     linkToCertificate,
     notifications,
     courseRunStatus,
-    savedForLater,
+    isRevoked,
     ...rest
   }) => {
     const courseRunProps = { courseRunStatus };
     switch (courseRunStatus) {
-      case 'in_progress':
+      case COURSE_STATUSES.inProgress:
         courseRunProps.linkToCertificate = linkToCertificate;
         courseRunProps.notifications = notifications;
         break;
-      case 'completed':
+      case COURSE_STATUSES.savedForLater:
+        courseRunProps.isRevoked = isRevoked;
+        break;
+      case COURSE_STATUSES.completed:
         courseRunProps.linkToCertificate = linkToCertificate;
-        courseRunProps.savedForLater = savedForLater;
         break;
       default:
         break;

@@ -15,11 +15,9 @@ import {
   SavedForLaterCourseCard,
 } from './course-cards';
 
+import { COURSE_STATUSES } from './data/constants';
 import * as selectors from './data/selectors';
 import * as actions from './data/actions';
-
-const SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE = `This section contains both the courses you have completed
-  in the past and courses that have been voluntarily removed from your "In Progress" list.`;
 
 export const COURSE_SECTION_TITLES = {
   inProgress: 'My courses in progress',
@@ -54,10 +52,10 @@ export class CourseEnrollments extends Component {
   }
 
   hasCourseRuns = () => (
-    this.hasCourseRunsWithStatus('completed')
-    || this.hasCourseRunsWithStatus('in_progress')
-    || this.hasCourseRunsWithStatus('upcoming')
-    || this.hasCourseRunsWithStatus('savedForLater')
+    this.hasCourseRunsWithStatus(COURSE_STATUSES.completed)
+    || this.hasCourseRunsWithStatus(COURSE_STATUSES.inProgress)
+    || this.hasCourseRunsWithStatus(COURSE_STATUSES.upcoming)
+    || this.hasCourseRunsWithStatus(COURSE_STATUSES.savedForLater)
   )
 
   renderError = () => (
@@ -163,15 +161,13 @@ export class CourseEnrollments extends Component {
         />
         <CourseSection
           title={COURSE_SECTION_TITLES.completed}
-          subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
           component={CompletedCourseCard}
           courseRuns={courseRuns.completed}
         />
         <CourseSection
           title={COURSE_SECTION_TITLES.savedForLater}
-          subtitle={SAVED_FOR_LATER_COURSES_SECTION_SUBTITLE}
           component={SavedForLaterCourseCard}
-          courseRuns={courseRuns.savedForLater}
+          courseRuns={courseRuns.saved_for_later}
         />
       </>
     );
@@ -210,7 +206,7 @@ CourseEnrollments.propTypes = {
     in_progress: PropTypes.array.isRequired,
     upcoming: PropTypes.array.isRequired,
     completed: PropTypes.array.isRequired,
-    savedForLater: PropTypes.array.isRequired,
+    saved_for_later: PropTypes.array.isRequired,
   }).isRequired,
   isLoading: PropTypes.bool.isRequired,
   isMarkCourseCompleteSuccess: PropTypes.bool.isRequired,

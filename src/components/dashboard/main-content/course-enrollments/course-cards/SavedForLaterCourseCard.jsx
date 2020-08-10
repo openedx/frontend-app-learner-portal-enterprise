@@ -1,33 +1,28 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
 import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
+import { isCourseEnded } from '../../../../../utils/common';
 import {
   updateCourseRunStatus,
   updateIsMoveToInProgressCourseSuccess,
 } from '../data/actions';
-import { isCourseEnded } from '../../../../../utils/common';
-import CertificateImg from './images/edx-verified-mini-cert.png';
+import { COURSE_STATUSES } from '../data/constants';
 
 const SavedForLaterCourseCard = (props) => {
-  const user = getAuthenticatedUser();
-  const { username } = user;
   const {
-    savedForLater,
     title,
     linkToCourse,
     courseRunId,
-    courseRunStatus,
     modifyCourseRunStatus,
     modifyIsMoveToInProgressCourseStatus,
     endDate,
+    isRevoked,
   } = props;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,11 +51,12 @@ const SavedForLaterCourseCard = (props) => {
   };
 
   const getDropdownMenuItems = () => {
-    // Only courses that are manually saved for later (savedForLater) should show an option to move back to in progress.
-    // if course is ended or completed, you cannot move it back to in progress
-    // TODO: we also need to add || courseRunStatus === 'completed' once api returns correct status
-    //   right now it always returns completed upon using Save course for later
-    if (!savedForLater || isCourseEnded(endDate)) { return []; }
+    // Only non-revoked courses should show an option to move back to in progress. if course is
+    // ended or completed, you cannot move it back to in progress.
+    if (isRevoked || isCourseEnded(endDate)) {
+      return [];
+    }
+
     return ([
       {
         key: 'move-course-to-in-progress',
@@ -82,7 +78,10 @@ const SavedForLaterCourseCard = (props) => {
   };
 
   const renderButtons = () => {
-    if (isCourseEnded(endDate) || courseRunStatus === 'completed') { return null; }
+    if (isCourseEnded(endDate)) {
+      return null;
+    }
+
     return (
       <ContinueLearningButton
         linkToCourse={linkToCourse}
@@ -92,43 +91,14 @@ const SavedForLaterCourseCard = (props) => {
     );
   };
 
-  const renderCertificateInfo = () => (
-    props.linkToCertificate ? (
-      <div className="d-flex mb-3">
-        <div className="mr-3">
-          <img src={CertificateImg} alt="verified certificate preview" />
-        </div>
-        <div className="d-flex align-items-center">
-          <p className="lead mb-0 font-weight-normal">
-            View your certificate on{' '}
-            <a
-              className="text-underline"
-              href={`${process.env.LMS_BASE_URL}/u/${username}`}
-            >
-              your profile →
-            </a>
-          </p>
-        </div>
-      </div>
-    ) : (
-      <p className="lead mb-3 font-weight-normal">
-        To earn a certificate,{' '}
-        <a className="text-underline" href={props.linkToCourse}>
-          retake this course →
-        </a>
-      </p>
-    )
-  );
-
   return (
     <BaseCourseCard
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
-      type="completed"
+      type={COURSE_STATUSES.savedForLater}
       hasViewCertificateLink={false}
       {...props}
     >
-      {renderCertificateInfo()}
       <MoveToInProgressModal
         isOpen={isModalOpen}
         courseTitle={title}
@@ -146,7 +116,7 @@ SavedForLaterCourseCard.propTypes = {
   courseRunId: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
-  savedForLater: PropTypes.bool.isRequired,
+  isRevoked: PropTypes.bool.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   modifyCourseRunStatus: PropTypes.func.isRequired,
   modifyIsMoveToInProgressCourseStatus: PropTypes.func.isRequired,

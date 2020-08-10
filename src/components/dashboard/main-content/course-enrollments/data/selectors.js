@@ -41,19 +41,12 @@ export const filterCourseRuns = (courseRuns) => {
     [COURSE_STATUSES.completed]: [],
     [COURSE_STATUSES.savedForLater]: [],
   };
-  if (courseRuns && courseRuns.length > 0) {
+  if (courseRuns?.length > 0) {
     const transformedCourseRuns = courseRuns.map(transformCourseRun);
     Object.keys(courseRunsByStatus).forEach((status) => {
-      courseRunsByStatus[status] = transformedCourseRuns.filter((courseRun) => {
-        if (courseRun.courseRunStatus !== COURSE_STATUSES.completed
-          || (courseRun.courseRunStatus === COURSE_STATUSES.completed && !courseRun.savedForLater)) {
-          return courseRun.courseRunStatus === status;
-        }
-        if (status === COURSE_STATUSES.savedForLater && courseRun.savedForLater) {
-          return true;
-        }
-        return false;
-      });
+      courseRunsByStatus[status] = transformedCourseRuns.filter(
+        courseRun => courseRun.courseRunStatus === status,
+      );
     });
   }
   return courseRunsByStatus;

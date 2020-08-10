@@ -16,12 +16,14 @@ const CompletedCourseCard = (props) => {
     title,
     linkToCourse,
     courseRunId,
-    courseRunStatus,
     endDate,
   } = props;
 
   const renderButtons = () => {
-    if (isCourseEnded(endDate) || courseRunStatus === 'completed') { return null; }
+    if (isCourseEnded(endDate)) {
+      return null;
+    }
+
     return (
       <ContinueLearningButton
         linkToCourse={linkToCourse}
@@ -76,7 +78,6 @@ CompletedCourseCard.propTypes = {
   courseRunId: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
-  savedForLater: PropTypes.bool.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
 };

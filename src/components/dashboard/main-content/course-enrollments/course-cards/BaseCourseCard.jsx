@@ -11,6 +11,8 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { EmailSettingsModal } from './email-settings';
 
+import { COURSE_STATUSES } from '../data/constants';
+
 import './styles/CourseCard.scss';
 
 class BaseCourseCard extends Component {
@@ -55,7 +57,7 @@ class BaseCourseCard extends Component {
     let message = '';
     if (formattedEndDate) {
       switch (type) {
-        case 'in_progress': {
+        case COURSE_STATUSES.inProgress: {
           if (pacing === 'self') {
             message += `Complete at your own speed before ${formattedEndDate}.`;
           } else {
@@ -63,12 +65,12 @@ class BaseCourseCard extends Component {
           }
           break;
         }
-        case 'upcoming': {
-          message += `Ends ${formattedEndDate}.`;
-          break;
-        }
-        case 'completed': {
-          message += `Ended ${formattedEndDate}.`;
+        case COURSE_STATUSES.upcoming:
+        case COURSE_STATUSES.completed:
+        case COURSE_STATUSES.savedForLater: {
+          const isCourseEnded = moment() > moment(endDate);
+          message += isCourseEnded ? 'Ended' : 'Ends';
+          message += ` ${formattedEndDate}.`;
           break;
         }
         default:
@@ -308,7 +310,7 @@ class BaseCourseCard extends Component {
 
 BaseCourseCard.propTypes = {
   type: PropTypes.oneOf([
-    'in_progress', 'upcoming', 'completed',
+    'in_progress', 'upcoming', 'completed', 'saved_for_later',
   ]).isRequired,
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,
