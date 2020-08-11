@@ -26,7 +26,7 @@ describe('<CourseEnrollments />', () => {
       in_progress: [],
       upcoming: [],
       completed: [],
-      savedForLater: [],
+      saved_for_later: [],
     },
     isLoading: false,
     error: null,
@@ -61,7 +61,7 @@ describe('<CourseEnrollments />', () => {
         startDate: '2017-02-05T05:00:00Z',
         endDate: '2018-08-18T05:00:00Z',
         hasEmailsEnabled: true,
-        savedForLater: false,
+        is_revoked: false,
       };
       const courseRuns = {
         in_progress: [{
@@ -78,7 +78,7 @@ describe('<CourseEnrollments />', () => {
         }],
         upcoming: [],
         completed: [sampleCourseRun],
-        savedForLater: [],
+        saved_for_later: [],
       };
       const enterpriseConfig = {
         uuid: 'test-program-uuid',

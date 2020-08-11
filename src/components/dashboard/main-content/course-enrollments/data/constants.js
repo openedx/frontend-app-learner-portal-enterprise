@@ -9,5 +9,5 @@ export const COURSE_STATUSES = {
   inProgress: 'in_progress',
   upcoming: 'upcoming',
   completed: 'completed',
-  savedForLater: 'savedForLater',
+  savedForLater: 'saved_for_later',
 };

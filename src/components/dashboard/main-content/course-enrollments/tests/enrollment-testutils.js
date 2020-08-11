@@ -35,7 +35,7 @@ const createCompletedCourseRun = () => {
     startDate: '2017-02-05T05:00:00Z',
     endDate: '2018-08-18T05:00:00Z',
     hasEmailsEnabled: true,
-    savedForLater: false,
+    isRevoked: false,
   };
   return completedCourseRun;
 };
@@ -49,7 +49,7 @@ const createRawCourseRun = () => ({
   dueDates: [],
   completed: false,
   courseRunStatus: COURSE_STATUSES.inProgress,
-  savedForLater: false,
+  isRevoked: false,
 });
 
 /**

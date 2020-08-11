@@ -37,7 +37,7 @@ const enterpriseConfig = {
 };
 const completedCourseRun = createCompletedCourseRun();
 const inProgCourseRun = { ...completedCourseRun, courseRunStatus: COURSE_STATUSES.inProgress };
-const savedForLaterCourseRun = { ...completedCourseRun, savedForLater: true };
+const savedForLaterCourseRun = { ...completedCourseRun, courseRunStatus: COURSE_STATUSES.savedForLater };
 
 const defaultInitialProps = defaultInitialEnrollmentProps({ genericMockFn });
 
@@ -47,7 +47,7 @@ const initProps = {
     in_progress: [inProgCourseRun],
     upcoming: [],
     completed: [completedCourseRun],
-    savedForLater: [savedForLaterCourseRun],
+    saved_for_later: [savedForLaterCourseRun],
   },
 };
 
@@ -60,13 +60,15 @@ function renderEnrollmentsComponent(initialProps) {
     </Provider>,
   );
 }
-describe('Course enrollements', () => {
+describe('Course enrollments', () => {
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => {});
   });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
+
   test('loads enrollments component', () => {
     renderEnrollmentsComponent(initProps);
     expect(screen.getByText(COURSE_SECTION_TITLES.inProgress)).toBeInTheDocument();
