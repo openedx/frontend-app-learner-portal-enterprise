@@ -53,6 +53,11 @@ export default function EnterprisePage({ children }) {
           mainMenu: [
             {
               type: 'item',
+              href: `/${enterpriseConfig.slug}`,
+              content: 'Dashboard',
+            },
+            {
+              type: 'item',
               href: `/${enterpriseConfig.slug}/search`,
               content: 'Find a Course',
             },
