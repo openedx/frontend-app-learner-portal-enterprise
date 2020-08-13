@@ -6,14 +6,11 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SidebarBlock } from '../../layout';
 import { LoadingSpinner } from '../../loading-spinner';
 import { fetchOffers } from './offers';
-import { isFeatureEnabled } from '../../../features';
 import SidebarCard from './SidebarCard';
 
 class DashboardSidebar extends React.Component {
   componentDidMount() {
-    if (isFeatureEnabled('offer_summary_card')) {
-      this.props.fetchOffers('full_discount_only=True');
-    }
+    this.props.fetchOffers('full_discount_only=True');
   }
 
   renderContactHelpText() {
@@ -66,16 +63,14 @@ class DashboardSidebar extends React.Component {
             To request more benefits or specific courses, {this.renderContactHelpText()}.
           </p>
         </SidebarBlock>
-        {isFeatureEnabled('offer_summary_card') && (
-          <SidebarBlock>
-            {isOffersLoading ? (
-              <div className="mb-5">
-                <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
-              </div>
-            )
-              : this.renderOfferSummaryCard()}
-          </SidebarBlock>
-        )}
+        <SidebarBlock>
+          {isOffersLoading ? (
+            <div className="mb-5">
+              <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
+            </div>
+          )
+            : this.renderOfferSummaryCard()}
+        </SidebarBlock>
       </>
     );
   }
