@@ -10,7 +10,7 @@ import './styles/SidebarCard.scss';
 const SidebarCard = ({
   title, children, buttonText, textClassNames = '', titleClassNames = '', linkIsLocal = false, buttonLink = '',
 }) => (
-  <Card>
+  <Card className="shadow">
     <Card.Body>
       {title && <Card.Title className={titleClassNames}>{title}</Card.Title>}
       <Card.Text className={textClassNames}>
