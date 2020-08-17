@@ -22,13 +22,14 @@ describe('fetchOffers action', () => {
         type: FETCH_OFFERS_SUCCESS,
         payload: {
           offers: [{ fooBar: 'foo' }],
+          offersCount: 2,
         },
       },
     ];
     const store = mockStore();
 
     service.fetchOffers.mockImplementation((
-      () => Promise.resolve({ data: { results: [{ foo_bar: 'foo' }] } })
+      () => Promise.resolve({ data: { results: [{ foo_bar: 'foo' }], count: 2 } })
     ));
 
     return store.dispatch(fetchOffers())

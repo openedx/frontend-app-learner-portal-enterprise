@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Sidebar = props => (
-  <div className="col-xs-12 col offset-lg-1">
+  <aside className="col-xs-12 col offset-lg-1">
     {props.children}
-  </div>
+  </aside>
 );
 
 Sidebar.propTypes = {
