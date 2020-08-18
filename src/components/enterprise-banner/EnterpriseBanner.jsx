@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import OffersAlert from './OffersAlert';
 
 import './styles/EnterpriseBanner.scss';
 
 export default function EnterpriseBanner() {
   const { enterpriseConfig } = useContext(AppContext);
-
   return (
     <div className="enterprise-banner bg-brand-secondary">
       <div className="container-fluid">
@@ -13,6 +13,7 @@ export default function EnterpriseBanner() {
           {enterpriseConfig.name}
         </h1>
       </div>
+      <OffersAlert />
     </div>
   );
 }

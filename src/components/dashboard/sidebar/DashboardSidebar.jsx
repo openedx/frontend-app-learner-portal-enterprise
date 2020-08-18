@@ -10,7 +10,10 @@ import SidebarCard from './SidebarCard';
 
 class DashboardSidebar extends React.Component {
   componentDidMount() {
-    this.props.fetchOffers('full_discount_only=True');
+    const { isOffersLoading } = this.props;
+    if (!isOffersLoading) {
+      this.props.fetchOffers('full_discount_only=True');
+    }
   }
 
   renderContactHelpText() {
