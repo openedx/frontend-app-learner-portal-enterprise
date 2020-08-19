@@ -32,25 +32,32 @@ class DashboardSidebar extends React.Component {
   }
 
   renderOfferSummaryCard() {
-    const { offersCount } = this.props;
-    return (
-      <SidebarCard
-        title="Assigned courses left to redeem"
-        buttonText="Find a course in the catalog"
-        textClassNames={offersCount ? 'big-number' : ''}
-        buttonLink="/search"
-        linkIsLocal
-      >
-        {offersCount || 'You currently have no coupons to redeem.'}
-      </SidebarCard>
-    );
+    const { enterpriseConfig: { name } } = this.context;
+    const { offersCount, isOffersLoading } = this.props;
+    if (isOffersLoading) {
+      return (
+        <div className="mb-5">
+          <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
+        </div>
+      );
+    }
+    if (offersCount > 0) {
+      return (
+        <SidebarCard
+          title="Assigned courses left to redeem"
+          buttonText="Find a course in the catalog"
+          textClassNames={offersCount ? 'big-number' : ''}
+          buttonLink="/search"
+          linkIsLocal
+        >
+          {offersCount}
+        </SidebarCard>
+      );
+    }
+    return null;
   }
 
   render() {
-    const { enterpriseConfig: { name } } = this.context;
-    const {
-      isOffersLoading,
-    } = this.props;
     return (
       <>
         <SidebarBlock
@@ -67,12 +74,7 @@ class DashboardSidebar extends React.Component {
           </p>
         </SidebarBlock>
         <SidebarBlock>
-          {isOffersLoading ? (
-            <div className="mb-5">
-              <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
-            </div>
-          )
-            : this.renderOfferSummaryCard()}
+          {this.renderOfferSummaryCard()}
         </SidebarBlock>
       </>
     );
