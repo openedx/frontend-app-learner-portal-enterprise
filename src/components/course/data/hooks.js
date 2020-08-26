@@ -35,7 +35,7 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
     };
     fetchData();
   }, [courseKey, enterpriseConfig]);
-
+  console.log('course data', courseData);
   return [camelCaseObject(courseData), fetchError];
 }
 
