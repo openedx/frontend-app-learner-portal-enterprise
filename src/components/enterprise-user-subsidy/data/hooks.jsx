@@ -31,14 +31,14 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
           const { results } = camelCaseObject(response.data);
           const activated = results.filter(result => result.status === LICENSE_STATUS.ACTIVATED);
           const assigned = results.filter(result => result.status === LICENSE_STATUS.ASSIGNED);
-          const deactivated = results.filter(result => result.status === LICENSE_STATUS.DEACTIVATED);
+          const revoked = results.filter(result => result.status === LICENSE_STATUS.REVOKED);
 
           if (activated.length) {
             setLicense(activated.pop());
           } else if (assigned.length) {
             setLicense(assigned.pop());
-          } else if (deactivated.length) {
-            setLicense(deactivated.pop());
+          } else if (revoked.length) {
+            setLicense(revoked.pop());
           } else {
             setLicense(null);
           }

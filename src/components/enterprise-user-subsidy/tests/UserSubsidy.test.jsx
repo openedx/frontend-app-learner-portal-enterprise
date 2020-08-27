@@ -160,12 +160,12 @@ describe('with subscription plan that has started, but not yet ended', () => {
     });
   });
 
-  test('renders license deactivation alert if user has a deactivated (revoked) license on Dashboard page route', async () => {
+  test('renders license deactivation alert if user has a revoked license on Dashboard page route', async () => {
     const promise = Promise.resolve({
       data: {
         results: [{
           uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.DEACTIVATED,
+          status: LICENSE_STATUS.REVOKED,
         }],
       },
     });
@@ -226,12 +226,12 @@ describe('with subscription plan that has started, but not yet ended', () => {
     });
   });
 
-  test('redirects to Dashboard page if user has a deactivated (revoked) license on non-Dashboard page route', async () => {
+  test('redirects to Dashboard page if user has a revoked license on non-Dashboard page route', async () => {
     const promise = Promise.resolve({
       data: {
         results: [{
           uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.DEACTIVATED,
+          status: LICENSE_STATUS.REVOKED,
         }],
       },
     });
