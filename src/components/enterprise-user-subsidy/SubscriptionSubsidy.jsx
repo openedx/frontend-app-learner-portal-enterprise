@@ -91,7 +91,7 @@ const SubscriptionSubsidy = ({ plan, license }) => {
             />
           </div>
         )}
-        {license.status === LICENSE_STATUS.DEACTIVATED && (
+        {license.status === LICENSE_STATUS.REVOKED && (
           <div className="container-fluid mt-3">
             <StatusAlert
               alertType="danger"
