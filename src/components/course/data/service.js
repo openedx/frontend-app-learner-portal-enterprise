@@ -4,6 +4,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
+import { getAvailableCourseRuns } from './utils';
 
 export default class CourseService {
   constructor(options = {}) {
@@ -29,8 +30,24 @@ export default class CourseService {
     ])
       .then((responses) => responses.map(response => response.data));
 
+    // Check for the course_run_key URL param and remove all other course run data
+    // if the given course run key is for an available course run.
+    const courseDetails = camelCaseObject(data[0]);
+    const { courseRunKey } = camelCaseObject(qs.parse(window.location.search));
+    if (courseRunKey) {
+      const availableCourseRuns = getAvailableCourseRuns(courseDetails);
+      const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
+      if (availableCourseRunKeys.includes(courseRunKey)) {
+        const { courseRuns } = courseDetails;
+        courseDetails.canonicalCourseRunKey = courseRunKey;
+        courseDetails.courseRunKeys = [courseRunKey];
+        courseDetails.courseRuns = courseRuns.filter(obj => obj.key === courseRunKey);
+        courseDetails.advertisedCourseRunUuid = courseDetails.courseRuns[0].uuid;
+      }
+    }
+
     return {
-      courseDetails: data[0],
+      courseDetails,
       userEnrollments: data[1],
       userEntitlements: data[2].results,
       catalog: data[3],
