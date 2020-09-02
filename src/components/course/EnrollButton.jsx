@@ -57,13 +57,18 @@ export default function EnrollButton() {
   const enrollmentUrl = useMemo(
     () => {
       if (subscriptionLicense) {
+        const { location } = global;
+        const enrollmentFailedParams = { ...qs.parse(location.search) };
+        enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = 'true';
+        const coursePageUrl = `${location.protocol}//${location.hostname}:${location.port}${location.pathname}`;
+
         const enrollOptions = {
           license_uuid: subscriptionLicense.uuid,
           course_id: key,
           enterprise_customer_uuid: enterpriseConfig.uuid,
           next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
           // Redirect back to the same page with a failure query param
-          failure_url: `${global.location}/?${ENROLLMENT_FAILED_QUERY_PARAM}=true`,
+          failure_url: `${coursePageUrl}?${qs.stringify(enrollmentFailedParams)}`,
         };
         return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
       }
