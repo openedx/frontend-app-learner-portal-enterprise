@@ -2,11 +2,11 @@ import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
 import qs from 'query-string';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button } from '@edx/paragon';
 
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseContext } from './CourseContextProvider';
 
 import {
@@ -28,6 +28,7 @@ export default function EnrollButton() {
   const { state } = useContext(CourseContext);
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense } = useContext(UserSubsidyContext);
+  const location = useLocation();
   const {
     activeCourseRun,
     userEnrollments,
@@ -57,10 +58,9 @@ export default function EnrollButton() {
   const enrollmentUrl = useMemo(
     () => {
       if (subscriptionLicense) {
-        const { location } = global;
         const enrollmentFailedParams = { ...qs.parse(location.search) };
-        enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = 'true';
-        const coursePageUrl = `${location.protocol}//${location.hostname}:${location.port}${location.pathname}`;
+        enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
+        const coursePageUrl = `${process.env.BASE_URL}${location.pathname}`;
 
         const enrollOptions = {
           license_uuid: subscriptionLicense.uuid,

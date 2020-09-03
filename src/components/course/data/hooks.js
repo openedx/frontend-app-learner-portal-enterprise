@@ -11,7 +11,7 @@ import {
   CURRENCY_USD,
 } from './constants';
 
-export function useAllCourseData({ courseKey, enterpriseConfig }) {
+export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();
   const [fetchError, setFetchError] = useState();
 
@@ -21,6 +21,7 @@ export function useAllCourseData({ courseKey, enterpriseConfig }) {
         const courseService = new CourseService({
           enterpriseUuid: enterpriseConfig.uuid,
           courseKey,
+          courseRunKey,
         });
         try {
           const data = await courseService.fetchAllCourseData();

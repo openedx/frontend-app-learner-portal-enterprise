@@ -11,12 +11,14 @@ export default class CourseService {
     const {
       activeCourseRun,
       courseKey,
+      courseRunKey,
       enterpriseUuid,
     } = options;
 
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
 
     this.courseKey = courseKey;
+    this.courseRunKey = courseRunKey;
     this.enterpriseUuid = enterpriseUuid;
     this.activeCourseRun = activeCourseRun;
   }
@@ -33,15 +35,13 @@ export default class CourseService {
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
     const courseDetails = camelCaseObject(data[0]);
-    const { courseRunKey } = camelCaseObject(qs.parse(window.location.search));
-    if (courseRunKey) {
+    if (this.courseRunKey) {
       const availableCourseRuns = getAvailableCourseRuns(courseDetails);
       const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
-      if (availableCourseRunKeys.includes(courseRunKey)) {
-        const { courseRuns } = courseDetails;
-        courseDetails.canonicalCourseRunKey = courseRunKey;
-        courseDetails.courseRunKeys = [courseRunKey];
-        courseDetails.courseRuns = courseRuns.filter(obj => obj.key === courseRunKey);
+      if (availableCourseRunKeys.includes(this.courseRunKey)) {
+        courseDetails.canonicalCourseRunKey = this.courseRunKey;
+        courseDetails.courseRunKeys = [this.courseRunKey];
+        courseDetails.courseRuns = availableCourseRuns.filter(obj => obj.key === this.courseRunKey);
         courseDetails.advertisedCourseRunUuid = courseDetails.courseRuns[0].uuid;
       }
     }
