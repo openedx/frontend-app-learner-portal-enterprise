@@ -73,7 +73,7 @@ describe('<EnrollButton />', () => {
           },
         };
 
-        render(
+        renderWithRouter(
           <EnrollButtonWithContext
             initialAppState={initialAppState}
             initialCourseState={courseState}
@@ -94,7 +94,7 @@ describe('<EnrollButton />', () => {
         },
       };
 
-      render(
+      renderWithRouter(
         <EnrollButtonWithContext
           initialAppState={initialAppState}
           initialCourseState={courseState}
@@ -108,7 +108,7 @@ describe('<EnrollButton />', () => {
 
   describe('with enrollable course run', () => {
     test('renders with start date of today for self-paced course', () => {
-      render(
+      renderWithRouter(
         <EnrollButtonWithContext
           initialAppState={initialAppState}
           initialCourseState={initialCourseState}
@@ -133,7 +133,7 @@ describe('<EnrollButton />', () => {
         },
       };
 
-      render(
+      renderWithRouter(
         <EnrollButtonWithContext
           initialAppState={initialAppState}
           initialCourseState={courseState}
@@ -164,7 +164,7 @@ describe('<EnrollButton />', () => {
         }],
       };
 
-      render(
+      renderWithRouter(
         <EnrollButtonWithContext
           initialAppState={initialAppState}
           initialCourseState={courseState}
