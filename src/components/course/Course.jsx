@@ -1,9 +1,11 @@
+import qs from 'query-string';
 import React, { useContext, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
@@ -19,10 +21,20 @@ import NotFoundPage from '../NotFoundPage';
 export default function Course() {
   const { courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
+  const location = useLocation();
+
+  const courseRunKey = useMemo(
+    () => {
+      const queryParams = camelCaseObject(qs.parse(location.search));
+      return queryParams.courseRunKey;
+    },
+    [location],
+  );
 
   const [courseData, fetchError] = useAllCourseData({
     courseKey,
     enterpriseConfig,
+    courseRunKey,
   });
 
   const initialState = useMemo(
