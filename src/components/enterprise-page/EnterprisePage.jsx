@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { identify } from 'react-fullstory';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -13,6 +13,8 @@ import {
   useEnterpriseCustomerConfig,
   useEnterpriseCustomerSubscriptionPlan,
 } from './data/hooks';
+
+const LINK_CLASS_NAME = 'nav-link';
 
 export default function EnterprisePage({ children }) {
   const { enterpriseSlug } = useParams();
@@ -50,23 +52,19 @@ export default function EnterprisePage({ children }) {
     <AppContext.Provider
       value={{
         header: {
-          mainMenu: [
-            {
-              type: 'item',
-              href: `/${enterpriseConfig.slug}`,
-              content: 'Dashboard',
-            },
-            {
-              type: 'item',
-              href: `/${enterpriseConfig.slug}/search`,
-              content: 'Find a Course',
-            },
-            {
-              type: 'item',
-              href: 'https://support.edx.org/hc/en-us',
-              content: 'Help',
-            },
-          ],
+          mainMenu: (
+            <>
+              <Link to={`/${enterpriseConfig.slug}`} className={LINK_CLASS_NAME}>
+                Dashboard
+              </Link>
+              <Link to={`/${enterpriseConfig.slug}/search`} className={LINK_CLASS_NAME}>
+                Find a Course
+              </Link>
+              <a href="https://support.edx.org/hc/en-us" className={LINK_CLASS_NAME}>
+                Help
+              </a>
+            </>
+          ),
           userMenu: [
             {
               type: 'item',
