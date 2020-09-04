@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
