@@ -1,15 +1,3 @@
-@import "~@edx/paragon/scss/edx/utilities-only";
-@import "~@edx/frontend-component-site-header/src/index";
-
-header.site-header-desktop,
-header.site-header-mobile {
-    background: $white;
-
-    a.logo img {
-        max-height: 50px;
-    }
-}
-
 footer a img {
     max-height: 50px;
 }

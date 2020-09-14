@@ -20,7 +20,7 @@ export default function EnterprisePage({ children }) {
   const subscriptionPlan = useEnterpriseCustomerSubscriptionPlan(enterpriseConfig);
 
   const user = getAuthenticatedUser();
-  const { userId, username, profileImage } = user;
+  const { userId, profileImage } = user;
 
   useEffect(
     () => {
@@ -49,52 +49,6 @@ export default function EnterprisePage({ children }) {
   return (
     <AppContext.Provider
       value={{
-        header: {
-          mainMenu: [
-            {
-              type: 'item',
-              href: `/${enterpriseConfig.slug}`,
-              content: 'Dashboard',
-            },
-            {
-              type: 'item',
-              href: `/${enterpriseConfig.slug}/search`,
-              content: 'Find a Course',
-            },
-            {
-              type: 'item',
-              href: 'https://support.edx.org/hc/en-us',
-              content: 'Help',
-            },
-          ],
-          userMenu: [
-            {
-              type: 'item',
-              href: `/${enterpriseConfig.slug}`,
-              content: 'Dashboard',
-            },
-            {
-              type: 'item',
-              href: `${process.env.LMS_BASE_URL}/u/${username}`,
-              content: 'My Profile',
-            },
-            {
-              type: 'item',
-              href: `${process.env.LMS_BASE_URL}/account/settings`,
-              content: 'Account Settings',
-            },
-            {
-              type: 'item',
-              href: 'https://support.edx.org/hc/en-us',
-              content: 'Help',
-            },
-            {
-              type: 'item',
-              href: process.env.LOGOUT_URL,
-              content: 'Sign Out',
-            },
-          ],
-        },
         courseCards: {
           'in-progress': {
             settingsMenu: {
