@@ -40,7 +40,7 @@ export default function SiteHeader() {
       content: 'Help',
     },
     {
-      href: process.env.LOGOUT_URL,
+      href: `${process.env.LOGOUT_URL}?next=${process.env.BASE_URL}${dashboardLink}`,
       content: 'Sign Out',
     },
   ];
