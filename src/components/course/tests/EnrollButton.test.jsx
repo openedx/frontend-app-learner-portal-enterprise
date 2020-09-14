@@ -264,11 +264,13 @@ describe('<EnrollButton />', () => {
       expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
       expect(url).toContain(noSubscriptionEnrollmentInputs.offers[0].code);
+      expect(url).toContain(enrollmentInputs.key);
     });
     it('No subscription no offers: returns an ecommerce url with correct querystring', () => {
       const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersCount: 0 });
       expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
+      expect(url).toContain(enrollmentInputs.key);
       expect(url).not.toContain('code');
     });
     it('No subscription: returns null if offers are loading', () => {

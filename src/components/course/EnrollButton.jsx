@@ -65,12 +65,18 @@ export const getEnrollmentUrl = ({
   sku,
   subscriptionLicense,
 }) => {
+  const baseEnrollmentOptions = {
+    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
+    // Redirect back to the same page with a failure query param
+    failure_url: `${global.location}/?${ENROLLMENT_FAILED_QUERY_PARAM}=true`,
+  };
   if (subscriptionLicense) {
     const enrollmentFailedParams = { ...qs.parse(location.search) };
     enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
     const coursePageUrl = `${process.env.BASE_URL}${location.pathname}`;
 
     const enrollOptions = {
+      ...baseEnrollmentOptions,
       license_uuid: subscriptionLicense.uuid,
       course_id: key,
       enterprise_customer_uuid: enterpriseConfig.uuid,
@@ -81,10 +87,15 @@ export const getEnrollmentUrl = ({
     return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
   }
   if (!offersLoading && offersCount >= 0 && sku) {
+    const enrollOptions = {
+      ...baseEnrollmentOptions,
+      sku,
+    };
     if (offersCount === 0) {
-      return `${process.env.ECOMMERCE_BASE_URL}/basket/add/?sku=${sku}`;
+      return `${process.env.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
     }
-    return `${process.env.ECOMMERCE_BASE_URL}/coupons/redeem/?sku=${sku}&code=${offers[0].code}`;
+    enrollOptions.code = offers[0].code;
+    return `${process.env.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
   }
   // If offers are loading or the SKU is not present, the course cannot be enrolled in
   return null;
