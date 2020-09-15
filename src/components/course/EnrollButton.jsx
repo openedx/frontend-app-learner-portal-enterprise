@@ -1,7 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import classNames from 'classnames';
-import moment from 'moment';
 import qs from 'query-string';
 import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -12,21 +11,15 @@ import { CourseContext } from './CourseContextProvider';
 import { fetchOffers } from '../dashboard/sidebar/offers';
 
 import {
-  COURSE_AVAILABILITY_MAP,
-  ENROLL_BUTTON_LABEL_COMING_SOON,
-  ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
   ENROLLMENT_FAILED_QUERY_PARAM,
   COURSE_MODES_MAP,
 } from './data/constants';
 import {
   hasCourseStarted,
   isUserEnrolledInCourse,
-  isUserEntitledForCourse,
-  isCourseSelfPaced,
-  hasTimeToComplete,
-  isArchived,
 } from './data/utils';
 
+import EnrollButtonLabel from './EnrollButtonLabel';
 import EnrollModal from './EnrollModal';
 
 const getBestCourseMode = (courseModes) => {
@@ -161,56 +154,20 @@ export default function EnrollButton() {
     [enterpriseConfig, key, location, offers, offersCount, offersLoading, sku, subscriptionLicense],
   );
 
-  // See https://openedx.atlassian.net/wiki/spaces/WS/pages/1045200922/Enroll+button+and+Course+Run+Selector+Logic
-  // for more detailed documentation on the enroll button labeling based off course run states.
-  const renderButtonLabel = () => {
-    if (!isEnrollable) {
-      const availabilityStates = [
-        COURSE_AVAILABILITY_MAP.UPCOMING,
-        COURSE_AVAILABILITY_MAP.STARTING_SOON,
-      ];
-      return availability in availabilityStates
-        ? ENROLL_BUTTON_LABEL_COMING_SOON
-        : ENROLL_BUTTON_LABEL_NOT_AVAILABLE;
-    }
-    if (!isUserEnrolled) {
-      if (isUserEntitledForCourse({ userEntitlements, courseUuid })) {
-        return <span className="enroll-btn-label">View on Dashboard</span>;
-      }
-      if (isCourseSelfPaced(pacingType)) {
-        if (isCourseStarted && hasTimeToComplete(activeCourseRun) && !isArchived(activeCourseRun)) {
-          return (
-            <>
-              <span className="enroll-btn-label">Enroll</span>
-              <div><small>Starts {moment().format('MMM D, YYYY')}</small></div>
-            </>
-          );
-        }
-        return <span className="enroll-btn-label">Enroll</span>;
-      }
-      return (
-        <>
-          <span className="enroll-btn-label">Enroll</span>
-          <div>
-            <small>
-              {isCourseStarted ? 'Started' : 'Starts'}
-              {' '}
-              {moment(start).format('MMM D, YYYY')}
-            </small>
-          </div>
-        </>
-      );
-    }
-    if (isUserEnrolled && !isCourseStarted) {
-      return <span className="enroll-btn-label">You are Enrolled</span>;
-    }
-    return <span className="enroll-btn-label">View Course</span>;
-  };
-
   const DefaultEnrollCta = useMemo(
     () => props => (
       <Button {...props}>
-        {renderButtonLabel()}
+        <EnrollButtonLabel
+          activeCourseRun={activeCourseRun}
+          availability={availability}
+          courseUuid={courseUuid}
+          isCourseStarted={isCourseStarted}
+          isEnrollable={isEnrollable}
+          isUserEnrolled={isUserEnrolled}
+          pacingType={pacingType}
+          start={start}
+          userEntitlements={userEntitlements}
+        />
       </Button>
     ),
     [],
@@ -225,7 +182,17 @@ export default function EnrollButton() {
             className={classNames('btn', enrollLinkClass)}
             href={enrollmentUrl}
           >
-            {renderButtonLabel()}
+            <EnrollButtonLabel
+              activeCourseRun={activeCourseRun}
+              availability={availability}
+              courseUuid={courseUuid}
+              isCourseStarted={isCourseStarted}
+              isEnrollable={isEnrollable}
+              isUserEnrolled={isUserEnrolled}
+              pacingType={pacingType}
+              start={start}
+              userEntitlements={userEntitlements}
+            />
           </a>
         );
       } if (enrollmentUrl) {
@@ -235,7 +202,17 @@ export default function EnrollButton() {
               className={classNames('btn', enrollLinkClass)}
               onClick={() => setIsModalOpen(true)}
             >
-              {renderButtonLabel()}
+              <EnrollButtonLabel
+                activeCourseRun={activeCourseRun}
+                availability={availability}
+                courseUuid={courseUuid}
+                isCourseStarted={isCourseStarted}
+                isEnrollable={isEnrollable}
+                isUserEnrolled={isUserEnrolled}
+                pacingType={pacingType}
+                start={start}
+                userEntitlements={userEntitlements}
+              />
             </Button>
             <EnrollModal
               isModalOpen={isModalOpen}
@@ -252,7 +229,17 @@ export default function EnrollButton() {
     if (!isUserEnrolled && !isEnrollable) {
       return (
         <div className="alert alert-secondary text-center rounded-0">
-          {renderButtonLabel()}
+          <EnrollButtonLabel
+            activeCourseRun={activeCourseRun}
+            availability={availability}
+            courseUuid={courseUuid}
+            isCourseStarted={isCourseStarted}
+            isEnrollable={isEnrollable}
+            isUserEnrolled={isUserEnrolled}
+            pacingType={pacingType}
+            start={start}
+            userEntitlements={userEntitlements}
+          />
         </div>
       );
     }
@@ -264,7 +251,17 @@ export default function EnrollButton() {
             className={classNames('btn', enrollLinkClass)}
             href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
           >
-            {renderButtonLabel()}
+            <EnrollButtonLabel
+              activeCourseRun={activeCourseRun}
+              availability={availability}
+              courseUuid={courseUuid}
+              isCourseStarted={isCourseStarted}
+              isEnrollable={isEnrollable}
+              isUserEnrolled={isUserEnrolled}
+              pacingType={pacingType}
+              start={start}
+              userEntitlements={userEntitlements}
+            />
           </a>
         );
       }
@@ -274,7 +271,17 @@ export default function EnrollButton() {
           className={classNames('btn', enrollLinkClass)}
           to={`/${enterpriseConfig.slug}`}
         >
-          {renderButtonLabel()}
+          <ButtonLabel
+            activeCourseRun={activeCourseRun}
+            availability={availability}
+            courseUuid={courseUuid}
+            isCourseStarted={isCourseStarted}
+            isEnrollable={isEnrollable}
+            isUserEnrolled={isUserEnrolled}
+            pacingType={pacingType}
+            start={start}
+            userEntitlements={userEntitlements}
+          />
         </Link>
       );
     }
