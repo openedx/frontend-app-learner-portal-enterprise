@@ -122,8 +122,3 @@ export default class CourseService {
     return this.authenticatedHttpClient.get(url);
   }
 }
-
-export function fetchCatalogsForEnterprise(enterpriseUuid) {
-  const url = `${process.env.LMS_BASE_URL}/enterprise/api/v1/enterprise_catalogs/`;
-  return getAuthenticatedHttpClient().get(url);
-}
