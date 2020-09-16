@@ -71,7 +71,7 @@ export default class CourseService {
   }
 
   fetchEnterpriseCustomerContainsContent() {
-    const options = { course_run_ids: this.courseKey };
+    const options = { course_run_ids: this.courseKey, get_catalog_list: true };
     const url = `${process.env.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
     return this.authenticatedHttpClient.get(url);
   }
@@ -121,4 +121,9 @@ export default class CourseService {
     const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
     return this.authenticatedHttpClient.get(url);
   }
+}
+
+export function fetchCatalogsForEnterprise(enterpriseUuid) {
+  const url = `${process.env.LMS_BASE_URL}/enterprise/api/v1/enterprise_catalogs/`;
+  return getAuthenticatedHttpClient().get(url);
 }

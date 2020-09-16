@@ -60,6 +60,9 @@ describe('<EnrollButton />', () => {
       key: 'test-course-run-key',
       isEnrollable: true,
       pacingType: COURSE_PACING_MAP.SELF_PACED,
+      start: '2020-09-09T04:00:00Z',
+      availability: 'Current',
+      courseUuid: 'Foo',
     },
     userEnrollments: [],
     userEntitlements: [],
@@ -95,6 +98,7 @@ describe('<EnrollButton />', () => {
         const courseState = {
           ...initialCourseState,
           activeCourseRun: {
+            ...initialCourseState.activeCourseRun,
             isEnrollable: false,
             availability,
           },
@@ -117,6 +121,7 @@ describe('<EnrollButton />', () => {
       const courseState = {
         ...initialCourseState,
         activeCourseRun: {
+          ...initialCourseState.activeCourseRun,
           isEnrollable: false,
           availability: null,
         },
@@ -241,10 +246,11 @@ describe('<EnrollButton />', () => {
         uuid: 'foo',
       },
       key: 'bar',
-      offers: [{ code: 'bearsRus' }],
+      offers: [{ code: 'bearsRus', catalog: 'bears'}],
       offersCount: 2,
       offersLoading: false,
       sku: 'xkcd',
+      catalogList: ['bears'],
     };
     const enrollmentInputs = {
       ...noSubscriptionEnrollmentInputs,
@@ -259,12 +265,19 @@ describe('<EnrollButton />', () => {
       expect(url).toContain(enrollmentInputs.key);
       expect(url).toContain(enrollmentInputs.subscriptionLicense.uuid);
     });
-    it('No subscription with offers: returns an ecommerce url with correct querystring', () => {
+    it('No subscription with offers for course: returns an ecommerce url with correct querystring', () => {
       const url = getEnrollmentUrl(noSubscriptionEnrollmentInputs);
       expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
       expect(url).toContain(noSubscriptionEnrollmentInputs.offers[0].code);
       expect(url).toContain(enrollmentInputs.key);
+    });
+    it('No subscription with no offers for course: returns ecommerce url with correct querystring', () => {
+      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, catalogList: ['foo'] });
+      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
+      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
+      expect(url).toContain(enrollmentInputs.key);
+      expect(url).not.toContain('code');
     });
     it('No subscription no offers: returns an ecommerce url with correct querystring', () => {
       const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersCount: 0 });

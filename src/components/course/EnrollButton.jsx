@@ -48,7 +48,16 @@ const findHighestLevelSeatSku = (seats) => {
   return seats.find((seat) => seat.type === courseMode).sku;
 };
 
+const findOfferForCourse = (offers, catalogList) => {
+  const offerIndex = offers.findIndex((offer) => catalogList.includes(offer.catalog));
+  if (offerIndex !== -1) {
+    return offers[offerIndex];
+  }
+  return null;
+};
+
 export const getEnrollmentUrl = ({
+  catalogList,
   enterpriseConfig,
   key,
   location,
@@ -84,10 +93,12 @@ export const getEnrollmentUrl = ({
       ...baseEnrollmentOptions,
       sku,
     };
-    if (offersCount === 0) {
+    // get the index of the first offer that applies to a catalog that the course is in
+    const offerForCourse = findOfferForCourse(offers, catalogList);
+    if (offersCount === 0 || !offerForCourse) {
       return `${process.env.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
     }
-    enrollOptions.code = offers[0].code;
+    enrollOptions.code = offerForCourse.code;
     return `${process.env.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
   }
   // If offers are loading or the SKU is not present, the course cannot be enrolled in
@@ -113,7 +124,9 @@ export default function EnrollButton() {
     activeCourseRun,
     userEnrollments,
     userEntitlements,
+    catalog: { catalogList },
   } = courseData;
+
   const {
     availability,
     key,
@@ -139,9 +152,9 @@ export default function EnrollButton() {
     [userEnrollments, key],
   );
 
-  // TODO: ensure that the code being given is relevant to the catalog of the course.
   const enrollmentUrl = useMemo(
     () => getEnrollmentUrl({
+      catalogList,
       enterpriseConfig,
       key,
       location,
@@ -151,7 +164,7 @@ export default function EnrollButton() {
       sku,
       subscriptionLicense,
     }),
-    [enterpriseConfig, key, location, offers, offersCount, offersLoading, sku, subscriptionLicense],
+    [catalogList, enterpriseConfig, key, location, offers, offersCount, offersLoading, sku, subscriptionLicense],
   );
 
   const DefaultEnrollCta = useMemo(
@@ -218,6 +231,7 @@ export default function EnrollButton() {
               isModalOpen={isModalOpen}
               setIsModalOpen={setIsModalOpen}
               offersCount={offersCount}
+              courseHasOffer={!!findOfferForCourse(offers, catalogList)}
               enrollmentUrl={enrollmentUrl}
             />
           </>
@@ -271,7 +285,7 @@ export default function EnrollButton() {
           className={classNames('btn', enrollLinkClass)}
           to={`/${enterpriseConfig.slug}`}
         >
-          <ButtonLabel
+          <EnrollButtonLabel
             activeCourseRun={activeCourseRun}
             availability={availability}
             courseUuid={courseUuid}

@@ -6,7 +6,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 export const modalText = {
   noOffers: {
-    body: 'You are out of vouchers, but you can still enroll in this course.',
+    body: 'You do not have any applicable vouchers, but you can still enroll in this course.',
     button: 'Continue to payment',
     title: 'Payment required for course enrollment',
   },
@@ -18,6 +18,7 @@ export const modalText = {
 };
 
 const EnrollModal = ({
+  courseHasOffer,
   enrollmentUrl,
   isModalOpen,
   offersCount,
@@ -25,9 +26,9 @@ const EnrollModal = ({
 }) => {
   const { fullOffers, noOffers } = modalText;
   const [submitting, setSubmitting] = useState(false);
-  const buttonText = offersCount > 0 ? fullOffers.button : noOffers.button;
-  const enrollText = offersCount > 0 ? fullOffers.body(offersCount) : noOffers.body;
-  const titleText = offersCount > 0 ? fullOffers.title : noOffers.title;
+  const buttonText = courseHasOffer ? fullOffers.button : noOffers.button;
+  const enrollText = courseHasOffer ? fullOffers.body(offersCount) : noOffers.body;
+  const titleText = courseHasOffer ? fullOffers.title : noOffers.title;
   return (
     <Modal
       open={isModalOpen}
@@ -45,6 +46,7 @@ const EnrollModal = ({
 };
 
 EnrollModal.propTypes = {
+  courseHasOffer: PropTypes.bool.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
   isModalOpen: PropTypes.bool.isRequired,
   offersCount: PropTypes.number.isRequired,
