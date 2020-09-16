@@ -123,7 +123,7 @@ describe('<EnrollButton />', () => {
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
           isEnrollable: false,
-          availability: null,
+          availability: '',
         },
       };
 
@@ -191,7 +191,7 @@ describe('<EnrollButton />', () => {
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
           key: courseRunKey,
-          start: moment().subtract(1, 'w'),
+          start: JSON.stringify(moment().subtract(1, 'w')),
         },
         userEnrollments: [{
           courseDetails: {
@@ -219,7 +219,7 @@ describe('<EnrollButton />', () => {
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
           key: courseRunKey,
-          start: moment().add(1, 'w'),
+          start: JSON.stringify(moment().add(1, 'w')),
         },
         userEnrollments: [{
           courseDetails: {
