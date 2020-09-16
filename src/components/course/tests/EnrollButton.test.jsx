@@ -246,11 +246,12 @@ describe('<EnrollButton />', () => {
         uuid: 'foo',
       },
       key: 'bar',
-      offers: [{ code: 'bearsRus', catalog: 'bears'}],
+      offers: [{ code: 'bearsRus', catalog: 'bears' }],
       offersCount: 2,
       offersLoading: false,
       sku: 'xkcd',
       catalogList: ['bears'],
+      location: { search: 'foo' },
     };
     const enrollmentInputs = {
       ...noSubscriptionEnrollmentInputs,

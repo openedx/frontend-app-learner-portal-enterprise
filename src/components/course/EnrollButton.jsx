@@ -67,24 +67,20 @@ export const getEnrollmentUrl = ({
   sku,
   subscriptionLicense,
 }) => {
+  const enrollmentFailedParams = { ...qs.parse(location.search) };
+  enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
+  const coursePageUrl = `${process.env.BASE_URL}${location.pathname}`;
   const baseEnrollmentOptions = {
     next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
     // Redirect back to the same page with a failure query param
-    failure_url: `${global.location}/?${ENROLLMENT_FAILED_QUERY_PARAM}=true`,
+    failure_url: `${coursePageUrl}?${qs.stringify(enrollmentFailedParams)}`,
   };
   if (subscriptionLicense) {
-    const enrollmentFailedParams = { ...qs.parse(location.search) };
-    enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
-    const coursePageUrl = `${process.env.BASE_URL}${location.pathname}`;
-
     const enrollOptions = {
       ...baseEnrollmentOptions,
       license_uuid: subscriptionLicense.uuid,
       course_id: key,
       enterprise_customer_uuid: enterpriseConfig.uuid,
-      next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
-      // Redirect back to the same page with a failure query param
-      failure_url: `${coursePageUrl}?${qs.stringify(enrollmentFailedParams)}`,
     };
     return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
   }
