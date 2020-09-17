@@ -32,6 +32,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
         const config = results.pop();
         if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
+          const disableSearch = !config?.enableIntegratedCustomerLearnerPortalSearch && config?.identityProvider;
           const {
             logo,
             primaryColor,
@@ -44,8 +45,6 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
-            identityProvider,
-            enableIntegratedCustomerLearnerPortalSearch,
           } = config;
           setEnterpriseConfig({
             name,
@@ -53,8 +52,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
-            identityProvider,
-            enableIntegratedCustomerLearnerPortalSearch,
+            disableSearch,
             branding: {
               logo,
               colors: {
