@@ -60,6 +60,9 @@ export default function SiteHeader() {
 
   const renderMainMenu = () => {
     const mainMenuLinkClassName = 'nav-link';
+    if (!enterpriseConfig.enableIntegratedCustomerLearnerPortalSearch && enterpriseConfig.identityProvider) {
+      return null;
+    }
     return (
       <>
         <Link to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName}>

@@ -44,6 +44,8 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
+            identityProvider,
+            enableIntegratedCustomerLearnerPortalSearch,
           } = config;
           setEnterpriseConfig({
             name,
@@ -51,6 +53,8 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
+            identityProvider,
+            enableIntegratedCustomerLearnerPortalSearch,
             branding: {
               logo,
               colors: {
