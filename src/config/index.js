@@ -1,4 +1,5 @@
 import qs from 'query-string';
+import { FEATURE_ENROLL_WITH_CODES } from './constants';
 
 const hasFeatureFlagEnabled = (featureFlag) => {
   const { features } = qs.parse(window.location.search);
@@ -24,11 +25,12 @@ const configuration = {
   ALGOLIA: {
     ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID,
     ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY,
+    ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME,
   },
 };
 
 const features = {
-  ENROLL_WITH_CODES: process.env.FEATURE_FLAGS.ENROLL_WITH_CODES || hasFeatureFlagEnabled('ENROLL_WITH_CODES'),
+  ENROLL_WITH_CODES: process.env.FEATURE_ENROLL_WITH_CODES || hasFeatureFlagEnabled(FEATURE_ENROLL_WITH_CODES),
 };
 
 export { configuration, features };
