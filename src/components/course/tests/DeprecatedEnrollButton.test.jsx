@@ -1,16 +1,13 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
 import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
 
-import EnrollButton, { getEnrollmentUrl } from '../EnrollButton';
+import EnrollButton from '../DeprecatedEnrollButton';
 
 import { renderWithRouter } from '../../../utils/tests';
 
@@ -21,25 +18,16 @@ import {
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
 } from '../data/constants';
 
-jest.mock('../../dashboard/sidebar/offers', () => ({
-  fetchOffers: () => {},
-}));
-
-const mockStore = configureMockStore([thunk]);
-
 /* eslint-disable react/prop-types */
 const EnrollButtonWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialReduxStore = {},
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <CourseContextProvider initialState={initialCourseState}>
-        <reactRedux.Provider store={mockStore(initialReduxStore)}>
-          <EnrollButton />
-        </reactRedux.Provider>
+        <EnrollButton />
       </CourseContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
@@ -47,8 +35,6 @@ const EnrollButtonWithContext = ({
 /* eslint-enable react/prop-types */
 
 describe('<EnrollButton />', () => {
-  // eslint-disable-next-line no-unused-vars
-  let useDispatchSpy;
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
@@ -60,9 +46,6 @@ describe('<EnrollButton />', () => {
       key: 'test-course-run-key',
       isEnrollable: true,
       pacingType: COURSE_PACING_MAP.SELF_PACED,
-      start: '2020-09-09T04:00:00Z',
-      availability: 'Current',
-      courseUuid: 'Foo',
     },
     userEnrollments: [],
     userEntitlements: [],
@@ -73,19 +56,6 @@ describe('<EnrollButton />', () => {
       uuid: 'test-license-uuid',
     },
   };
-  const initialReduxStore = {
-    offers: {
-      isLoading: false,
-      offers: [],
-      offersCount: 0,
-    },
-  };
-  beforeAll(() => {
-    useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(() => {});
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   describe('with non-enrollable course run', () => {
     test('renders "Coming Soon" button label', () => {
@@ -98,7 +68,6 @@ describe('<EnrollButton />', () => {
         const courseState = {
           ...initialCourseState,
           activeCourseRun: {
-            ...initialCourseState.activeCourseRun,
             isEnrollable: false,
             availability,
           },
@@ -109,7 +78,6 @@ describe('<EnrollButton />', () => {
             initialAppState={initialAppState}
             initialCourseState={courseState}
             initialUserSubsidyState={initialUserSubsidyState}
-            initialReduxStore={initialReduxStore}
           />,
         );
 
@@ -121,9 +89,8 @@ describe('<EnrollButton />', () => {
       const courseState = {
         ...initialCourseState,
         activeCourseRun: {
-          ...initialCourseState.activeCourseRun,
           isEnrollable: false,
-          availability: '',
+          availability: null,
         },
       };
 
@@ -132,7 +99,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -147,7 +113,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={initialCourseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -173,7 +138,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -191,7 +155,7 @@ describe('<EnrollButton />', () => {
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
           key: courseRunKey,
-          start: JSON.stringify(moment().subtract(1, 'w')),
+          start: moment().subtract(1, 'w'),
         },
         userEnrollments: [{
           courseDetails: {
@@ -205,7 +169,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -219,7 +182,7 @@ describe('<EnrollButton />', () => {
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
           key: courseRunKey,
-          start: JSON.stringify(moment().add(1, 'w')),
+          start: moment().add(1, 'w'),
         },
         userEnrollments: [{
           courseDetails: {
@@ -233,67 +196,10 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
       expect(screen.queryByText('View Course'));
-    });
-  });
-  describe('getEnrollmentUrl', () => {
-    const noSubscriptionEnrollmentInputs = {
-      enterpriseConfig: {
-        uuid: 'foo',
-      },
-      key: 'bar',
-      offers: [{ code: 'bearsRus', catalog: 'bears' }],
-      offersCount: 2,
-      offersLoading: false,
-      sku: 'xkcd',
-      catalogList: ['bears'],
-      location: { search: 'foo' },
-    };
-    const enrollmentInputs = {
-      ...noSubscriptionEnrollmentInputs,
-      subscriptionLicense: {
-        uuid: 'yes',
-      },
-    };
-    it('Subscription: returns an lms url with correct querystring', () => {
-      const url = getEnrollmentUrl(enrollmentInputs);
-      expect(url).toContain(process.env.LMS_BASE_URL);
-      expect(url).toContain(enrollmentInputs.enterpriseConfig.uuid);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).toContain(enrollmentInputs.subscriptionLicense.uuid);
-    });
-    it('No subscription with offers for course: returns an ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl(noSubscriptionEnrollmentInputs);
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.offers[0].code);
-      expect(url).toContain(enrollmentInputs.key);
-    });
-    it('No subscription with no offers for course: returns ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, catalogList: ['foo'] });
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).not.toContain('code');
-    });
-    it('No subscription no offers: returns an ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersCount: 0 });
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).not.toContain('code');
-    });
-    it('No subscription: returns null if offers are loading', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersLoading: true });
-      expect(url).toBeNull();
-    });
-    it('No subscription: returns null sku is missing', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, sku: undefined });
-      expect(url).toBeNull();
     });
   });
 });

@@ -38,4 +38,11 @@ export const PROGRAM_TYPE_MAP = {
   MASTERS: 'Masters',
 };
 
+export const COURSE_MODES_MAP = {
+  VERIFIED: 'verified',
+  PROFESSIONAL: 'professional',
+  NO_ID_PROFESSIONAL: 'no-id-professional',
+  AUDIT: 'audit',
+};
+
 export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';

@@ -1,4 +1,7 @@
 import React from 'react';
+import * as reactRedux from 'react-redux';
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -7,7 +10,7 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseHeader from '../CourseHeader';
 
-import { COURSE_AVAILABILITY_MAP } from '../data/constants';
+import { COURSE_AVAILABILITY_MAP, COURSE_PACING_MAP } from '../data/constants';
 import { TEST_OWNER } from './data/constants';
 
 jest.mock('react-router-dom', () => ({
@@ -16,16 +19,21 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
+const mockStore = configureMockStore([thunk]);
+
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
+  initialReduxStore = {},
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <CourseContextProvider initialState={initialCourseState}>
-        <CourseHeader />
+        <reactRedux.Provider store={mockStore(initialReduxStore)}>
+          <CourseHeader />
+        </reactRedux.Provider>
       </CourseContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
@@ -33,6 +41,8 @@ const CourseHeaderWithContext = ({
 /* eslint-enable react/prop-types */
 
 describe('<CourseHeader />', () => {
+  // eslint-disable-next-line no-unused-vars
+  let useDispatchSpy;
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
@@ -55,6 +65,10 @@ describe('<CourseHeader />', () => {
     activeCourseRun: {
       isEnrollable: true,
       key: 'test-course-run-key',
+      pacingType: COURSE_PACING_MAP.SELF_PACED,
+      start: '2020-09-09T04:00:00Z',
+      availability: 'Current',
+      courseUuid: 'Foo',
     },
     userEnrollments: [],
     userEntitlements: [],
@@ -67,6 +81,19 @@ describe('<CourseHeader />', () => {
       uuid: 'test-license-uuid',
     },
   };
+  const initialReduxStore = {
+    offers: {
+      isLoading: false,
+      offers: [],
+      offersCount: 0,
+    },
+  };
+  beforeAll(() => {
+    useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(() => {});
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
   test('renders breadcrumb', () => {
     render(
@@ -74,9 +101,9 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
-
     expect(screen.queryByText('Find a Course')).toBeInTheDocument();
     const subject = initialCourseState.course.subjects[0];
     expect(screen.queryByText(`${subject.name} Courses`)).toBeInTheDocument();
@@ -88,6 +115,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -102,6 +130,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
     expect(screen.queryByText('Enroll')).toBeInTheDocument();
@@ -113,6 +142,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -125,6 +155,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -146,6 +177,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={courseStateWithArchivedCourse}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -165,6 +197,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={courseStateWithNoCatalog}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -180,6 +213,7 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
+        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -205,6 +239,7 @@ describe('<CourseHeader />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseStateWithProgramType(micromasters)}
           initialUserSubsidyState={initialUserSubsidyState}
+          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -220,6 +255,7 @@ describe('<CourseHeader />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseStateWithProgramType(profCert)}
           initialUserSubsidyState={initialUserSubsidyState}
+          initialReduxStore={initialReduxStore}
         />,
       );
 
