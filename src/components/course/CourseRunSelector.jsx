@@ -25,7 +25,7 @@ export default function CourseRunSelector() {
     if (!editing) {
       return (
         <Button
-          buttonType="link"
+          variant="link"
           onClick={() => setEditing(true)}
           className="mb-1 p-0"
         >
@@ -52,7 +52,7 @@ export default function CourseRunSelector() {
           ref={selectRef}
         />
         <Button
-          buttonType="primary"
+          variant="primary"
           className="btn-brand-primary ml-2"
           onClick={() => handleClick()}
         >

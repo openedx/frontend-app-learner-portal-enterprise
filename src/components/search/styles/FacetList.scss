@@ -9,6 +9,10 @@
       padding-left: 10px;
       padding-right: 10px;
 
+      &:before {
+        border-radius: 0;
+      }
+
       &:after {
         margin-left: 10px;
       }
@@ -16,12 +20,12 @@
 
     .facet-item-label {
       font-weight: normal;
-  
+
       &.is-refined {
         font-weight: 700;
       }
     }
-  
+
     input:focus + .facet-item-label {
       text-decoration: underline;
     }

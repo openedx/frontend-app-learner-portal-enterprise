@@ -153,17 +153,17 @@ class BaseCourseCard extends Component {
       return (
         <div className="ml-auto">
           <Dropdown>
-            <Dropdown.Button className="btn-outline-secondary">
+            <Dropdown.Toggle variant="outline-secondary">
               <FontAwesomeIcon icon={faCog} />
               <span className="sr-only">
                 course settings for {title}
               </span>
-            </Dropdown.Button>
+            </Dropdown.Toggle>
             <Dropdown.Menu>
               {menuItems.map(menuItem => (
                 <Dropdown.Item
                   key={menuItem.key}
-                  type={menuItem.type}
+                  as={menuItem.type}
                   onClick={menuItem.onClick}
                   role="menuitem"
                 >

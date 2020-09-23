@@ -48,7 +48,7 @@ export const FacetListBase = ({
       return items.map(item => (
         <Dropdown.Item
           key={item.label}
-          type="label"
+          as="label"
           className="mb-0 py-3"
         >
           <Input
@@ -71,17 +71,17 @@ export const FacetListBase = ({
   return (
     <div className="facet-list">
       <Dropdown className="mb-0 mr-md-3">
-        <Dropdown.Button
+        <Dropdown.Toggle
           className={
             classNames(
-              'bg-white', 'text-capitalize', 'rounded-0',
-              'd-flex', 'justify-content-between', 'align-items-center',
+              'bg-white', 'text-capitalize', 'rounded-0', 'border-0',
+              'd-flex', 'justify-content-between', 'align-items-center', 'text-dark',
               { 'font-weight-bold': currentRefinement.length > 0 },
             )
           }
         >
           {title}
-        </Dropdown.Button>
+        </Dropdown.Toggle>
         <Dropdown.Menu>
           {renderItems()}
         </Dropdown.Menu>

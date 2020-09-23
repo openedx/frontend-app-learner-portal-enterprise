@@ -22,7 +22,8 @@ export default function PreviewExpand({
       </div>
       <Button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="preview-expand-cta btn-link px-1"
+        className="preview-expand-cta px-1"
+        variant="link"
         id={cta.id}
       >
         <FontAwesomeIcon
