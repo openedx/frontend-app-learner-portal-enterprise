@@ -13,6 +13,9 @@ const DashboardMainContent = () => {
 
   return (
     <CourseEnrollments>
+      {/*
+          The children below will only be rendered if there are no course runs.
+       */}
       <h2 className="h3">Find a course</h2>
       <p>
         You are not enrolled in any courses sponsored by {name}.

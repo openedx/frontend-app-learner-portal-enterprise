@@ -2,8 +2,9 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { render } from '@testing-library/react';
+import { AppContext } from '@edx/frontend-platform/react';
 
-// eslint-disable-next-line import/prefer-default-export
+// eslint-disable import/prefer-default-export
 export function renderWithRouter(
   ui,
   {
@@ -23,3 +24,29 @@ export function renderWithRouter(
     history,
   };
 }
+
+/* eslint-disable react/prop-types */
+export const FakeAppContext = ({
+  initialAppState = {},
+  children,
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    {children}
+  </AppContext.Provider>
+);
+/* eslint-enable react/prop-types */
+
+/* warning, this store may not be complete, please add to it as needed */
+export const fakeReduxStore = {
+  courseEnrollments: {
+    courseRuns: [],
+    error: null,
+    isMarkCourseCompleteSuccess: false,
+    isMoveToInProgressSuccess: false,
+  },
+  offers: {
+    loading: false,
+    offersCount: 0,
+    offers: [],
+  },
+};
