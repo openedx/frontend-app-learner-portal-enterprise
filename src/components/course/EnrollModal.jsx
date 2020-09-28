@@ -29,6 +29,7 @@ const EnrollModal = ({
   const buttonText = courseHasOffer ? fullOffers.button : noOffers.button;
   const enrollText = courseHasOffer ? fullOffers.body(offersCount) : noOffers.body;
   const titleText = courseHasOffer ? fullOffers.title : noOffers.title;
+
   return (
     <Modal
       open={isModalOpen}
@@ -37,7 +38,7 @@ const EnrollModal = ({
       body={<div><p>{enrollText}</p></div>}
       buttons={[
         <a className="btn btn-primary" href={enrollmentUrl} role="button" onClick={() => setSubmitting(true)}>
-          <>{submitting && <FontAwesomeIcon icon={faSpinner} alt="loading" />}{buttonText}</>
+          <>{submitting && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}{buttonText}</>
         </a>,
       ]}
       onClose={() => setIsModalOpen(false)}
