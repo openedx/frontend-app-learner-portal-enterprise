@@ -18,8 +18,6 @@ import {
 import { useCourseSubjects, useCoursePartners } from './data/hooks';
 import { useRenderContactHelpText } from '../../utils/hooks';
 
-import './styles/CourseHeader.scss';
-
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
   const { enterpriseConfig } = useContext(AppContext);
@@ -122,10 +120,10 @@ export default function CourseHeader() {
                 )}
               </>
             ) : (
-              <p className="font-weight-bold">
-                This course is not part of your company&apos;s curated course catalog.
-              </p>
-            )}
+                <p className="font-weight-bold">
+                  This course is not part of your company&apos;s curated course catalog.
+                </p>
+              )}
           </div>
           {course.image?.src && (
             <div className="col-12 col-lg-4 offset-lg-1 mt-3 mt-lg-0">

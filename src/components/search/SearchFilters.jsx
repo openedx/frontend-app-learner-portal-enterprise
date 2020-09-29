@@ -6,8 +6,6 @@ import CurrentRefinements from './CurrentRefinements';
 
 import MobileFilterMenu from './MobileFilterMenu';
 
-import './styles/MobileSearchFilters.scss';
-
 import { SEARCH_FACET_FILTERS } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
 import { sortItemsByLabelAsc } from './data/utils';
@@ -28,21 +26,21 @@ const SearchFilters = () => {
     () => SEARCH_FACET_FILTERS.map(({
       title, attribute, isSortedAlphabetical,
     }) => (
-      <FacetList
-        key={attribute}
-        title={title}
-        attribute={attribute}
-        limit={300} // this is replicating the B2C search experience
-        transformItems={(items) => {
-          if (isSortedAlphabetical) {
-            return sortItemsByLabelAsc(items);
-          }
-          return items;
-        }}
-        defaultRefinement={refinementsFromQueryParams[attribute]}
-        refinementsFromQueryParams={refinementsFromQueryParams}
-      />
-    )),
+        <FacetList
+          key={attribute}
+          title={title}
+          attribute={attribute}
+          limit={300} // this is replicating the B2C search experience
+          transformItems={(items) => {
+            if (isSortedAlphabetical) {
+              return sortItemsByLabelAsc(items);
+            }
+            return items;
+          }}
+          defaultRefinement={refinementsFromQueryParams[attribute]}
+          refinementsFromQueryParams={refinementsFromQueryParams}
+        />
+      )),
     [refinementsFromQueryParams],
   );
 
@@ -51,11 +49,11 @@ const SearchFilters = () => {
       {showMobileMenu ? (
         <MobileFilterMenu className="mb-3">{searchFacets}</MobileFilterMenu>
       ) : (
-        <>
-          <div className="d-flex">{searchFacets}</div>
-          <CurrentRefinements />
-        </>
-      )}
+          <>
+            <div className="d-flex">{searchFacets}</div>
+            <CurrentRefinements />
+          </>
+        )}
     </>
   );
 };

@@ -12,8 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { updateEmailSettings } from './data';
 
-import './styles/EmailSettingsModal.scss';
-
 class EmailSettingsModal extends Component {
   constructor(props) {
     super(props);

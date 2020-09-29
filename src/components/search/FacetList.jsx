@@ -9,8 +9,6 @@ import classNames from 'classnames';
 import { updateRefinementsFromQueryParams } from './data/utils';
 import { NO_OPTIONS_FOUND } from './data/constants';
 
-import './styles/FacetList.scss';
-
 export const FacetListBase = ({
   title,
   attribute,

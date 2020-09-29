@@ -8,8 +8,6 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 
-import './styles/SearchCourseCard.scss';
-
 const SearchCourseCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug } } = useContext(AppContext);
 
@@ -63,12 +61,12 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               data-testid="card-img-loading"
             />
           ) : (
-            <img
-              className="card-img-top"
-              src={course.cardImageUrl}
-              alt=""
-            />
-          )}
+              <img
+                className="card-img-top"
+                src={course.cardImageUrl}
+                alt=""
+              />
+            )}
           {isLoading && (
             <div className="partner-logo-wrapper">
               <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
@@ -88,31 +86,31 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               {isLoading ? (
                 <Skeleton count={2} data-testid="course-title-loading" />
               ) : (
-                <Truncate lines={3} trimWhitespace>
-                  {course.title}
-                </Truncate>
-              )}
+                  <Truncate lines={3} trimWhitespace>
+                    {course.title}
+                  </Truncate>
+                )}
             </h3>
             {isLoading ? (
               <Skeleton duration={0} data-testid="partner-name-loading" />
             ) : (
-              <>
-                {course.partners.length > 0 && (
-                  <p className="partner text-muted m-0">
-                    <Truncate lines={1} trimWhitespace>
-                      {course.partners.map(partner => partner.name).join(', ')}
-                    </Truncate>
-                  </p>
-                )}
-              </>
-            )}
+                <>
+                  {course.partners.length > 0 && (
+                    <p className="partner text-muted m-0">
+                      <Truncate lines={1} trimWhitespace>
+                        {course.partners.map(partner => partner.name).join(', ')}
+                      </Truncate>
+                    </p>
+                  )}
+                </>
+              )}
           </div>
           <div className="card-footer bg-white border-0 pt-0 pb-2">
             {isLoading ? (
               <Skeleton duration={0} data-testid="content-type-loading" />
             ) : (
-              <span className="text-muted">Course</span>
-            )}
+                <span className="text-muted">Course</span>
+              )}
           </div>
         </div>
       </Link>

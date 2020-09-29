@@ -12,8 +12,6 @@ import edXLogo from '../../assets/edx-logo.svg';
 import { ReactComponent as MenuIcon } from '../../assets/icons/menu.svg';
 import { ReactComponent as CaretIcon } from '../../assets/icons/caret.svg';
 
-import './styles/Header.scss';
-
 const INTERNAL_LINK_TYPE = 'internal';
 
 export default function SiteHeader() {
@@ -149,10 +147,10 @@ export default function SiteHeader() {
               {content}
             </Link>
           ) : (
-            <a className={mobileMenuLinkClassName} href={href}>
-              {content}
-            </a>
-          )}
+              <a className={mobileMenuLinkClassName} href={href}>
+                {content}
+              </a>
+            )}
         </li>
       );
     });

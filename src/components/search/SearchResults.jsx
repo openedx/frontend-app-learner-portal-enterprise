@@ -15,8 +15,6 @@ import {
   useNbHitsFromSearchResults,
 } from './data/hooks';
 
-import './styles/SearchResults.scss';
-
 const SearchResults = ({
   searchResults,
   searchState,
