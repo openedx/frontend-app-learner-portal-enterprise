@@ -8,8 +8,6 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 
-import './styles/SearchCourseCard.scss';
-
 const SearchCourseCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug } } = useContext(AppContext);
 

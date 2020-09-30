@@ -14,8 +14,6 @@ import CollapsibleIcon from './CollapsibleIcon';
 
 import { COURSE_STATUSES } from './data/constants';
 
-import './styles/CourseSection.scss';
-
 class CourseSection extends React.Component {
   constructor(props) {
     super(props);

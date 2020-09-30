@@ -13,8 +13,6 @@ import { EmailSettingsModal } from './email-settings';
 
 import { COURSE_STATUSES } from '../data/constants';
 
-import './styles/CourseCard.scss';
-
 class BaseCourseCard extends Component {
   constructor(props) {
     super(props);

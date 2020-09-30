@@ -25,8 +25,6 @@ import {
   useCoursePacingType,
 } from './data/hooks';
 
-import './styles/CourseSidebar.scss';
-
 export default function CourseSidebar() {
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;

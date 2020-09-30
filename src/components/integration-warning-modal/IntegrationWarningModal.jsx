@@ -31,6 +31,7 @@ const IntegrationWarningModal = ({
         title={MODAL_TITLE}
         closeText={MODAL_BUTTON_TEXT}
         renderHeaderCloseButton={false}
+        renderDefaultCloseButton={false}
         buttons={[
           <Button
             variant="primary"
