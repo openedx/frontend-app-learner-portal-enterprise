@@ -71,7 +71,7 @@ export default class CourseService {
   }
 
   fetchEnterpriseCustomerContainsContent() {
-    const options = { course_run_ids: this.courseKey };
+    const options = { course_run_ids: this.courseKey, get_catalog_list: true };
     const url = `${process.env.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
     return this.authenticatedHttpClient.get(url);
   }

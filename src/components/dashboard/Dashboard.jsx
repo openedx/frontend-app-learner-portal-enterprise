@@ -10,6 +10,8 @@ import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
 
+export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully activated.';
+
 export default function Dashboard() {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useLocation();
@@ -21,7 +23,7 @@ export default function Dashboard() {
           alertType="success"
           dialog={(
             <>
-              Your license has been successfully activated.
+              {LICENCE_ACTIVATION_MESSAGE}
             </>
           )}
           open
@@ -43,7 +45,7 @@ export default function Dashboard() {
           </MainContent>
           <MediaQuery minWidth={breakpoints.large.minWidth}>
             {matches => matches && (
-              <Sidebar>
+              <Sidebar data-testid="sidebar">
                 <DashboardSidebar />
               </Sidebar>
             )}

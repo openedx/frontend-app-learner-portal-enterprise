@@ -8,7 +8,11 @@ import { LoadingSpinner } from '../../loading-spinner';
 import { fetchOffers } from './offers';
 import SidebarCard from './SidebarCard';
 
-class DashboardSidebar extends React.Component {
+export const EMAIL_MESSAGE = 'contact your organization\'s edX administrator';
+export const getLoaderAltText = (enterpriseName) => `loading learning benefits for ${enterpriseName}`;
+export const OFFER_SUMMARY_TITLE = 'Assigned courses left to redeem';
+
+export class BaseDashboardSidebar extends React.Component {
   componentDidMount() {
     const { isOffersLoading } = this.props;
     if (!isOffersLoading) {
@@ -19,7 +23,7 @@ class DashboardSidebar extends React.Component {
   renderContactHelpText() {
     const { enterpriseConfig: { contactEmail } } = this.context;
 
-    const message = 'contact your organization\'s edX administrator';
+    const message = EMAIL_MESSAGE;
 
     if (contactEmail) {
       return (
@@ -37,14 +41,14 @@ class DashboardSidebar extends React.Component {
     if (isOffersLoading) {
       return (
         <div className="mb-5">
-          <LoadingSpinner screenReaderText={`loading learning benefits for ${name}`} />
+          <LoadingSpinner screenReaderText={getLoaderAltText(name)} />
         </div>
       );
     }
     if (offersCount > 0) {
       return (
         <SidebarCard
-          title="Assigned courses left to redeem"
+          title={OFFER_SUMMARY_TITLE}
           buttonText="Find a course in the catalog"
           textClassNames={offersCount ? 'big-number' : ''}
           buttonLink="/search"
@@ -81,15 +85,15 @@ class DashboardSidebar extends React.Component {
   }
 }
 
-DashboardSidebar.contextType = AppContext;
+BaseDashboardSidebar.contextType = AppContext;
 
-DashboardSidebar.defaultProps = {
+BaseDashboardSidebar.defaultProps = {
   fetchOffers: null,
   isOffersLoading: false,
   offersCount: 0,
 };
 
-DashboardSidebar.propTypes = {
+BaseDashboardSidebar.propTypes = {
   fetchOffers: PropTypes.func,
   isOffersLoading: PropTypes.bool,
   offersCount: PropTypes.number,
@@ -104,4 +108,4 @@ const mapDispatchToProps = dispatch => ({
   fetchOffers: (query) => (query ? dispatch(fetchOffers(query)) : dispatch(fetchOffers())),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(DashboardSidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(BaseDashboardSidebar);

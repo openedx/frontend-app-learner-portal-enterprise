@@ -8,6 +8,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import CourseRunSelector from './CourseRunSelector';
 import EnrollButton from './EnrollButton';
+import DeprecatedEnrollButton from './DeprecatedEnrollButton';
+import { features } from '../../config';
 
 import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
 import {
@@ -56,6 +58,8 @@ export default function CourseHeader() {
       </div>
     </>
   );
+
+  const EnrollButtonComponent = features.ENROLL_WITH_CODES ? EnrollButton : DeprecatedEnrollButton;
 
   return (
     <div className="course-header">
@@ -112,7 +116,7 @@ export default function CourseHeader() {
                     Archived: Future Dates To Be Announced
                   </p>
                 )}
-                <EnrollButton />
+                <EnrollButtonComponent />
                 {defaultProgram && (
                   <p className="font-weight-bold">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
