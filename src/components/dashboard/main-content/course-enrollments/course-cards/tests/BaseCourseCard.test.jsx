@@ -5,6 +5,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
+import { screen } from '@testing-library/react';
 
 import BaseCourseCard from '../BaseCourseCard';
 
@@ -45,7 +46,7 @@ describe('<BaseCourseCard />', () => {
     });
 
     it('test modal close/cancel', () => {
-      wrapper.find('EmailSettingsModal').find('.modal-footer .js-close-modal-on-click').first().simulate('click');
+      wrapper.find('EmailSettingsModal').find('.modal-footer .btn-link').first().simulate('click');
       expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeFalsy();
     });
   });
