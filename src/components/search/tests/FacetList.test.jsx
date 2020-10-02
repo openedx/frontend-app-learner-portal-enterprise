@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { FacetListBase } from '../FacetList';
@@ -46,33 +46,42 @@ const propsForActiveRefinements = {
 };
 
 describe('<FacetList />', () => {
-  test('renders with no options', () => {
+  test('renders with no options', async () => {
     renderWithRouter(<FacetListBase {...propsForNoRefinements} />);
 
     // assert facet title exists
     expect(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS)).toBeInTheDocument();
 
     // assert there are no options
+    await act(async () => {
+      fireEvent.click(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS));
+    });
     expect(screen.queryByText(NO_OPTIONS_FOUND)).toBeInTheDocument();
   });
 
-  test('renders with options', () => {
+  test('renders with options', async () => {
     renderWithRouter(<FacetListBase {...propsForActiveRefinements} />);
 
     // assert the "no options" message does not show
     expect(screen.queryByText(NO_OPTIONS_FOUND)).not.toBeInTheDocument();
 
     // assert the refinements appear with appropriate counts
+    await act(async () => {
+      fireEvent.click(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS));
+    });
     expect(screen.queryByText(SUBJECTS.COMPUTER_SCIENCE)).toBeInTheDocument();
     expect(screen.queryByText('10')).toBeInTheDocument();
     expect(screen.queryByText(SUBJECTS.COMMUNICATION)).toBeInTheDocument();
     expect(screen.queryByText('4')).toBeInTheDocument();
   });
 
-  test('renders with options', () => {
+  test('renders with options', async () => {
     renderWithRouter(<FacetListBase {...propsForActiveRefinements} />);
 
     // assert the "no options" message does not show
+    await act(async () => {
+      fireEvent.click(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS));
+    });
     expect(screen.queryByText(NO_OPTIONS_FOUND)).not.toBeInTheDocument();
 
     // assert the refinements appear with appropriate counts
@@ -89,10 +98,15 @@ describe('<FacetList />', () => {
     const { history } = renderWithRouter(<FacetListBase {...propsForRefinements} />);
 
     // assert the refinements appear
+    await act(async () => {
+      fireEvent.click(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS));
+    });
     expect(screen.queryByText(SUBJECTS.COMMUNICATION)).toBeInTheDocument();
 
     // click a refinement option
-    fireEvent.click(screen.queryByText(SUBJECTS.COMMUNICATION));
+    await act(async () => {
+      fireEvent.click(screen.queryByText(SUBJECTS.COMMUNICATION));
+    });
 
     // assert the clicked refinement was added to the url
     expect(history.location.search).toEqual('?subjects=Communication');

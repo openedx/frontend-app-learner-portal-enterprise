@@ -12,8 +12,6 @@ import edXLogo from '../../assets/edx-logo.svg';
 import { ReactComponent as MenuIcon } from '../../assets/icons/menu.svg';
 import { ReactComponent as CaretIcon } from '../../assets/icons/caret.svg';
 
-import './styles/Header.scss';
-
 const INTERNAL_LINK_TYPE = 'internal';
 
 export default function SiteHeader() {
@@ -60,6 +58,9 @@ export default function SiteHeader() {
 
   const renderMainMenu = () => {
     const mainMenuLinkClassName = 'nav-link';
+    if (enterpriseConfig.disableSearch) {
+      return null;
+    }
     return (
       <>
         <Link to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName}>

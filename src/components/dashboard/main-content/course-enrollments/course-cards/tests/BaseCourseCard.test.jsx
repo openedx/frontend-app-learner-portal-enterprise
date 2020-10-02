@@ -45,7 +45,7 @@ describe('<BaseCourseCard />', () => {
     });
 
     it('test modal close/cancel', () => {
-      wrapper.find('EmailSettingsModal').find('.modal-footer .js-close-modal-on-click').first().simulate('click');
+      wrapper.find('EmailSettingsModal').find('.modal-footer .btn-link').first().simulate('click');
       expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeFalsy();
     });
   });

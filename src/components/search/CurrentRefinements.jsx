@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { useHistory } from 'react-router-dom';
-import { Button } from '@edx/paragon';
+import { Badge, Button } from '@edx/paragon';
 import { connectCurrentRefinements } from 'react-instantsearch-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -80,31 +80,34 @@ export const CurrentRefinementsBase = ({ items }) => {
     <ul className="list-unstyled d-flex flex-wrap align-items-center mb-0">
       {visibleActiveRefinements.map(item => (
         <li className="mr-2" key={item.label}>
-          <Button
-            className="badge badge-light mb-2 font-weight-light"
+          <Badge
+            className="mb-2 font-weight-light"
+            variant="light"
             onClick={() => handleRefinementBadgeClick(item)}
           >
             <span className="mr-2">{item.label}</span>
             <FontAwesomeIcon icon={faTimes} />
             <span className="sr-only">Remove the filter {item.label}</span>
-          </Button>
+          </Badge>
         </li>
       ))}
       {!showAllRefinements && activeRefinementsAsFlatArray.length > NUM_CURRENT_REFINEMENTS_TO_DISPLAY && (
         <li className="mr-2">
-          <Button
-            className="badge badge-light mb-2 font-weight-light"
+          <Badge
+            className="mb-2 font-weight-light"
+            variant="light"
             onClick={() => setShowAllRefinements(true)}
           >
             +{activeRefinementsAsFlatArray.length - NUM_CURRENT_REFINEMENTS_TO_DISPLAY}
             <span className="sr-only">Show all {activeRefinementsAsFlatArray.length} filters</span>
-          </Button>
+          </Badge>
         </li>
       )}
       {showAllRefinements && (
         <li className="mr-2">
           <Button
             className="text-white text-underline px-1 py-0 mb-2"
+            variant="link"
             onClick={() => setShowAllRefinements(false)}
           >
             show less
@@ -112,7 +115,7 @@ export const CurrentRefinementsBase = ({ items }) => {
         </li>
       )}
       <li>
-        <ClearCurrentRefinements className="text-white text-underline px-1 py-0 mb-2" />
+        <ClearCurrentRefinements className="text-white text-underline px-1 py-0 mb-2" variant="link" />
       </li>
     </ul>
   );

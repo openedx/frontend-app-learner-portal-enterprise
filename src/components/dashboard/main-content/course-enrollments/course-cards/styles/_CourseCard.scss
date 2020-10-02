@@ -1,6 +1,3 @@
-@import "~@edx/paragon/scss/edx/utilities-only";
-@import "~bootstrap/scss/type";
-
 .course {
   @extend .position-relative;
 
@@ -46,7 +43,7 @@
 
   .notifications {
     li:last-child {
-      .notification { 
+      .notification {
         @extend .mb-0;
       }
     }
@@ -68,7 +65,7 @@
   }
 
   .course-misc-text {
-    small { 
+    small {
       display: block;
     }
   }

@@ -5,6 +5,7 @@ import MediaQuery from 'react-responsive';
 import { StatusAlert, breakpoints } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import { IntegrationWarningModal } from '../integration-warning-modal';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
@@ -49,6 +50,7 @@ export default function Dashboard() {
               </Sidebar>
             )}
           </MediaQuery>
+          <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
         </div>
       </div>
     </>

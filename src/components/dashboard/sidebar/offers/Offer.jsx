@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import './styles/Offer.scss';
-
 class Offer extends React.Component {
   renderTitle(usageType, benefitValue) {
     if (usageType === 'Percentage') {

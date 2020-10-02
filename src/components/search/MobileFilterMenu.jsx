@@ -19,7 +19,7 @@ export const MobileFilterMenuBase = ({ children, className, items }) => {
     <div className={className}>
       {!isOpen && (
         <Button
-          className="btn btn-block bg-white rounded-0 d-flex align-items-center justify-content-between"
+          className="btn btn-block bg-white rounded-0 d-flex align-items-center justify-content-between text-dark"
           onClick={() => setIsOpen(true)}
         >
           <div className="mr-2">
@@ -54,7 +54,7 @@ export const MobileFilterMenuBase = ({ children, className, items }) => {
                 )}
               </h5>
               <Button
-                buttonType="link"
+                variant="link"
                 className="btn-close position-absolute px-2"
                 onClick={() => setIsOpen(false)}
               >
@@ -70,16 +70,15 @@ export const MobileFilterMenuBase = ({ children, className, items }) => {
             </div>
             <div className="modal-footer py-3">
               <div className="col">
-                <ClearCurrentRefinements className="bg-white btn-block" />
+                <ClearCurrentRefinements className="bg-white btn-block text-dark" variant="link" />
               </div>
               <div className="col">
-                <button
-                  type="button"
-                  className="btn btn-primary btn-brand-primary btn-block py-2 m-0"
+                <Button
+                  className="btn-brand-primary btn-block py-2 m-0"
                   onClick={() => setIsOpen(false)}
                 >
                   Done
-                </button>
+                </Button>
               </div>
             </div>
           </div>

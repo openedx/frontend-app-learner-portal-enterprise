@@ -48,7 +48,7 @@ export default function EnrollButton() {
     courseUuid,
   } = activeCourseRun;
 
-  const enrollLinkClass = 'btn-success btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-block rounded-0 py-2';
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),

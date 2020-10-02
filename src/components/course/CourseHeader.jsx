@@ -20,8 +20,6 @@ import {
 import { useCourseSubjects, useCoursePartners } from './data/hooks';
 import { useRenderContactHelpText } from '../../utils/hooks';
 
-import './styles/CourseHeader.scss';
-
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
   const { enterpriseConfig } = useContext(AppContext);

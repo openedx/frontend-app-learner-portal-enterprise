@@ -9,6 +9,7 @@ import SearchResults from './SearchResults';
 
 import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
 import { useDefaultSearchFilters } from './data/hooks';
+import { IntegrationWarningModal } from '../integration-warning-modal';
 
 const searchClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
@@ -32,6 +33,7 @@ const Search = () => {
         <SearchHeader />
         <SearchResults />
       </InstantSearch>
+      <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
     </>
   );
 };

@@ -6,8 +6,6 @@ import CurrentRefinements from './CurrentRefinements';
 
 import MobileFilterMenu from './MobileFilterMenu';
 
-import './styles/MobileSearchFilters.scss';
-
 import { SEARCH_FACET_FILTERS } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
 import { sortItemsByLabelAsc } from './data/utils';

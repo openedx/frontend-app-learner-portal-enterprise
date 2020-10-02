@@ -133,7 +133,7 @@ export default function EnrollButton() {
     seats,
   } = activeCourseRun;
 
-  const enrollLinkClass = 'btn-success btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-block rounded-0 py-2';
   const sku = useMemo(
     () => findHighestLevelSeatSku(seats),
     [seats],
@@ -233,7 +233,12 @@ export default function EnrollButton() {
           </>
         );
       }
-      return <DefaultEnrollCta className={classNames(enrollLinkClass, 'disabled')} />;
+      return (
+        <DefaultEnrollCta
+          className={classNames(enrollLinkClass, 'disabled')}
+          variant="success"
+        />
+      );
     }
 
     if (!isUserEnrolled && !isEnrollable) {
@@ -296,7 +301,12 @@ export default function EnrollButton() {
       );
     }
 
-    return <DefaultEnrollCta className={enrollLinkClass} />;
+    return (
+      <DefaultEnrollCta
+        className={enrollLinkClass}
+        variant="success"
+      />
+    );
   };
 
   return (
