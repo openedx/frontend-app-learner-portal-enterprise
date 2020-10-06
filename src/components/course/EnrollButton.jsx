@@ -133,7 +133,7 @@ export default function EnrollButton() {
     seats,
   } = activeCourseRun;
 
-  const enrollLinkClass = 'btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-success btn-block rounded-0 py-2';
   const sku = useMemo(
     () => findHighestLevelSeatSku(seats),
     [seats],
