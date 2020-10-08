@@ -48,7 +48,7 @@ export default function EnrollButton() {
     courseUuid,
   } = activeCourseRun;
 
-  const enrollLinkClass = 'btn-success btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-block rounded-0 py-2';
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
@@ -145,14 +145,19 @@ export default function EnrollButton() {
       if (enrollmentUrl) {
         return (
           <a
-            className={classNames('btn', enrollLinkClass)}
+            className={classNames('btn', 'btn-success', enrollLinkClass)}
             href={enrollmentUrl}
           >
             {renderButtonLabel()}
           </a>
         );
       }
-      return <DefaultEnrollCta className={classNames(enrollLinkClass, 'disabled')} />;
+      return (
+        <DefaultEnrollCta
+          className={classNames(enrollLinkClass, 'disabled')}
+          variant="success"
+        />
+      );
     }
 
     if (!isUserEnrolled && !isEnrollable) {
@@ -167,7 +172,7 @@ export default function EnrollButton() {
       if (isCourseStarted) {
         return (
           <a
-            className={classNames('btn', enrollLinkClass)}
+            className={classNames('btn', 'btn-success', enrollLinkClass)}
             href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
           >
             {renderButtonLabel()}
@@ -177,7 +182,7 @@ export default function EnrollButton() {
 
       return (
         <Link
-          className={classNames('btn', enrollLinkClass)}
+          className={classNames('btn', 'btn-success', enrollLinkClass)}
           to={`/${enterpriseConfig.slug}`}
         >
           {renderButtonLabel()}
@@ -185,7 +190,12 @@ export default function EnrollButton() {
       );
     }
 
-    return <DefaultEnrollCta className={enrollLinkClass} />;
+    return (
+      <DefaultEnrollCta
+        className={enrollLinkClass}
+        variant="success"
+      />
+    );
   };
 
   return (

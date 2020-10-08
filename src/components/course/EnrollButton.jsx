@@ -133,7 +133,7 @@ export default function EnrollButton() {
     seats,
   } = activeCourseRun;
 
-  const enrollLinkClass = 'btn-success btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-block rounded-0 py-2';
   const sku = useMemo(
     () => findHighestLevelSeatSku(seats),
     [seats],
@@ -188,7 +188,7 @@ export default function EnrollButton() {
       if (enrollmentUrl && subscriptionLicense) {
         return (
           <a
-            className={classNames('btn', enrollLinkClass)}
+            className={classNames('btn', 'btn-success', enrollLinkClass)}
             href={enrollmentUrl}
           >
             <EnrollButtonLabel
@@ -210,6 +210,7 @@ export default function EnrollButton() {
             <Button
               className={classNames('btn', enrollLinkClass)}
               onClick={() => setIsModalOpen(true)}
+              variant="success"
             >
               <EnrollButtonLabel
                 activeCourseRun={activeCourseRun}
@@ -263,7 +264,7 @@ export default function EnrollButton() {
       if (isCourseStarted) {
         return (
           <a
-            className={classNames('btn', enrollLinkClass)}
+            className={classNames('btn', 'btn-success', enrollLinkClass)}
             href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
           >
             <EnrollButtonLabel
@@ -283,7 +284,7 @@ export default function EnrollButton() {
 
       return (
         <Link
-          className={classNames('btn', enrollLinkClass)}
+          className={classNames('btn', 'btn-success', enrollLinkClass)}
           to={`/${enterpriseConfig.slug}`}
         >
           <EnrollButtonLabel
