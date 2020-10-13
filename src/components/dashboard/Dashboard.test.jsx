@@ -49,14 +49,14 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => (mockLocation),
 }));
 
-jest.mock('./sidebar/offers', () => ({
-  ...jest.requireActual('./sidebar/offers'),
-  fetchOffers: () => ({ type: 'fetch' }),
-}));
-
 describe('<Dashboard />', () => {
+  const defaultOffersState = {
+    offers: [],
+    loading: false,
+    offersCount: 0,
+  };
   const initialAppState = { enterpriseConfig: { name: 'BearsRUs' } };
-  const initialUserSubsidyState = { hasAccessToPortal: true };
+  const initialUserSubsidyState = { hasAccessToPortal: true, offers: defaultOffersState };
   const mockWindowConfig = {
     type: 'screen',
     width: breakpoints.large.minWidth + 1,

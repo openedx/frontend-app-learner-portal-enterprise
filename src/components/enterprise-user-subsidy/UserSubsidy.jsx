@@ -5,21 +5,22 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { LoadingSpinner } from '../loading-spinner';
 import SubscriptionSubsidy from './SubscriptionSubsidy';
 
-import { useSubscriptionLicenseForUser } from './data/hooks';
+import { useSubscriptionLicenseForUser, useOffers } from './data/hooks';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
 
 export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
-  const { subscriptionPlan } = useContext(AppContext);
+  const { subscriptionPlan, enterpriseConfig } = useContext(AppContext);
   const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicenseForUser(subscriptionPlan);
+  const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
 
   const isLoadingSubsidies = useMemo(
     () => {
-      const loadingStates = [isLoadingLicense];
+      const loadingStates = [isLoadingLicense, isLoadingOffers];
       return loadingStates.includes(true);
     },
-    [isLoadingLicense],
+    [isLoadingLicense, isLoadingOffers],
   );
 
   const value = useMemo(
@@ -32,9 +33,9 @@ const UserSubsidy = ({ children }) => {
         hasAccessToPortal = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
       }
 
-      return { hasAccessToPortal, subscriptionLicense };
+      return { hasAccessToPortal, subscriptionLicense, offers };
     },
-    [subscriptionPlan, subscriptionLicense],
+    [subscriptionPlan, subscriptionLicense, offers, enterpriseConfig.uuid],
   );
 
   if (isLoadingSubsidies) {
