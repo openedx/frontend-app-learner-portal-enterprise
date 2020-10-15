@@ -2,12 +2,12 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { useHistory } from 'react-router-dom';
-import { Input, Dropdown } from '@edx/paragon';
 import { connectRefinementList } from 'react-instantsearch-dom';
-import classNames from 'classnames';
 
 import { updateRefinementsFromQueryParams } from './data/utils';
 import { NO_OPTIONS_FOUND } from './data/constants';
+import FacetDropdown from './FacetDropdown';
+import FacetItem from './FacetItem';
 
 export const FacetListBase = ({
   title,
@@ -44,47 +44,24 @@ export const FacetListBase = ({
       }
 
       return items.map(item => (
-        <Dropdown.Item
+        <FacetItem
           key={item.label}
-          as="label"
-          className="mb-0 py-3"
-        >
-          <Input
-            type="checkbox"
-            checked={item.isRefined}
-            onChange={() => handleInputOnChange(item)}
-          />
-          <span className={classNames('facet-item-label', { 'is-refined': item.isRefined })}>
-            {item.label}
-          </span>
-          <span className="badge badge-pill ml-2 bg-brand-primary text-brand-primary">
-            {item.count}
-          </span>
-        </Dropdown.Item>
+          handleInputOnChange={handleInputOnChange}
+          item={item}
+          isChecked={item.isRefined}
+          isRefined={item.isRefined}
+        />
       ));
     },
     [items],
   );
 
   return (
-    <div className="facet-list">
-      <Dropdown className="mb-0 mr-md-3">
-        <Dropdown.Toggle
-          className={
-            classNames(
-              'bg-white', 'text-capitalize', 'rounded-0', 'border-0',
-              'd-flex', 'justify-content-between', 'align-items-center', 'text-dark',
-              { 'font-weight-bold': currentRefinement.length > 0 },
-            )
-          }
-        >
-          {title}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {renderItems()}
-        </Dropdown.Menu>
-      </Dropdown>
-    </div>
+    <FacetDropdown
+      items={renderItems()}
+      title={title}
+      isBold={currentRefinement.length > 0}
+    />
   );
 };
 
