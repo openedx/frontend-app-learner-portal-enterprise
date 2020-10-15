@@ -107,19 +107,46 @@ export const useNbHitsFromSearchResults = (searchResults) => {
   return nbHits;
 };
 
-export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan }) => {
+export const getCatalogString = (offerCatalogs, initialString = '') => {
+  const offerCatalogsCopy = [...offerCatalogs];
+  const lastCatalog = offerCatalogsCopy.pop();
+  return `${offerCatalogsCopy.reduce(
+    (result, catalog) => `${result}enterprise_catalog_uuids:${catalog} OR `, initialString,
+  )}enterprise_catalog_uuids:${lastCatalog}`;
+};
+
+export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, offerCatalogs = [] }) => {
+  // default to showing all catalogs
+  const [showAllCatalogs, setShowAllCatalogs] = useState(false);
+
+  useMemo(() => {
+    if (!subscriptionPlan && offerCatalogs.length < 1) {
+      setShowAllCatalogs(true);
+    }
+  }, [subscriptionPlan, offerCatalogs.length]);
+
   const filters = useMemo(
     () => {
+      if (showAllCatalogs) {
+        if (subscriptionPlan) {
+          return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} OR enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+        }
+        return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      }
       // if there's a subscriptionPlan, filter results by the subscription catalog
+      // and any catalogs for which the user has vouchers
       if (subscriptionPlan) {
+        if (offerCatalogs.length > 0) {
+          return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} ${getCatalogString(offerCatalogs, 'OR ')}`;
+        }
+        // eslint-disable-next-line prefer-template
         return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
       }
-
-      // there's no subscription catalog, so filter results by the enterprise customer instead
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      // shows catalogs for which a user has 100% vouchers
+      return getCatalogString(offerCatalogs);
     },
-    [enterpriseConfig, subscriptionPlan],
+    [enterpriseConfig, subscriptionPlan, offerCatalogs, showAllCatalogs],
   );
 
-  return filters;
+  return { filters, showAllCatalogs, setShowAllCatalogs };
 };

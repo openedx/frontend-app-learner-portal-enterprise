@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 
 import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from './constants';
@@ -8,6 +8,7 @@ import {
   useActiveRefinementsByAttribute,
   useActiveRefinementsAsFlatArray,
   useNbHitsFromSearchResults,
+  getCatalogString,
 } from '../hooks';
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
@@ -73,32 +74,85 @@ describe('useActiveRefinementsByAttribute and useActiveRefinementsAsFlatArray ho
   });
 });
 
-describe('useDefaultSearchFilters hook', () => {
-  test('returns enterprise customer uuid as filter', () => {
-    const enterpriseConfig = { uuid: TEST_ENTERPRISE_UUID };
-
-    const { result } = renderHook(() => useDefaultSearchFilters({
-      enterpriseConfig,
-    }));
-
-    const filter = result.current;
-
-    expect(filter).toBeDefined();
-    expect(filter).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+describe('getCatalogString helper', () => {
+  test('returns correct string for one catalog', () => {
+    expect(getCatalogString(['catalog'])).toEqual('enterprise_catalog_uuids:catalog');
   });
+  test('return correct catalog string for multiple catalogs', () => {
+    const catalogs = ['catalog1', 'catalog2'];
+    expect(getCatalogString(catalogs))
+      .toEqual('enterprise_catalog_uuids:catalog1 OR enterprise_catalog_uuids:catalog2');
+  });
+  test('returns correct string with initial string', () => {
+    expect(getCatalogString(['catalog'], 'OR ')).toEqual('OR enterprise_catalog_uuids:catalog');
+    expect(getCatalogString(['catalog1', 'catalog2'], 'OR '))
+      .toEqual('OR enterprise_catalog_uuids:catalog1 OR enterprise_catalog_uuids:catalog2');
+  });
+});
 
-  test('returns subscription catalog uuid as filter', () => {
-    const enterpriseConfig = { uuid: TEST_ENTERPRISE_UUID };
-    const subscriptionPlan = { enterpriseCatalogUuid: TEST_SUBSCRIPTION_CATALOG_UUID };
+describe('useDefaultSearchFilters hook', () => {
+  const enterpriseConfig = { uuid: TEST_ENTERPRISE_UUID };
+  const subscriptionPlan = { enterpriseCatalogUuid: TEST_SUBSCRIPTION_CATALOG_UUID };
+  describe('no catalogs', () => {
+    test('returns enterprise customer uuid as filter', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+      }));
+      const { filters, showAllCatalogs } = result.current;
+      expect(filters).toBeDefined();
+      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(showAllCatalogs).toEqual(true);
+    });
 
-    const { result } = renderHook(() => useDefaultSearchFilters({
-      enterpriseConfig, subscriptionPlan,
-    }));
-
-    const filter = result.current;
-
-    expect(filter).toBeDefined();
-    expect(filter).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
+    test('returns subscription catalog uuid as filter', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig, subscriptionPlan,
+      }));
+      const { filters, showAllCatalogs } = result.current;
+      expect(filters).toBeDefined();
+      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
+      expect(showAllCatalogs).toEqual(false);
+    });
+  });
+  describe('with catalogs', () => {
+    const offerCatalogs = ['catalog1', 'catalog2'];
+    test('returns subscription and offers', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+        offerCatalogs,
+      }));
+      const { filters, showAllCatalogs } = result.current;
+      expect(filters).toBeDefined();
+      expect(filters)
+        .toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR ${getCatalogString(offerCatalogs)}`);
+      expect(showAllCatalogs).toEqual(false);
+    });
+    test('returns only offers', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan: null,
+        offerCatalogs,
+      }));
+      const { filters, showAllCatalogs } = result.current;
+      expect(filters).toBeDefined();
+      expect(filters).toEqual(getCatalogString(offerCatalogs));
+      expect(showAllCatalogs).toEqual(false);
+    });
+  });
+  describe('with show all catalogs', () => {
+    test('showAllCatalogs can be set', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+      }));
+      // eslint-disable-next-line prefer-const
+      let { showAllCatalogs, setShowAllCatalogs } = result.current;
+      expect(showAllCatalogs).toEqual(false);
+      act(() => setShowAllCatalogs(true));
+      showAllCatalogs = result.current.showAllCatalogs;
+      expect(showAllCatalogs).toEqual(true);
+    });
   });
 });
 
