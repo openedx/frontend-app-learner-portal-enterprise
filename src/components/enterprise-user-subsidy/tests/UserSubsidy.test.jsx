@@ -9,10 +9,10 @@ import UserSubsidy from '../UserSubsidy';
 import { renderWithRouter } from '../../../utils/tests';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { fetchSubscriptionLicensesForUser } from '../data/service';
-import { fetchOffers } from '../../dashboard/sidebar/offers/data/service';
+import { fetchOffers } from '../offers/data/service';
 
 jest.mock('../data/service');
-jest.mock('../../dashboard/sidebar/offers/data/service');
+jest.mock('../offers/data/service');
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
