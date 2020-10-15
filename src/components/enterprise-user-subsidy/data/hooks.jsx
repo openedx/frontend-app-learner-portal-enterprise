@@ -3,8 +3,8 @@ import {
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { fetchOffers } from '../../dashboard/sidebar/offers';
-import offersReducer, { initialOfferState } from '../../dashboard/sidebar/offers/data/reducer';
+import { fetchOffers } from '../offers';
+import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
