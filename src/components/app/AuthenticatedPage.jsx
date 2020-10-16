@@ -12,8 +12,8 @@ export default function AuthenticatedPage({ children }) {
     <LoginRedirect>
       <EnterprisePage>
         <Layout>
+          <EnterpriseBanner />
           <UserSubsidy>
-            <EnterpriseBanner />
             {children}
           </UserSubsidy>
         </Layout>
