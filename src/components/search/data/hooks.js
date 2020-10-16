@@ -120,6 +120,7 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
   const [showAllCatalogs, setShowAllCatalogs] = useState(false);
 
   useMemo(() => {
+    // if there are no subscriptions or offers, we default to showing all catalogs
     if (!subscriptionPlan && offerCatalogs.length < 1) {
       setShowAllCatalogs(true);
     }
@@ -129,8 +130,10 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
     () => {
       if (showAllCatalogs) {
         if (subscriptionPlan) {
+          // show subscription catalog and all other enterprise catalogs
           return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} OR enterprise_customer_uuids:${enterpriseConfig.uuid}`;
         }
+        // show all enterprise catalogs
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
       // if there's a subscriptionPlan, filter results by the subscription catalog
@@ -139,7 +142,6 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
         if (offerCatalogs.length > 0) {
           return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} ${getCatalogString(offerCatalogs, 'OR ')}`;
         }
-        // eslint-disable-next-line prefer-template
         return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
       }
       // shows catalogs for which a user has 100% vouchers

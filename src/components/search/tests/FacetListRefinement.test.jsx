@@ -2,7 +2,7 @@ import React from 'react';
 import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { FacetListBase } from '../FacetList';
+import { FacetListBase } from '../FacetListRefinement';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { FACET_ATTRIBUTES, SUBJECTS } from '../data/tests/constants';
@@ -45,7 +45,7 @@ const propsForActiveRefinements = {
   },
 };
 
-describe('<FacetList />', () => {
+describe('<FacetListRefinement />', () => {
   test('renders with no options', async () => {
     renderWithRouter(<FacetListBase {...propsForNoRefinements} />);
 

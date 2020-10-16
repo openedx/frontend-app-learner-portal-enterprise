@@ -93,8 +93,20 @@ describe('getCatalogString helper', () => {
 describe('useDefaultSearchFilters hook', () => {
   const enterpriseConfig = { uuid: TEST_ENTERPRISE_UUID };
   const subscriptionPlan = { enterpriseCatalogUuid: TEST_SUBSCRIPTION_CATALOG_UUID };
+  test('showAllCatalogs can be set', () => {
+    const { result } = renderHook(() => useDefaultSearchFilters({
+      enterpriseConfig,
+      subscriptionPlan,
+    }));
+    // eslint-disable-next-line prefer-const
+    let { showAllCatalogs, setShowAllCatalogs } = result.current;
+    expect(showAllCatalogs).toEqual(false);
+    act(() => setShowAllCatalogs(true));
+    showAllCatalogs = result.current.showAllCatalogs;
+    expect(showAllCatalogs).toEqual(true);
+  });
   describe('no catalogs', () => {
-    test('returns enterprise customer uuid as filter', () => {
+    test('no subscription: returns enterprise customer uuid as filter', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
       }));
@@ -104,7 +116,7 @@ describe('useDefaultSearchFilters hook', () => {
       expect(showAllCatalogs).toEqual(true);
     });
 
-    test('returns subscription catalog uuid as filter', () => {
+    test('with subscription: returns subscription catalog uuid as filter', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig, subscriptionPlan,
       }));
@@ -113,10 +125,20 @@ describe('useDefaultSearchFilters hook', () => {
       expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
       expect(showAllCatalogs).toEqual(false);
     });
+    test('with subscription and showAllCatalogs: returns subscription and all enterprise catalogs', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+      }));
+      const { setShowAllCatalogs } = result.current;
+      act(() => setShowAllCatalogs(true));
+      const { filters } = result.current;
+      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    });
   });
   describe('with catalogs', () => {
     const offerCatalogs = ['catalog1', 'catalog2'];
-    test('returns subscription and offers', () => {
+    test('with subscription: returns subscription and offers', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
         subscriptionPlan,
@@ -128,7 +150,7 @@ describe('useDefaultSearchFilters hook', () => {
         .toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR ${getCatalogString(offerCatalogs)}`);
       expect(showAllCatalogs).toEqual(false);
     });
-    test('returns only offers', () => {
+    test('no subscription: returns only offers', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
         subscriptionPlan: null,
@@ -139,19 +161,27 @@ describe('useDefaultSearchFilters hook', () => {
       expect(filters).toEqual(getCatalogString(offerCatalogs));
       expect(showAllCatalogs).toEqual(false);
     });
-  });
-  describe('with show all catalogs', () => {
-    test('showAllCatalogs can be set', () => {
+    test('with showAllCatalogs: returns all enterprise catalgos', () => {
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan: null,
+        offerCatalogs,
+      }));
+      const { setShowAllCatalogs } = result.current;
+      act(() => setShowAllCatalogs(true));
+      const { filters } = result.current;
+      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    });
+    test('with subscription and show all: returns subscription and all enterprise catalogs', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
         subscriptionPlan,
+        offerCatalogs,
       }));
-      // eslint-disable-next-line prefer-const
-      let { showAllCatalogs, setShowAllCatalogs } = result.current;
-      expect(showAllCatalogs).toEqual(false);
+      const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
-      showAllCatalogs = result.current.showAllCatalogs;
-      expect(showAllCatalogs).toEqual(true);
+      const { filters } = result.current;
+      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
 });
