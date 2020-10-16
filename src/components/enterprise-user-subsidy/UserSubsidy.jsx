@@ -7,6 +7,7 @@ import SubscriptionSubsidy from './SubscriptionSubsidy';
 
 import { useSubscriptionLicenseForUser, useOffers } from './data/hooks';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
+import OffersAlert from './OffersAlert';
 
 export const UserSubsidyContext = createContext();
 
@@ -56,6 +57,7 @@ const UserSubsidy = ({ children }) => {
        * expiration dates. The component also handles rendering warning/error status alerts.
        */}
       <SubscriptionSubsidy plan={subscriptionPlan} license={subscriptionLicense} />
+      {offers && <OffersAlert offers={offers} />}
       {/**
        * Potential direction for code organization for blended use case of subscriptions,
        * codes, and offers:
