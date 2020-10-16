@@ -1,10 +1,6 @@
-import {
-  useState, useEffect, useMemo, useReducer,
-} from 'react';
+import { useState, useEffect } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { fetchOffers } from '../offers';
-import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
@@ -58,14 +54,4 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
   }, [subscriptionPlan]);
 
   return [license, isLoading];
-}
-
-export function useOffers(enterpriseId) {
-  const [offerState, dispatch] = useReducer(offersReducer, initialOfferState);
-
-  // TODO: Set a timestamp for when offers have been last loaded, to avoid extra calls
-  useMemo(() => {
-    fetchOffers('full_discount_only=True', dispatch);
-  }, [enterpriseId]);
-  return [offerState, offerState.loading];
 }

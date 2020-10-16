@@ -1,4 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import classNames from 'classnames';
 import qs from 'query-string';
 import { Link, useLocation } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { Button } from '@edx/paragon';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseContext } from './CourseContextProvider';
+import { fetchOffers } from '../dashboard/sidebar/offers';
 
 import {
   ENROLLMENT_FAILED_QUERY_PARAM,
@@ -102,8 +104,17 @@ export const getEnrollmentUrl = ({
 export default function EnrollButton() {
   const { state: courseData } = useContext(CourseContext);
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
+  const { subscriptionLicense } = useContext(UserSubsidyContext);
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  // TODO: Set a timestamp for when offers have been last loaded, to avoid extra calls
+  const { offers, offersCount, loading: offersLoading } = useSelector(store => store.offers);
+  useMemo(() => {
+    if (!offersLoading) {
+      dispatch(fetchOffers('full_discount_only=True'));
+    }
+  }, []);
 
   const {
     activeCourseRun,
@@ -145,10 +156,11 @@ export default function EnrollButton() {
       location,
       offers,
       offersCount,
+      offersLoading,
       sku,
       subscriptionLicense,
     }),
-    [catalogList, enterpriseConfig, key, location, offers, offersCount, sku, subscriptionLicense],
+    [catalogList, enterpriseConfig, key, location, offers, offersCount, offersLoading, sku, subscriptionLicense],
   );
 
   const DefaultEnrollCta = useMemo(

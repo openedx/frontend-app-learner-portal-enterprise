@@ -1,3 +1,6 @@
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
 import {
   FETCH_OFFERS_REQUEST,
   FETCH_OFFERS_SUCCESS,
@@ -8,6 +11,7 @@ import {
 } from '../actions';
 import * as service from '../service';
 
+const mockStore = configureMockStore([thunk]);
 jest.mock('../service');
 
 describe('fetchOffers action', () => {
@@ -22,16 +26,14 @@ describe('fetchOffers action', () => {
         },
       },
     ];
+    const store = mockStore();
 
     service.fetchOffers.mockImplementation((
       () => Promise.resolve({ data: { results: [{ foo_bar: 'foo' }], count: 2 } })
     ));
-    const dispatchSpy = jest.fn();
-    return fetchOffers(null, dispatchSpy)
-      .then(() => {
-        expect(dispatchSpy).toHaveBeenNthCalledWith(1, expectedAction[0]);
-        expect(dispatchSpy).toHaveBeenNthCalledWith(2, expectedAction[1]);
-      });
+
+    return store.dispatch(fetchOffers())
+      .then(() => expect(store.getActions()).toEqual(expectedAction));
   });
 
   it('fetch offers failure', () => {
@@ -44,15 +46,13 @@ describe('fetchOffers action', () => {
         },
       },
     ];
+    const store = mockStore();
 
     service.fetchOffers.mockImplementation((
       () => Promise.reject(Error)
     ));
-    const dispatchSpy = jest.fn();
-    return fetchOffers(null, dispatchSpy)
-      .then(() => {
-        expect(dispatchSpy).toHaveBeenNthCalledWith(1, expectedAction[0]);
-        expect(dispatchSpy).toHaveBeenNthCalledWith(2, expectedAction[1]);
-      });
+
+    return store.dispatch(fetchOffers())
+      .then(() => expect(store.getActions()).toEqual(expectedAction));
   });
 });
