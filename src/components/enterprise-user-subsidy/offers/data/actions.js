@@ -26,18 +26,17 @@ const fetchOffersFailure = error => ({
   },
 });
 
-const fetchOffers = (query) => (
-  (dispatch) => {
-    dispatch(fetchOffersRequest());
-    return service.fetchOffers(query)
-      .then((response) => {
-        dispatch(fetchOffersSuccess(camelCaseObject(response.data)));
-      })
-      .catch((error) => {
-        dispatch(fetchOffersFailure(error));
-      });
-  }
-);
+const fetchOffers = (query, dispatch) => {
+  dispatch(fetchOffersRequest());
+
+  return service.fetchOffers(query)
+    .then((response) => {
+      dispatch(fetchOffersSuccess(camelCaseObject(response.data)));
+    })
+    .catch((error) => {
+      dispatch(fetchOffersFailure(error));
+    });
+};
 
 // eslint-disable-next-line import/prefer-default-export
 export { fetchOffers };
