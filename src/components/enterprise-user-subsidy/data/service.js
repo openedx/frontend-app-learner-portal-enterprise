@@ -6,6 +6,5 @@ export function fetchSubscriptionLicensesForUser(subscriptionUuid) {
   const { email } = user;
   const queryParams = { search: email };
   const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/subscriptions/${subscriptionUuid}/license/?${qs.stringify(queryParams)}`;
-
-  return getAuthenticatedHttpClient().get(url);
+  return getAuthenticatedHttpClient(true).get(url);
 }
