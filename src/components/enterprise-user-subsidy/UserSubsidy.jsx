@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { LoadingSpinner } from '../loading-spinner';
-import SubscriptionSubsidy from './SubscriptionSubsidy';
 
 import { useSubscriptionLicenseForUser, useOffers } from './data/hooks';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
-import OffersAlert from './OffersAlert';
 
 export const UserSubsidyContext = createContext();
 
@@ -34,9 +32,11 @@ const UserSubsidy = ({ children }) => {
         hasAccessToPortal = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
       }
 
-      return { hasAccessToPortal, subscriptionLicense, offers };
+      return {
+        hasAccessToPortal, subscriptionLicense, offers,
+      };
     },
-    [subscriptionPlan, subscriptionLicense, offers, enterpriseConfig.uuid],
+    [subscriptionPlan, subscriptionLicense, offers, enterpriseConfig?.uuid],
   );
 
   if (isLoadingSubsidies) {
@@ -46,18 +46,8 @@ const UserSubsidy = ({ children }) => {
       </div>
     );
   }
-
   return (
     <>
-      {/**
-       * SubscriptionSubsidy takes care of redirecting the user to `/${enterpriseConfig.slug}`
-       * if their organization has a subscription plan but they don't have appropriate access
-       * to a license (i.e., status="activated"). it also handles the case where the organization
-       * has an active subscription plan but the current date is not between the plan's start and
-       * expiration dates. The component also handles rendering warning/error status alerts.
-       */}
-      <SubscriptionSubsidy plan={subscriptionPlan} license={subscriptionLicense} />
-      {offers && <OffersAlert offers={offers} />}
       {/**
        * Potential direction for code organization for blended use case of subscriptions,
        * codes, and offers:
