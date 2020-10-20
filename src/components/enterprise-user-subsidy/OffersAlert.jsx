@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Alert } from '@edx/paragon';
+import { Alert, Container } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,14 +12,11 @@ const OffersAlert = ({ offers }) => {
     return null;
   }
   return (
-    <Alert
-      className="pl-5"
-      variant="info"
-    >
-      <div className="container">
-        <FontAwesomeIcon className="mr-1" icon={faInfoCircle} />
+    <Alert className="rounded-0" variant="info">
+      <Container fluid>
+        <FontAwesomeIcon className="mr-2" icon={faInfoCircle} />
         {getOffersText(offers.offersCount)}
-      </div>
+      </Container>
     </Alert>
   );
 };
