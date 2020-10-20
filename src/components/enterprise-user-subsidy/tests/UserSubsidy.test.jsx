@@ -118,13 +118,12 @@ describe('UserSubsidy', () => {
           <HasAccessConsumer />
         </UserSubsidyWithAppContext>
       );
-      const { debug } = renderWithRouter(Component, {
+      renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
       await waitFor(() => {
-        debug();
         expect(screen.queryByText('Has access: false')).toBeInTheDocument();
       });
     });
