@@ -48,12 +48,6 @@ const UserSubsidy = ({ children }) => {
   }
   return (
     <>
-      {/**
-       * Potential direction for code organization for blended use case of subscriptions,
-       * codes, and offers:
-       *   <CodeSubsidy />
-       *   <OfferSubidy />
-      */}
       {/* Render the children so the rest of the page shows */}
       <UserSubsidyContext.Provider value={value}>
         {children}
