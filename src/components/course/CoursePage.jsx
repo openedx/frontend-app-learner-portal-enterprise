@@ -1,12 +1,12 @@
 import React from 'react';
 
 import Course from './Course';
-import AuthenticatedPage from '../app/AuthenticatedPage';
+import AuthenticatedUserSubsidyPage from '../app/AuthenticatedUserSubsidyPage';
 
 export default function CoursePage() {
   return (
-    <AuthenticatedPage>
+    <AuthenticatedUserSubsidyPage>
       <Course />
-    </AuthenticatedPage>
+    </AuthenticatedUserSubsidyPage>
   );
 }

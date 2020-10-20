@@ -1,12 +1,12 @@
 import React from 'react';
 
 import Search from './Search';
-import AuthenticatedPage from '../app/AuthenticatedPage';
+import AuthenticatedUserSubsidyPage from '../app/AuthenticatedUserSubsidyPage';
 
 const SearchPage = () => (
-  <AuthenticatedPage>
+  <AuthenticatedUserSubsidyPage>
     <Search />
-  </AuthenticatedPage>
+  </AuthenticatedUserSubsidyPage>
 );
 
 export default SearchPage;
