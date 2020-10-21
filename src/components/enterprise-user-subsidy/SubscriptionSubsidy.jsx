@@ -23,15 +23,19 @@ const SubscriptionSubsidy = ({
   enterpriseConfig, plan, license, offersCount,
 }) => {
   const match = useRouteMatch(`/${enterpriseConfig.slug}`);
+  const isOnDashboardPage = match.isExact;
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
   if (!plan) {
     return null;
   }
   if (!hasValidSubscription(plan, license) && !offersCount) {
-    if (!match.isExact) {
+    if (!isOnDashboardPage) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
+  } else if (!isOnDashboardPage) {
+    // don't show alerts unless user is on the dashboard page
+    return null;
   }
   const getStatusAlertText = (textType) => {
     const contactHelpText = renderContactHelpText();
@@ -55,16 +59,17 @@ const SubscriptionSubsidy = ({
   };
   let alertText = null;
   let alertType = 'danger';
-  if (!hasValidStartExpirationDates(plan)) {
+
+  if (!hasValidStartExpirationDates(plan) && !offersCount) {
     alertText = getStatusAlertText(statusAlertTypes.invalidStartExpirationDate);
-  } else if (isNull(license)) {
+  } else if (isNull(license) && !offersCount) {
     alertText = getStatusAlertText(statusAlertTypes.noLicense);
   } else if (isDefinedAndNotNull(license) && license.status !== LICENSE_STATUS.ACTIVATED) {
     if (license.status === LICENSE_STATUS.ASSIGNED) {
       alertText = getStatusAlertText(statusAlertTypes.notActivated);
       alertType = 'warning';
     }
-    if (license.status === LICENSE_STATUS.REVOKED) {
+    if (license.status === LICENSE_STATUS.REVOKED && !offersCount) {
       alertText = getStatusAlertText(statusAlertTypes.revoked);
     }
   }
