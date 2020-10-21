@@ -19,9 +19,15 @@ const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 
 describe('SubscriptionSubsidy', () => {
   const defaultEnterpriseConfig = { slug: TEST_ENTERPRISE_SLUG };
-  describe('without subscription plan', () => {
+  describe('without subscription plan, with offers', () => {
     test('does not redirect to Dashboard page from non-Dashboard page route', async () => {
-      const Component = <SubscriptionSubsidy subscriptionPlan={null} enterpriseConfig={defaultEnterpriseConfig} />;
+      const Component = (
+        <SubscriptionSubsidy
+          subscriptionPlan={null}
+          enterpriseConfig={defaultEnterpriseConfig}
+          offersCount={3}
+        />
+      );
       const { history } = renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}/search`,
       });
@@ -66,6 +72,7 @@ describe('SubscriptionSubsidy', () => {
       startDate: moment().subtract(1, 'w').toISOString(),
       expirationDate: moment().add(1, 'y').toISOString(),
     };
+    const offersCount = 0;
 
     test('renders license activation alert if user has an assigned (pending) license on Dashboard page route', () => {
       const license = {
@@ -78,6 +85,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           license={license}
           plan={subscriptionPlan}
+          offersCount={offersCount}
         />
       );
       renderWithRouter(Component, {
@@ -100,6 +108,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           license={license}
           plan={subscriptionPlan}
+          offersCount={offersCount}
         />
       );
       renderWithRouter(Component, {
@@ -119,6 +128,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={null}
+          offersCount={offersCount}
         />
       );
       renderWithRouter(Component, {
@@ -142,6 +152,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={license}
+          offersCount={offersCount}
         />
       );
       const { history } = renderWithRouter(Component, {
@@ -164,6 +175,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={license}
+          offersCount={offersCount}
         />
       );
       const { history } = renderWithRouter(Component, {
@@ -185,6 +197,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={license}
+          offersCount={offersCount}
         />
       );
       const { history } = renderWithRouter(Component, {

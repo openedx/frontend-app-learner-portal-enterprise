@@ -10,11 +10,7 @@ import {
 } from '../../utils/common';
 import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
-
-const hasValidSubscription = (plan, license) => {
-  return (hasValidStartExpirationDates(plan) && !isNull(license)
-    && isDefinedAndNotNull(license) && license.status === LICENSE_STATUS.ACTIVATED);
-};
+import { hasValidSubscription } from './data/utils';
 
 const statusAlertTypes = {
   invalidStartExpirationDate: 'invalidStartExpiration',
@@ -23,31 +19,34 @@ const statusAlertTypes = {
   revoked: 'revoked',
 };
 
-const SubscriptionSubsidy = ({ enterpriseConfig, plan, license }) => {
+const SubscriptionSubsidy = ({
+  enterpriseConfig, plan, license, offersCount,
+}) => {
   const match = useRouteMatch(`/${enterpriseConfig.slug}`);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
   if (!plan) {
     return null;
   }
-  if (!hasValidSubscription(plan, license)) {
+  if (!hasValidSubscription(plan, license) && !offersCount) {
     if (!match.isExact) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
   }
   const getStatusAlertText = (textType) => {
+    const contactHelpText = renderContactHelpText();
     switch (textType) {
       case statusAlertTypes.invalidStartExpirationDate:
         return `Your organization does not have an active subscription plan.
-        Please ${renderContactHelpText()} for further information.`;
+        Please ${contactHelpText} for further information.`;
       case statusAlertTypes.noLicense:
         return `You do not have an enterprise license assigned to you.
-        Please ${renderContactHelpText()} for further information.`;
+        Please ${contactHelpText} for further information.`;
       case statusAlertTypes.notActivated:
         return `Please activate your enterprise license from your email
-        or ${renderContactHelpText()} for further information.`;
+        or ${contactHelpText} for further information.`;
       case statusAlertTypes.revoked:
-        return `Your enterprise license is no longer active. Please ${renderContactHelpText()} for
+        return `Your enterprise license is no longer active. Please ${contactHelpText} for
         further information. You may continue your learning journey by creating a personal
         account at <a className="text-underline" href="https://edx.org">edx.org</a>.`;
       default:
@@ -83,7 +82,7 @@ const SubscriptionSubsidy = ({ enterpriseConfig, plan, license }) => {
         open
       />
     </div>
-  )
+  );
 };
 
 SubscriptionSubsidy.propTypes = {
@@ -98,6 +97,7 @@ SubscriptionSubsidy.propTypes = {
     startDate: PropTypes.string,
     expirationDate: PropTypes.string,
   }),
+  offersCount: PropTypes.number.isRequired,
 };
 
 SubscriptionSubsidy.defaultProps = {
