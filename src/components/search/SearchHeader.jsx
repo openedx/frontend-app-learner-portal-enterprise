@@ -1,12 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import SearchBox from './SearchBox';
 import SearchFilters from './SearchFilters';
 
 import { useRefinementsFromQueryParams } from './data/hooks';
 
-const SearchHeader = ({ showAllCatalogs, setShowAllCatalogs }) => {
+const SearchHeader = () => {
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
   const searchQueryFromQueryParams = refinementsFromQueryParams.q;
@@ -25,19 +24,12 @@ const SearchHeader = ({ showAllCatalogs, setShowAllCatalogs }) => {
           <div className="col-12">
             <SearchFilters
               className="mb-3"
-              showAllCatalogs={showAllCatalogs}
-              setShowAllCatalogs={setShowAllCatalogs}
             />
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-SearchHeader.propTypes = {
-  showAllCatalogs: PropTypes.bool.isRequired,
-  setShowAllCatalogs: PropTypes.func.isRequired,
 };
 
 export default SearchHeader;

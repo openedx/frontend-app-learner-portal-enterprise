@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
+import React, { useMemo, useContext } from 'react';
 import { breakpoints } from '@edx/paragon';
 
 import FacetList from './FacetListRefinement';
@@ -13,10 +12,11 @@ import { useRefinementsFromQueryParams } from './data/hooks';
 import { sortItemsByLabelAsc } from './data/utils';
 
 import { useWindowSize } from '../../utils/hooks';
+import { SearchContext } from './SearchContext';
 
-const SearchFilters = ({ showAllCatalogs, setShowAllCatalogs }) => {
+const SearchFilters = () => {
   const size = useWindowSize();
-
+  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
   const showMobileMenu = useMemo(
     () => size.width < breakpoints.small.maxWidth,
     [size],
@@ -77,11 +77,6 @@ const SearchFilters = ({ showAllCatalogs, setShowAllCatalogs }) => {
       )}
     </>
   );
-};
-
-SearchFilters.propTypes = {
-  showAllCatalogs: PropTypes.bool.isRequired,
-  setShowAllCatalogs: PropTypes.func.isRequired,
 };
 
 export default SearchFilters;

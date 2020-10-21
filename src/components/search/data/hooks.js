@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
+import { SearchContext } from '../SearchContext';
 
 import {
   SEARCH_FACET_FILTERS,
@@ -117,7 +118,7 @@ export const getCatalogString = (offerCatalogs, initialString = '') => {
 
 export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, offerCatalogs = [] }) => {
   // default to showing all catalogs
-  const [showAllCatalogs, setShowAllCatalogs] = useState(false);
+  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
 
   useMemo(() => {
     // if there are no subscriptions or offers, we default to showing all catalogs

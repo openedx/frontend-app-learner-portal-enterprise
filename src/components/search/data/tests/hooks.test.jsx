@@ -10,6 +10,7 @@ import {
   useNbHitsFromSearchResults,
   getCatalogString,
 } from '../hooks';
+import SearchData from '../../SearchContext';
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_SUBSCRIPTION_CATALOG_UUID = 'test-subscription-catalog-uuid';
@@ -97,7 +98,7 @@ describe('useDefaultSearchFilters hook', () => {
     const { result } = renderHook(() => useDefaultSearchFilters({
       enterpriseConfig,
       subscriptionPlan,
-    }));
+    }), { wrapper: SearchData });
     // eslint-disable-next-line prefer-const
     let { showAllCatalogs, setShowAllCatalogs } = result.current;
     expect(showAllCatalogs).toEqual(false);
@@ -109,7 +110,7 @@ describe('useDefaultSearchFilters hook', () => {
     test('no subscription: returns enterprise customer uuid as filter', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
-      }));
+      }), { wrapper: SearchData });
       const { filters, showAllCatalogs } = result.current;
       expect(filters).toBeDefined();
       expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
@@ -119,7 +120,7 @@ describe('useDefaultSearchFilters hook', () => {
     test('with subscription: returns subscription catalog uuid as filter', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig, subscriptionPlan,
-      }));
+      }), { wrapper: SearchData });
       const { filters, showAllCatalogs } = result.current;
       expect(filters).toBeDefined();
       expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
@@ -129,7 +130,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
         subscriptionPlan,
-      }));
+      }), { wrapper: SearchData });
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;
@@ -143,7 +144,7 @@ describe('useDefaultSearchFilters hook', () => {
         enterpriseConfig,
         subscriptionPlan,
         offerCatalogs,
-      }));
+      }), { wrapper: SearchData });
       const { filters, showAllCatalogs } = result.current;
       expect(filters).toBeDefined();
       expect(filters)
@@ -155,7 +156,7 @@ describe('useDefaultSearchFilters hook', () => {
         enterpriseConfig,
         subscriptionPlan: null,
         offerCatalogs,
-      }));
+      }), { wrapper: SearchData });
       const { filters, showAllCatalogs } = result.current;
       expect(filters).toBeDefined();
       expect(filters).toEqual(getCatalogString(offerCatalogs));
@@ -166,7 +167,7 @@ describe('useDefaultSearchFilters hook', () => {
         enterpriseConfig,
         subscriptionPlan: null,
         offerCatalogs,
-      }));
+      }), { wrapper: SearchData });
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;
@@ -177,7 +178,7 @@ describe('useDefaultSearchFilters hook', () => {
         enterpriseConfig,
         subscriptionPlan,
         offerCatalogs,
-      }));
+      }), { wrapper: SearchData });
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;

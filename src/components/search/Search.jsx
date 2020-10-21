@@ -22,7 +22,7 @@ const Search = () => {
   const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
   const { offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
-  const { filters, showAllCatalogs, setShowAllCatalogs } = useDefaultSearchFilters({
+  const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
     offerCatalogs,
@@ -38,10 +38,7 @@ const Search = () => {
         searchClient={searchClient}
       >
         <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />
-        <SearchHeader
-          setShowAllCatalogs={setShowAllCatalogs}
-          showAllCatalogs={showAllCatalogs}
-        />
+        <SearchHeader />
         <SearchResults />
       </InstantSearch>
       <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
