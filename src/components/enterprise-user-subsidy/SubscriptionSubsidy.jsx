@@ -1,8 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, useRouteMatch } from 'react-router-dom';
 import { StatusAlert } from '@edx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import {
   isDefinedAndNotNull,
@@ -12,15 +11,13 @@ import {
 import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
 
-const SubscriptionSubsidy = ({ plan, license }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+const SubscriptionSubsidy = ({ enterpriseConfig, plan, license }) => {
   const match = useRouteMatch(`/${enterpriseConfig.slug}`);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
   if (!plan) {
     return null;
   }
-
   if (!hasValidStartExpirationDates(plan)) {
     if (!match.isExact) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
@@ -116,6 +113,10 @@ const SubscriptionSubsidy = ({ plan, license }) => {
 };
 
 SubscriptionSubsidy.propTypes = {
+  enterpriseConfig: PropTypes.shape({
+    slug: PropTypes.string,
+    contactEmail: PropTypes.string,
+  }).isRequired,
   license: PropTypes.shape({
     status: PropTypes.string,
   }),

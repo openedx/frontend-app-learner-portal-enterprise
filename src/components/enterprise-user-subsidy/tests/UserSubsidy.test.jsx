@@ -1,23 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import moment from 'moment';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import UserSubsidy from '../UserSubsidy';
+import UserSubsidy, { UserSubsidyContext } from '../UserSubsidy';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { fetchSubscriptionLicensesForUser } from '../data/service';
+import { fetchOffers } from '../offers/data/service';
 
 jest.mock('../data/service');
+jest.mock('../offers/data/service');
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 
 // eslint-disable-next-line react/prop-types
-const UserSubsidyWithAppContext = ({ contextValue = {} }) => (
+const UserSubsidyWithAppContext = ({ contextValue = {}, children }) => (
   <AppContext.Provider
     value={{
       enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
@@ -25,225 +27,231 @@ const UserSubsidyWithAppContext = ({ contextValue = {} }) => (
     }}
   >
     <UserSubsidy>
-      <span data-testid="did-i-render" />
+      {children}
     </UserSubsidy>
   </AppContext.Provider>
 );
 
-describe('without subscription plan', () => {
-  const contextValue = {
-    subscriptionPlan: null,
-  };
+const HasAccessConsumer = () => {
+  const { hasAccessToPortal } = useContext(UserSubsidyContext);
+  return <div>Has access: {hasAccessToPortal ? 'true' : 'false'} </div>;
+};
 
-  test('renders children on Dashboard page route', async () => {
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}`,
+const SubscriptionLicenseConsumer = () => {
+  const { subscriptionLicense } = useContext(UserSubsidyContext);
+  return <div>License status: {subscriptionLicense.status}</div>;
+};
+
+const OffersConsumer = () => {
+  const { offers } = useContext(UserSubsidyContext);
+  return <div>Offers count: {offers.offersCount}</div>;
+};
+
+describe('UserSubsidy', () => {
+  describe('without subscription plan', () => {
+    const contextValue = {
+      subscriptionPlan: null,
+    };
+    beforeEach(() => {
+      const promise = Promise.resolve({
+        data: {
+          data: {
+            count: 0,
+            results: [],
+          },
+        },
+      });
+      fetchOffers.mockResolvedValueOnce(promise);
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
     });
 
-    // assert component is initially loading
-    expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
+    test('renders children on Dashboard page route', async () => {
+      const Component = <UserSubsidyWithAppContext contextValue={contextValue}><span data-testid="did-i-render" /></UserSubsidyWithAppContext>;
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
-    });
+      // assert component is initially loading
+      expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
-    // assert component is no longer loading
-    expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
-  });
+      await waitFor(() => {
+        expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
+      });
 
-  test('does not redirect to Dashboard page from non-Dashboard page route', async () => {
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    const { history } = renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}/search`,
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
-    });
-
-    // assert we did NOT get redirected
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search`);
-  });
-});
-
-describe('with subscription plan that is expired or has not yet started', () => {
-  const startDate = moment().subtract(1, 'y');
-  const expirationDate = moment().subtract(1, 'w');
-  const contextValue = {
-    subscriptionPlan: {
-      uuid: TEST_SUBSCRIPTION_UUID,
-      startDate: startDate.toISOString(),
-      expirationDate: expirationDate.toISOString(),
-    },
-  };
-
-  test('renders alert if plan has not started or has already ended', async () => {
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}`,
-    });
-
-    // assert status alert message renders
-    await waitFor(() => {
-      const activationMessage = 'does not have an active subscription plan';
-      expect(screen.queryByRole('alert')).toBeInTheDocument();
-      expect(screen.queryByText(activationMessage, { exact: false })).toBeInTheDocument();
+      // assert component is no longer loading
+      expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
     });
   });
-});
 
-describe('with subscription plan that has started, but not yet ended', () => {
-  const contextValue = {
-    subscriptionPlan: {
-      uuid: TEST_SUBSCRIPTION_UUID,
-      startDate: moment().subtract(1, 'w').toISOString(),
-      expirationDate: moment().add(1, 'y').toISOString(),
-    },
-  };
-
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-  test('renders children if user has an activated license from any route', async () => {
-    const promise = Promise.resolve({
-      data: {
-        results: [{
-          uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.ACTIVATED,
-        }],
+  describe('no offers', () => {
+    const contextValue = {
+      subscriptionPlan: {
+        uuid: TEST_SUBSCRIPTION_UUID,
+        startDate: moment().subtract(1, 'w').toISOString(),
+        expirationDate: moment().add(1, 'y').toISOString(),
       },
+    };
+    beforeEach(() => {
+      const promise = Promise.resolve({
+        data: {
+          count: 0,
+          results: [],
+        },
+      });
+      fetchOffers.mockResolvedValueOnce(promise);
     });
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
-
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}/search`,
-    });
-
-    // assert component is initially loading
-    expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
-
-    expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
-    expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
+    afterEach(() => {
+      jest.resetAllMocks();
     });
 
-    // assert component is no longer loading
-    expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
-  });
-
-  test('renders license activation alert if user has an assigned (pending) license on Dashboard page route', async () => {
-    const promise = Promise.resolve({
-      data: {
-        results: [{
-          uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.ASSIGNED,
-        }],
-      },
+    test('no license, shows correct portal access', async () => {
+      const promise = Promise.resolve({
+        data: {
+          results: [],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+      const Component = (
+        <UserSubsidyWithAppContext contextValue={contextValue}>
+          <HasAccessConsumer />
+        </UserSubsidyWithAppContext>
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      await waitFor(() => {
+        expect(screen.queryByText('Has access: false')).toBeInTheDocument();
+      });
     });
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
-
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}`,
+    test('with license, shows correct portal access', async () => {
+      const promise = Promise.resolve({
+        data: {
+          results: [{
+            uuid: TEST_LICENSE_UUID,
+            status: LICENSE_STATUS.ACTIVATED,
+          }],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+      const Component = (
+        <UserSubsidyWithAppContext contextValue={contextValue}>
+          <HasAccessConsumer />
+        </UserSubsidyWithAppContext>
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      await waitFor(() => {
+        expect(screen.queryByText('Has access: true')).toBeInTheDocument();
+      });
     });
-
-    // assert status alert message renders
-    await waitFor(() => {
-      const activationMessage = 'activate your enterprise license';
-      expect(screen.queryByRole('alert')).toBeInTheDocument();
-      expect(screen.queryByText(activationMessage, { exact: false })).toBeInTheDocument();
+    test('provides license data', async () => {
+      const promise = Promise.resolve({
+        data: {
+          results: [{
+            uuid: TEST_LICENSE_UUID,
+            status: LICENSE_STATUS.ACTIVATED,
+          }],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+      const Component = (
+        <UserSubsidyWithAppContext contextValue={contextValue}>
+          <SubscriptionLicenseConsumer />
+        </UserSubsidyWithAppContext>
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      await waitFor(() => {
+        expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
+      });
     });
-  });
-
-  test('renders license deactivation alert if user has a revoked license on Dashboard page route', async () => {
-    const promise = Promise.resolve({
-      data: {
-        results: [{
-          uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.REVOKED,
-        }],
-      },
-    });
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
-
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}`,
-    });
-
-    // assert status alert message renders
-    await waitFor(() => {
-      const deactivationMessage = 'enterprise license is no longer active';
-      expect(screen.queryByRole('alert')).toBeInTheDocument();
-      expect(screen.queryByText(deactivationMessage, { exact: false })).toBeInTheDocument();
-    });
-  });
-
-  test('renders unassigned license alert if user does not have an associated license on Dashboard page route', async () => {
-    const promise = Promise.resolve({
-      data: {
-        results: [],
-      },
-    });
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
-
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}`,
-    });
-
-    // assert status alert message renders
-    await waitFor(() => {
-      const deactivationMessage = 'do not have an enterprise license';
-      expect(screen.queryByRole('alert')).toBeInTheDocument();
-      expect(screen.queryByText(deactivationMessage, { exact: false })).toBeInTheDocument();
-    });
-  });
-
-  test('redirects to Dashboard page if user has an assigned (pending) license on non-Dashboard page route', async () => {
-    const promise = Promise.resolve({
-      data: {
-        results: [{
-          uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.ASSIGNED,
-        }],
-      },
-    });
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
-
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    const { history } = renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}/search`,
-    });
-
-    await waitFor(() => {
-      expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}`);
+    test('provides offers data', async () => {
+      const promise = Promise.resolve({
+        data: {
+          results: [{
+            uuid: TEST_LICENSE_UUID,
+            status: LICENSE_STATUS.ACTIVATED,
+          }],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+      const Component = (
+        <UserSubsidyWithAppContext contextValue={contextValue}>
+          <OffersConsumer />
+        </UserSubsidyWithAppContext>
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      expect(fetchOffers).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(screen.queryByText('Offers count: 0')).toBeInTheDocument();
+      });
     });
   });
 
-  test('redirects to Dashboard page if user has a revoked license on non-Dashboard page route', async () => {
-    const promise = Promise.resolve({
-      data: {
-        results: [{
-          uuid: TEST_LICENSE_UUID,
-          status: LICENSE_STATUS.REVOKED,
-        }],
+  describe('with subscription plan that has started, but not yet ended, no offers', () => {
+    const contextValue = {
+      subscriptionPlan: {
+        uuid: TEST_SUBSCRIPTION_UUID,
+        startDate: moment().subtract(1, 'w').toISOString(),
+        expirationDate: moment().add(1, 'y').toISOString(),
       },
-    });
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+    };
 
-    const Component = <UserSubsidyWithAppContext contextValue={contextValue} />;
-    const { history } = renderWithRouter(Component, {
-      route: `/${TEST_ENTERPRISE_SLUG}/search`,
+    beforeEach(() => {
+      const promise = Promise.resolve({
+        data: {
+          count: 0,
+          results: [],
+        },
+      });
+      fetchOffers.mockResolvedValueOnce(promise);
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
     });
 
-    await waitFor(() => {
-      expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}`);
+    test('renders children if user has an activated license from any route', async () => {
+      const promise = Promise.resolve({
+        data: {
+          results: [{
+            uuid: TEST_LICENSE_UUID,
+            status: LICENSE_STATUS.ACTIVATED,
+          }],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+
+      const Component = <UserSubsidyWithAppContext contextValue={contextValue}><span data-testid="did-i-render" /></UserSubsidyWithAppContext>;
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}/search`,
+      });
+
+      // assert component is initially loading
+      expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
+
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('did-i-render')).toBeInTheDocument();
+      });
+
+      // assert component is no longer loading
+      expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
     });
   });
 });

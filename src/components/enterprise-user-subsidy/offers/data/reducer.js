@@ -4,14 +4,14 @@ import {
   FETCH_OFFERS_FAILURE,
 } from './constants';
 
-const initialState = {
-  loading: false,
+export const initialOfferState = {
+  loading: true,
   offers: [],
   offersCount: 0,
   error: null,
 };
 
-const offersReducer = (state = initialState, action) => {
+const offersReducer = (state = initialOfferState, action) => {
   switch (action.type) {
     case FETCH_OFFERS_REQUEST:
       return {

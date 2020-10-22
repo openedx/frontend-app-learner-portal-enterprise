@@ -4,8 +4,6 @@ import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
@@ -21,25 +19,16 @@ import {
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
 } from '../data/constants';
 
-jest.mock('../../dashboard/sidebar/offers', () => ({
-  fetchOffers: () => {},
-}));
-
-const mockStore = configureMockStore([thunk]);
-
 /* eslint-disable react/prop-types */
 const EnrollButtonWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialReduxStore = {},
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <CourseContextProvider initialState={initialCourseState}>
-        <reactRedux.Provider store={mockStore(initialReduxStore)}>
-          <EnrollButton />
-        </reactRedux.Provider>
+        <EnrollButton />
       </CourseContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
@@ -72,8 +61,6 @@ describe('<EnrollButton />', () => {
     subscriptionLicense: {
       uuid: 'test-license-uuid',
     },
-  };
-  const initialReduxStore = {
     offers: {
       isLoading: false,
       offers: [],
@@ -109,7 +96,6 @@ describe('<EnrollButton />', () => {
             initialAppState={initialAppState}
             initialCourseState={courseState}
             initialUserSubsidyState={initialUserSubsidyState}
-            initialReduxStore={initialReduxStore}
           />,
         );
 
@@ -132,7 +118,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -147,7 +132,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={initialCourseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -173,7 +157,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -205,7 +188,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -233,7 +215,6 @@ describe('<EnrollButton />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
