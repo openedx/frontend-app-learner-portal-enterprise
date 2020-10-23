@@ -3,6 +3,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
+import SubscriptionSummaryCard from './SubscriptionSummaryCard';
+import ButtonWithLink from '../../layout/ButtonWithLink';
 
 export const EMAIL_MESSAGE = 'contact your organization\'s edX administrator';
 
@@ -25,6 +27,16 @@ class DashboardSidebar extends React.Component {
   render() {
     return (
       <>
+        <SidebarBlock title="Catalog Access">
+          <SubscriptionSummaryCard subscriptionPlan={this.context.subscriptionPlan} />
+          <OfferSummaryCard />
+          <ButtonWithLink
+            className="btn-outline-primary btn-block"
+            text="Find a course"
+            link="/search"
+            linkIsLocal
+          />
+        </SidebarBlock>
         <SidebarBlock
           title="Need help?"
           titleOptions={{ tag: 'h3', className: 'h4' }}
@@ -37,9 +49,6 @@ class DashboardSidebar extends React.Component {
           <p>
             To request more benefits or specific courses, {this.renderContactHelpText()}.
           </p>
-        </SidebarBlock>
-        <SidebarBlock>
-          <OfferSummaryCard />
         </SidebarBlock>
       </>
     );

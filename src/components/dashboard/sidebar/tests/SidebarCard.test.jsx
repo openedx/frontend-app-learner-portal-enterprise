@@ -2,8 +2,8 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 
-import { renderWithRouter, FakeAppContext } from '../../../utils/tests';
-import SideboardCard from './SidebarCard';
+import { renderWithRouter, FakeAppContext } from '../../../../utils/tests';
+import SideboardCard from '../SidebarCard';
 
 describe('<SidebarCard />', () => {
   const childrenText = 'Some text goes here';

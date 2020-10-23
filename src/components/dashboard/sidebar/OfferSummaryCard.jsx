@@ -11,10 +11,7 @@ const OfferSideboardCard = () => {
     return (
       <SidebarCard
         title={OFFER_SUMMARY_TITLE}
-        buttonText="Find a course in the catalog"
         textClassNames={offersCount ? 'big-number' : ''}
-        buttonLink="/search"
-        linkIsLocal
       >
         {offersCount}
       </SidebarCard>

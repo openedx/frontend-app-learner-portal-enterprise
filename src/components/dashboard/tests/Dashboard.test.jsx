@@ -6,15 +6,15 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { breakpoints } from '@edx/paragon';
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
-import { CourseContextProvider } from '../course/CourseContextProvider';
-import { COURSE_PACING_MAP } from '../course/data/constants';
-import { TEST_OWNER } from '../course/tests/data/constants';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { CourseContextProvider } from '../../course/CourseContextProvider';
+import { COURSE_PACING_MAP } from '../../course/data/constants';
+import { TEST_OWNER } from '../../course/tests/data/constants';
 
 import {
   renderWithRouter, fakeReduxStore,
-} from '../../utils/tests';
-import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from './Dashboard';
+} from '../../../utils/tests';
+import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
 
 const mockStore = configureMockStore([thunk]);
 

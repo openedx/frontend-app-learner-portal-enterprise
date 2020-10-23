@@ -3,15 +3,15 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 
 import { AppContext } from '@edx/frontend-platform/react';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
 import DashboardSidebar, {
   EMAIL_MESSAGE,
-} from './DashboardSidebar';
+} from '../DashboardSidebar';
 import {
   OFFER_SUMMARY_TITLE,
-} from './OfferSummaryCard';
+} from '../OfferSummaryCard';
 
-import { renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../../utils/tests';
 
 /* eslint-disable react/prop-types */
 const DashboardSidebarContext = ({
