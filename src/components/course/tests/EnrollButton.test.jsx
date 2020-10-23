@@ -1,5 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
 import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
@@ -8,7 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
 
-import EnrollButton, { getEnrollmentUrl } from '../EnrollButton';
+import EnrollButton from '../EnrollButton';
 
 import { renderWithRouter } from '../../../utils/tests';
 
@@ -67,12 +66,6 @@ describe('<EnrollButton />', () => {
       offersCount: 0,
     },
   };
-  beforeAll(() => {
-    useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(() => {});
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   describe('with non-enrollable course run', () => {
     test('renders "Coming Soon" button label', () => {
@@ -219,62 +212,6 @@ describe('<EnrollButton />', () => {
       );
 
       expect(screen.queryByText('View Course'));
-    });
-  });
-  describe('getEnrollmentUrl', () => {
-    const noSubscriptionEnrollmentInputs = {
-      enterpriseConfig: {
-        uuid: 'foo',
-      },
-      key: 'bar',
-      offers: [{ code: 'bearsRus', catalog: 'bears' }],
-      offersCount: 2,
-      offersLoading: false,
-      sku: 'xkcd',
-      catalogList: ['bears'],
-      location: { search: 'foo' },
-    };
-    const enrollmentInputs = {
-      ...noSubscriptionEnrollmentInputs,
-      subscriptionLicense: {
-        uuid: 'yes',
-      },
-    };
-    it('Subscription: returns an lms url with correct querystring', () => {
-      const url = getEnrollmentUrl(enrollmentInputs);
-      expect(url).toContain(process.env.LMS_BASE_URL);
-      expect(url).toContain(enrollmentInputs.enterpriseConfig.uuid);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).toContain(enrollmentInputs.subscriptionLicense.uuid);
-    });
-    it('No subscription with offers for course: returns an ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl(noSubscriptionEnrollmentInputs);
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.offers[0].code);
-      expect(url).toContain(enrollmentInputs.key);
-    });
-    it('No subscription with no offers for course: returns ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, catalogList: ['foo'] });
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).not.toContain('code');
-    });
-    it('No subscription no offers: returns an ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersCount: 0 });
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).not.toContain('code');
-    });
-    it('No subscription: returns null if offers are loading', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersLoading: true });
-      expect(url).toBeNull();
-    });
-    it('No subscription: returns null sku is missing', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, sku: undefined });
-      expect(url).toBeNull();
     });
   });
 });

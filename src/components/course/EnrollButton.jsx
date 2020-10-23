@@ -1,102 +1,43 @@
 import React, { useContext, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import qs from 'query-string';
 import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button } from '@edx/paragon';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseContext } from './CourseContextProvider';
-
-import {
-  ENROLLMENT_FAILED_QUERY_PARAM,
-  COURSE_MODES_MAP,
-} from './data/constants';
-import {
-  hasCourseStarted,
-  isUserEnrolledInCourse,
-} from './data/utils';
-
 import EnrollButtonLabel from './EnrollButtonLabel';
 import EnrollModal from './EnrollModal';
 
-const getBestCourseMode = (courseModes) => {
-  const {
-    VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT,
-  } = COURSE_MODES_MAP;
-  /** Returns the 'highest' course mode available.
-    *  Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit'] */
-  if (courseModes.includes(VERIFIED)) {
-    return VERIFIED;
-  } if (courseModes.includes(PROFESSIONAL)) {
-    return PROFESSIONAL;
-  } if (courseModes.includes(NO_ID_PROFESSIONAL)) {
-    return NO_ID_PROFESSIONAL;
-  }
-  return AUDIT;
+import { COURSE_MODES_MAP } from './data/constants';
+import { useCourseEnrollmentUrl } from './data/hooks';
+import {
+  hasCourseStarted,
+  findUserEnrollmentForCourse,
+  findHighestLevelSeatSku,
+  findOfferForCourse,
+} from './data/utils';
+
+const EnrollButtonWrapper = ({
+  as: Component,
+  children,
+  ...props
+}) => (
+  <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+    <Component {...props}>
+      {children}
+    </Component>
+  </div>
+);
+
+EnrollButtonWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+  as: PropTypes.elementType,
 };
 
-const findHighestLevelSeatSku = (seats) => {
-  /** Returns the first seat found from the preferred course mode */
-  if (!seats || seats.length <= 0) {
-    return null;
-  }
-  const courseModes = seats.map(seat => seat.type);
-  const courseMode = getBestCourseMode(courseModes);
-  return seats.find((seat) => seat.type === courseMode).sku;
-};
-
-const findOfferForCourse = (offers, catalogList) => {
-  const offerIndex = offers.findIndex((offer) => catalogList.includes(offer.catalog));
-  if (offerIndex !== -1) {
-    return offers[offerIndex];
-  }
-  return null;
-};
-
-export const getEnrollmentUrl = ({
-  catalogList,
-  enterpriseConfig,
-  key,
-  location,
-  offers,
-  offersCount,
-  offersLoading,
-  sku,
-  subscriptionLicense,
-}) => {
-  const enrollmentFailedParams = { ...qs.parse(location.search) };
-  enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
-  const coursePageUrl = `${process.env.BASE_URL}${location.pathname}`;
-  const baseEnrollmentOptions = {
-    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
-    // Redirect back to the same page with a failure query param
-    failure_url: `${coursePageUrl}?${qs.stringify(enrollmentFailedParams)}`,
-  };
-  if (subscriptionLicense) {
-    const enrollOptions = {
-      ...baseEnrollmentOptions,
-      license_uuid: subscriptionLicense.uuid,
-      course_id: key,
-      enterprise_customer_uuid: enterpriseConfig.uuid,
-    };
-    return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
-  }
-  if (!offersLoading && offersCount >= 0 && sku) {
-    const enrollOptions = {
-      ...baseEnrollmentOptions,
-      sku,
-    };
-    // get the index of the first offer that applies to a catalog that the course is in
-    const offerForCourse = findOfferForCourse(offers, catalogList);
-    if (offersCount === 0 || !offerForCourse) {
-      return `${process.env.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
-    }
-    enrollOptions.code = offerForCourse.code;
-    return `${process.env.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
-  }
-  // If offers are loading or the SKU is not present, the course cannot be enrolled in
-  return null;
+EnrollButtonWrapper.defaultProps = {
+  as: Button,
 };
 
 export default function EnrollButton() {
@@ -104,6 +45,7 @@ export default function EnrollButton() {
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
   const location = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     activeCourseRun,
@@ -111,7 +53,6 @@ export default function EnrollButton() {
     userEntitlements,
     catalog: { catalogList },
   } = courseData;
-
   const {
     availability,
     key,
@@ -122,7 +63,6 @@ export default function EnrollButton() {
     seats,
   } = activeCourseRun;
 
-  const enrollLinkClass = 'btn-block rounded-0 py-2';
   const sku = useMemo(
     () => findHighestLevelSeatSku(seats),
     [seats],
@@ -131,176 +71,124 @@ export default function EnrollButton() {
     () => hasCourseStarted(start),
     [start],
   );
-
-  const isUserEnrolled = useMemo(
-    () => isUserEnrolledInCourse({ userEnrollments, key }),
+  const userEnrollment = useMemo(
+    () => findUserEnrollmentForCourse({ userEnrollments, key }),
     [userEnrollments, key],
   );
+  const enrollmentUrl = useCourseEnrollmentUrl({
+    catalogList,
+    enterpriseConfig,
+    key,
+    location,
+    offers,
+    sku,
+    subscriptionLicense,
+  });
 
-  const enrollmentUrl = useMemo(
-    () => getEnrollmentUrl({
-      catalogList,
-      enterpriseConfig,
-      key,
-      location,
-      offers,
-      offersCount,
-      sku,
-      subscriptionLicense,
-    }),
-    [catalogList, enterpriseConfig, key, location, offers, offersCount, sku, subscriptionLicense],
+  const shouldUpgradeUserEnrollment = useMemo(
+    () => {
+      const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
+      if (isAuditEnrollment && subscriptionLicense && enrollmentUrl) {
+        return true;
+      }
+      return false;
+    },
+    [userEnrollment, enrollmentUrl, subscriptionLicense],
   );
 
-  const DefaultEnrollCta = useMemo(
-    () => props => (
-      <Button {...props}>
-        <EnrollButtonLabel
-          activeCourseRun={activeCourseRun}
-          availability={availability}
-          courseUuid={courseUuid}
-          isCourseStarted={isCourseStarted}
-          isEnrollable={isEnrollable}
-          isUserEnrolled={isUserEnrolled}
-          pacingType={pacingType}
-          start={start}
-          userEntitlements={userEntitlements}
-        />
-      </Button>
-    ),
-    [],
+  const EnrollLabel = props => (
+    <EnrollButtonLabel
+      activeCourseRun={activeCourseRun}
+      availability={availability}
+      courseUuid={courseUuid}
+      isCourseStarted={isCourseStarted}
+      isEnrollable={isEnrollable}
+      isUserEnrolled={!!userEnrollment}
+      pacingType={pacingType}
+      start={start}
+      userEntitlements={userEntitlements}
+      {...props}
+    />
   );
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const renderEnrollCta = () => {
-    if (!isUserEnrolled && isEnrollable) {
-      if (enrollmentUrl && subscriptionLicense) {
-        return (
-          <a
-            className={classNames('btn', 'btn-success', enrollLinkClass)}
-            href={enrollmentUrl}
-          >
-            <EnrollButtonLabel
-              activeCourseRun={activeCourseRun}
-              availability={availability}
-              courseUuid={courseUuid}
-              isCourseStarted={isCourseStarted}
-              isEnrollable={isEnrollable}
-              isUserEnrolled={isUserEnrolled}
-              pacingType={pacingType}
-              start={start}
-              userEntitlements={userEntitlements}
-            />
-          </a>
-        );
-      } if (enrollmentUrl) {
-        return (
-          <>
-            <Button
-              className={classNames('btn', enrollLinkClass)}
-              onClick={() => setIsModalOpen(true)}
-              variant="success"
-            >
-              <EnrollButtonLabel
-                activeCourseRun={activeCourseRun}
-                availability={availability}
-                courseUuid={courseUuid}
-                isCourseStarted={isCourseStarted}
-                isEnrollable={isEnrollable}
-                isUserEnrolled={isUserEnrolled}
-                pacingType={pacingType}
-                start={start}
-                userEntitlements={userEntitlements}
-              />
-            </Button>
-            <EnrollModal
-              isModalOpen={isModalOpen}
-              setIsModalOpen={setIsModalOpen}
-              offersCount={offersCount}
-              courseHasOffer={!!findOfferForCourse(offers, catalogList)}
-              enrollmentUrl={enrollmentUrl}
-            />
-          </>
-        );
-      }
+  const EnrollButtonCta = props => (
+    <EnrollButtonWrapper {...props}>
+      <EnrollLabel />
+    </EnrollButtonWrapper>
+  );
+
+  const enrollLinkClass = 'btn-block rounded-0 py-2';
+
+  if (!userEnrollment && isEnrollable) {
+    // enroll with a subscription license
+    if (enrollmentUrl && subscriptionLicense) {
       return (
-        <DefaultEnrollCta
-          className={classNames(enrollLinkClass, 'disabled')}
-          variant="success"
-        />
-      );
-    }
-
-    if (!isUserEnrolled && !isEnrollable) {
-      return (
-        <div className="alert alert-secondary text-center rounded-0">
-          <EnrollButtonLabel
-            activeCourseRun={activeCourseRun}
-            availability={availability}
-            courseUuid={courseUuid}
-            isCourseStarted={isCourseStarted}
-            isEnrollable={isEnrollable}
-            isUserEnrolled={isUserEnrolled}
-            pacingType={pacingType}
-            start={start}
-            userEntitlements={userEntitlements}
-          />
-        </div>
-      );
-    }
-
-    if (isUserEnrolled) {
-      if (isCourseStarted) {
-        return (
-          <a
-            className={classNames('btn', 'btn-success', enrollLinkClass)}
-            href={`${process.env.LMS_BASE_URL}/courses/${key}/info`}
-          >
-            <EnrollButtonLabel
-              activeCourseRun={activeCourseRun}
-              availability={availability}
-              courseUuid={courseUuid}
-              isCourseStarted={isCourseStarted}
-              isEnrollable={isEnrollable}
-              isUserEnrolled={isUserEnrolled}
-              pacingType={pacingType}
-              start={start}
-              userEntitlements={userEntitlements}
-            />
-          </a>
-        );
-      }
-
-      return (
-        <Link
+        <EnrollButtonCta
+          as="a"
           className={classNames('btn', 'btn-success', enrollLinkClass)}
-          to={`/${enterpriseConfig.slug}`}
-        >
-          <EnrollButtonLabel
-            activeCourseRun={activeCourseRun}
-            availability={availability}
-            courseUuid={courseUuid}
-            isCourseStarted={isCourseStarted}
-            isEnrollable={isEnrollable}
-            isUserEnrolled={isUserEnrolled}
-            pacingType={pacingType}
-            start={start}
-            userEntitlements={userEntitlements}
-          />
-        </Link>
+          href={enrollmentUrl}
+        />
       );
     }
-
+    // enroll with an offer (code)
+    if (enrollmentUrl) {
+      return (
+        <>
+          <EnrollButtonCta
+            className={classNames('btn', enrollLinkClass)}
+            onClick={() => setIsModalOpen(true)}
+            variant="success"
+          />
+          <EnrollModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            offersCount={offersCount}
+            courseHasOffer={!!findOfferForCourse(offers, catalogList)}
+            enrollmentUrl={enrollmentUrl}
+          />
+        </>
+      );
+    }
+    // cannot enroll without a valid enrollment url, so render a disabled button.
     return (
-      <DefaultEnrollCta
-        className={enrollLinkClass}
+      <EnrollButtonCta
+        className={classNames(enrollLinkClass, 'disabled')}
         variant="success"
       />
     );
-  };
+  }
+
+  if (!userEnrollment && !isEnrollable) {
+    return (
+      <div className="alert alert-secondary text-center rounded-0">
+        <EnrollLabel />
+      </div>
+    );
+  }
+
+  if (userEnrollment) {
+    if (isCourseStarted) {
+      const courseInfoUrl = `${process.env.LMS_BASE_URL}/courses/${key}/info`;
+      return (
+        <EnrollButtonCta
+          className={classNames('btn', 'btn-success', enrollLinkClass)}
+          href={shouldUpgradeUserEnrollment ? enrollmentUrl : courseInfoUrl}
+        />
+      );
+    }
+    return (
+      <EnrollButtonCta
+        as={Link}
+        className={classNames('btn', 'btn-success', enrollLinkClass)}
+        to={`/${enterpriseConfig.slug}`}
+      />
+    );
+  }
 
   return (
-    <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
-      {renderEnrollCta()}
-    </div>
+    <EnrollButtonCta
+      className={enrollLinkClass}
+      variant="success"
+    />
   );
 }

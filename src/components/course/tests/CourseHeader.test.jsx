@@ -1,7 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -19,21 +16,16 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-const mockStore = configureMockStore([thunk]);
-
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialReduxStore = {},
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <CourseContextProvider initialState={initialCourseState}>
-        <reactRedux.Provider store={mockStore(initialReduxStore)}>
-          <CourseHeader />
-        </reactRedux.Provider>
+        <CourseHeader />
       </CourseContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
@@ -80,20 +72,11 @@ describe('<CourseHeader />', () => {
     subscriptionLicense: {
       uuid: 'test-license-uuid',
     },
-  };
-  const initialReduxStore = {
     offers: {
-      isLoading: false,
       offers: [],
       offersCount: 0,
     },
   };
-  beforeAll(() => {
-    useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(() => {});
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   test('renders breadcrumb', () => {
     render(
@@ -101,7 +84,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
     expect(screen.queryByText('Find a Course')).toBeInTheDocument();
@@ -115,7 +97,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -130,7 +111,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
     expect(screen.queryByText('Enroll')).toBeInTheDocument();
@@ -142,7 +122,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -155,7 +134,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -177,7 +155,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={courseStateWithArchivedCourse}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -197,7 +174,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={courseStateWithNoCatalog}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -213,7 +189,6 @@ describe('<CourseHeader />', () => {
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialReduxStore={initialReduxStore}
       />,
     );
 
@@ -239,7 +214,6 @@ describe('<CourseHeader />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseStateWithProgramType(micromasters)}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
@@ -255,7 +229,6 @@ describe('<CourseHeader />', () => {
           initialAppState={initialAppState}
           initialCourseState={courseStateWithProgramType(profCert)}
           initialUserSubsidyState={initialUserSubsidyState}
-          initialReduxStore={initialReduxStore}
         />,
       );
 
