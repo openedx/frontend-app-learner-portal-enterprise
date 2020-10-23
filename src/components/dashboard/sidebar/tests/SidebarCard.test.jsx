@@ -21,13 +21,4 @@ describe('<SidebarCard />', () => {
     renderWithRouter(<SideboardCard {...defaultProps} title={title} />);
     expect(screen.getByText(title)).toBeTruthy();
   });
-  it('renders a button with button text', () => {
-    const buttonText = 'Click Me';
-    renderWithRouter(
-      <FakeAppContext initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}>
-        <SideboardCard {...defaultProps} buttonText={buttonText} />
-      </FakeAppContext>,
-    );
-    expect(screen.queryByText(buttonText)).toBeTruthy();
-  });
 });
