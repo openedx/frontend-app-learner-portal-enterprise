@@ -149,9 +149,10 @@ export default function EnrollButton() {
 
   if (!userEnrollment && !isEnrollable) {
     return (
-      <div className="alert alert-secondary text-center rounded-0">
-        <EnrollLabel />
-      </div>
+      <EnrollButtonCta
+        as="div"
+        className="alert alert-secondary text-center rounded-0"
+      />
     );
   }
 
