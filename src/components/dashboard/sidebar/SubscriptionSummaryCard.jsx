@@ -5,7 +5,7 @@ import moment from 'moment';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
 
-const SubscriptionSummaryCard = ({ subscriptionPlan }) => {
+const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const renderCardTitle = (statusBadgeVariant, statusBadgeLabel) => (
     <div>
       Subscription Status
@@ -40,7 +40,10 @@ const SubscriptionSummaryCard = ({ subscriptionPlan }) => {
     }
     const expirationInfoPrefix = daysUntilExpiration > 0 ? 'Available until ' : 'Expired on ';
     return (
-      <SidebarCard title={renderCardTitle(statusBadgeVariant, statusBadgeLabel)}>
+      <SidebarCard
+        title={renderCardTitle(statusBadgeVariant, statusBadgeLabel)}
+        cardClassNames={className}
+      >
         {renderCardBody(expirationInfoPrefix, expirationDate)}
       </SidebarCard>
     );
@@ -53,6 +56,11 @@ SubscriptionSummaryCard.propTypes = {
     daysUntilExpiration: PropTypes.number.isRequired,
     expirationDate: PropTypes.string.isRequired,
   }).isRequired,
+  className: PropTypes.string,
+};
+
+SubscriptionSummaryCard.defaultProps = {
+  className: undefined,
 };
 
 export default SubscriptionSummaryCard;

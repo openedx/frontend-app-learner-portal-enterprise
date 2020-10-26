@@ -14,7 +14,7 @@ import {
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 
-export function SubscriptionExpirationModal() {
+function SubscriptionExpirationModal() {
   const {
     subscriptionPlan: {
       daysUntilExpiration,

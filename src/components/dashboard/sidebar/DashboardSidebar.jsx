@@ -5,6 +5,7 @@ import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import ButtonWithLink from '../../layout/ButtonWithLink';
+import SidebarCard from './SidebarCard';
 
 export const EMAIL_MESSAGE = 'contact your organization\'s edX administrator';
 
@@ -27,16 +28,19 @@ class DashboardSidebar extends React.Component {
   render() {
     return (
       <>
-        <SidebarBlock title="Catalog Access">
-          <SubscriptionSummaryCard subscriptionPlan={this.context.subscriptionPlan} />
-          <OfferSummaryCard />
+        <SidebarCard title="Catalog Access" cardClassNames="border-primary">
+          <SubscriptionSummaryCard
+            subscriptionPlan={this.context.subscriptionPlan}
+            className="mb-3"
+          />
+          <OfferSummaryCard className="mb-3" />
           <ButtonWithLink
             className="btn-outline-primary btn-block"
             text="Find a course"
             link="/search"
             linkIsLocal
           />
-        </SidebarBlock>
+        </SidebarCard>
         <SidebarBlock
           title="Need help?"
           titleOptions={{ tag: 'h3', className: 'h4' }}
