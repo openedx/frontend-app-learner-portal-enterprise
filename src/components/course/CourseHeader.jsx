@@ -8,8 +8,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import CourseRunSelector from './CourseRunSelector';
 import EnrollButton from './EnrollButton';
-import DeprecatedEnrollButton from './DeprecatedEnrollButton';
-import { features } from '../../config';
 
 import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
 import {
@@ -22,8 +20,8 @@ import { useRenderContactHelpText } from '../../utils/hooks';
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
   const { course, activeCourseRun, catalog } = state;
+  const { enterpriseConfig } = useContext(AppContext);
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
@@ -58,8 +56,6 @@ export default function CourseHeader() {
       </div>
     </>
   );
-
-  const EnrollButtonComponent = features.ENROLL_WITH_CODES ? EnrollButton : DeprecatedEnrollButton;
 
   return (
     <div className="course-header">
@@ -97,7 +93,7 @@ export default function CourseHeader() {
                   <a
                     className="d-inline-block mr-4"
                     href={partner.marketingUrl}
-                    key={partner.key}
+                    key={partner.uuid}
                   >
                     <img
                       src={partner.logoImageUrl}
@@ -116,7 +112,7 @@ export default function CourseHeader() {
                     Archived: Future Dates To Be Announced
                   </p>
                 )}
-                <EnrollButtonComponent />
+                <EnrollButton />
                 {defaultProgram && (
                   <p className="font-weight-bold">
                     This course is part of a {formatProgramType(defaultProgram.type)}.

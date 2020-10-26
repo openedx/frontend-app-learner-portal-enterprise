@@ -1,15 +1,23 @@
 import { useEffect, useState, useMemo } from 'react';
+import qs from 'query-string';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
-import { isCourseInstructorPaced, isCourseSelfPaced, numberWithPrecision } from './utils';
+import {
+  isCourseInstructorPaced,
+  isCourseSelfPaced,
+  numberWithPrecision,
+  findOfferForCourse,
+} from './utils';
 import {
   COURSE_PACING_MAP,
   SUBSIDY_DISCOUNT_TYPE_MAP,
   CURRENCY_USD,
+  ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
+import { features } from '../../../config';
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();
@@ -216,4 +224,56 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
   );
 
   return [coursePrice, currency];
+}
+
+export function useCourseEnrollmentUrl({
+  catalogList,
+  enterpriseConfig,
+  key,
+  location,
+  offers,
+  sku,
+  subscriptionLicense,
+}) {
+  const enrollmentFailedParams = { ...qs.parse(location.search) };
+  enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
+  const baseEnrollmentOptions = {
+    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
+    // Redirect back to the same page with a failure query param
+    failure_url: `${global.location.href}?${qs.stringify(enrollmentFailedParams)}`,
+  };
+
+  const enrollmentUrl = useMemo(
+    () => {
+      if (subscriptionLicense) {
+        const enrollOptions = {
+          ...baseEnrollmentOptions,
+          license_uuid: subscriptionLicense.uuid,
+          course_id: key,
+          enterprise_customer_uuid: enterpriseConfig.uuid,
+        };
+        return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
+      }
+
+      if (features.ENROLL_WITH_CODES && offers.length >= 0 && sku) {
+        const enrollOptions = {
+          ...baseEnrollmentOptions,
+          sku,
+        };
+        // get the index of the first offer that applies to a catalog that the course is in
+        const offerForCourse = findOfferForCourse(offers, catalogList);
+        if (offers.length === 0 || !offerForCourse) {
+          return `${process.env.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
+        }
+        enrollOptions.code = offerForCourse.code;
+        return `${process.env.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
+      }
+
+      // No offer or product SKU is present, so the course cannot be enrolled in.
+      return null;
+    },
+    [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, offers, sku],
+  );
+
+  return enrollmentUrl;
 }
