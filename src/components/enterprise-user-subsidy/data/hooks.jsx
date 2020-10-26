@@ -1,5 +1,5 @@
 import {
-  useState, useEffect, useMemo, useReducer,
+  useState, useEffect, useReducer,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -63,9 +63,12 @@ export function useSubscriptionLicenseForUser(subscriptionPlan) {
 export function useOffers(enterpriseId) {
   const [offerState, dispatch] = useReducer(offersReducer, initialOfferState);
 
-  // TODO: Set a timestamp for when offers have been last loaded, to avoid extra calls
-  useMemo(() => {
-    fetchOffers('full_discount_only=True', dispatch);
-  }, [enterpriseId]);
+  useEffect(
+    () => {
+      fetchOffers('full_discount_only=True', dispatch);
+    },
+    [enterpriseId],
+  );
+
   return [offerState, offerState.loading];
 }

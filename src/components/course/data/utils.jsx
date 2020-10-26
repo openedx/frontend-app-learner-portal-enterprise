@@ -20,7 +20,7 @@ export function hasCourseStarted(start) {
 }
 
 export function findUserEnrollmentForCourse({ userEnrollments, key }) {
-  return userEnrollments.find(({ courseDetails: { courseId } }) => courseId === key);
+  return userEnrollments.find(({ isActive, courseDetails }) => isActive && courseDetails?.courseId === key);
 }
 
 export function isUserEntitledForCourse({ userEntitlements, courseUuid }) {
