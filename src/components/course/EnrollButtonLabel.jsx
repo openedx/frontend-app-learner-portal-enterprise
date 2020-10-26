@@ -34,7 +34,7 @@ const EnrollButtonLabel = ({
       COURSE_AVAILABILITY_MAP.UPCOMING,
       COURSE_AVAILABILITY_MAP.STARTING_SOON,
     ];
-    return availability in availabilityStates
+    return availabilityStates.includes(availability)
       ? ENROLL_BUTTON_LABEL_COMING_SOON
       : ENROLL_BUTTON_LABEL_NOT_AVAILABLE;
   }

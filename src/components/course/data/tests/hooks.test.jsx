@@ -24,7 +24,7 @@ describe('useCourseEnrollmentUrl', () => {
     },
   };
 
-  describe('subcription license', () => {
+  describe('subscription license', () => {
     test('returns an lms url to DSC for enrollment with a license', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(enrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);

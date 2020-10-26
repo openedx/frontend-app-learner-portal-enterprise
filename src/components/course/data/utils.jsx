@@ -158,3 +158,15 @@ export function findHighestLevelSeatSku(seats) {
   const courseMode = getBestCourseMode(courseModes);
   return seats.find((seat) => seat.type === courseMode).sku;
 }
+
+export function shouldUpgradeUserEnrollment({
+  userEnrollment,
+  subscriptionLicense,
+  enrollmentUrl,
+}) {
+  const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
+  if (isAuditEnrollment && subscriptionLicense && enrollmentUrl) {
+    return true;
+  }
+  return false;
+}

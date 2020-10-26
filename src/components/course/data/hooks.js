@@ -235,19 +235,13 @@ export function useCourseEnrollmentUrl({
   sku,
   subscriptionLicense,
 }) {
-  const baseEnrollmentOptions = useMemo(
-    () => {
-      const enrollmentFailedParams = { ...qs.parse(location.search) };
-      enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
-      const baseOptions = {
-        next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
-        // Redirect back to the same page with a failure query param
-        failure_url: `${global.location.href}?${qs.stringify(enrollmentFailedParams)}`,
-      };
-      return baseOptions;
-    },
-    [location],
-  );
+  const enrollmentFailedParams = { ...qs.parse(location.search) };
+  enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
+  const baseEnrollmentOptions = {
+    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
+    // Redirect back to the same page with a failure query param
+    failure_url: `${global.location.href}?${qs.stringify(enrollmentFailedParams)}`,
+  };
 
   const enrollmentUrl = useMemo(
     () => {

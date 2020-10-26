@@ -10,13 +10,13 @@ import { CourseContext } from './CourseContextProvider';
 import EnrollButtonLabel from './EnrollButtonLabel';
 import EnrollModal from './EnrollModal';
 
-import { COURSE_MODES_MAP } from './data/constants';
 import { useCourseEnrollmentUrl } from './data/hooks';
 import {
   hasCourseStarted,
   findUserEnrollmentForCourse,
   findHighestLevelSeatSku,
   findOfferForCourse,
+  shouldUpgradeUserEnrollment,
 } from './data/utils';
 
 const EnrollButtonWrapper = ({
@@ -84,17 +84,6 @@ export default function EnrollButton() {
     sku,
     subscriptionLicense,
   });
-
-  const shouldUpgradeUserEnrollment = useMemo(
-    () => {
-      const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
-      if (isAuditEnrollment && subscriptionLicense && enrollmentUrl) {
-        return true;
-      }
-      return false;
-    },
-    [userEnrollment, enrollmentUrl, subscriptionLicense],
-  );
 
   const EnrollLabel = props => (
     <EnrollButtonLabel
@@ -169,10 +158,15 @@ export default function EnrollButton() {
   if (userEnrollment) {
     if (isCourseStarted) {
       const courseInfoUrl = `${process.env.LMS_BASE_URL}/courses/${key}/info`;
+      const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
+        userEnrollment,
+        subscriptionLicense,
+        enrollmentUrl,
+      });
       return (
         <EnrollButtonCta
           className={classNames('btn', 'btn-success', enrollLinkClass)}
-          href={shouldUpgradeUserEnrollment ? enrollmentUrl : courseInfoUrl}
+          href={shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl}
         />
       );
     }
