@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from '@edx/paragon';
 import moment from 'moment';
-import { SUBSCRIPTION_DAYS_REMAINING_SEVERE } from '../../../config/constants';
+import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
 
 const SubscriptionSummaryCard = ({ subscriptionPlan }) => {
   const renderCardTitle = (statusBadgeVariant, statusBadgeLabel) => (
     <div>
-      <p>Subscription Status</p>
+      Subscription Status
+      {' '}
       <Badge variant={statusBadgeVariant}>
         {statusBadgeLabel}
       </Badge>
@@ -16,29 +17,26 @@ const SubscriptionSummaryCard = ({ subscriptionPlan }) => {
   );
 
   const renderCardBody = (expirationInfoPrefix, expirationDate) => (
-    <p>
+    <>
       {expirationInfoPrefix} <b>{moment(expirationDate).format('MMMM Do YYYY')}</b>
-    </p>
+    </>
   );
 
   // Only render subscription card if subscription is found
   if (subscriptionPlan) {
     // Determine Subscription Status as it relates to expiration
     const { daysUntilExpiration, expirationDate } = subscriptionPlan;
-    let statusBadgeLabel = '';
-    let statusBadgeVariant = '';
-    if (daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
-      // Expiration is approaching
-      statusBadgeLabel = 'Expiring';
-      statusBadgeVariant = 'warning';
-    } else if (daysUntilExpiration <= 0) {
+    // Active Subscription
+    let statusBadgeLabel = 'Active';
+    let statusBadgeVariant = 'success';
+    if (daysUntilExpiration <= SUBSCRIPTION_EXPIRED) {
       // Subscription has expired
       statusBadgeLabel = 'Expired';
       statusBadgeVariant = 'danger';
-    } else {
-      // Active Subscription
-      statusBadgeLabel = 'Active';
-      statusBadgeVariant = 'success';
+    } else if (daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+      // Expiration is approaching
+      statusBadgeLabel = 'Expiring';
+      statusBadgeVariant = 'warning';
     }
     const expirationInfoPrefix = daysUntilExpiration > 0 ? 'Available until ' : 'Expired on ';
     return (

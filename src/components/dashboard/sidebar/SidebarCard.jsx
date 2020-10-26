@@ -21,7 +21,7 @@ const SidebarCard = ({
 );
 
 SidebarCard.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   children: PropTypes.node.isRequired,
   textClassNames: PropTypes.string,
   titleClassNames: PropTypes.string,
