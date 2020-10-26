@@ -173,6 +173,8 @@ describe('<EnrollButton />', () => {
 
   describe('with already enrolled course', () => {
     const userEnrollment = {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      isActive: true,
       courseDetails: {
         courseId: initialCourseState.activeCourseRun.key,
       },
@@ -219,10 +221,7 @@ describe('<EnrollButton />', () => {
     test('renders with course info link for non-Audit track course with subscription license', () => {
       const courseState = {
         ...initialCourseState,
-        userEnrollments: [{
-          ...userEnrollment,
-          mode: COURSE_MODES_MAP.VERIFIED,
-        }],
+        userEnrollments: [userEnrollment],
       };
 
       renderWithRouter(
