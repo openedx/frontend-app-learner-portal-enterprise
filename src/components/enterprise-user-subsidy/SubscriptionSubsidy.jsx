@@ -22,24 +22,6 @@ const SubscriptionSubsidy = ({ enterpriseConfig, plan, license }) => {
     if (!match.isExact) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
-    return (
-      <>
-        <div className="container-fluid mt-3">
-          <StatusAlert
-            alertType="danger"
-            className="mb-0"
-            dialog={(
-              <>
-                Your organization does not have an active subscription plan.
-                Please {renderContactHelpText()} for further information.
-              </>
-            )}
-            dismissible={false}
-            open
-          />
-        </div>
-      </>
-    );
   }
 
   if (isNull(license)) {

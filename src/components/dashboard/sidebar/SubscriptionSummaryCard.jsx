@@ -7,11 +7,16 @@ import SidebarCard from './SidebarCard';
 
 const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const renderCardTitle = (statusBadgeVariant, statusBadgeLabel) => (
-    <div>
+    <div className="d-flex align-content-center">
       Subscription Status
       {' '}
-      <Badge variant={statusBadgeVariant}>
-        {statusBadgeLabel}
+      <Badge
+        variant={statusBadgeVariant}
+        className="ml-2"
+      >
+        <small className="font-weight-bold">
+          {statusBadgeLabel}
+        </small>
       </Badge>
     </div>
   );

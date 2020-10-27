@@ -14,7 +14,7 @@ import {
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 
-function SubscriptionExpirationModal() {
+const SubscriptionExpirationModal = () => {
   const {
     subscriptionPlan: {
       daysUntilExpiration,
@@ -26,7 +26,7 @@ function SubscriptionExpirationModal() {
   } = useContext(AppContext);
   const { username } = getAuthenticatedUser();
 
-  function renderTitle() {
+  const renderTitle = () => {
     if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {
       return (
         <small><b>Your Subscription is Expiring</b></small>
@@ -35,9 +35,9 @@ function SubscriptionExpirationModal() {
     return (
       <small><b>Your Subscription has Expired</b></small>
     );
-  }
+  };
 
-  function renderContactText() {
+  const renderContactText = () => {
     const contactText = 'contact your learning manager';
     if (contactEmail) {
       return (
@@ -45,15 +45,15 @@ function SubscriptionExpirationModal() {
       );
     }
     return contactText;
-  }
+  };
 
-  function renderCertificateText() {
-    return (
-      <Link to={`${process.env.LMS_BASE_URL}/u/${username}`}>
+  const renderCertificateText = () => (
+    <>
+      <a href={`${process.env.LMS_BASE_URL}/u/${username}`}>
         <b>download your completed certificates</b>
-      </Link>
-    );
-  }
+      </a>
+    </>
+  );
 
   const renderBody = () => (
     <>
@@ -144,6 +144,6 @@ function SubscriptionExpirationModal() {
       open
     />
   );
-}
+};
 
 export default SubscriptionExpirationModal;
