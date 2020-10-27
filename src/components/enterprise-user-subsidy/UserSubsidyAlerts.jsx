@@ -22,6 +22,7 @@ const UserSubsidyAlerts = () => {
         enterpriseConfig={enterpriseConfig}
         plan={subscriptionPlan}
         license={subscriptionLicense}
+        offersCount={offers?.offersCount}
       />
 
     </>

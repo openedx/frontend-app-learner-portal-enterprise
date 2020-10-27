@@ -10,6 +10,9 @@ import { LICENSE_STATUS } from '../data/constants';
 
 jest.mock('../data/service');
 jest.mock('../offers/data/service');
+jest.mock('../../../config', () => ({
+  features: { ENROLL_WITH_CODES: true },
+}));
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
@@ -19,9 +22,15 @@ const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 
 describe('SubscriptionSubsidy', () => {
   const defaultEnterpriseConfig = { slug: TEST_ENTERPRISE_SLUG };
-  describe('without subscription plan', () => {
+  describe('without subscription plan, with offers', () => {
     test('does not redirect to Dashboard page from non-Dashboard page route', async () => {
-      const Component = <SubscriptionSubsidy subscriptionPlan={null} enterpriseConfig={defaultEnterpriseConfig} />;
+      const Component = (
+        <SubscriptionSubsidy
+          subscriptionPlan={null}
+          enterpriseConfig={defaultEnterpriseConfig}
+          offersCount={3}
+        />
+      );
       const { history } = renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}/search`,
       });
@@ -37,6 +46,7 @@ describe('SubscriptionSubsidy', () => {
       startDate: moment().subtract(1, 'w').toISOString(),
       expirationDate: moment().add(1, 'y').toISOString(),
     };
+    const offersCount = 0;
 
     test('renders license activation alert if user has an assigned (pending) license on Dashboard page route', () => {
       const license = {
@@ -49,6 +59,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           license={license}
           plan={subscriptionPlan}
+          offersCount={offersCount}
         />
       );
       renderWithRouter(Component, {
@@ -71,6 +82,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           license={license}
           plan={subscriptionPlan}
+          offersCount={offersCount}
         />
       );
       renderWithRouter(Component, {
@@ -90,6 +102,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={null}
+          offersCount={offersCount}
         />
       );
       renderWithRouter(Component, {
@@ -113,6 +126,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={license}
+          offersCount={offersCount}
         />
       );
       const { history } = renderWithRouter(Component, {
@@ -135,6 +149,7 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={license}
+          offersCount={offersCount}
         />
       );
       const { history } = renderWithRouter(Component, {
@@ -156,6 +171,144 @@ describe('SubscriptionSubsidy', () => {
           enterpriseConfig={defaultEnterpriseConfig}
           plan={subscriptionPlan}
           license={license}
+          offersCount={offersCount}
+        />
+      );
+      const { history } = renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}/search`,
+      });
+      await waitFor(() => {
+        expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search`);
+      });
+    });
+  });
+  describe('with subscription plan that has started, but not yet ended, with offers', () => {
+    const subscriptionPlan = {
+      uuid: TEST_SUBSCRIPTION_UUID,
+      startDate: moment().subtract(1, 'w').toISOString(),
+      expirationDate: moment().add(1, 'y').toISOString(),
+    };
+    const offersCount = 3;
+
+    test('renders license activation alert if user has an assigned (pending) license on Dashboard page route', () => {
+      const license = {
+        uuid: TEST_LICENSE_UUID,
+        status: LICENSE_STATUS.ASSIGNED,
+      };
+
+      const Component = (
+        <SubscriptionSubsidy
+          enterpriseConfig={defaultEnterpriseConfig}
+          license={license}
+          plan={subscriptionPlan}
+          offersCount={offersCount}
+        />
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+
+      // assert status alert message renders
+      const activationMessage = 'activate your enterprise license';
+      expect(screen.queryByRole('alert')).toBeInTheDocument();
+      expect(screen.queryByText(activationMessage, { exact: false })).toBeInTheDocument();
+    });
+
+    test('does not render license deactivation alert if user has a revoked license on Dashboard page route', () => {
+      const license = {
+        uuid: TEST_LICENSE_UUID,
+        status: LICENSE_STATUS.REVOKED,
+      };
+      const Component = (
+        <SubscriptionSubsidy
+          enterpriseConfig={defaultEnterpriseConfig}
+          plan={subscriptionPlan}
+          license={license}
+          offersCount={offersCount}
+        />
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+
+      // assert status alert message renders
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    test('does not render unassigned license alert if user does not have an associated license on Dashboard page route', () => {
+      const Component = (
+        <SubscriptionSubsidy
+          enterpriseConfig={defaultEnterpriseConfig}
+          plan={subscriptionPlan}
+          license={null}
+          offersCount={offersCount}
+        />
+      );
+      renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}`,
+      });
+
+      // assert status alert message renders
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    test('does not redirect to Dashboard page if user has an assigned (pending) license on non-Dashboard page route', async () => {
+      const license = {
+        uuid: TEST_LICENSE_UUID,
+        status: LICENSE_STATUS.ASSIGNED,
+      };
+
+      const Component = (
+        <SubscriptionSubsidy
+          enterpriseConfig={defaultEnterpriseConfig}
+          plan={subscriptionPlan}
+          license={license}
+          offersCount={offersCount}
+        />
+      );
+      const { history } = renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}/search`,
+      });
+
+      await waitFor(() => {
+        expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search`);
+      });
+    });
+
+    test('does not redirect to Dashboard page if user has a revoked license on non-Dashboard page route', async () => {
+      const license = {
+        uuid: TEST_LICENSE_UUID,
+        status: LICENSE_STATUS.REVOKED,
+      };
+
+      const Component = (
+        <SubscriptionSubsidy
+          enterpriseConfig={defaultEnterpriseConfig}
+          plan={subscriptionPlan}
+          license={license}
+          offersCount={offersCount}
+        />
+      );
+      const { history } = renderWithRouter(Component, {
+        route: `/${TEST_ENTERPRISE_SLUG}/search`,
+      });
+
+      await waitFor(() => {
+        expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search`);
+      });
+    });
+    test('does not redirect if user has an activated license', async () => {
+      const license = {
+        uuid: TEST_LICENSE_UUID,
+        status: LICENSE_STATUS.ACTIVATED,
+      };
+
+      const Component = (
+        <SubscriptionSubsidy
+          enterpriseConfig={defaultEnterpriseConfig}
+          plan={subscriptionPlan}
+          license={license}
+          offersCount={offersCount}
         />
       );
       const { history } = renderWithRouter(Component, {

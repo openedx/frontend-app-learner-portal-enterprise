@@ -1,5 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
 import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
@@ -8,12 +7,13 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
 
-import EnrollButton, { getEnrollmentUrl } from '../EnrollButton';
+import EnrollButton from '../EnrollButton';
 
 import { renderWithRouter } from '../../../utils/tests';
 
 import {
   COURSE_AVAILABILITY_MAP,
+  COURSE_MODES_MAP,
   COURSE_PACING_MAP,
   ENROLL_BUTTON_LABEL_COMING_SOON,
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
@@ -36,8 +36,6 @@ const EnrollButtonWithContext = ({
 /* eslint-enable react/prop-types */
 
 describe('<EnrollButton />', () => {
-  // eslint-disable-next-line no-unused-vars
-  let useDispatchSpy;
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
@@ -49,9 +47,11 @@ describe('<EnrollButton />', () => {
       key: 'test-course-run-key',
       isEnrollable: true,
       pacingType: COURSE_PACING_MAP.SELF_PACED,
-      start: '2020-09-09T04:00:00Z',
+      start: moment().subtract(1, 'w').toISOString(),
+      end: moment().add(8, 'w').toISOString(),
       availability: 'Current',
       courseUuid: 'Foo',
+      weeksToComplete: 4,
     },
     userEnrollments: [],
     userEntitlements: [],
@@ -67,43 +67,51 @@ describe('<EnrollButton />', () => {
       offersCount: 0,
     },
   };
-  beforeAll(() => {
-    useDispatchSpy = jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(() => {});
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   describe('with non-enrollable course run', () => {
-    test('renders "Coming Soon" button label', () => {
-      const availabilityStates = [
-        COURSE_AVAILABILITY_MAP.UPCOMING,
-        COURSE_AVAILABILITY_MAP.STARTING_SOON,
-      ];
+    test('renders "Coming Soon" button label with "Upcoming" availability', () => {
+      const courseState = {
+        ...initialCourseState,
+        activeCourseRun: {
+          ...initialCourseState.activeCourseRun,
+          isEnrollable: false,
+          availability: COURSE_AVAILABILITY_MAP.UPCOMING,
+        },
+      };
 
-      availabilityStates.forEach((availability) => {
-        const courseState = {
-          ...initialCourseState,
-          activeCourseRun: {
-            ...initialCourseState.activeCourseRun,
-            isEnrollable: false,
-            availability,
-          },
-        };
+      renderWithRouter(
+        <EnrollButtonWithContext
+          initialAppState={initialAppState}
+          initialCourseState={courseState}
+          initialUserSubsidyState={initialUserSubsidyState}
+        />,
+      );
 
-        renderWithRouter(
-          <EnrollButtonWithContext
-            initialAppState={initialAppState}
-            initialCourseState={courseState}
-            initialUserSubsidyState={initialUserSubsidyState}
-          />,
-        );
-
-        expect(screen.queryByText(ENROLL_BUTTON_LABEL_COMING_SOON));
-      });
+      expect(screen.getByText(ENROLL_BUTTON_LABEL_COMING_SOON));
     });
 
-    test('renders "Not Yet Available" button label', () => {
+    test('renders "Coming Soon" button label with "Starting Soon" availability', () => {
+      const courseState = {
+        ...initialCourseState,
+        activeCourseRun: {
+          ...initialCourseState.activeCourseRun,
+          isEnrollable: false,
+          availability: COURSE_AVAILABILITY_MAP.STARTING_SOON,
+        },
+      };
+
+      renderWithRouter(
+        <EnrollButtonWithContext
+          initialAppState={initialAppState}
+          initialCourseState={courseState}
+          initialUserSubsidyState={initialUserSubsidyState}
+        />,
+      );
+
+      expect(screen.getByText(ENROLL_BUTTON_LABEL_COMING_SOON));
+    });
+
+    test('renders "Not Currently Available" button label', () => {
       const courseState = {
         ...initialCourseState,
         activeCourseRun: {
@@ -121,7 +129,7 @@ describe('<EnrollButton />', () => {
         />,
       );
 
-      expect(screen.queryByText(ENROLL_BUTTON_LABEL_NOT_AVAILABLE));
+      expect(screen.getByText(ENROLL_BUTTON_LABEL_NOT_AVAILABLE));
     });
   });
 
@@ -135,20 +143,17 @@ describe('<EnrollButton />', () => {
         />,
       );
 
-      expect(screen.queryByText('Enroll'));
-
+      expect(screen.getByText('Enroll'));
       const now = moment();
-      expect(screen.queryByText(`Starts ${now.format('MMM D, YYYY')}`, { exact: false }));
+      expect(screen.getByText(`Starts ${now.format('MMM D, YYYY')}`, { exact: false }));
     });
 
     test('renders with correct start date for instructor-paced course', () => {
-      const courseStartDate = '2020-07-15';
       const courseState = {
         ...initialCourseState,
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
           pacingType: COURSE_PACING_MAP.INSTRUCTOR_PACED,
-          start: courseStartDate,
         },
       };
 
@@ -160,27 +165,29 @@ describe('<EnrollButton />', () => {
         />,
       );
 
-      expect(screen.queryByText('Enroll'));
-      const formattedStartDate = moment(courseStartDate).format('MMM D, YYYY');
-      expect(screen.queryByText(`Started ${formattedStartDate}`, { exact: false }));
+      expect(screen.getByText('Enroll'));
+      const formattedStartDate = moment(initialCourseState.activeCourseRun.start).format('MMM D, YYYY');
+      expect(screen.getByText(`Started ${formattedStartDate}`, { exact: false }));
     });
   });
 
   describe('with already enrolled course', () => {
+    const userEnrollment = {
+      mode: COURSE_MODES_MAP.VERIFIED,
+      isActive: true,
+      courseDetails: {
+        courseId: initialCourseState.activeCourseRun.key,
+      },
+    };
+
     test('renders with "You are Enrolled"', () => {
-      const courseRunKey = 'test-course-run-key';
       const courseState = {
         ...initialCourseState,
         activeCourseRun: {
           ...initialCourseState.activeCourseRun,
-          key: courseRunKey,
-          start: JSON.stringify(moment().subtract(1, 'w')),
+          start: moment().add(1, 'w').toISOString(),
         },
-        userEnrollments: [{
-          courseDetails: {
-            courseId: courseRunKey,
-          },
-        }],
+        userEnrollments: [userEnrollment],
       };
 
       renderWithRouter(
@@ -191,22 +198,51 @@ describe('<EnrollButton />', () => {
         />,
       );
 
-      expect(screen.queryByText('You are Enrolled'));
+      expect(screen.getByText('You are Enrolled'));
     });
 
     test('renders with "View Course"', () => {
-      const courseRunKey = 'test-course-run-key';
       const courseState = {
         ...initialCourseState,
-        activeCourseRun: {
-          ...initialCourseState.activeCourseRun,
-          key: courseRunKey,
-          start: JSON.stringify(moment().add(1, 'w')),
-        },
+        userEnrollments: [userEnrollment],
+      };
+
+      renderWithRouter(
+        <EnrollButtonWithContext
+          initialAppState={initialAppState}
+          initialCourseState={courseState}
+          initialUserSubsidyState={initialUserSubsidyState}
+        />,
+      );
+
+      expect(screen.getByText('View Course'));
+    });
+
+    test('renders with course info link for non-Audit track course with subscription license', () => {
+      const courseState = {
+        ...initialCourseState,
+        userEnrollments: [userEnrollment],
+      };
+
+      renderWithRouter(
+        <EnrollButtonWithContext
+          initialAppState={initialAppState}
+          initialCourseState={courseState}
+          initialUserSubsidyState={initialUserSubsidyState}
+        />,
+      );
+
+      expect(screen.getByText('View Course'));
+      const actualUrl = screen.getByText('View Course').closest('a').href;
+      expect(actualUrl).toContain(`courses/${initialCourseState.activeCourseRun.key}/info`);
+    });
+
+    test('renders with enrollment link for Audit track course with subscription license', () => {
+      const courseState = {
+        ...initialCourseState,
         userEnrollments: [{
-          courseDetails: {
-            courseId: courseRunKey,
-          },
+          ...userEnrollment,
+          mode: COURSE_MODES_MAP.AUDIT,
         }],
       };
 
@@ -218,63 +254,11 @@ describe('<EnrollButton />', () => {
         />,
       );
 
-      expect(screen.queryByText('View Course'));
-    });
-  });
-  describe('getEnrollmentUrl', () => {
-    const noSubscriptionEnrollmentInputs = {
-      enterpriseConfig: {
-        uuid: 'foo',
-      },
-      key: 'bar',
-      offers: [{ code: 'bearsRus', catalog: 'bears' }],
-      offersCount: 2,
-      offersLoading: false,
-      sku: 'xkcd',
-      catalogList: ['bears'],
-      location: { search: 'foo' },
-    };
-    const enrollmentInputs = {
-      ...noSubscriptionEnrollmentInputs,
-      subscriptionLicense: {
-        uuid: 'yes',
-      },
-    };
-    it('Subscription: returns an lms url with correct querystring', () => {
-      const url = getEnrollmentUrl(enrollmentInputs);
-      expect(url).toContain(process.env.LMS_BASE_URL);
-      expect(url).toContain(enrollmentInputs.enterpriseConfig.uuid);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).toContain(enrollmentInputs.subscriptionLicense.uuid);
-    });
-    it('No subscription with offers for course: returns an ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl(noSubscriptionEnrollmentInputs);
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.offers[0].code);
-      expect(url).toContain(enrollmentInputs.key);
-    });
-    it('No subscription with no offers for course: returns ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, catalogList: ['foo'] });
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).not.toContain('code');
-    });
-    it('No subscription no offers: returns an ecommerce url with correct querystring', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersCount: 0 });
-      expect(url).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(url).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(url).toContain(enrollmentInputs.key);
-      expect(url).not.toContain('code');
-    });
-    it('No subscription: returns null if offers are loading', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, offersLoading: true });
-      expect(url).toBeNull();
-    });
-    it('No subscription: returns null sku is missing', () => {
-      const url = getEnrollmentUrl({ ...noSubscriptionEnrollmentInputs, sku: undefined });
-      expect(url).toBeNull();
+      expect(screen.getByText('View Course'));
+      const actualUrl = screen.getByText('View Course').closest('a').href;
+      expect(actualUrl).toContain('grant_data_sharing_permissions');
+      expect(actualUrl).toContain(`course_id=${initialCourseState.activeCourseRun.key}`);
+      expect(actualUrl).toContain(`license_uuid=${initialUserSubsidyState.subscriptionLicense.uuid}`);
     });
   });
 });

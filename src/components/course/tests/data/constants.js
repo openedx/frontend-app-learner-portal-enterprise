@@ -2,6 +2,7 @@ export const TEST_OWNER = {
   marketingUrl: 'http://test.url',
   logoImageUrl: 'http://test.image.url',
   name: 'Partner Name',
+  uuid: 'test-uuid',
 };
 
 export const TEST_STAFF = {

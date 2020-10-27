@@ -4,6 +4,7 @@ import {
   COURSE_AVAILABILITY_MAP,
   PROGRAM_TYPE_MAP,
   COURSE_PACING_MAP,
+  COURSE_MODES_MAP,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -18,8 +19,8 @@ export function hasCourseStarted(start) {
   return startDate && today >= startDate;
 }
 
-export function isUserEnrolledInCourse({ userEnrollments, key }) {
-  return userEnrollments.some(({ courseDetails: { courseId } }) => courseId === key);
+export function findUserEnrollmentForCourse({ userEnrollments, key }) {
+  return userEnrollments.find(({ isActive, courseDetails }) => isActive && courseDetails?.courseId === key);
 }
 
 export function isUserEntitledForCourse({ userEntitlements, courseUuid }) {
@@ -122,4 +123,50 @@ export function getAvailableCourseRuns(course) {
   return course.courseRuns.filter(
     courseRun => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
   );
+}
+
+export function findOfferForCourse(offers, catalogList) {
+  const offerIndex = offers.findIndex((offer) => catalogList.includes(offer.catalog));
+  if (offerIndex !== -1) {
+    return offers[offerIndex];
+  }
+  return null;
+}
+
+const getBestCourseMode = (courseModes) => {
+  const {
+    VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT,
+  } = COURSE_MODES_MAP;
+  /** Returns the 'highest' course mode available.
+    *  Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit'] */
+  if (courseModes.includes(VERIFIED)) {
+    return VERIFIED;
+  } if (courseModes.includes(PROFESSIONAL)) {
+    return PROFESSIONAL;
+  } if (courseModes.includes(NO_ID_PROFESSIONAL)) {
+    return NO_ID_PROFESSIONAL;
+  }
+  return AUDIT;
+};
+
+export function findHighestLevelSeatSku(seats) {
+  /** Returns the first seat found from the preferred course mode */
+  if (!seats || seats.length <= 0) {
+    return null;
+  }
+  const courseModes = seats.map(seat => seat.type);
+  const courseMode = getBestCourseMode(courseModes);
+  return seats.find((seat) => seat.type === courseMode).sku;
+}
+
+export function shouldUpgradeUserEnrollment({
+  userEnrollment,
+  subscriptionLicense,
+  enrollmentUrl,
+}) {
+  const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
+  if (isAuditEnrollment && subscriptionLicense && enrollmentUrl) {
+    return true;
+  }
+  return false;
 }

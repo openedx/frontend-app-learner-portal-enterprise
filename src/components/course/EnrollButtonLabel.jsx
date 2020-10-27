@@ -34,7 +34,7 @@ const EnrollButtonLabel = ({
       COURSE_AVAILABILITY_MAP.UPCOMING,
       COURSE_AVAILABILITY_MAP.STARTING_SOON,
     ];
-    return availability in availabilityStates
+    return availabilityStates.includes(availability)
       ? ENROLL_BUTTON_LABEL_COMING_SOON
       : ENROLL_BUTTON_LABEL_NOT_AVAILABLE;
   }
@@ -78,8 +78,7 @@ EnrollButtonLabel.propTypes = {
   availability: PropTypes.string.isRequired,
   isCourseStarted: PropTypes.bool.isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.string).isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  activeCourseRun: PropTypes.object.isRequired,
+  activeCourseRun: PropTypes.shape().isRequired,
   isUserEnrolled: PropTypes.bool.isRequired,
   pacingType: PropTypes.string.isRequired,
   start: PropTypes.string.isRequired,

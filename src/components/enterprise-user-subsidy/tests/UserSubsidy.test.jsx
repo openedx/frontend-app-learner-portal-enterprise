@@ -13,6 +13,9 @@ import { fetchOffers } from '../offers/data/service';
 
 jest.mock('../data/service');
 jest.mock('../offers/data/service');
+jest.mock('../../../config', () => ({
+  features: { ENROLL_WITH_CODES: true },
+}));
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
@@ -52,6 +55,7 @@ describe('UserSubsidy', () => {
     const contextValue = {
       subscriptionPlan: null,
     };
+
     beforeEach(() => {
       const promise = Promise.resolve({
         data: {
@@ -63,12 +67,17 @@ describe('UserSubsidy', () => {
       });
       fetchOffers.mockResolvedValueOnce(promise);
     });
+
     afterEach(() => {
       jest.resetAllMocks();
     });
 
     test('renders children on Dashboard page route', async () => {
-      const Component = <UserSubsidyWithAppContext contextValue={contextValue}><span data-testid="did-i-render" /></UserSubsidyWithAppContext>;
+      const Component = (
+        <UserSubsidyWithAppContext contextValue={contextValue}>
+          <span data-testid="did-i-render" />
+        </UserSubsidyWithAppContext>
+      );
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
@@ -93,6 +102,7 @@ describe('UserSubsidy', () => {
         expirationDate: moment().add(1, 'y').toISOString(),
       },
     };
+
     beforeEach(() => {
       const promise = Promise.resolve({
         data: {
@@ -102,6 +112,7 @@ describe('UserSubsidy', () => {
       });
       fetchOffers.mockResolvedValueOnce(promise);
     });
+
     afterEach(() => {
       jest.resetAllMocks();
     });

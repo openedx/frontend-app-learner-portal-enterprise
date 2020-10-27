@@ -10,6 +10,7 @@ import SearchResults from './SearchResults';
 import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
 import { useDefaultSearchFilters } from './data/hooks';
 import { IntegrationWarningModal } from '../integration-warning-modal';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const searchClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
@@ -18,7 +19,13 @@ const searchClient = algoliasearch(
 
 const Search = () => {
   const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
-  const filters = useDefaultSearchFilters({ enterpriseConfig, subscriptionPlan });
+  const { offers: { offers } } = useContext(UserSubsidyContext);
+  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    subscriptionPlan,
+    offerCatalogs,
+  });
 
   const PAGE_TITLE = `Search courses - ${enterpriseConfig.name}`;
 

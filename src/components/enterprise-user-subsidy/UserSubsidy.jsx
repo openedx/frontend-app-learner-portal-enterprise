@@ -31,6 +31,9 @@ const UserSubsidy = ({ children }) => {
       if (subscriptionPlan) {
         hasAccessToPortal = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
       }
+      if (offers.offersCount > 0) {
+        hasAccessToPortal = true;
+      }
 
       return {
         hasAccessToPortal, subscriptionLicense, offers,
