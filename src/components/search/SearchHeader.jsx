@@ -22,7 +22,9 @@ const SearchHeader = () => {
             />
           </div>
           <div className="col-12">
-            <SearchFilters className="mb-3" />
+            <SearchFilters
+              className="mb-3"
+            />
           </div>
         </div>
       </div>

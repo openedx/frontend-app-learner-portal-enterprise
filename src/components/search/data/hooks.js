@@ -1,6 +1,9 @@
-import { useMemo, useState } from 'react';
+import {
+  useMemo, useState, useContext, useEffect,
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
+import { SearchContext } from '../SearchContext';
 
 import {
   SEARCH_FACET_FILTERS,
@@ -107,19 +110,50 @@ export const useNbHitsFromSearchResults = (searchResults) => {
   return nbHits;
 };
 
-export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan }) => {
+export const getCatalogString = (catalogs) => {
+  function catalogFilterReducer(result, catalog, index) {
+    const isLastCatalog = index === catalogs.length - 1;
+    let query = `${result}enterprise_catalog_uuids:${catalog}`;
+    if (!isLastCatalog) {
+      query += ' OR ';
+    }
+    return query;
+  }
+
+  return catalogs.reduce(catalogFilterReducer, '');
+};
+
+export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, offerCatalogs = [] }) => {
+  // default to showing all catalogs
+  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
+
+  useEffect(() => {
+    // if there are no subscriptions or offers, we default to showing all catalogs
+    if (!subscriptionPlan && offerCatalogs.length < 1) {
+      setShowAllCatalogs(true);
+    }
+  }, [subscriptionPlan, offerCatalogs.length]);
+
   const filters = useMemo(
     () => {
+      if (showAllCatalogs) {
+        // show all enterprise catalogs
+        return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      }
       // if there's a subscriptionPlan, filter results by the subscription catalog
+      // and any catalogs for which the user has vouchers
       if (subscriptionPlan) {
+        if (offerCatalogs.length > 0) {
+          const catalogs = [subscriptionPlan.enterpriseCatalogUuid, ...offerCatalogs];
+          return getCatalogString(catalogs);
+        }
         return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
       }
-
-      // there's no subscription catalog, so filter results by the enterprise customer instead
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      // shows catalogs for which a user has 100% vouchers
+      return getCatalogString(offerCatalogs);
     },
-    [enterpriseConfig, subscriptionPlan],
+    [enterpriseConfig, subscriptionPlan, offerCatalogs, showAllCatalogs],
   );
 
-  return filters;
+  return { filters, showAllCatalogs, setShowAllCatalogs };
 };

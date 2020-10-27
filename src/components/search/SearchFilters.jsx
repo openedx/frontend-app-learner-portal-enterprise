@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { breakpoints } from '@edx/paragon';
 
-import FacetList from './FacetList';
+import FacetList from './FacetListRefinement';
+import FacetListFreeAll from './FacetListFreeAll';
 import CurrentRefinements from './CurrentRefinements';
 
 import MobileFilterMenu from './MobileFilterMenu';
@@ -11,14 +12,26 @@ import { useRefinementsFromQueryParams } from './data/hooks';
 import { sortItemsByLabelAsc } from './data/utils';
 
 import { useWindowSize } from '../../utils/hooks';
+import { SearchContext } from './SearchContext';
 
 const SearchFilters = () => {
   const size = useWindowSize();
-
+  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
   const showMobileMenu = useMemo(
     () => size.width < breakpoints.small.maxWidth,
     [size],
   );
+
+  const freeAllItems = useMemo(() => [
+    {
+      label: 'Free to me',
+      value: !showAllCatalogs,
+    },
+    {
+      label: 'All Courses',
+      value: showAllCatalogs,
+    },
+  ], [showAllCatalogs]);
 
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
 
@@ -50,7 +63,15 @@ const SearchFilters = () => {
         <MobileFilterMenu className="mb-3">{searchFacets}</MobileFilterMenu>
       ) : (
         <>
-          <div className="d-flex">{searchFacets}</div>
+          <div className="d-flex">
+            <FacetListFreeAll
+              items={freeAllItems}
+              showAllCatalogs={showAllCatalogs}
+              setShowAllCatalogs={setShowAllCatalogs}
+              title="Free/All"
+            />
+            {searchFacets}
+          </div>
           <CurrentRefinements />
         </>
       )}

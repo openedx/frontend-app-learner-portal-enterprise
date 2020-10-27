@@ -10,106 +10,84 @@ import {
 } from '../../utils/common';
 import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
+import { hasValidSubscription } from './data/utils';
 
-const SubscriptionSubsidy = ({ enterpriseConfig, plan, license }) => {
+const statusAlertTypes = {
+  invalidStartExpirationDate: 'invalidStartExpiration',
+  noLicense: 'noLicense',
+  notActivated: 'notActivated',
+  revoked: 'revoked',
+};
+
+const SubscriptionSubsidy = ({
+  enterpriseConfig, plan, license, offersCount,
+}) => {
   const match = useRouteMatch(`/${enterpriseConfig.slug}`);
+  const isOnDashboardPage = match.isExact;
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
   if (!plan) {
     return null;
   }
-  if (!hasValidStartExpirationDates(plan)) {
-    if (!match.isExact) {
+  if (!hasValidSubscription(plan, license) && !offersCount) {
+    if (!isOnDashboardPage) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
-    return (
-      <>
-        <div className="container-fluid mt-3">
-          <StatusAlert
-            alertType="danger"
-            className="mb-0"
-            dialog={(
-              <>
-                Your organization does not have an active subscription plan.
-                Please {renderContactHelpText()} for further information.
-              </>
-            )}
-            dismissible={false}
-            open
-          />
-        </div>
-      </>
-    );
+  } else if (!isOnDashboardPage) {
+    // don't show alerts unless user is on the dashboard page
+    return null;
   }
-
-  if (isNull(license)) {
-    if (!match.isExact) {
-      return <Redirect to={`/${enterpriseConfig.slug}`} />;
+  const getStatusAlertText = (textType) => {
+    const contactHelpText = renderContactHelpText();
+    switch (textType) {
+      case statusAlertTypes.invalidStartExpirationDate:
+        return `Your organization does not have an active subscription plan.
+        Please ${contactHelpText} for further information.`;
+      case statusAlertTypes.noLicense:
+        return `You do not have an enterprise license assigned to you.
+        Please ${contactHelpText} for further information.`;
+      case statusAlertTypes.notActivated:
+        return `Please activate your enterprise license from your email
+        or ${contactHelpText} for further information.`;
+      case statusAlertTypes.revoked:
+        return `Your enterprise license is no longer active. Please ${contactHelpText} for
+        further information. You may continue your learning journey by creating a personal
+        account at <a className="text-underline" href="https://edx.org">edx.org</a>.`;
+      default:
+        return null;
     }
-    return (
-      <>
-        <div className="container-fluid mt-3">
-          <StatusAlert
-            alertType="danger"
-            className="mb-0"
-            dialog={(
-              <>
-                You do not have an enterprise license assigned to you.
-                Please {renderContactHelpText()} for further information.
-              </>
-            )}
-            dismissible={false}
-            open
-          />
-        </div>
-      </>
-    );
-  }
+  };
+  let alertText = null;
+  let alertType = 'danger';
 
-  if (isDefinedAndNotNull(license) && license.status !== LICENSE_STATUS.ACTIVATED) {
-    if (!match.isExact) {
-      return <Redirect to={`/${enterpriseConfig.slug}`} />;
+  if (!hasValidStartExpirationDates(plan) && !offersCount) {
+    alertText = getStatusAlertText(statusAlertTypes.invalidStartExpirationDate);
+  } else if (isNull(license) && !offersCount) {
+    alertText = getStatusAlertText(statusAlertTypes.noLicense);
+  } else if (isDefinedAndNotNull(license) && license.status !== LICENSE_STATUS.ACTIVATED) {
+    if (license.status === LICENSE_STATUS.ASSIGNED) {
+      alertText = getStatusAlertText(statusAlertTypes.notActivated);
+      alertType = 'warning';
     }
-    return (
-      <>
-        {license.status === LICENSE_STATUS.ASSIGNED && (
-          <div className="container-fluid mt-3">
-            <StatusAlert
-              alertType="warning"
-              className="mb-0"
-              dialog={(
-                <>
-                  Please activate your enterprise license from your email
-                  or {renderContactHelpText()} for further information.
-                </>
-              )}
-              dismissible={false}
-              open
-            />
-          </div>
-        )}
-        {license.status === LICENSE_STATUS.REVOKED && (
-          <div className="container-fluid mt-3">
-            <StatusAlert
-              alertType="danger"
-              className="mb-0"
-              dialog={(
-                <>
-                  Your enterprise license is no longer active. Please {renderContactHelpText()} for
-                  further information. You may continue your learning journey by creating a personal
-                  account at <a className="text-underline" href="https://edx.org">edx.org</a>.
-                </>
-              )}
-              dismissible={false}
-              open
-            />
-          </div>
-        )}
-      </>
-    );
+    if (license.status === LICENSE_STATUS.REVOKED && !offersCount) {
+      alertText = getStatusAlertText(statusAlertTypes.revoked);
+    }
   }
 
-  return null;
+  if (!alertText) {
+    return null;
+  }
+  return (
+    <div className="container-fluid mt-3">
+      <StatusAlert
+        alertType={alertType}
+        className="mb-0"
+        dialog={alertText}
+        dismissible={false}
+        open
+      />
+    </div>
+  );
 };
 
 SubscriptionSubsidy.propTypes = {
@@ -124,6 +102,7 @@ SubscriptionSubsidy.propTypes = {
     startDate: PropTypes.string,
     expirationDate: PropTypes.string,
   }),
+  offersCount: PropTypes.number.isRequired,
 };
 
 SubscriptionSubsidy.defaultProps = {
