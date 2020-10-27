@@ -258,7 +258,7 @@ describe('SubscriptionSubsidy', () => {
       expect(screen.queryByText(activationMessage, { exact: false })).toBeInTheDocument();
     });
 
-    test('does not renders license deactivation alert if user has a revoked license on Dashboard page route', () => {
+    test('does not render license deactivation alert if user has a revoked license on Dashboard page route', () => {
       const license = {
         uuid: TEST_LICENSE_UUID,
         status: LICENSE_STATUS.REVOKED,
@@ -276,7 +276,6 @@ describe('SubscriptionSubsidy', () => {
       });
 
       // assert status alert message renders
-
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 

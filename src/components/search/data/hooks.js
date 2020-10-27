@@ -1,4 +1,6 @@
-import { useMemo, useState, useContext } from 'react';
+import {
+  useMemo, useState, useContext, useEffect,
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
 import { SearchContext } from '../SearchContext';
@@ -108,19 +110,24 @@ export const useNbHitsFromSearchResults = (searchResults) => {
   return nbHits;
 };
 
-export const getCatalogString = (offerCatalogs, initialString = '') => {
-  const offerCatalogsCopy = [...offerCatalogs];
-  const lastCatalog = offerCatalogsCopy.pop();
-  return `${offerCatalogsCopy.reduce(
-    (result, catalog) => `${result}enterprise_catalog_uuids:${catalog} OR `, initialString,
-  )}enterprise_catalog_uuids:${lastCatalog}`;
+export const getCatalogString = (catalogs) => {
+  function catalogFilterReducer(result, catalog, index) {
+    const isLastCatalog = index === catalogs.length - 1;
+    let query = `${result}enterprise_catalog_uuids:${catalog}`;
+    if (!isLastCatalog) {
+      query += ' OR ';
+    }
+    return query;
+  }
+
+  return catalogs.reduce(catalogFilterReducer, '');
 };
 
 export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, offerCatalogs = [] }) => {
   // default to showing all catalogs
   const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
 
-  useMemo(() => {
+  useEffect(() => {
     // if there are no subscriptions or offers, we default to showing all catalogs
     if (!subscriptionPlan && offerCatalogs.length < 1) {
       setShowAllCatalogs(true);
@@ -130,10 +137,6 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
   const filters = useMemo(
     () => {
       if (showAllCatalogs) {
-        if (subscriptionPlan) {
-          // show subscription catalog and all other enterprise catalogs
-          return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} OR enterprise_customer_uuids:${enterpriseConfig.uuid}`;
-        }
         // show all enterprise catalogs
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
@@ -141,7 +144,8 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
       // and any catalogs for which the user has vouchers
       if (subscriptionPlan) {
         if (offerCatalogs.length > 0) {
-          return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} ${getCatalogString(offerCatalogs, 'OR ')}`;
+          const catalogs = [subscriptionPlan.enterpriseCatalogUuid, ...offerCatalogs];
+          return getCatalogString(catalogs);
         }
         return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
       }

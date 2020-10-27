@@ -84,11 +84,6 @@ describe('getCatalogString helper', () => {
     expect(getCatalogString(catalogs))
       .toEqual('enterprise_catalog_uuids:catalog1 OR enterprise_catalog_uuids:catalog2');
   });
-  test('returns correct string with initial string', () => {
-    expect(getCatalogString(['catalog'], 'OR ')).toEqual('OR enterprise_catalog_uuids:catalog');
-    expect(getCatalogString(['catalog1', 'catalog2'], 'OR '))
-      .toEqual('OR enterprise_catalog_uuids:catalog1 OR enterprise_catalog_uuids:catalog2');
-  });
 });
 
 describe('useDefaultSearchFilters hook', () => {
@@ -134,7 +129,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
   describe('with catalogs', () => {
@@ -182,7 +177,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
 });

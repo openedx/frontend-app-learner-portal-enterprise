@@ -7,10 +7,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import SearchHeader from './SearchHeader';
 import SearchResults from './SearchResults';
 
-import { NUM_RESULTS_PER_PAGE } from './data/constants';
+import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
 import { useDefaultSearchFilters } from './data/hooks';
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { configuration } from '../../config';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const searchClient = algoliasearch(
@@ -34,7 +33,7 @@ const Search = () => {
     <>
       <Helmet title={PAGE_TITLE} />
       <InstantSearch
-        indexName={configuration.ALGOLIA.ALGOLIA_INDEX_NAME}
+        indexName={ALGOLIA_INDEX_NAME}
         searchClient={searchClient}
       >
         <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />

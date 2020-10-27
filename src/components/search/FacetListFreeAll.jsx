@@ -6,7 +6,7 @@ import FacetItem from './FacetItem';
 
 import { NO_OPTIONS_FOUND } from './data/constants';
 
-export const FacetList = ({
+const FacetListFreeAll = ({
   title,
   items,
   showAllCatalogs,
@@ -44,11 +44,11 @@ export const FacetList = ({
   );
 };
 
-FacetList.propTypes = {
+FacetListFreeAll.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   title: PropTypes.string.isRequired,
   setShowAllCatalogs: PropTypes.func.isRequired,
   showAllCatalogs: PropTypes.bool.isRequired,
 };
 
-export default FacetList;
+export default FacetListFreeAll;
