@@ -55,8 +55,19 @@ describe('<Dashboard />', () => {
     loading: false,
     offersCount: 0,
   };
-  const initialAppState = { enterpriseConfig: { name: 'BearsRUs' } };
-  const initialUserSubsidyState = { hasAccessToPortal: true, offers: defaultOffersState };
+  const initialAppState = {
+    enterpriseConfig: {
+      name: 'BearsRUs',
+    },
+    subscriptionPlan: {
+      expirationDate: '2020-10-25',
+      daysUntilExpiration: 365,
+    },
+  };
+  const initialUserSubsidyState = {
+    hasAccessToPortal: true,
+    offers: defaultOffersState,
+  };
   const mockWindowConfig = {
     type: 'screen',
     width: breakpoints.large.minWidth + 1,

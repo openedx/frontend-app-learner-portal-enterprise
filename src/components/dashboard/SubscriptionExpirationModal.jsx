@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
-import { Link } from 'react-router-dom';
 import { Modal, MailtoLink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -24,7 +23,6 @@ const SubscriptionExpirationModal = () => {
       contactEmail,
     },
   } = useContext(AppContext);
-  const { username } = getAuthenticatedUser();
 
   const renderTitle = () => {
     if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {
@@ -47,13 +45,16 @@ const SubscriptionExpirationModal = () => {
     return contactText;
   };
 
-  const renderCertificateText = () => (
-    <>
-      <a href={`${process.env.LMS_BASE_URL}/u/${username}`}>
-        <b>download your completed certificates</b>
-      </a>
-    </>
-  );
+  const renderCertificateText = () => {
+    const { username } = getAuthenticatedUser();
+    return (
+      <>
+        <a href={`${process.env.LMS_BASE_URL}/u/${username}`}>
+          <b>download your completed certificates</b>
+        </a>
+      </>
+    );
+  };
 
   const renderBody = () => (
     <>

@@ -31,35 +31,6 @@ describe('SubscriptionSubsidy', () => {
     });
   });
 
-  describe('with subscription plan that is expired or has not yet started', () => {
-    const startDate = moment().subtract(1, 'y');
-    const expirationDate = moment().subtract(1, 'w');
-    const subscriptionPlan = {
-      uuid: TEST_SUBSCRIPTION_UUID,
-      startDate: startDate.toISOString(),
-      expirationDate: expirationDate.toISOString(),
-    };
-
-    test('renders alert if plan has not started or has already ended', async () => {
-      const Component = (
-        <SubscriptionSubsidy
-          enterpriseConfig={defaultEnterpriseConfig}
-          plan={subscriptionPlan}
-        />
-      );
-      renderWithRouter(Component, {
-        route: `/${TEST_ENTERPRISE_SLUG}`,
-      });
-
-      // assert status alert message renders
-      await waitFor(() => {
-        const activationMessage = 'does not have an active subscription plan';
-        expect(screen.queryByRole('alert')).toBeInTheDocument();
-        expect(screen.queryByText(activationMessage, { exact: false })).toBeInTheDocument();
-      });
-    });
-  });
-
   describe('with subscription plan that has started, but not yet ended, no offers', () => {
     const subscriptionPlan = {
       uuid: TEST_SUBSCRIPTION_UUID,
