@@ -11,6 +11,7 @@ import {
 import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
 import { hasValidSubscription } from './data/utils';
+import { features } from '../../config';
 
 const statusAlertTypes = {
   invalidStartExpirationDate: 'invalidStartExpiration',
