@@ -13,6 +13,7 @@ import { sortItemsByLabelAsc } from './data/utils';
 
 import { useWindowSize } from '../../utils/hooks';
 import { SearchContext } from './SearchContext';
+import { features } from '../../config';
 
 const SearchFilters = () => {
   const size = useWindowSize();
@@ -64,12 +65,14 @@ const SearchFilters = () => {
       ) : (
         <>
           <div className="d-flex">
-            <FacetListFreeAll
-              items={freeAllItems}
-              showAllCatalogs={showAllCatalogs}
-              setShowAllCatalogs={setShowAllCatalogs}
-              title="Free/All"
-            />
+            {features.ENROLL_WITH_CODES && (
+              <FacetListFreeAll
+                items={freeAllItems}
+                showAllCatalogs={showAllCatalogs}
+                setShowAllCatalogs={setShowAllCatalogs}
+                title="Free/All"
+              />
+            )}
             {searchFacets}
           </div>
           <CurrentRefinements />

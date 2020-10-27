@@ -22,6 +22,9 @@ jest.mock('react-router-dom', () => ({
     search: '?q=test%20query&subjects=Computer%20Science,Communication&availability=Upcoming&ignore=true',
   }),
 }));
+jest.mock('../../../../config', () => ({
+  features: { ENROLL_WITH_CODES: true },
+}));
 
 describe('useRefinementsFromQueryParams hook', () => {
   test('returns expected refinements data given specific query params', () => {

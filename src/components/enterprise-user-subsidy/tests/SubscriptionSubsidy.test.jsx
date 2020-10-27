@@ -10,6 +10,9 @@ import { LICENSE_STATUS } from '../data/constants';
 
 jest.mock('../data/service');
 jest.mock('../offers/data/service');
+jest.mock('../../../config', () => ({
+  features: { ENROLL_WITH_CODES: true },
+}));
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';

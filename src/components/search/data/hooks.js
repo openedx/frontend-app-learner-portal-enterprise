@@ -4,6 +4,7 @@ import {
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
 import { SearchContext } from '../SearchContext';
+import { features } from '../../../config';
 
 import {
   SEARCH_FACET_FILTERS,
@@ -143,14 +144,17 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
       // if there's a subscriptionPlan, filter results by the subscription catalog
       // and any catalogs for which the user has vouchers
       if (subscriptionPlan) {
-        if (offerCatalogs.length > 0) {
+        if (features.ENROLL_WITH_CODES && offerCatalogs.length > 0) {
           const catalogs = [subscriptionPlan.enterpriseCatalogUuid, ...offerCatalogs];
           return getCatalogString(catalogs);
         }
         return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
       }
-      // shows catalogs for which a user has 100% vouchers
-      return getCatalogString(offerCatalogs);
+      if (features.ENROLL_WITH_CODES) {
+        // shows catalogs for which a user has 100% vouchers
+        return getCatalogString(offerCatalogs);
+      }
+      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
     [enterpriseConfig, subscriptionPlan, offerCatalogs, showAllCatalogs],
   );

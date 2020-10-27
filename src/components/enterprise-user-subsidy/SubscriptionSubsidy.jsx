@@ -11,6 +11,7 @@ import {
 import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
 import { hasValidSubscription } from './data/utils';
+import { features } from '../../config';
 
 const statusAlertTypes = {
   invalidStartExpirationDate: 'invalidStartExpiration',
@@ -27,9 +28,14 @@ const SubscriptionSubsidy = ({
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
   if (!plan) {
+    if (!isOnDashboardPage && !features.ENROLL_WITH_CODES) {
+      return <Redirect to={`/${enterpriseConfig.slug}`} />;
+    }
     return null;
   }
+
   if (!hasValidSubscription(plan, license) && !offersCount) {
+    console.log('here')
     if (!isOnDashboardPage) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
