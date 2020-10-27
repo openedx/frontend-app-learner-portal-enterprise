@@ -1,10 +1,4 @@
 .card {
-    .big-number {
-        font-size: 8em;
-        text-align: center;
-        line-height: 1;
-    }
-
     &.catalog-access-card {
         border-top-width: 4px;
         > .card-body {
@@ -14,5 +8,3 @@
         }
     }
 }
-
-
