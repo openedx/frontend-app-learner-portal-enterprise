@@ -150,7 +150,7 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
         }
         return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
       }
-      if (features.ENROLL_WITH_CODES) {
+      if (features.ENROLL_WITH_CODES && offerCatalogs.length > 0) {
         // shows catalogs for which a user has 100% vouchers
         return getCatalogString(offerCatalogs);
       }

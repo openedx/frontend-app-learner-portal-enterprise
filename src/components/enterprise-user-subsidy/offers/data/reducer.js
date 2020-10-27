@@ -5,7 +5,7 @@ import {
 } from './constants';
 
 export const initialOfferState = {
-  loading: true,
+  loading: false,
   offers: [],
   offersCount: 0,
   error: null,

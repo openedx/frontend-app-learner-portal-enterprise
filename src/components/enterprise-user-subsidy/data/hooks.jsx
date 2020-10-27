@@ -3,6 +3,7 @@ import {
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+
 import { fetchOffers } from '../offers';
 import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
@@ -13,6 +14,7 @@ import {
   isDefinedAndNotNull,
   isDefinedAndNull,
 } from '../../../utils/common';
+import { features } from '../../../config';
 
 export function useSubscriptionLicenseForUser(subscriptionPlan) {
   const [license, setLicense] = useState();
@@ -65,7 +67,9 @@ export function useOffers(enterpriseId) {
 
   useEffect(
     () => {
-      fetchOffers('full_discount_only=True', dispatch);
+      if (features.ENROLL_WITH_CODES) {
+        fetchOffers('full_discount_only=True', dispatch);
+      }
     },
     [enterpriseId],
   );
