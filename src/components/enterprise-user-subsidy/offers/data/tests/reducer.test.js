@@ -6,7 +6,7 @@ import {
 } from '../constants';
 
 const initialState = {
-  loading: true,
+  loading: false,
   offers: [],
   offersCount: 0,
   error: null,

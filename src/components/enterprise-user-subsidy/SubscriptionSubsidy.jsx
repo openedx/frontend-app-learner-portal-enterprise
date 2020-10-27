@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, useRouteMatch } from 'react-router-dom';
-import { StatusAlert } from '@edx/paragon';
+import { Container, StatusAlert } from '@edx/paragon';
 
 import {
   isDefinedAndNotNull,
@@ -26,17 +26,24 @@ const SubscriptionSubsidy = ({
   const isOnDashboardPage = match.isExact;
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
-  if (!plan) {
+  if (!plan && !offersCount) {
+    if (!isOnDashboardPage) {
+      return <Redirect to={`/${enterpriseConfig.slug}`} />;
+    }
     return null;
   }
+
   if (!hasValidSubscription(plan, license) && !offersCount) {
     if (!isOnDashboardPage) {
       return <Redirect to={`/${enterpriseConfig.slug}`} />;
     }
-  } else if (!isOnDashboardPage) {
+  }
+
+  if (!isOnDashboardPage) {
     // don't show alerts unless user is on the dashboard page
     return null;
   }
+
   const getStatusAlertText = (textType) => {
     const contactHelpText = renderContactHelpText();
     switch (textType) {
@@ -78,7 +85,7 @@ const SubscriptionSubsidy = ({
     return null;
   }
   return (
-    <div className="container-fluid mt-3">
+    <Container fluid className="mt-3">
       <StatusAlert
         alertType={alertType}
         className="mb-0"
@@ -86,7 +93,7 @@ const SubscriptionSubsidy = ({
         dismissible={false}
         open
       />
-    </div>
+    </Container>
   );
 };
 
