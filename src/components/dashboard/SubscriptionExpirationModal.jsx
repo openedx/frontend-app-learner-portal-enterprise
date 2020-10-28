@@ -12,6 +12,8 @@ import {
 } from '../../config/constants';
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
+export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your Subscription has Expired';
+export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your Subscription is Expiring';
 
 const SubscriptionExpirationModal = () => {
   const {
@@ -27,11 +29,11 @@ const SubscriptionExpirationModal = () => {
   const renderTitle = () => {
     if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {
       return (
-        <small><b>Your Subscription is Expiring</b></small>
+        <small><b>{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</b></small>
       );
     }
     return (
-      <small><b>Your Subscription has Expired</b></small>
+      <small><b>{SUBSCRIPTION_EXPIRED_MODAL_TITLE}</b></small>
     );
   };
 

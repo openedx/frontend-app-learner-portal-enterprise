@@ -15,6 +15,11 @@ import {
   renderWithRouter, fakeReduxStore,
 } from '../../../utils/tests';
 import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
+import {
+  SUBSCRIPTION_EXPIRED_MODAL_TITLE,
+  SUBSCRIPTION_EXPIRING_MODAL_TITLE
+} from '../SubscriptionExpirationModal';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 const mockStore = configureMockStore([thunk]);
 
@@ -47,6 +52,11 @@ let mockLocation = {
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: () => (mockLocation),
+}));
+
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
 }));
 
 describe('<Dashboard />', () => {
@@ -119,6 +129,53 @@ describe('<Dashboard />', () => {
       <DashboardWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />,
     );
     expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
+  });
+  it('does not render subscription expiration modal when >60 days of access remain', () => {
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
+  });
+  it('renders the subscription expiration warning modal when 60 >= daysUntilExpiration > 0', () => {
+    const expiringSubscriptionAppState = {
+      ...initialAppState,
+      subscriptionPlan: {
+        ...initialAppState.subscriptionPlan,
+        daysUntilExpiration: 60,
+      },
+    };
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={expiringSubscriptionAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
+  });
+  it('renders the subscription expired modal when 0 >= daysUntilExpiration', () => {
+    const expiringSubscriptionAppState = {
+      ...initialAppState,
+      subscriptionPlan: {
+        ...initialAppState.subscriptionPlan,
+        daysUntilExpiration: 0,
+      },
+    };
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={expiringSubscriptionAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
   });
   it('renders a sidebar on a large screen', () => {
     window.matchMedia.setConfig(mockWindowConfig);
