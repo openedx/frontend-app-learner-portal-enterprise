@@ -43,6 +43,7 @@ export const COURSE_MODES_MAP = {
   PROFESSIONAL: 'professional',
   NO_ID_PROFESSIONAL: 'no-id-professional',
   AUDIT: 'audit',
+  HONOR: 'honor',
 };
 
 export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';
