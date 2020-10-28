@@ -5,11 +5,12 @@ import moment from 'moment';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
 
+export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription Status';
+
 const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const renderCardTitle = (statusBadgeVariant, statusBadgeLabel) => (
     <div className="d-flex align-content-center">
-      Subscription Status
-      {' '}
+      {SUBSCRIPTION_SUMMARY_CARD_TITLE}
       <Badge
         variant={statusBadgeVariant}
         className="ml-2"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { SidebarBlock } from '../../layout';
@@ -6,15 +6,24 @@ import OfferSummaryCard from './OfferSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import ButtonWithLink from '../../layout/ButtonWithLink';
 import SidebarCard from './SidebarCard';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
+export const CATALOG_ACCESS_CARD_TITLE = 'Catalog Access';
+export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
+export const NEED_HELP_BLOCK_TITLE = 'Need help?';
 export const EMAIL_MESSAGE = 'contact your organization\'s edX administrator';
 
-class DashboardSidebar extends React.Component {
-  renderContactHelpText() {
-    const { enterpriseConfig: { contactEmail } } = this.context;
+const DashboardSidebar = () => {
+  const {
+    enterpriseConfig: {
+      contactEmail,
+    },
+    subscriptionPlan,
+  } = useContext(AppContext);
+  const { offers } = useContext(UserSubsidyContext);
 
+  const renderContactHelpText = () => {
     const message = EMAIL_MESSAGE;
-
     if (contactEmail) {
       return (
         <a className="text-underline" href={`mailto:${contactEmail}`}>
@@ -23,46 +32,49 @@ class DashboardSidebar extends React.Component {
       );
     }
     return message;
-  }
+  };
 
-  render() {
-    return (
-      <>
-        <SidebarCard
-          title="Catalog Access"
-          cardClassNames="border-primary catalog-access-card mb-5"
-          titleClassNames="mb-3"
-        >
+  return (
+    <>
+      <SidebarCard
+        title={CATALOG_ACCESS_CARD_TITLE}
+        cardClassNames="border-primary catalog-access-card mb-5"
+        titleClassNames="mb-3"
+      >
+        { subscriptionPlan && (
           <SubscriptionSummaryCard
-            subscriptionPlan={this.context.subscriptionPlan}
+            subscriptionPlan={subscriptionPlan}
             className="mb-3"
           />
-          <OfferSummaryCard className="mb-3" />
-          <ButtonWithLink
-            className="btn-outline-primary btn-block"
-            text="Find a course"
-            link="/search"
-            linkIsLocal
+        )}
+        { offers && (
+          <OfferSummaryCard
+            offers={offers}
+            className="mb-3"
           />
-        </SidebarCard>
-        <SidebarBlock
-          title="Need help?"
-          titleOptions={{ tag: 'h3', className: 'h4' }}
-          className="mb-5"
-        >
-          <p>
-            For technical support, visit the{' '}
-            <a className="text-underline" href="https://support.edx.org/hc/en-us">edX Help Center</a>.
-          </p>
-          <p>
-            To request more benefits or specific courses, {this.renderContactHelpText()}.
-          </p>
-        </SidebarBlock>
-      </>
-    );
-  }
-}
-
-DashboardSidebar.contextType = AppContext;
+        )}
+        <ButtonWithLink
+          className="btn-outline-primary btn-block"
+          text={CATALOG_ACCESS_CARD_BUTTON_TEXT}
+          link="/search"
+          linkIsLocal
+        />
+      </SidebarCard>
+      <SidebarBlock
+        title={NEED_HELP_BLOCK_TITLE}
+        titleOptions={{ tag: 'h3', className: 'h4' }}
+        className="mb-5"
+      >
+        <p>
+          For technical support, visit the{' '}
+          <a className="text-underline" href="https://support.edx.org/hc/en-us">edX Help Center</a>.
+        </p>
+        <p>
+          To request more benefits or specific courses, {renderContactHelpText()}.
+        </p>
+      </SidebarBlock>
+    </>
+  );
+};
 
 export default DashboardSidebar;

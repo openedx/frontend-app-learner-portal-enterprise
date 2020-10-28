@@ -1,12 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import SidebarCard from './SidebarCard';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 export const OFFER_SUMMARY_TITLE = 'Additional Courses';
 
-const OfferSummaryCard = ({ className }) => {
+const OfferSummaryCard = ({ offers, className }) => {
   const renderCardBody = (offersCount) => (
     <>
       <div className="text-center font-weight-bold h2">
@@ -17,7 +16,8 @@ const OfferSummaryCard = ({ className }) => {
       </p>
     </>
   );
-  const { offers: { offersCount } } = useContext(UserSubsidyContext);
+
+  const { offersCount } = offers;
   if (offersCount > 0) {
     return (
       <SidebarCard
@@ -32,6 +32,9 @@ const OfferSummaryCard = ({ className }) => {
 };
 
 OfferSummaryCard.propTypes = {
+  offers: PropTypes.shape({
+    offersCount: PropTypes.number,
+  }).isRequired,
   className: PropTypes.string,
 };
 
