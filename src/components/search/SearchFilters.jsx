@@ -61,7 +61,17 @@ const SearchFilters = () => {
   return (
     <>
       {showMobileMenu ? (
-        <MobileFilterMenu className="mb-3">{searchFacets}</MobileFilterMenu>
+        <MobileFilterMenu className="mb-3">
+          {features.ENROLL_WITH_CODES && (
+            <FacetListFreeAll
+              items={freeAllItems}
+              showAllCatalogs={showAllCatalogs}
+              setShowAllCatalogs={setShowAllCatalogs}
+              title="Free/All"
+            />
+          )}
+          {searchFacets}
+        </MobileFilterMenu>
       ) : (
         <>
           <div className="d-flex">
