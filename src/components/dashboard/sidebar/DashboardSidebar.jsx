@@ -31,6 +31,7 @@ class DashboardSidebar extends React.Component {
         <SidebarCard
           title="Catalog Access"
           cardClassNames="border-primary catalog-access-card mb-5"
+          titleClassNames="mb-3"
         >
           <SubscriptionSummaryCard
             subscriptionPlan={this.context.subscriptionPlan}
