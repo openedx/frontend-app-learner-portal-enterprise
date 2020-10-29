@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { breakpoints } from '@edx/paragon';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
@@ -17,9 +17,8 @@ import {
 import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
 import {
   SUBSCRIPTION_EXPIRED_MODAL_TITLE,
-  SUBSCRIPTION_EXPIRING_MODAL_TITLE
+  SUBSCRIPTION_EXPIRING_MODAL_TITLE,
 } from '../SubscriptionExpirationModal';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 const mockStore = configureMockStore([thunk]);
 
