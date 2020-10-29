@@ -15,6 +15,8 @@ import { useWindowSize } from '../../utils/hooks';
 import { SearchContext } from './SearchContext';
 import { features } from '../../config';
 
+export const FREE_ALL_TITLE = 'Free / All';
+
 const SearchFilters = () => {
   const size = useWindowSize();
   const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
@@ -29,7 +31,7 @@ const SearchFilters = () => {
       value: !showAllCatalogs,
     },
     {
-      label: 'All Courses',
+      label: 'All courses',
       value: showAllCatalogs,
     },
   ], [showAllCatalogs]);
@@ -67,7 +69,7 @@ const SearchFilters = () => {
               items={freeAllItems}
               showAllCatalogs={showAllCatalogs}
               setShowAllCatalogs={setShowAllCatalogs}
-              title="Free/All"
+              title={FREE_ALL_TITLE}
               refinementsFromQueryParams={refinementsFromQueryParams}
             />
           )}
@@ -81,7 +83,7 @@ const SearchFilters = () => {
                 items={freeAllItems}
                 showAllCatalogs={showAllCatalogs}
                 setShowAllCatalogs={setShowAllCatalogs}
-                title="Free/All"
+                title={FREE_ALL_TITLE}
                 refinementsFromQueryParams={refinementsFromQueryParams}
               />
             )}
