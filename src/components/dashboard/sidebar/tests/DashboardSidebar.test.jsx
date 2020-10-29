@@ -47,7 +47,10 @@ describe('<DashboardSidebar />', () => {
   };
   test('Catalog Access card title is always rendered', () => {
     renderWithRouter(
-      <DashboardSidebarContext initialAppState={initialAppState}>
+      <DashboardSidebarContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+      >
         <DashboardSidebar />
       </DashboardSidebarContext>,
     );
@@ -68,7 +71,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { defaultOffersState } }}
+        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -79,7 +82,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={appStateWithSubscription}
-        initialUserSubsidyState={{ offers: { defaultOffersState } }}
+        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -99,7 +102,10 @@ describe('<DashboardSidebar />', () => {
   });
   test('Find a course button is always rendered', () => {
     renderWithRouter(
-      <DashboardSidebarContext initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}>
+      <DashboardSidebarContext
+        initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
+        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+      >
         <DashboardSidebar />
       </DashboardSidebarContext>,
     );

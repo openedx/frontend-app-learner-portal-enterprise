@@ -3,7 +3,7 @@
         border-top-width: 4px;
         > .card-body {
             > .card-title {
-                @extend .h4 !optional;
+                @extend .h4;
             }
         }
     }

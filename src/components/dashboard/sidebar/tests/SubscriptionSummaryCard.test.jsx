@@ -23,8 +23,9 @@ describe('<SubscriptionSummaryCard />', () => {
     renderWithRouter(
       <SubscriptionSummaryCard subscriptionPlan={subscriptionPlan} />,
     );
+    screen.debug();
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_BADGE_LABEL)).toBeTruthy();
-    expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_ACTIVE_BADGE_VARIANT}`);
   });
   test('Expiring warning badge is displayed when 60 >= daysUntilExpiration > 0', () => {
@@ -36,7 +37,7 @@ describe('<SubscriptionSummaryCard />', () => {
       <SubscriptionSummaryCard subscriptionPlan={expiringSoonSubscriptionPlan} />,
     );
     expect(screen.queryByText(SUBSCRIPTION_WARNING_BADGE_LABEL)).toBeTruthy();
-    expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_WARNING_BADGE_VARIANT}`);
   });
   test('Expired danger badge is displayed when 0 >= daysUntilExpiration and card body indicates expiration', () => {
@@ -48,7 +49,7 @@ describe('<SubscriptionSummaryCard />', () => {
       <SubscriptionSummaryCard subscriptionPlan={expiredSubscriptionPlan} />,
     );
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
-    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
 });
