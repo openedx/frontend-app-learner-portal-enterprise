@@ -9,6 +9,7 @@ import { IntegrationWarningModal } from '../integration-warning-modal';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
+import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully activated.';
 
@@ -51,6 +52,7 @@ export default function Dashboard() {
             )}
           </MediaQuery>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
+          <SubscriptionExpirationModal />
         </div>
       </div>
     </>

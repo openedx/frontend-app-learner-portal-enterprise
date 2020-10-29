@@ -1,35 +1,32 @@
-/* eslint-disable react/require-default-props */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card } from '@edx/paragon';
 
-import ButtonWithLink from '../../layout/ButtonWithLink';
-
-import './styles/SidebarCard.scss';
-
 const SidebarCard = ({
-  title, children, buttonText, textClassNames = '', titleClassNames = '', linkIsLocal = false, buttonLink = '',
+  title,
+  children,
+  cardClassNames,
+  titleClassNames,
 }) => (
-  <Card className="shadow">
+  <Card className={cardClassNames}>
     <Card.Body>
       {title && <Card.Title className={titleClassNames}>{title}</Card.Title>}
-      <Card.Text className={textClassNames}>
-        {children}
-      </Card.Text>
-      {buttonText && <ButtonWithLink className="btn-primary btn-block" linkIsLocal={linkIsLocal} link={buttonLink} text={buttonText} />}
+      {children}
     </Card.Body>
   </Card>
 );
 
 SidebarCard.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   children: PropTypes.node.isRequired,
-  buttonText: PropTypes.string,
-  textClassNames: PropTypes.string,
+  cardClassNames: PropTypes.string,
   titleClassNames: PropTypes.string,
-  //  if the link is local, the current slug will be prepended to the text of the buttonLink
-  linkIsLocal: PropTypes.bool.isRequired,
-  buttonLink: PropTypes.string.isRequired,
+};
+
+SidebarCard.defaultProps = {
+  title: null,
+  cardClassNames: 'shadow',
+  titleClassNames: undefined,
 };
 
 export default SidebarCard;

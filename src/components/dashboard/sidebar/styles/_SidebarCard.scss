@@ -1,0 +1,10 @@
+.card {
+    &.catalog-access-card {
+        border-top-width: 4px;
+        > .card-body {
+            > .card-title {
+                @extend .h4;
+            }
+        }
+    }
+}

@@ -6,7 +6,6 @@ import { Container, StatusAlert } from '@edx/paragon';
 import {
   isDefinedAndNotNull,
   isNull,
-  hasValidStartExpirationDates,
 } from '../../utils/common';
 import { useRenderContactHelpText } from '../../utils/hooks';
 import { LICENSE_STATUS } from './data/constants';
@@ -67,9 +66,7 @@ const SubscriptionSubsidy = ({
   let alertText = null;
   let alertType = 'danger';
 
-  if (!hasValidStartExpirationDates(plan) && !offersCount) {
-    alertText = getStatusAlertText(statusAlertTypes.invalidStartExpirationDate);
-  } else if (isNull(license) && !offersCount) {
+  if (isNull(license) && !offersCount) {
     alertText = getStatusAlertText(statusAlertTypes.noLicense);
   } else if (isDefinedAndNotNull(license) && license.status !== LICENSE_STATUS.ACTIVATED) {
     if (license.status === LICENSE_STATUS.ASSIGNED) {

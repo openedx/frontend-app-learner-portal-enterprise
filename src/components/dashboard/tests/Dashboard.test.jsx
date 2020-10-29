@@ -6,15 +6,19 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { breakpoints } from '@edx/paragon';
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
-import { CourseContextProvider } from '../course/CourseContextProvider';
-import { COURSE_PACING_MAP } from '../course/data/constants';
-import { TEST_OWNER } from '../course/tests/data/constants';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { CourseContextProvider } from '../../course/CourseContextProvider';
+import { COURSE_PACING_MAP } from '../../course/data/constants';
+import { TEST_OWNER } from '../../course/tests/data/constants';
 
 import {
   renderWithRouter, fakeReduxStore,
-} from '../../utils/tests';
-import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from './Dashboard';
+} from '../../../utils/tests';
+import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
+import {
+  SUBSCRIPTION_EXPIRED_MODAL_TITLE,
+  SUBSCRIPTION_EXPIRING_MODAL_TITLE,
+} from '../SubscriptionExpirationModal';
 
 const mockStore = configureMockStore([thunk]);
 
@@ -49,14 +53,30 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => (mockLocation),
 }));
 
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
+}));
+
 describe('<Dashboard />', () => {
   const defaultOffersState = {
     offers: [],
     loading: false,
     offersCount: 0,
   };
-  const initialAppState = { enterpriseConfig: { name: 'BearsRUs' } };
-  const initialUserSubsidyState = { hasAccessToPortal: true, offers: defaultOffersState };
+  const initialAppState = {
+    enterpriseConfig: {
+      name: 'BearsRUs',
+    },
+    subscriptionPlan: {
+      expirationDate: '2020-10-25',
+      daysUntilExpiration: 365,
+    },
+  };
+  const initialUserSubsidyState = {
+    hasAccessToPortal: true,
+    offers: defaultOffersState,
+  };
   const mockWindowConfig = {
     type: 'screen',
     width: breakpoints.large.minWidth + 1,
@@ -108,6 +128,53 @@ describe('<Dashboard />', () => {
       <DashboardWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />,
     );
     expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
+  });
+  it('does not render subscription expiration modal when >60 days of access remain', () => {
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
+  });
+  it('renders the subscription expiration warning modal when 60 >= daysUntilExpiration > 0', () => {
+    const expiringSubscriptionAppState = {
+      ...initialAppState,
+      subscriptionPlan: {
+        ...initialAppState.subscriptionPlan,
+        daysUntilExpiration: 60,
+      },
+    };
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={expiringSubscriptionAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
+  });
+  it('renders the subscription expired modal when 0 >= daysUntilExpiration', () => {
+    const expiringSubscriptionAppState = {
+      ...initialAppState,
+      subscriptionPlan: {
+        ...initialAppState.subscriptionPlan,
+        daysUntilExpiration: 0,
+      },
+    };
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={expiringSubscriptionAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
   });
   it('renders a sidebar on a large screen', () => {
     window.matchMedia.setConfig(mockWindowConfig);
