@@ -10,12 +10,9 @@ import DashboardSidebar, {
   EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
 } from '../DashboardSidebar';
-import {
-  OFFER_SUMMARY_TITLE,
-} from '../OfferSummaryCard';
 
 import { renderWithRouter } from '../../../../utils/tests';
-import { SUBSCRIPTION_SUMMARY_CARD_TITLE } from '../SubscriptionSummaryCard';
+import { OFFER_SUMMARY_TITLE, SUBSCRIPTION_SUMMARY_CARD_TITLE } from '../data/constants';
 
 /* eslint-disable react/prop-types */
 const DashboardSidebarContext = ({

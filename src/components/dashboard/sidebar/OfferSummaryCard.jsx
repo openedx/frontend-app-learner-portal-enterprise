@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import SidebarCard from './SidebarCard';
-
-export const OFFER_SUMMARY_TITLE = 'Additional Courses';
+import { OFFER_SUMMARY_TITLE } from './data/constants';
 
 const OfferSummaryCard = ({ offers, className }) => {
   const renderCardBody = (offersCount) => (
