@@ -11,7 +11,7 @@ const FacetDropdown = ({ title, items, isBold }) => (
           classNames(
             'bg-white', 'text-capitalize', 'rounded-0', 'border-0',
             'd-flex', 'justify-content-between', 'align-items-center', 'text-dark',
-            { 'font-weight-bold': { isBold } },
+            { 'font-weight-bold': isBold },
           )
         }
       >

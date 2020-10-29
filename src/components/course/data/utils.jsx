@@ -135,18 +135,26 @@ export function findOfferForCourse(offers, catalogList) {
 
 const getBestCourseMode = (courseModes) => {
   const {
-    VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT,
+    VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT, HONOR,
   } = COURSE_MODES_MAP;
   /** Returns the 'highest' course mode available.
-    *  Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit'] */
+    *  Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor'] */
   if (courseModes.includes(VERIFIED)) {
     return VERIFIED;
-  } if (courseModes.includes(PROFESSIONAL)) {
+  }
+  if (courseModes.includes(PROFESSIONAL)) {
     return PROFESSIONAL;
-  } if (courseModes.includes(NO_ID_PROFESSIONAL)) {
+  }
+  if (courseModes.includes(NO_ID_PROFESSIONAL)) {
     return NO_ID_PROFESSIONAL;
   }
-  return AUDIT;
+  if (courseModes.includes(AUDIT)) {
+    return AUDIT;
+  }
+  if (courseModes.includes(HONOR)) {
+    return HONOR;
+  }
+  return null;
 };
 
 export function findHighestLevelSeatSku(seats) {
@@ -156,7 +164,7 @@ export function findHighestLevelSeatSku(seats) {
   }
   const courseModes = seats.map(seat => seat.type);
   const courseMode = getBestCourseMode(courseModes);
-  return seats.find((seat) => seat.type === courseMode).sku;
+  return seats.find(seat => seat.type === courseMode)?.sku;
 }
 
 export function shouldUpgradeUserEnrollment({
