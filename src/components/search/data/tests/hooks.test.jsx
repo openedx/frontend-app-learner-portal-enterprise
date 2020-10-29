@@ -132,7 +132,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`enterprise_catalog_uuids:test-subscription-catalog-uuid OR enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
   describe('with catalogs', () => {
@@ -180,7 +180,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { setShowAllCatalogs } = result.current;
       act(() => setShowAllCatalogs(true));
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`enterprise_catalog_uuids:test-subscription-catalog-uuid OR enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
 });

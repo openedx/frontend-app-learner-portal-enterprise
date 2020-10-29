@@ -137,9 +137,13 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
 
   const filters = useMemo(
     () => {
+      const customerCatalogFilter = `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       if (showAllCatalogs) {
         // show all enterprise catalogs
-        return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+        if (!subscriptionPlan) {
+          return customerCatalogFilter;
+        }
+        return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid} OR ${customerCatalogFilter}`;
       }
       // if there's a subscriptionPlan, filter results by the subscription catalog
       // and any catalogs for which the user has vouchers
@@ -154,7 +158,7 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
         // shows catalogs for which a user has 100% vouchers
         return getCatalogString(offerCatalogs);
       }
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      return customerCatalogFilter;
     },
     [enterpriseConfig, subscriptionPlan, offerCatalogs, showAllCatalogs],
   );
