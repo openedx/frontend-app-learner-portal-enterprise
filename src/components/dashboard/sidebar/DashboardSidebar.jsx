@@ -41,13 +41,13 @@ const DashboardSidebar = () => {
         cardClassNames="border-primary catalog-access-card mb-5"
         titleClassNames="mb-3"
       >
-        { subscriptionPlan && (
+        {subscriptionPlan && (
           <SubscriptionSummaryCard
             subscriptionPlan={subscriptionPlan}
             className="mb-3"
           />
         )}
-        { offersCount > 0 && (
+        {offersCount > 0 && (
           <OfferSummaryCard
             offersCount={offersCount}
             className="mb-3"
