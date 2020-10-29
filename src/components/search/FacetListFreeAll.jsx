@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 
+import qs from 'query-string';
 import FacetDropdown from './FacetDropdown';
 import FacetItem from './FacetItem';
 
@@ -11,9 +13,14 @@ const FacetListFreeAll = ({
   items,
   showAllCatalogs,
   setShowAllCatalogs,
+  refinementsFromQueryParams,
 }) => {
+  const history = useHistory();
   const handleInputOnChange = () => {
+    const refinements = { ...refinementsFromQueryParams };
+    delete refinements.page; // reset to page 1
     setShowAllCatalogs(!showAllCatalogs);
+    history.push({ search: qs.stringify(refinements) });
   };
 
   const renderItems = useCallback(
@@ -49,6 +56,7 @@ FacetListFreeAll.propTypes = {
   title: PropTypes.string.isRequired,
   setShowAllCatalogs: PropTypes.func.isRequired,
   showAllCatalogs: PropTypes.bool.isRequired,
+  refinementsFromQueryParams: PropTypes.shape().isRequired,
 };
 
 export default FacetListFreeAll;

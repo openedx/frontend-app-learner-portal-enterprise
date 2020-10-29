@@ -3,7 +3,7 @@ import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import FacetListFreeAll from '../FacetListFreeAll';
-
+import { FACET_ATTRIBUTES, SUBJECTS } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 import { NO_OPTIONS_FOUND } from '../data/constants';
 
@@ -28,6 +28,10 @@ const propsWithItems = {
     value: false,
   },
   ],
+  refinementsFromQueryParams: {
+    [FACET_ATTRIBUTES.SUBJECTS]: [SUBJECTS.COMMUNICATION],
+    page: 3,
+  },
 };
 
 describe('<FacetListFreeAll />', () => {
@@ -95,5 +99,23 @@ describe('<FacetListFreeAll />', () => {
 
     // assert the spy was called with the correct value
     expect(spy).toHaveBeenCalledWith(!propsWithItems.items[1].value);
+  });
+  test('clears pagination when clicking on a refinement', async () => {
+    const { history } = renderWithRouter(<FacetListFreeAll
+      {...propsWithItems}
+    />,
+    { route: '/search?subjects=Communication&page=3' });
+
+    // assert the refinements appear
+    await act(async () => {
+      fireEvent.click(screen.queryByText(TITLE));
+    });
+    // click a refinement option
+    await act(async () => {
+      fireEvent.click(screen.queryByText(NOT_FREE_LABEL));
+    });
+
+    // assert page was deleted and partners were not
+    expect(history.location.search).toEqual('?subjects=Communication');
   });
 });

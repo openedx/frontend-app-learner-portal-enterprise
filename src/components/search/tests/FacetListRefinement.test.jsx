@@ -111,4 +111,23 @@ describe('<FacetListRefinement />', () => {
     // assert the clicked refinement was added to the url
     expect(history.location.search).toEqual('?subjects=Communication');
   });
+
+  test('clears pagination when clicking on a refinement', async () => {
+    const { history } = renderWithRouter(<FacetListBase
+      {...propsForActiveRefinements}
+      refinementsFromQueryParams={{ ...propsForActiveRefinements.refinementsFromQueryParams, page: 3 }}
+    />, { route: '/search?page=3' });
+
+    // assert the refinements appear
+    await act(async () => {
+      fireEvent.click(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS));
+    });
+    // click a refinement option
+    await act(async () => {
+      fireEvent.click(screen.queryByText(SUBJECTS.COMMUNICATION));
+    });
+
+    // assert page was deleted and partners were not
+    expect(history.location.search).toEqual('?subjects=Communication');
+  });
 });

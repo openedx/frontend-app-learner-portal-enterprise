@@ -68,6 +68,7 @@ const SearchFilters = () => {
               showAllCatalogs={showAllCatalogs}
               setShowAllCatalogs={setShowAllCatalogs}
               title="Free/All"
+              refinementsFromQueryParams={refinementsFromQueryParams}
             />
           )}
           {searchFacets}
@@ -81,6 +82,7 @@ const SearchFilters = () => {
                 showAllCatalogs={showAllCatalogs}
                 setShowAllCatalogs={setShowAllCatalogs}
                 title="Free/All"
+                refinementsFromQueryParams={refinementsFromQueryParams}
               />
             )}
             {searchFacets}
