@@ -20,7 +20,7 @@ const DashboardSidebar = () => {
     },
     subscriptionPlan,
   } = useContext(AppContext);
-  const { offers } = useContext(UserSubsidyContext);
+  const { offers: { offersCount } } = useContext(UserSubsidyContext);
 
   const renderContactHelpText = () => {
     const message = EMAIL_MESSAGE;
@@ -47,9 +47,9 @@ const DashboardSidebar = () => {
             className="mb-3"
           />
         )}
-        { offers && (
+        { offersCount > 0 && (
           <OfferSummaryCard
-            offers={offers}
+            offersCount={offersCount}
             className="mb-3"
           />
         )}

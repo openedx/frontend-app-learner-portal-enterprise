@@ -29,11 +29,11 @@ const SubscriptionExpirationModal = () => {
   const renderTitle = () => {
     if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {
       return (
-        <small><b>{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</b></small>
+        <small className="font-weight-bold">{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</small>
       );
     }
     return (
-      <small><b>{SUBSCRIPTION_EXPIRED_MODAL_TITLE}</b></small>
+      <small className="font-weight-bold">{SUBSCRIPTION_EXPIRED_MODAL_TITLE}</small>
     );
   };
 
@@ -41,7 +41,7 @@ const SubscriptionExpirationModal = () => {
     const contactText = 'contact your learning manager';
     if (contactEmail) {
       return (
-        <MailtoLink to={contactEmail}><b>{contactText}</b></MailtoLink>
+        <MailtoLink to={contactEmail} className="font-weight-bold">{contactText}</MailtoLink>
       );
     }
     return contactText;
@@ -51,8 +51,8 @@ const SubscriptionExpirationModal = () => {
     const { username } = getAuthenticatedUser();
     return (
       <>
-        <a href={`${process.env.LMS_BASE_URL}/u/${username}`}>
-          <b>download your completed certificates</b>
+        <a href={`${process.env.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
+          download your completed certificates
         </a>
       </>
     );
@@ -62,7 +62,7 @@ const SubscriptionExpirationModal = () => {
     <>
       <p>
         Your company&#39;s access to your edX learning portal is expiring in
-        <b>{` ${daysUntilExpiration} `}</b>
+        <span className="font-weight-bold">{` ${daysUntilExpiration} `}</span>
         days. After it expires you will only have audit access to your courses.
       </p>
       <p>
@@ -73,7 +73,7 @@ const SubscriptionExpirationModal = () => {
         If you think this is an error or need help, {renderContactText()}.
       </p>
       <i>
-        Access expires on {moment(expirationDate).format('MMMM Do YYYY')}
+        Access expires on {moment(expirationDate).format('MMMM Do, YYYY')}.
       </i>
     </>
   );
@@ -81,9 +81,9 @@ const SubscriptionExpirationModal = () => {
   const renderExpiredBody = () => (
     <>
       <p>
-        You company&#39;s access to your edX learning portal has expired. you will only have audit
-        access to the courses you were enrolled in with your subscription (courses from codes will
-        still be fully accessible).
+        You company&#39;s access to your edX learning portal has expired. You will only have audit
+        access to the courses you were enrolled in with your subscription (courses from vouchers
+        will still be fully accessible).
       </p>
       <p>
         You can also {renderCertificateText()}.
@@ -92,7 +92,7 @@ const SubscriptionExpirationModal = () => {
         If you think this is an error or need help, {renderContactText()}.
       </p>
       <i>
-        Access expired on {moment(expirationDate).format('MMMM Do YYYY')}
+        Access expired on {moment(expirationDate).format('MMMM Do, YYYY')}.
       </i>
     </>
   );

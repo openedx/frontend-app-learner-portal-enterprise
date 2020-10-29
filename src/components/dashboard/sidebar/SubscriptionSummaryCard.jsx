@@ -51,8 +51,7 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const renderCardBody = () => (
     <>
       {daysUntilExpiration > SUBSCRIPTION_EXPIRED ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-      {' '}
-      <b>{moment(expirationDate).format('MMMM Do YYYY')}</b>
+      {' '}<span className="font-weight-bold">{moment(expirationDate).format('MMMM Do, YYYY')}</span>.
     </>
   );
 

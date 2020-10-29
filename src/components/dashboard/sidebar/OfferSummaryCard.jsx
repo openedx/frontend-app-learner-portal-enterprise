@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import SidebarCard from './SidebarCard';
 import { OFFER_SUMMARY_TITLE } from './data/constants';
 
-const OfferSummaryCard = ({ offers, className }) => {
-  const renderCardBody = (offersCount) => (
+const OfferSummaryCard = ({ offersCount, className }) => {
+  const renderCardBody = () => (
     <>
       <div className="text-center font-weight-bold h2">
         {offersCount}
@@ -16,24 +16,18 @@ const OfferSummaryCard = ({ offers, className }) => {
     </>
   );
 
-  const { offersCount } = offers;
-  if (offersCount > 0) {
-    return (
-      <SidebarCard
-        title={OFFER_SUMMARY_TITLE}
-        cardClassNames={className}
-      >
-        {renderCardBody(offersCount)}
-      </SidebarCard>
-    );
-  }
-  return null;
+  return (
+    <SidebarCard
+      title={OFFER_SUMMARY_TITLE}
+      cardClassNames={className}
+    >
+      {renderCardBody(offersCount)}
+    </SidebarCard>
+  );
 };
 
 OfferSummaryCard.propTypes = {
-  offers: PropTypes.shape({
-    offersCount: PropTypes.number,
-  }).isRequired,
+  offersCount: PropTypes.number.isRequired,
   className: PropTypes.string,
 };
 

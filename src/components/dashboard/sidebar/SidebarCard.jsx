@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Card } from '@edx/paragon';
 
-import './styles/_SidebarCard.scss';
-
 const SidebarCard = ({
   title,
   children,
@@ -28,7 +26,7 @@ SidebarCard.propTypes = {
 SidebarCard.defaultProps = {
   title: null,
   cardClassNames: 'shadow',
-  titleClassNames: '',
+  titleClassNames: undefined,
 };
 
 export default SidebarCard;
