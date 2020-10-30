@@ -9,7 +9,7 @@ import SidebarCard from './SidebarCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 export const CATALOG_ACCESS_CARD_TITLE = 'Catalog Access';
-export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
+export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a Course';
 export const NEED_HELP_BLOCK_TITLE = 'Need help?';
 export const EMAIL_MESSAGE = 'contact your organization\'s edX administrator';
 
