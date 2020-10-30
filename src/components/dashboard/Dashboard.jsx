@@ -14,7 +14,7 @@ import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully activated.';
 
 export default function Dashboard() {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
   const { state } = useLocation();
 
   const renderLicenseActivationSuccess = () => (
@@ -52,7 +52,7 @@ export default function Dashboard() {
             )}
           </MediaQuery>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
-          <SubscriptionExpirationModal />
+          {subscriptionPlan && <SubscriptionExpirationModal />}
         </div>
       </div>
     </>
