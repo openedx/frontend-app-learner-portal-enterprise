@@ -1,52 +1,40 @@
-import React, { useCallback } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
-
+import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
-import FacetDropdown from './FacetDropdown';
-import FacetItem from './FacetItem';
-
-import { NO_OPTIONS_FOUND } from './data/constants';
+import FacetListBase from './FacetListBase';
+import { FREE_ALL_ATTRIBUTE, SHOW_ALL_NAME } from './data/constants';
 
 const FacetListFreeAll = ({
-  title,
-  items,
   showAllCatalogs,
   setShowAllCatalogs,
   refinementsFromQueryParams,
+  ...props
 }) => {
-  const history = useHistory();
-  const handleInputOnChange = () => {
-    const refinements = { ...refinementsFromQueryParams };
-    delete refinements.page; // reset to page 1
-    setShowAllCatalogs(!showAllCatalogs);
-    history.push({ search: qs.stringify(refinements) });
-  };
-
-  const renderItems = useCallback(
-    () => {
-      if (!items || !items.length) {
-        return <span className="py-2 px-2">{NO_OPTIONS_FOUND}</span>;
-      }
-
-      return items.map(item => (
-        <FacetItem
-          key={item.label}
-          handleInputOnChange={handleInputOnChange}
-          item={item}
-          isChecked={item.value}
-          isRefined={item.value}
-        />
-      ));
-    },
-    [items],
+  const { search } = useLocation();
+  const queryParams = useMemo(
+    () => qs.parse(search),
+    [search],
   );
+  console.log('QUERY PARAMS Free/ALL', queryParams);
+  const showAllFromQuery = +queryParams[FREE_ALL_ATTRIBUTE];
+
+  useEffect(() => {
+    console.log('USE ALL')
+    if ([0, 1].includes(showAllFromQuery) && showAllFromQuery !== showAllCatalogs) {
+      console.log('setting show all to ', showAllFromQuery)
+      setShowAllCatalogs(showAllFromQuery);
+    }
+  }, [queryParams]);
 
   return (
-    <FacetDropdown
-      items={renderItems()}
-      title={title}
+    <FacetListBase
       isBold
+      refinementsFromQueryParams={refinementsFromQueryParams}
+      handleItemChange={(item) => {
+        return item.name === SHOW_ALL_NAME ? 1 : 0;
+      }}
+      {...props}
     />
   );
 };
@@ -55,7 +43,7 @@ FacetListFreeAll.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   title: PropTypes.string.isRequired,
   setShowAllCatalogs: PropTypes.func.isRequired,
-  showAllCatalogs: PropTypes.bool.isRequired,
+  showAllCatalogs: PropTypes.number.isRequired,
   refinementsFromQueryParams: PropTypes.shape().isRequired,
 };
 

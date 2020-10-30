@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '@edx/paragon';
 
-import { QUERY_PARAMS_TO_IGNORE } from './data/constants';
+import { FREE_ALL_ATTRIBUTE, QUERY_PARAMS_TO_IGNORE } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
+import { updateRefinementsFromQueryParams } from './data/utils';
 
 const ClearCurrentRefinements = ({ className, variant }) => {
   const history = useHistory();
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  const refinementsFromQueryParams = useRefinementsFromQueryParams({ clearing: true });
+  const { search } = useLocation();
+  const queryParams = useMemo(
+    () => qs.parse(search),
+    [search],
+  );
 
   /**
    * Called when clear filters button is clicked. Removes
@@ -20,7 +26,7 @@ const ClearCurrentRefinements = ({ className, variant }) => {
     const refinements = { ...refinementsFromQueryParams };
     delete refinements.page; // reset to page 1
 
-    Object.keys(refinements).forEach((key) => {
+    Object.keys(queryParams).forEach((key) => {
       if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
         delete refinements[key];
       }

@@ -10,6 +10,8 @@ import {
   SEARCH_FACET_FILTERS,
   QUERY_PARAM_FOR_SEARCH_QUERY,
   QUERY_PARAM_FOR_PAGE,
+  QUERY_PARAM_FOR_FEATURE_FLAGS,
+  FREE_ALL_ATTRIBUTE,
 } from './constants';
 
 import { isNull } from '../../../utils/common';
@@ -27,14 +29,15 @@ export const useRefinementsFromQueryParams = () => {
     () => {
       const refinements = {};
       const activeFacetAttributes = SEARCH_FACET_FILTERS.map(filter => filter.attribute);
+      const queriesToKeep = [QUERY_PARAM_FOR_PAGE, QUERY_PARAM_FOR_FEATURE_FLAGS, FREE_ALL_ATTRIBUTE];
 
       Object.entries(queryParams).forEach(([key, value]) => {
         if (key === QUERY_PARAM_FOR_SEARCH_QUERY) {
           refinements.q = value;
         }
 
-        if (key === QUERY_PARAM_FOR_PAGE) {
-          refinements.page = value;
+        if (queriesToKeep.includes(key)) {
+          refinements[key] = value;
         }
 
         if (activeFacetAttributes.includes(key)) {
@@ -131,7 +134,7 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
   useEffect(() => {
     // if there are no subscriptions or offers, we default to showing all catalogs
     if (!subscriptionPlan && offerCatalogs.length < 1) {
-      setShowAllCatalogs(true);
+      setShowAllCatalogs(1);
     }
   }, [subscriptionPlan, offerCatalogs.length]);
 
