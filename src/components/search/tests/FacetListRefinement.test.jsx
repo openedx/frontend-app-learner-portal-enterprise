@@ -2,7 +2,7 @@ import React from 'react';
 import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { FacetListBase } from '../FacetListRefinement';
+import { FacetListRefinementBase } from '../FacetListRefinement';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { FACET_ATTRIBUTES, SUBJECTS } from '../data/tests/constants';
@@ -45,9 +45,9 @@ const propsForActiveRefinements = {
   },
 };
 
-describe('<FacetListRefinement />', () => {
+describe('<FacetListRefinementBase />', () => {
   test('renders with no options', async () => {
-    renderWithRouter(<FacetListBase {...propsForNoRefinements} />);
+    renderWithRouter(<FacetListRefinementBase {...propsForNoRefinements} />);
 
     // assert facet title exists
     expect(screen.queryByText(FACET_ATTRIBUTES.SUBJECTS)).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe('<FacetListRefinement />', () => {
   });
 
   test('renders with options', async () => {
-    renderWithRouter(<FacetListBase {...propsForActiveRefinements} />);
+    renderWithRouter(<FacetListRefinementBase {...propsForActiveRefinements} />);
 
     // assert the "no options" message does not show
     expect(screen.queryByText(NO_OPTIONS_FOUND)).not.toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('<FacetListRefinement />', () => {
   });
 
   test('renders with options', async () => {
-    renderWithRouter(<FacetListBase {...propsForActiveRefinements} />);
+    renderWithRouter(<FacetListRefinementBase {...propsForActiveRefinements} />);
 
     // assert the "no options" message does not show
     await act(async () => {
@@ -95,7 +95,7 @@ describe('<FacetListRefinement />', () => {
   });
 
   test('supports clicking on a refinement', async () => {
-    const { history } = renderWithRouter(<FacetListBase {...propsForRefinements} />);
+    const { history } = renderWithRouter(<FacetListRefinementBase {...propsForRefinements} />);
 
     // assert the refinements appear
     await act(async () => {
@@ -113,7 +113,7 @@ describe('<FacetListRefinement />', () => {
   });
 
   test('clears pagination when clicking on a refinement', async () => {
-    const { history } = renderWithRouter(<FacetListBase
+    const { history } = renderWithRouter(<FacetListRefinementBase
       {...propsForActiveRefinements}
       refinementsFromQueryParams={{ ...propsForActiveRefinements.refinementsFromQueryParams, page: 3 }}
     />, { route: '/search?page=3' });

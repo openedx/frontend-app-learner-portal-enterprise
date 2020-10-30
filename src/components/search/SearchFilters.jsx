@@ -7,7 +7,7 @@ import CurrentRefinements from './CurrentRefinements';
 
 import MobileFilterMenu from './MobileFilterMenu';
 
-import { SEARCH_FACET_FILTERS } from './data/constants';
+import { SEARCH_FACET_FILTERS, FREE_ALL_ATTRIBUTE, SHOW_ALL_NAME, FREE_TO_ME_NAME } from './data/constants';
 import { useRefinementsFromQueryParams } from './data/hooks';
 import { sortItemsByLabelAsc } from './data/utils';
 
@@ -28,65 +28,69 @@ const SearchFilters = () => {
   const freeAllItems = useMemo(() => [
     {
       label: 'Free to me',
-      value: !showAllCatalogs,
+      // eslint-disable-next-line no-bitwise
+      value: showAllCatalogs ^ 1,
+      name: FREE_TO_ME_NAME,
     },
     {
       label: 'All courses',
       value: showAllCatalogs,
+      name: SHOW_ALL_NAME,
     },
   ], [showAllCatalogs]);
 
   const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  console.log('REFINEMENTS FROM QUERY SearchFilters', refinementsFromQueryParams)
 
   const searchFacets = useMemo(
-    () => SEARCH_FACET_FILTERS.map(({
-      title, attribute, isSortedAlphabetical,
-    }) => (
-      <FacetList
-        key={attribute}
-        title={title}
-        attribute={attribute}
-        limit={300} // this is replicating the B2C search experience
-        transformItems={(items) => {
-          if (isSortedAlphabetical) {
-            return sortItemsByLabelAsc(items);
-          }
-          return items;
-        }}
-        defaultRefinement={refinementsFromQueryParams[attribute]}
-        refinementsFromQueryParams={refinementsFromQueryParams}
-      />
-    )),
-    [refinementsFromQueryParams],
+    () => {
+      const filtersFromRefinements = SEARCH_FACET_FILTERS.map(({
+        title, attribute, isSortedAlphabetical,
+      }) => (
+        <FacetList
+          key={attribute}
+          title={title}
+          attribute={attribute}
+          limit={300} // this is replicating the B2C search experience
+          transformItems={(items) => {
+            if (isSortedAlphabetical) {
+              return sortItemsByLabelAsc(items);
+            }
+            return items;
+          }}
+          defaultRefinement={refinementsFromQueryParams[attribute]}
+          refinementsFromQueryParams={refinementsFromQueryParams}
+        />
+      ));
+      return (
+        <>
+          {features.ENROLL_WITH_CODES && (
+            <FacetListFreeAll
+              key={FREE_ALL_ATTRIBUTE}
+              items={freeAllItems}
+              showAllCatalogs={showAllCatalogs}
+              setShowAllCatalogs={setShowAllCatalogs}
+              title={FREE_ALL_TITLE}
+              refinementsFromQueryParams={refinementsFromQueryParams}
+              attribute={FREE_ALL_ATTRIBUTE}
+            />
+          )}
+          {filtersFromRefinements}
+        </>
+      );
+    },
+    [refinementsFromQueryParams, showAllCatalogs],
   );
 
   return (
     <>
       {showMobileMenu ? (
         <MobileFilterMenu className="mb-3">
-          {features.ENROLL_WITH_CODES && (
-            <FacetListFreeAll
-              items={freeAllItems}
-              showAllCatalogs={showAllCatalogs}
-              setShowAllCatalogs={setShowAllCatalogs}
-              title={FREE_ALL_TITLE}
-              refinementsFromQueryParams={refinementsFromQueryParams}
-            />
-          )}
           {searchFacets}
         </MobileFilterMenu>
       ) : (
         <>
           <div className="d-flex">
-            {features.ENROLL_WITH_CODES && (
-              <FacetListFreeAll
-                items={freeAllItems}
-                showAllCatalogs={showAllCatalogs}
-                setShowAllCatalogs={setShowAllCatalogs}
-                title={FREE_ALL_TITLE}
-                refinementsFromQueryParams={refinementsFromQueryParams}
-              />
-            )}
             {searchFacets}
           </div>
           <CurrentRefinements />
