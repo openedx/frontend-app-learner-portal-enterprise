@@ -1,16 +1,16 @@
 import React from 'react';
 import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { FREE_ALL_TITLE } from '../SearchFilters';
 
 import FacetListFreeAll from '../FacetListFreeAll';
-
+import { FACET_ATTRIBUTES, SUBJECTS } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 import { NO_OPTIONS_FOUND } from '../data/constants';
 
-const TITLE = 'Free / All';
 const propsForNoItems = {
   items: [],
-  title: TITLE,
+  title: FREE_ALL_TITLE,
   showAllCatalogs: false,
   setShowAllCatalogs: () => {},
 };
@@ -28,6 +28,10 @@ const propsWithItems = {
     value: false,
   },
   ],
+  refinementsFromQueryParams: {
+    [FACET_ATTRIBUTES.SUBJECTS]: [SUBJECTS.COMMUNICATION],
+    page: 3,
+  },
 };
 
 describe('<FacetListFreeAll />', () => {
@@ -35,11 +39,11 @@ describe('<FacetListFreeAll />', () => {
     renderWithRouter(<FacetListFreeAll {...propsForNoItems} />);
 
     // assert facet title exists
-    expect(screen.queryByText(TITLE)).toBeInTheDocument();
+    expect(screen.queryByText(FREE_ALL_TITLE)).toBeInTheDocument();
 
     // assert there are no options
     await act(async () => {
-      fireEvent.click(screen.queryByText(TITLE));
+      fireEvent.click(screen.queryByText(FREE_ALL_TITLE));
     });
     expect(screen.queryByText(NO_OPTIONS_FOUND)).toBeInTheDocument();
   });
@@ -52,7 +56,7 @@ describe('<FacetListFreeAll />', () => {
 
     // assert the refinements appear with appropriate counts
     await act(async () => {
-      fireEvent.click(screen.queryByText(TITLE));
+      fireEvent.click(screen.queryByText(FREE_ALL_TITLE));
     });
     expect(screen.queryByText(FREE_LABEL)).toBeInTheDocument();
     expect(screen.queryByText(NOT_FREE_LABEL)).toBeInTheDocument();
@@ -63,7 +67,7 @@ describe('<FacetListFreeAll />', () => {
 
     // assert the "no options" message does not show
     await act(async () => {
-      fireEvent.click(screen.queryByText(TITLE));
+      fireEvent.click(screen.queryByText(FREE_ALL_TITLE));
     });
     expect(screen.queryByText(NO_OPTIONS_FOUND)).not.toBeInTheDocument();
 
@@ -84,7 +88,7 @@ describe('<FacetListFreeAll />', () => {
 
     // assert the refinements appear
     await act(async () => {
-      fireEvent.click(screen.queryByText(TITLE));
+      fireEvent.click(screen.queryByText(FREE_ALL_TITLE));
     });
     expect(screen.queryByText(FREE_LABEL)).toBeInTheDocument();
 
@@ -95,5 +99,23 @@ describe('<FacetListFreeAll />', () => {
 
     // assert the spy was called with the correct value
     expect(spy).toHaveBeenCalledWith(!propsWithItems.items[1].value);
+  });
+  test('clears pagination when clicking on a refinement', async () => {
+    const { history } = renderWithRouter(<FacetListFreeAll
+      {...propsWithItems}
+    />,
+    { route: '/search?subjects=Communication&page=3' });
+
+    // assert the refinements appear
+    await act(async () => {
+      fireEvent.click(screen.queryByText(FREE_ALL_TITLE));
+    });
+    // click a refinement option
+    await act(async () => {
+      fireEvent.click(screen.queryByText(NOT_FREE_LABEL));
+    });
+
+    // assert page was deleted and subjects were not
+    expect(history.location.search).toEqual('?subjects=Communication');
   });
 });
