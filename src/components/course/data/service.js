@@ -16,6 +16,7 @@ export default class CourseService {
     } = options;
 
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
+    this.cachedAuthenticatedHttpClient = getAuthenticatedHttpClient({ useCache: true });
 
     this.courseKey = courseKey;
     this.courseRunKey = courseRunKey;
@@ -56,7 +57,7 @@ export default class CourseService {
 
   fetchCourseDetails() {
     const url = `${process.env.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}/`;
-    return this.authenticatedHttpClient.get(url);
+    return this.cachedAuthenticatedHttpClient.get(url);
   }
 
   fetchUserEnrollments() {
@@ -73,7 +74,7 @@ export default class CourseService {
   fetchEnterpriseCustomerContainsContent() {
     const options = { course_run_ids: this.courseKey, get_catalog_list: true };
     const url = `${process.env.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
-    return this.authenticatedHttpClient.get(url);
+    return this.cachedAuthenticatedHttpClient.get(url);
   }
 
   async fetchEnterpriseUserSubsidy() {
@@ -119,6 +120,6 @@ export default class CourseService {
       course_key: this.activeCourseRun.key,
     };
     const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
-    return this.authenticatedHttpClient.get(url);
+    return this.cachedAuthenticatedHttpClient.get(url);
   }
 }
