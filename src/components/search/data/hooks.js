@@ -1,55 +1,15 @@
 import {
-  useMemo, useState, useContext, useEffect,
+  useMemo, useContext, useEffect,
 } from 'react';
-import { useLocation } from 'react-router-dom';
-import qs from 'query-string';
 import { SearchContext } from '../SearchContext';
 import { features } from '../../../config';
 
 import {
-  SEARCH_FACET_FILTERS,
-  QUERY_PARAM_FOR_SEARCH_QUERY,
-  QUERY_PARAM_FOR_PAGE,
+  SHOW_ALL_NAME,
 } from './constants';
 
 import { isNull } from '../../../utils/common';
-
-export const useRefinementsFromQueryParams = () => {
-  const { search } = useLocation();
-  const [appliedRefinements, setAppliedRefinements] = useState({});
-
-  const queryParams = useMemo(
-    () => qs.parse(search),
-    [search],
-  );
-
-  useMemo(
-    () => {
-      const refinements = {};
-      const activeFacetAttributes = SEARCH_FACET_FILTERS.map(filter => filter.attribute);
-
-      Object.entries(queryParams).forEach(([key, value]) => {
-        if (key === QUERY_PARAM_FOR_SEARCH_QUERY) {
-          refinements.q = value;
-        }
-
-        if (key === QUERY_PARAM_FOR_PAGE) {
-          refinements.page = value;
-        }
-
-        if (activeFacetAttributes.includes(key)) {
-          const valueAsArray = value.includes(',') ? value.split(',') : [value];
-          refinements[key] = valueAsArray;
-        }
-      });
-
-      setAppliedRefinements(refinements);
-    },
-    [queryParams],
-  );
-
-  return appliedRefinements;
-};
+import { setKeyAction } from './actions';
 
 /**
  * Transforms items into an object with a key for each facet attribute
@@ -126,18 +86,18 @@ export const getCatalogString = (catalogs) => {
 
 export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, offerCatalogs = [] }) => {
   // default to showing all catalogs
-  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
+  const { activeRefinements, refinementsDispatch: dispatch } = useContext(SearchContext);
 
   useEffect(() => {
     // if there are no subscriptions or offers, we default to showing all catalogs
     if (!subscriptionPlan && offerCatalogs.length < 1) {
-      setShowAllCatalogs(true);
+      dispatch(setKeyAction(SHOW_ALL_NAME, 1));
     }
   }, [subscriptionPlan, offerCatalogs.length]);
 
   const filters = useMemo(
     () => {
-      if (showAllCatalogs) {
+      if (activeRefinements[SHOW_ALL_NAME]) {
         // show all enterprise catalogs
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
@@ -156,8 +116,8 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
       }
       return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
-    [enterpriseConfig, subscriptionPlan, offerCatalogs, showAllCatalogs],
+    [enterpriseConfig, subscriptionPlan, offerCatalogs, activeRefinements[SHOW_ALL_NAME]],
   );
 
-  return { filters, showAllCatalogs, setShowAllCatalogs };
+  return { filters };
 };

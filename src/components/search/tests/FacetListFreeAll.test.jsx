@@ -1,12 +1,12 @@
 import React from 'react';
 import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { FREE_ALL_TITLE, FREE_ALL_ATTRIBUTE } from '../SearchFilters';
+import { FREE_ALL_TITLE } from '../SearchFilters';
 
 import FacetListFreeAll from '../FacetListFreeAll';
 import { FACET_ATTRIBUTES, SUBJECTS } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
-import { NO_OPTIONS_FOUND } from '../data/constants';
+import { NO_OPTIONS_FOUND, FREE_ALL_ATTRIBUTE } from '../data/constants';
 
 const propsForNoItems = {
   items: [],

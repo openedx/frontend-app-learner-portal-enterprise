@@ -1,15 +1,16 @@
-import { QUERY_PARAMS_TO_IGNORE } from './constants';
-
 export const sortItemsByLabelAsc = items => (
   items.sort((a, b) => a.label.localeCompare(b.label))
 );
 
 export const updateRefinementsFromQueryParams = (refinements) => {
-  const newRefinements = { ...refinements };
-  Object.entries(newRefinements).forEach(([key, value]) => {
-    if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
-      newRefinements[key] = value.join(',');
+  const refinementsWithJoinedLists = {};
+  Object.entries(refinements).forEach(([key, value]) => {
+    let newValue = value;
+    if (Array.isArray(value)) {
+      newValue = value.join(',');
     }
+    refinementsWithJoinedLists[key] = newValue;
   });
-  return newRefinements;
+
+  return refinementsWithJoinedLists;
 };

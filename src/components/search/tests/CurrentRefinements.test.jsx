@@ -6,6 +6,7 @@ import { CurrentRefinementsBase } from '../CurrentRefinements';
 
 import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
+import SearchData from '../SearchContext';
 
 describe('<CurrentRefinements />', () => {
   const items = [{
@@ -17,7 +18,7 @@ describe('<CurrentRefinements />', () => {
   }];
 
   test('renders refinements and supports viewing all active refinements', () => {
-    renderWithRouter(<CurrentRefinementsBase items={items} />);
+    renderWithRouter(<SearchData><CurrentRefinementsBase items={items} /></SearchData>);
 
     // assert first 3 active refinements are visible
     expect(screen.queryByText(SUBJECTS.COMPUTER_SCIENCE)).toBeInTheDocument();
@@ -30,7 +31,7 @@ describe('<CurrentRefinements />', () => {
   });
 
   test('supports viewing all active refinements at once', () => {
-    renderWithRouter(<CurrentRefinementsBase items={items} />);
+    renderWithRouter(<SearchData><CurrentRefinementsBase items={items} /></SearchData>);
 
     // click the "+1" button to show all refinements
     fireEvent.click(screen.queryByText('+1', { exact: false }));
@@ -46,7 +47,7 @@ describe('<CurrentRefinements />', () => {
   });
 
   test('supports removing an active refinement from the url by clicking on it', async () => {
-    const { history } = renderWithRouter(<CurrentRefinementsBase items={items} />, {
+    const { history } = renderWithRouter(<SearchData><CurrentRefinementsBase items={items} /></SearchData>, {
       route: `/?subjects=${SUBJECTS.COMPUTER_SCIENCE},${SUBJECTS.COMMUNICATION}`,
     });
 
@@ -54,6 +55,6 @@ describe('<CurrentRefinements />', () => {
     fireEvent.click(screen.queryByText(SUBJECTS.COMMUNICATION));
 
     // assert the clicked refinement in the url is removed but others stay put
-    expect(history.location.search).toEqual('?subjects=Computer%20Science');
+    expect(history.location.search).toEqual('?showAll=0&subjects=Computer%20Science');
   });
 });

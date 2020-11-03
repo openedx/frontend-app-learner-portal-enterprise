@@ -1,4 +1,4 @@
-export const FREE_ALL_ATTRIBUTE = 'show_all';
+export const FREE_ALL_ATTRIBUTE = 'showAll';
 export const SHOW_ALL_NAME = 'showAll';
 export const FREE_TO_ME_NAME = 'freeToMe';
 
@@ -6,23 +6,28 @@ export const SEARCH_FACET_FILTERS = [
   {
     attribute: 'subjects',
     title: 'Subject',
+    name: 'subjects',
   },
   {
     attribute: 'partners.name',
     title: 'Partner',
     isSortedAlphabetical: true,
+    name: 'partners.name',
   },
   {
     attribute: 'programs',
     title: 'Program',
+    name: 'programs',
   },
   {
     attribute: 'level_type',
     title: 'Level',
+    name: 'level_type',
   },
   {
     attribute: 'availability',
     title: 'Availability',
+    name: 'availability',
   },
 ];
 

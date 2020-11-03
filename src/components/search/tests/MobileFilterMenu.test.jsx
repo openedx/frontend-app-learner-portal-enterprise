@@ -6,13 +6,20 @@ import { MobileFilterMenuBase } from '../MobileFilterMenu';
 
 import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
+import { SearchContext } from '../SearchContext';
+
+const MobileFilterMenuWrapper = (items, searchContext = { refinementsDispatch: jest.fn }) => (
+  <SearchContext.Provider value={searchContext}>
+    <MobileFilterMenuBase items={items}>
+      <span data-testid="did-i-render" />
+    </MobileFilterMenuBase>
+  </SearchContext.Provider>
+);
 
 describe('<MobileFilterMenu />', () => {
   test('renders the modal initially closed, but opens on Filters button click', () => {
     renderWithRouter(
-      <MobileFilterMenuBase items={[]}>
-        <span data-testid="did-i-render" />
-      </MobileFilterMenuBase>,
+      MobileFilterMenuWrapper([]),
     );
 
     // assert modal is initially hidden
@@ -36,9 +43,7 @@ describe('<MobileFilterMenu />', () => {
     }];
 
     renderWithRouter(
-      <MobileFilterMenuBase items={items}>
-        <span data-testid="did-i-render" />
-      </MobileFilterMenuBase>,
+      MobileFilterMenuWrapper(items),
     );
 
     // assert that "3 selected" appears in both places (i.e., the button that opens
@@ -51,9 +56,7 @@ describe('<MobileFilterMenu />', () => {
 
   test('renders with no active refinements', () => {
     renderWithRouter(
-      <MobileFilterMenuBase items={[]}>
-        <span data-testid="did-i-render" />
-      </MobileFilterMenuBase>,
+      MobileFilterMenuWrapper([]),
     );
 
     // assert that "3 selected" appears in both places (i.e., the button that opens

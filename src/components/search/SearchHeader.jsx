@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import SearchBox from './SearchBox';
 import SearchFilters from './SearchFilters';
 
-import { useRefinementsFromQueryParams } from './data/hooks';
+import { SearchContext } from './SearchContext';
 
 const SearchHeader = () => {
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  const { activeRefinements } = useContext(SearchContext);
 
-  const searchQueryFromQueryParams = refinementsFromQueryParams.q;
+  const searchQueryFromQueryParams = activeRefinements.q;
 
   return (
     <div className="bg-brand-primary">
@@ -18,7 +18,7 @@ const SearchHeader = () => {
             <SearchBox
               className="mb-3"
               defaultRefinement={searchQueryFromQueryParams}
-              refinementsFromQueryParams={refinementsFromQueryParams}
+              refinementsFromQueryParams={activeRefinements}
             />
           </div>
           <div className="col-12">

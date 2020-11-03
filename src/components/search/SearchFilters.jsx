@@ -1,14 +1,15 @@
 import React, { useMemo, useContext } from 'react';
 import { breakpoints } from '@edx/paragon';
 
-import FacetList from './FacetListRefinement';
-import FacetListFreeAll from './FacetListFreeAll';
+import FacetListRefinement from './FacetListRefinement';
+import FacetListBase from './FacetListBase';
 import CurrentRefinements from './CurrentRefinements';
 
 import MobileFilterMenu from './MobileFilterMenu';
 
-import { SEARCH_FACET_FILTERS, FREE_ALL_ATTRIBUTE, SHOW_ALL_NAME, FREE_TO_ME_NAME } from './data/constants';
-import { useRefinementsFromQueryParams } from './data/hooks';
+import {
+  SEARCH_FACET_FILTERS, FREE_ALL_ATTRIBUTE, SHOW_ALL_NAME,
+} from './data/constants';
 import { sortItemsByLabelAsc } from './data/utils';
 
 import { useWindowSize } from '../../utils/hooks';
@@ -19,7 +20,7 @@ export const FREE_ALL_TITLE = 'Free / All';
 
 const SearchFilters = () => {
   const size = useWindowSize();
-  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
+  const { activeRefinements, refinementsDispatch: dispatch } = useContext(SearchContext);
   const showMobileMenu = useMemo(
     () => size.width < breakpoints.small.maxWidth,
     [size],
@@ -29,25 +30,22 @@ const SearchFilters = () => {
     {
       label: 'Free to me',
       // eslint-disable-next-line no-bitwise
-      value: showAllCatalogs ^ 1,
-      name: FREE_TO_ME_NAME,
+      value: activeRefinements[SHOW_ALL_NAME] ^ 1,
+      name: SHOW_ALL_NAME,
     },
     {
       label: 'All courses',
-      value: showAllCatalogs,
+      value: activeRefinements[SHOW_ALL_NAME],
       name: SHOW_ALL_NAME,
     },
-  ], [showAllCatalogs]);
-
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
-  console.log('REFINEMENTS FROM QUERY SearchFilters', refinementsFromQueryParams)
+  ], [activeRefinements[SHOW_ALL_NAME]]);
 
   const searchFacets = useMemo(
     () => {
       const filtersFromRefinements = SEARCH_FACET_FILTERS.map(({
-        title, attribute, isSortedAlphabetical,
+        title, attribute, isSortedAlphabetical, name,
       }) => (
-        <FacetList
+        <FacetListRefinement
           key={attribute}
           title={title}
           attribute={attribute}
@@ -58,28 +56,32 @@ const SearchFilters = () => {
             }
             return items;
           }}
-          defaultRefinement={refinementsFromQueryParams[attribute]}
-          refinementsFromQueryParams={refinementsFromQueryParams}
+          refinementsFromQueryParams={activeRefinements}
+          defaultRefinement={activeRefinements[attribute]}
+          facetName={name}
+          facetValueType="array"
+          dispatch={dispatch}
         />
       ));
       return (
         <>
           {features.ENROLL_WITH_CODES && (
-            <FacetListFreeAll
+            <FacetListBase
               key={FREE_ALL_ATTRIBUTE}
               items={freeAllItems}
-              showAllCatalogs={showAllCatalogs}
-              setShowAllCatalogs={setShowAllCatalogs}
               title={FREE_ALL_TITLE}
-              refinementsFromQueryParams={refinementsFromQueryParams}
-              attribute={FREE_ALL_ATTRIBUTE}
+              facetName={FREE_ALL_ATTRIBUTE}
+              facetValueType="bool"
+              refinementsFromQueryParams={activeRefinements}
+              dispatch={dispatch}
+              isBold
             />
           )}
           {filtersFromRefinements}
         </>
       );
     },
-    [refinementsFromQueryParams, showAllCatalogs],
+    [activeRefinements],
   );
 
   return (
