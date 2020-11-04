@@ -55,6 +55,6 @@ describe('<CurrentRefinements />', () => {
     fireEvent.click(screen.queryByText(SUBJECTS.COMMUNICATION));
 
     // assert the clicked refinement in the url is removed but others stay put
-    expect(history.location.search).toEqual('?showAll=0&subjects=Computer%20Science');
+    expect(history.location.search).toEqual('?subjects=Computer%20Science');
   });
 });

@@ -6,14 +6,14 @@ import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { Pagination } from '@edx/paragon';
 
 import { SearchContext } from './SearchContext';
-import { setKeyAction, deleteKeyAction } from './data/actions';
+import { setRefinementAction, deleteRefinementAction } from './data/actions';
 
 export const SearchPaginationBase = ({
   nbPages,
   currentRefinement,
   maxPagesDisplayed,
 }) => {
-  const { refinementsDispatch } = useContext(SearchContext);
+  const { dispatch } = useContext(SearchContext);
 
   const icons = useMemo(
     () => ({
@@ -43,9 +43,9 @@ export const SearchPaginationBase = ({
 
   const handlePageSelect = (page) => {
     if (page > 1) {
-      refinementsDispatch(setKeyAction('page', page));
+      dispatch(setRefinementAction('page', page));
     } else {
-      refinementsDispatch(deleteKeyAction('page'));
+      dispatch(deleteRefinementAction('page'));
     }
   };
 

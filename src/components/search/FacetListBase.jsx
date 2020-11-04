@@ -6,16 +6,16 @@ import FacetDropdown from './FacetDropdown';
 import FacetItem from './FacetItem';
 import { SearchContext } from './SearchContext';
 import {
-  setArrayValue, setKeyAction, deleteKeyAction, removeArrayValue,
+  addToRefinementArray, setRefinementAction, deleteRefinementAction, removeFromRefinementArray,
 } from './data/actions';
 
 const FacetListBase = ({
-  title,
-  items,
-  isBold,
-  isCheckedOrRefinedField,
-  facetName,
+  attribute,
   facetValueType,
+  isBold,
+  isCheckedField,
+  items,
+  title,
 }) => {
   /**
    * Handles when a facet option is toggled by either updating the appropriate
@@ -23,21 +23,22 @@ const FacetListBase = ({
    * there's no longer any selected options for that facet attribute.
    */
 
-  const { activeRefinements: refinementsFromQueryParams, refinementsDispatch: dispatch } = useContext(SearchContext);
+  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
+
   const handleInputOnChange = (item) => {
     if (item.value && facetValueType === 'array') {
       if (item.value.length > 0) {
-        if (refinementsFromQueryParams[facetName]?.includes(item.label)) {
-          dispatch(removeArrayValue(facetName, item.label));
+        if (refinementsFromQueryParams[attribute]?.includes(item.label)) {
+          dispatch(removeFromRefinementArray(attribute, item.label));
         } else {
-          dispatch(setArrayValue(facetName, item.label));
+          dispatch(addToRefinementArray(attribute, item.label));
         }
       } else {
-        dispatch(deleteKeyAction(facetName));
+        dispatch(deleteRefinementAction(attribute));
       }
     } else if (facetValueType === 'bool') {
       // eslint-disable-next-line no-bitwise
-      dispatch(setKeyAction(facetName, refinementsFromQueryParams[item.name] ^ 1));
+      dispatch(setRefinementAction(attribute, refinementsFromQueryParams[attribute] ^ 1));
     }
   };
 
@@ -48,15 +49,14 @@ const FacetListBase = ({
       }
 
       return items.map(item => {
-        const isCheckOrRefined = isCheckedOrRefinedField ? item[isCheckedOrRefinedField] : !!item.value;
+        const isChecked = isCheckedField ? item[isCheckedField] : !!item.value;
 
         return (
           <FacetItem
             key={item.label}
             handleInputOnChange={handleInputOnChange}
             item={item}
-            isChecked={isCheckOrRefined}
-            isRefined={isCheckOrRefined}
+            isChecked={isChecked}
           />
         );
       });
@@ -74,16 +74,16 @@ const FacetListBase = ({
 };
 
 FacetListBase.defaultProps = {
-  isCheckedOrRefinedField: null,
+  isCheckedField: null,
 };
 
 FacetListBase.propTypes = {
+  attribute: PropTypes.string.isRequired,
+  facetValueType: PropTypes.oneOf(['array', 'bool']).isRequired,
+  isBold: PropTypes.bool.isRequired,
+  isCheckedField: PropTypes.string,
   items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   title: PropTypes.string.isRequired,
-  isBold: PropTypes.bool.isRequired,
-  isCheckedOrRefinedField: PropTypes.string,
-  facetName: PropTypes.string.isRequired,
-  facetValueType: PropTypes.oneOf(['array', 'bool']).isRequired,
 };
 
 export default FacetListBase;

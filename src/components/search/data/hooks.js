@@ -9,14 +9,14 @@ import {
 } from './constants';
 
 import { isNull } from '../../../utils/common';
-import { setKeyAction } from './actions';
+import { setRefinementAction } from './actions';
 
 /**
  * Transforms items into an object with a key for each facet attribute
  * with a list of that facet attribute's active selection(s).
  */
 export const useActiveRefinementsByAttribute = (items) => {
-  const activeRefinementsByAttribute = useMemo(
+  const refinementsFromQueryParamsByAttribute = useMemo(
     () => {
       const refinements = {};
       items.forEach((facet) => {
@@ -28,21 +28,21 @@ export const useActiveRefinementsByAttribute = (items) => {
     [items],
   );
 
-  return activeRefinementsByAttribute;
+  return refinementsFromQueryParamsByAttribute;
 };
 
 /**
- * Transforms activeRefinementsByAttribute into a flat array of objects,
+ * Transforms refinementsFromQueryParamsByAttribute into a flat array of objects,
  * each with an attribute key so we can still associate which attribute
  * a refinement is for.
  */
 export const useActiveRefinementsAsFlatArray = (items) => {
-  const activeRefinementsByAttribute = useActiveRefinementsByAttribute(items);
+  const refinementsFromQueryParamsByAttribute = useActiveRefinementsByAttribute(items);
 
-  const activeRefinementsAsFlatArray = useMemo(
+  const refinementsFromQueryParamsAsFlatArray = useMemo(
     () => {
       const refinements = [];
-      Object.entries(activeRefinementsByAttribute).forEach(([key, value]) => {
+      Object.entries(refinementsFromQueryParamsByAttribute).forEach(([key, value]) => {
         const updatedValue = value.map((item) => ({
           ...item,
           attribute: key,
@@ -51,10 +51,10 @@ export const useActiveRefinementsAsFlatArray = (items) => {
       });
       return refinements;
     },
-    [activeRefinementsByAttribute],
+    [refinementsFromQueryParamsByAttribute],
   );
 
-  return activeRefinementsAsFlatArray;
+  return refinementsFromQueryParamsAsFlatArray;
 };
 
 export const useNbHitsFromSearchResults = (searchResults) => {
@@ -86,18 +86,18 @@ export const getCatalogString = (catalogs) => {
 
 export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, offerCatalogs = [] }) => {
   // default to showing all catalogs
-  const { activeRefinements, refinementsDispatch: dispatch } = useContext(SearchContext);
+  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
 
   useEffect(() => {
     // if there are no subscriptions or offers, we default to showing all catalogs
     if (!subscriptionPlan && offerCatalogs.length < 1) {
-      dispatch(setKeyAction(SHOW_ALL_NAME, 1));
+      dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
   }, [subscriptionPlan, offerCatalogs.length]);
 
   const filters = useMemo(
     () => {
-      if (activeRefinements[SHOW_ALL_NAME]) {
+      if (refinementsFromQueryParams[SHOW_ALL_NAME]) {
         // show all enterprise catalogs
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
@@ -116,7 +116,7 @@ export const useDefaultSearchFilters = ({ enterpriseConfig, subscriptionPlan, of
       }
       return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
-    [enterpriseConfig, subscriptionPlan, offerCatalogs, activeRefinements[SHOW_ALL_NAME]],
+    [enterpriseConfig, subscriptionPlan, offerCatalogs, refinementsFromQueryParams[SHOW_ALL_NAME]],
   );
 
   return { filters };

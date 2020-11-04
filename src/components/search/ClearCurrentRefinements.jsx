@@ -2,11 +2,10 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
 import { SearchContext } from './SearchContext';
-import { clearFiltersAction } from './data/actions';
+import { clearRefinementsAction } from './data/actions';
 
 const ClearCurrentRefinements = ({ className, variant }) => {
-  // const history = useHistory();
-  const { refinementsDispatch } = useContext(SearchContext);
+  const { dispatch } = useContext(SearchContext);
 
   /**
    * Called when clear filters button is clicked. Removes
@@ -14,7 +13,7 @@ const ClearCurrentRefinements = ({ className, variant }) => {
    * updates the query params.
    */
   const handleClearAllRefinementsClick = () => {
-    refinementsDispatch(clearFiltersAction());
+    dispatch(clearRefinementsAction());
   };
 
   return (

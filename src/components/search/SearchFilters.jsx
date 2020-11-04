@@ -8,7 +8,7 @@ import CurrentRefinements from './CurrentRefinements';
 import MobileFilterMenu from './MobileFilterMenu';
 
 import {
-  SEARCH_FACET_FILTERS, FREE_ALL_ATTRIBUTE, SHOW_ALL_NAME,
+  SEARCH_FACET_FILTERS, SHOW_ALL_NAME,
 } from './data/constants';
 import { sortItemsByLabelAsc } from './data/utils';
 
@@ -20,30 +20,28 @@ export const FREE_ALL_TITLE = 'Free / All';
 
 const SearchFilters = () => {
   const size = useWindowSize();
-  const { activeRefinements, refinementsDispatch: dispatch } = useContext(SearchContext);
+  const { refinementsFromQueryParams } = useContext(SearchContext);
   const showMobileMenu = useMemo(
     () => size.width < breakpoints.small.maxWidth,
     [size],
   );
-
   const freeAllItems = useMemo(() => [
     {
       label: 'Free to me',
+      // flip the 1 to 0 or vice versa using boolean logic
       // eslint-disable-next-line no-bitwise
-      value: activeRefinements[SHOW_ALL_NAME] ^ 1,
-      name: SHOW_ALL_NAME,
+      value: refinementsFromQueryParams[SHOW_ALL_NAME] ^ 1,
     },
     {
       label: 'All courses',
-      value: activeRefinements[SHOW_ALL_NAME],
-      name: SHOW_ALL_NAME,
+      value: refinementsFromQueryParams[SHOW_ALL_NAME],
     },
-  ], [activeRefinements[SHOW_ALL_NAME]]);
+  ], [refinementsFromQueryParams[SHOW_ALL_NAME]]);
 
   const searchFacets = useMemo(
     () => {
       const filtersFromRefinements = SEARCH_FACET_FILTERS.map(({
-        title, attribute, isSortedAlphabetical, name,
+        title, attribute, isSortedAlphabetical,
       }) => (
         <FacetListRefinement
           key={attribute}
@@ -56,32 +54,28 @@ const SearchFilters = () => {
             }
             return items;
           }}
-          refinementsFromQueryParams={activeRefinements}
-          defaultRefinement={activeRefinements[attribute]}
-          facetName={name}
+          refinementsFromQueryParams={refinementsFromQueryParams}
+          defaultRefinement={refinementsFromQueryParams[attribute]}
           facetValueType="array"
-          dispatch={dispatch}
         />
       ));
       return (
         <>
           {features.ENROLL_WITH_CODES && (
             <FacetListBase
-              key={FREE_ALL_ATTRIBUTE}
-              items={freeAllItems}
-              title={FREE_ALL_TITLE}
-              facetName={FREE_ALL_ATTRIBUTE}
+              attribute={SHOW_ALL_NAME}
               facetValueType="bool"
-              refinementsFromQueryParams={activeRefinements}
-              dispatch={dispatch}
               isBold
+              items={freeAllItems}
+              key={SHOW_ALL_NAME}
+              title={FREE_ALL_TITLE}
             />
           )}
           {filtersFromRefinements}
         </>
       );
     },
-    [activeRefinements],
+    [refinementsFromQueryParams],
   );
 
   return (

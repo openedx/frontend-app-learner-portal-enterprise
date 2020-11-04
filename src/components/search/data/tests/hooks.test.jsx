@@ -81,7 +81,7 @@ describe('getCatalogString helper', () => {
 describe('useDefaultSearchFilters hook', () => {
   const enterpriseConfig = { uuid: TEST_ENTERPRISE_UUID };
   const subscriptionPlan = { enterpriseCatalogUuid: TEST_SUBSCRIPTION_CATALOG_UUID };
-  const activeRefinementsShowALL = { [SHOW_ALL_NAME]: 1 };
+  const refinementsFromQueryParamsShowAll = { refinementsFromQueryParams: { [SHOW_ALL_NAME]: 1 } };
   describe('no catalogs', () => {
     test('no subscription: returns enterprise customer uuid as filter', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
@@ -104,7 +104,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
         enterpriseConfig,
         subscriptionPlan,
-      }), { wrapper: SearchWrapper({ activeRefinements: activeRefinementsShowALL }) });
+      }), { wrapper: SearchWrapper({ ...refinementsFromQueryParamsShowAll }) });
 
       const { filters } = result.current;
       expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
@@ -138,7 +138,7 @@ describe('useDefaultSearchFilters hook', () => {
         enterpriseConfig,
         subscriptionPlan: null,
         offerCatalogs,
-      }), { wrapper: SearchWrapper({ activeRefinements: activeRefinementsShowALL }) });
+      }), { wrapper: SearchWrapper({ ...refinementsFromQueryParamsShowAll }) });
       const { filters } = result.current;
       expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
@@ -147,7 +147,7 @@ describe('useDefaultSearchFilters hook', () => {
         enterpriseConfig,
         subscriptionPlan,
         offerCatalogs,
-      }), { wrapper: SearchWrapper({ activeRefinements: activeRefinementsShowALL }) });
+      }), { wrapper: SearchWrapper({ ...refinementsFromQueryParamsShowAll }) });
       const { filters } = result.current;
       expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });

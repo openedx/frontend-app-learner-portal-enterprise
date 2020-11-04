@@ -6,20 +6,21 @@ import { MobileFilterMenuBase } from '../MobileFilterMenu';
 
 import { SUBJECTS, AVAILABLILITY, FACET_ATTRIBUTES } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
-import { SearchContext } from '../SearchContext';
+import SearchData from '../SearchContext';
 
-const MobileFilterMenuWrapper = (items, searchContext = { refinementsDispatch: jest.fn }) => (
-  <SearchContext.Provider value={searchContext}>
+// eslint-disable-next-line react/prop-types
+const MobileFilterMenuWrapper = ({ items }) => (
+  <SearchData>
     <MobileFilterMenuBase items={items}>
       <span data-testid="did-i-render" />
     </MobileFilterMenuBase>
-  </SearchContext.Provider>
+  </SearchData>
 );
 
 describe('<MobileFilterMenu />', () => {
   test('renders the modal initially closed, but opens on Filters button click', () => {
     renderWithRouter(
-      MobileFilterMenuWrapper([]),
+      <MobileFilterMenuWrapper items={[]} />,
     );
 
     // assert modal is initially hidden
@@ -43,7 +44,7 @@ describe('<MobileFilterMenu />', () => {
     }];
 
     renderWithRouter(
-      MobileFilterMenuWrapper(items),
+      <MobileFilterMenuWrapper items={items} />,
     );
 
     // assert that "3 selected" appears in both places (i.e., the button that opens
@@ -56,7 +57,7 @@ describe('<MobileFilterMenu />', () => {
 
   test('renders with no active refinements', () => {
     renderWithRouter(
-      MobileFilterMenuWrapper([]),
+      <MobileFilterMenuWrapper items={[]} />,
     );
 
     // assert that "3 selected" appears in both places (i.e., the button that opens

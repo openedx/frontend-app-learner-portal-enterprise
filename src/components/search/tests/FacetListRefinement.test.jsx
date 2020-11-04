@@ -114,7 +114,7 @@ describe('<FacetListRefinementBase />', () => {
     });
 
     // assert the clicked refinement was added to the url
-    expect(history.location.search).toEqual('?showAll=0&subjects=Communication');
+    expect(history.location.search).toEqual('?subjects=Communication');
   });
 
   test('clears pagination when clicking on a refinement', async () => {
@@ -138,6 +138,6 @@ describe('<FacetListRefinementBase />', () => {
     });
 
     // assert page was deleted and subjects were not
-    expect(history.location.search).toEqual('?showAll=0&subjects=Communication');
+    expect(history.location.search).toEqual('?subjects=Communication');
   });
 });

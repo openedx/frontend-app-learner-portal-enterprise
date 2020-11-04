@@ -21,7 +21,7 @@ const SearchResults = ({
   isSearchStalled,
   error,
 }) => {
-  const { activeRefinements: refinementsFromQueryParams } = useContext(SearchContext);
+  const { refinementsFromQueryParams } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
 
   const query = useMemo(

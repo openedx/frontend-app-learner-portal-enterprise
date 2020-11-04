@@ -5,18 +5,18 @@ import PropTypes from 'prop-types';
 import { useLocation, useHistory } from 'react-router-dom';
 import qs from 'query-string';
 import {
+  BOOLEAN_FILTERS,
   SEARCH_FACET_FILTERS,
-  QUERY_PARAM_FOR_SEARCH_QUERY,
-  QUERY_PARAM_FOR_PAGE,
 } from './data/constants';
-import { refinementsReducer, defaultState } from './data/reducer';
-import { setMultipleKeysAction } from './data/actions';
+import { refinementsReducer } from './data/reducer';
+import { setMultipleRefinementsAction } from './data/actions';
 import { updateRefinementsFromQueryParams } from './data/utils';
+import { useIsFirstRender } from '../utils/hooks';
 
 export const SearchContext = createContext();
 
 const SearchData = ({ children }) => {
-  const [activeRefinements, dispatch] = useReducer(refinementsReducer, defaultState);
+  const [refinementsFromQueryParams, dispatch] = useReducer(refinementsReducer, {});
 
   const { search } = useLocation();
   const history = useHistory();
@@ -26,38 +26,42 @@ const SearchData = ({ children }) => {
     [search],
   );
 
-  useMemo(
+  useEffect(
     () => {
       const activeFacetAttributes = SEARCH_FACET_FILTERS.map(filter => filter.attribute);
       const keysToSet = {};
       Object.entries(queryParams).forEach(([key, value]) => {
-        if (key === QUERY_PARAM_FOR_SEARCH_QUERY) {
-          keysToSet.q = value;
-        }
-
-        if (key === QUERY_PARAM_FOR_PAGE) {
-          keysToSet.page = value;
-        }
-
         if (activeFacetAttributes.includes(key)) {
           const valueAsArray = value.includes(',') ? value.split(',') : [value];
           keysToSet[key] = valueAsArray;
+        } else if (BOOLEAN_FILTERS.includes(key)) {
+          // convert a string into a number (this should be a 1 or 0)
+          keysToSet[key] = +value;
+        } else {
+          keysToSet[key] = value;
         }
       });
-      dispatch(setMultipleKeysAction(keysToSet));
+      dispatch(setMultipleRefinementsAction(keysToSet));
     },
-    [queryParams],
+    [search],
   );
 
-  useEffect(() => {
-    const refinementsWithJoinedLists = updateRefinementsFromQueryParams(activeRefinements);
+  const newQueryString = useMemo(() => {
+    const refinementsWithJoinedLists = updateRefinementsFromQueryParams(refinementsFromQueryParams);
+    return qs.stringify(refinementsWithJoinedLists);
+  }, [refinementsFromQueryParams]);
 
-    history.push({ search: qs.stringify(refinementsWithJoinedLists) });
-  }, [activeRefinements]);
+  const isFirstRender = useIsFirstRender();
+
+  useEffect(() => {
+    if (!isFirstRender) {
+      history.push({ search: newQueryString });
+    }
+  }, [newQueryString]);
 
   const value = {
-    activeRefinements,
-    refinementsDispatch: dispatch,
+    refinementsFromQueryParams,
+    dispatch,
   };
 
   return (

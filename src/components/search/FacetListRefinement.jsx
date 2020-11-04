@@ -9,18 +9,17 @@ export const FacetListRefinementBase = ({
 }) => (
   <FacetListBase
     isBold={currentRefinement.length > 0}
-    isCheckedOrRefinedField="isRefined"
+    isCheckedField="isRefined"
     {...props}
   />
 );
 
 FacetListRefinementBase.propTypes = {
-  items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   attribute: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
   currentRefinement: PropTypes.arrayOf(PropTypes.string).isRequired,
+  items: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   refinementsFromQueryParams: PropTypes.shape().isRequired,
-  facetName: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
 export default connectRefinementList(FacetListRefinementBase);

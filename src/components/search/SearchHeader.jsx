@@ -6,9 +6,9 @@ import SearchFilters from './SearchFilters';
 import { SearchContext } from './SearchContext';
 
 const SearchHeader = () => {
-  const { activeRefinements } = useContext(SearchContext);
+  const { refinementsFromQueryParams } = useContext(SearchContext);
 
-  const searchQueryFromQueryParams = activeRefinements.q;
+  const searchQueryFromQueryParams = refinementsFromQueryParams.q;
 
   return (
     <div className="bg-brand-primary">
@@ -18,7 +18,7 @@ const SearchHeader = () => {
             <SearchBox
               className="mb-3"
               defaultRefinement={searchQueryFromQueryParams}
-              refinementsFromQueryParams={activeRefinements}
+              refinementsFromQueryParams={refinementsFromQueryParams}
             />
           </div>
           <div className="col-12">

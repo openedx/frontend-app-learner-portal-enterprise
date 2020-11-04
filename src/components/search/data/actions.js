@@ -1,49 +1,36 @@
-export const DELETE_KEY = 'deleteKey';
-export const DELETE_MULTIPLE_KEYS = 'deleteMultipleKeys';
-export const SET_KEY = 'setKey';
-export const CLEAR_FILTERS = 'clear';
-export const SET_MULTIPLE_KEYS = 'setKeys';
-export const SET_ARRAY_VALUE = 'setArrayValue';
-export const REMOVE_ARRAY_VALUE = 'REMOVE_ARRAY_VALUE';
-export const UPDATE_ARRAY_VALUE = 'UPDATE_ARRAY_VALUE';
+export const DELETE_REFINEMENT = 'DELETE_REFINEMENT';
+export const SET_REFINEMENT = 'SET_REFINEMENT';
+export const CLEAR_REFINEMENTS = 'CLEAR_REFINEMENTS';
+export const SET_REFINEMENTS_FROM_QUERY_PARAMS = 'SET_REFINEMENTS_FROM_QUERY_PARAMS';
+export const ADD_TO_REFINEMENT_ARRAY = 'ADD_TO_REFINEMENT_ARRAY';
+export const REMOVE_FROM_REFINEMENT_ARRAY = 'REMOVE_FROM_REFINEMENT_ARRAY';
 
-export const deleteKeyAction = (key) => ({
-  type: DELETE_KEY,
+export const deleteRefinementAction = (key) => ({
+  type: DELETE_REFINEMENT,
   key,
 });
 
-export const deleteMultipleKeysAction = (keys) => ({
-  type: DELETE_MULTIPLE_KEYS,
-  keys,
-});
-
-export const setKeyAction = (key, value) => ({
-  type: SET_KEY,
+export const setRefinementAction = (key, value) => ({
+  type: SET_REFINEMENT,
   key,
   value,
 });
 
-export const setMultipleKeysAction = (newKeyValues = {}) => ({
-  type: SET_MULTIPLE_KEYS,
+export const setMultipleRefinementsAction = (newKeyValues = {}) => ({
+  type: SET_REFINEMENTS_FROM_QUERY_PARAMS,
   payload: newKeyValues,
 });
 
-export const clearFiltersAction = () => ({ type: CLEAR_FILTERS });
+export const clearRefinementsAction = () => ({ type: CLEAR_REFINEMENTS });
 
-export const setArrayValue = (key, value) => ({
-  type: SET_ARRAY_VALUE,
+export const addToRefinementArray = (key, value) => ({
+  type: ADD_TO_REFINEMENT_ARRAY,
   key,
   value,
 });
 
-export const removeArrayValue = (key, value) => ({
-  type: REMOVE_ARRAY_VALUE,
-  key,
-  value,
-});
-
-export const updateArrayValue = (key, value) => ({
-  type: UPDATE_ARRAY_VALUE,
+export const removeFromRefinementArray = (key, value) => ({
+  type: REMOVE_FROM_REFINEMENT_ARRAY,
   key,
   value,
 });

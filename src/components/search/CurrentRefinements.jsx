@@ -16,7 +16,7 @@ import {
   useActiveRefinementsAsFlatArray,
 } from './data/hooks';
 import { SearchContext } from './SearchContext';
-import { removeArrayValue, deleteKeyAction } from './data/actions';
+import { removeFromRefinementArray, deleteRefinementAction } from './data/actions';
 
 export const CurrentRefinementsBase = ({ items }) => {
   if (!items || !items.length) {
@@ -24,7 +24,7 @@ export const CurrentRefinementsBase = ({ items }) => {
   }
 
   const [showAllRefinements, setShowAllRefinements] = useState(false);
-  const { activeRefinements: refinementsFromQueryParams, refinementsDispatch: dispatch } = useContext(SearchContext);
+  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
 
   const activeRefinementsAsFlatArray = useActiveRefinementsAsFlatArray(items);
 
@@ -55,9 +55,9 @@ export const CurrentRefinementsBase = ({ items }) => {
     if (!QUERY_PARAMS_TO_IGNORE.includes(facetName) && refinementsFromQueryParams[facetName]
     && refinementsFromQueryParams[facetName].includes(item.label)) {
       if (refinementsFromQueryParams[facetName].length === 1) {
-        dispatch(deleteKeyAction(facetName));
+        dispatch(deleteRefinementAction(facetName));
       } else {
-        dispatch(removeArrayValue(facetName, item.label));
+        dispatch(removeFromRefinementArray(facetName, item.label));
       }
     }
   };

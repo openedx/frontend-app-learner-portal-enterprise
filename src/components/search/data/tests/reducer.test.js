@@ -3,64 +3,64 @@ import { valueArrayReducer, refinementsReducer } from '../reducer';
 import { QUERY_PARAM_FOR_FEATURE_FLAGS, QUERY_PARAM_FOR_SEARCH_QUERY, QUERY_PARAM_FOR_PAGE } from '../constants';
 
 describe('valueArrayReducer', () => {
-  it('deletes the item if it is the only item in the array', () => {
+  it('removes the item if it is the only item in the refinements array', () => {
     const initialState = ['foo'];
-    expect(valueArrayReducer(initialState, actions.removeArrayValue('subjects', 'foo'))).toEqual([]);
+    expect(valueArrayReducer(initialState, actions.removeFromRefinementArray('subjects', 'foo'))).toEqual([]);
   });
-  it('deletes only the item from the array', () => {
+  it('deletes only the item in question from the refinements array', () => {
     const initialState = ['foo', 'bar'];
-    expect(valueArrayReducer(initialState, actions.removeArrayValue('sujects', 'foo'))).toEqual(['bar']);
+    expect(valueArrayReducer(initialState, actions.removeFromRefinementArray('sujects', 'foo'))).toEqual(['bar']);
   });
-  it('adds the item to the array if it is not present - undefined initially', () => {
+  it('adds the item to the refinements array if it is not present - undefined initially', () => {
     const initialState = undefined;
-    expect(valueArrayReducer(initialState, actions.setArrayValue('subjects', 'foo'))).toEqual(['foo']);
+    expect(valueArrayReducer(initialState, actions.addToRefinementArray('subjects', 'foo'))).toEqual(['foo']);
   });
-  it('adds the item to an existing array', () => {
+  it('adds the item to an existing refinements array', () => {
     const initialState = ['bar'];
-    expect(valueArrayReducer(initialState, actions.setArrayValue('subjects', 'foo'))).toEqual(['bar', 'foo']);
+    expect(valueArrayReducer(initialState, actions.addToRefinementArray('subjects', 'foo'))).toEqual(['bar', 'foo']);
   });
 });
 
 describe('refinementsReducer', () => {
-  it('sets keys', () => {
+  it('sets refinements', () => {
     const initialState = { page: 4 };
-    expect(refinementsReducer(initialState, actions.setKeyAction('foo', 'bar'))).toEqual({ foo: 'bar' });
+    expect(refinementsReducer(initialState, actions.setRefinementAction('foo', 'bar'))).toEqual({ foo: 'bar' });
   });
-  it('deletes keys', () => {
+  it('deletes refinements', () => {
     const initialState = { foo: 'bar', bears: 'rCool', page: 2 };
-    expect(refinementsReducer(initialState, actions.deleteKeyAction('foo'))).toEqual({ bears: 'rCool' });
+    expect(refinementsReducer(initialState, actions.deleteRefinementAction('foo'))).toEqual({ bears: 'rCool' });
   });
-  it('sets multiple keys', () => {
-    const initialState = { foo: 'bar', page: 2 };
+  it('sets multiple refinements, removing refinements that are not in the ignore list', () => {
+    const initialState = { foo: 'bar', page: 2, q: 'bar' };
     const itemsToAdd = { baz: 'bop', bears: 'rCool' };
     expect(refinementsReducer(
       initialState,
-      actions.setMultipleKeysAction({ baz: 'bop', bears: 'rCool', page: 2 }),
-    )).toEqual({ ...initialState, ...itemsToAdd });
+      actions.setMultipleRefinementsAction({ baz: 'bop', bears: 'rCool', page: 2 }),
+    )).toEqual({ page: 2, q: 'bar', ...itemsToAdd });
   });
-  it('sets an array value - key does not exist', () => {
+  it('sets a refinement array value - refinement does not exist', () => {
     const initialState = { page: 2 };
-    expect(refinementsReducer(initialState, actions.setArrayValue('foo', 'bar'))).toEqual({ foo: ['bar'] });
+    expect(refinementsReducer(initialState, actions.addToRefinementArray('foo', 'bar'))).toEqual({ foo: ['bar'] });
   });
-  it('sets an array value - key exists', () => {
+  it('sets a refinement array value - refinement exists', () => {
     const initialState = { foo: ['baz'], page: 2 };
-    expect(refinementsReducer(initialState, actions.setArrayValue('foo', 'bar'))).toEqual({ foo: ['baz', 'bar'] });
+    expect(refinementsReducer(initialState, actions.addToRefinementArray('foo', 'bar'))).toEqual({ foo: ['baz', 'bar'] });
   });
-  it('does not error when removing a key that does not exist', () => {
+  it('does not error when removing a refinement that does not exist', () => {
     const initialState = { bears: 'Rus', page: 2 };
-    expect(refinementsReducer(initialState, actions.removeArrayValue('foo', 'bar'))).toEqual(initialState);
+    expect(refinementsReducer(initialState, actions.removeFromRefinementArray('foo', 'bar'))).toEqual(initialState);
   });
-  it('removes an existing array value', () => {
+  it('removes an existing refinement array value', () => {
     const initialState = { foo: ['baz', 'bar'], page: 2 };
-    expect(refinementsReducer(initialState, actions.removeArrayValue('foo', 'bar'))).toEqual({ foo: ['baz'] });
+    expect(refinementsReducer(initialState, actions.removeFromRefinementArray('foo', 'bar'))).toEqual({ foo: ['baz'] });
   });
   [
     { initialState: { subjects: ['Kittens'], [QUERY_PARAM_FOR_PAGE]: 3 }, expectedResult: {} },
     { initialState: { foo: 'bar', [QUERY_PARAM_FOR_FEATURE_FLAGS]: 'featureName' }, expectedResult: { [QUERY_PARAM_FOR_FEATURE_FLAGS]: 'featureName' } },
     { initialState: { [QUERY_PARAM_FOR_SEARCH_QUERY]: 'foo' }, expectedResult: { [QUERY_PARAM_FOR_SEARCH_QUERY]: 'foo' } },
   ].forEach(({ initialState, expectedResult }, index) => {
-    it(`clears all filters ${index}`, () => {
-      expect(refinementsReducer(initialState, actions.clearFiltersAction())).toEqual(expectedResult);
+    it(`clears all refinements ${index}`, () => {
+      expect(refinementsReducer(initialState, actions.clearRefinementsAction())).toEqual(expectedResult);
     });
   });
 });
