@@ -23,7 +23,6 @@ describe('<SubscriptionSummaryCard />', () => {
     renderWithRouter(
       <SubscriptionSummaryCard subscriptionPlan={subscriptionPlan} />,
     );
-    screen.debug();
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_ACTIVE_BADGE_VARIANT}`);
