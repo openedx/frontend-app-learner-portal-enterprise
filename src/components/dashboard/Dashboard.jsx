@@ -27,6 +27,7 @@ export default function Dashboard() {
               {LICENCE_ACTIVATION_MESSAGE}
             </>
           )}
+          onClose={() => {}}
           open
         />
       </div>
