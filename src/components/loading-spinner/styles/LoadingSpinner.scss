@@ -1,0 +1,10 @@
+.loading-spinner {
+  animation: visibilityAnimation 0s 100ms forwards;
+  visibility: hidden;
+}
+
+@keyframes visibilityAnimation {
+  to {
+    visibility: visible;
+  }
+}
