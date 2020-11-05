@@ -27,6 +27,7 @@ const configuration = {
     ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY,
     ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME,
   },
+  USE_API_CACHE: process.env.USE_API_CACHE,
 };
 
 const features = {
