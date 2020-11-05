@@ -1,5 +1,3 @@
-export const ALGOLIA_INDEX_NAME = 'enterprise_catalog_new';
-
 export const SEARCH_FACET_FILTERS = [
   {
     attribute: 'subjects',
