@@ -3,16 +3,18 @@ import { act, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { FREE_ALL_TITLE } from '../SearchFilters';
 
-import FacetListFreeAll from '../FacetListFreeAll';
+import FacetListBase from '../FacetListBase';
 import { FACET_ATTRIBUTES, SUBJECTS } from '../data/tests/constants';
 import { renderWithRouter } from '../../../utils/tests';
-import { NO_OPTIONS_FOUND } from '../data/constants';
+import { NO_OPTIONS_FOUND, SHOW_ALL_NAME } from '../data/constants';
+import SearchData from '../SearchContext';
 
 const propsForNoItems = {
   items: [],
   title: FREE_ALL_TITLE,
-  showAllCatalogs: false,
-  setShowAllCatalogs: () => {},
+  attribute: SHOW_ALL_NAME,
+  isBold: true,
+  facetValueType: 'bool',
 };
 
 const FREE_LABEL = 'Free';
@@ -21,11 +23,11 @@ const propsWithItems = {
   ...propsForNoItems,
   items: [{
     label: FREE_LABEL,
-    value: true,
+    value: 1,
   },
   {
     label: NOT_FREE_LABEL,
-    value: false,
+    value: 0,
   },
   ],
   refinementsFromQueryParams: {
@@ -34,9 +36,9 @@ const propsWithItems = {
   },
 };
 
-describe('<FacetListFreeAll />', () => {
+describe('<FacetListBase />', () => {
   test('renders with no options', async () => {
-    renderWithRouter(<FacetListFreeAll {...propsForNoItems} />);
+    renderWithRouter(<SearchData><FacetListBase {...propsForNoItems} /></SearchData>);
 
     // assert facet title exists
     expect(screen.queryByText(FREE_ALL_TITLE)).toBeInTheDocument();
@@ -49,7 +51,7 @@ describe('<FacetListFreeAll />', () => {
   });
 
   test('renders with options', async () => {
-    renderWithRouter(<FacetListFreeAll {...propsWithItems} />);
+    renderWithRouter(<SearchData><FacetListBase {...propsWithItems} /></SearchData>);
 
     // assert the "no options" message does not show
     expect(screen.queryByText(NO_OPTIONS_FOUND)).not.toBeInTheDocument();
@@ -63,7 +65,7 @@ describe('<FacetListFreeAll />', () => {
   });
 
   test('renders with options', async () => {
-    renderWithRouter(<FacetListFreeAll {...propsWithItems} />);
+    renderWithRouter(<SearchData><FacetListBase {...propsWithItems} /></SearchData>);
 
     // assert the "no options" message does not show
     await act(async () => {
@@ -80,11 +82,13 @@ describe('<FacetListFreeAll />', () => {
   });
 
   test('supports clicking on a refinement', async () => {
-    const spy = jest.fn();
-    renderWithRouter(<FacetListFreeAll
-      {...propsWithItems}
-      setShowAllCatalogs={spy}
-    />);
+    const { history } = renderWithRouter(
+      <SearchData>
+        <FacetListBase
+          {...propsWithItems}
+        />
+      </SearchData>,
+    );
 
     // assert the refinements appear
     await act(async () => {
@@ -97,14 +101,17 @@ describe('<FacetListFreeAll />', () => {
       fireEvent.click(screen.queryByText(NOT_FREE_LABEL));
     });
 
-    // assert the spy was called with the correct value
-    expect(spy).toHaveBeenCalledWith(!propsWithItems.items[1].value);
+    expect(history.location.search).toEqual('?showAll=1');
   });
   test('clears pagination when clicking on a refinement', async () => {
-    const { history } = renderWithRouter(<FacetListFreeAll
-      {...propsWithItems}
-    />,
-    { route: '/search?subjects=Communication&page=3' });
+    const { history } = renderWithRouter(
+      <SearchData>
+        <FacetListBase
+          {...propsWithItems}
+        />
+      </SearchData>,
+      { route: '/search?subjects=Communication&page=3' },
+    );
 
     // assert the refinements appear
     await act(async () => {
@@ -116,6 +123,6 @@ describe('<FacetListFreeAll />', () => {
     });
 
     // assert page was deleted and subjects were not
-    expect(history.location.search).toEqual('?subjects=Communication');
+    expect(history.location.search).toEqual('?showAll=1&subjects=Communication');
   });
 });

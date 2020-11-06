@@ -6,15 +6,16 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import SearchHeader from './SearchHeader';
 import SearchResults from './SearchResults';
+import { configuration } from '../../config';
 
-import { ALGOLIA_INDEX_NAME, NUM_RESULTS_PER_PAGE } from './data/constants';
+import { NUM_RESULTS_PER_PAGE } from './data/constants';
 import { useDefaultSearchFilters } from './data/hooks';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const searchClient = algoliasearch(
-  process.env.ALGOLIA_APP_ID,
-  process.env.ALGOLIA_SEARCH_API_KEY,
+  configuration.ALGOLIA.APP_ID,
+  configuration.ALGOLIA.SEARCH_API_KEY,
 );
 
 const Search = () => {
@@ -33,7 +34,7 @@ const Search = () => {
     <>
       <Helmet title={PAGE_TITLE} />
       <InstantSearch
-        indexName={ALGOLIA_INDEX_NAME}
+        indexName={configuration.ALGOLIA.INDEX_NAME}
         searchClient={searchClient}
       >
         <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />

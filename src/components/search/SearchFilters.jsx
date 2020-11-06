@@ -1,14 +1,15 @@
 import React, { useMemo, useContext } from 'react';
 import { breakpoints } from '@edx/paragon';
 
-import FacetList from './FacetListRefinement';
-import FacetListFreeAll from './FacetListFreeAll';
+import FacetListRefinement from './FacetListRefinement';
+import FacetListBase from './FacetListBase';
 import CurrentRefinements from './CurrentRefinements';
 
 import MobileFilterMenu from './MobileFilterMenu';
 
-import { SEARCH_FACET_FILTERS } from './data/constants';
-import { useRefinementsFromQueryParams } from './data/hooks';
+import {
+  SEARCH_FACET_FILTERS, SHOW_ALL_NAME,
+} from './data/constants';
 import { sortItemsByLabelAsc } from './data/utils';
 
 import { useWindowSize } from '../../utils/hooks';
@@ -19,44 +20,61 @@ export const FREE_ALL_TITLE = 'Free / All';
 
 const SearchFilters = () => {
   const size = useWindowSize();
-  const { showAllCatalogs, setShowAllCatalogs } = useContext(SearchContext);
+  const { refinementsFromQueryParams } = useContext(SearchContext);
   const showMobileMenu = useMemo(
     () => size.width < breakpoints.small.maxWidth,
     [size],
   );
-
   const freeAllItems = useMemo(() => [
     {
       label: 'Free to me',
-      value: !showAllCatalogs,
+      // flip the 1 to 0 or vice versa using boolean logic
+      // eslint-disable-next-line no-bitwise
+      value: refinementsFromQueryParams[SHOW_ALL_NAME] ^ 1,
     },
     {
       label: 'All courses',
-      value: showAllCatalogs,
+      value: refinementsFromQueryParams[SHOW_ALL_NAME],
     },
-  ], [showAllCatalogs]);
-
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  ], [refinementsFromQueryParams[SHOW_ALL_NAME]]);
 
   const searchFacets = useMemo(
-    () => SEARCH_FACET_FILTERS.map(({
-      title, attribute, isSortedAlphabetical,
-    }) => (
-      <FacetList
-        key={attribute}
-        title={title}
-        attribute={attribute}
-        limit={300} // this is replicating the B2C search experience
-        transformItems={(items) => {
-          if (isSortedAlphabetical) {
-            return sortItemsByLabelAsc(items);
-          }
-          return items;
-        }}
-        defaultRefinement={refinementsFromQueryParams[attribute]}
-        refinementsFromQueryParams={refinementsFromQueryParams}
-      />
-    )),
+    () => {
+      const filtersFromRefinements = SEARCH_FACET_FILTERS.map(({
+        title, attribute, isSortedAlphabetical,
+      }) => (
+        <FacetListRefinement
+          key={attribute}
+          title={title}
+          attribute={attribute}
+          limit={300} // this is replicating the B2C search experience
+          transformItems={(items) => {
+            if (isSortedAlphabetical) {
+              return sortItemsByLabelAsc(items);
+            }
+            return items;
+          }}
+          refinementsFromQueryParams={refinementsFromQueryParams}
+          defaultRefinement={refinementsFromQueryParams[attribute]}
+          facetValueType="array"
+        />
+      ));
+      return (
+        <>
+          {features.ENROLL_WITH_CODES && (
+            <FacetListBase
+              attribute={SHOW_ALL_NAME}
+              facetValueType="bool"
+              isBold
+              items={freeAllItems}
+              key={SHOW_ALL_NAME}
+              title={FREE_ALL_TITLE}
+            />
+          )}
+          {filtersFromRefinements}
+        </>
+      );
+    },
     [refinementsFromQueryParams],
   );
 
@@ -64,29 +82,11 @@ const SearchFilters = () => {
     <>
       {showMobileMenu ? (
         <MobileFilterMenu className="mb-3">
-          {features.ENROLL_WITH_CODES && (
-            <FacetListFreeAll
-              items={freeAllItems}
-              showAllCatalogs={showAllCatalogs}
-              setShowAllCatalogs={setShowAllCatalogs}
-              title={FREE_ALL_TITLE}
-              refinementsFromQueryParams={refinementsFromQueryParams}
-            />
-          )}
           {searchFacets}
         </MobileFilterMenu>
       ) : (
         <>
           <div className="d-flex">
-            {features.ENROLL_WITH_CODES && (
-              <FacetListFreeAll
-                items={freeAllItems}
-                showAllCatalogs={showAllCatalogs}
-                setShowAllCatalogs={setShowAllCatalogs}
-                title={FREE_ALL_TITLE}
-                refinementsFromQueryParams={refinementsFromQueryParams}
-              />
-            )}
             {searchFacets}
           </div>
           <CurrentRefinements />

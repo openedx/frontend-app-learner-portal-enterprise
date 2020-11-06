@@ -4,7 +4,7 @@ import { Input, Dropdown } from '@edx/paragon';
 import classNames from 'classnames';
 
 const FacetItem = ({
-  handleInputOnChange, item, isRefined, isChecked,
+  handleInputOnChange, item, isChecked,
 }) => (
   <Dropdown.Item
     key={item.label}
@@ -16,7 +16,7 @@ const FacetItem = ({
       checked={isChecked}
       onChange={() => handleInputOnChange(item)}
     />
-    <span className={classNames('facet-item-label', { 'is-refined': isRefined })}>
+    <span className={classNames('facet-item-label', { 'is-refined': isChecked })}>
       {item.label}
     </span>
     {item.count && (
@@ -29,7 +29,6 @@ const FacetItem = ({
 
 FacetItem.propTypes = {
   handleInputOnChange: PropTypes.func.isRequired,
-  isRefined: PropTypes.bool.isRequired,
   isChecked: PropTypes.bool.isRequired,
   item: PropTypes.shape({
     count: PropTypes.number,

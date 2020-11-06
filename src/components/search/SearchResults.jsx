@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
@@ -11,9 +11,9 @@ import SearchError from './SearchError';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { NUM_RESULTS_PER_PAGE } from './data/constants';
 import {
-  useRefinementsFromQueryParams,
   useNbHitsFromSearchResults,
 } from './data/hooks';
+import { SearchContext } from './SearchContext';
 
 const SearchResults = ({
   searchResults,
@@ -21,7 +21,7 @@ const SearchResults = ({
   isSearchStalled,
   error,
 }) => {
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  const { refinementsFromQueryParams } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
 
   const query = useMemo(

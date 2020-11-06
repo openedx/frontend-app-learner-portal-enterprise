@@ -23,10 +23,11 @@ const configuration = {
   USER_INFO_COOKIE_NAME: process.env.USER_INFO_COOKIE_NAME,
   FULLSTORY_ORG_ID: process.env.FULLSTORY_ORG_ID,
   ALGOLIA: {
-    ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID,
-    ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY,
-    ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME,
+    APP_ID: process.env.ALGOLIA_APP_ID,
+    SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY,
+    INDEX_NAME: process.env.ALGOLIA_INDEX_NAME,
   },
+  USE_API_CACHE: process.env.USE_API_CACHE,
 };
 
 const features = {

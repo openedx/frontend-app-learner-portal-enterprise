@@ -3,6 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { hasValidStartExpirationDates } from '../../../utils/common';
+import { configuration } from '../../../config';
 import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
 import { getAvailableCourseRuns } from './utils';
 
@@ -16,7 +17,9 @@ export default class CourseService {
     } = options;
 
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
-    this.cachedAuthenticatedHttpClient = getAuthenticatedHttpClient({ useCache: true });
+    this.cachedAuthenticatedHttpClient = getAuthenticatedHttpClient({
+      useCache: configuration.USE_API_CACHE,
+    });
 
     this.courseKey = courseKey;
     this.courseRunKey = courseRunKey;
