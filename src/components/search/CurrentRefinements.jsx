@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import qs from 'query-string';
-import { useHistory } from 'react-router-dom';
+
 import { Badge, Button } from '@edx/paragon';
 import { connectCurrentRefinements } from 'react-instantsearch-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,22 +9,22 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import ClearCurrentRefinements from './ClearCurrentRefinements';
 
 import {
-  NUM_CURRENT_REFINEMENTS_TO_DISPLAY,
   QUERY_PARAMS_TO_IGNORE,
+  NUM_CURRENT_REFINEMENTS_TO_DISPLAY,
 } from './data/constants';
 import {
-  useRefinementsFromQueryParams,
   useActiveRefinementsAsFlatArray,
 } from './data/hooks';
+import { SearchContext } from './SearchContext';
+import { removeFromRefinementArray, deleteRefinementAction } from './data/actions';
 
 export const CurrentRefinementsBase = ({ items }) => {
   if (!items || !items.length) {
     return null;
   }
 
-  const history = useHistory();
   const [showAllRefinements, setShowAllRefinements] = useState(false);
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
 
   const activeRefinementsAsFlatArray = useActiveRefinementsAsFlatArray(items);
 
@@ -51,29 +50,16 @@ export const CurrentRefinementsBase = ({ items }) => {
     if (showAllRefinements && visibleActiveRefinements.length - 1 <= NUM_CURRENT_REFINEMENTS_TO_DISPLAY) {
       setShowAllRefinements(false);
     }
-
-    const refinements = { ...refinementsFromQueryParams };
-    delete refinements.page; // reset to page 1
-
-    Object.entries(refinements).forEach(([key, value]) => {
-      if (!QUERY_PARAMS_TO_IGNORE.includes(key)) {
-        const updatedValue = [...value];
-        const foundIndex = updatedValue.findIndex(facetLabel => facetLabel === item.label);
-
-        // if the refinement is found, remove it.
-        if (key === item.attribute && foundIndex !== -1) {
-          updatedValue.splice(foundIndex, 1);
-        }
-
-        if (updatedValue.length > 0) {
-          refinements[key] = updatedValue.join(',');
-        } else {
-          delete refinements[key];
-        }
+    // if the refinement is found, remove it.
+    const facetName = item.attribute;
+    if (!QUERY_PARAMS_TO_IGNORE.includes(facetName) && refinementsFromQueryParams[facetName]
+    && refinementsFromQueryParams[facetName].includes(item.label)) {
+      if (refinementsFromQueryParams[facetName].length === 1) {
+        dispatch(deleteRefinementAction(facetName));
+      } else {
+        dispatch(removeFromRefinementArray(facetName, item.label));
       }
-    });
-
-    history.push({ search: qs.stringify(refinements) });
+    }
   };
 
   return (

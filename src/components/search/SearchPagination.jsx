@@ -1,22 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import qs from 'query-string';
-import { useHistory } from 'react-router-dom';
 import { connectPagination } from 'react-instantsearch-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { Pagination } from '@edx/paragon';
 
-import { updateRefinementsFromQueryParams } from './data/utils';
-import { useRefinementsFromQueryParams } from './data/hooks';
+import { SearchContext } from './SearchContext';
+import { setRefinementAction, deleteRefinementAction } from './data/actions';
 
 export const SearchPaginationBase = ({
   nbPages,
   currentRefinement,
   maxPagesDisplayed,
 }) => {
-  const history = useHistory();
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  const { dispatch } = useContext(SearchContext);
 
   const icons = useMemo(
     () => ({
@@ -45,16 +42,11 @@ export const SearchPaginationBase = ({
   };
 
   const handlePageSelect = (page) => {
-    const refinements = { ...refinementsFromQueryParams };
-
     if (page > 1) {
-      refinements.page = page;
+      dispatch(setRefinementAction('page', page));
     } else {
-      delete refinements.page;
+      dispatch(deleteRefinementAction('page'));
     }
-
-    const updatedRefinements = updateRefinementsFromQueryParams(refinements);
-    history.push({ search: qs.stringify(updatedRefinements) });
   };
 
   return (

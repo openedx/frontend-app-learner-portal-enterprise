@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import SearchBox from './SearchBox';
 import SearchFilters from './SearchFilters';
 
-import { useRefinementsFromQueryParams } from './data/hooks';
+import { SearchContext } from './SearchContext';
 
 const SearchHeader = () => {
-  const refinementsFromQueryParams = useRefinementsFromQueryParams();
+  const { refinementsFromQueryParams } = useContext(SearchContext);
 
   const searchQueryFromQueryParams = refinementsFromQueryParams.q;
 
