@@ -5,17 +5,6 @@ import {
 } from './actions';
 import { QUERY_PARAMS_TO_IGNORE } from './constants';
 
-export const valueArrayReducer = (state = [], action) => {
-  switch (action.type) {
-    case REMOVE_FROM_REFINEMENT_ARRAY:
-      return state.filter((value) => value !== action.value);
-    case ADD_TO_REFINEMENT_ARRAY:
-      return [...state, action.value];
-    default:
-      return [...state];
-  }
-};
-
 export const refinementsReducer = (state = {}, action) => {
   // console.info('Refinement Action Triggered \n', action);
   const nextState = { ...state };
@@ -41,21 +30,25 @@ export const refinementsReducer = (state = {}, action) => {
         ...nextState,
         ...action.payload,
       };
-    case ADD_TO_REFINEMENT_ARRAY:
+    case ADD_TO_REFINEMENT_ARRAY: {
       delete nextState.page;
+      const currentValue = state[action.key] || [];
       return {
         ...nextState,
-        [action.key]: valueArrayReducer(state[action.key], action),
+        [action.key]: [...currentValue, action.value],
       };
-    case REMOVE_FROM_REFINEMENT_ARRAY:
+    }
+    case REMOVE_FROM_REFINEMENT_ARRAY: {
       if (nextState[action.key]) {
         delete nextState.page;
+        const currentValue = state[action.key] || [];
         return {
           ...nextState,
-          [action.key]: valueArrayReducer(state[action.key], action),
+          [action.key]: currentValue.filter((value) => value !== action.value),
         };
       }
       return nextState;
+    }
     case CLEAR_REFINEMENTS:
       delete nextState.page;
       Object.keys(nextState).forEach((key) => {

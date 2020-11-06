@@ -1,25 +1,6 @@
 import * as actions from '../actions';
-import { valueArrayReducer, refinementsReducer } from '../reducer';
+import { refinementsReducer } from '../reducer';
 import { QUERY_PARAM_FOR_FEATURE_FLAGS, QUERY_PARAM_FOR_SEARCH_QUERY, QUERY_PARAM_FOR_PAGE } from '../constants';
-
-describe('valueArrayReducer', () => {
-  it('removes the item if it is the only item in the refinements array', () => {
-    const initialState = ['foo'];
-    expect(valueArrayReducer(initialState, actions.removeFromRefinementArray('subjects', 'foo'))).toEqual([]);
-  });
-  it('deletes only the item in question from the refinements array', () => {
-    const initialState = ['foo', 'bar'];
-    expect(valueArrayReducer(initialState, actions.removeFromRefinementArray('sujects', 'foo'))).toEqual(['bar']);
-  });
-  it('adds the item to the refinements array if it is not present - undefined initially', () => {
-    const initialState = undefined;
-    expect(valueArrayReducer(initialState, actions.addToRefinementArray('subjects', 'foo'))).toEqual(['foo']);
-  });
-  it('adds the item to an existing refinements array', () => {
-    const initialState = ['bar'];
-    expect(valueArrayReducer(initialState, actions.addToRefinementArray('subjects', 'foo'))).toEqual(['bar', 'foo']);
-  });
-});
 
 describe('refinementsReducer', () => {
   it('sets refinements', () => {
