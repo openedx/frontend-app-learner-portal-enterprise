@@ -68,7 +68,7 @@ export function useOffers(enterpriseId) {
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
-        fetchOffers('full_discount_only=True', dispatch);
+        fetchOffers(`full_discount_only=True&enterprise_uuid=${enterpriseId}`, dispatch);
       }
     },
     [enterpriseId],
