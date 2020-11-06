@@ -6,7 +6,6 @@ import {
 import { QUERY_PARAMS_TO_IGNORE } from './constants';
 
 export const refinementsReducer = (state = {}, action) => {
-  // console.info('Refinement Action Triggered \n', action);
   const nextState = { ...state };
   switch (action.type) {
     case DELETE_REFINEMENT:
