@@ -5,6 +5,7 @@ import {
   PROGRAM_TYPE_MAP,
   COURSE_PACING_MAP,
   COURSE_MODES_MAP,
+  LICENSE_SUBSIDY_TYPE,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -177,4 +178,8 @@ export function shouldUpgradeUserEnrollment({
     return true;
   }
   return false;
+}
+
+export function hasLicenseSubsidy(subsidy) {
+  return subsidy?.subsidyType === LICENSE_SUBSIDY_TYPE;
 }

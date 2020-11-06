@@ -10,7 +10,10 @@ import { CourseContext } from './CourseContextProvider';
 import EnrollButtonLabel from './EnrollButtonLabel';
 import EnrollModal from './EnrollModal';
 
-import { useCourseEnrollmentUrl } from './data/hooks';
+import {
+  useCourseEnrollmentUrl,
+  useFetchUserSubsidyForCourse,
+} from './data/hooks';
 import {
   hasCourseStarted,
   findUserEnrollmentForCourse,
@@ -63,6 +66,8 @@ export default function EnrollButton() {
     seats,
   } = activeCourseRun;
 
+  const [userSubsidy] = useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig);
+
   const sku = useMemo(
     () => findHighestLevelSeatSku(seats),
     [seats],
@@ -83,6 +88,7 @@ export default function EnrollButton() {
     offers,
     sku,
     subscriptionLicense,
+    userSubsidy,
   });
 
   const EnrollLabel = props => (

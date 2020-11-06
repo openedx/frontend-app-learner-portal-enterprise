@@ -10,6 +10,7 @@ import {
   isCourseSelfPaced,
   numberWithPrecision,
   findOfferForCourse,
+  hasLicenseSubsidy,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -234,6 +235,7 @@ export function useCourseEnrollmentUrl({
   offers,
   sku,
   subscriptionLicense,
+  userSubsidy,
 }) {
   const enrollmentFailedParams = { ...qs.parse(location.search) };
   enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
@@ -245,7 +247,8 @@ export function useCourseEnrollmentUrl({
 
   const enrollmentUrl = useMemo(
     () => {
-      if (subscriptionLicense) {
+      // Users must have a license and a valid subsidy from that license to enroll with it
+      if (subscriptionLicense && hasLicenseSubsidy(userSubsidy)) {
         const enrollOptions = {
           ...baseEnrollmentOptions,
           license_uuid: subscriptionLicense.uuid,
