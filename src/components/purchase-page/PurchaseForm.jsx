@@ -48,8 +48,8 @@ const PurchaseForm = () => (
           <label>Enterprise Country</label>
           <Field name="enterpriseCountry" component="select" required>
             <option />
-            <option value="red">️Red</option>
-            <option value="green">Green</option>
+            <option value="New Zealand">New Zealand</option>
+            <option value="Germany">Germany</option>
           </Field>
         </div>
 
