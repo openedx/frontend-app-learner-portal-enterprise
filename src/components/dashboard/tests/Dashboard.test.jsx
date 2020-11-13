@@ -176,22 +176,13 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
   });
-  it('renders a sidebar on a large screen', () => {
-    window.matchMedia.setConfig(mockWindowConfig);
-    renderWithRouter(
-      <DashboardWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />,
-    );
-    expect(screen.getByTestId('sidebar')).toBeTruthy();
-  });
-  it('does not render a sidebar on a small screen', () => {
-    window.matchMedia.setConfig({ ...mockWindowConfig, width: breakpoints.large.minWidth - 1 });
+  it('renders the sidebar', () => {
     renderWithRouter(
       <DashboardWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialCourseState={initialCourseState}
       />,
     );
-    expect(screen.queryByTestId('sidebar')).toBeFalsy();
+    expect(screen.getByTestId('sidebar')).toBeTruthy();
   });
 });

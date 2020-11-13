@@ -29,10 +29,13 @@ const DashboardSidebarContext = ({
 /* eslint-enable react/prop-types */
 
 describe('<DashboardSidebar />', () => {
-  const defaultOffersState = {
-    offers: [],
-    loading: false,
-    offersCount: 0,
+  const defaultUserSubsidyState = {
+    hasAccessToPortal: true,
+    offers: {
+      offers: [],
+      loading: false,
+      offersCount: 0,
+    },
   };
   const initialAppState = {
     enterpriseConfig: { contactEmail: 'foo@foo.com' },
@@ -49,7 +52,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -60,7 +63,10 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState, offersCount: 2 } }}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          offers: { ...defaultUserSubsidyState.offers, offersCount: 2 },
+        }}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -71,7 +77,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -82,7 +88,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={appStateWithSubscription}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -93,7 +99,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -104,18 +110,39 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
     );
-    expect(screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT)).toBeTruthy();
+    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
+    expect(catalogAccessButton).toBeTruthy();
+
+    // ``hasAccessToPortal`` is set to true in defaultUserSubsidyState, so the button should
+    // not be disabled.
+    expect(catalogAccessButton.classList).not.toContain('disabled');
+  });
+  test('Find a course button is rendered as disabled when user has no portal access', () => {
+    renderWithRouter(
+      <DashboardSidebarContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          hasAccessToPortal: false,
+        }}
+      >
+        <DashboardSidebar />
+      </DashboardSidebarContext>,
+    );
+    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
+    expect(catalogAccessButton).toBeTruthy();
+    expect(catalogAccessButton.classList).toContain('disabled');
   });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: defaultOffersState }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,

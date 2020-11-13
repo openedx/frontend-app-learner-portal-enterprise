@@ -35,15 +35,17 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
     return (
       <div className="d-flex align-content-center">
         {SUBSCRIPTION_SUMMARY_CARD_TITLE}
-        <Badge
-          variant={statusBadgeVariant}
-          className="ml-2"
-          data-testid="subscription-status-badge"
-        >
-          <small className="font-weight-bold">
-            {statusBadgeLabel}
-          </small>
-        </Badge>
+        <div>
+          <Badge
+            variant={statusBadgeVariant}
+            className="ml-2"
+            data-testid="subscription-status-badge"
+          >
+            <small className="font-weight-bold">
+              {statusBadgeLabel}
+            </small>
+          </Badge>
+        </div>
       </div>
     );
   };
