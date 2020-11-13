@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Hits, connectStateResults } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
 
+import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchError from '../SearchError';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
-import { useNbHitsFromSearchResults } from '../data/hooks';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 
 const PopularCourses = ({
