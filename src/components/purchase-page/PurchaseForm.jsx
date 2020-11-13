@@ -1,14 +1,28 @@
 import React from 'react';
+import { logError } from '@edx/frontend-platform/logging';
 import { Form, Button } from '@edx/paragon';
 import { Form as FinalForm, Field } from 'react-final-form';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-const handleSubmitFinal = (x) => {
-  console.log(x);
+// TODO: We might not want to actually create the customer directly from the form
+const createCustomer = (values) => {
+  const data = {
+    name: values.enterpriseName,
+    country: values.enterpriseCountry,
+    contact_email: values.enterpriseEmail,
+  };
+  const authenticatedClient = getAuthenticatedHttpClient();
+  const url = `${process.env.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/`;
+  authenticatedClient.post(url, data)
+    .then((x) => console.log(x))
+    .catch((error) => {
+      logError(new Error(error));
+    });
 };
 
 const PurchaseForm = () => (
   <FinalForm
-    onSubmit={handleSubmitFinal}
+    onSubmit={createCustomer}
     render={({
       handleSubmit,
       submitting,
