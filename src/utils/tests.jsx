@@ -25,17 +25,6 @@ export function renderWithRouter(
   };
 }
 
-/* eslint-disable react/prop-types */
-export const FakeAppContext = ({
-  initialAppState = {},
-  children,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    {children}
-  </AppContext.Provider>
-);
-/* eslint-enable react/prop-types */
-
 /* warning, this store may not be complete, please add to it as needed */
 export const fakeReduxStore = {
   courseEnrollments: {
