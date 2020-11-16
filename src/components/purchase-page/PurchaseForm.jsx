@@ -34,6 +34,23 @@ const renderCountryChoices = () => {
   return options.concat(countries);
 };
 
+const FormControlAdapter = ({ input, ...rest }) => (
+  <Form.Group countrolId={PURCHASE_TYPE_FIELD}>
+    <Form.Label>Purchase Type</Form.Label>
+    <Form.Control
+      {...input}
+      {...rest}
+    />
+  </Form.Group>
+);
+
+FormControlAdapter.propTypes = {
+  input: PropTypes.shape({
+    onChange: PropTypes.func,
+    value: PropTypes.string,
+  }).isRequired,
+};
+
 const PurchaseForm = () => (
   <FinalForm
     onSubmit={createEnterpriseCustomer}
@@ -45,14 +62,19 @@ const PurchaseForm = () => (
     }) => (
       <Form onSubmit={handleSubmit}>
         {/* TODO: Use full form from paragon */}
-        <div>
+        <Field name={PURCHASE_TYPE_FIELD} component={FormControlAdapter} as="select" required custom>
+          <option value="">Please select a purchase type</option>
+          <option value={BULK_PURCHASE_PURCHASE_TYPE}>Bulk Purchase</option>
+          <option value={SUBSCRIPTION_PURCHASE_TYPE}>Subscription</option>
+        </Field>
+        {/* <div>
           <label>Purchase Type</label>
           <Field name={PURCHASE_TYPE_FIELD} component="select" required>
             <option value="">Please select a purchase type</option>
             <option value={BULK_PURCHASE_PURCHASE_TYPE}>Bulk Purchase</option>
             <option value={SUBSCRIPTION_PURCHASE_TYPE}>Subscription</option>
           </Field>
-        </div>
+        </div> */}
 
         {/* TODO: field validation */}
         <div>
@@ -67,7 +89,6 @@ const PurchaseForm = () => (
         </div>
 
         <div>
-          {/* TODO: Country selector */}
           <label>Enterprise Country</label>
           <Field name="enterpriseCountry" component="select" required>
             {renderCountryChoices()}

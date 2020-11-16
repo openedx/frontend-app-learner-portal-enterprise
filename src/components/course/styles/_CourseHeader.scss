@@ -12,3 +12,13 @@
     }
   }
 }
+
+body.dark-mode {
+  background: black;
+  filter: invert(1) hue-rotate(180deg);
+
+  // Keep images their normal color by flipping them back
+  img {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
