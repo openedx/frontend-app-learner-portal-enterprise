@@ -2,7 +2,6 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { render } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 
 // eslint-disable import/prefer-default-export
 export function renderWithRouter(
