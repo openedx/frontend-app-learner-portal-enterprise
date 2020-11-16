@@ -34,9 +34,10 @@ const renderCountryChoices = () => {
   return options.concat(countries);
 };
 
-const FormControlAdapter = ({ input, ...rest }) => (
+const FormControlAdapter = ({ label, input, ...rest }) => (
+  // TODO: Fix control id
   <Form.Group countrolId={PURCHASE_TYPE_FIELD}>
-    <Form.Label>Purchase Type</Form.Label>
+    <Form.Label>{label}</Form.Label>
     <Form.Control
       {...input}
       {...rest}
@@ -61,91 +62,77 @@ const PurchaseForm = () => (
       values,
     }) => (
       <Form onSubmit={handleSubmit}>
-        {/* TODO: Use full form from paragon */}
-        <Field name={PURCHASE_TYPE_FIELD} component={FormControlAdapter} as="select" required custom>
+        {/* TODO: field validation */}
+
+        <Field name={PURCHASE_TYPE_FIELD} component={FormControlAdapter} as="select" required custom label="Purchase Type">
           <option value="">Please select a purchase type</option>
           <option value={BULK_PURCHASE_PURCHASE_TYPE}>Bulk Purchase</option>
           <option value={SUBSCRIPTION_PURCHASE_TYPE}>Subscription</option>
         </Field>
-        {/* <div>
-          <label>Purchase Type</label>
-          <Field name={PURCHASE_TYPE_FIELD} component="select" required>
-            <option value="">Please select a purchase type</option>
-            <option value={BULK_PURCHASE_PURCHASE_TYPE}>Bulk Purchase</option>
-            <option value={SUBSCRIPTION_PURCHASE_TYPE}>Subscription</option>
-          </Field>
-        </div> */}
 
-        {/* TODO: field validation */}
-        <div>
-          <label>Enterprise Name</label>
-          <Field
-            name="enterpriseName"
-            component="input"
-            type="text"
-            placeholder="Pied Piper"
-            required
-          />
-        </div>
+        <Field
+          name="enterpriseName"
+          component={FormControlAdapter}
+          type="text"
+          placeholder="Pied Piper"
+          label="Enterprise Name"
+          required
+        />
 
-        <div>
-          <label>Enterprise Country</label>
-          <Field name="enterpriseCountry" component="select" required>
-            {renderCountryChoices()}
-          </Field>
-        </div>
+        <Field
+          name="enterpriseCountry"
+          component={FormControlAdapter}
+          as="select"
+          placeholder="Pied Piper"
+          label="Enterprise Country"
+          custom
+          required
+        >
+          {renderCountryChoices()}
+        </Field>
 
-        <div>
-          <label>Enterprise Contact Email</label>
-          <Field
-            name="enterpriseEmail"
-            component="input"
-            type="email"
-            placeholder="admin@example.com"
-            required
-          />
-        </div>
+        <Field
+          name="enterpriseEmail"
+          component={FormControlAdapter}
+          type="email"
+          placeholder="admin@example.com"
+          label="Enterprise Contact Email"
+          required
+        />
 
         <Condition when={PURCHASE_TYPE_FIELD} is={BULK_PURCHASE_PURCHASE_TYPE}>
           {/* TODO: How do you pick a course */}
-          <div>
-            <label>Course Key</label>
-            <Field
-              name="courseKey"
-              component="input"
-              type="text"
-              placeholder="edX+demoX"
-              required
-            />
-          </div>
+          <Field
+            name="courseKey"
+            label="Course Key"
+            component={FormControlAdapter}
+            type="text"
+            placeholder="edX+demoX"
+            required
+          />
         </Condition>
 
         <Condition when={PURCHASE_TYPE_FIELD} is={SUBSCRIPTION_PURCHASE_TYPE}>
-          <div>
-            <label>Number of Learners</label>
-            <Field
-              name="numberOfLearners"
-              component="input"
-              type="number"
-              placeholder="25"
-              min="1"
-              required
-            />
-          </div>
+          <Field
+            name="numberOfLearners"
+            label="Number of Learners"
+            component={FormControlAdapter}
+            type="number"
+            placeholder="25"
+            min="1"
+            required
+          />
 
-          <div>
-            <label>Duration (Months)</label>
-            <Field
-              name="duration"
-              component="input"
-              type="number"
-              placeholder="12"
-              min="1"
-              max="12"
-              required
-            />
-          </div>
-
+          <Field
+            name="duration"
+            label="Duration (Months)"
+            component={FormControlAdapter}
+            type="number"
+            placeholder="12"
+            min="1"
+            max="12"
+            required
+          />
           {/* TODO: How do you pick a catalog */}
         </Condition>
 
@@ -153,42 +140,11 @@ const PurchaseForm = () => (
           Submit
         </Button>
 
-        <pre>{JSON.stringify(values, 0, 2)}</pre>
+        <pre className="mt-3">{JSON.stringify(values, 0, 2)}</pre>
 
       </Form>
     )}
   />
 );
-
-// react-bootstrap form elements
-// <Form.Group controlId="enterpriseName">
-//   <Form.Label>Enterprise Name</Form.Label>
-//   <Field name="enterpriseName" component={Form.Control} type="text" placeholder="Pied Piper" required />
-//   {/* <Field name="firstName" component="input" /> */}
-// </Form.Group>
-
-// {/* TODO: Country selector */}
-// <Form.Group controlId="enterpriseCountry">
-//   <Form.Label>Enterprise Country</Form.Label>
-//   <Form.Control as="select" defaultValue="Choose..." required>
-//     <option>Choose...</option>
-//     <option>...</option>
-//   </Form.Control>
-// </Form.Group>
-
-// <Form.Group controlId="enterpriseContactEmail">
-//   <Form.Label>Enterprise Contact Email</Form.Label>
-//   <Form.Control type="email" placeholder="admin@example.com" required />
-// </Form.Group>
-
-// {/* TODO: UX on finding and selecting a course */}
-// <Form.Group controlId="courseKey">
-//   <Form.Label>Course Key</Form.Label>
-//   <Form.Control type="text" placeholder="edX+demoX" required />
-// </Form.Group>
-
-// <Button variant="primary" type="submit" disabled={submitting || pristine}>
-//   Submit
-// </Button>
 
 export default PurchaseForm;
