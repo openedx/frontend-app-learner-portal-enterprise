@@ -1,28 +1,42 @@
 import React from 'react';
-import { logError } from '@edx/frontend-platform/logging';
+import PropTypes from 'prop-types';
+import countryList from 'country-list';
 import { Form, Button } from '@edx/paragon';
 import { Form as FinalForm, Field } from 'react-final-form';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-// TODO: We might not want to actually create the customer directly from the form
-const createCustomer = (values) => {
-  const data = {
-    name: values.enterpriseName,
-    country: values.enterpriseCountry,
-    contact_email: values.enterpriseEmail,
-  };
-  const authenticatedClient = getAuthenticatedHttpClient();
-  const url = `${process.env.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/`;
-  authenticatedClient.post(url, data)
-    .then((x) => console.log(x))
-    .catch((error) => {
-      logError(new Error(error));
-    });
+import {
+  BULK_PURCHASE_PURCHASE_TYPE,
+  PURCHASE_TYPE_FIELD,
+  SUBSCRIPTION_PURCHASE_TYPE,
+} from './constants';
+import { createEnterpriseCustomer } from './service';
+
+const Condition = ({ when, is, children }) => (
+  <Field name={when} subscription={{ value: true }}>
+    {({ input: { value } }) => (value === is ? children : null)}
+  </Field>
+);
+
+Condition.propTypes = {
+  when: PropTypes.string.isRequired,
+  is: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
+
+const renderCountryChoices = () => {
+  const countriesByCode = countryList.getCodeList();
+  const options = [
+    <option key="" value="">Please select a country</option>,
+  ];
+  const countries = Object.entries(countriesByCode).map(([countryCode, countryName]) => (
+    <option key={countryCode} value={countryCode}>{countryName}</option>
+  ));
+  return options.concat(countries);
 };
 
 const PurchaseForm = () => (
   <FinalForm
-    onSubmit={createCustomer}
+    onSubmit={createEnterpriseCustomer}
     render={({
       handleSubmit,
       submitting,
@@ -31,6 +45,15 @@ const PurchaseForm = () => (
     }) => (
       <Form onSubmit={handleSubmit}>
         {/* TODO: Use full form from paragon */}
+        <div>
+          <label>Purchase Type</label>
+          <Field name={PURCHASE_TYPE_FIELD} component="select" required>
+            <option value="">Please select a purchase type</option>
+            <option value={BULK_PURCHASE_PURCHASE_TYPE}>Bulk Purchase</option>
+            <option value={SUBSCRIPTION_PURCHASE_TYPE}>Subscription</option>
+          </Field>
+        </div>
+
         {/* TODO: field validation */}
         <div>
           <label>Enterprise Name</label>
@@ -47,9 +70,7 @@ const PurchaseForm = () => (
           {/* TODO: Country selector */}
           <label>Enterprise Country</label>
           <Field name="enterpriseCountry" component="select" required>
-            <option />
-            <option value="New Zealand">New Zealand</option>
-            <option value="Germany">Germany</option>
+            {renderCountryChoices()}
           </Field>
         </div>
 
@@ -64,16 +85,48 @@ const PurchaseForm = () => (
           />
         </div>
 
-        <div>
-          <label>Course Key</label>
-          <Field
-            name="courseKey"
-            component="input"
-            type="text"
-            placeholder="edX+demoX"
-            required
-          />
-        </div>
+        <Condition when={PURCHASE_TYPE_FIELD} is={BULK_PURCHASE_PURCHASE_TYPE}>
+          {/* TODO: How do you pick a course */}
+          <div>
+            <label>Course Key</label>
+            <Field
+              name="courseKey"
+              component="input"
+              type="text"
+              placeholder="edX+demoX"
+              required
+            />
+          </div>
+        </Condition>
+
+        <Condition when={PURCHASE_TYPE_FIELD} is={SUBSCRIPTION_PURCHASE_TYPE}>
+          <div>
+            <label>Number of Learners</label>
+            <Field
+              name="numberOfLearners"
+              component="input"
+              type="number"
+              placeholder="25"
+              min="1"
+              required
+            />
+          </div>
+
+          <div>
+            <label>Duration (Months)</label>
+            <Field
+              name="duration"
+              component="input"
+              type="number"
+              placeholder="12"
+              min="1"
+              max="12"
+              required
+            />
+          </div>
+
+          {/* TODO: How do you pick a catalog */}
+        </Condition>
 
         <Button variant="primary" type="submit" disabled={submitting || pristine}>
           Submit

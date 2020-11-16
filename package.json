@@ -23,6 +23,7 @@
     "color": "^3.1.2",
     "connected-react-router": "^5.0.1",
     "core-js": "^3.6.4",
+    "country-list": "^2.2.0",
     "email-prop-type": "^1.1.5",
     "final-form": "^4.20.1",
     "font-awesome": "^4.7.0",
