@@ -3,11 +3,6 @@
 ## Overview
 The edX learning platform's frontend for enterprise learners.
 
-## Some dev notes
-This section can be removed once the items are addressed:
-
--[ ] remove dep  "eslint-plugin-import": "^2.22.1" once frontend-build upgrade is done https://github.com/edx/frontend-build/pull/136
-
 ## Setup for development
 
 Ensure you have gone through [Onboarding for devs](https://openedx.atlassian.net/wiki/spaces/ENG/pages/12550298/Developer+Onboarding)
