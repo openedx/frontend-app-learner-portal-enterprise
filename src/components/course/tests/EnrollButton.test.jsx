@@ -19,16 +19,6 @@ import {
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
   LICENSE_SUBSIDY_TYPE,
 } from '../data/constants';
-import * as courseDataHooks from '../data/hooks';
-
-// Fake that the user has a valid subsidy with the license
-jest.spyOn(courseDataHooks, 'useFetchUserSubsidyForCourse');
-courseDataHooks.useFetchUserSubsidyForCourse.mockReturnValue(
-  [
-    { subsidyType: LICENSE_SUBSIDY_TYPE },
-    false,
-  ],
-);
 
 /* eslint-disable react/prop-types */
 const EnrollButtonWithContext = ({
@@ -66,6 +56,7 @@ describe('<EnrollButton />', () => {
     },
     userEnrollments: [],
     userEntitlements: [],
+    userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
     catalog: {},
   };
   const initialUserSubsidyState = {

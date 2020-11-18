@@ -41,7 +41,7 @@ export default function Course() {
     () => {
       if (courseData) {
         const {
-          courseDetails, userEnrollments, userEntitlements, catalog,
+          courseDetails, userEnrollments, userEntitlements, userSubsidy, catalog,
         } = courseData;
         return {
           course: courseDetails,
@@ -49,6 +49,7 @@ export default function Course() {
           availableCourseRuns: getAvailableCourseRuns(courseDetails),
           userEnrollments,
           userEntitlements,
+          userSubsidy,
           catalog,
         };
       }
