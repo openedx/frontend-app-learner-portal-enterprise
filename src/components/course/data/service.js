@@ -5,7 +5,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { configuration } from '../../../config';
 import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
-import { getAvailableCourseRuns } from './utils';
+import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 
 export default class CourseService {
   constructor(options = {}) {
@@ -36,9 +36,12 @@ export default class CourseService {
     ])
       .then((responses) => responses.map(response => response.data));
 
+    const courseDetails = camelCaseObject(data[0]);
+    // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
+    this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
+    const userSubsidy = await this.fetchEnterpriseUserSubsidy();
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
-    const courseDetails = camelCaseObject(data[0]);
     if (this.courseRunKey) {
       const availableCourseRuns = getAvailableCourseRuns(courseDetails);
       const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
@@ -52,6 +55,7 @@ export default class CourseService {
 
     return {
       courseDetails,
+      userSubsidy,
       userEnrollments: data[1],
       userEntitlements: data[2].results,
       catalog: data[3],

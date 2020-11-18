@@ -51,6 +51,7 @@ export default function EnrollButton() {
     activeCourseRun,
     userEnrollments,
     userEntitlements,
+    userSubsidy,
     catalog: { catalogList },
   } = courseData;
   const {
@@ -83,6 +84,7 @@ export default function EnrollButton() {
     offers,
     sku,
     subscriptionLicense,
+    userSubsidy,
   });
 
   const EnrollLabel = props => (

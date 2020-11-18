@@ -17,6 +17,7 @@ import {
   COURSE_PACING_MAP,
   ENROLL_BUTTON_LABEL_COMING_SOON,
   ENROLL_BUTTON_LABEL_NOT_AVAILABLE,
+  LICENSE_SUBSIDY_TYPE,
 } from '../data/constants';
 
 /* eslint-disable react/prop-types */
@@ -55,6 +56,7 @@ describe('<EnrollButton />', () => {
     },
     userEnrollments: [],
     userEntitlements: [],
+    userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
     catalog: {},
   };
   const initialUserSubsidyState = {

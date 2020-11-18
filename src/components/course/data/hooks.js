@@ -10,6 +10,7 @@ import {
   isCourseSelfPaced,
   numberWithPrecision,
   findOfferForCourse,
+  hasLicenseSubsidy,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -154,35 +155,6 @@ export function useCoursePacingType(courseRun) {
   return [pacingType, pacingTypeContent];
 }
 
-export function useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [userSubsidy, setUserSubsidy] = useState();
-
-  useEffect(
-    () => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        const courseService = new CourseService({
-          enterpriseUuid: enterpriseConfig.uuid,
-          activeCourseRun,
-        });
-        try {
-          const subsidy = await courseService.fetchEnterpriseUserSubsidy();
-          setUserSubsidy(subsidy);
-        } catch (error) {
-          logError(error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchData();
-    },
-    [activeCourseRun, enterpriseConfig],
-  );
-
-  return [userSubsidy, isLoading];
-}
-
 export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
   const currency = CURRENCY_USD;
 
@@ -234,6 +206,7 @@ export function useCourseEnrollmentUrl({
   offers,
   sku,
   subscriptionLicense,
+  userSubsidy,
 }) {
   const enrollmentFailedParams = { ...qs.parse(location.search) };
   enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
@@ -245,7 +218,8 @@ export function useCourseEnrollmentUrl({
 
   const enrollmentUrl = useMemo(
     () => {
-      if (subscriptionLicense) {
+      // Users must have a license and a valid subsidy from that license to enroll with it
+      if (subscriptionLicense && hasLicenseSubsidy(userSubsidy)) {
         const enrollOptions = {
           ...baseEnrollmentOptions,
           license_uuid: subscriptionLicense.uuid,

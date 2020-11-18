@@ -4,24 +4,22 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 
-import { LICENSE_SUBSIDY_TYPE } from './data/constants';
 import {
   useCoursePriceForUserSubsidy,
-  useFetchUserSubsidyForCourse,
 } from './data/hooks';
+import { hasLicenseSubsidy } from './data/utils';
 
 const CourseSidebarPrice = () => {
   const { state } = useContext(CourseContext);
-  const { activeCourseRun } = state;
+  const { activeCourseRun, userSubsidy } = state;
   const { enterpriseConfig } = useContext(AppContext);
-  const [userSubsidy, isLoading] = useFetchUserSubsidyForCourse(activeCourseRun, enterpriseConfig);
   const [coursePrice, currency] = useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy);
 
-  if (isLoading || !coursePrice) {
+  if (!coursePrice) {
     return <Skeleton height={24} />;
   }
 
-  if (userSubsidy?.subsidyType === LICENSE_SUBSIDY_TYPE) {
+  if (hasLicenseSubsidy(userSubsidy)) {
     return (
       <>
         {!enterpriseConfig.hideCourseOriginalPrice && (
