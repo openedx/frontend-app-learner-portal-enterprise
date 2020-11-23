@@ -9,7 +9,6 @@ describe('<SidebarCard />', () => {
   const childrenText = 'Some text goes here';
   const defaultProps = {
     children: <>{childrenText}</>,
-    linkIsLocal: false,
     buttonLink: 'http://bears.party',
   };
   it('renders the card children', () => {

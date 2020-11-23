@@ -17,6 +17,7 @@ const DashboardSidebar = () => {
   const {
     enterpriseConfig: {
       contactEmail,
+      slug,
     },
     subscriptionPlan,
   } = useContext(AppContext);
@@ -56,8 +57,7 @@ const DashboardSidebar = () => {
         <ButtonWithLink
           className="btn-outline-primary btn-block"
           text={CATALOG_ACCESS_CARD_BUTTON_TEXT}
-          link="/search"
-          linkIsLocal
+          link={`/${slug}/search`}
         />
       </SidebarCard>
       <SidebarBlock
