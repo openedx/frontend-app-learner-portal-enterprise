@@ -4,12 +4,15 @@ import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import SearchHeader from './SearchHeader';
-import SearchResults from './SearchResults';
+import {
+  SearchHeader,
+  useDefaultSearchFilters,
+} from '@edx/frontend-enterprise';
 import { configuration } from '../../config';
 
-import { NUM_RESULTS_PER_PAGE } from './data/constants';
-import { useDefaultSearchFilters } from './data/hooks';
+import { NUM_RESULTS_PER_PAGE } from './constants';
+import SearchResults from './SearchResults';
+
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 

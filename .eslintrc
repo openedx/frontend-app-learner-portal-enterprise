@@ -5,7 +5,13 @@
     "import/no-extraneous-dependencies": [
       "error",
       {
-        "devDependencies": ["config/*.js", "**/*.test.jsx", "**/*.test.js"]
+        "devDependencies": [
+          "babel.config.js",
+          "config/*.js",
+          "**/*.test.jsx",
+          "**/*.test.js",
+          "src/utils/tests.jsx"
+        ]
       }
     ],
     "jsx-a11y/anchor-is-valid": [
@@ -29,7 +35,8 @@
     // upgrading @edx/frontend-build from v3 to v5:
     //  - TypeError: Cannot read property 'range' of null
     "indent": [
-      "error", 2,
+      "error",
+      2,
       { "ignoredNodes": ["TemplateLiteral", "SwitchCase"] }
     ],
     "template-curly-spacing": "off"

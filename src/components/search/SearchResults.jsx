@@ -3,17 +3,13 @@ import PropTypes from 'prop-types';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
 
+import { useNbHitsFromSearchResults, SearchContext, SearchPagination } from '@edx/frontend-enterprise';
 import SearchCourseCard from './SearchCourseCard';
-import SearchPagination from './SearchPagination';
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
-import { NUM_RESULTS_PER_PAGE } from './data/constants';
-import {
-  useNbHitsFromSearchResults,
-} from './data/hooks';
-import { SearchContext } from './SearchContext';
+import { NUM_RESULTS_PER_PAGE } from './constants';
 
 const SearchResults = ({
   searchResults,
