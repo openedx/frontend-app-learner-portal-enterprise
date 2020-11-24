@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
-import ButtonWithLink from '../../layout/ButtonWithLink';
 import SidebarCard from './SidebarCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
@@ -17,6 +18,7 @@ const DashboardSidebar = () => {
   const {
     enterpriseConfig: {
       contactEmail,
+      slug,
     },
     subscriptionPlan,
   } = useContext(AppContext);
@@ -53,12 +55,12 @@ const DashboardSidebar = () => {
             className="mb-3"
           />
         )}
-        <ButtonWithLink
-          className="btn-outline-primary btn-block"
-          text={CATALOG_ACCESS_CARD_BUTTON_TEXT}
-          link="/search"
-          linkIsLocal
-        />
+        <Link
+          to={`/${slug}/search`}
+          className="btn btn-outline-primary btn-block"
+        >
+          {CATALOG_ACCESS_CARD_BUTTON_TEXT}
+        </Link>
       </SidebarCard>
       <SidebarBlock
         title={NEED_HELP_BLOCK_TITLE}
