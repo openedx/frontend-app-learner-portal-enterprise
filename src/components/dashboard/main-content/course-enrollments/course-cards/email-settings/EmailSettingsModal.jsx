@@ -113,11 +113,11 @@ class EmailSettingsModal extends Component {
     const {
       error, hasEmailsEnabled, isSubmitting,
     } = this.state;
-    const { title, open, courseRunId } = this.props;
+    const { open, courseRunId } = this.props;
 
     return (
       <Modal
-        title={`Email Settings for ${title}`}
+        title="Email settings"
         body={(
           <>
             {error && (
@@ -178,13 +178,11 @@ EmailSettingsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   updateEmailSettings: PropTypes.func.isRequired,
   courseRunId: PropTypes.string.isRequired,
-  title: PropTypes.string,
   hasEmailsEnabled: PropTypes.bool,
   open: PropTypes.bool,
 };
 
 EmailSettingsModal.defaultProps = {
-  title: null,
   hasEmailsEnabled: false,
   open: false,
 };

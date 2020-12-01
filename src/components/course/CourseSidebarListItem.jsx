@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Row, Col } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function CourseSidebarListItem({
@@ -8,20 +9,20 @@ export default function CourseSidebarListItem({
   content,
 }) {
   return (
-    <li className="row d-flex align-items-start border-bottom no-gutters py-3">
-      <div className="col d-flex align-items-center">
+    <Row as="li" className="d-flex align-items-start border-bottom py-3">
+      <Col className="d-flex align-items-center">
         <FontAwesomeIcon className="mr-3" icon={icon} />
         <span>{label}:</span>
-      </div>
-      <div className="col">
+      </Col>
+      <Col>
         {content}
-      </div>
-    </li>
+      </Col>
+    </Row>
   );
 }
 
 CourseSidebarListItem.propTypes = {
-  icon: PropTypes.shape({}).isRequired,
+  icon: PropTypes.shape().isRequired,
   label: PropTypes.string.isRequired,
   content: PropTypes.node.isRequired,
 };

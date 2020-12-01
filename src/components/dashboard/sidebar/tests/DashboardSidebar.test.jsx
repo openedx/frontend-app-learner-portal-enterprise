@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar, {
   CATALOG_ACCESS_CARD_BUTTON_TEXT,
-  CATALOG_ACCESS_CARD_TITLE,
   EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
 } from '../DashboardSidebar';
@@ -48,17 +47,6 @@ describe('<DashboardSidebar />', () => {
       expirationDate: '2021-10-25',
     },
   };
-  test('Catalog Access card title is always rendered', () => {
-    renderWithRouter(
-      <DashboardSidebarContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={defaultUserSubsidyState}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
-    );
-    expect(screen.queryByText(CATALOG_ACCESS_CARD_TITLE)).toBeTruthy();
-  });
   test('offer summary card is displayed when offers are available', () => {
     renderWithRouter(
       <DashboardSidebarContext

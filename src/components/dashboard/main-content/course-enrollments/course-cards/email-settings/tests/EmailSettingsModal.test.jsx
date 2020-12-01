@@ -21,7 +21,6 @@ describe('<EmailSettingsModal />', () => {
     wrapper = mount((
       <EmailSettingsModal
         store={store}
-        title="Example Title"
         onClose={() => {}}
         courseRunId="my+course+key"
         updateEmailSettings={mockUpdateEmailSettings}

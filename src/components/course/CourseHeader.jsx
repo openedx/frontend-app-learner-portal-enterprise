@@ -88,7 +88,7 @@ export default function CourseHeader() {
               />
             )}
             {partners.length > 0 && (
-              <div className="mb-5">
+              <div className="mb-4">
                 {partners.map(partner => (
                   <a
                     className="d-inline-block mr-4"
@@ -114,13 +114,13 @@ export default function CourseHeader() {
                 )}
                 <EnrollButton />
                 {defaultProgram && (
-                  <p className="font-weight-bold">
+                  <p className="font-weight-bold mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
                   </p>
                 )}
               </>
             ) : (
-              <p className="font-weight-bold">
+              <p className="font-weight-bold mb-0">
                 This course is not part of your company&apos;s curated course catalog.
               </p>
             )}

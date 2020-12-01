@@ -41,21 +41,18 @@ const CompletedCourseCard = (props) => {
           <img src={CertificateImg} alt="verified certificate preview" />
         </div>
         <div className="d-flex align-items-center">
-          <p className="lead mb-0 font-weight-normal">
+          <p className="mb-0">
             View your certificate on{' '}
-            <a
-              className="text-underline"
-              href={`${config.LMS_BASE_URL}/u/${username}`}
-            >
+            <a href={`${config.LMS_BASE_URL}/u/${username}`}>
               your profile →
             </a>
           </p>
         </div>
       </div>
     ) : (
-      <p className="lead mb-3 font-weight-normal">
+      <p className="mb-3">
         To earn a certificate,{' '}
-        <a className="text-underline" href={props.linkToCourse}>
+        <a href={props.linkToCourse}>
           retake this course →
         </a>
       </p>

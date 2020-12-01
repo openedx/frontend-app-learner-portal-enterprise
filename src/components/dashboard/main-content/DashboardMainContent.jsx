@@ -16,7 +16,7 @@ const DashboardMainContent = () => {
       {/*
           The children below will only be rendered if there are no course runs.
        */}
-      <h2 className="h3">Find a course</h2>
+      <h2>Find a Course</h2>
       <p>
         You are not enrolled in any courses sponsored by {name}.
         To start taking a course, browse the catalog below.
@@ -29,7 +29,7 @@ const DashboardMainContent = () => {
             { disabled: !hasAccessToPortal },
           )}
         >
-          Find a Course
+          Find a course
         </Link>
       </p>
     </CourseEnrollments>

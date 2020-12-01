@@ -7,9 +7,9 @@ import {
   fetchEnterpriseCustomerSubscriptionPlan,
 } from './service';
 
-export const defaultPrimaryColor = '#1a337b';
-export const defaultSecondaryColor = '#d7e3fc';
-export const defaultTertiaryColor = '#007d88';
+export const defaultPrimaryColor = '#00262b';
+export const defaultSecondaryColor = '#eff8fa';
+export const defaultTertiaryColor = '#0a7da3';
 
 const defaultBrandingConfig = {
   logo: null,
@@ -58,9 +58,12 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             branding: {
               logo,
               colors: {
-                primary: primaryColor || defaultPrimaryColor,
-                secondary: secondaryColor || defaultSecondaryColor,
-                tertiary: tertiaryColor || defaultTertiaryColor,
+                // primary: primaryColor || defaultPrimaryColor,
+                // secondary: secondaryColor || defaultSecondaryColor,
+                // tertiary: tertiaryColor || defaultTertiaryColor,
+                primary: defaultPrimaryColor,
+                secondary: defaultSecondaryColor,
+                tertiary: defaultTertiaryColor,
               },
             },
           });

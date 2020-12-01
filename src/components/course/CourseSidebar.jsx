@@ -60,7 +60,7 @@ export default function CourseSidebar() {
           label="Price"
           content={<CourseSidebarPrice />}
         />
-        {partners && partners.length > 0 && (
+        {partners?.length > 0 && (
           <CourseSidebarListItem
             icon={faUniversity}
             label={institutionLabel}
@@ -98,7 +98,7 @@ export default function CourseSidebar() {
             content={ISO6391.getNativeName(activeCourseRun.contentLanguage.slice(0, 2))}
           />
         )}
-        {transcriptLanguages && transcriptLanguages.length > 0 && (
+        {transcriptLanguages?.length > 0 && (
           <CourseSidebarListItem
             icon={faFileVideo}
             label={transcriptLabel}
@@ -115,7 +115,7 @@ export default function CourseSidebar() {
           />
         )}
       </ul>
-      {course.programs && course.programs.length > 0 && (
+      {course?.programs.length > 0 && (
         <CourseAssociatedPrograms />
       )}
       {course.prerequisitesRaw && (

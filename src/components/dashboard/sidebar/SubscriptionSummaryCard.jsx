@@ -33,17 +33,15 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
       statusBadgeVariant = SUBSCRIPTION_WARNING_BADGE_VARIANT;
     }
     return (
-      <div className="d-flex align-content-center">
-        {SUBSCRIPTION_SUMMARY_CARD_TITLE}
+      <div className="d-flex">
+        <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
         <div>
           <Badge
             variant={statusBadgeVariant}
             className="ml-2"
             data-testid="subscription-status-badge"
           >
-            <small className="font-weight-bold">
-              {statusBadgeLabel}
-            </small>
+            {statusBadgeLabel}
           </Badge>
         </div>
       </div>
@@ -53,7 +51,7 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const renderCardBody = () => (
     <>
       {daysUntilExpiration > SUBSCRIPTION_EXPIRED ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-      {' '}<span className="font-weight-bold">{moment(expirationDate).format('MMMM Do, YYYY')}</span>.
+      {' '}<span className="font-weight-bold">{moment(expirationDate).format('MMMM Do, YYYY')}</span>
     </>
   );
 

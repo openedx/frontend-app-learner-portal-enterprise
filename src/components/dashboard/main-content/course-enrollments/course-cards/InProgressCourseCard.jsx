@@ -60,10 +60,10 @@ const InProgressCourseCard = ({
           });
         },
         children: (
-          <div role="menuitem">
+          <>
             Save course for later
             <span className="sr-only">for {title}</span>
-          </div>
+          </>
         ),
       }];
     }

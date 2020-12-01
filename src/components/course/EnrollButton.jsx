@@ -24,7 +24,7 @@ const EnrollButtonWrapper = ({
   children,
   ...props
 }) => (
-  <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+  <div className="enroll-wrapper" style={{ width: 270 }}>
     <Component {...props}>
       {children}
     </Component>
@@ -108,7 +108,7 @@ export default function EnrollButton() {
     </EnrollButtonWrapper>
   );
 
-  const enrollLinkClass = 'btn-block rounded-0 py-2';
+  const enrollLinkClass = 'btn-block rounded-0';
 
   if (!userEnrollment && isEnrollable) {
     // enroll with a subscription license
@@ -116,7 +116,7 @@ export default function EnrollButton() {
       return (
         <EnrollButtonCta
           as="a"
-          className={classNames('btn', 'btn-success', enrollLinkClass)}
+          className={classNames('btn', 'btn-brand', enrollLinkClass)}
           href={enrollmentUrl}
         />
       );
@@ -128,7 +128,7 @@ export default function EnrollButton() {
           <EnrollButtonCta
             className={classNames('btn', enrollLinkClass)}
             onClick={() => setIsModalOpen(true)}
-            variant="success"
+            variant="brand"
           />
           <EnrollModal
             isModalOpen={isModalOpen}
@@ -143,8 +143,8 @@ export default function EnrollButton() {
     // cannot enroll without a valid enrollment url, so render a disabled button.
     return (
       <EnrollButtonCta
-        className={classNames(enrollLinkClass, 'disabled')}
-        variant="success"
+        className={classNames(enrollLinkClass)}
+        variant="brand"
       />
     );
   }
@@ -153,7 +153,7 @@ export default function EnrollButton() {
     return (
       <EnrollButtonCta
         as="div"
-        className="alert alert-secondary text-center rounded-0"
+        className="btn btn-block btn-light disabled"
       />
     );
   }
@@ -168,7 +168,7 @@ export default function EnrollButton() {
       });
       return (
         <EnrollButtonCta
-          className={classNames('btn', 'btn-success', enrollLinkClass)}
+          className={classNames('btn', 'btn-brand', enrollLinkClass)}
           href={shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl}
         />
       );
@@ -176,7 +176,7 @@ export default function EnrollButton() {
     return (
       <EnrollButtonCta
         as={Link}
-        className={classNames('btn', 'btn-success', enrollLinkClass)}
+        className={classNames('btn', 'btn-brand', enrollLinkClass)}
         to={`/${enterpriseConfig.slug}`}
       />
     );
@@ -185,7 +185,7 @@ export default function EnrollButton() {
   return (
     <EnrollButtonCta
       className={enrollLinkClass}
-      variant="success"
+      variant="brand"
     />
   );
 }

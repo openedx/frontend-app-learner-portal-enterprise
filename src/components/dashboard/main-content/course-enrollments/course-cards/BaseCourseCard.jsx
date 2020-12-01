@@ -112,20 +112,14 @@ class BaseCourseCard extends Component {
   };
 
   handleEmailSettingsButtonClick = () => {
-    const {
-      title,
-      courseRunId,
-    } = this.props;
-
+    const { courseRunId } = this.props;
     const {
       hasEmailsEnabled,
     } = this.state;
-
     this.setModalState({
       key: 'emailSettings',
       open: true,
       options: {
-        title,
         hasEmailsEnabled,
       },
     });
@@ -151,7 +145,7 @@ class BaseCourseCard extends Component {
       return (
         <div className="ml-auto">
           <Dropdown>
-            <Dropdown.Toggle variant="outline-secondary">
+            <Dropdown.Toggle variant="outline-dark">
               <FontAwesomeIcon icon={faCog} />
               <span className="sr-only">
                 course settings for {title}
@@ -277,7 +271,7 @@ class BaseCourseCard extends Component {
     return (
       <div
         className={classNames(
-          'course py-4 border-bottom',
+          'dashboard-course-card py-4 border-bottom',
           { 'is-micromasters': !!microMastersTitle },
         )}
       >

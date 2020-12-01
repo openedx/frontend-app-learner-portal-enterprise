@@ -1,4 +1,4 @@
-.course {
+.dashboard-course-card {
   @extend .position-relative;
 
   &:first-child {
@@ -35,7 +35,6 @@
   }
 
   .course-title > a {
-    @extend .h4;
     @extend .m-0;
     @extend .text-dark;
     text-decoration: none;
@@ -49,8 +48,7 @@
     }
 
     .notification {
-      background: #f4f7ff;
-      border-color: #d3daf0;
+      background: $info-100;
     }
   }
 

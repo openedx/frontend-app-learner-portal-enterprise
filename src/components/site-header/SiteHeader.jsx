@@ -1,14 +1,15 @@
 import React, { useContext } from 'react';
 import Responsive from 'react-responsive';
 
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
+import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import Avatar from './Avatar';
 import { Menu, MenuTrigger, MenuContent } from './menu';
 
-import edXLogo from '../../assets/edx-logo.svg';
+import edXLogo from '@edx/brand/logo.svg';
 import { ReactComponent as MenuIcon } from '../../assets/icons/menu.svg';
 import { ReactComponent as CaretIcon } from '../../assets/icons/caret.svg';
 
@@ -64,12 +65,12 @@ export default function SiteHeader() {
     }
     return (
       <>
-        <Link to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName}>
+        <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
           Dashboard
-        </Link>
-        <Link to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName}>
+        </NavLink>
+        <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
           Find a Course
-        </Link>
+        </NavLink>
         <a href="https://support.edx.org/hc/en-us" className={mainMenuLinkClassName}>
           Help
         </a>
@@ -85,9 +86,9 @@ export default function SiteHeader() {
         <MenuTrigger
           tag="button"
           aria-label={`Account menu for ${username}`}
-          className="btn btn-light d-inline-flex align-items-center pl-2 pr-3"
+          className="btn btn-outline-primary d-inline-flex align-items-center pl-2 pr-3"
         >
-          <Avatar size="1.5em" src={profileImage.imageUrlMedium} alt="" className="mr-2" />
+          <Avatar size="1.5rem" src={profileImage.imageUrlMedium} alt={username} className="mr-2" />
           {username} <CaretIcon role="img" aria-hidden focusable="false" />
         </MenuTrigger>
         <MenuContent className="mb-0 dropdown-menu show dropdown-menu-right pin-right shadow py-2">
@@ -100,9 +101,9 @@ export default function SiteHeader() {
 
             if (type === INTERNAL_LINK_TYPE) {
               return (
-                <Link key={content} className={desktopMenuLinkClassName} to={href}>
+                <NavLink key={content} className={desktopMenuLinkClassName} to={href} exact>
                   {content}
-                </Link>
+                </NavLink>
               );
             }
             return (
@@ -144,9 +145,9 @@ export default function SiteHeader() {
       return (
         <li className="nav-item" key={content}>
           {type === INTERNAL_LINK_TYPE ? (
-            <Link className={mobileMenuLinkClassName} to={href}>
+            <NavLink className={mobileMenuLinkClassName} to={href} exact>
               {content}
-            </Link>
+            </NavLink>
           ) : (
             <a className={mobileMenuLinkClassName} href={href}>
               {content}
@@ -196,7 +197,7 @@ export default function SiteHeader() {
               aria-label={accountMenuTitle}
               title={accountMenuTitle}
             >
-              <Avatar size="1.5rem" src={authenticatedUser.profileImage.imageUrlMedium} alt={authenticatedUser.username} />
+              <Avatar size="1.5rem" src={profileImage.imageUrlMedium} alt={username} />
             </MenuTrigger>
             <MenuContent tag="ul" className="nav flex-column pin-left pin-right border-top shadow py-2">
               {renderMobileUserMenu()}
@@ -210,7 +211,9 @@ export default function SiteHeader() {
   return (
     <>
       <div className="position-absolute">
-        <a href="#content" className="skip-nav-link sr-only sr-only-focusable btn btn-primary px-2 py-1 mt-3 ml-2">Skip to main content</a>
+        <HashLink to="#content" className="skip-nav-link sr-only sr-only-focusable btn btn-primary mt-3 ml-2">
+          Skip to main content
+        </HashLink>
       </div>
       <Responsive maxWidth={768}>
         {renderMobileHeader()}

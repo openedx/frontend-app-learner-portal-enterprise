@@ -9,42 +9,43 @@ const COLOR_MIX_MODIFIER = 0.1;
 export const useStylesForCustomBrandColors = (enterpriseConfig) => {
   const brandColors = useMemo(
     () => {
-      if (isDefinedAndNotNull(enterpriseConfig)) {
-        const { branding } = enterpriseConfig;
-
-        const primaryColor = Color(branding.colors.primary);
-        const secondaryColor = Color(branding.colors.secondary);
-        const tertiaryColor = Color(branding.colors.tertiary);
-
-        const whiteColor = Color('#ffffff');
-        const darkColor = Color('#171c29');
-
-        const getA11yTextColor = color => (color.isDark() ? whiteColor : darkColor);
-
-        return {
-          white: whiteColor,
-          dark: darkColor,
-          primary: {
-            regular: primaryColor,
-            light: primaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
-            dark: primaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
-            textColor: getA11yTextColor(primaryColor),
-          },
-          secondary: {
-            regular: secondaryColor,
-            light: secondaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
-            dark: secondaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
-            textColor: getA11yTextColor(secondaryColor),
-          },
-          tertiary: {
-            regular: tertiaryColor,
-            light: tertiaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
-            dark: tertiaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
-            textColor: getA11yTextColor(tertiaryColor),
-          },
-        };
+      if (!isDefinedAndNotNull(enterpriseConfig)) {
+        return undefined;
       }
-      return undefined;
+
+      const { branding } = enterpriseConfig;
+
+      const primaryColor = Color(branding.colors.primary);
+      const secondaryColor = Color(branding.colors.secondary);
+      const tertiaryColor = Color(branding.colors.tertiary);
+
+      const whiteColor = Color('#ffffff');
+      const darkColor = Color('#454545');
+
+      const getA11yTextColor = color => (color.isDark() ? whiteColor : darkColor);
+
+      return {
+        white: whiteColor,
+        dark: darkColor,
+        primary: {
+          regular: primaryColor,
+          light: primaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
+          dark: primaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
+          textColor: getA11yTextColor(primaryColor),
+        },
+        secondary: {
+          regular: secondaryColor,
+          light: secondaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
+          dark: secondaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
+          textColor: getA11yTextColor(secondaryColor),
+        },
+        tertiary: {
+          regular: tertiaryColor,
+          light: tertiaryColor.lighten(COLOR_LIGHTEN_DARKEN_MODIFIER),
+          dark: tertiaryColor.darken(COLOR_LIGHTEN_DARKEN_MODIFIER),
+          textColor: getA11yTextColor(tertiaryColor),
+        },
+      };
     },
     [enterpriseConfig],
   );
