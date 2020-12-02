@@ -1,6 +1,7 @@
 import React from 'react';
 import { Switch } from 'react-router-dom';
 import { AppProvider, PageRoute } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 import FullStory from 'react-fullstory';
 
 import { DashboardPage } from '../dashboard';
@@ -13,9 +14,8 @@ import store from '../../store';
 
 import '../../assets/favicon.ico';
 
-const { FULLSTORY_ORG_ID } = process.env;
-
 export default function App() {
+  const { FULLSTORY_ORG_ID } = getConfig();
   return (
     <AppProvider store={store}>
       {FULLSTORY_ORG_ID && (

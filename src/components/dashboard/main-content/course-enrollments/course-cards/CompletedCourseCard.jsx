@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
@@ -18,6 +18,7 @@ const CompletedCourseCard = (props) => {
     courseRunId,
     endDate,
   } = props;
+  const config = getConfig();
 
   const renderButtons = () => {
     if (isCourseEnded(endDate)) {
@@ -44,7 +45,7 @@ const CompletedCourseCard = (props) => {
             View your certificate on{' '}
             <a
               className="text-underline"
-              href={`${process.env.LMS_BASE_URL}/u/${username}`}
+              href={`${config.LMS_BASE_URL}/u/${username}`}
             >
               your profile →
             </a>

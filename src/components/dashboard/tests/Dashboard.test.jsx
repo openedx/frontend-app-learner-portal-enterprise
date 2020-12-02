@@ -72,6 +72,9 @@ describe('<Dashboard />', () => {
       expirationDate: '2020-10-25',
       daysUntilExpiration: 365,
     },
+    config: {
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+    },
   };
   const initialUserSubsidyState = {
     hasAccessToPortal: true,

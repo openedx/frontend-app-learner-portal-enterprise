@@ -17,7 +17,8 @@ const INTERNAL_LINK_TYPE = 'internal';
 export default function SiteHeader() {
   const authenticatedUser = getAuthenticatedUser();
   const { username, profileImage } = authenticatedUser;
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, config } = useContext(AppContext);
+
   const dashboardLink = `/${enterpriseConfig.slug}`;
   const userMenuItems = [
     {
@@ -26,11 +27,11 @@ export default function SiteHeader() {
       content: 'Dashboard',
     },
     {
-      href: `${process.env.LMS_BASE_URL}/u/${authenticatedUser.username}`,
+      href: `${config.LMS_BASE_URL}/u/${authenticatedUser.username}`,
       content: 'My Profile',
     },
     {
-      href: `${process.env.LMS_BASE_URL}/account/settings`,
+      href: `${config.LMS_BASE_URL}/account/settings`,
       content: 'Account Settings',
     },
     {
@@ -38,7 +39,7 @@ export default function SiteHeader() {
       content: 'Help',
     },
     {
-      href: `${process.env.LOGOUT_URL}?next=${process.env.BASE_URL}${dashboardLink}`,
+      href: `${config.LOGOUT_URL}?next=${config.BASE_URL}${dashboardLink}`,
       content: 'Sign Out',
     },
   ];

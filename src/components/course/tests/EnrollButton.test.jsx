@@ -41,6 +41,9 @@ describe('<EnrollButton />', () => {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
     },
+    config: {
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+    },
   };
   const initialCourseState = {
     course: {},

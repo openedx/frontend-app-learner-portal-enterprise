@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import qs from 'query-string';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
@@ -50,6 +51,7 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
 export function useCourseSubjects(course) {
   const [subjects, setSubjects] = useState([]);
   const [primarySubject, setPrimarySubject] = useState(null);
+  const config = getConfig();
 
   useEffect(() => {
     if (course?.subjects) {
@@ -57,7 +59,7 @@ export function useCourseSubjects(course) {
       if (course.subjects.length > 0) {
         const newSubject = {
           ...course.subjects[0],
-          url: `${process.env.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
+          url: `${config.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
         };
         setPrimarySubject(newSubject);
       }
@@ -208,10 +210,11 @@ export function useCourseEnrollmentUrl({
   subscriptionLicense,
   userSubsidy,
 }) {
+  const config = getConfig();
   const enrollmentFailedParams = { ...qs.parse(location.search) };
   enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
   const baseEnrollmentOptions = {
-    next: `${process.env.LMS_BASE_URL}/courses/${key}/course`,
+    next: `${config.LMS_BASE_URL}/courses/${key}/course`,
     // Redirect back to the same page with a failure query param
     failure_url: `${global.location.href}?${qs.stringify(enrollmentFailedParams)}`,
   };
@@ -226,7 +229,7 @@ export function useCourseEnrollmentUrl({
           course_id: key,
           enterprise_customer_uuid: enterpriseConfig.uuid,
         };
-        return `${process.env.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
+        return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
       }
 
       if (features.ENROLL_WITH_CODES && offers.length >= 0 && sku) {
@@ -237,10 +240,10 @@ export function useCourseEnrollmentUrl({
         // get the index of the first offer that applies to a catalog that the course is in
         const offerForCourse = findOfferForCourse(offers, catalogList);
         if (offers.length === 0 || !offerForCourse) {
-          return `${process.env.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
+          return `${config.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
         }
         enrollOptions.code = offerForCourse.code;
-        return `${process.env.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
+        return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
       }
 
       // No offer or product SKU is present, so the course cannot be enrolled in.

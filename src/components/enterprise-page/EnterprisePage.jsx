@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { identify } from 'react-fullstory';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
@@ -58,6 +59,7 @@ export default function EnterprisePage({ children }) {
         },
         enterpriseConfig,
         subscriptionPlan,
+        config: getConfig(),
       }}
     >
       {children}
