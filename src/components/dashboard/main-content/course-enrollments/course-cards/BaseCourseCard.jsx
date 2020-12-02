@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dropdown } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { EmailSettingsModal } from './email-settings';
-
 import { COURSE_STATUSES } from '../data/constants';
 
 class BaseCourseCard extends Component {
@@ -252,12 +252,14 @@ class BaseCourseCard extends Component {
     const { linkToCertificate } = this.props;
     const user = getAuthenticatedUser();
     const { username } = user;
+    const config = getConfig();
+
     if (linkToCertificate) {
       return (
         <small className="mb-0">
           View your certificate on
           {' '}
-          <a className="text-underline" href={`${process.env.LMS_BASE_URL}/u/${username}`}>your profile →</a>
+          <a className="text-underline" href={`${config.LMS_BASE_URL}/u/${username}`}>your profile →</a>
         </small>
       );
     }

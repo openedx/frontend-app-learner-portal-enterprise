@@ -24,6 +24,7 @@ const SubscriptionExpirationModal = () => {
     enterpriseConfig: {
       contactEmail,
     },
+    config,
   } = useContext(AppContext);
 
   const renderTitle = () => {
@@ -51,7 +52,7 @@ const SubscriptionExpirationModal = () => {
     const { username } = getAuthenticatedUser();
     return (
       <>
-        <a href={`${process.env.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
+        <a href={`${config.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
           download your completed certificates
         </a>
       </>

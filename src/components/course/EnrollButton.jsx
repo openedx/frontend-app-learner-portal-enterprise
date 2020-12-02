@@ -41,8 +41,8 @@ EnrollButtonWrapper.defaultProps = {
 };
 
 export default function EnrollButton() {
+  const { enterpriseConfig, config } = useContext(AppContext);
   const { state: courseData } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -160,7 +160,7 @@ export default function EnrollButton() {
 
   if (userEnrollment) {
     if (isCourseStarted) {
-      const courseInfoUrl = `${process.env.LMS_BASE_URL}/courses/${key}/info`;
+      const courseInfoUrl = `${config.LMS_BASE_URL}/courses/${key}/info`;
       const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
         userEnrollment,
         subscriptionLicense,

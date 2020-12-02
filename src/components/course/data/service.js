@@ -1,9 +1,9 @@
 import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { hasValidStartExpirationDates } from '../../../utils/common';
-import { configuration } from '../../../config';
 import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 
@@ -15,10 +15,11 @@ export default class CourseService {
       courseRunKey,
       enterpriseUuid,
     } = options;
+    this.config = getConfig();
 
     this.authenticatedHttpClient = getAuthenticatedHttpClient();
     this.cachedAuthenticatedHttpClient = getAuthenticatedHttpClient({
-      useCache: configuration.USE_API_CACHE,
+      useCache: this.config.USE_API_CACHE,
     });
 
     this.courseKey = courseKey;
@@ -63,24 +64,24 @@ export default class CourseService {
   }
 
   fetchCourseDetails() {
-    const url = `${process.env.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}/`;
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}/`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
   fetchUserEnrollments() {
     // NOTE: this request url cannot use a trailing slash since it causes a 404
-    const url = `${process.env.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
+    const url = `${this.config.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
     return this.authenticatedHttpClient.get(url);
   }
 
   fetchUserEntitlements() {
-    const url = `${process.env.LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
+    const url = `${this.config.LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
     return this.authenticatedHttpClient.get(url);
   }
 
   fetchEnterpriseCustomerContainsContent() {
     const options = { course_run_ids: this.courseKey, get_catalog_list: true };
-    const url = `${process.env.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
@@ -126,7 +127,7 @@ export default class CourseService {
       enterprise_customer_uuid: this.enterpriseUuid,
       course_key: this.activeCourseRun.key,
     };
-    const url = `${process.env.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
+    const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 }

@@ -1,11 +1,11 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-
-import { configuration } from '../../../../config';
+import { getConfig } from '@edx/frontend-platform/config';
 
 const fetchOffers = (query) => {
-  const offersUrl = `${process.env.ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${query}`;
+  const config = getConfig();
+  const offersUrl = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${query}`;
   const httpClient = getAuthenticatedHttpClient({
-    useCache: configuration.USE_API_CACHE,
+    useCache: config.USE_API_CACHE,
   });
   return httpClient.get(offersUrl);
 };
