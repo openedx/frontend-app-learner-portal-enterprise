@@ -1,4 +1,8 @@
 .course-section {
+  &:last-child {
+    @extend .mb-0;
+  }
+
   .collapsible-trigger {
     @extend .px-0;
   }

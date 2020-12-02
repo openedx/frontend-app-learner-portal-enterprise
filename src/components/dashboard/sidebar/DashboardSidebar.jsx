@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import { Link } from 'react-router-dom';
-
 import { AppContext } from '@edx/frontend-platform/react';
+import { MailtoLink } from '@edx/paragon';
 
 import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
@@ -22,22 +23,25 @@ const DashboardSidebar = () => {
     },
     subscriptionPlan,
   } = useContext(AppContext);
-  const { offers: { offersCount } } = useContext(UserSubsidyContext);
+  const {
+    hasAccessToPortal,
+    offers: { offersCount },
+  } = useContext(UserSubsidyContext);
 
   const renderContactHelpText = () => {
     const message = EMAIL_MESSAGE;
     if (contactEmail) {
       return (
-        <a className="text-underline" href={`mailto:${contactEmail}`}>
+        <MailtoLink className="text-underline" to={contactEmail}>
           {message}
-        </a>
+        </MailtoLink>
       );
     }
     return message;
   };
 
   return (
-    <>
+    <div className="mt-3 mt-lg-0">
       <SidebarCard
         title={CATALOG_ACCESS_CARD_TITLE}
         cardClassNames="border-primary catalog-access-card mb-5"
@@ -57,7 +61,7 @@ const DashboardSidebar = () => {
         )}
         <Link
           to={`/${slug}/search`}
-          className="btn btn-outline-primary btn-block"
+          className={classNames('btn btn-outline-primary btn-block', { disabled: !hasAccessToPortal })}
         >
           {CATALOG_ACCESS_CARD_BUTTON_TEXT}
         </Link>
@@ -75,7 +79,7 @@ const DashboardSidebar = () => {
           To request more benefits or specific courses, {renderContactHelpText()}.
         </p>
       </SidebarBlock>
-    </>
+    </div>
   );
 };
 

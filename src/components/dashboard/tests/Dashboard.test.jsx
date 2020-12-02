@@ -110,6 +110,7 @@ describe('<Dashboard />', () => {
       containsContentItems: true,
     },
   };
+
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -121,6 +122,7 @@ describe('<Dashboard />', () => {
     );
     expect(screen.getByText(LICENCE_ACTIVATION_MESSAGE)).toBeTruthy();
   });
+
   it('does not render license activation alert without activation success', () => {
     // NOTE: This modifies the original mockLocation
     mockLocation = { ...mockLocation, state: { activationSuccess: false } };
@@ -129,6 +131,7 @@ describe('<Dashboard />', () => {
     );
     expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
   });
+
   it('does not render subscription expiration modal when >60 days of access remain', () => {
     renderWithRouter(
       <DashboardWithContext
@@ -140,6 +143,7 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
   });
+
   it('renders the subscription expiration warning modal when 60 >= daysUntilExpiration > 0', () => {
     const expiringSubscriptionAppState = {
       ...initialAppState,
@@ -158,6 +162,7 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
   });
+
   it('renders the subscription expired modal when 0 >= daysUntilExpiration', () => {
     const expiringSubscriptionAppState = {
       ...initialAppState,
@@ -176,6 +181,7 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
   });
+
   it('renders a sidebar on a large screen', () => {
     window.matchMedia.setConfig(mockWindowConfig);
     renderWithRouter(
@@ -183,15 +189,15 @@ describe('<Dashboard />', () => {
     );
     expect(screen.getByTestId('sidebar')).toBeTruthy();
   });
-  it('does not render a sidebar on a small screen', () => {
+
+  it('renders a sidebar on a small screen', () => {
     window.matchMedia.setConfig({ ...mockWindowConfig, width: breakpoints.large.minWidth - 1 });
     renderWithRouter(
       <DashboardWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
-        initialCourseState={initialCourseState}
       />,
     );
-    expect(screen.queryByTestId('sidebar')).toBeFalsy();
+    expect(screen.getByTestId('sidebar')).toBeTruthy();
   });
 });
