@@ -45,9 +45,13 @@ export default function Dashboard() {
           <MainContent>
             <DashboardMainContent />
           </MainContent>
-          <Sidebar data-testid="sidebar">
-            <DashboardSidebar />
-          </Sidebar>
+          <MediaQuery minWidth={breakpoints.large.minWidth}>
+            {matches => matches && (
+              <Sidebar data-testid="sidebar">
+                <DashboardSidebar />
+              </Sidebar>
+            )}
+          </MediaQuery>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
           {subscriptionPlan && <SubscriptionExpirationModal />}
         </div>

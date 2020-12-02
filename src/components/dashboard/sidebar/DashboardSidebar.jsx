@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { MailtoLink } from '@edx/paragon';
@@ -60,7 +61,7 @@ const DashboardSidebar = () => {
         )}
         <Link
           to={`/${slug}/search`}
-          className="btn btn-outline-primary btn-block"
+          className={classNames('btn btn-outline-primary btn-block', { disabled: !hasAccessToPortal })}
         >
           {CATALOG_ACCESS_CARD_BUTTON_TEXT}
         </Link>
