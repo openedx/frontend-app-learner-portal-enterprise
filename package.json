@@ -8,7 +8,7 @@
     "@edx/frontend-enterprise": "4.5.1",
     "@edx/frontend-i18n": "3.0.4",
     "@edx/frontend-logging": "3.0.1",
-    "@edx/frontend-platform": "1.7.0",
+    "@edx/frontend-platform": "1.8.0",
     "@edx/paragon": "12.2.0",
     "@fortawesome/fontawesome-svg-core": "1.2.32",
     "@fortawesome/free-brands-svg-icons": "5.15.1",
