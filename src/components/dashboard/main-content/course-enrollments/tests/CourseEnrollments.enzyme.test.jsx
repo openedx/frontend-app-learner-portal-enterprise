@@ -103,8 +103,8 @@ describe('<CourseEnrollments />', () => {
 
       expect(wrapper.html()).not.toBeNull();
       expect(wrapper.find('.course-section').length).toEqual(2);
-      expect(wrapper.find('.course-section').first().find('.course').length).toEqual(1);
-      expect(wrapper.find('.course-section').last().find('.course').length).toEqual(1);
+      expect(wrapper.find('.course-section').first().find('.dashboard-course-card').length).toEqual(1);
+      expect(wrapper.find('.course-section').last().find('.dashboard-course-card').length).toEqual(1);
     });
 
     it('with error', () => {
