@@ -94,7 +94,7 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('Find a course button is always rendered', () => {
+  test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
@@ -104,27 +104,7 @@ describe('<DashboardSidebar />', () => {
       </DashboardSidebarContext>,
     );
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
-    expect(catalogAccessButton).toBeTruthy();
-
-    // ``hasAccessToPortal`` is set to true in defaultUserSubsidyState, so the button should
-    // not be disabled.
-    expect(catalogAccessButton.classList).not.toContain('disabled');
-  });
-  test('Find a course button is rendered as disabled when user has no portal access', () => {
-    renderWithRouter(
-      <DashboardSidebarContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{
-          ...defaultUserSubsidyState,
-          hasAccessToPortal: false,
-        }}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
-    );
-    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
-    expect(catalogAccessButton).toBeTruthy();
-    expect(catalogAccessButton.classList).toContain('disabled');
+    expect(catalogAccessButton).toBeFalsy();
   });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(
