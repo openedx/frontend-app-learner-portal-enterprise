@@ -65,7 +65,7 @@
     "redux-mock-store": "1.5.4"
   },
   "keywords": [],
-  "license": "GNU",
+  "license": "AGPL-3.0",
   "scripts": {
     "build": "fedx-scripts webpack",
     "i18n_extract": "BABEL_ENV=i18n fedx-scripts babel src --quiet > /dev/null",
