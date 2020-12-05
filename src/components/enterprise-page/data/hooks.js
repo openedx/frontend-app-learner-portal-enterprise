@@ -58,12 +58,9 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             branding: {
               logo,
               colors: {
-                // primary: primaryColor || defaultPrimaryColor,
-                // secondary: secondaryColor || defaultSecondaryColor,
-                // tertiary: tertiaryColor || defaultTertiaryColor,
-                primary: defaultPrimaryColor,
-                secondary: defaultSecondaryColor,
-                tertiary: defaultTertiaryColor,
+                primary: primaryColor || defaultPrimaryColor,
+                secondary: secondaryColor || defaultSecondaryColor,
+                tertiary: tertiaryColor || defaultTertiaryColor,
               },
             },
           });

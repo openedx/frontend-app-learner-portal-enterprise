@@ -157,7 +157,7 @@ export class CourseEnrollments extends Component {
           component={InProgressCourseCard}
           courseRuns={courseRuns.in_progress}
         />
-        <MediaQuery maxWidth={breakpoints.large.minWidth}>
+        <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
           {matches => matches && (
             <Row>
               <Sidebar data-testid="sidebar">

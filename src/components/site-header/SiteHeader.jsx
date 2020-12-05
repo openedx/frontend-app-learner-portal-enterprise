@@ -1,15 +1,14 @@
 import React, { useContext } from 'react';
 import Responsive from 'react-responsive';
-
 import { Link, NavLink } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import edXLogo from '@edx/brand/logo.svg';
 
 import Avatar from './Avatar';
 import { Menu, MenuTrigger, MenuContent } from './menu';
 
-import edXLogo from '@edx/brand/logo.svg';
 import { ReactComponent as MenuIcon } from '../../assets/icons/menu.svg';
 import { ReactComponent as CaretIcon } from '../../assets/icons/caret.svg';
 
