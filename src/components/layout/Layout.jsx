@@ -11,7 +11,7 @@ import { useStylesForCustomBrandColors } from './data/hooks';
 import './styles/Layout.scss';
 
 export const TITLE_TEMPLATE = '%s - edX';
-export const DEFAULT_TITLE = 'edx';
+export const DEFAULT_TITLE = 'edX';
 
 export default function Layout({ children }) {
   const { enterpriseConfig } = useContext(AppContext);
