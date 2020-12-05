@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import Color from 'color';
 
+import colors from '../../../colors.scss';
+
 import { isDefinedAndNotNull, isDefined } from '../../../utils/common';
 
 const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
@@ -19,8 +21,8 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
       const secondaryColor = Color(branding.colors.secondary);
       const tertiaryColor = Color(branding.colors.tertiary);
 
-      const whiteColor = Color('#ffffff');
-      const darkColor = Color('#454545');
+      const whiteColor = Color(colors?.white);
+      const darkColor = Color(colors?.dark);
 
       const getA11yTextColor = color => (color.isDark() ? whiteColor : darkColor);
 
@@ -54,8 +56,8 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
     return null;
   }
 
-  const colors = ['primary', 'secondary', 'tertiary'];
-  const styles = colors.map((colorName) => ({
+  const enterpriseColors = ['primary', 'secondary', 'tertiary'];
+  const styles = enterpriseColors.map((colorName) => ({
     key: colorName,
     styles: (`
       .btn-brand-${colorName} {
