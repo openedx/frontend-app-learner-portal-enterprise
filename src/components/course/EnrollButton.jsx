@@ -108,7 +108,7 @@ export default function EnrollButton() {
     </EnrollButtonWrapper>
   );
 
-  const enrollLinkClass = 'btn-block rounded-0';
+  const enrollLinkClass = 'btn-block';
 
   if (!userEnrollment && isEnrollable) {
     // enroll with a subscription license
@@ -126,7 +126,7 @@ export default function EnrollButton() {
       return (
         <>
           <EnrollButtonCta
-            className={classNames('btn', enrollLinkClass)}
+            className={enrollLinkClass}
             onClick={() => setIsModalOpen(true)}
             variant="brand"
           />
@@ -143,7 +143,7 @@ export default function EnrollButton() {
     // cannot enroll without a valid enrollment url, so render a disabled button.
     return (
       <EnrollButtonCta
-        className={classNames(enrollLinkClass)}
+        className={enrollLinkClass}
         variant="brand"
       />
     );
@@ -153,7 +153,7 @@ export default function EnrollButton() {
     return (
       <EnrollButtonCta
         as="div"
-        className="btn btn-block btn-light disabled"
+        className="btn btn-light btn-block disabled"
       />
     );
   }
@@ -168,8 +168,9 @@ export default function EnrollButton() {
       });
       return (
         <EnrollButtonCta
-          className={classNames('btn', 'btn-brand', enrollLinkClass)}
+          className={enrollLinkClass}
           href={shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl}
+          variant="brand"
         />
       );
     }
