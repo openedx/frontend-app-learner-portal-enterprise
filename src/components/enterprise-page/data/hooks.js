@@ -7,9 +7,9 @@ import {
   fetchEnterpriseCustomerSubscriptionPlan,
 } from './service';
 
-export const defaultPrimaryColor = '#00262b';
-export const defaultSecondaryColor = '#eff8fa';
-export const defaultTertiaryColor = '#0a7da3';
+export const defaultPrimaryColor = '#1a337b';
+export const defaultSecondaryColor = '#d7e3fc';
+export const defaultTertiaryColor = '#007d88';
 
 const defaultBrandingConfig = {
   logo: null,
