@@ -5,14 +5,15 @@ export function useRenderContactHelpText(enterpriseConfig) {
     () => {
       const { contactEmail } = enterpriseConfig;
       const message = 'reach out to your organization\'s edX administrator';
-      if (contactEmail) {
-        return (
-          <a className="text-underline" href={`mailto:${contactEmail}`}>
-            {message}
-          </a>
-        );
+
+      if (!contactEmail) {
+        return message;
       }
-      return message;
+      return (
+        <a href={`mailto:${contactEmail}`}>
+          {message}
+        </a>
+      );
     },
     [enterpriseConfig],
   );

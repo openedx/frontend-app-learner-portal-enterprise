@@ -29,7 +29,7 @@ export default function CreatedBy() {
                   <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
                 </a>
               </div>
-              <a href={partner.marketingUrl} className="text-underline">{partner.name}</a>
+              <a href={partner.marketingUrl}>{partner.name}</a>
             </div>
           ))}
         </div>

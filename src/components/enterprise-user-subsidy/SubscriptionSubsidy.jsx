@@ -58,7 +58,7 @@ const SubscriptionSubsidy = ({
       case statusAlertTypes.revoked:
         return `Your enterprise license is no longer active. Please ${contactHelpText} for
         further information. You may continue your learning journey by creating a personal
-        account at <a className="text-underline" href="https://edx.org">edx.org</a>.`;
+        account at <a href="https://edx.org">edx.org</a>.`;
       default:
         return null;
     }

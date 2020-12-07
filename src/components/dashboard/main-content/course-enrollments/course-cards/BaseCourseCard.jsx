@@ -253,7 +253,7 @@ class BaseCourseCard extends Component {
         <small className="mb-0">
           View your certificate on
           {' '}
-          <a className="text-underline" href={`${config.LMS_BASE_URL}/u/${username}`}>your profile →</a>
+          <a href={`${config.LMS_BASE_URL}/u/${username}`}>your profile →</a>
         </small>
       );
     }

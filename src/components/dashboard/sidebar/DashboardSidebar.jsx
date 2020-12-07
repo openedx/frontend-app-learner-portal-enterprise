@@ -31,7 +31,7 @@ const DashboardSidebar = () => {
     const message = EMAIL_MESSAGE;
     if (contactEmail) {
       return (
-        <MailtoLink className="text-underline" to={contactEmail}>
+        <MailtoLink to={contactEmail}>
           {message}
         </MailtoLink>
       );
@@ -70,7 +70,7 @@ const DashboardSidebar = () => {
       >
         <p>
           For technical support, visit the{' '}
-          <a className="text-underline" href="https://support.edx.org/hc/en-us">edX Help Center</a>.
+          <a href="https://support.edx.org/hc/en-us">edX Help Center</a>.
         </p>
         <p>
           To request more benefits or specific courses, {renderContactHelpText()}.
