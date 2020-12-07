@@ -36,8 +36,8 @@
     box-shadow: $box-shadow-sm;
 
     .partner-logo {
-      width: 90px;
-      height: auto;
+      width: auto;
+      max-height: 45px;
     }
   }
 
