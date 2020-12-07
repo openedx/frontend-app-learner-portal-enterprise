@@ -7,7 +7,8 @@ import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
 
 import { isCourseEnded } from '../../../../../utils/common';
-import CertificateImg from './images/edx-verified-mini-cert.png';
+import CertificateImgOld from './images/edx-verified-mini-cert.png';
+import CertificateImg from './images/edx-verified-mini-cert-v2.png';
 
 const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
@@ -34,11 +35,23 @@ const CompletedCourseCard = (props) => {
     );
   };
 
+  // TODO: remove this function on/after December 15th, 2020 to only return
+  // the ``CertificateImg``, which has the new logo. until then, this function 
+  // will show the image with the current logo and automatically switch to the
+  // image with the new edX logo on December 15th.
+  const getVerifiedCertificateImg = () => {
+    const now = new Date();
+    if (now < new Date('2020-12-15')) {
+      return CertificateImgOld;
+    }
+    return CertificateImg;
+  };
+
   const renderCertificateInfo = () => (
     props.linkToCertificate ? (
       <div className="d-flex mb-3">
         <div className="mr-3">
-          <img src={CertificateImg} alt="verified certificate preview" />
+          <img src={getVerifiedCertificateImg()} alt="verified certificate preview" />
         </div>
         <div className="d-flex align-items-center">
           <p className="mb-0">

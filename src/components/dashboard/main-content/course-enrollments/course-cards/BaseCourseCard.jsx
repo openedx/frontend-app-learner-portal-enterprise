@@ -269,17 +269,12 @@ class BaseCourseCard extends Component {
     } = this.props;
     const dropdownMenuItems = this.getDropdownMenuItems();
     return (
-      <div
-        className={classNames(
-          'dashboard-course-card py-4 border-bottom',
-          { 'is-micromasters': !!microMastersTitle },
-        )}
-      >
+      <div className="dashboard-course-card py-4 border-bottom">
         <div className="d-flex">
           <div className="flex-grow-1 mr-4 mb-3">
             {this.renderMicroMastersTitle()}
             <h3 className="course-title mb-1">
-              <a href={linkToCourse}>{title}</a>
+              <a className="h3" href={linkToCourse}>{title}</a>
             </h3>
             {this.renderOrganizationName()}
           </div>

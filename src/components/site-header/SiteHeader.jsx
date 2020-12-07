@@ -70,9 +70,6 @@ export default function SiteHeader() {
         <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
           Find a Course
         </NavLink>
-        <a href="https://support.edx.org/hc/en-us" className={mainMenuLinkClassName}>
-          Help
-        </a>
       </>
     );
   };
@@ -125,6 +122,9 @@ export default function SiteHeader() {
             {renderMainMenu()}
           </nav>
           <nav aria-label="Secondary" className="nav secondary-menu-container align-items-center ml-auto">
+            <a href="https://support.edx.org/hc/en-us" className="btn btn-tertiary mr-3">
+              Help
+            </a>
             {renderDesktopUserMenu()}
           </nav>
         </div>
