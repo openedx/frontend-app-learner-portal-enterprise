@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import moment from 'moment';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -263,7 +262,6 @@ class BaseCourseCard extends Component {
   render() {
     const {
       title,
-      microMastersTitle,
       linkToCourse,
       hasViewCertificateLink,
     } = this.props;

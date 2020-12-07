@@ -36,7 +36,7 @@ const CompletedCourseCard = (props) => {
   };
 
   // TODO: remove this function on/after December 15th, 2020 to only return
-  // the ``CertificateImg``, which has the new logo. until then, this function 
+  // the ``CertificateImg``, which has the new logo. until then, this function
   // will show the image with the current logo and automatically switch to the
   // image with the new edX logo on December 15th.
   const getVerifiedCertificateImg = () => {
