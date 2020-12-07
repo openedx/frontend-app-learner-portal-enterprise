@@ -1,9 +1,10 @@
 @import "@edx/brand/paragon/variables";
+@import "@edx/paragon/scss/core/core";
 
 // the :export directive is the magic sauce for webpack such that the following variables
 // are accessible via importing in JS, e.g. ``import colors from './colors.scss';``
 :export {
-  dark: $dark;
+  dark: $gray-700;
   white: $white;
   primary: $primary;
   info100: $info-900;
