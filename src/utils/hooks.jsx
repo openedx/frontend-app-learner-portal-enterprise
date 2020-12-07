@@ -9,7 +9,7 @@ export function useRenderContactHelpText(enterpriseConfig) {
       if (!contactEmail) {
         return message;
       }
-      return () => (
+      return (
         <a href={`mailto:${contactEmail}`}>
           {message}
         </a>
