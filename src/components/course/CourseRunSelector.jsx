@@ -27,7 +27,7 @@ export default function CourseRunSelector() {
         <Button
           variant="link"
           onClick={() => setEditing(true)}
-          className="mb-1 p-0"
+          className="mb-2 p-0"
         >
           more dates
         </Button>
@@ -37,7 +37,7 @@ export default function CourseRunSelector() {
       <div className="d-inline-flex mb-2">
         <Input
           name="courseRun"
-          className="mr-2"
+          className="form-control-sm"
           type="select"
           label="Start Date:"
           defaultValue={activeCourseRun.uuid}
@@ -52,8 +52,8 @@ export default function CourseRunSelector() {
           ref={selectRef}
         />
         <Button
-          variant="primary"
-          className="btn-brand-primary ml-2"
+          variant="outline-primary"
+          className="btn-brand-outline-primary btn-sm ml-2"
           onClick={() => handleClick()}
         >
           go
