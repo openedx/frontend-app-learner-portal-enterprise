@@ -116,7 +116,7 @@ export default function EnrollButton() {
       return (
         <EnrollButtonCta
           as="a"
-          className={classNames('btn', 'btn-brand', enrollLinkClass)}
+          className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
           href={enrollmentUrl}
         />
       );
@@ -128,7 +128,6 @@ export default function EnrollButton() {
           <EnrollButtonCta
             className={enrollLinkClass}
             onClick={() => setIsModalOpen(true)}
-            variant="brand"
           />
           <EnrollModal
             isModalOpen={isModalOpen}
@@ -140,12 +139,9 @@ export default function EnrollButton() {
         </>
       );
     }
-    // cannot enroll without a valid enrollment url, so render a disabled button.
+
     return (
-      <EnrollButtonCta
-        className={enrollLinkClass}
-        variant="brand"
-      />
+      <EnrollButtonCta className={classNames(enrollLinkClass, 'btn-brand-primary')} />
     );
   }
 
@@ -168,25 +164,21 @@ export default function EnrollButton() {
       });
       return (
         <EnrollButtonCta
-          className={enrollLinkClass}
+          className={classNames(enrollLinkClass, 'btn-brand-primary')}
           href={shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl}
-          variant="brand"
         />
       );
     }
     return (
       <EnrollButtonCta
         as={Link}
-        className={classNames('btn', 'btn-brand', enrollLinkClass)}
+        className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
         to={`/${enterpriseConfig.slug}`}
       />
     );
   }
 
   return (
-    <EnrollButtonCta
-      className={enrollLinkClass}
-      variant="brand"
-    />
+    <EnrollButtonCta className={classNames(enrollLinkClass, 'btn-brand-primary')} />
   );
 }

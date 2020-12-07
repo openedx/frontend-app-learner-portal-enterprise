@@ -114,13 +114,13 @@ export default function CourseHeader() {
                 )}
                 <EnrollButton />
                 {defaultProgram && (
-                  <p className="font-weight-bold mb-0">
+                  <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
                   </p>
                 )}
               </>
             ) : (
-              <p className="font-weight-bold mb-0">
+              <p className="font-weight-bold mt-3 mb-0">
                 This course is not part of your company&apos;s curated course catalog.
               </p>
             )}
