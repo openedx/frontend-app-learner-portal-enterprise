@@ -68,10 +68,7 @@ export default function CourseMainContent() {
                     <img src={sponsor.logoImageUrl} alt={`${sponsor.name} logo`} />
                   </a>
                 </div>
-                <a
-                  href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
-                  className="text-underline"
-                >
+                <a href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}>
                   {sponsor.name}
                 </a>
               </div>

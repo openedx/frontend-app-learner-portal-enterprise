@@ -1,7 +1,13 @@
-footer a img {
-    max-height: 50px;
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.text-underline { 
-    text-decoration: underline; 
+#content {
+    flex: 1;
+}
+
+footer a img {
+    max-height: 50px;
 }

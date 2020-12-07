@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar, {
   CATALOG_ACCESS_CARD_BUTTON_TEXT,
-  CATALOG_ACCESS_CARD_TITLE,
   EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
 } from '../DashboardSidebar';
@@ -48,17 +47,6 @@ describe('<DashboardSidebar />', () => {
       expirationDate: '2021-10-25',
     },
   };
-  test('Catalog Access card title is always rendered', () => {
-    renderWithRouter(
-      <DashboardSidebarContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={defaultUserSubsidyState}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
-    );
-    expect(screen.queryByText(CATALOG_ACCESS_CARD_TITLE)).toBeTruthy();
-  });
   test('offer summary card is displayed when offers are available', () => {
     renderWithRouter(
       <DashboardSidebarContext
@@ -106,7 +94,7 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('Find a course button is always rendered', () => {
+  test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
@@ -116,27 +104,7 @@ describe('<DashboardSidebar />', () => {
       </DashboardSidebarContext>,
     );
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
-    expect(catalogAccessButton).toBeTruthy();
-
-    // ``hasAccessToPortal`` is set to true in defaultUserSubsidyState, so the button should
-    // not be disabled.
-    expect(catalogAccessButton.classList).not.toContain('disabled');
-  });
-  test('Find a course button is rendered as disabled when user has no portal access', () => {
-    renderWithRouter(
-      <DashboardSidebarContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{
-          ...defaultUserSubsidyState,
-          hasAccessToPortal: false,
-        }}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
-    );
-    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
-    expect(catalogAccessButton).toBeTruthy();
-    expect(catalogAccessButton.classList).toContain('disabled');
+    expect(catalogAccessButton).toBeFalsy();
   });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(

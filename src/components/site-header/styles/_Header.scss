@@ -1,7 +1,3 @@
-$spacer: 1rem;
-$blue: #007db8;
-$white: #fff;
-
 @import './Menu.scss';
 
 .site-header-mobile,
@@ -21,6 +17,10 @@ $white: #fff;
   .nav-link {
     text-decoration: none;
     cursor: pointer;
+    &.active {
+      color: $component-active-color;
+      background-color: $component-active-bg;
+    }
   }
   img {
     height: 1.5rem;
@@ -44,8 +44,7 @@ $white: #fff;
 }
 
 .site-header-desktop {
-  height: 3.75rem;
-  box-shadow: 0 1px 0 0 rgba(0,0,0,.1);
+  @extend .border-bottom;
   background: $white;
   .nav-link {
     text-decoration: none;
@@ -72,10 +71,12 @@ $white: #fff;
     }
     .nav-link:hover,
     .nav-link:focus,
-    .nav-link.active,
     .expanded .nav-link {
       background: $component-active-bg;
       color: $component-active-color;
+    }
+    .nav-link.active {
+      border-bottom: 4px solid $component-active-bg;
     }
     .menu {
       position: static;
@@ -90,13 +91,11 @@ $white: #fff;
       }
     }
   }
-  .search-input {
-    border-radius: $rounded-pill;
-  }
 }
 
 .skip-nav-link:active, .skip-nav-link:focus {
   position: relative;
   z-index: 1010;
-  font-size: 0.875rem;
+  padding: $input-btn-padding-y-sm $input-btn-padding-x-sm;
+  font-size: $font-size-sm;
 }

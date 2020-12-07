@@ -1,19 +1,21 @@
-@import "~@edx/paragon/scss/edx/theme";
-@import "~@edx/paragon/scss/edx/fonts"; // Roboto
+@import "@edx/brand/paragon/fonts";
+@import "@edx/brand/paragon/variables";
+@import "@edx/paragon/scss/core/core";
+@import "@edx/brand/paragon/overrides";
 
 $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome";
 
 @import "./components/course/styles/CourseHeader";
 @import "./components/course/styles/CourseSidebar";
-@import "./components/dashboard/main-content/course-enrollments/course-cards/email-settings/styles/EmailSettingsModal";
 @import "./components/dashboard/main-content/course-enrollments/course-cards/styles/CourseCard";
 @import "./components/dashboard/main-content/course-enrollments/styles/CourseSection";
 @import "./components/dashboard/sidebar/offers/styles/Offer";
 @import "./components/dashboard/sidebar/styles/SidebarCard";
 @import "./components/dashboard/styles/SubscriptionExpirationModal";
 @import "./components/search/styles/FacetList";
-@import "components/search/styles/SearchCourseCard";
-@import "components/search/styles/SearchResults";
-@import "components/search/styles/MobileSearchFilters";
-@import "components/site-header/styles/Header";
+@import "./components/search/styles/SearchCourseCard";
+@import "./components/search/styles/SearchResults";
+@import "./components/search/styles/MobileSearchFilters";
+@import "./components/site-header/styles/Header";
+@import "./components/preview-expand/styles/PreviewExpand";

@@ -18,7 +18,7 @@ const ModalError = () => {
           <div>
             Unable to save
             {' '}
-            <a className="text-link" href={courseLink}>{courseTitle}</a>.
+            <a href={courseLink}>{courseTitle}</a>.
             {' '}
             for later. Please try again.
           </div>

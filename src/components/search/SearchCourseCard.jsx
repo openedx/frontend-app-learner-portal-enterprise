@@ -81,8 +81,8 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               />
             </div>
           )}
-          <div className="card-body py-3">
-            <h3 className="card-title h5 mb-1">
+          <div className="card-body py-4">
+            <h3 className="card-title h4 mb-1">
               {isLoading ? (
                 <Skeleton count={2} data-testid="course-title-loading" />
               ) : (

@@ -12,8 +12,6 @@ import { LicenseActivationPage } from '../license-activation';
 
 import store from '../../store';
 
-import '../../assets/favicon.ico';
-
 export default function App() {
   const { FULLSTORY_ORG_ID } = getConfig();
   return (

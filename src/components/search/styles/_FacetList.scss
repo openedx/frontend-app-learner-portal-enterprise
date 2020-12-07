@@ -29,8 +29,6 @@
     }
 
     .dropdown-menu {
-      @extend .rounded-0;
-
       max-height: 250px;
       overflow: scroll;
       max-width: 420px;

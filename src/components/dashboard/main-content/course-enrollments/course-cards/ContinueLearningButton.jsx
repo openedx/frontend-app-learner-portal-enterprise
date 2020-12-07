@@ -25,7 +25,7 @@ export default function ContinueLearningButton({ linkToCourse, title, courseRunI
       href={linkToCourse}
       onClick={onClickHandler}
     >
-      Continue Learning
+      Continue learning
       <span className="sr-only">for {title}</span>
     </a>
   );
