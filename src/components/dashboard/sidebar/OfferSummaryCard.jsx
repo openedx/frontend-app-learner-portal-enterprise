@@ -7,7 +7,7 @@ import { OFFER_SUMMARY_TITLE } from './data/constants';
 const OfferSummaryCard = ({ offersCount, className }) => {
   const renderCardBody = () => (
     <>
-      <div className="h1">
+      <div className="h1 text-center">
         {offersCount}
       </div>
       <p className="m-0">
