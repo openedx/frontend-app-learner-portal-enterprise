@@ -92,7 +92,7 @@ export default function SiteHeader() {
           {renderLogo()}
         </div>
         <div className="w-100 d-flex justify-content-end">
-          <AvatarDropdown />
+          <AvatarDropdown showLabel={false} />
         </div>
       </header>
     );

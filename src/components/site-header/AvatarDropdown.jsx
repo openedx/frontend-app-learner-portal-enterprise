@@ -16,7 +16,7 @@ const AvatarDropdown = ({ showLabel }) => {
         {username}
       </Dropdown.Toggle>
       <Dropdown.Menu alignRight>
-        <Dropdown.Header className="text-uppercase">Select dashboard</Dropdown.Header>
+        <Dropdown.Header className="text-uppercase">Switch Dashboard</Dropdown.Header>
         <Dropdown.Item href={`${LMS_BASE_URL}/dashboard`}>Personal</Dropdown.Item>
         <Dropdown.Item as={NavLink} to={dashboardLink}>Enterprise</Dropdown.Item>
         <Dropdown.Divider className="border-light" />
