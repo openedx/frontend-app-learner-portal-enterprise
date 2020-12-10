@@ -50,6 +50,8 @@ export default function EnterprisePage({ children }) {
   return (
     <AppContext.Provider
       value={{
+        authenticatedUser: getAuthenticatedUser(),
+        config: getConfig(),
         courseCards: {
           'in-progress': {
             settingsMenu: {
@@ -59,7 +61,6 @@ export default function EnterprisePage({ children }) {
         },
         enterpriseConfig,
         subscriptionPlan,
-        config: getConfig(),
       }}
     >
       {children}
