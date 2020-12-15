@@ -144,7 +144,7 @@ This is nice if you want to use VScode built in debugger and also make changes a
 
 In VSCode, click on the Debug button to the left toolbar
 
-Go to add configuratoin and select type 'chrome-pwa'
+Go to add configuratoin and select type 'chrome'
 
 VScode will generate a file in .vscode/launch.json that looks like this, edit it as shown to your desired url
 
