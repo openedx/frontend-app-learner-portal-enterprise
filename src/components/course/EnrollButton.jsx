@@ -10,7 +10,10 @@ import { CourseContext } from './CourseContextProvider';
 import EnrollButtonLabel from './EnrollButtonLabel';
 import EnrollModal from './EnrollModal';
 
+import { features } from '../../config';
+
 import { useCourseEnrollmentUrl } from './data/hooks';
+
 import {
   hasCourseStarted,
   findUserEnrollmentForCourse,
@@ -108,20 +111,48 @@ export default function EnrollButton() {
     </EnrollButtonWrapper>
   );
 
+  const enrollBtnDisabled = (
+    <EnrollButtonCta
+      as="div"
+      className="btn btn-light btn-block disabled"
+    />
+  );
+
   const enrollLinkClass = 'btn-block';
 
   if (!userEnrollment && isEnrollable) {
     // enroll with a subscription license
     if (enrollmentUrl && subscriptionLicense) {
+      if (userSubsidy) {
+        return (
+          <EnrollButtonCta
+            as="a"
+            className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
+            href={enrollmentUrl}
+          />
+        );
+      }
+      // no user subsidy means we need to warn user with a dialog
       return (
-        <EnrollButtonCta
-          as="a"
-          className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
-          href={enrollmentUrl}
-        />
+        <>
+          <EnrollButtonCta
+            className={enrollLinkClass}
+            onClick={() => setIsModalOpen(true)}
+          />
+          <EnrollModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            offersCount={offersCount}
+            courseHasOffer={!!findOfferForCourse(offers, catalogList)}
+            enrollmentUrl={enrollmentUrl}
+          />
+        </>
       );
     }
     // enroll with an offer (code)
+    if (!features.ENROLL_WITH_CODES) { // can't do offer based enrollment yet without switch
+      return enrollBtnDisabled;
+    }
     if (enrollmentUrl) {
       return (
         <>
@@ -146,12 +177,7 @@ export default function EnrollButton() {
   }
 
   if (!userEnrollment && !isEnrollable) {
-    return (
-      <EnrollButtonCta
-        as="div"
-        className="btn btn-light btn-block disabled"
-      />
-    );
+    return enrollBtnDisabled;
   }
 
   if (userEnrollment) {
