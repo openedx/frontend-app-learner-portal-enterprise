@@ -1,4 +1,6 @@
-import { useEffect, useState, useMemo } from 'react';
+import {
+  useEffect, useState, useMemo, useContext,
+} from 'react';
 import qs from 'query-string';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -12,6 +14,9 @@ import {
   numberWithPrecision,
   findOfferForCourse,
   hasLicenseSubsidy,
+  hasCourseStarted,
+  findUserEnrollmentForCourse,
+  findHighestLevelSeatSku,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -20,6 +25,10 @@ import {
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
 import { features } from '../../../config';
+
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+
+import { CourseContext } from '../CourseContextProvider';
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();
@@ -252,5 +261,82 @@ export function useCourseEnrollmentUrl({
     [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, offers, sku],
   );
 
+  return enrollmentUrl;
+}
+
+/**
+ * A hook to obtain data, for use with the enroll button for example. It answers these questions
+ * by reading the CourseContext context:
+ *
+ * 1. isUserEnrolled
+ * 2. isCourseStarted
+ * 3. isEnrollable
+ *
+ * These three answers can help with the main flow of EnrollButton.
+ */
+export function useCourseData() {
+  const { state: courseData } = useContext(CourseContext);
+  const { activeCourseRun, userEnrollments, userEntitlements } = courseData;
+  const { start, key, isEnrollable } = activeCourseRun;
+
+  const isCourseStarted = useMemo(
+    () => hasCourseStarted(start),
+    [start],
+  );
+
+  const userEnrollment = useMemo(
+    () => findUserEnrollmentForCourse({ userEnrollments, key }),
+    [userEnrollments, key],
+  );
+
+  return {
+    isUserEnrolled: !!userEnrollment,
+    isCourseStarted,
+    isEnrollable,
+    activeCourseRun,
+    userEntitlements,
+  };
+}
+
+/**
+ * Get subscriptions, offers info about the user.
+ */
+export function useSubsidies() {
+  const { subscriptionLicense, offers } = useContext(UserSubsidyContext);
+  return {
+    subscriptionLicense,
+    offers,
+  };
+}
+
+/**
+ * @param {object} args arguments.
+ * @param {object} args.enterpriseConfig enterprise configuration.
+ * @param {object} args.location location for react router
+ */
+export function useEnrollmentUrl({ enterpriseConfig, location }) {
+  const { state: courseData } = useContext(CourseContext);
+  const { subscriptionLicense, offers } = useSubsidies();
+  const {
+    activeCourseRun: { seats, key },
+    userSubsidy,
+    catalog: { catalogList },
+  } = courseData;
+
+  const sku = useMemo(
+    () => findHighestLevelSeatSku(seats),
+    [seats],
+  );
+
+  const enrollmentUrl = useCourseEnrollmentUrl({
+    catalogList,
+    enterpriseConfig,
+    key,
+    location,
+    offers,
+    sku,
+    subscriptionLicense,
+    userSubsidy,
+  });
   return enrollmentUrl;
 }
