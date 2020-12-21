@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  enrollButtonTypes,
   COURSE_AVAILABILITY_MAP,
   PROGRAM_TYPE_MAP,
   COURSE_PACING_MAP,
@@ -13,6 +14,25 @@ import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
 import VerifiedSvgIcon from '../../../assets/icons/verified.svg';
 import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
+
+const {
+  TO_COURSE_PAGE, TO_DASHBOARD, ENROLL_ENABLED, ENROLL_DISABLED,
+} = enrollButtonTypes;
+
+/**
+ * Resolves type of enroll button
+ * @returns {String} one of the supported Button types from enrollButtonTypes
+ */
+export function typeOfEnrollButton({
+  isUserEnrolled,
+  isCourseStarted,
+  isEnrollable,
+}) {
+  if (isUserEnrolled) {
+    return isCourseStarted ? TO_COURSE_PAGE : TO_DASHBOARD;
+  }
+  return isEnrollable ? ENROLL_ENABLED : ENROLL_DISABLED;
+}
 
 export function hasCourseStarted(start) {
   const today = new Date();

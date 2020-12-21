@@ -1,5 +1,14 @@
 export const SET_COURSE_RUN = 'SET_COURSE_RUN';
 
+// types of enroll butons supported
+const enrollButtonTypesLocal = {
+  TO_COURSE_PAGE: 'to_course_page',
+  TO_DASHBOARD: 'to_dashboard',
+  ENROLL_ENABLED: 'enroll_enabled',
+  ENROLL_DISABLED: 'enroll_disabled',
+};
+export const enrollButtonTypes = Object.freeze(enrollButtonTypesLocal);
+
 export const COURSE_PACING_MAP = {
   SELF_PACED: 'self_paced',
   INSTRUCTOR_PACED: 'instructor_paced',
