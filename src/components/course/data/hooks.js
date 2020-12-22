@@ -1,12 +1,17 @@
-import { useEffect, useState, useMemo } from 'react';
+import {
+  useEffect, useState, useMemo, useContext,
+} from 'react';
 import qs from 'query-string';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
+import { CourseContext } from '../CourseContextProvider';
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
 import {
+  hasCourseStarted,
+  findUserEnrollmentForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
   numberWithPrecision,
@@ -20,6 +25,37 @@ import {
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
 import { features } from '../../../config';
+
+/**
+ * Extracts info needed for enroll button logic from CourseContext
+ * (activeCourseRun, userEnrollments are required to be present)
+ *
+ * @returns {object} with fields {
+ * isUserEnrolled,
+ * isCourseStarted,
+ * isEnrollable
+ * }
+ */
+export function useEnrollData() {
+  const { state: courseData } = useContext(CourseContext);
+  const { activeCourseRun, userEnrollments } = courseData;
+  const { key, start, isEnrollable } = activeCourseRun;
+
+  const isCourseStarted = useMemo(
+    () => hasCourseStarted(start),
+    [start],
+  );
+
+  const userEnrollment = useMemo(
+    () => findUserEnrollmentForCourse({ userEnrollments, key }),
+    [userEnrollments, key],
+  );
+  return {
+    isEnrollable,
+    isUserEnrolled: !!userEnrollment,
+    isCourseStarted,
+  };
+}
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();

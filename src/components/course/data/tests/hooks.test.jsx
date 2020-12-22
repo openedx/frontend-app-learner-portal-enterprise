@@ -1,11 +1,44 @@
+/* eslint-disable react/prop-types */
+import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 
-import { useCourseEnrollmentUrl } from '../hooks';
+import { CourseContextProvider } from '../../CourseContextProvider';
+import { useCourseEnrollmentUrl, useEnrollData } from '../hooks';
 import { LICENSE_SUBSIDY_TYPE } from '../constants';
 
 jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
 }));
+
+const DEFAULT_COURSE_STATE = {
+  course: {},
+  catalog: {},
+  userEntitlements: [],
+  userSubsidy: {},
+  activeCourseRun: {
+    isEnrollable: true,
+    start: '2000-09-09T04:00:00Z',
+  },
+  userEnrollments: [],
+};
+
+describe('main enroll button logic hooks', () => {
+  test('isUserEnrolled, isEnrollable and isCourseStarted values are fetched correctly', () => {
+    const courseContextWrapper = ({ children }) => (
+      <CourseContextProvider initialState={DEFAULT_COURSE_STATE}>
+        {children}
+      </CourseContextProvider>
+    );
+    const { result } = renderHook(
+      () => useEnrollData(),
+      { wrapper: courseContextWrapper },
+    );
+    const { isEnrollable, isUserEnrolled, isCourseStarted } = result.current;
+    expect(isEnrollable).toBe(true);
+    expect(isUserEnrolled).toBe(false); // since no enrollments provided above
+    expect(isCourseStarted).toBe(true); // since our course start date is always in the past!
+  });
+});
 
 describe('useCourseEnrollmentUrl', () => {
   const noSubscriptionEnrollmentInputs = {
