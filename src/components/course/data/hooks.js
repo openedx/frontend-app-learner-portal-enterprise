@@ -38,7 +38,8 @@ import { features } from '../../../config';
  * @returns {object} with fields {
  * isUserEnrolled,
  * isCourseStarted,
- * isEnrollable
+ * isEnrollable,
+ * userEnrollment,
  * }
  */
 export function useEnrollData() {
@@ -59,6 +60,7 @@ export function useEnrollData() {
     isEnrollable,
     isUserEnrolled: !!userEnrollment,
     isCourseStarted,
+    userEnrollment,
   };
 }
 
