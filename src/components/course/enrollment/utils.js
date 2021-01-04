@@ -21,7 +21,7 @@ export function determineEnrollmentType({
   isEnrollable,
   isCourseStarted,
 }) {
-  if (!isUserEnrolled) {
+  if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
   if (!isEnrollable) { return ENROLL_DISABLED; }

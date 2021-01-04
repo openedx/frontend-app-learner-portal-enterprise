@@ -1,6 +1,6 @@
 export const SET_COURSE_RUN = 'SET_COURSE_RUN';
 
-// types of enroll butons supported
+// types of enroll buttons supported
 const enrollButtonTypesLocal = {
   ENROLL_DISABLED: 'enroll_disabled',
   TO_COURSEWARE_PAGE: 'to_courseware_page',
