@@ -5,8 +5,11 @@ import qs from 'query-string';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from '../CourseContextProvider';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
 import {
@@ -17,7 +20,9 @@ import {
   numberWithPrecision,
   findOfferForCourse,
   hasLicenseSubsidy,
+  findHighestLevelSeatSku,
 } from './utils';
+
 import {
   COURSE_PACING_MAP,
   SUBSIDY_DISCOUNT_TYPE_MAP,
@@ -236,6 +241,7 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
   return [coursePrice, currency];
 }
 
+// TODO Remove location here and replace with just enrollmentFailedParams...
 export function useCourseEnrollmentUrl({
   catalogList,
   enterpriseConfig,
@@ -289,4 +295,59 @@ export function useCourseEnrollmentUrl({
   );
 
   return enrollmentUrl;
+}
+
+/**
+ * Hook function for data to extract subsidy information from CourseContext and UserSubsidyContext
+ *
+ * @param { object } location router location.
+ *   (TODO Refactor this once useEnrollmentUrl is refactored!)
+ *
+ * @returns {object} with fields:
+ * {
+ *    subscriptionLicense,
+ *    userSubsidy,
+ *    enrollmentUrl,
+ *    offersCount,
+*     courseHasOffer,
+ * }
+ */
+export function useSubsidyData({ location }) {
+  const { state: courseData } = useContext(CourseContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
+
+  const {
+    activeCourseRun,
+    userSubsidy,
+    catalog: { catalogList },
+  } = courseData;
+  const {
+    key,
+    seats,
+  } = activeCourseRun;
+
+  const sku = useMemo(
+    () => findHighestLevelSeatSku(seats),
+    [seats],
+  );
+
+  const enrollmentUrl = useCourseEnrollmentUrl({
+    catalogList,
+    enterpriseConfig,
+    key,
+    location,
+    offers,
+    sku,
+    subscriptionLicense,
+    userSubsidy,
+  });
+
+  return {
+    subscriptionLicense,
+    userSubsidy,
+    enrollmentUrl,
+    offersCount,
+    courseHasOffer: !!findOfferForCourse(offers, catalogList),
+  };
 }

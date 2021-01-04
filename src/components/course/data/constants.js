@@ -2,10 +2,12 @@ export const SET_COURSE_RUN = 'SET_COURSE_RUN';
 
 // types of enroll butons supported
 const enrollButtonTypesLocal = {
-  TO_COURSE_PAGE: 'to_course_page',
-  TO_DASHBOARD: 'to_dashboard',
-  ENROLL_ENABLED: 'enroll_enabled',
   ENROLL_DISABLED: 'enroll_disabled',
+  TO_COURSEWARE_PAGE: 'to_courseware_page',
+  VIEW_ON_DASHBOARD: 'view_on_dashboard',
+  TO_DATASHARING_CONSENT: 'to_datasharing_consent',
+  TO_ECOM_BASKET: 'to_ecom_basket',
+  TO_VOUCHER_REDEEM: 'to_voucher_redeem',
 };
 export const enrollButtonTypes = Object.freeze(enrollButtonTypesLocal);
 
