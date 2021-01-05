@@ -7,7 +7,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import CourseRunSelector from './CourseRunSelector';
-import EnrollButton from './EnrollButton';
+import EnrollButton from './EnrollButtonToBeRemoved';
 
 import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
 import {

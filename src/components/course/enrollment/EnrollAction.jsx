@@ -18,6 +18,8 @@ const {
 } = enrollButtonTypes;
 
 /**
+ * Returns correct enroll button component as per the spec at:
+ * https://openedx.atlassian.net/wiki/spaces/SOL/pages/2178875970/Enroll+Button+logic+for+Enterprise+Learner+Portal
  *
  * @param {object} args Arguments.
  * @param {string} args.enrollmentType type of enrollment
@@ -34,23 +36,23 @@ const EnrollAction = ({
   subscriptionLicense,
 }) => {
   switch (enrollmentType) {
-      case ENROLL_DISABLED:
-          return <EnrollBtnDisabled enrollLabel={enrollLabel} />;
-      case VIEW_ON_DASHBOARD:
+    case TO_COURSEWARE_PAGE: // scenario 1: already enrolled
+        return (
+          <ToCoursewarePage
+            enrollLabel={enrollLabel}
+            userEnrollment={userEnrollment}
+            subscriptionLicense={subscriptionLicense}
+          />
+        );
+      case VIEW_ON_DASHBOARD: // scenario 2: already enrolled
           return <ViewOnDashboard enrollLabel={enrollLabel} />;
+      case ENROLL_DISABLED: // scenario 3 and 4: no enrollment possible
+        return <EnrollBtnDisabled enrollLabel={enrollLabel} />;
       case TO_DATASHARING_CONSENT:
           return (
             <ToDataSharingConsentPage
               enrollLabel={enrollLabel}
               enrollmentUrl={enrollmentUrl}
-            />
-          );
-      case TO_COURSEWARE_PAGE:
-          return (
-            <ToCoursewarePage
-              enrollLabel={enrollLabel}
-              userEnrollment={userEnrollment}
-              subscriptionLicense={subscriptionLicense}
             />
           );
       default: return null;
