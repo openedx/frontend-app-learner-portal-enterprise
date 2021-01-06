@@ -1,6 +1,5 @@
 # local dev related
 # https://github.com/edx/frontend-build#local-module-configuration-for-webpack
-.env.private
 module.config.js
 
 # frontend-build 5.6.0+ will merge in these changes for local dev into development env vars
