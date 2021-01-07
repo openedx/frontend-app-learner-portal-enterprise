@@ -8,7 +8,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { EnrollButtonCta } from './common';
 import { enrollLinkClass } from '../data/constants';
 import ToVoucherRedeemPage from './ToVoucherRedeemPage';
-import { shouldUpgradeUserEnrollment } from '../data/utils';
+import ToCoursewarePage from './ToCoursewarePage';
 
 /**
  * Exports a number of UI components that represent the correct enroll button behavior for each
@@ -45,39 +45,6 @@ ToDataSharingConsentPage.propTypes = {
   enrollmentUrl: PropTypes.string.isRequired,
 };
 
-// Courseware page
-const ToCoursewarePage = ({
-  enrollLabel, enrollmentUrl, courseKey, userEnrollment, subscriptionLicense,
-}) => {
-  const { config } = useContext(AppContext);
-  const determineLandingUrlForCourseware = () => {
-    const courseInfoUrl = `${config.LMS_BASE_URL}/courses/${courseKey}/info`;
-    const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
-      userEnrollment,
-      subscriptionLicense,
-      enrollmentUrl,
-    });
-    const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl;
-    return landingUrl;
-  };
-
-  return (
-    <EnrollButtonCta
-      enrollLabel={enrollLabel}
-      className={classNames(enrollLinkClass, 'btn-brand-primary')}
-      href={determineLandingUrlForCourseware()}
-    />
-  );
-};
-
-ToCoursewarePage.propTypes = {
-  enrollLabel: PropTypes.shape.isRequired,
-  enrollmentUrl: PropTypes.string.isRequired,
-  courseKey: PropTypes.string.isRequired,
-  userEnrollment: PropTypes.shape.isRequired,
-  subscriptionLicense: PropTypes.shape.isRequired,
-};
-
 // view on dashboard
 const ViewOnDashboard = ({ enrollLabel }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -98,7 +65,7 @@ ViewOnDashboard.propTypes = {
 export {
   EnrollBtnDisabled,
   ToDataSharingConsentPage,
-  ToCoursewarePage,
+  ToCoursewarePage, // exported here for convenience
   ViewOnDashboard,
   ToVoucherRedeemPage, // exported here just for convenience
 };
