@@ -4,17 +4,19 @@ import PropTypes from 'prop-types';
 import { enrollButtonTypes } from '../data/constants';
 
 import {
-  EnrollBtnDisabled,
-  ToDataSharingConsentPage,
   ToCoursewarePage,
   ViewOnDashboard,
+  EnrollBtnDisabled,
+  ToDataSharingConsentPage,
+  ToVoucherRedeemPage,
 } from './enrollactions';
 
 const {
-  ENROLL_DISABLED,
-  TO_DATASHARING_CONSENT,
   TO_COURSEWARE_PAGE,
   VIEW_ON_DASHBOARD,
+  ENROLL_DISABLED,
+  TO_DATASHARING_CONSENT,
+  TO_VOUCHER_REDEEM,
 } = enrollButtonTypes;
 
 /**
@@ -54,6 +56,10 @@ const EnrollAction = ({
               enrollLabel={enrollLabel}
               enrollmentUrl={enrollmentUrl}
             />
+          );
+      case TO_VOUCHER_REDEEM:
+          return (
+            <ToVoucherRedeemPage enrollLabel={enrollLabel} />
           );
       default: return null;
   }

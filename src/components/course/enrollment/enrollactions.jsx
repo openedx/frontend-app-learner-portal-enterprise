@@ -4,46 +4,16 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import { Button } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-
+import { EnrollButtonCta } from './common';
+import { enrollLinkClass } from '../data/constants';
+import ToVoucherRedeemPage from './ToVoucherRedeemPage';
 import { shouldUpgradeUserEnrollment } from '../data/utils';
 
 /**
  * Exports a number of UI components that represent the correct enroll button behavior for each
  * scenario supported. Use the correct one based on the scenario.
  */
-
-// Start Internal code (do not export)
-const enrollLinkClass = 'btn-block';
-
-const EnrollButtonWrapper = ({
-  as: Component,
-  children,
-  ...props
-}) => (
-  <div className="enroll-wrapper" style={{ width: 270 }}>
-    <Component {...props}>
-      {children}
-    </Component>
-  </div>
-);
-
-EnrollButtonWrapper.propTypes = {
-  children: PropTypes.node.isRequired,
-  as: PropTypes.elementType,
-};
-
-EnrollButtonWrapper.defaultProps = {
-  as: Button,
-};
-
-const EnrollButtonCta = (EnrollLabel, props) => (
-  <EnrollButtonWrapper {...props}>
-    <EnrollLabel />
-  </EnrollButtonWrapper>
-);
-// End internal code
 
 // Exported components
 
@@ -130,4 +100,5 @@ export {
   ToDataSharingConsentPage,
   ToCoursewarePage,
   ViewOnDashboard,
+  ToVoucherRedeemPage, // exported here just for convenience
 };

@@ -1,5 +1,7 @@
 export const SET_COURSE_RUN = 'SET_COURSE_RUN';
 
+export const enrollLinkClass = 'btn-block';
+
 // types of enroll buttons supported
 const enrollButtonTypesLocal = {
   ENROLL_DISABLED: 'enroll_disabled',
