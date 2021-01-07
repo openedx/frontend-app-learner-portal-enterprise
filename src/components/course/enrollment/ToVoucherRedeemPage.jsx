@@ -10,7 +10,7 @@ import { EnrollButtonCta } from './common';
  * Voucher redeem page component implemention for Enroll Button.
  *
  * @param {Component} args.enrollLabel An EnrollLabel component
- * @returns {Function} A function that behaves the same as all enroll components in enrollactions.
+ * @returns {Component} Rendered enroll button with a enrollment modal behavior included.
  */
 const ToVoucherRedeemPage = ({ enrollLabel }) => {
   const { courseHasOffer, offersCount, enrollmentUrl } = useSubsidyData();
