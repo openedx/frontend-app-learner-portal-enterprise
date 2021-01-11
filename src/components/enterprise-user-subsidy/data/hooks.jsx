@@ -24,11 +24,11 @@ export function useSubscriptionLicenseForUser(enterpriseId) {
         const revoked = results.filter(result => result.status === LICENSE_STATUS.REVOKED);
 
         if (activated.length) {
-          setLicense(activated.pop());
+          setLicense(activated.shift());
         } else if (assigned.length) {
-          setLicense(assigned.pop());
+          setLicense(assigned.shift());
         } else if (revoked.length) {
-          setLicense(revoked.pop());
+          setLicense(revoked.shift());
         } else {
           setLicense(null);
         }
