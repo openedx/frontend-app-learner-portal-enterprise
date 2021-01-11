@@ -178,6 +178,12 @@ You can create more configs later if you want more than one url (such as differe
 
 Just fire up chrome devtools as usual and put breakpoints! You can also edit directly from chrome devtools by enabling local folder support.
 
+in brief:
+
+npm run debug-test 
+
+Then chrome://inspect in chrome along with debugger in the code to trigger a breakpoint?
+
 ### Code layout / components
 
 TODO/WIP
