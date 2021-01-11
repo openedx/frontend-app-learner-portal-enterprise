@@ -9,55 +9,38 @@ import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
-import {
-  hasValidStartExpirationDates,
-  isDefinedAndNotNull,
-  isDefinedAndNull,
-} from '../../../utils/common';
 import { features } from '../../../config';
 
-export function useSubscriptionLicenseForUser(subscriptionPlan) {
+export function useSubscriptionLicenseForUser(enterpriseId) {
   const [license, setLicense] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isDefinedAndNull(subscriptionPlan)) {
-      setIsLoading(false);
-      return;
-    }
+    fetchSubscriptionLicensesForUser(enterpriseId)
+      .then((response) => {
+        const { results } = camelCaseObject(response.data);
+        const activated = results.filter(result => result.status === LICENSE_STATUS.ACTIVATED);
+        const assigned = results.filter(result => result.status === LICENSE_STATUS.ASSIGNED);
+        const revoked = results.filter(result => result.status === LICENSE_STATUS.REVOKED);
 
-    if (isDefinedAndNotNull(subscriptionPlan)) {
-      if (!hasValidStartExpirationDates(subscriptionPlan)) {
-        setIsLoading(false);
-        return;
-      }
-
-      fetchSubscriptionLicensesForUser(subscriptionPlan.uuid)
-        .then((response) => {
-          const { results } = camelCaseObject(response.data);
-          const activated = results.filter(result => result.status === LICENSE_STATUS.ACTIVATED);
-          const assigned = results.filter(result => result.status === LICENSE_STATUS.ASSIGNED);
-          const revoked = results.filter(result => result.status === LICENSE_STATUS.REVOKED);
-
-          if (activated.length) {
-            setLicense(activated.pop());
-          } else if (assigned.length) {
-            setLicense(assigned.pop());
-          } else if (revoked.length) {
-            setLicense(revoked.pop());
-          } else {
-            setLicense(null);
-          }
-        })
-        .catch((error) => {
-          logError(new Error(error));
+        if (activated.length) {
+          setLicense(activated.shift());
+        } else if (assigned.length) {
+          setLicense(assigned.shift());
+        } else if (revoked.length) {
+          setLicense(revoked.shift());
+        } else {
           setLicense(null);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [subscriptionPlan]);
+        }
+      })
+      .catch((error) => {
+        logError(new Error(error));
+        setLicense(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [enterpriseId]);
 
   return [license, isLoading];
 }
