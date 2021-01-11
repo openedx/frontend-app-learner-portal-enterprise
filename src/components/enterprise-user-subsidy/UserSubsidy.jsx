@@ -11,7 +11,7 @@ export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { subscriptionPlan, enterpriseConfig } = useContext(AppContext);
-  const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicenseForUser(subscriptionPlan);
+  const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicenseForUser(enterpriseConfig.uuid);
   const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
 
   const isLoadingSubsidies = useMemo(
