@@ -9,11 +9,6 @@ import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
 import { LICENSE_STATUS } from './constants';
 import { fetchSubscriptionLicensesForUser } from './service';
-import {
-  hasValidStartExpirationDates,
-  isDefinedAndNotNull,
-  isDefinedAndNull,
-} from '../../../utils/common';
 import { features } from '../../../config';
 
 export function useSubscriptionLicenseForUser(enterpriseId) {
@@ -46,7 +41,7 @@ export function useSubscriptionLicenseForUser(enterpriseId) {
         setIsLoading(false);
       });
   }, [enterpriseId]);
-  console.log(license);
+
   return [license, isLoading];
 }
 
