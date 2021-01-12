@@ -9,6 +9,7 @@ import {
   EnrollBtnDisabled,
   ToDataSharingConsentPage,
   ToVoucherRedeemPage,
+  ToEcomBasketPage,
 } from './enrollactions';
 
 const {
@@ -17,6 +18,7 @@ const {
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
   TO_VOUCHER_REDEEM,
+  TO_ECOM_BASKET,
 } = enrollButtonTypes;
 
 /**
@@ -58,9 +60,9 @@ const EnrollAction = ({
             />
           );
       case TO_VOUCHER_REDEEM:
-          return (
-            <ToVoucherRedeemPage enrollLabel={enrollLabel} />
-          );
+          return <ToVoucherRedeemPage enrollLabel={enrollLabel} />;
+      case TO_ECOM_BASKET:
+          return <ToEcomBasketPage enrollLabel={enrollLabel} />;
       default: return null;
   }
 };
@@ -73,10 +75,10 @@ EnrollAction.defaultProps = {
 
 EnrollAction.propTypes = {
   enrollmentType: PropTypes.string.isRequired,
-  enrollLabel: PropTypes.shape.isRequired,
+  enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string,
-  userEnrollment: PropTypes.shape,
-  subscriptionLicense: PropTypes.shape,
+  userEnrollment: PropTypes.shape({}),
+  subscriptionLicense: PropTypes.shape({}),
 };
 
 export default EnrollAction;

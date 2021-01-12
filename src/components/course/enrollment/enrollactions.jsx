@@ -9,6 +9,7 @@ import { EnrollButtonCta } from './common';
 import { enrollLinkClass } from '../data/constants';
 import ToVoucherRedeemPage from './ToVoucherRedeemPage';
 import ToCoursewarePage from './ToCoursewarePage';
+import ToEcomBasketPage from './ToEcomBasketPage';
 
 /**
  * Exports a number of UI components that represent the correct enroll button behavior for each
@@ -68,4 +69,5 @@ export {
   ToCoursewarePage, // exported here for convenience
   ViewOnDashboard,
   ToVoucherRedeemPage, // exported here just for convenience
+  ToEcomBasketPage, // exported here just for convenience
 };
