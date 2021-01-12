@@ -33,7 +33,7 @@ export default function EnterprisePage({ children }) {
   );
 
   // Render the app as loading while waiting on the configuration or additional user metadata
-  if (!isDefined(enterpriseConfig) || !isDefined(profileImage)) {
+  if (!isDefined(enterpriseConfig) || !isDefined(subscriptionPlan) || !isDefined(profileImage)) {
     return (
       <div className="container-fluid py-5">
         <LoadingSpinner screenReaderText="loading organization details" />
