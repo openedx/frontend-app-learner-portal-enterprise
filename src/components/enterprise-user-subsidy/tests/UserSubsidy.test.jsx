@@ -20,12 +20,16 @@ jest.mock('../../../config', () => ({
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
+const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 
 // eslint-disable-next-line react/prop-types
 const UserSubsidyWithAppContext = ({ contextValue = {}, children }) => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+      enterpriseConfig: {
+        slug: TEST_ENTERPRISE_SLUG,
+        uuid: TEST_ENTERPRISE_UUID,
+      },
       ...contextValue,
     }}
   >
@@ -59,13 +63,12 @@ describe('UserSubsidy', () => {
     beforeEach(() => {
       const promise = Promise.resolve({
         data: {
-          data: {
-            count: 0,
-            results: [],
-          },
+          count: 0,
+          results: [],
         },
       });
       fetchOffers.mockResolvedValueOnce(promise);
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
     });
 
     afterEach(() => {
@@ -133,11 +136,12 @@ describe('UserSubsidy', () => {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       await waitFor(() => {
         expect(screen.queryByText('Has access: false')).toBeInTheDocument();
       });
     });
+
     test('with license, shows correct portal access', async () => {
       const promise = Promise.resolve({
         data: {
@@ -157,11 +161,12 @@ describe('UserSubsidy', () => {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       await waitFor(() => {
         expect(screen.queryByText('Has access: true')).toBeInTheDocument();
       });
     });
+
     test('provides license data', async () => {
       const promise = Promise.resolve({
         data: {
@@ -181,11 +186,12 @@ describe('UserSubsidy', () => {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       await waitFor(() => {
         expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
       });
     });
+
     test('provides offers data', async () => {
       const promise = Promise.resolve({
         data: {
@@ -205,7 +211,7 @@ describe('UserSubsidy', () => {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledTimes(1);
       await waitFor(() => {
         expect(screen.queryByText('Offers count: 0')).toBeInTheDocument();
@@ -255,7 +261,7 @@ describe('UserSubsidy', () => {
       expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_SUBSCRIPTION_UUID);
+      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
 
       await waitFor(() => {
         expect(screen.getByTestId('did-i-render')).toBeInTheDocument();

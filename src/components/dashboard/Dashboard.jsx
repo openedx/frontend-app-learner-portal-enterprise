@@ -34,7 +34,7 @@ export default function Dashboard() {
     </>
   );
 
-  const PAGE_TITLE = `My courses - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
 
   return (
     <>

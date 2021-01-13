@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 
 import { useCourseEnrollmentUrl } from '../hooks';
+import { LICENSE_SUBSIDY_TYPE } from '../constants';
 
 jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
@@ -22,6 +23,9 @@ describe('useCourseEnrollmentUrl', () => {
     subscriptionLicense: {
       uuid: 'yes',
     },
+    userSubsidy: {
+      subsidyType: LICENSE_SUBSIDY_TYPE,
+    },
   };
 
   describe('subscription license', () => {
@@ -31,6 +35,14 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).toContain(enrollmentInputs.enterpriseConfig.uuid);
       expect(result.current).toContain(enrollmentInputs.key);
       expect(result.current).toContain(enrollmentInputs.subscriptionLicense.uuid);
+    });
+
+    test('does not use the license uuid for enrollment if there is no valid license subsidy (even with a license uuid)', () => {
+      const noSubsidyEnrollmentInputs = { ...enrollmentInputs };
+      delete noSubsidyEnrollmentInputs.userSubsidy;
+
+      const { result } = renderHook(() => useCourseEnrollmentUrl(noSubsidyEnrollmentInputs));
+      expect(result.current).not.toContain(enrollmentInputs.subscriptionLicense.uuid);
     });
   });
 

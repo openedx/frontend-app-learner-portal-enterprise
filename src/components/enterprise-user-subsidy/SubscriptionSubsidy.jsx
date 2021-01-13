@@ -47,18 +47,34 @@ const SubscriptionSubsidy = ({
     const contactHelpText = renderContactHelpText();
     switch (textType) {
       case statusAlertTypes.invalidStartExpirationDate:
-        return `Your organization does not have an active subscription plan.
-        Please ${contactHelpText} for further information.`;
+        return (
+          <>
+            Your organization does not have an active subscription plan.
+            Please {contactHelpText} for further information.
+          </>
+        );
       case statusAlertTypes.noLicense:
-        return `You do not have an enterprise license assigned to you.
-        Please ${contactHelpText} for further information.`;
+        return (
+          <>
+            You do not have an enterprise license assigned to you.
+            Please {contactHelpText} for further information.
+          </>
+        );
       case statusAlertTypes.notActivated:
-        return `Please activate your enterprise license from your email
-        or ${contactHelpText} for further information.`;
+        return (
+          <>
+            Please activate your enterprise license from your email
+            or {contactHelpText} for further information.
+          </>
+        );
       case statusAlertTypes.revoked:
-        return `Your enterprise license is no longer active. Please ${contactHelpText} for
-        further information. You may continue your learning journey by creating a personal
-        account at <a className="text-underline" href="https://edx.org">edx.org</a>.`;
+        return (
+          <>
+            Your enterprise license is no longer active. Please {contactHelpText} for
+            further information. You may continue your learning journey by creating a personal
+            account at <a href="https://edx.org">edX.org</a>.
+          </>
+        );
       default:
         return null;
     }

@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import moment from 'moment';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dropdown } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { EmailSettingsModal } from './email-settings';
-
 import { COURSE_STATUSES } from '../data/constants';
 
 class BaseCourseCard extends Component {
@@ -112,20 +111,14 @@ class BaseCourseCard extends Component {
   };
 
   handleEmailSettingsButtonClick = () => {
-    const {
-      title,
-      courseRunId,
-    } = this.props;
-
+    const { courseRunId } = this.props;
     const {
       hasEmailsEnabled,
     } = this.state;
-
     this.setModalState({
       key: 'emailSettings',
       open: true,
       options: {
-        title,
         hasEmailsEnabled,
       },
     });
@@ -151,7 +144,7 @@ class BaseCourseCard extends Component {
       return (
         <div className="ml-auto">
           <Dropdown>
-            <Dropdown.Toggle variant="outline-secondary">
+            <Dropdown.Toggle variant="outline-dark">
               <FontAwesomeIcon icon={faCog} />
               <span className="sr-only">
                 course settings for {title}
@@ -252,12 +245,14 @@ class BaseCourseCard extends Component {
     const { linkToCertificate } = this.props;
     const user = getAuthenticatedUser();
     const { username } = user;
+    const config = getConfig();
+
     if (linkToCertificate) {
       return (
         <small className="mb-0">
           View your certificate on
           {' '}
-          <a className="text-underline" href={`${process.env.LMS_BASE_URL}/u/${username}`}>your profile →</a>
+          <a href={`${config.LMS_BASE_URL}/u/${username}`}>your profile →</a>
         </small>
       );
     }
@@ -267,23 +262,17 @@ class BaseCourseCard extends Component {
   render() {
     const {
       title,
-      microMastersTitle,
       linkToCourse,
       hasViewCertificateLink,
     } = this.props;
     const dropdownMenuItems = this.getDropdownMenuItems();
     return (
-      <div
-        className={classNames(
-          'course py-4 border-bottom',
-          { 'is-micromasters': !!microMastersTitle },
-        )}
-      >
+      <div className="dashboard-course-card py-4 border-bottom">
         <div className="d-flex">
           <div className="flex-grow-1 mr-4 mb-3">
             {this.renderMicroMastersTitle()}
             <h3 className="course-title mb-1">
-              <a href={linkToCourse}>{title}</a>
+              <a className="h3" href={linkToCourse}>{title}</a>
             </h3>
             {this.renderOrganizationName()}
           </div>

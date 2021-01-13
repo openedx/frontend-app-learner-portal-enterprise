@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import MediaQuery from 'react-responsive';
 import { connect } from 'react-redux';
 import { faExclamationTriangle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { StatusAlert } from '@edx/paragon';
+import { StatusAlert, breakpoints, Row } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { LoadingSpinner } from '../../../loading-spinner';
 import CourseSection from './CourseSection';
+import { Sidebar } from '../../../layout';
+import { DashboardSidebar } from '../../sidebar';
 import {
   InProgressCourseCard,
   UpcomingCourseCard,
@@ -154,6 +157,15 @@ export class CourseEnrollments extends Component {
           component={InProgressCourseCard}
           courseRuns={courseRuns.in_progress}
         />
+        <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
+          {matches => matches && (
+            <Row>
+              <Sidebar data-testid="sidebar">
+                <DashboardSidebar />
+              </Sidebar>
+            </Row>
+          )}
+        </MediaQuery>
         <CourseSection
           title={COURSE_SECTION_TITLES.upcoming}
           component={UpcomingCourseCard}

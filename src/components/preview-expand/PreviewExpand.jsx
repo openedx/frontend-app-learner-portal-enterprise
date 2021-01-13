@@ -5,8 +5,6 @@ import { Button } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
-import './styles/PreviewExpand.scss';
-
 export default function PreviewExpand({
   className,
   children,

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { identify } from 'react-fullstory';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
@@ -32,7 +33,7 @@ export default function EnterprisePage({ children }) {
   );
 
   // Render the app as loading while waiting on the configuration or additional user metadata
-  if (!isDefined(enterpriseConfig) || !isDefined(profileImage)) {
+  if (!isDefined(enterpriseConfig) || !isDefined(subscriptionPlan) || !isDefined(profileImage)) {
     return (
       <div className="container-fluid py-5">
         <LoadingSpinner screenReaderText="loading organization details" />
@@ -49,6 +50,8 @@ export default function EnterprisePage({ children }) {
   return (
     <AppContext.Provider
       value={{
+        authenticatedUser: getAuthenticatedUser(),
+        config: getConfig(),
         courseCards: {
           'in-progress': {
             settingsMenu: {

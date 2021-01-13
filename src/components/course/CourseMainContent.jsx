@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { PreviewExpand } from '../preview-expand';
 import { CourseContext } from './CourseContextProvider';
@@ -29,6 +30,7 @@ function formatSponsorTextList(sponsors) {
 }
 
 export default function CourseMainContent() {
+  const { config } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
 
@@ -62,14 +64,11 @@ export default function CourseMainContent() {
             {course.sponsors.map((sponsor) => (
               <div className="col-lg-6 mb-3" key={sponsor.name}>
                 <div className="mb-2">
-                  <a href={`${process.env.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`} aria-hidden="true" tabIndex="-1">
+                  <a href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`} aria-hidden="true" tabIndex="-1">
                     <img src={sponsor.logoImageUrl} alt={`${sponsor.name} logo`} />
                   </a>
                 </div>
-                <a
-                  href={`${process.env.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
-                  className="text-underline"
-                >
+                <a href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}>
                   {sponsor.name}
                 </a>
               </div>

@@ -2,15 +2,13 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-import {
-  initialize,
-  APP_INIT_ERROR,
-  APP_READY,
-  subscribe,
-} from '@edx/frontend-platform';
-import { ErrorPage } from '@edx/frontend-platform/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {
+  initialize, APP_INIT_ERROR, APP_READY, subscribe,
+} from '@edx/frontend-platform';
+import { ErrorPage } from '@edx/frontend-platform/react';
+import { mergeConfig } from '@edx/frontend-platform/config';
 
 import { App } from './components/app';
 
@@ -25,6 +23,20 @@ subscribe(APP_INIT_ERROR, (error) => {
 });
 
 initialize({
+  handlers: {
+    config: () => {
+      mergeConfig({
+        USE_API_CACHE: process.env.USE_API_CACHE || null,
+        FULLSTORY_ORG_ID: process.env.FULLSTORY_ORG_ID || null,
+        ENTERPRISE_CATALOG_API_BASE_URL: process.env.ENTERPRISE_CATALOG_API_BASE_URL || null,
+        LICENSE_MANAGER_URL: process.env.LICENSE_MANAGER_URL || null,
+        ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID || null,
+        ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY || null,
+        ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME || null,
+        INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: process.env.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME || null,
+      });
+    },
+  },
   messages: [],
   // We don't require authenticated users so that we can perform our own auth redirect to a proxy login that depends on
   // the route, rather than the LMS like frontend-platform does.

@@ -7,11 +7,11 @@ import { OFFER_SUMMARY_TITLE } from './data/constants';
 const OfferSummaryCard = ({ offersCount, className }) => {
   const renderCardBody = () => (
     <>
-      <div className="text-center font-weight-bold h2">
+      <div className="h1 text-center">
         {offersCount}
       </div>
-      <p>
-        Your company has purchased additional courses for you to access to enhance your subscription.
+      <p className="m-0">
+        Your organization has purchased additional courses for you to access to enhance your subscription.
       </p>
     </>
   );

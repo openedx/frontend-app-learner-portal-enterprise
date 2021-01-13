@@ -9,14 +9,14 @@
       text-decoration: none;
 
       .card {
-        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.32);
+        box-shadow: $box-shadow-lg;
       }
     }
   }
 
   .card {
     height: 270px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: $box-shadow;
   }
 
   .card-img-top {
@@ -33,21 +33,17 @@
     left: 20px;
     background: $white;
     border-radius: 3px;
-    box-shadow: 1px 1px 2px 0 hsla(0, 0, 66.7%, 0.5);
+    box-shadow: $box-shadow-sm;
 
     .partner-logo {
-      width: 90px;
-      height: auto;
+      width: auto;
+      max-height: 45px;
     }
-  }
-
-  .card-title {
-    font-weight: 500;
   }
 
   .card-body {
     .partner {
-      font-size: .875rem;
+      font-size: $font-size-sm;
     }
   }
 

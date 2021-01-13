@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { getConfig } from '@edx/frontend-platform/config';
 
 class Offer extends React.Component {
   renderTitle(usageType, benefitValue) {
@@ -29,7 +30,8 @@ class Offer extends React.Component {
       code,
       couponEndDate,
     } = this.props;
-    const offerUrl = `${process.env.ECOMMERCE_BASE_URL}/coupons/offer/?code=${code}`;
+    const config = getConfig();
+    const offerUrl = `${config.ECOMMERCE_BASE_URL}/coupons/offer/?code=${code}`;
 
     return (
       <a href={offerUrl} className="offer card mb-3 d-block">

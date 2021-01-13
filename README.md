@@ -46,9 +46,9 @@ Next we will setup a `test-enterprise` customer who will have learners associate
  - Go to http://localhost:18000/admin/enterprise/ and login as edx/edx
  - If you can see an `Enterprise` section in the admin page you are all set so far, otherwise stop and ask someone!
  - Next, ensure the Learner portal is enable for this Enterprise user:
-    - Visit http://localhost:18000/admin/enterprise/enterprisecustomer/ 
+    - Visit http://localhost:18000/admin/enterprise/enterprisecustomer/
     - Click on 'Test-enterprise' customer
-    - Check the box `Enable Learner Portal` and hit `Save` 
+    - Check the box `Enable Learner Portal` and hit `Save`
 
 
 ## Get familiar with learner and customer accounts
@@ -56,10 +56,10 @@ Next we will setup a `test-enterprise` customer who will have learners associate
 In this section you will:
  * Locate the enterprise customer test-enterprise in the Django admin page for enterprise
  * Learn how to navigate to the admin portal for that customer and view learner accounts setup during previous steps
- 
+
 * Visit http://localhost:18000/admin/enterprise/ : the Django admin portal for enterprise
 * Login as edx/edx
-* Visit the `Enterprise Customers` link, it should be http://localhost:18000/admin/enterprise/enterprisecustomer/ 
+* Visit the `Enterprise Customers` link, it should be http://localhost:18000/admin/enterprise/enterprisecustomer/
     * Locate the `slug` for the customer named 'Test enterprise'
     * This is probably `test-enterprise`
     * The `slug` is used as a url path to visit the enterprise portal for this customer, more on that later
@@ -147,6 +147,6 @@ TODO/WIP
   * [Onboarding for devs](https://openedx.atlassian.net/wiki/spaces/ENG/pages/12550298/Developer+Onboarding)
   * [Devstack Doc](https://github.com/edx/devstack)
   * [Enterprise docs](https://openedx.atlassian.net/wiki/spaces/SOL/pages/997654609/Hitchhiker+s+Engineer+s+Guide+to+the+Enterprise+Ecosystem)
-  * 
+  *
 * External
   * [ReactJS](https://reactjs.org/)

@@ -7,19 +7,19 @@
   transition: max-height .5s ease;
 
   &.expanded {
-    max-height: 3000px;
+    max-height: unset;
     -webkit-transition: max-height 1s ease;
     transition: max-height 1s ease;
   }
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 24px;
-    background-image: -webkit-gradient(linear,left top,left bottom,from(hsla(0,0%,100%,0)),to(#fff));
-    background-image: linear-gradient(180deg,hsla(0,0%,100%,0),#fff);
+    background-image: -webkit-gradient(linear,left top,left bottom,from(hsla(0,0%,100%,0)),to($white));
+    background-image: linear-gradient(180deg,hsla(0,0%,100%,0),$white);
   }
 }

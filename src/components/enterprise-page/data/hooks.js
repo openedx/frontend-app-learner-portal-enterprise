@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import colors from '../../../colors.scss';
 import {
   fetchEnterpriseCustomerConfig,
   fetchEnterpriseCustomerSubscriptionPlan,
 } from './service';
 
-export const defaultPrimaryColor = '#1a337b';
-export const defaultSecondaryColor = '#d7e3fc';
-export const defaultTertiaryColor = '#007d88';
+export const defaultPrimaryColor = colors?.primary;
+export const defaultSecondaryColor = colors?.info100;
+export const defaultTertiaryColor = colors?.info500;
 
 const defaultBrandingConfig = {
   logo: null,

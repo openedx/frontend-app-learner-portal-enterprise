@@ -16,6 +16,9 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
+// Stub out the enroll button to avoid testing its implementation here
+jest.mock('../EnrollButton', () => () => <>Enroll</>);
+
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},

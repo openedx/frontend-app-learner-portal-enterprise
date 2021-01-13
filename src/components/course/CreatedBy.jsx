@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 
 import { useCoursePartners } from './data/hooks';
 
 export default function CreatedBy() {
+  const { config } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
   const [partners] = useCoursePartners(course);
@@ -27,7 +29,7 @@ export default function CreatedBy() {
                   <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
                 </a>
               </div>
-              <a href={partner.marketingUrl} className="text-underline">{partner.name}</a>
+              <a href={partner.marketingUrl}>{partner.name}</a>
             </div>
           ))}
         </div>
@@ -43,7 +45,7 @@ export default function CreatedBy() {
                 style={{ width: 72, height: 72 }}
               />
               <div>
-                <a href={`${process.env.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`} className="font-weight-bold">
+                <a href={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`} className="font-weight-bold">
                   {formatStaffFullName(staff)}
                 </a>
                 {staff.position && (

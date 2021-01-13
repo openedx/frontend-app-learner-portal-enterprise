@@ -18,7 +18,7 @@ const ModalError = () => {
           <div>
             An error occurred while unarchiving
             {' '}
-            <a className="text-link" href={courseLink}>{courseTitle}</a>.
+            <a href={courseLink}>{courseTitle}</a>.
             {' '}
             Please try again.
           </div>

@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar, {
   CATALOG_ACCESS_CARD_BUTTON_TEXT,
-  CATALOG_ACCESS_CARD_TITLE,
   EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
 } from '../DashboardSidebar';
@@ -29,10 +28,13 @@ const DashboardSidebarContext = ({
 /* eslint-enable react/prop-types */
 
 describe('<DashboardSidebar />', () => {
-  const defaultOffersState = {
-    offers: [],
-    loading: false,
-    offersCount: 0,
+  const defaultUserSubsidyState = {
+    hasAccessToPortal: true,
+    offers: {
+      offers: [],
+      loading: false,
+      offersCount: 0,
+    },
   };
   const initialAppState = {
     enterpriseConfig: { contactEmail: 'foo@foo.com' },
@@ -45,22 +47,14 @@ describe('<DashboardSidebar />', () => {
       expirationDate: '2021-10-25',
     },
   };
-  test('Catalog Access card title is always rendered', () => {
-    renderWithRouter(
-      <DashboardSidebarContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
-    );
-    expect(screen.queryByText(CATALOG_ACCESS_CARD_TITLE)).toBeTruthy();
-  });
   test('offer summary card is displayed when offers are available', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState, offersCount: 2 } }}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          offers: { ...defaultUserSubsidyState.offers, offersCount: 2 },
+        }}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -71,7 +65,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -82,7 +76,7 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={appStateWithSubscription}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
@@ -93,29 +87,30 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: { defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('Find a course button is always rendered', () => {
+  test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
-        initialUserSubsidyState={{ offers: { ...defaultOffersState } }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
     );
-    expect(screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT)).toBeTruthy();
+    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
+    expect(catalogAccessButton).toBeFalsy();
   });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
-        initialUserSubsidyState={{ offers: defaultOffersState }}
+        initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,

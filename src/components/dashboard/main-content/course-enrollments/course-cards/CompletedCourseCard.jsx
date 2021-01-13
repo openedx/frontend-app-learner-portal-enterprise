@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
 
 import { isCourseEnded } from '../../../../../utils/common';
-import CertificateImg from './images/edx-verified-mini-cert.png';
+import CertificateImgOld from './images/edx-verified-mini-cert.png';
+import CertificateImg from './images/edx-verified-mini-cert-v2.png';
 
 const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
@@ -18,6 +19,7 @@ const CompletedCourseCard = (props) => {
     courseRunId,
     endDate,
   } = props;
+  const config = getConfig();
 
   const renderButtons = () => {
     if (isCourseEnded(endDate)) {
@@ -33,28 +35,37 @@ const CompletedCourseCard = (props) => {
     );
   };
 
+  // TODO: remove this function on/after December 15th, 2020 to only return
+  // the ``CertificateImg``, which has the new logo. until then, this function
+  // will show the image with the current logo and automatically switch to the
+  // image with the new edX logo on December 15th.
+  const getVerifiedCertificateImg = () => {
+    const now = new Date();
+    if (now < new Date('2020-12-15')) {
+      return CertificateImgOld;
+    }
+    return CertificateImg;
+  };
+
   const renderCertificateInfo = () => (
     props.linkToCertificate ? (
       <div className="d-flex mb-3">
         <div className="mr-3">
-          <img src={CertificateImg} alt="verified certificate preview" />
+          <img src={getVerifiedCertificateImg()} alt="verified certificate preview" />
         </div>
         <div className="d-flex align-items-center">
-          <p className="lead mb-0 font-weight-normal">
+          <p className="mb-0">
             View your certificate on{' '}
-            <a
-              className="text-underline"
-              href={`${process.env.LMS_BASE_URL}/u/${username}`}
-            >
+            <a href={`${config.LMS_BASE_URL}/u/${username}`}>
               your profile →
             </a>
           </p>
         </div>
       </div>
     ) : (
-      <p className="lead mb-3 font-weight-normal">
+      <p className="mb-3">
         To earn a certificate,{' '}
-        <a className="text-underline" href={props.linkToCourse}>
+        <a href={props.linkToCourse}>
           retake this course →
         </a>
       </p>

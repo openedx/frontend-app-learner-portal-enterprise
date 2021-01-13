@@ -10,7 +10,10 @@ import { CourseContext } from './CourseContextProvider';
 import EnrollButtonLabel from './EnrollButtonLabel';
 import EnrollModal from './EnrollModal';
 
+import { features } from '../../config';
+
 import { useCourseEnrollmentUrl } from './data/hooks';
+
 import {
   hasCourseStarted,
   findUserEnrollmentForCourse,
@@ -24,7 +27,7 @@ const EnrollButtonWrapper = ({
   children,
   ...props
 }) => (
-  <div className="enroll-wrapper mb-3" style={{ width: 270 }}>
+  <div className="enroll-wrapper" style={{ width: 270 }}>
     <Component {...props}>
       {children}
     </Component>
@@ -41,8 +44,8 @@ EnrollButtonWrapper.defaultProps = {
 };
 
 export default function EnrollButton() {
+  const { enterpriseConfig, config } = useContext(AppContext);
   const { state: courseData } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,6 +54,7 @@ export default function EnrollButton() {
     activeCourseRun,
     userEnrollments,
     userEntitlements,
+    userSubsidy,
     catalog: { catalogList },
   } = courseData;
   const {
@@ -83,6 +87,7 @@ export default function EnrollButton() {
     offers,
     sku,
     subscriptionLicense,
+    userSubsidy,
   });
 
   const EnrollLabel = props => (
@@ -106,27 +111,33 @@ export default function EnrollButton() {
     </EnrollButtonWrapper>
   );
 
-  const enrollLinkClass = 'btn-block rounded-0 py-2';
+  const enrollBtnDisabled = (
+    <EnrollButtonCta
+      as="div"
+      className="btn btn-light btn-block disabled"
+    />
+  );
+
+  const enrollLinkClass = 'btn-block';
 
   if (!userEnrollment && isEnrollable) {
     // enroll with a subscription license
     if (enrollmentUrl && subscriptionLicense) {
-      return (
-        <EnrollButtonCta
-          as="a"
-          className={classNames('btn', 'btn-success', enrollLinkClass)}
-          href={enrollmentUrl}
-        />
-      );
-    }
-    // enroll with an offer (code)
-    if (enrollmentUrl) {
+      if (userSubsidy) {
+        return (
+          <EnrollButtonCta
+            as="a"
+            className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
+            href={enrollmentUrl}
+          />
+        );
+      }
+      // no user subsidy means we need to warn user with a dialog
       return (
         <>
           <EnrollButtonCta
-            className={classNames('btn', enrollLinkClass)}
+            className={enrollLinkClass}
             onClick={() => setIsModalOpen(true)}
-            variant="success"
           />
           <EnrollModal
             isModalOpen={isModalOpen}
@@ -138,27 +149,40 @@ export default function EnrollButton() {
         </>
       );
     }
-    // cannot enroll without a valid enrollment url, so render a disabled button.
+    // enroll with an offer (code)
+    if (!features.ENROLL_WITH_CODES) { // can't do offer based enrollment yet without switch
+      return enrollBtnDisabled;
+    }
+    if (enrollmentUrl) {
+      return (
+        <>
+          <EnrollButtonCta
+            className={enrollLinkClass}
+            onClick={() => setIsModalOpen(true)}
+          />
+          <EnrollModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            offersCount={offersCount}
+            courseHasOffer={!!findOfferForCourse(offers, catalogList)}
+            enrollmentUrl={enrollmentUrl}
+          />
+        </>
+      );
+    }
+
     return (
-      <EnrollButtonCta
-        className={classNames(enrollLinkClass, 'disabled')}
-        variant="success"
-      />
+      <EnrollButtonCta className={classNames(enrollLinkClass, 'btn-brand-primary')} />
     );
   }
 
   if (!userEnrollment && !isEnrollable) {
-    return (
-      <EnrollButtonCta
-        as="div"
-        className="alert alert-secondary text-center rounded-0"
-      />
-    );
+    return enrollBtnDisabled;
   }
 
   if (userEnrollment) {
     if (isCourseStarted) {
-      const courseInfoUrl = `${process.env.LMS_BASE_URL}/courses/${key}/info`;
+      const courseInfoUrl = `${config.LMS_BASE_URL}/courses/${key}/info`;
       const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
         userEnrollment,
         subscriptionLicense,
@@ -166,7 +190,7 @@ export default function EnrollButton() {
       });
       return (
         <EnrollButtonCta
-          className={classNames('btn', 'btn-success', enrollLinkClass)}
+          className={classNames(enrollLinkClass, 'btn-brand-primary')}
           href={shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl}
         />
       );
@@ -174,16 +198,13 @@ export default function EnrollButton() {
     return (
       <EnrollButtonCta
         as={Link}
-        className={classNames('btn', 'btn-success', enrollLinkClass)}
+        className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
         to={`/${enterpriseConfig.slug}`}
       />
     );
   }
 
   return (
-    <EnrollButtonCta
-      className={enrollLinkClass}
-      variant="success"
-    />
+    <EnrollButtonCta className={classNames(enrollLinkClass, 'btn-brand-primary')} />
   );
 }
