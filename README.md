@@ -136,6 +136,53 @@ Testing is supported with Jest and Enzyme. To run tests, use:
 
 `npm test`
 
+### Debugging
+
+#### With built-in VSCode embedded debugger
+
+This is nice if you want to use VScode built in debugger and also make changes and reload and try again.
+
+In VSCode, click on the Debug button to the left toolbar
+
+Go to add configuratoin and select type 'chrome'
+
+VScode will generate a file in .vscode/launch.json that looks like this, edit it as shown to your desired url
+
+```
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:8734/test-enterprise",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}
+```
+
+Save this file. It is already gitignore so no worries about accidental checkin.
+
+
+Now you can just hit the run button that says 'Launch Chrome ...' and you can now put breakpoints in your code and get embedded VSCode debugging! 
+
+You can create more configs later if you want more than one url (such as different enterprise slug) to test with.
+
+
+#### With chrome
+
+Just fire up chrome devtools as usual and put breakpoints! You can also edit directly from chrome devtools by enabling local folder support.
+
+in brief:
+
+npm run debug-test 
+
+Then chrome://inspect in chrome along with debugger in the code to trigger a breakpoint?
 
 ### Code layout / components
 
