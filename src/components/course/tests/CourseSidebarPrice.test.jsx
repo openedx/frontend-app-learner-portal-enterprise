@@ -18,6 +18,29 @@ const courseStateWithLicenseSubsidy = {
     firstEnrollablePaidSeatPrice: 1,
   },
   userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
+  course: {},
+  userEnrollments: [],
+  userEntitlements: [],
+};
+
+const courseStateWithOffersNoLicenseSubsidy = {
+  activeCourseRun: {
+    firstEnrollablePaidSeatPrice: 1,
+  },
+  course: {},
+  userEnrollments: [],
+  userEntitlements: [],
+  userSubsidy: {},
+};
+
+const courseStateWithNoOffersNoLicenseSubsidy = {
+  activeCourseRun: {
+    firstEnrollablePaidSeatPrice: 1,
+  },
+  course: {},
+  userEnrollments: [],
+  userEntitlements: [],
+  userSubsidy: {},
 };
 
 // eslint-disable-next-line react/prop-types
@@ -35,9 +58,11 @@ describe('Sidebar price for various use cases', () => {
     expect(screen.getByText('Included in your subscription')).toBeInTheDocument();
   });
   test('when license subsidy is absent, but offer found, must show offer price and message', () => {
-    render(<SidebarWithContext initialState={courseStateWithLicenseSubsidy} />);
+    render(<SidebarWithContext initialState={courseStateWithOffersNoLicenseSubsidy} />);
+    expect(screen.getByText(/Sponsored by /)).toBeInTheDocument();
   });
   test('when license subsidy and offers are absent, must show original price and message', () => {
-    render(<SidebarWithContext initialState={courseStateWithLicenseSubsidy} />);
+    render(<SidebarWithContext initialState={courseStateWithNoOffersNoLicenseSubsidy} />);
+    expect(screen.getByText(/1.00/)).toBeInTheDocument();
   });
 });
