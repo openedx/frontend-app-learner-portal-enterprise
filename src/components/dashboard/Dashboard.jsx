@@ -10,6 +10,7 @@ import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
+import MaintenanceAlert from '../maintenance-alert/MaintenanceAlert';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully activated.';
 
@@ -39,6 +40,7 @@ export default function Dashboard() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
+      <MaintenanceAlert />
       <div className="container-fluid py-5">
         {state?.activationSuccess && renderLicenseActivationSuccess()}
         <div className="row">
