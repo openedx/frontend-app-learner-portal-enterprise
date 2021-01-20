@@ -72,5 +72,7 @@ describe('Sidebar price for various use cases', () => {
   test('when license subsidy and offers are absent, must show original price and message', () => {
     render(<SidebarWithContext initialState={courseStateWithNoOffersNoLicenseSubsidy} />);
     expect(screen.getByText(/1.00/)).toBeInTheDocument();
+    expect(screen.queryByText(/Sponsored by/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
   });
 });
