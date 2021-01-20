@@ -52,6 +52,20 @@ const SidebarWithContext = ({ initialState, userSubsidyState = { offers: [] } })
 );
 
 describe('Sidebar price for various use cases', () => {
+  const SUBSIDY_WITH_MATCHING_OFFER = {
+    offers: {
+      offers: [{
+        code: 'bearsRus', catalog: 'bears', benefitValue: 100, usageType: 'Percentage',
+      }],
+    },
+  };
+  const SUBSIDY_WITHOUT_MATCHING_OFFER = {
+    offers: {
+      offers: [{
+        code: 'bearsRus', catalog: 'bulls', benefitValue: 100, usageType: 'Percentage',
+      }],
+    },
+  };
   test('when license subsidy is found, must show subscription price and message', () => {
     render(<SidebarWithContext initialState={courseStateWithLicenseSubsidy} />);
     expect(screen.getByText('Included in your subscription')).toBeInTheDocument();
@@ -59,20 +73,22 @@ describe('Sidebar price for various use cases', () => {
   test('when license subsidy is absent, but offer found, must show offer price and message', () => {
     render(<SidebarWithContext
       initialState={courseStateWithOffersNoLicenseSubsidy}
-      userSubsidyState={{
-        offers: {
-          offers: [{
-            code: 'bearsRus', catalog: 'bears', benefitValue: 100, usageType: 'Percentage',
-          }],
-        },
-      }}
+      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
     />);
-    expect(screen.getByText(/Sponsored by/)).toBeInTheDocument();
+    expect(screen.getByText('Sponsored by')).toBeInTheDocument();
+  });
+  test('when license subsidy is absent, and matching offer not found, must show original price and message', () => {
+    render(<SidebarWithContext
+      initialState={courseStateWithOffersNoLicenseSubsidy}
+      userSubsidyState={SUBSIDY_WITHOUT_MATCHING_OFFER}
+    />);
+    expect(screen.queryByText('Sponsored by')).not.toBeInTheDocument();
+    expect(screen.getByText(/\$1.00/)).toBeInTheDocument();
   });
   test('when license subsidy and offers are absent, must show original price and message', () => {
     render(<SidebarWithContext initialState={courseStateWithNoOffersNoLicenseSubsidy} />);
-    expect(screen.getByText(/1.00/)).toBeInTheDocument();
-    expect(screen.queryByText(/Sponsored by/)).not.toBeInTheDocument();
+    expect(screen.getByText(/\$1.00/)).toBeInTheDocument();
+    expect(screen.queryByText('Sponsored by')).not.toBeInTheDocument();
     expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
   });
 });

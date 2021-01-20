@@ -156,7 +156,9 @@ export function useCoursePacingType(courseRun) {
   return [pacingType, pacingTypeContent];
 }
 
-export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy, offers, catalogList) {
+export function useCoursePriceForUserSubsidy({
+  activeCourseRun, userSubsidy, offers, catalogList,
+}) {
   const currency = CURRENCY_USD;
 
   const coursePrice = useMemo(

@@ -11,11 +11,13 @@ import {
 } from './data/hooks';
 
 const CourseSidebarPrice = () => {
-  const { state } = useContext(CourseContext);
-  const { activeCourseRun, userSubsidy, catalog: { catalogList } } = state;
+  const { state: courseData } = useContext(CourseContext);
+  const { activeCourseRun, userSubsidy, catalog: { catalogList } } = courseData;
   const { enterpriseConfig } = useContext(AppContext);
   const { offers: { offers } } = useContext(UserSubsidyContext);
-  const [coursePrice, currency] = useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy, offers, catalogList);
+  const [coursePrice, currency] = useCoursePriceForUserSubsidy({
+    activeCourseRun, userSubsidy, offers, catalogList,
+  });
 
   if (!coursePrice) {
     return <Skeleton height={24} />;
