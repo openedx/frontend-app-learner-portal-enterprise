@@ -10,6 +10,8 @@ import {
   useCoursePriceForUserSubsidy,
 } from './data/hooks';
 
+export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
+
 const CourseSidebarPrice = () => {
   const { state: courseData } = useContext(CourseContext);
   const { activeCourseRun, userSubsidy, catalog: { catalogList } } = courseData;
@@ -31,7 +33,7 @@ const CourseSidebarPrice = () => {
             <del>${numberWithPrecision(coursePrice.list)} {currency}</del>
           </div>
         )}
-        <span>Included in your subscription</span>
+        <span>{INCLUDED_IN_SUBSCRIPTION_MESSAGE}</span>
       </>
     );
   }
