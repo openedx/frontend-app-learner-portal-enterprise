@@ -14,36 +14,29 @@ const initialAppState = {
   },
 };
 
-const courseStateWithLicenseSubsidy = {
+const BASE_COURSE_STATE = {
   activeCourseRun: {
     firstEnrollablePaidSeatPrice: 1,
   },
-  userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
+  userSubsidy: {},
   course: {},
   userEnrollments: [],
   userEntitlements: [],
   catalog: [],
 };
 
+const courseStateWithLicenseSubsidy = {
+  ...BASE_COURSE_STATE,
+  userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
+};
+
 const courseStateWithOffersNoLicenseSubsidy = {
-  activeCourseRun: {
-    firstEnrollablePaidSeatPrice: 1,
-  },
-  course: {},
-  userEnrollments: [],
-  userEntitlements: [],
-  userSubsidy: {},
+  ...BASE_COURSE_STATE,
   catalog: { catalogList: ['bears'] },
 };
 
 const courseStateWithNoOffersNoLicenseSubsidy = {
-  activeCourseRun: {
-    firstEnrollablePaidSeatPrice: 1,
-  },
-  course: {},
-  userEnrollments: [],
-  userEntitlements: [],
-  userSubsidy: {},
+  ...BASE_COURSE_STATE,
   catalog: { catalogList: ['bears'] },
 };
 
