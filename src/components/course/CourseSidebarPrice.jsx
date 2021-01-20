@@ -3,17 +3,19 @@ import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
+import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
+import { numberWithPrecision, hasLicenseSubsidy } from './data/utils';
 
 import {
   useCoursePriceForUserSubsidy,
 } from './data/hooks';
-import { hasLicenseSubsidy } from './data/utils';
 
 const CourseSidebarPrice = () => {
   const { state } = useContext(CourseContext);
-  const { activeCourseRun, userSubsidy } = state;
+  const { activeCourseRun, userSubsidy, catalog: { catalogList } } = state;
   const { enterpriseConfig } = useContext(AppContext);
-  const [coursePrice, currency] = useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy);
+  const { offers: { offers } } = useContext(UserSubsidyContext);
+  const [coursePrice, currency] = useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy, offers, catalogList);
 
   if (!coursePrice) {
     return <Skeleton height={24} />;
@@ -24,7 +26,7 @@ const CourseSidebarPrice = () => {
       <>
         {!enterpriseConfig.hideCourseOriginalPrice && (
           <div className="mb-2">
-            <del>${coursePrice.list} {currency}</del>
+            <del>${numberWithPrecision(coursePrice.list)} {currency}</del>
           </div>
         )}
         <span>Included in your subscription</span>
@@ -33,34 +35,32 @@ const CourseSidebarPrice = () => {
   }
 
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
-  if (hasDiscountedPrice) {
-    return (
-      <>
-        <div className="mb-2">
-          {coursePrice.discounted > 0 ? (
-            <>
-              ${coursePrice.discounted}
-              {!enterpriseConfig?.hideCourseOriginalPrice && (
-                <>
-                  {' '}
-                  <del>${coursePrice.list}</del>
-                </>
-              )}
-              {' '}
-            </>
-          ) : (
-            <>
-              ${coursePrice.discounted} {currency}
-            </>
-          )}
-        </div>
-        <span>Sponsored by {enterpriseConfig.name}</span>
-      </>
-    );
+  if (!hasDiscountedPrice) {
+    return <span>${numberWithPrecision(coursePrice.list)} {currency}</span>;
   }
 
   return (
-    <span>${coursePrice.list} {currency}</span>
+    <>
+      <div className="mb-2">
+        {coursePrice.discounted > 0 ? (
+          <>
+            ${numberWithPrecision(coursePrice.discounted)}
+            {!enterpriseConfig?.hideCourseOriginalPrice && (
+              <>
+                {' '}
+                <del>${numberWithPrecision(coursePrice.list)}</del>
+              </>
+            )}
+            {' '}
+          </>
+        ) : (
+          <>
+            ${numberWithPrecision(coursePrice.discounted)} {currency}
+          </>
+        )}
+      </div>
+      <span>Sponsored by {enterpriseConfig.name}</span>
+    </>
   );
 };
 

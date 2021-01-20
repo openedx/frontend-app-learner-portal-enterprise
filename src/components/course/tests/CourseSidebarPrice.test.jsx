@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContextProvider } from '../CourseContextProvider';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import CourseSidebarPrice from '../CourseSidebarPrice';
 import { LICENSE_SUBSIDY_TYPE } from '../data/constants';
 
@@ -21,6 +22,7 @@ const courseStateWithLicenseSubsidy = {
   course: {},
   userEnrollments: [],
   userEntitlements: [],
+  catalog: [],
 };
 
 const courseStateWithOffersNoLicenseSubsidy = {
@@ -31,6 +33,7 @@ const courseStateWithOffersNoLicenseSubsidy = {
   userEnrollments: [],
   userEntitlements: [],
   userSubsidy: {},
+  catalog: { catalogList: ['bears'] },
 };
 
 const courseStateWithNoOffersNoLicenseSubsidy = {
@@ -41,13 +44,16 @@ const courseStateWithNoOffersNoLicenseSubsidy = {
   userEnrollments: [],
   userEntitlements: [],
   userSubsidy: {},
+  catalog: { catalogList: ['bears'] },
 };
 
 // eslint-disable-next-line react/prop-types
-const SidebarWithContext = ({ initialState }) => (
+const SidebarWithContext = ({ initialState, userSubsidyState = { offers: [] } }) => (
   <AppContext.Provider value={initialAppState}>
     <CourseContextProvider initialState={initialState}>
-      <CourseSidebarPrice />
+      <UserSubsidyContext.Provider value={userSubsidyState}>
+        <CourseSidebarPrice />
+      </UserSubsidyContext.Provider>
     </CourseContextProvider>
   </AppContext.Provider>
 );
@@ -58,8 +64,17 @@ describe('Sidebar price for various use cases', () => {
     expect(screen.getByText('Included in your subscription')).toBeInTheDocument();
   });
   test('when license subsidy is absent, but offer found, must show offer price and message', () => {
-    render(<SidebarWithContext initialState={courseStateWithOffersNoLicenseSubsidy} />);
-    expect(screen.getByText(/Sponsored by /)).toBeInTheDocument();
+    render(<SidebarWithContext
+      initialState={courseStateWithOffersNoLicenseSubsidy}
+      userSubsidyState={{
+        offers: {
+          offers: [{
+            code: 'bearsRus', catalog: 'bears', benefitValue: 100, usageType: 'Percentage',
+          }],
+        },
+      }}
+    />);
+    expect(screen.getByText(/Sponsored by/)).toBeInTheDocument();
   });
   test('when license subsidy and offers are absent, must show original price and message', () => {
     render(<SidebarWithContext initialState={courseStateWithNoOffersNoLicenseSubsidy} />);

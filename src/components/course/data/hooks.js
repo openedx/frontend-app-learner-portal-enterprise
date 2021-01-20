@@ -9,7 +9,6 @@ import CourseService from './service';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
-  numberWithPrecision,
   findOfferForCourse,
   hasLicenseSubsidy,
 } from './utils';
@@ -157,7 +156,7 @@ export function useCoursePacingType(courseRun) {
   return [pacingType, pacingTypeContent];
 }
 
-export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
+export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy, offers, catalogList) {
   const currency = CURRENCY_USD;
 
   const coursePrice = useMemo(
@@ -168,33 +167,59 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
         return null;
       }
 
-      const priceDetails = {
-        list: numberWithPrecision(listPrice),
+      const onlyListPrice = {
+        list: listPrice,
       };
-      if (!userSubsidy) {
-        return priceDetails;
+
+      // Case 1: License Subsidy
+      if (userSubsidy && userSubsidy.discountValue) {
+        const { discountType, discountValue } = userSubsidy;
+        let discountedPrice;
+
+        if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
+          discountedPrice = listPrice - (listPrice * (discountValue / 100));
+        }
+
+        if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
+          discountedPrice = Math.max(listPrice - discountValue, 0);
+        }
+
+        if (isDefinedAndNotNull(discountedPrice)) {
+          return {
+            ...onlyListPrice,
+            discounted: discountedPrice,
+          };
+        }
+        return {
+          ...onlyListPrice,
+          discounted: onlyListPrice.list,
+        };
       }
 
-      const { discountType, discountValue } = userSubsidy;
-      let discountedPrice;
-
-      if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
-        discountedPrice = listPrice - (listPrice * (discountValue / 100));
+      // Case 2: No subsidy, no offers for course
+      if (!offers) {
+        return onlyListPrice;
       }
 
-      if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
-        discountedPrice = Math.max(listPrice - discountValue, 0);
+      const offerForCourse = findOfferForCourse(offers, catalogList);
+
+      if (!offerForCourse) {
+        return onlyListPrice;
       }
 
-      if (isDefinedAndNotNull(discountedPrice)) {
-        priceDetails.discounted = numberWithPrecision(discountedPrice);
-      } else {
-        priceDetails.discounted = priceDetails.list;
+      // Case 3: No subsidy, but found offer for course
+      const { benefitValue, usageType } = offerForCourse;
+      if (usageType === 'Percentage') {
+        // only 100% discount supported as of now
+        const discountedPrice = listPrice - (listPrice * (benefitValue / 100));
+        return {
+          ...onlyListPrice,
+          discounted: discountedPrice,
+        };
       }
-
-      return priceDetails;
+      return onlyListPrice;
     },
-    [activeCourseRun, userSubsidy],
+    [activeCourseRun, userSubsidy, offers],
   );
 
   return [coursePrice, currency];
