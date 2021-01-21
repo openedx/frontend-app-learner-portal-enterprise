@@ -55,7 +55,7 @@ export function useOffers(enterpriseId) {
           enterprise_uuid: enterpriseId,
           full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
         },
-          dispatch);
+        dispatch);
       }
     },
     [enterpriseId],
