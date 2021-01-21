@@ -26,10 +26,10 @@ const fetchOffersFailure = error => ({
   },
 });
 
-const fetchOffers = (query, dispatch) => {
+const fetchOffers = (queryOptions, dispatch) => {
   dispatch(fetchOffersRequest());
 
-  return service.fetchOffers(query)
+  return service.fetchOffers(queryOptions)
     .then((response) => {
       dispatch(fetchOffersSuccess(camelCaseObject(response.data)));
     })
