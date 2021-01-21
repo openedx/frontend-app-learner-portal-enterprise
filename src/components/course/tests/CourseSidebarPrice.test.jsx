@@ -115,6 +115,7 @@ describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
   });
 });
 
+// We only test price here, since messages are already tested above
 describe('Sidebar price display with hideCourseOriginalPrice OFF', () => {
   test('no subsidies, shows original price, no messages', () => {
     render(<SidebarWithContext
@@ -122,8 +123,6 @@ describe('Sidebar price display with hideCourseOriginalPrice OFF', () => {
       initialAppState={appStateWithOrigPriceShowing}
     />);
     expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-    expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-    expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
   });
   test('subscription license subsidy, shows orig crossed out price, correct message', () => {
     render(<SidebarWithContext
@@ -148,7 +147,5 @@ describe('Sidebar price display with hideCourseOriginalPrice OFF', () => {
     />);
     expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
-    expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-    expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
   });
 });
