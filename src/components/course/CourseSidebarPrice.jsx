@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import Skeleton from 'react-loading-skeleton';
+import classNames from 'classnames';
+
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -61,7 +63,7 @@ const CourseSidebarPrice = () => {
   const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
   return (
     <>
-      <div className="mb-2">
+      <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
         {/* discounted > 0 means partial discount, next block is full discount */}
         {coursePrice.discounted > 0 ? (
           <>
