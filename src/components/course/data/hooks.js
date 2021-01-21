@@ -221,7 +221,7 @@ export function useCoursePriceForUserSubsidy({
       }
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidy, offers],
+    [activeCourseRun, userSubsidy, offers, catalogList],
   );
 
   return [coursePrice, currency];
