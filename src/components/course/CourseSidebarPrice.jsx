@@ -30,7 +30,7 @@ const CourseSidebarPrice = () => {
   const crossedOutOriginalPrice = (
     <>
       {' '}
-      <del>${originalPriceDisplay} {currency}</del>
+      <del><span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}</del>
       {' '}
     </>
   );
@@ -41,7 +41,9 @@ const CourseSidebarPrice = () => {
       <>
         {showOrigPrice && (
           <div className="mb-2">
-            <del>${originalPriceDisplay} {currency}</del>
+            <del>
+              <span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}
+            </del>
           </div>
         )}
         <span>{INCLUDED_IN_SUBSCRIPTION_MESSAGE}</span>
@@ -62,7 +64,7 @@ const CourseSidebarPrice = () => {
       <div className="mb-2">
         {coursePrice.discounted > 0 ? (
           <>
-            ${discountedPriceDisplay}
+            <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}
             {showOrigPrice && crossedOutOriginalPrice}
           </>
         ) : (
