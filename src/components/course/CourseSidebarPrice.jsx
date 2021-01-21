@@ -30,11 +30,9 @@ const CourseSidebarPrice = () => {
   const originalPriceDisplay = numberWithPrecision(coursePrice.list);
   const showOrigPrice = !enterpriseConfig.hideCourseOriginalPrice;
   const crossedOutOriginalPrice = (
-    <>
-      {' '}
-      <del><span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}</del>
-      {' '}
-    </>
+    <del>
+      <span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}
+    </del>
   );
 
   // Case 1: License subsidy found
@@ -68,11 +66,11 @@ const CourseSidebarPrice = () => {
         {coursePrice.discounted > 0 ? (
           <>
             <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}
-            {showOrigPrice && crossedOutOriginalPrice}
+            {showOrigPrice && <>{' '} {crossedOutOriginalPrice}{' '}</>}
           </>
         ) : (
           <>
-            {showOrigPrice && crossedOutOriginalPrice}
+            {showOrigPrice && <>{' '} {crossedOutOriginalPrice}{' '}</>}
           </>
         )}
       </div>
