@@ -137,6 +137,7 @@ describe('UserSubsidy', () => {
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, "full_discount_only": "True" });
       await waitFor(() => {
         expect(screen.queryByText('Has access: false')).toBeInTheDocument();
       });
@@ -162,6 +163,8 @@ describe('UserSubsidy', () => {
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, "full_discount_only": "True" });
+
       await waitFor(() => {
         expect(screen.queryByText('Has access: true')).toBeInTheDocument();
       });
@@ -187,6 +190,8 @@ describe('UserSubsidy', () => {
       });
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, "full_discount_only": "True" });
+
       await waitFor(() => {
         expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
       });
@@ -213,6 +218,8 @@ describe('UserSubsidy', () => {
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledTimes(1);
+      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, "full_discount_only": "True" });
+
       await waitFor(() => {
         expect(screen.queryByText('Offers count: 0')).toBeInTheDocument();
       });
