@@ -81,13 +81,16 @@ const SUBSIDY_WITH_MATCHING_OFFER = {
   },
 };
 
-describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
-  test('no subsidies, hides original price, no messages', () => {
+describe('Sidebar price display with hideCourseOriginalPrice ON, No subsidies', () => {
+  test('no subsidies, shows original price, no messages', () => {
     render(<SidebarWithContext initialCourseState={courseStateWithNoOffersNoLicenseSubsidy} />);
-    expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
+    expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
     expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
   });
+});
+
+describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
   test('subscription license subsidy, shows no price, correct message', () => {
     render(<SidebarWithContext initialCourseState={courseStateWithLicenseSubsidy} />);
     expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();

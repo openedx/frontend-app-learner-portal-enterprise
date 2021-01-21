@@ -54,7 +54,7 @@ const CourseSidebarPrice = () => {
   // Case 2: No subsidies found
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
   if (!hasDiscountedPrice) {
-    return <>{showOrigPrice && <span>${originalPriceDisplay} {currency}</span>}</>;
+    return <span>${originalPriceDisplay} {currency}</span>;
   }
 
   // Case 3: offer subsidy found
@@ -62,6 +62,7 @@ const CourseSidebarPrice = () => {
   return (
     <>
       <div className="mb-2">
+        {/* discounted > 0 means partial discount, next block is full discount */}
         {coursePrice.discounted > 0 ? (
           <>
             <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}
