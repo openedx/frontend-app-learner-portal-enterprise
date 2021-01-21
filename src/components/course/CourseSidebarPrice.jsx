@@ -25,12 +25,23 @@ const CourseSidebarPrice = () => {
     return <Skeleton height={24} />;
   }
 
+  const originalPriceDisplay = numberWithPrecision(coursePrice.list);
+  const showOrigPrice = !enterpriseConfig.hideCourseOriginalPrice;
+  const crossedOutOriginalPrice = (
+    <>
+      {' '}
+      <del>${originalPriceDisplay} {currency}</del>
+      {' '}
+    </>
+  );
+
+  // Case 1: License subsidy found
   if (hasLicenseSubsidy(userSubsidy)) {
     return (
       <>
-        {!enterpriseConfig.hideCourseOriginalPrice && (
+        {showOrigPrice && (
           <div className="mb-2">
-            <del>${numberWithPrecision(coursePrice.list)} {currency}</del>
+            <del>${originalPriceDisplay} {currency}</del>
           </div>
         )}
         <span>{INCLUDED_IN_SUBSCRIPTION_MESSAGE}</span>
@@ -38,28 +49,25 @@ const CourseSidebarPrice = () => {
     );
   }
 
+  // Case 2: No subsidies found
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
   if (!hasDiscountedPrice) {
-    return <span>${numberWithPrecision(coursePrice.list)} {currency}</span>;
+    return <>{showOrigPrice && <span>${originalPriceDisplay} {currency}</span>}</>;
   }
 
+  // Case 3: offer subsidy found
+  const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
   return (
     <>
       <div className="mb-2">
         {coursePrice.discounted > 0 ? (
           <>
-            ${numberWithPrecision(coursePrice.discounted)}
-            {!enterpriseConfig?.hideCourseOriginalPrice && (
-              <>
-                {' '}
-                <del>${numberWithPrecision(coursePrice.list)}</del>
-              </>
-            )}
-            {' '}
+            ${discountedPriceDisplay}
+            {showOrigPrice && crossedOutOriginalPrice}
           </>
         ) : (
           <>
-            ${numberWithPrecision(coursePrice.discounted)} {currency}
+            {showOrigPrice && crossedOutOriginalPrice}
           </>
         )}
       </div>
