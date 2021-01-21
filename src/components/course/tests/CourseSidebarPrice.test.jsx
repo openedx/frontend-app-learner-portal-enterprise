@@ -17,6 +17,14 @@ const appStateWithOrigPriceHidden = {
   },
 };
 
+const appStateWithOrigPriceShowing = {
+  ...appStateWithOrigPriceHidden,
+  enterpriseConfig: {
+    ...appStateWithOrigPriceHidden.enterpriseConfig,
+    hideCourseOriginalPrice: false,
+  },
+};
+
 const BASE_COURSE_STATE = {
   activeCourseRun: {
     firstEnrollablePaidSeatPrice: 7.50,
@@ -65,6 +73,13 @@ SidebarWithContext.propTypes = {
 };
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
+const SUBSIDY_WITH_MATCHING_OFFER = {
+  offers: {
+    offers: [{
+      code: 'bearsRus', catalog: 'bears', benefitValue: 90, usageType: 'Percentage',
+    }],
+  },
+};
 
 describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
   test('no subsidies, hides original price, no messages', () => {
@@ -80,13 +95,6 @@ describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
     expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
   });
   test('offer 100% subsidy, shows no price, correct message', () => {
-    const SUBSIDY_WITH_MATCHING_OFFER = {
-      offers: {
-        offers: [{
-          code: 'bearsRus', catalog: 'bears', benefitValue: 100, usageType: 'Percentage',
-        }],
-      },
-    };
     render(<SidebarWithContext
       initialCourseState={courseStateWithOffersNoLicenseSubsidy}
       userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
@@ -97,17 +105,48 @@ describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
     expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
   });
   test('offer non-full subsidy, shows discounted price only, correct message', () => {
-    const SUBSIDY_WITH_MATCHING_OFFER = {
-      offers: {
-        offers: [{
-          code: 'bearsRus', catalog: 'bears', benefitValue: 90, usageType: 'Percentage',
-        }],
-      },
-    };
     render(<SidebarWithContext
       initialCourseState={courseStateWithOffersNoLicenseSubsidy}
       userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
     />);
+    expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
+    expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+    expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
+  });
+});
+
+describe('Sidebar price display with hideCourseOriginalPrice OFF', () => {
+  test('no subsidies, shows original price, no messages', () => {
+    render(<SidebarWithContext
+      initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
+      initialAppState={appStateWithOrigPriceShowing}
+    />);
+    expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+    expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+    expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
+  });
+  test('subscription license subsidy, shows orig crossed out price, correct message', () => {
+    render(<SidebarWithContext
+      initialCourseState={courseStateWithLicenseSubsidy}
+      initialAppState={appStateWithOrigPriceShowing}
+    />);
+    expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+  });
+  test('offer 100% subsidy, shows orig price, correct message', () => {
+    render(<SidebarWithContext
+      initialAppState={appStateWithOrigPriceShowing}
+      initialCourseState={courseStateWithOffersNoLicenseSubsidy}
+      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
+    />);
+    expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+  });
+  test('offer non-full subsidy, shows orig and discounted price only, correct message', () => {
+    render(<SidebarWithContext
+      initialAppState={appStateWithOrigPriceShowing}
+      initialCourseState={courseStateWithOffersNoLicenseSubsidy}
+      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
+    />);
+    expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
     expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
     expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
