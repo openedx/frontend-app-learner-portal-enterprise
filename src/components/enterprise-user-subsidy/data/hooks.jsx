@@ -51,7 +51,11 @@ export function useOffers(enterpriseId) {
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
-        fetchOffers('full_discount_only=True', dispatch);
+        fetchOffers({
+          enterprise_uuid: enterpriseId,
+          full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
+        },
+        dispatch);
       }
     },
     [enterpriseId],
