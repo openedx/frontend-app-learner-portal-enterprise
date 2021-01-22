@@ -5,9 +5,12 @@ import PropTypes from 'prop-types';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContextProvider } from '../CourseContextProvider';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import CourseSidebarPrice, { INCLUDED_IN_SUBSCRIPTION_MESSAGE } from '../CourseSidebarPrice';
-import { LICENSE_SUBSIDY_TYPE } from '../data/constants';
+import {
+  LICENSE_SUBSIDY_TYPE,
+  OFFER_SUBSIDY_TYPE,
+  SUBSIDY_DISCOUNT_TYPE_MAP,
+} from '../data/constants';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -29,7 +32,7 @@ const BASE_COURSE_STATE = {
   activeCourseRun: {
     firstEnrollablePaidSeatPrice: 7.50,
   },
-  userSubsidyApplicableToCourse: {},
+  userSubsidyApplicableToCourse: null,
   course: {},
   userEnrollments: [],
   userEntitlements: [],
@@ -41,9 +44,27 @@ const courseStateWithLicenseSubsidy = {
   userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
 };
 
-const courseStateWithOffersNoLicenseSubsidy = {
+const FULL_OFFER_SUBSIDY = {
+  discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE,
+  discountValue: 100,
+  subsidyType: OFFER_SUBSIDY_TYPE,
+};
+
+const PARTIAL_OFFER_SUBSIDY = {
+  ...FULL_OFFER_SUBSIDY,
+  discountValue: 90,
+};
+
+const courseStateFullOfferSubsidy = {
   ...BASE_COURSE_STATE,
   catalog: { catalogList: ['bears'] },
+  userSubsidyApplicableToCourse: FULL_OFFER_SUBSIDY,
+};
+
+const courseStatePartialOfferSubsidy = {
+  ...BASE_COURSE_STATE,
+  catalog: { catalogList: ['bears'] },
+  userSubsidyApplicableToCourse: PARTIAL_OFFER_SUBSIDY,
 };
 
 const courseStateWithNoOffersNoLicenseSubsidy = {
@@ -55,13 +76,10 @@ const courseStateWithNoOffersNoLicenseSubsidy = {
 const SidebarWithContext = ({
   initialAppState = appStateWithOrigPriceHidden,
   initialCourseState,
-  userSubsidyState = { offers: [] },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <CourseContextProvider initialState={initialCourseState}>
-      <UserSubsidyContext.Provider value={userSubsidyState}>
-        <CourseSidebarPrice />
-      </UserSubsidyContext.Provider>
+      <CourseSidebarPrice />
     </CourseContextProvider>
   </AppContext.Provider>
 );
@@ -73,13 +91,6 @@ SidebarWithContext.propTypes = {
 };
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
-const SUBSIDY_WITH_MATCHING_OFFER = {
-  offers: {
-    offers: [{
-      code: 'bearsRus', catalog: 'bears', benefitValue: 90, usageType: 'Percentage',
-    }],
-  },
-};
 
 describe('Sidebar price display with hideCourseOriginalPrice ON, No subsidies', () => {
   test('no subsidies, shows original price, no messages', () => {
@@ -99,8 +110,7 @@ describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
   });
   test('offer 100% subsidy, shows no price, correct message', () => {
     render(<SidebarWithContext
-      initialCourseState={courseStateWithOffersNoLicenseSubsidy}
-      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
+      initialCourseState={courseStateFullOfferSubsidy}
     />);
     expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
@@ -109,8 +119,7 @@ describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
   });
   test('offer non-full subsidy, shows discounted price only, correct message', () => {
     render(<SidebarWithContext
-      initialCourseState={courseStateWithOffersNoLicenseSubsidy}
-      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
+      initialCourseState={courseStatePartialOfferSubsidy}
     />);
     expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
     expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
@@ -122,31 +131,29 @@ describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
 describe('Sidebar price display with hideCourseOriginalPrice OFF', () => {
   test('no subsidies, shows original price, no messages', () => {
     render(<SidebarWithContext
-      initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
       initialAppState={appStateWithOrigPriceShowing}
+      initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
     />);
     expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
   });
   test('subscription license subsidy, shows orig crossed out price, correct message', () => {
     render(<SidebarWithContext
-      initialCourseState={courseStateWithLicenseSubsidy}
       initialAppState={appStateWithOrigPriceShowing}
+      initialCourseState={courseStateWithLicenseSubsidy}
     />);
     expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
   });
   test('offer 100% subsidy, shows orig price, correct message', () => {
     render(<SidebarWithContext
       initialAppState={appStateWithOrigPriceShowing}
-      initialCourseState={courseStateWithOffersNoLicenseSubsidy}
-      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
+      initialCourseState={courseStateFullOfferSubsidy}
     />);
     expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
   });
   test('offer non-full subsidy, shows orig and discounted price only, correct message', () => {
     render(<SidebarWithContext
       initialAppState={appStateWithOrigPriceShowing}
-      initialCourseState={courseStateWithOffersNoLicenseSubsidy}
-      userSubsidyState={SUBSIDY_WITH_MATCHING_OFFER}
+      initialCourseState={courseStatePartialOfferSubsidy}
     />);
     expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
