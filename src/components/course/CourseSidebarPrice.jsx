@@ -18,8 +18,6 @@ const CourseSidebarPrice = () => {
   const { activeCourseRun, userSubsidyApplicableToCourse } = courseData;
   const { enterpriseConfig } = useContext(AppContext);
 
-  // TODO: add code to produce correct userSubsidy based on offers/catalogs
-
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
     activeCourseRun, userSubsidyApplicableToCourse,
   });

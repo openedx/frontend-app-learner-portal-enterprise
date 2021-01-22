@@ -4,8 +4,8 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { hasValidStartExpirationDates } from '../../../utils/common';
-import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
-import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
+import { LICENSE_SUBSIDY_TYPE, OFFER_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
+import { getActiveCourseRun, getAvailableCourseRuns, findOfferForCourse } from './utils';
 
 export default class CourseService {
   constructor(options = {}) {
@@ -28,7 +28,7 @@ export default class CourseService {
     this.activeCourseRun = activeCourseRun;
   }
 
-  async fetchAllCourseData() {
+  async fetchAllCourseData({ offers }) {
     const data = await Promise.all([
       this.fetchCourseDetails(),
       this.fetchUserEnrollments(),
@@ -40,7 +40,12 @@ export default class CourseService {
     const courseDetails = camelCaseObject(data[0]);
     // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
-    const userSubsidyApplicableToCourse = await this.fetchEnterpriseUserSubsidy();
+
+    const { catalogList } = camelCaseObject(data[3]);
+    const userSubsidyApplicableToCourse = await this.fetchEnterpriseUserSubsidy({
+      offers, catalogList,
+    });
+
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
     if (this.courseRunKey) {
@@ -85,7 +90,7 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
-  async fetchEnterpriseUserSubsidy() {
+  async fetchEnterpriseUserSubsidy({ offers, catalogList }) {
     // TODO: this will likely be expanded to support codes/offers, by appending to
     // the below array to provide a function that makes the relevant API call(s)
     // for the specified subsidy type.
@@ -93,10 +98,16 @@ export default class CourseService {
     // note: these API calls should be ordered by priority. Example: if a user has
     // a license subsidy, we use that as the user's final subsidy. if not, we check
     // if the user has a code subsidy, and so on.
-    const SUBSIDY_TYPES = [{
-      type: LICENSE_SUBSIDY_TYPE,
-      fetchFn: this.fetchUserLicenseSubsidy(),
-    }];
+    const SUBSIDY_TYPES = [
+      {
+        type: LICENSE_SUBSIDY_TYPE,
+        fetchFn: this.fetchUserLicenseSubsidy(),
+      },
+      {
+        type: OFFER_SUBSIDY_TYPE,
+        fetchFn: this.fetchUserOfferSubsidy({ offers, catalogList }),
+      },
+    ];
     const promises = SUBSIDY_TYPES.map(subsidy => subsidy.fetchFn);
     // Promise.allSettled() waits until all promises are resolved, whether successful
     // or not. in contrast, Promise.all() immediately rejects when any promise errors
@@ -129,5 +140,30 @@ export default class CourseService {
     };
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
     return this.cachedAuthenticatedHttpClient.get(url);
+  }
+
+  fetchUserOfferSubsidy({ offers, catalogList }) {
+    // TODO this probably should be a fetch but we are using prefetch offer data here
+    /*
+      benefit_value: 100
+      catalog: "09a6dd6a-a6f0-4232-aaca-3bd1d81a4197"
+      code: "3K64Q2MP6VYAWFJ5"
+      coupon_end_date: "2025-09-24T00:00:00Z"
+      coupon_start_date: "2020-09-24T00:00:00Z"
+      redemptions_remaining: 1
+      usage_type: "Percentage"
+      */
+    const offerForCourse = findOfferForCourse(offers, catalogList);
+    const {
+      usageType, benefitValue, couponStartDate, couponEndDate,
+    } = offerForCourse;
+    return Promise.resolve({
+      data: {
+        discountType: usageType,
+        discountValue: benefitValue,
+        startDate: couponStartDate,
+        endDate: couponEndDate,
+      },
+    });
   }
 }
