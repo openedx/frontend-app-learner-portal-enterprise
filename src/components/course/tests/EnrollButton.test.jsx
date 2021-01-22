@@ -59,7 +59,7 @@ describe('<EnrollButton />', () => {
     },
     userEnrollments: [],
     userEntitlements: [],
-    userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
+    userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
     catalog: {},
   };
   const initialUserSubsidyState = {

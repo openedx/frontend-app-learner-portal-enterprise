@@ -29,7 +29,7 @@ const BASE_COURSE_STATE = {
   activeCourseRun: {
     firstEnrollablePaidSeatPrice: 7.50,
   },
-  userSubsidy: {},
+  userSubsidyApplicableToCourse: {},
   course: {},
   userEnrollments: [],
   userEntitlements: [],
@@ -38,7 +38,7 @@ const BASE_COURSE_STATE = {
 
 const courseStateWithLicenseSubsidy = {
   ...BASE_COURSE_STATE,
-  userSubsidy: { subsidyType: LICENSE_SUBSIDY_TYPE },
+  userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
 };
 
 const courseStateWithOffersNoLicenseSubsidy = {

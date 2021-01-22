@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { numberWithPrecision, hasLicenseSubsidy } from './data/utils';
 
 import {
@@ -16,11 +15,13 @@ export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
 
 const CourseSidebarPrice = () => {
   const { state: courseData } = useContext(CourseContext);
-  const { activeCourseRun, userSubsidy, catalog: { catalogList } } = courseData;
+  const { activeCourseRun, userSubsidyApplicableToCourse } = courseData;
   const { enterpriseConfig } = useContext(AppContext);
-  const { offers: { offers } } = useContext(UserSubsidyContext);
+
+  // TODO: add code to produce correct userSubsidy based on offers/catalogs
+
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    activeCourseRun, userSubsidy, offers, catalogList,
+    activeCourseRun, userSubsidyApplicableToCourse,
   });
 
   if (!coursePrice) {
@@ -36,7 +37,7 @@ const CourseSidebarPrice = () => {
   );
 
   // Case 1: License subsidy found
-  if (hasLicenseSubsidy(userSubsidy)) {
+  if (hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
     return (
       <>
         {showOrigPrice && (
@@ -63,16 +64,12 @@ const CourseSidebarPrice = () => {
     <>
       <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
         {/* discounted > 0 means partial discount, next block is full discount */}
-        {coursePrice.discounted > 0 ? (
+        {coursePrice.discounted > 0 && (
           <>
             <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}
-            {showOrigPrice && <>{' '} {crossedOutOriginalPrice}{' '}</>}
-          </>
-        ) : (
-          <>
-            {showOrigPrice && <>{' '} {crossedOutOriginalPrice}{' '}</>}
           </>
         )}
+        {showOrigPrice && <>{' '} {crossedOutOriginalPrice}{' '}</>}
       </div>
       <span>Sponsored by {enterpriseConfig.name}</span>
     </>

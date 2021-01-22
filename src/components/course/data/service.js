@@ -40,7 +40,7 @@ export default class CourseService {
     const courseDetails = camelCaseObject(data[0]);
     // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
-    const userSubsidy = await this.fetchEnterpriseUserSubsidy();
+    const userSubsidyApplicableToCourse = await this.fetchEnterpriseUserSubsidy();
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
     if (this.courseRunKey) {
@@ -56,7 +56,7 @@ export default class CourseService {
 
     return {
       courseDetails,
-      userSubsidy,
+      userSubsidyApplicableToCourse,
       userEnrollments: data[1],
       userEntitlements: data[2].results,
       catalog: data[3],
@@ -104,14 +104,14 @@ export default class CourseService {
     // a non-200 status code.
     const data = await Promise.allSettled(promises);
 
-    let userSubsidy = null;
+    let userSubsidyApplicableToCourse = null;
     for (let i = 0; i < data.length; i++) {
       if (data[i]?.status === PROMISE_FULFILLED) {
         const result = data[i].value.data;
         const subsidyData = camelCaseObject(result);
 
         if (hasValidStartExpirationDates(subsidyData)) {
-          userSubsidy = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
+          userSubsidyApplicableToCourse = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
           // if a non-expired user subsidy is found, break early since the promises
           // are priority ordered
           break;
@@ -119,7 +119,7 @@ export default class CourseService {
       }
     }
 
-    return userSubsidy;
+    return userSubsidyApplicableToCourse;
   }
 
   fetchUserLicenseSubsidy() {

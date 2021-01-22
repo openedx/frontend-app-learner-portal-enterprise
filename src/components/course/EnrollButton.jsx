@@ -54,7 +54,7 @@ export default function EnrollButton() {
     activeCourseRun,
     userEnrollments,
     userEntitlements,
-    userSubsidy,
+    userSubsidyApplicableToCourse,
     catalog: { catalogList },
   } = courseData;
   const {
@@ -87,7 +87,7 @@ export default function EnrollButton() {
     offers,
     sku,
     subscriptionLicense,
-    userSubsidy,
+    userSubsidyApplicableToCourse,
   });
 
   const EnrollLabel = props => (
@@ -123,7 +123,7 @@ export default function EnrollButton() {
   if (!userEnrollment && isEnrollable) {
     // enroll with a subscription license
     if (enrollmentUrl && subscriptionLicense) {
-      if (userSubsidy) {
+      if (userSubsidyApplicableToCourse) {
         return (
           <EnrollButtonCta
             as="a"

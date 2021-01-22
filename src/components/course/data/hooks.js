@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import qs from 'query-string';
+import PropTypes from 'prop-types';
+
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -156,9 +158,17 @@ export function useCoursePacingType(courseRun) {
   return [pacingType, pacingTypeContent];
 }
 
-export function useCoursePriceForUserSubsidy({
-  activeCourseRun, userSubsidy, offers, catalogList,
-}) {
+/**
+ * Determines course price based on userSubsidy and course info.
+ * @param {object} args Arguments.
+ * @param {Object} args.activeCourseRun course run info
+ * @param {Object} args.userSubsidyApplicableToCourse Usersubsidy
+ *
+ * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
+ */
+const useCoursePriceForUserSubsidy = ({
+  activeCourseRun, userSubsidyApplicableToCourse,
+}) => {
   const currency = CURRENCY_USD;
 
   const coursePrice = useMemo(
@@ -173,9 +183,8 @@ export function useCoursePriceForUserSubsidy({
         list: listPrice,
       };
 
-      // Case 1: License Subsidy
-      if (userSubsidy && userSubsidy.discountValue) {
-        const { discountType, discountValue } = userSubsidy;
+      if (userSubsidyApplicableToCourse) {
+        const { discountType, discountValue } = userSubsidyApplicableToCourse;
         let discountedPrice;
 
         if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
@@ -199,33 +208,25 @@ export function useCoursePriceForUserSubsidy({
       }
 
       // Case 2: No subsidy, no offers for course
-      if (!offers) {
-        return onlyListPrice;
-      }
-
-      const offerForCourse = findOfferForCourse(offers, catalogList);
-
-      if (!offerForCourse) {
-        return onlyListPrice;
-      }
-
-      // Case 3: No subsidy, but found offer for course
-      const { benefitValue, usageType } = offerForCourse;
-      if (usageType === 'Percentage') {
-        // only 100% discount supported as of now
-        const discountedPrice = listPrice - (listPrice * (benefitValue / 100));
-        return {
-          ...onlyListPrice,
-          discounted: discountedPrice,
-        };
-      }
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidy, offers, catalogList],
+    [activeCourseRun, userSubsidyApplicableToCourse],
   );
 
   return [coursePrice, currency];
-}
+};
+
+useCoursePriceForUserSubsidy.propTypes = {
+  activeCourseRun: PropTypes.shape({}).isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape({
+    discountType: PropTypes.string.isRequired,
+    discountValue: PropTypes.number.isRequired,
+    expirationDate: PropTypes.string.isRequired,
+    startDate: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    subsidyId: PropTypes.string.isRequired,
+  }).isRequired,
+};
 
 export function useCourseEnrollmentUrl({
   catalogList,
@@ -235,7 +236,7 @@ export function useCourseEnrollmentUrl({
   offers,
   sku,
   subscriptionLicense,
-  userSubsidy,
+  userSubsidyApplicableToCourse,
 }) {
   const config = getConfig();
   const enrollmentFailedParams = { ...qs.parse(location.search) };
@@ -249,7 +250,7 @@ export function useCourseEnrollmentUrl({
   const enrollmentUrl = useMemo(
     () => {
       // Users must have a license and a valid subsidy from that license to enroll with it
-      if (subscriptionLicense && hasLicenseSubsidy(userSubsidy)) {
+      if (subscriptionLicense && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
         const enrollOptions = {
           ...baseEnrollmentOptions,
           license_uuid: subscriptionLicense.uuid,
@@ -281,3 +282,5 @@ export function useCourseEnrollmentUrl({
 
   return enrollmentUrl;
 }
+
+export { useCoursePriceForUserSubsidy };
