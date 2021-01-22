@@ -154,6 +154,9 @@ export default class CourseService {
       usage_type: "Percentage"
       */
     const offerForCourse = findOfferForCourse(offers, catalogList);
+    if (!offerForCourse) {
+      return Promise.reject(new Error('No offer found'));
+    }
     const {
       usageType, benefitValue, couponStartDate, couponEndDate,
     } = offerForCourse;
