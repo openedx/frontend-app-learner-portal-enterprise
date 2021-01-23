@@ -142,17 +142,27 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
+  /**
+   * @typedef {Object} Offer An offer for a course
+   * @property {string} usageType
+   * @property {number} benefitValue
+   * @property {string} couponStartDate utc formatted
+   * @property {string} couponEndDate utc formatted
+   * @property {number} redemptionsRemaining
+   * @property {string} code
+   * @property {string} catalog uuid of catalog
+   */
+
+  /**
+   * Returns an offer whose catalog uuid matches one of the provided catalogs.
+   * Note: This method currently cannot help discover if the offer applies specifically
+   * to a course, just that there is an offer that matches one in the list of catalogs.
+   * @param {Object} args Arguments
+   * @param {Array<Offer>} args.offers All offers for this user for an enterprise
+   *
+   * @returns {Promise} a promise that resolves to an object matching userSubsidyApplicableToCourse
+   */
   fetchUserOfferSubsidy({ offers, catalogList }) {
-    // TODO this probably should be a fetch but we are using prefetch offer data here
-    /*
-      benefit_value: 100
-      catalog: "09a6dd6a-a6f0-4232-aaca-3bd1d81a4197"
-      code: "3K64Q2MP6VYAWFJ5"
-      coupon_end_date: "2025-09-24T00:00:00Z"
-      coupon_start_date: "2020-09-24T00:00:00Z"
-      redemptions_remaining: 1
-      usage_type: "Percentage"
-      */
     const offerForCourse = findOfferForCourse(offers, catalogList);
     if (!offerForCourse) {
       return Promise.reject(new Error('No offer found'));
