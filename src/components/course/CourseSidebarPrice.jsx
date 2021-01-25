@@ -40,9 +40,7 @@ const CourseSidebarPrice = () => {
       <>
         {showOrigPrice && (
           <div className="mb-2">
-            <del>
-              <span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}
-            </del>
+            {crossedOutOriginalPrice}
           </div>
         )}
         <span>{INCLUDED_IN_SUBSCRIPTION_MESSAGE}</span>
@@ -61,7 +59,7 @@ const CourseSidebarPrice = () => {
   return (
     <>
       <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
-        {/* discounted > 0 means partial discount, next block is full discount */}
+        {/* discounted > 0 means partial discount */}
         {coursePrice.discounted > 0 && (
           <>
             <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}

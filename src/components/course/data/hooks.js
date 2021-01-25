@@ -215,7 +215,7 @@ const useCoursePriceForUserSubsidy = ({
         };
       }
 
-      // Case 2: No subsidy, no offers for course
+      // Case 2: No subsidy available for course
       return onlyListPrice;
     },
     [activeCourseRun, userSubsidyApplicableToCourse],
