@@ -44,6 +44,7 @@ const courseStateWithLicenseSubsidy = {
   userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
 };
 
+// making discountType uppercase to help validate case-safe check in hooks logic
 const FULL_OFFER_SUBSIDY = {
   discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
   discountValue: 100,
