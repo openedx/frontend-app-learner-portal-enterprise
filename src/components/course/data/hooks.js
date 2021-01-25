@@ -231,7 +231,6 @@ useCoursePriceForUserSubsidy.propTypes = {
     discountValue: PropTypes.number.isRequired,
     expirationDate: PropTypes.string.isRequired,
     startDate: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
     subsidyId: PropTypes.string.isRequired,
   }).isRequired,
 };

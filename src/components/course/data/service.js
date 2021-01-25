@@ -92,8 +92,8 @@ export default class CourseService {
 
   async fetchEnterpriseUserSubsidy({ offers, catalogList }) {
     // TODO: the license subsidy is fetched from backend, but the offer subsidy currently is being
-    //       used from the passed in arguments (fetched already by UserSubsidy.jsx).
-    //       Need to reconcile api to make it consistent for offers vs subsidies
+    //   used from the passed in arguments (fetched already by UserSubsidy.jsx).
+    //  Need to reconcile api to make it consistent for all subsidy types: offers, subscriptions
     //
     // Note: these API calls should be ordered by priority. Example: if a user has
     // a license subsidy, we use that as the user's final subsidy. if not, we check
