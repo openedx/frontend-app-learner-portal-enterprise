@@ -60,12 +60,12 @@ const CourseSidebarPrice = () => {
     <>
       <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>
         {/* discounted > 0 means partial discount */}
+        {showOrigPrice && <>{crossedOutOriginalPrice}{' '}</>}
         {coursePrice.discounted > 0 && (
           <>
             <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}
           </>
         )}
-        {showOrigPrice && <>{' '} {crossedOutOriginalPrice}{' '}</>}
       </div>
       <span>Sponsored by {enterpriseConfig.name}</span>
     </>
