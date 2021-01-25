@@ -45,7 +45,7 @@ const courseStateWithLicenseSubsidy = {
 };
 
 const FULL_OFFER_SUBSIDY = {
-  discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE,
+  discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
   discountValue: 100,
   subsidyType: OFFER_SUBSIDY_TYPE,
 };

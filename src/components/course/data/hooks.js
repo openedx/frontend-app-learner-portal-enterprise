@@ -195,11 +195,11 @@ const useCoursePriceForUserSubsidy = ({
         const { discountType, discountValue } = userSubsidyApplicableToCourse;
         let discountedPrice;
 
-        if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
+        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
           discountedPrice = listPrice - (listPrice * (discountValue / 100));
         }
 
-        if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
+        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
           discountedPrice = Math.max(listPrice - discountValue, 0);
         }
 
