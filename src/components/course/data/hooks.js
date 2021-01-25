@@ -1,15 +1,20 @@
-import { useEffect, useState, useMemo } from 'react';
+import {
+  useEffect, useState, useMemo, useContext,
+} from 'react';
 import qs from 'query-string';
+import PropTypes from 'prop-types';
+
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+
+import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
-  numberWithPrecision,
   findOfferForCourse,
   hasLicenseSubsidy,
 } from './utils';
@@ -25,6 +30,10 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
   const [courseData, setCourseData] = useState();
   const [fetchError, setFetchError] = useState();
 
+  // todo: this could get refactored, but since we already fetch offers
+  // we simply pass offers along to the `fetchAllCourseData` call to 'fetch' it back
+  const { offers: { offers } } = useContext(UserSubsidyContext);
+
   useEffect(() => {
     const fetchData = async () => {
       if (courseKey && enterpriseConfig) {
@@ -34,7 +43,7 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
           courseRunKey,
         });
         try {
-          const data = await courseService.fetchAllCourseData();
+          const data = await courseService.fetchAllCourseData({ offers });
           setCourseData(data);
         } catch (error) {
           logError(error);
@@ -157,7 +166,17 @@ export function useCoursePacingType(courseRun) {
   return [pacingType, pacingTypeContent];
 }
 
-export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
+/**
+ * Determines course price based on userSubsidy and course info.
+ * @param {object} args Arguments.
+ * @param {Object} args.activeCourseRun course run info
+ * @param {Object} args.userSubsidyApplicableToCourse Usersubsidy
+ *
+ * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
+ */
+const useCoursePriceForUserSubsidy = ({
+  activeCourseRun, userSubsidyApplicableToCourse,
+}) => {
   const currency = CURRENCY_USD;
 
   const coursePrice = useMemo(
@@ -168,37 +187,53 @@ export function useCoursePriceForUserSubsidy(activeCourseRun, userSubsidy) {
         return null;
       }
 
-      const priceDetails = {
-        list: numberWithPrecision(listPrice),
+      const onlyListPrice = {
+        list: listPrice,
       };
-      if (!userSubsidy) {
-        return priceDetails;
+
+      if (userSubsidyApplicableToCourse) {
+        const { discountType, discountValue } = userSubsidyApplicableToCourse;
+        let discountedPrice;
+
+        if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
+          discountedPrice = listPrice - (listPrice * (discountValue / 100));
+        }
+
+        if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
+          discountedPrice = Math.max(listPrice - discountValue, 0);
+        }
+
+        if (isDefinedAndNotNull(discountedPrice)) {
+          return {
+            ...onlyListPrice,
+            discounted: discountedPrice,
+          };
+        }
+        return {
+          ...onlyListPrice,
+          discounted: onlyListPrice.list,
+        };
       }
 
-      const { discountType, discountValue } = userSubsidy;
-      let discountedPrice;
-
-      if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE) {
-        discountedPrice = listPrice - (listPrice * (discountValue / 100));
-      }
-
-      if (discountType === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE) {
-        discountedPrice = Math.max(listPrice - discountValue, 0);
-      }
-
-      if (isDefinedAndNotNull(discountedPrice)) {
-        priceDetails.discounted = numberWithPrecision(discountedPrice);
-      } else {
-        priceDetails.discounted = priceDetails.list;
-      }
-
-      return priceDetails;
+      // Case 2: No subsidy available for course
+      return onlyListPrice;
     },
-    [activeCourseRun, userSubsidy],
+    [activeCourseRun, userSubsidyApplicableToCourse],
   );
 
   return [coursePrice, currency];
-}
+};
+
+useCoursePriceForUserSubsidy.propTypes = {
+  activeCourseRun: PropTypes.shape({}).isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape({
+    discountType: PropTypes.string.isRequired,
+    discountValue: PropTypes.number.isRequired,
+    expirationDate: PropTypes.string.isRequired,
+    startDate: PropTypes.string.isRequired,
+    subsidyId: PropTypes.string.isRequired,
+  }).isRequired,
+};
 
 export function useCourseEnrollmentUrl({
   catalogList,
@@ -208,7 +243,7 @@ export function useCourseEnrollmentUrl({
   offers,
   sku,
   subscriptionLicense,
-  userSubsidy,
+  userSubsidyApplicableToCourse,
 }) {
   const config = getConfig();
   const enrollmentFailedParams = { ...qs.parse(location.search) };
@@ -222,7 +257,7 @@ export function useCourseEnrollmentUrl({
   const enrollmentUrl = useMemo(
     () => {
       // Users must have a license and a valid subsidy from that license to enroll with it
-      if (subscriptionLicense && hasLicenseSubsidy(userSubsidy)) {
+      if (subscriptionLicense && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
         const enrollOptions = {
           ...baseEnrollmentOptions,
           license_uuid: subscriptionLicense.uuid,
@@ -254,3 +289,5 @@ export function useCourseEnrollmentUrl({
 
   return enrollmentUrl;
 }
+
+export { useCoursePriceForUserSubsidy };

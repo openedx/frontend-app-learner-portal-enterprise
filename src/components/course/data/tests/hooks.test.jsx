@@ -23,7 +23,7 @@ describe('useCourseEnrollmentUrl', () => {
     subscriptionLicense: {
       uuid: 'yes',
     },
-    userSubsidy: {
+    userSubsidyApplicableToCourse: {
       subsidyType: LICENSE_SUBSIDY_TYPE,
     },
   };
@@ -39,7 +39,7 @@ describe('useCourseEnrollmentUrl', () => {
 
     test('does not use the license uuid for enrollment if there is no valid license subsidy (even with a license uuid)', () => {
       const noSubsidyEnrollmentInputs = { ...enrollmentInputs };
-      delete noSubsidyEnrollmentInputs.userSubsidy;
+      delete noSubsidyEnrollmentInputs.userSubsidyApplicableToCourse;
 
       const { result } = renderHook(() => useCourseEnrollmentUrl(noSubsidyEnrollmentInputs));
       expect(result.current).not.toContain(enrollmentInputs.subscriptionLicense.uuid);

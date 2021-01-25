@@ -4,8 +4,8 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { hasValidStartExpirationDates } from '../../../utils/common';
-import { LICENSE_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
-import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
+import { LICENSE_SUBSIDY_TYPE, OFFER_SUBSIDY_TYPE, PROMISE_FULFILLED } from './constants';
+import { getActiveCourseRun, getAvailableCourseRuns, findOfferForCourse } from './utils';
 
 export default class CourseService {
   constructor(options = {}) {
@@ -28,7 +28,7 @@ export default class CourseService {
     this.activeCourseRun = activeCourseRun;
   }
 
-  async fetchAllCourseData() {
+  async fetchAllCourseData({ offers }) {
     const data = await Promise.all([
       this.fetchCourseDetails(),
       this.fetchUserEnrollments(),
@@ -40,7 +40,12 @@ export default class CourseService {
     const courseDetails = camelCaseObject(data[0]);
     // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
-    const userSubsidy = await this.fetchEnterpriseUserSubsidy();
+
+    const { catalogList } = camelCaseObject(data[3]);
+    const userSubsidyApplicableToCourse = await this.fetchEnterpriseUserSubsidy({
+      offers, catalogList,
+    });
+
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
     if (this.courseRunKey) {
@@ -56,7 +61,7 @@ export default class CourseService {
 
     return {
       courseDetails,
-      userSubsidy,
+      userSubsidyApplicableToCourse,
       userEnrollments: data[1],
       userEntitlements: data[2].results,
       catalog: data[3],
@@ -85,18 +90,24 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
-  async fetchEnterpriseUserSubsidy() {
-    // TODO: this will likely be expanded to support codes/offers, by appending to
-    // the below array to provide a function that makes the relevant API call(s)
-    // for the specified subsidy type.
+  async fetchEnterpriseUserSubsidy({ offers, catalogList }) {
+    // TODO: the license subsidy is fetched from backend, but the offer subsidy currently is being
+    //   used from the passed in arguments (fetched already by UserSubsidy.jsx).
+    //  Need to reconcile api to make it consistent for all subsidy types: offers, subscriptions
     //
-    // note: these API calls should be ordered by priority. Example: if a user has
+    // Note: these API calls should be ordered by priority. Example: if a user has
     // a license subsidy, we use that as the user's final subsidy. if not, we check
     // if the user has a code subsidy, and so on.
-    const SUBSIDY_TYPES = [{
-      type: LICENSE_SUBSIDY_TYPE,
-      fetchFn: this.fetchUserLicenseSubsidy(),
-    }];
+    const SUBSIDY_TYPES = [
+      {
+        type: LICENSE_SUBSIDY_TYPE,
+        fetchFn: this.fetchUserLicenseSubsidy(),
+      },
+      {
+        type: OFFER_SUBSIDY_TYPE,
+        fetchFn: this.fetchUserOfferSubsidy({ offers, catalogList }),
+      },
+    ];
     const promises = SUBSIDY_TYPES.map(subsidy => subsidy.fetchFn);
     // Promise.allSettled() waits until all promises are resolved, whether successful
     // or not. in contrast, Promise.all() immediately rejects when any promise errors
@@ -104,14 +115,14 @@ export default class CourseService {
     // a non-200 status code.
     const data = await Promise.allSettled(promises);
 
-    let userSubsidy = null;
+    let userSubsidyApplicableToCourse = null;
     for (let i = 0; i < data.length; i++) {
       if (data[i]?.status === PROMISE_FULFILLED) {
         const result = data[i].value.data;
         const subsidyData = camelCaseObject(result);
 
         if (hasValidStartExpirationDates(subsidyData)) {
-          userSubsidy = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
+          userSubsidyApplicableToCourse = { ...subsidyData, subsidyType: SUBSIDY_TYPES[i].type };
           // if a non-expired user subsidy is found, break early since the promises
           // are priority ordered
           break;
@@ -119,7 +130,7 @@ export default class CourseService {
       }
     }
 
-    return userSubsidy;
+    return userSubsidyApplicableToCourse;
   }
 
   fetchUserLicenseSubsidy() {
@@ -129,5 +140,43 @@ export default class CourseService {
     };
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
     return this.cachedAuthenticatedHttpClient.get(url);
+  }
+
+  /**
+   * @typedef {Object} Offer An offer for a course
+   * @property {string} usageType
+   * @property {number} benefitValue
+   * @property {string} couponStartDate utc formatted
+   * @property {string} couponEndDate utc formatted
+   * @property {number} redemptionsRemaining
+   * @property {string} code
+   * @property {string} catalog uuid of catalog
+   */
+
+  /**
+   * Returns an offer whose catalog uuid matches one of the provided catalogs.
+   * TODO: This method currently cannot help discover if the offer applies specifically
+   * to a course, just that there is an offer that matches one in the list of catalogs.
+   * @param {Object} args Arguments
+   * @param {Array<Offer>} args.offers All offers for this user for an enterprise
+   *
+   * @returns {Promise} a promise that resolves to an object matching userSubsidyApplicableToCourse
+   */
+  fetchUserOfferSubsidy({ offers, catalogList }) {
+    const offerForCourse = findOfferForCourse(offers, catalogList);
+    if (!offerForCourse) {
+      return Promise.reject(new Error('No offer found'));
+    }
+    const {
+      usageType, benefitValue, couponStartDate, couponEndDate,
+    } = offerForCourse;
+    return Promise.resolve({
+      data: {
+        discountType: usageType,
+        discountValue: benefitValue,
+        startDate: couponStartDate,
+        endDate: couponEndDate,
+      },
+    });
   }
 }
