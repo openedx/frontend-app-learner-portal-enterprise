@@ -1,12 +1,9 @@
 import { useMemo, useContext } from 'react';
 
-import { AppContext } from '@edx/frontend-platform/react';
-
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
-import { useCourseEnrollmentUrl } from '../data/hooks';
 import { CourseContext } from '../CourseContextProvider';
 import {
-  findHighestLevelSeatSku, findOfferForCourse, hasCourseStarted, findUserEnrollmentForCourse,
+  findOfferForCourse, hasCourseStarted, findUserEnrollmentForCourse,
 } from '../data/utils';
 
 /**

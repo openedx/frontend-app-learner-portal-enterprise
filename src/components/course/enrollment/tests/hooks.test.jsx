@@ -1,8 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 
-import { AppContext } from '@edx/frontend-platform/react';
-
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
