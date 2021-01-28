@@ -50,59 +50,26 @@ export function useEnrollData() {
 
 /**
  * Extract subsidy information from CourseContext and UserSubsidyContext.
- * Before calling this, ensure required data is in CourseContext, UserSubsidyContext and AppContext
- *
- * CourseContext: must have `state` with `activeCourseRun`, `userSubsidy` and `catalog`
- * AppContext: must have `enterpriseConfig` populated
- * UserSubsidyContext: must have `subscriptionLicense`, `offers` populated
- *
- * @param { object } location router location. Only here because of useEnrollmentUrl hook.
- *   (TODO Refactor this once useEnrollmentUrl is refactored!)
+ * Before calling this, ensure the following data is in CourseContext and UserSubsidyContext:
+ *   CourseContext `state` should have `userSubsidyApplicableToCourse` and `catalog`
+ *   UserSubsidyContext `value` should have `subscriptionLicense` and `offers`
  *
  * @returns {object} with fields:
  * {
  *    subscriptionLicense,
  *    userSubsidyApplicableToCourse,
- *    enrollmentUrl,
  *    offersCount,
 *     courseHasOffer,
  * }
  */
-export function useSubsidyData({ location }) {
+export function useSubsidyData() {
   const { state: courseData } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
 
-  const {
-    activeCourseRun,
-    userSubsidyApplicableToCourse,
-    catalog: { catalogList },
-  } = courseData;
-  const {
-    key,
-    seats,
-  } = activeCourseRun;
-
-  const sku = useMemo(
-    () => findHighestLevelSeatSku(seats),
-    [seats],
-  );
-
-  const enrollmentUrl = useCourseEnrollmentUrl({
-    catalogList,
-    enterpriseConfig,
-    key,
-    location,
-    offers,
-    sku,
-    subscriptionLicense,
-    userSubsidyApplicableToCourse,
-  });
-
+  const { userSubsidyApplicableToCourse, catalog: { catalogList } } = courseData;
   return {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
-    enrollmentUrl,
     offersCount,
     courseHasOffer: !!findOfferForCourse(offers, catalogList),
   };

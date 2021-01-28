@@ -44,27 +44,18 @@ describe('useEnrollData tests', () => {
 });
 
 describe('useSubsidyData tests', () => {
-  const ENTERPRISE_SLUG = 'test-enterprise-slug';
   const LICENSE_UUID = 'test-license-uuid';
+  const subscriptionLicense = { uuid: LICENSE_UUID };
 
   test('correct extraction of subsidy fields from UserSubsidyContext', () => {
     const expected = {
       courseHasOffer: false,
-      enrollmentUrl: null,
       offersCount: 0,
-      subscriptionLicense: { uuid: LICENSE_UUID },
+      subscriptionLicense,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
-    const initialAppState = {
-      enterpriseConfig: {
-        uuid: 'abc123',
-        slug: ENTERPRISE_SLUG,
-      },
-    };
     const initialUserSubsidyState = {
-      subscriptionLicense: {
-        uuid: 'test-license-uuid',
-      },
+      subscriptionLicense,
       offers: {
         offers: [],
         offersCount: 0,
@@ -73,14 +64,11 @@ describe('useSubsidyData tests', () => {
     // Needed to render our hook with context initialized
     // eslint-disable-next-line react/prop-types
     const wrapper = ({ children }) => (
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <CourseContextProvider initialState={BASE_COURSE_STATE}>{children}</CourseContextProvider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContextProvider initialState={BASE_COURSE_STATE}>{children}</CourseContextProvider>
+      </UserSubsidyContext.Provider>
     );
-    const location = { search: 'x=1' };
-    const { result } = renderHook(() => useSubsidyData({ location }), { wrapper });
+    const { result } = renderHook(() => useSubsidyData(), { wrapper });
     expect(result.current).toStrictEqual(expected);
   });
 });

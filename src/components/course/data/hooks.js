@@ -237,6 +237,21 @@ useCoursePriceForUserSubsidy.propTypes = {
   }).isRequired,
 };
 
+/**
+ * Get enrollment url for a particular course
+ *
+ * @param {object} args Arguments.
+ * @param {Array.<object>} args.catalogList list of catalogs
+ * @param {object} args.enterpriseConfig config for enterprise
+ * @param {string} args.key course key
+ * @param {object} args.location just an object with a 'search' field (usually from useLocation())
+ * @param {Array.<object>} args.offers array of offer objects for course
+ * @param {string} args.sku course SKU
+ * @param {object} args.subscriptionLicense license for subscription | null
+ * @param {object} args.userSubsidyApplicableToCourse subsidy for course if found | null
+ *
+ * @returns {string} url for enrollment
+ */
 export function useCourseEnrollmentUrl({
   catalogList,
   enterpriseConfig,
