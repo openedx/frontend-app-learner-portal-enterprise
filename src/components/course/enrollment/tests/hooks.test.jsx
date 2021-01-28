@@ -44,18 +44,21 @@ describe('useEnrollData tests', () => {
 });
 
 describe('useSubsidyData tests', () => {
+  const ENTERPRISE_SLUG = 'test-enterprise-slug';
+  const LICENSE_UUID = 'test-license-uuid';
+
   test('correct extraction of subsidy fields from UserSubsidyContext', () => {
     const expected = {
       courseHasOffer: false,
       enrollmentUrl: null,
       offersCount: 0,
-      subscriptionLicense: { uuid: 'test-license-uuid' },
+      subscriptionLicense: { uuid: LICENSE_UUID },
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const initialAppState = {
       enterpriseConfig: {
         uuid: 'abc123',
-        slug: 'test-enterprise-slug',
+        slug: ENTERPRISE_SLUG,
       },
     };
     const initialUserSubsidyState = {
