@@ -62,7 +62,7 @@ export function useEnrollData() {
  * @returns {object} with fields:
  * {
  *    subscriptionLicense,
- *    userSubsidy,
+ *    userSubsidyApplicableToCourse,
  *    enrollmentUrl,
  *    offersCount,
 *     courseHasOffer,
@@ -75,7 +75,7 @@ export function useSubsidyData({ location }) {
 
   const {
     activeCourseRun,
-    userSubsidy,
+    userSubsidyApplicableToCourse,
     catalog: { catalogList },
   } = courseData;
   const {
@@ -96,12 +96,12 @@ export function useSubsidyData({ location }) {
     offers,
     sku,
     subscriptionLicense,
-    userSubsidy,
+    userSubsidyApplicableToCourse,
   });
 
   return {
     subscriptionLicense,
-    userSubsidy,
+    userSubsidyApplicableToCourse,
     enrollmentUrl,
     offersCount,
     courseHasOffer: !!findOfferForCourse(offers, catalogList),
