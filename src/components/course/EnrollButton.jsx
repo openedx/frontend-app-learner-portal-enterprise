@@ -44,7 +44,7 @@ EnrollButtonWrapper.defaultProps = {
 };
 
 export default function EnrollButton() {
-  const { enterpriseConfig, config } = useContext(AppContext);
+  const { enterpriseConfig } = useContext(AppContext);
   const { state: courseData } = useContext(CourseContext);
   const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
   const location = useLocation();
