@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints, Container, Row } from '@edx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
+import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { MainContent, Sidebar } from '../layout';
@@ -59,8 +59,7 @@ export default function Course() {
   );
 
   if (fetchError) {
-    // TODO: replace this with <ErrorPage> from frontend-platform instead
-    return <NotFoundPage />;
+    return <ErrorPage message={fetchError.message} />;
   }
 
   if (!initialState) {
