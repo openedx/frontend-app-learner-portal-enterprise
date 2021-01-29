@@ -74,13 +74,14 @@ describe('customer config with various states of branding_configuration', () => 
 
     // since there is an async fetch in the hook
     await waitForNextUpdate();
+    const customerConfig = result.current[0];
 
     expect(result.error).not.toBeDefined();
-    expect(result.current).not.toBeNull();
-    expect(result.current.branding.logo).toBeNull();
-    expect(result.current.branding.colors.primary).toBe(defaultPrimaryColor);
-    expect(result.current.branding.colors.secondary).toBe(defaultSecondaryColor);
-    expect(result.current.branding.colors.tertiary).toBe(defaultTertiaryColor);
+    expect(customerConfig).not.toBeNull();
+    expect(customerConfig.branding.logo).toBeNull();
+    expect(customerConfig.branding.colors.primary).toBe(defaultPrimaryColor);
+    expect(customerConfig.branding.colors.secondary).toBe(defaultSecondaryColor);
+    expect(customerConfig.branding.colors.tertiary).toBe(defaultTertiaryColor);
   });
 
   test('null values for fields in branding_config uses defaults and does not fail', async () => {
@@ -90,13 +91,14 @@ describe('customer config with various states of branding_configuration', () => 
 
     // since there is an async fetch in the hook
     await waitForNextUpdate();
+    const customerConfig = result.current[0];
 
     expect(result.error).not.toBeDefined();
-    expect(result.current).not.toBeNull();
-    expect(result.current.branding.logo).toBeNull();
-    expect(result.current.branding.colors.primary).toBe(defaultPrimaryColor);
-    expect(result.current.branding.colors.secondary).toBe(defaultSecondaryColor);
-    expect(result.current.branding.colors.tertiary).toBe(defaultTertiaryColor);
+    expect(customerConfig).not.toBeNull();
+    expect(customerConfig.branding.logo).toBeNull();
+    expect(customerConfig.branding.colors.primary).toBe(defaultPrimaryColor);
+    expect(customerConfig.branding.colors.secondary).toBe(defaultSecondaryColor);
+    expect(customerConfig.branding.colors.tertiary).toBe(defaultTertiaryColor);
   });
 
   test('valid branding_config results in correct values for logo and other branding settings', async () => {
@@ -105,12 +107,13 @@ describe('customer config with various states of branding_configuration', () => 
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig(TEST_ENTERPRISE_SLUG));
 
     await waitForNextUpdate();
+    const customerConfig = result.current[0];
 
     expect(result.error).not.toBeDefined();
     expect(result.current).not.toBeNull();
-    expect(result.current.branding.logo).toBe('testlogo.png');
-    expect(result.current.branding.colors.primary).toBe(defaultPrimaryColor);
-    expect(result.current.branding.colors.secondary).toBe('secondaryColor');
-    expect(result.current.branding.colors.tertiary).toBe('tertiaryColor');
+    expect(customerConfig.branding.logo).toBe('testlogo.png');
+    expect(customerConfig.branding.colors.primary).toBe(defaultPrimaryColor);
+    expect(customerConfig.branding.colors.secondary).toBe('secondaryColor');
+    expect(customerConfig.branding.colors.tertiary).toBe('tertiaryColor');
   });
 });
