@@ -21,8 +21,14 @@ export function hasCourseStarted(start) {
   return startDate && today >= startDate;
 }
 
-export function findUserEnrollmentForCourse({ userEnrollments, key }) {
-  return userEnrollments.find(({ isActive, courseDetails }) => isActive && courseDetails?.courseId === key);
+export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
+  return userEnrollments.find(
+    ({
+      isEnrollmentActive,
+      isRevoked,
+      courseRunId,
+    }) => (isEnrollmentActive && !isRevoked && courseRunId === key),
+  );
 }
 
 export function isUserEntitledForCourse({ userEntitlements, courseUuid }) {

@@ -29,19 +29,20 @@ export default class CourseService {
   }
 
   async fetchAllCourseData({ offers }) {
-    const data = await Promise.all([
+    const courseDataRaw = await Promise.all([
       this.fetchCourseDetails(),
       this.fetchUserEnrollments(),
       this.fetchUserEntitlements(),
       this.fetchEnterpriseCustomerContainsContent(),
     ])
-      .then((responses) => responses.map(response => response.data));
+      .then((responses) => responses.map(res => res.data));
 
-    const courseDetails = camelCaseObject(data[0]);
+    const courseData = camelCaseObject(courseDataRaw);
+    const courseDetails = courseData[0];
     // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
 
-    const { catalogList } = camelCaseObject(data[3]);
+    const { catalogList } = courseData[3];
     const userSubsidyApplicableToCourse = await this.fetchEnterpriseUserSubsidy({
       offers, catalogList,
     });
@@ -62,9 +63,9 @@ export default class CourseService {
     return {
       courseDetails,
       userSubsidyApplicableToCourse,
-      userEnrollments: data[1],
-      userEntitlements: data[2].results,
-      catalog: data[3],
+      userEnrollments: courseData[1],
+      userEntitlements: courseData[2].results,
+      catalog: courseData[3],
     };
   }
 
@@ -74,9 +75,13 @@ export default class CourseService {
   }
 
   fetchUserEnrollments() {
-    // NOTE: this request url cannot use a trailing slash since it causes a 404
-    const url = `${this.config.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
-    return this.authenticatedHttpClient.get(url);
+    const queryParams = {
+      enterprise_id: this.enterpriseUuid,
+      is_active: true,
+    };
+    const config = getConfig();
+    const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${qs.stringify(queryParams)}`;
+    return getAuthenticatedHttpClient().get(url);
   }
 
   fetchUserEntitlements() {

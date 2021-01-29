@@ -3,7 +3,7 @@ import React, { useContext, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
-import { breakpoints } from '@edx/paragon';
+import { breakpoints, Container, Row } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
@@ -59,14 +59,15 @@ export default function Course() {
   );
 
   if (fetchError) {
+    // TODO: replace this with <ErrorPage> from frontend-platform instead
     return <NotFoundPage />;
   }
 
   if (!initialState) {
     return (
-      <div className="container-fluid py-5">
+      <Container className="py-5" fluid>
         <LoadingSpinner screenReaderText="loading course" />
-      </div>
+      </Container>
     );
   }
 
@@ -82,8 +83,8 @@ export default function Course() {
       <Helmet title={PAGE_TITLE} />
       <CourseContextProvider initialState={initialState}>
         <CourseHeader />
-        <div className="container-fluid py-5">
-          <div className="row">
+        <Container className="py-5" fluid>
+          <Row>
             <MainContent>
               <CourseMainContent />
             </MainContent>
@@ -94,8 +95,8 @@ export default function Course() {
                 </Sidebar>
               )}
             </MediaQuery>
-          </div>
-        </div>
+          </Row>
+        </Container>
       </CourseContextProvider>
     </>
   );

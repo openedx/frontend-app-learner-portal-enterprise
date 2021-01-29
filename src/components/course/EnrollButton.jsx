@@ -16,7 +16,7 @@ import { useCourseEnrollmentUrl } from './data/hooks';
 
 import {
   hasCourseStarted,
-  findUserEnrollmentForCourse,
+  findUserEnrollmentForCourseRun,
   findHighestLevelSeatSku,
   findOfferForCourse,
   shouldUpgradeUserEnrollment,
@@ -76,7 +76,7 @@ export default function EnrollButton() {
     [start],
   );
   const userEnrollment = useMemo(
-    () => findUserEnrollmentForCourse({ userEnrollments, key }),
+    () => findUserEnrollmentForCourseRun({ userEnrollments, key }),
     [userEnrollments, key],
   );
   const enrollmentUrl = useCourseEnrollmentUrl({
@@ -182,7 +182,7 @@ export default function EnrollButton() {
 
   if (userEnrollment) {
     if (isCourseStarted) {
-      const courseInfoUrl = `${config.LMS_BASE_URL}/courses/${key}/info`;
+      const courseUrl = userEnrollment.courseRunUrl;
       const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
         userEnrollment,
         subscriptionLicense,
@@ -191,7 +191,7 @@ export default function EnrollButton() {
       return (
         <EnrollButtonCta
           className={classNames(enrollLinkClass, 'btn-brand-primary')}
-          href={shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl}
+          href={shouldUseEnrollmentUrl ? enrollmentUrl : courseUrl}
         />
       );
     }

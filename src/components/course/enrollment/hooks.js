@@ -3,7 +3,7 @@ import { useMemo, useContext } from 'react';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from '../CourseContextProvider';
 import {
-  findOfferForCourse, hasCourseStarted, findUserEnrollmentForCourse,
+  findOfferForCourse, hasCourseStarted, findUserEnrollmentForCourseRun,
 } from '../data/utils';
 
 /**
@@ -34,7 +34,7 @@ export function useEnrollData() {
   );
 
   const userEnrollment = useMemo(
-    () => findUserEnrollmentForCourse({ userEnrollments, key }),
+    () => findUserEnrollmentForCourseRun({ userEnrollments, key }),
     [userEnrollments, key],
   );
   return {
