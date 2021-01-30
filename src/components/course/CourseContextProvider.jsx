@@ -31,7 +31,12 @@ CourseContextProvider.propTypes = {
   initialState: PropTypes.shape({
     course: PropTypes.shape({}).isRequired,
     activeCourseRun: PropTypes.shape({}).isRequired,
-    userEnrollments: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    userEnrollments: PropTypes.arrayOf(PropTypes.shape({
+      isEnrollmentActive: PropTypes.bool.isRequired,
+      isRevoked: PropTypes.bool.isRequired,
+      courseRunId: PropTypes.string.isRequired,
+      mode: PropTypes.string.isRequired,
+    })).isRequired,
     userEntitlements: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
     userSubsidyApplicableToCourse: PropTypes.shape({}),
     catalog: PropTypes.shape({}).isRequired,

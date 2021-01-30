@@ -90,6 +90,14 @@ export default function EnrollButton() {
     userSubsidyApplicableToCourse,
   });
 
+  /**
+   * ``EnrollLabel`` will receive its arguments from ``EnrollButtonWrapper``, as this
+   * component is rendered as its child below.
+   *
+   * @param {object} args Arguments.
+   *
+   * @returns {Component} EnrollButtonLabel
+   */
   const EnrollLabel = props => (
     <EnrollButtonLabel
       activeCourseRun={activeCourseRun}
@@ -105,14 +113,14 @@ export default function EnrollButton() {
     />
   );
 
-  const EnrollButtonCta = props => (
+  const EnrollButtonCTA = props => (
     <EnrollButtonWrapper {...props}>
       <EnrollLabel />
     </EnrollButtonWrapper>
   );
 
   const enrollBtnDisabled = (
-    <EnrollButtonCta
+    <EnrollButtonCTA
       as="div"
       className="btn btn-light btn-block disabled"
     />
@@ -125,7 +133,7 @@ export default function EnrollButton() {
     if (enrollmentUrl && subscriptionLicense) {
       if (userSubsidyApplicableToCourse) {
         return (
-          <EnrollButtonCta
+          <EnrollButtonCTA
             as="a"
             className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
             href={enrollmentUrl}
@@ -135,7 +143,7 @@ export default function EnrollButton() {
       // no user subsidy means we need to warn user with a dialog
       return (
         <>
-          <EnrollButtonCta
+          <EnrollButtonCTA
             className={enrollLinkClass}
             onClick={() => setIsModalOpen(true)}
           />
@@ -156,7 +164,7 @@ export default function EnrollButton() {
     if (enrollmentUrl) {
       return (
         <>
-          <EnrollButtonCta
+          <EnrollButtonCTA
             className={enrollLinkClass}
             onClick={() => setIsModalOpen(true)}
           />
@@ -172,7 +180,7 @@ export default function EnrollButton() {
     }
 
     return (
-      <EnrollButtonCta className={classNames(enrollLinkClass, 'btn-brand-primary')} />
+      <EnrollButtonCTA className={classNames(enrollLinkClass, 'btn-brand-primary')} />
     );
   }
 
@@ -189,14 +197,14 @@ export default function EnrollButton() {
         enrollmentUrl,
       });
       return (
-        <EnrollButtonCta
+        <EnrollButtonCTA
           className={classNames(enrollLinkClass, 'btn-brand-primary')}
           href={shouldUseEnrollmentUrl ? enrollmentUrl : courseUrl}
         />
       );
     }
     return (
-      <EnrollButtonCta
+      <EnrollButtonCTA
         as={Link}
         className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
         to={`/${enterpriseConfig.slug}`}
@@ -205,6 +213,6 @@ export default function EnrollButton() {
   }
 
   return (
-    <EnrollButtonCta className={classNames(enrollLinkClass, 'btn-brand-primary')} />
+    <EnrollButtonCTA className={classNames(enrollLinkClass, 'btn-brand-primary')} />
   );
 }

@@ -160,7 +160,7 @@ export default class CourseService {
 
   /**
    * Returns an offer whose catalog uuid matches one of the provided catalogs.
-   * TODO: This method currently cannot help discover if the offer applies specifically
+   * TODO: This method currently cannot discover if the offer applies specifically
    * to a course, just that there is an offer that matches one in the list of catalogs.
    * @param {Object} args Arguments
    * @param {Array<Offer>} args.offers All offers for this user for an enterprise
