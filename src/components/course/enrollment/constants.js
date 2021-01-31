@@ -9,3 +9,5 @@ const enrollButtonTypesLocal = {
 
 // eslint-disable-next-line import/prefer-default-export
 export const enrollButtonTypes = Object.freeze(enrollButtonTypesLocal);
+
+export const enrollLinkClass = 'btn-block';
