@@ -25,7 +25,6 @@ import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complet
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import { COURSE_STATUSES } from '../data/constants';
 
-// TODO: Need to confirm if this is the best way to mock auth.
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 

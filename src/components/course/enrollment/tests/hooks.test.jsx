@@ -5,6 +5,7 @@ import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 import { useEnrollData, useSubsidyData } from '../hooks';
+import { COURSE_MODES_MAP } from '../../data/constants';
 
 const BASE_COURSE_STATE = {
   activeCourseRun: {
@@ -39,8 +40,16 @@ describe('useEnrollData', () => {
     const { result } = renderHook(() => useEnrollData(), { wrapper });
     expect(result.current).toStrictEqual(expected);
   });
+
   test('hooks correctly extracts enroll fields, when enrollment found', () => {
-    const anEnrollment = { isActive: true, courseDetails: { courseId: 'course_key' } };
+    const courseRunKey = BASE_COURSE_STATE.activeCourseRun.key;
+    const anEnrollment = {
+      isEnrollmentActive: true,
+      isRevoked: false,
+      courseRunId: courseRunKey,
+      courseRunUrl: `courses/${courseRunKey}/course`,
+      mode: COURSE_MODES_MAP.VERIFIED,
+    };
     const courseState = { ...BASE_COURSE_STATE, userEnrollments: [anEnrollment] };
     const expected = {
       isEnrollable: courseState.activeCourseRun.isEnrollable,

@@ -177,12 +177,13 @@ describe('<EnrollButton />', () => {
   });
 
   describe('with already enrolled course', () => {
+    const activeCourseRunKey = initialCourseState.activeCourseRun.key;
     const userEnrollment = {
+      isEnrollmentActive: true,
+      isRevoked: false,
+      courseRunId: activeCourseRunKey,
+      courseRunUrl: `courses/${activeCourseRunKey}/course`,
       mode: COURSE_MODES_MAP.VERIFIED,
-      isActive: true,
-      courseDetails: {
-        courseId: initialCourseState.activeCourseRun.key,
-      },
     };
 
     test('renders with "You are Enrolled"', () => {
@@ -223,7 +224,7 @@ describe('<EnrollButton />', () => {
       expect(screen.getByText('View Course'));
     });
 
-    test('renders with course info link for non-Audit track course with subscription license', () => {
+    test('renders with course link for non-Audit track course with subscription license', () => {
       const courseState = {
         ...initialCourseState,
         userEnrollments: [userEnrollment],
@@ -239,7 +240,7 @@ describe('<EnrollButton />', () => {
 
       expect(screen.getByText('View Course'));
       const actualUrl = screen.getByText('View Course').closest('a').href;
-      expect(actualUrl).toContain(`courses/${initialCourseState.activeCourseRun.key}/info`);
+      expect(actualUrl).toContain(`courses/${initialCourseState.activeCourseRun.key}/course`);
     });
 
     test('renders with enrollment link for Audit track course with subscription license', () => {
