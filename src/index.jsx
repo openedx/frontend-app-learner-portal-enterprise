@@ -34,6 +34,7 @@ initialize({
         ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY || null,
         ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME || null,
         INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: process.env.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME || null,
+        SHOW_MAINTENANCE_ALERT: process.env.SHOW_MAINTENANCE_ALERT,
       });
     },
   },
