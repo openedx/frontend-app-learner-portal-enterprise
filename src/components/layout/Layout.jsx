@@ -4,7 +4,9 @@ import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
 import SiteFooter from '@edx/frontend-component-footer';
 import { AppContext } from '@edx/frontend-platform/react';
+import { Hyperlink } from '@edx/paragon';
 
+import { SystemWideWarningBanner } from '../system-wide-banner';
 import { SiteHeader } from '../site-header';
 import { useStylesForCustomBrandColors } from './data/hooks';
 
@@ -26,6 +28,16 @@ export default function Layout({ children }) {
             <style key={key} type="text/css">{styles}</style>
           ))}
         </Helmet>
+        <SystemWideWarningBanner>
+          Some edX services will unavailable for a period of time due to planned maintenance Tuesday,
+          February 2 between 8pm and 9pm EST. See our
+          {' '}
+          <Hyperlink target="_blank" href="https://status.edx.org/incidents/bcp3b0pcvlk4">
+            status page
+          </Hyperlink>
+          {' '}
+          for more information.
+        </SystemWideWarningBanner>
         <SiteHeader />
         <main id="content">
           {children}
