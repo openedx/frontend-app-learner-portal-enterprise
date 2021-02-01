@@ -16,7 +16,7 @@ export const TITLE_TEMPLATE = '%s - edX';
 export const DEFAULT_TITLE = 'edX';
 
 export default function Layout({ children }) {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { config, enterpriseConfig } = useContext(AppContext);
   const brandStyles = useStylesForCustomBrandColors(enterpriseConfig);
 
   return (
@@ -28,16 +28,18 @@ export default function Layout({ children }) {
             <style key={key} type="text/css">{styles}</style>
           ))}
         </Helmet>
-        <SystemWideWarningBanner>
-          Some edX services will unavailable for a period of time due to planned maintenance Tuesday,
-          February 2 between 8pm and 9pm EST. See our
-          {' '}
-          <Hyperlink target="_blank" href="https://status.edx.org/incidents/bcp3b0pcvlk4">
-            status page
-          </Hyperlink>
-          {' '}
-          for more information.
-        </SystemWideWarningBanner>
+        {config?.SHOW_MAINTENANCE_ALERT && (
+          <SystemWideWarningBanner>
+            Some edX services will unavailable for a period of time due to planned maintenance Tuesday,
+            February 2 between 8pm and 9pm EST. See our
+            {' '}
+            <Hyperlink target="_blank" href="https://status.edx.org/incidents/bcp3b0pcvlk4">
+              status page
+            </Hyperlink>
+            {' '}
+            for more information.
+          </SystemWideWarningBanner>
+        )}
         <SiteHeader />
         <main id="content">
           {children}
