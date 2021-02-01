@@ -3,9 +3,8 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-
-import { useEnrollData, useSubsidyData } from '../hooks';
 import { COURSE_MODES_MAP } from '../../data/constants';
+import { useEnrollData, useSubsidyDataForCourse } from '../hooks';
 
 const BASE_COURSE_STATE = {
   activeCourseRun: {
@@ -69,7 +68,7 @@ describe('useEnrollData', () => {
   });
 });
 
-describe('useSubsidyData', () => {
+describe('useSubsidyDataForCourse', () => {
   const LICENSE_UUID = 'test-license-uuid';
   const subscriptionLicense = { uuid: LICENSE_UUID };
 
@@ -94,7 +93,7 @@ describe('useSubsidyData', () => {
         <CourseContextProvider initialState={BASE_COURSE_STATE}>{children}</CourseContextProvider>
       </UserSubsidyContext.Provider>
     );
-    const { result } = renderHook(() => useSubsidyData(), { wrapper });
+    const { result } = renderHook(() => useSubsidyDataForCourse(), { wrapper });
     expect(result.current).toStrictEqual(expected);
   });
   test('correctly extracts subsidy fields from UserSubsidyContext, with offers', () => {
@@ -123,7 +122,7 @@ describe('useSubsidyData', () => {
         <CourseContextProvider initialState={courseState}>{children}</CourseContextProvider>
       </UserSubsidyContext.Provider>
     );
-    const { result } = renderHook(() => useSubsidyData(), { wrapper });
+    const { result } = renderHook(() => useSubsidyDataForCourse(), { wrapper });
     expect(result.current).toStrictEqual(expected);
   });
 });
