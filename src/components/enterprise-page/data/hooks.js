@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import colors from '../../../colors.scss';
@@ -69,17 +69,16 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
           });
         } else {
           if (!config) {
-            setFetchError(new Error(`No Enterprise Config was found for Enterprise: ${enterpriseSlug}`));
+            logInfo(`No Enterprise Config was found for Enterprise: ${enterpriseSlug}`);
           } else {
-            setFetchError(new Error('Error: learner portal is not enabled'));
+            logInfo(`Error: learner portal is not enabled for Enterprise: ${enterpriseSlug}`);
           }
           setEnterpriseConfig(null);
-          logError(fetchError);
         }
       })
       .catch((error) => {
         logError(new Error(`Error occurred while fetching the Enterprise Config: ${error}`));
-        setEnterpriseConfig(null);
+        setFetchError(error);
       });
   }, [enterpriseSlug]);
 
