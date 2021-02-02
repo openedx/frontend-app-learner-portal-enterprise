@@ -7,6 +7,7 @@ import {
   fetchEnterpriseCustomerConfig,
   fetchEnterpriseCustomerSubscriptionPlan,
 } from './service';
+import { isDefinedAndNull } from '../../../utils/common';
 
 export const defaultPrimaryColor = colors?.primary;
 export const defaultSecondaryColor = colors?.info100;
@@ -25,6 +26,7 @@ const defaultBrandingConfig = {
  */
 export function useEnterpriseCustomerConfig(enterpriseSlug) {
   const [enterpriseConfig, setEnterpriseConfig] = useState();
+  const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
     fetchEnterpriseCustomerConfig(enterpriseSlug)
@@ -66,22 +68,31 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             },
           });
         } else {
+          if (!config) {
+            setFetchError(new Error(`No Enterprise Config was found for Enterprise: ${enterpriseSlug}`));
+          } else {
+            setFetchError(new Error('Error: learner portal is not enabled'));
+          }
           setEnterpriseConfig(null);
+          logError(fetchError);
         }
       })
       .catch((error) => {
-        logError(new Error(error));
+        logError(new Error(`Error occurred while fetching the Enterprise Config: ${error}`));
         setEnterpriseConfig(null);
       });
   }, [enterpriseSlug]);
 
-  return enterpriseConfig;
+  return [enterpriseConfig, fetchError];
 }
 
 export function useEnterpriseCustomerSubscriptionPlan(enterpriseConfig) {
   const [subscriptionPlan, setSubscriptionPlan] = useState();
 
   useEffect(() => {
+    if (isDefinedAndNull(enterpriseConfig)) {
+      setSubscriptionPlan(null);
+    }
     if (enterpriseConfig && enterpriseConfig.uuid) {
       fetchEnterpriseCustomerSubscriptionPlan(enterpriseConfig.uuid)
         .then((response) => {

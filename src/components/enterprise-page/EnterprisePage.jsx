@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
 import { identify } from 'react-fullstory';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { AppContext } from '@edx/frontend-platform/react';
+import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { LoadingSpinner } from '../loading-spinner';
@@ -17,7 +17,7 @@ import {
 
 export default function EnterprisePage({ children }) {
   const { enterpriseSlug } = useParams();
-  const enterpriseConfig = useEnterpriseCustomerConfig(enterpriseSlug);
+  const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug);
   const subscriptionPlan = useEnterpriseCustomerSubscriptionPlan(enterpriseConfig);
 
   const user = getAuthenticatedUser();
@@ -41,8 +41,10 @@ export default function EnterprisePage({ children }) {
     );
   }
 
-  // We explicitly set enterpriseConfig to null if there is no configuration, the learner portal is
-  // not enabled, or there was an error fetching the configuration. In all these cases, we want to 404.
+  if (fetchError) {
+    return <ErrorPage message={fetchError.message} />;
+  }
+
   if (isDefinedAndNull(enterpriseConfig)) {
     return <NotFoundPage />;
   }
