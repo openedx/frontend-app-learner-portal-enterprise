@@ -14,6 +14,7 @@ import { COURSE_MODES_MAP } from '../../data/constants';
 import EnrollAction from '../EnrollAction';
 import { enrollButtonTypes } from '../constants';
 import { CourseContextProvider } from '../../CourseContextProvider';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 /**
  * These tests verify that the correct enroll component is rendered.
@@ -27,6 +28,7 @@ const {
   VIEW_ON_DASHBOARD,
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
+  TO_ECOM_BASKET,
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -40,29 +42,38 @@ const verifiedTrackEnrollment = {
 };
 const subscriptionLicense = { uuid: 'a-license' };
 
-describe('Enroll action rendering for cases where user is enrolled in course', () => {
-  /**
+/**
    * @param {object} args Arguments.
    * @param {string} args.enrollAction
    */
-  const EnrollLabel = (props) => (
-    // eslint-disable-next-line react/prop-types
-    <div>{props.enrollLabelText}</div>
-  );
-  const renderEnrollAction = ({
-    enrollAction,
-    courseInitState = selfPacedCourseWithLicenseSubsidy,
-  }) => {
-    // need to use router, to render component such as react-router's <Link>
-    renderWithRouter(
-      <AppContext.Provider value={INITIAL_APP_STATE}>
+const EnrollLabel = (props) => (
+  // eslint-disable-next-line react/prop-types
+  <div>{props.enrollLabelText}</div>
+);
+const renderEnrollAction = ({
+  enrollAction,
+  courseInitState = selfPacedCourseWithLicenseSubsidy,
+  initialUserSubsidyState = {
+    subscriptionLicense,
+    offers: {
+      offers: [],
+      offersCount: 0,
+    },
+  },
+}) => {
+  // need to use router, to render component such as react-router's <Link>
+  renderWithRouter(
+    <AppContext.Provider value={INITIAL_APP_STATE}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <CourseContextProvider initialState={courseInitState}>
           {enrollAction}
         </CourseContextProvider>
-      </AppContext.Provider>,
-    );
-  };
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>,
+  );
+};
 
+describe('Scenarios where user is enrolled in course', () => {
   test(`to_courseware_page rendered with course info url for self paced course,
       scenario 1`, () => {
     const enrollLabelText = 'hello enrollee!';
@@ -97,8 +108,11 @@ describe('Enroll action rendering for cases where user is enrolled in course', (
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${INITIAL_APP_STATE.enterpriseConfig.slug}`);
   });
+});
+
+describe('scenarios when use is not enrolled and is not eligible to', () => {
   test(`disabled div rendered when enrollmentType is ENROLL_DISABLED,
-     scenario 2`, () => {
+     scenario 3 and 4`, () => {
     const enrollLabelText = 'disabled text!';
     const enrollAction = (
       <EnrollAction
@@ -112,8 +126,11 @@ describe('Enroll action rendering for cases where user is enrolled in course', (
     expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
     expect(screen.queryByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
   });
+});
+
+describe('scenarios user not yet enrolled, but eligible to enroll', () => {
   test(`datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT,
-     scenario 2`, () => {
+  scenario 5`, () => {
     const enrollLabelText = 'disabled text!';
     const enrollmentUrl = 'http://test';
     const enrollAction = (
@@ -125,9 +142,38 @@ describe('Enroll action rendering for cases where user is enrolled in course', (
     );
     renderEnrollAction({ enrollAction });
 
-    // ensure no link is rendered but label text is
+    // ensure link is rendered and label text too
     expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${enrollmentUrl}`);
+  });
+  test(`ecom basket link rendered when enrollmentType is TO_ECOM_BASKET,
+  scenario 6`, () => {
+    const enrollLabelText = 'some text!';
+    const enrollmentUrl = 'http://test';
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_ECOM_BASKET}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        enrollmentUrl={enrollmentUrl}
+        subscriptionLicense={subscriptionLicense}
+      />
+    );
+    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
+    // which is then used by a hook to check if the user has a license
+    renderEnrollAction({
+      enrollAction,
+      initialUserSubsidyState: {
+        subscriptionLicense,
+        offers: { offers: [] },
+      },
+    });
+
+    // ensure button is rendered with label text
+    expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
+    expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
+    expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
+    expect(screen.getByText(/You do not have any applicable vouchers/)).toBeInTheDocument();
+    expect(screen.getByText(/but you can still enroll in this course/)).toBeInTheDocument();
   });
 });
