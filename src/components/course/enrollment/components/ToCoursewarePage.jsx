@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from '../../CourseContextProvider';
 import { EnrollButtonCta } from '../common';
-import { shouldUpgradeUserEnrollment } from '../../data/utils';
+import { shouldUpgradeUserEnrollment, createCourseInfoUrl } from '../../data/utils';
 
 import { enrollLinkClass } from '../constants';
 
@@ -18,7 +18,7 @@ const ToCoursewarePage = ({
 }) => {
   const { config } = useContext(AppContext);
   const { state: { activeCourseRun: { key: courseKey } } } = useContext(CourseContext);
-  const courseInfoUrl = `${config.LMS_BASE_URL}/courses/${courseKey}/info`;
+  const courseInfoUrl = createCourseInfoUrl({ baseUrl: config.LMS_BASE_URL, courseKey });
   const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
     userEnrollment,
     subscriptionLicense,

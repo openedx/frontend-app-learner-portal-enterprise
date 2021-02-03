@@ -12,6 +12,7 @@ import {
   A_100_PERCENT_OFFER,
 } from '../../../../utils/tests';
 
+import { createCourseInfoUrl } from '../../data/utils';
 import { COURSE_MODES_MAP } from '../../data/constants';
 import EnrollAction from '../EnrollAction';
 import { enrollButtonTypes } from '../constants';
@@ -94,7 +95,10 @@ describe('Scenarios where user is enrolled in course', () => {
     // check info url is rendered, instead of enrollment url (in this case)
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl)
-      .toContain(`courses/${selfPacedCourseWithLicenseSubsidy.activeCourseRun.key}/info`);
+      .toContain(createCourseInfoUrl({
+        baseUrl: INITIAL_APP_STATE.config.LMS_BASE_URL,
+        courseKey: selfPacedCourseWithLicenseSubsidy.activeCourseRun.key,
+      }));
   });
   test(`view_on_dashboard link is rendered with enterprise slug url as course has not started,
      scenario 2`, () => {

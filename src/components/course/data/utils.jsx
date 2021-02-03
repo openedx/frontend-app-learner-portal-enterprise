@@ -92,6 +92,10 @@ export function getDefaultProgram(programs = []) {
   return programs[0];
 }
 
+export function createCourseInfoUrl({ baseUrl, courseKey }) {
+  return `${baseUrl}/courses/${courseKey}/info`;
+}
+
 export function formatProgramType(programType) {
   switch (programType) {
     case PROGRAM_TYPE_MAP.MICROMASTERS:
