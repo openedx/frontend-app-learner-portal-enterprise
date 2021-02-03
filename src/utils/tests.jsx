@@ -77,5 +77,5 @@ export const initialCourseState = ({
   userEnrollments: [],
   userEntitlements: [],
   userSubsidyApplicableToCourse,
-  catalog: {},
+  catalog: { catalogList: [] },
 });

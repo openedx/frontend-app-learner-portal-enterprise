@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 export const ENROLL_MODAL_TEXT_NO_OFFERS = 'You do not have any applicable vouchers, but you can still enroll in this course.';
+export const createUseVoucherText = offersCount => `Enrolling in this course will use 1 of your ${offersCount} enrollment codes.`;
+
 export const modalText = {
   noOffers: {
     body: ENROLL_MODAL_TEXT_NO_OFFERS,
@@ -12,7 +14,7 @@ export const modalText = {
     title: 'Payment required for course enrollment',
   },
   fullOffers: {
-    body: (offersCount) => `Enrolling in this course will use 1 of your ${offersCount} enrollment codes.`,
+    body: (offersCount) => createUseVoucherText(offersCount),
     button: 'Enroll in course',
     title: 'Use 1 enrollment code for this course?',
   },

@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { ENROLL_MODAL_TEXT_NO_OFFERS } from '../../EnrollModal';
+import { ENROLL_MODAL_TEXT_NO_OFFERS, createUseVoucherText } from '../../EnrollModal';
 import {
   renderWithRouter,
   initialAppState,
@@ -30,6 +30,7 @@ const {
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
+  TO_VOUCHER_REDEEM,
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -149,7 +150,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(actualUrl).toContain(`${enrollmentUrl}`);
   });
   test(`ecom basket link rendered when enrollmentType is TO_ECOM_BASKET,
-  scenario 6`, () => {
+  scenario 6 and 7`, () => {
     const enrollLabelText = 'some text!';
     const enrollmentUrl = 'http://test';
     const enrollAction = (
@@ -175,6 +176,45 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
     const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
+    expect(screen.getByText(regex)).toBeInTheDocument();
+  });
+  test(`ecom basket link rendered when enrollmentType is TO_VOUCHER_REDEEM,
+  scenario 6 and 7`, () => {
+    // offers must exist, subscriptionlicense must not, catalogs list must exist.
+    // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
+    const enrollLabelText = 'some text!';
+    const enrollmentUrl = 'http://test';
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_VOUCHER_REDEEM}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        enrollmentUrl={enrollmentUrl}
+      />
+    );
+    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
+    // which is then used by a hook to check if the user has a license
+    renderEnrollAction({
+      enrollAction,
+      courseInitState: {
+        ...selfPacedCourseWithLicenseSubsidy,
+        catalog: {
+          catalogList: ['a-catalog'],
+        },
+      },
+      initialUserSubsidyState: {
+        subscriptionLicense,
+        offers: {
+          offers: [{ catalog: 'a-catalog', discountValue: 100, discountType: 'Percentage' }],
+          offersCount: 1,
+        },
+      },
+    });
+
+    // ensure button is rendered with label text indicating voucher count
+    expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
+    expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
+    expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
+    const regex = new RegExp().compile(createUseVoucherText(1));
     expect(screen.getByText(regex)).toBeInTheDocument();
   });
 });
