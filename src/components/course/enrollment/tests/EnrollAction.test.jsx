@@ -16,8 +16,11 @@ import { enrollButtonTypes } from '../constants';
 import { CourseContextProvider } from '../../CourseContextProvider';
 
 /**
- * These tests verify that the correct enroll component is rendered. They do not test the enroll
- * label since that is tested separately. We just pass a pre-rendered enroll label for these tests.
+ * These tests verify that the correct enroll component is rendered.
+ * They do not test the enroll label since that is tested separately.
+ * We just pass a pre-rendered enroll label for these tests.
+ * See this page for scenarios:
+ * https://openedx.atlassian.net/wiki/spaces/SOL/pages/2178875970/Enroll+Button+logic+for+Enterprise+Learner+Portal
  */
 const {
   TO_COURSEWARE_PAGE,
@@ -25,57 +28,52 @@ const {
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
+const selfPacedCourseWithLicenseSubsidy = initialCourseState({});
+const verifiedTrackEnrollment = {
+  mode: COURSE_MODES_MAP.VERIFIED,
+  isActive: true,
+  courseDetails: {
+    courseId: selfPacedCourseWithLicenseSubsidy.activeCourseRun.key,
+  },
+};
+const subscriptionLicense = { uuid: 'a-license' };
 
 describe('Enroll action rendering for cases where user is enrolled in course', () => {
-  const verifiedTrackEnrollment = {
-    mode: COURSE_MODES_MAP.VERIFIED,
-    isActive: true,
-    courseDetails: {
-      courseId: 'test-course-run-key',
-    },
-  };
-
   /**
-   * Render EnrollAction which then renders correct component as per the enrollmentType param.
-   *
    * @param {object} args Arguments.
-   * @param {string} args.enrollmentType One of the enrollButtonTypes
-   * @param {object} args.courseInitState initial course state to pass to CourseContext
-   * @param {object} args.userEnrollment user Enrollment
-   * @param {string} args.enrollLabelText optional, enroll label text
+   * @param {string} args.enrollAction
    */
+  const EnrollLabel = (props) => (
+    // eslint-disable-next-line react/prop-types
+    <div>{props.enrollLabelText}</div>
+  );
   const renderEnrollAction = ({
-    enrollmentType, courseInitState, userEnrollment, enrollLabelText = 'hello',
+    enrollAction,
+    courseInitState = selfPacedCourseWithLicenseSubsidy,
   }) => {
-    const EnrollLabel = () => (
-      <div>{enrollLabelText}</div>
-    );
-
     // need to use router, to render component such as react-router's <Link>
     renderWithRouter(
       <AppContext.Provider value={INITIAL_APP_STATE}>
         <CourseContextProvider initialState={courseInitState}>
-          <EnrollAction
-            userEnrollment={userEnrollment}
-            enrollmentType={enrollmentType}
-            enrollmentUrl="http://test/url"
-            enrollLabel={<EnrollLabel />}
-          />
+          {enrollAction}
         </CourseContextProvider>
       </AppContext.Provider>,
     );
   };
+
   test(`to_courseware_page rendered with course info url for self paced course,
       scenario 1`, () => {
     const enrollLabelText = 'hello enrollee!';
-    const selfPacedCourseWithLicenseSubsidy = initialCourseState({});
-    renderEnrollAction({
-      enrollmentType: TO_COURSEWARE_PAGE,
-      courseInitState: selfPacedCourseWithLicenseSubsidy,
-      userEnrollment: verifiedTrackEnrollment,
-      enrollLabelText,
-    });
-
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_COURSEWARE_PAGE}
+        enrollmentUrl="http://test"
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        userEnrollment={verifiedTrackEnrollment}
+        subscriptionLicense={subscriptionLicense}
+      />
+    );
+    renderEnrollAction({ enrollAction });
     // check that enroll label provided, is rendered
     // check info url is rendered, instead of enrollment url (in this case)
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
@@ -85,13 +83,13 @@ describe('Enroll action rendering for cases where user is enrolled in course', (
   test(`view_on_dashboard link is rendered with enterprise slug url as course has not started,
      scenario 2`, () => {
     const enrollLabelText = 'hello enrollee!';
-    const selfPacedCourseWithLicenseSubsidy = initialCourseState({});
-    renderEnrollAction({
-      enrollmentType: VIEW_ON_DASHBOARD,
-      courseInitState: selfPacedCourseWithLicenseSubsidy,
-      userEnrollment: verifiedTrackEnrollment,
-      enrollLabelText,
-    });
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={VIEW_ON_DASHBOARD}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+      />
+    );
+    renderEnrollAction({ enrollAction });
 
     // the slug in the url comes from the appcontext passed when rendering.
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
