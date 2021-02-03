@@ -79,3 +79,7 @@ export const initialCourseState = ({
   userSubsidyApplicableToCourse,
   catalog: { catalogList: [] },
 });
+
+export const A_100_PERCENT_OFFER = {
+  catalog: 'a-catalog', discountValue: 100, discountType: 'Percentage',
+};

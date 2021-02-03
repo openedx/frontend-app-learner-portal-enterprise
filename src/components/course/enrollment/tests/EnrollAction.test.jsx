@@ -9,6 +9,7 @@ import {
   renderWithRouter,
   initialAppState,
   initialCourseState,
+  A_100_PERCENT_OFFER,
 } from '../../../../utils/tests';
 
 import { COURSE_MODES_MAP } from '../../data/constants';
@@ -191,20 +192,22 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         enrollmentUrl={enrollmentUrl}
       />
     );
+    const A_COURSE_WITH_NO_SUBSCRIPTIONS = {
+      ...selfPacedCourseWithLicenseSubsidy,
+      catalog: {
+        catalogList: ['a-catalog'],
+      },
+      userSubsidyApplicableToCourse: null,
+    };
     // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
     // which is then used by a hook to check if the user has a license
     renderEnrollAction({
       enrollAction,
-      courseInitState: {
-        ...selfPacedCourseWithLicenseSubsidy,
-        catalog: {
-          catalogList: ['a-catalog'],
-        },
-      },
+      courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
       initialUserSubsidyState: {
-        subscriptionLicense,
+        subscriptionLicense: null,
         offers: {
-          offers: [{ catalog: 'a-catalog', discountValue: 100, discountType: 'Percentage' }],
+          offers: [A_100_PERCENT_OFFER],
           offersCount: 1,
         },
       },
