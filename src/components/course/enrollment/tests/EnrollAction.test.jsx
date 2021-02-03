@@ -184,7 +184,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(regex)).toBeInTheDocument();
   });
   test(`ecom basket link rendered when enrollmentType is TO_VOUCHER_REDEEM,
-  scenario 6 and 7`, () => {
+  scenario 8`, () => {
     // offers must exist, subscriptionlicense must not, catalogs list must exist.
     // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
     const enrollLabelText = 'some text!';
