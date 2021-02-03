@@ -14,3 +14,5 @@ const EnrollBtnDisabled = ({ enrollLabel }) => (
 EnrollBtnDisabled.propTypes = {
   enrollLabel: PropTypes.shape.isRequired,
 };
+
+export default EnrollBtnDisabled;

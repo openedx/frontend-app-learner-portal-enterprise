@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { classNames } from 'classnames';
+import classNames from 'classnames';
 
 import { enrollLinkClass } from '../constants';
 import { EnrollButtonCta } from '../common';
@@ -19,3 +19,5 @@ ToDataSharingConsentPage.propTypes = {
   enrollLabel: PropTypes.shape.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
 };
+
+export default ToDataSharingConsentPage;

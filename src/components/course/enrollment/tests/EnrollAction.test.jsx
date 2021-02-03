@@ -25,6 +25,8 @@ import { CourseContextProvider } from '../../CourseContextProvider';
 const {
   TO_COURSEWARE_PAGE,
   VIEW_ON_DASHBOARD,
+  ENROLL_DISABLED,
+  TO_DATASHARING_CONSENT,
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -94,5 +96,38 @@ describe('Enroll action rendering for cases where user is enrolled in course', (
     // the slug in the url comes from the appcontext passed when rendering.
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${INITIAL_APP_STATE.enterpriseConfig.slug}`);
+  });
+  test(`disabled div rendered when enrollmentType is ENROLL_DISABLED,
+     scenario 2`, () => {
+    const enrollLabelText = 'disabled text!';
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={ENROLL_DISABLED}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+      />
+    );
+    renderEnrollAction({ enrollAction });
+
+    // ensure no link is rendered but label text is
+    expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
+    expect(screen.queryByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
+  });
+  test(`datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT,
+     scenario 2`, () => {
+    const enrollLabelText = 'disabled text!';
+    const enrollmentUrl = 'http://test';
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_DATASHARING_CONSENT}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        enrollmentUrl={enrollmentUrl}
+      />
+    );
+    renderEnrollAction({ enrollAction });
+
+    // ensure no link is rendered but label text is
+    expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
+    const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
+    expect(actualUrl).toContain(`${enrollmentUrl}`);
   });
 });
