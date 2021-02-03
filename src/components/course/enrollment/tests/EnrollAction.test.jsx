@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
+import { ENROLL_MODAL_TEXT_NO_OFFERS } from '../../EnrollModal';
 import {
   renderWithRouter,
   initialAppState,
@@ -173,7 +174,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
-    expect(screen.getByText(/You do not have any applicable vouchers/)).toBeInTheDocument();
-    expect(screen.getByText(/but you can still enroll in this course/)).toBeInTheDocument();
+    const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
+    expect(screen.getByText(regex)).toBeInTheDocument();
   });
 });
