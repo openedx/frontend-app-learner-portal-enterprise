@@ -4,8 +4,7 @@ import { Modal } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-export const ENROLL_MODAL_TEXT_NO_OFFERS = `You do not have any applicable vouchers, but you can
- still enroll in this course.`;
+export const ENROLL_MODAL_TEXT_NO_OFFERS = 'You do not have any applicable vouchers, but you can still enroll in this course.';
 export const modalText = {
   noOffers: {
     body: ENROLL_MODAL_TEXT_NO_OFFERS,
