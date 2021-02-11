@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { Hyperlink } from '@edx/paragon';
+import { getConfig } from '@edx/frontend-platform';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { SidebarBlock } from '../../layout';
@@ -44,11 +45,7 @@ const RecentCommunityActivityBlock = () => {
       className="mb-5"
     >
       <ul className="list-unstyled">
-        {isLoading ? (
-          <>
-            <Skeleton count={5} />
-          </>
-        ) : (
+        {isLoading ? <Skeleton count={5} /> : (
           <>
             {feedItems.map((item, idx) => (
               <SidebarActivityBlock
@@ -58,18 +55,16 @@ const RecentCommunityActivityBlock = () => {
                 timesince={item.timesince}
               >
                 <Hyperlink
-                  href="https://profile.edx.org/u/astankiewicz_edx"
+                  href={`${getConfig().LMS_BASE_URL}/u/${item.actor.username}`}
                   className="font-weight-bold"
                   target="_blank"
                 >
-                  {/* TODO: use "First Last" name if available (more human), otherwise use username */}
+                  {/* TODO: use "First Last" name if available (more human); otherwise use username */}
                   {(item.actor.firstName && item.actor.lastName) ? (
                     <>
                       {item.actor.firstName} {item.actor.firstName}
                     </>
-                  ) : (
-                    item.actor.username
-                  )}
+                  ) : item.actor.username}
                 </Hyperlink>
                 {' '}
                 {item.verb}
@@ -77,7 +72,7 @@ const RecentCommunityActivityBlock = () => {
                 {item.verb === 'joined' && item.target.name}
                 {item.verb === 'enrolled in' && (
                   <>
-                    <Link to={item.actionObject.url}>
+                    <Link to={`/test-enterprise/course/${item.actionObject.courseKey}`}>
                       {item.actionObject.displayName}
                     </Link>
                     {' '}
