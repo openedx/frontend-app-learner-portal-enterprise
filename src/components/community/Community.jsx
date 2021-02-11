@@ -115,7 +115,7 @@ export default function Community() {
                     {item.verb}
                     {' '}
                     {item.verb === 'joined' && item.target.name}
-                    {item.verb === 'enrolled in' && (
+                    {(item.verb === 'enrolled in' || item.verb === 'earned a certificate in') && (
                       <>
                         <Link to={`/${enterpriseConfig.slug}/course/${item.actionObject.courseKey}`}>
                           {item.actionObject.displayName}
@@ -124,7 +124,6 @@ export default function Community() {
                         from {item.actionObject.org}
                       </>
                     )}
-                    {/* TODO: item.verb === 'earned a certificate in' */}
                   </ActivityBlock>
                 ))}
               </ul>
