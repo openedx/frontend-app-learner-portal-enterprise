@@ -65,7 +65,7 @@ const RecentCommunityActivityBlock = () => {
                 >
                   {(item.actor.firstName && item.actor.lastName) ? (
                     <>
-                      {item.actor.firstName} {item.actor.firstName}
+                      {item.actor.firstName} {item.actor.lastName}
                     </>
                   ) : item.actor.username}
                 </Hyperlink>
