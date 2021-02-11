@@ -63,7 +63,6 @@ const RecentCommunityActivityBlock = () => {
                   className="font-weight-bold"
                   target="_blank"
                 >
-                  {/* TODO: use "First Last" name if available (more human); otherwise use username */}
                   {(item.actor.firstName && item.actor.lastName) ? (
                     <>
                       {item.actor.firstName} {item.actor.firstName}
