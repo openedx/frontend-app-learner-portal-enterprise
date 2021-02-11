@@ -19,9 +19,10 @@ const RecentCommunityActivityBlock = () => {
   useEffect(
     () => {
       fetchRecentCommunityActivityFeed()
-        .then((res) => {
-          const response = camelCaseObject(res.data);
-          setFeedItems(response);
+        .then((response) => {
+          const data = camelCaseObject(response.data);
+          const mostRecentFeedItems = data.slice(0, 5);
+          setFeedItems(mostRecentFeedItems);
         })
         .catch((error) => {
           setFetchError(error);
@@ -50,7 +51,7 @@ const RecentCommunityActivityBlock = () => {
             {feedItems.map((item, idx) => (
               <SidebarActivityBlock
                 key={item}
-                className={classNames({ 'mt-3': idx !== 0})}
+                className={classNames({ 'mt-3': idx !== 0 })}
                 timestamp={item.timestamp}
                 timesince={item.timesince}
               >
