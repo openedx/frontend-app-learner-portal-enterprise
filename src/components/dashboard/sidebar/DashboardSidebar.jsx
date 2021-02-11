@@ -2,12 +2,13 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { MailtoLink } from '@edx/paragon';
+import { MailtoLink, Hyperlink } from '@edx/paragon';
 
 import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import SidebarCard from './SidebarCard';
+import RecentCommunityActivityBlock from './RecentCommunityActivityBlock';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
@@ -42,7 +43,7 @@ const DashboardSidebar = () => {
   return (
     <div className="mt-3 mt-lg-0">
       {(subscriptionPlan || offersCount > 0) && (
-        <SidebarCard cardClassNames="border-primary border-brand-primary catalog-access-card mb-5">
+        <SidebarCard cardClassNames="border-primary border-brand-primary sidebar-card-block mb-5">
           {subscriptionPlan && (
             <SubscriptionSummaryCard
               subscriptionPlan={subscriptionPlan}
@@ -63,14 +64,17 @@ const DashboardSidebar = () => {
           </Link>
         </SidebarCard>
       )}
+      <RecentCommunityActivityBlock />
       <SidebarBlock
         title={NEED_HELP_BLOCK_TITLE}
-        titleOptions={{ tag: 'h3' }}
+        titleProps={{ as: 'h3' }}
         className="mb-5"
       >
         <p>
           For technical support, visit the{' '}
-          <a href="https://support.edx.org/hc/en-us">edX Help Center</a>.
+          <Hyperlink href="https://support.edx.org/hc/en-us" target="_blank">
+            edX Help Center
+          </Hyperlink>.
         </p>
         <p>
           To request more benefits or specific courses, {renderContactHelpText()}.

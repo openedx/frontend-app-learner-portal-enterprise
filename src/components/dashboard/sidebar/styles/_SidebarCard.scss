@@ -1,9 +1,5 @@
 .card {
-    &.catalog-access-card {
+    &.sidebar-card-block {
         border-top-width: 4px;
-        
-        .card-title { 
-            @extend .h4;
-        }
     }
 }

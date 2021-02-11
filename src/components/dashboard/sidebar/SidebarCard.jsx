@@ -6,11 +6,11 @@ const SidebarCard = ({
   title,
   children,
   cardClassNames,
-  titleClassNames,
+  titleProps,
 }) => (
   <Card className={cardClassNames}>
     <Card.Body>
-      {title && <Card.Title className={titleClassNames}>{title}</Card.Title>}
+      {title && <Card.Title {...titleProps}>{title}</Card.Title>}
       {children}
     </Card.Body>
   </Card>
@@ -20,13 +20,13 @@ SidebarCard.propTypes = {
   title: PropTypes.node,
   children: PropTypes.node.isRequired,
   cardClassNames: PropTypes.string,
-  titleClassNames: PropTypes.string,
+  titleProps: PropTypes.shape(),
 };
 
 SidebarCard.defaultProps = {
   title: null,
   cardClassNames: 'shadow',
-  titleClassNames: undefined,
+  titleProps: undefined,
 };
 
 export default SidebarCard;
