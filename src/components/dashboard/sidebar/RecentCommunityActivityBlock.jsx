@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { Hyperlink } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { SidebarBlock } from '../../layout';
 import SidebarActivityBlock from './SidebarActivityBlock';
@@ -12,6 +13,8 @@ import SidebarActivityBlock from './SidebarActivityBlock';
 import { fetchRecentCommunityActivityFeed } from './data/service';
 
 const RecentCommunityActivityBlock = () => {
+  const { enterpriseConfig } = useContext(AppContext);
+
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState();
@@ -73,7 +76,7 @@ const RecentCommunityActivityBlock = () => {
                 {item.verb === 'joined' && item.target.name}
                 {item.verb === 'enrolled in' && (
                   <>
-                    <Link to={`/test-enterprise/course/${item.actionObject.courseKey}`}>
+                    <Link to={`/${enterpriseConfig.slug}/course/${item.actionObject.courseKey}`}>
                       {item.actionObject.displayName}
                     </Link>
                     {' '}
