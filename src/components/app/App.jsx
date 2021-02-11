@@ -8,6 +8,7 @@ import { DashboardPage } from '../dashboard';
 import NotFoundPage from '../NotFoundPage';
 import { CoursePage } from '../course';
 import { SearchPage } from '../search';
+import { CommunityPage } from '../community';
 import { LicenseActivationPage } from '../license-activation';
 
 import store from '../../store';
@@ -21,6 +22,7 @@ export default function App() {
       )}
       <Switch>
         <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
+        <PageRoute exact path="/:enterpriseSlug/community" component={CommunityPage} />
         <PageRoute exact path="/:enterpriseSlug/search" component={SearchPage} />
         <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
         <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
