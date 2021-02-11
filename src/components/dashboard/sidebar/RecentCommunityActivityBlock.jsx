@@ -58,6 +58,8 @@ const RecentCommunityActivityBlock = () => (
         <Link to="/test-enterprise/course/edX+DemoX">
           Demonstration Course
         </Link>
+        {' '}
+        from edX
       </ActivityBlock>
       <ActivityBlock
         className="mb-3"
@@ -77,6 +79,8 @@ const RecentCommunityActivityBlock = () => (
         <Link to="/test-enterprise/course/edX+DemoX">
           Demonstration Course
         </Link>
+        {' '}
+        from edX
       </ActivityBlock>
       <ActivityBlock
         timestamp="2021-01-10 10:00:00"
