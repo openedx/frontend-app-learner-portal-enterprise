@@ -1,108 +1,100 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Hyperlink } from '@edx/paragon';
+import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { Link } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
+import { Hyperlink } from '@edx/paragon';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { SidebarBlock } from '../../layout';
+import SidebarActivityBlock from './SidebarActivityBlock';
 
-const ActivityBlock = ({
-  className,
-  children,
-  timestamp,
-  timesince,
-}) => (
-  <li className={className}>
-    <div>
-      {children}
-    </div>
-    <div className="text-gray-700 small" title={timestamp}>
-      {timesince} ago
-    </div>
-  </li>
-);
+import { fetchRecentCommunityActivityFeed } from './data/service';
 
-ActivityBlock.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired,
-  timestamp: PropTypes.string.isRequired,
-  timesince: PropTypes.string.isRequired,
+const RecentCommunityActivityBlock = () => {
+  const [feedItems, setFeedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState();
+
+  useEffect(
+    () => {
+      fetchRecentCommunityActivityFeed()
+        .then((res) => {
+          const response = camelCaseObject(res.data);
+          setFeedItems(response);
+        })
+        .catch((error) => {
+          setFetchError(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [],
+  );
+
+  if (fetchError || (!isLoading && feedItems?.length === 0)) {
+    // if an error occurred or we have no feed activity, don't show this block in the UI
+    return null;
+  }
+
+  return (
+    <SidebarBlock
+      title="Recent community activity"
+      titleProps={{ as: 'h3' }}
+      className="mb-5"
+    >
+      <ul className="list-unstyled">
+        {isLoading ? (
+          <>
+            <Skeleton count={5} />
+          </>
+        ) : (
+          <>
+            {feedItems.map((item, idx) => (
+              <SidebarActivityBlock
+                key={item}
+                className={classNames({ 'mt-3': idx !== 0})}
+                timestamp={item.timestamp}
+                timesince={item.timesince}
+              >
+                <Hyperlink
+                  href="https://profile.edx.org/u/astankiewicz_edx"
+                  className="font-weight-bold"
+                  target="_blank"
+                >
+                  {/* TODO: use "First Last" name if available (more human), otherwise use username */}
+                  {(item.actor.firstName && item.actor.lastName) ? (
+                    <>
+                      {item.actor.firstName} {item.actor.firstName}
+                    </>
+                  ) : (
+                    item.actor.username
+                  )}
+                </Hyperlink>
+                {' '}
+                {item.verb}
+                {' '}
+                {item.verb === 'joined' && item.target.name}
+                {item.verb === 'enrolled in' && (
+                  <>
+                    <Link to={item.actionObject.url}>
+                      {item.actionObject.displayName}
+                    </Link>
+                    {' '}
+                    from {item.actionObject.org}
+                  </>
+                )}
+                {/* TODO: item.verb === 'earned a certificate in' */}
+              </SidebarActivityBlock>
+            ))}
+          </>
+        )}
+      </ul>
+      <Link to="/test-enterprise/community">
+        View all community activity →
+      </Link>
+    </SidebarBlock>
+  );
 };
-
-ActivityBlock.defaultProps = {
-  className: undefined,
-};
-
-const RecentCommunityActivityBlock = () => (
-  <SidebarBlock
-    title="Recent community activity"
-    titleProps={{ as: 'h3' }}
-    className="mb-5"
-  >
-    <ul className="list-unstyled">
-      <ActivityBlock
-        className="mb-3"
-        timestamp="2021-01-10 10:00:00"
-        timesince="12 minutes"
-      >
-        <Hyperlink
-          href="https://profile.edx.org/u/astankiewicz_edx"
-          className="font-weight-bold"
-          target="_blank"
-        >
-          {/* TODO: use "First Last" name if available (more human), otherwise use username */}
-          astankiewicz_edx
-        </Hyperlink>
-        {' '}
-        earned a certificate in
-        {' '}
-        <Link to="/test-enterprise/course/edX+DemoX">
-          Demonstration Course
-        </Link>
-        {' '}
-        from edX
-      </ActivityBlock>
-      <ActivityBlock
-        className="mb-3"
-        timestamp="2021-01-10 12:00:00"
-        timesince="53 minutes"
-      >
-        <Hyperlink
-          href="https://profile.edx.org/u/edx"
-          className="font-weight-bold"
-          target="_blank"
-        >
-          edx
-        </Hyperlink>
-        {' '}
-        enrolled in
-        {' '}
-        <Link to="/test-enterprise/course/edX+DemoX">
-          Demonstration Course
-        </Link>
-        {' '}
-        from edX
-      </ActivityBlock>
-      <ActivityBlock
-        timestamp="2021-01-10 10:00:00"
-        timesince="2 hours"
-      >
-        <Hyperlink
-          href="https://profile.edx.org/u/jchaves"
-          className="font-weight-bold"
-          target="_blank"
-        >
-          jchaves
-        </Hyperlink>
-        {' '}
-        joined
-        {' '}
-        Test Enterprise
-      </ActivityBlock>
-    </ul>
-    <Link to="/test-enterprise/community">
-      View all community activity →
-    </Link>
-  </SidebarBlock>
-);
 
 export default RecentCommunityActivityBlock;
