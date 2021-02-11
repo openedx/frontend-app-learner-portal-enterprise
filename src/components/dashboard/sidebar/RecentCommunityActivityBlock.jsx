@@ -15,7 +15,7 @@ const ActivityBlock = ({
     <div>
       {children}
     </div>
-    <div className="text-dark small" title={timestamp}>
+    <div className="text-gray-700 small" title={timestamp}>
       {timesince} ago
     </div>
   </li>
