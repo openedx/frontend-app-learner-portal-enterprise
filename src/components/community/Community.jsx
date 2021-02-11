@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
-  Avatar, Button, Container, Row, Col, Input, Hyperlink, MailtoLink
+  Avatar, Button, Container, Row, Col, Input, Hyperlink, MailtoLink,
 } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -64,6 +64,8 @@ export default function Community() {
       <Container className="py-5" fluid>
         <Row>
           <Col xs={12} lg={7}>
+            <h2 className="mb-2">My Community</h2>
+            <hr />
             {/* Create a Post */}
             <div>
               <div className="d-flex align-items-start">
