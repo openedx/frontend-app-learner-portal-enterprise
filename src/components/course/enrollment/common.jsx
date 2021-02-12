@@ -11,7 +11,7 @@ const EnrollButtonWrapper = ({
   children,
   ...props
 }) => (
-  <div className="enroll-wrapper" style={{ width: 270 }}>
+  <div className="enroll-wrapper">
     <Component {...props}>
       {children}
     </Component>

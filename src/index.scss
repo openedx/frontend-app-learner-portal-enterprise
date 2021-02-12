@@ -6,6 +6,7 @@
 $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome";
 
+@import "./components/course/enrollment/styles/EnrollButton";
 @import "./components/course/styles/CourseHeader";
 @import "./components/course/styles/CourseSidebar";
 @import "./components/dashboard/main-content/course-enrollments/course-cards/styles/CourseCard";
