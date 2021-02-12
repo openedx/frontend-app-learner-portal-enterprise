@@ -1,5 +1,6 @@
 // OfferSummaryCard title
 export const OFFER_SUMMARY_TITLE = 'Additional Courses';
+export const OFFER_SUMMARY_NOTICE = 'Your organization has purchased additional courses for you to access to enhance your subscription.'
 // SubscriptionSummaryCard title
 export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription Status';
 // SubscriptionSummaryCard badge labels

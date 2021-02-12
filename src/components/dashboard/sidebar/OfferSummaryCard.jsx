@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import SidebarCard from './SidebarCard';
-import { OFFER_SUMMARY_TITLE } from './data/constants';
+import { OFFER_SUMMARY_TITLE, OFFER_SUMMARY_NOTICE } from './data/constants';
 
 const OfferSummaryCard = ({ offersCount, className }) => {
   const renderCardBody = () => (
@@ -11,7 +11,7 @@ const OfferSummaryCard = ({ offersCount, className }) => {
         {offersCount}
       </div>
       <p className="m-0">
-        Your organization has purchased additional courses for you to access to enhance your subscription.
+        {OFFER_SUMMARY_NOTICE}
       </p>
     </>
   );
