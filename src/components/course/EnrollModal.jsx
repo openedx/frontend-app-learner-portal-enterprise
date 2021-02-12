@@ -11,9 +11,9 @@ export const modalText = {
     title: 'Payment required for course enrollment',
   },
   fullOffers: {
-    body: (offersCount) => `Enrolling in this course will use 1 of your ${offersCount} remaining vouchers.`,
+    body: (offersCount) => `Enrolling in this course will use 1 of your ${offersCount} enrollment codes.`,
     button: 'Enroll in course',
-    title: 'Use 1 voucher for this course',
+    title: 'Use 1 enrollment code for this course?',
   },
 };
 

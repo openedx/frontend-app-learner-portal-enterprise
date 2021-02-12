@@ -1,6 +1,6 @@
 // OfferSummaryCard title
-export const OFFER_SUMMARY_TITLE = 'Additional Courses';
-export const OFFER_SUMMARY_NOTICE = 'Your organization has purchased additional courses for you to access to enhance your subscription.'
+export const OFFER_SUMMARY_TITLE = 'Enrollment Codes';
+export const OFFER_SUMMARY_NOTICE = 'Used to enroll in individual courses found in your catalog search.';
 // SubscriptionSummaryCard title
 export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription Status';
 // SubscriptionSummaryCard badge labels
