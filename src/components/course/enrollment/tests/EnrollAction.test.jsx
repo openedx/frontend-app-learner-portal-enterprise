@@ -78,8 +78,7 @@ const renderEnrollAction = ({
 };
 
 describe('Scenarios where user is enrolled in course', () => {
-  test(`to_courseware_page rendered with course info url for self paced course,
-      scenario 1`, () => {
+  test('to_courseware_page rendered with course info url for self paced course', () => {
     const enrollLabelText = 'hello enrollee!';
     const enrollAction = (
       <EnrollAction
@@ -100,8 +99,7 @@ describe('Scenarios where user is enrolled in course', () => {
         courseKey: selfPacedCourseWithLicenseSubsidy.activeCourseRun.key,
       }));
   });
-  test(`view_on_dashboard link is rendered with enterprise slug url as course has not started,
-     scenario 2`, () => {
+  test('view_on_dashboard link is rendered with enterprise slug url as course has not started', () => {
     const enrollLabelText = 'hello enrollee!';
     const enrollAction = (
       <EnrollAction
@@ -118,8 +116,7 @@ describe('Scenarios where user is enrolled in course', () => {
 });
 
 describe('scenarios when use is not enrolled and is not eligible to', () => {
-  test(`disabled div rendered when enrollmentType is ENROLL_DISABLED,
-     scenario 3 and 4`, () => {
+  test('disabled div rendered when enrollmentType is ENROLL_DISABLED', () => {
     const enrollLabelText = 'disabled text!';
     const enrollAction = (
       <EnrollAction
@@ -136,8 +133,7 @@ describe('scenarios when use is not enrolled and is not eligible to', () => {
 });
 
 describe('scenarios user not yet enrolled, but eligible to enroll', () => {
-  test(`datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT,
-  scenario 5`, () => {
+  test('datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
     const enrollLabelText = 'disabled text!';
     const enrollmentUrl = 'http://test';
     const enrollAction = (
@@ -154,8 +150,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${enrollmentUrl}`);
   });
-  test(`ecom basket link rendered when enrollmentType is TO_ECOM_BASKET,
-  scenario 6 and 7`, () => {
+  test('ecom basket link rendered when enrollmentType is TO_ECOM_BASKET', () => {
     const enrollLabelText = 'some text!';
     const enrollmentUrl = 'http://test';
     const enrollAction = (
@@ -183,8 +178,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
     expect(screen.getByText(regex)).toBeInTheDocument();
   });
-  test(`ecom basket link rendered when enrollmentType is TO_VOUCHER_REDEEM,
-  scenario 8`, () => {
+  test('ecom basket link rendered when enrollmentType is TO_VOUCHER_REDEEM', () => {
     // offers must exist, subscriptionlicense must not, catalogs list must exist.
     // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
     const enrollLabelText = 'some text!';
