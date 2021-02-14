@@ -39,9 +39,6 @@ export default function SiteHeader() {
         <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
           Find a Course
         </NavLink>
-        <NavLink to={`/${enterpriseConfig.slug}/community`} className={mainMenuLinkClassName} exact>
-          My Community
-        </NavLink>
       </>
     );
   };

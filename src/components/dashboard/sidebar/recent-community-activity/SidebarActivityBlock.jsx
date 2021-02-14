@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 
 const SidebarActivityBlock = ({
   className,
@@ -11,7 +12,7 @@ const SidebarActivityBlock = ({
     <div>
       {children}
     </div>
-    <div className="text-gray-700 small" title={timestamp}>
+    <div className="text-gray-700 small" title={moment(timestamp).format('MMMM DD, YYYY h:mm A')}>
       {timesince} ago
     </div>
   </li>

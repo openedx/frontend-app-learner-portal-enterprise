@@ -26,7 +26,7 @@ SidebarBlock.propTypes = {
   title: PropTypes.string,
   className: PropTypes.string,
   titleOptions: PropTypes.shape({
-    tag: PropTypes.string,
+    tag: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
     className: PropTypes.string,
   }),
 };

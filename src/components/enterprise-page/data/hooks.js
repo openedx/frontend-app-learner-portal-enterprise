@@ -31,7 +31,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   useEffect(() => {
     fetchEnterpriseCustomerConfig(enterpriseSlug)
       .then((response) => {
-        const { results } = camelCaseObject(response.data);
+        const { results } = camelCaseObject(response.data) || {};
         const config = results.pop();
         if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
@@ -49,7 +49,9 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
+            enableCommunity,
           } = config;
+
           setEnterpriseConfig({
             name,
             uuid,
@@ -58,6 +60,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
             hideCourseOriginalPrice,
             disableSearch,
             showIntegrationWarning,
+            enableCommunity,
             branding: {
               logo,
               colors: {

@@ -8,8 +8,10 @@ import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import SidebarCard from './SidebarCard';
-import RecentCommunityActivityBlock from './RecentCommunityActivityBlock';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import {
+  RecentCommunityActivityProvider, RecentCommunityActivityBlock,
+} from './recent-community-activity';
 
 export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
 export const NEED_HELP_BLOCK_TITLE = 'Need help?';
@@ -20,6 +22,7 @@ const DashboardSidebar = () => {
     enterpriseConfig: {
       contactEmail,
       slug,
+      enableCommunity,
     },
     subscriptionPlan,
   } = useContext(AppContext);
@@ -64,12 +67,12 @@ const DashboardSidebar = () => {
           </Link>
         </SidebarCard>
       )}
-      <RecentCommunityActivityBlock />
-      <SidebarBlock
-        title={NEED_HELP_BLOCK_TITLE}
-        titleProps={{ as: 'h3' }}
-        className="mb-5"
-      >
+      {enableCommunity && (
+        <RecentCommunityActivityProvider>
+          <RecentCommunityActivityBlock />
+        </RecentCommunityActivityProvider>
+      )}
+      <SidebarBlock title={NEED_HELP_BLOCK_TITLE} className="mb-5">
         <p>
           For technical support, visit the{' '}
           <Hyperlink href="https://support.edx.org/hc/en-us" target="_blank">
