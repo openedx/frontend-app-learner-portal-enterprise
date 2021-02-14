@@ -1,8 +1,8 @@
 export {
   default as RecentCommunityActivityProvider,
   RecentCommunityActivityContext,
-  JOIN_COMMUNITY,
-  LEAVE_COMMUNITY,
+  JOINING_COMMUNITY,
+  LEAVING_COMMUNITY,
 } from './RecentCommunityActivityProvider';
 
 export { default as RecentCommunityActivityBlock } from './RecentCommunityActivityBlock';

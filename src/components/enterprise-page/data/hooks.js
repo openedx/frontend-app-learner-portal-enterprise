@@ -31,7 +31,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   useEffect(() => {
     fetchEnterpriseCustomerConfig(enterpriseSlug)
       .then((response) => {
-        const { results } = camelCaseObject(response.data) || {};
+        const { results } = camelCaseObject(response.data);
         const config = results.pop();
         if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
