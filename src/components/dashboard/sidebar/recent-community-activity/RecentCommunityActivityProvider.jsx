@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import { fetchRecentCommunityActivityFeed } from './data/service';
 
@@ -16,11 +17,15 @@ export const SET_COMMUNITY_ACTIVITY = 'SET_COMMUNITY_ACTIVITY';
 function reducer(state, action) {
   switch (action.type) {
     case JOIN_COMMUNITY:
+      // todo: make API call to join the organization's community
+      sendTrackEvent('edx.enterprise.learner_portal.community.joined');
       return {
         ...state,
         isCommunityOptIn: true,
       };
     case LEAVE_COMMUNITY:
+      // todo: make API call to leave the organization's community
+      sendTrackEvent('edx.enterprise.learner_portal.community.left');
       return {
         ...state,
         isCommunityOptIn: false,
