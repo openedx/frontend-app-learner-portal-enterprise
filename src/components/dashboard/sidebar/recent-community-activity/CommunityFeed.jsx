@@ -25,13 +25,12 @@ import {
   leaveEnterpriseCustomerCommunity,
 } from './data/service';
 
-export const VERB_JOINED = 'joined';
+export const VERB_JOINED = 'joined the';
 export const VERB_ENROLLED = 'enrolled in';
 export const VERB_COMPLETED = 'earned a certificate in';
 
 const CommunityFeed = () => {
-  const { authenticatedUser, enterpriseConfig } = useContext(AppContext);
-  const { username } = authenticatedUser;
+  const { enterpriseConfig } = useContext(AppContext);
   const {
     state: communityState, dispatch,
   } = useContext(RecentCommunityActivityContext);
@@ -48,7 +47,7 @@ const CommunityFeed = () => {
 
   const joinCommunity = () => {
     dispatch({ type: JOINING_COMMUNITY });
-    joinEnterpriseCustomerCommunity({ username, enterprise_customer: enterpriseConfig?.uuid })
+    joinEnterpriseCustomerCommunity({ enterprise_customer: enterpriseConfig?.uuid })
       .then((isCommunityMember) => {
         dispatch({ type: COMMUNITY_JOINED, payload: isCommunityMember });
       })
@@ -60,7 +59,7 @@ const CommunityFeed = () => {
 
   const leaveCommunity = () => {
     dispatch({ type: LEAVING_COMMUNITY });
-    leaveEnterpriseCustomerCommunity({ username, enterprise_customer: enterpriseConfig?.uuid })
+    leaveEnterpriseCustomerCommunity({ enterprise_customer: enterpriseConfig?.uuid })
       .then((isCommunityMember) => {
         dispatch({ type: COMMUNITY_LEFT, payload: isCommunityMember });
       })
@@ -141,7 +140,7 @@ const CommunityFeed = () => {
                 <p>No longer wish to share your own learning activity with your peers?</p>
                 <StatefulButton
                   {...statefulProps}
-                  variant="danger"
+                  variant="outline-danger"
                   size="sm"
                   onClick={leaveCommunity}
                   block
@@ -172,7 +171,6 @@ const CommunityFeed = () => {
                 key={item.timestamp}
                 className={classNames({ 'mt-3': idx !== 0 })}
                 timestamp={item.timestamp}
-                timesince={item.timesince}
               >
                 <Hyperlink
                   href={`${getConfig().LMS_BASE_URL}/u/${item.actor.username}`}
@@ -186,7 +184,7 @@ const CommunityFeed = () => {
                 {' '}
                 {item.verb}
                 {' '}
-                {item.verb === VERB_JOINED && item.target.name}
+                {item.verb === VERB_JOINED && `${item.target.name} community`}
                 {[VERB_ENROLLED, VERB_COMPLETED].includes(item.verb) && (
                   <>
                     <Link

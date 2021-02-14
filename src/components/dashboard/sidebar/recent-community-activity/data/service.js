@@ -6,7 +6,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 export const fetchRecentCommunityActivityFeed = () => {
   const config = getConfig();
   // TODO: limit this to most recent 5 activities
-  const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-activity/`;
+  const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-community-activity/`;
   return getAuthenticatedHttpClient().get(url);
 };
 
@@ -23,8 +23,8 @@ export const fetchEnterpriseLearnerCommunityStatus = (options) => {
 
 const updateEnterpriseLearnerCommunityStatus = (options) => {
   const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
-  return getAuthenticatedHttpClient().post(url, options)
+  const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_customer_user/?${qs.stringify(options)}`;
+  return getAuthenticatedHttpClient().patch(url)
     .then((response) => {
       const enterpriseLearner = camelCaseObject(response.data);
       return !!enterpriseLearner?.isCommunityMember;
