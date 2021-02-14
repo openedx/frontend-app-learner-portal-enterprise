@@ -40,54 +40,60 @@ const CommunityFeed = () => {
     [],
   );
 
-  if (isCommunityOptIn && (
-    fetchError || (!isLoading && items?.length === 0)
-  )) {
-    // if the user is opted in to the community, and an error occured or we have no
-    // feed activity, don't show this block in the UI.
-    return null;
+  if (isCommunityOptIn && fetchError) {
+    return (
+      <p>An error occurred retrieving recent community activity.</p>
+    );
+  }
+
+  if (isCommunityOptIn && (!isLoading && items?.length === 0)) {
+    return (
+      <p>There is no recent community activity.</p>
+    );
   }
 
   return (
     <>
       {isCommunityOptIn ? (
         <>
-          <OverlayTrigger
-            trigger="click"
-            placement="bottom"
-            overlay={(
-              <Popover id="community-options-popover">
-                <Popover.Content>
-                  <p>No longer wish to share your own learning activity with your peers?</p>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => dispatch({ type: LEAVE_COMMUNITY })}
-                    block
-                  >
-                    Leave community
-                  </Button>
-                </Popover.Content>
-              </Popover>
-            )}
-          >
-            <Button
-              variant="teriary"
-              className="mt-n2"
-              style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-              }}
-              size="sm"
+          {!isLoading && (
+            <OverlayTrigger
+              trigger="click"
+              placement="bottom"
+              overlay={(
+                <Popover id="community-options-popover">
+                  <Popover.Content>
+                    <p>No longer wish to share your own learning activity with your peers?</p>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => dispatch({ type: LEAVE_COMMUNITY })}
+                      block
+                    >
+                      Leave community
+                    </Button>
+                  </Popover.Content>
+                </Popover>
+              )}
             >
-              <Icon src={MoreVert} screenReaderText="Community options" />
-            </Button>
-          </OverlayTrigger>
+              <Button
+                variant="teriary"
+                className="mt-n2"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                }}
+                size="sm"
+              >
+                <Icon src={MoreVert} screenReaderText="Community options" />
+              </Button>
+            </OverlayTrigger>
+          )}
           <ul className="list-unstyled">
             {isLoading ? <Skeleton count={5} /> : (
               <>
-                {items.map((item, idx) => (
+                {items?.map((item, idx) => (
                   <SidebarActivityBlock
                     key={item.timestamp}
                     className={classNames({ 'mt-3': idx !== 0 })}

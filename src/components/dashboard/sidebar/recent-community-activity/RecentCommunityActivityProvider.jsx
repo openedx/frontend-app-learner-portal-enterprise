@@ -25,7 +25,7 @@ function reducer(state, action) {
         ...state,
         isCommunityOptIn: false,
         isLoading: false,
-        items: [],
+        items: null,
         fetchError: null,
       };
     case SET_IS_LOADING:
@@ -51,7 +51,7 @@ function reducer(state, action) {
 
 const initialState = {
   isCommunityOptIn: false,
-  items: [],
+  items: null,
   isLoading: false,
   fetchError: null,
 };
