@@ -1,5 +1,5 @@
 // OfferSummaryCard title
-export const OFFER_SUMMARY_TITLE = 'Enrollment Codes';
+export const OFFER_SUMMARY_TITLE = 'Enrollment codes';
 export const OFFER_SUMMARY_NOTICE = 'Used to enroll in individual courses found in your catalog search.';
 // SubscriptionSummaryCard title
 export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription status';
