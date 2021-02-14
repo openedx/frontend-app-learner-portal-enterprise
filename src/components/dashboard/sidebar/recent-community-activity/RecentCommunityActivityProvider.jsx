@@ -179,26 +179,22 @@ const RecentCommunityActivityProvider = ({ children }) => {
   return (
     <RecentCommunityActivityContext.Provider value={contextValue}>
       {children}
-      {state.shouldShowCommunityOptInToast && (
-        <Toast
-          onClose={() => dispatch({ type: HIDE_COMMUNITY_OPT_IN_TOAST })}
-          delay={8000}
-          show
-        >
-          You joined your organization&apos;s learning community. You may now
-          view recent activity from your peers.
-        </Toast>
-      )}
-      {state.shouldShowCommunityOptOutToast && (
-        <Toast
-          onClose={() => dispatch({ type: HIDE_COMMUNITY_OPT_OUT_TOAST })}
-          delay={8000}
-          show
-        >
-          You left your organization&apos;s learning community. Your own learning activity
-          will no longer be shared with your peers.
-        </Toast>
-      )}
+      <Toast
+        onClose={() => dispatch({ type: HIDE_COMMUNITY_OPT_IN_TOAST })}
+        delay={8000}
+        show={state.shouldShowCommunityOptInToast}
+      >
+        You joined your organization&apos;s learning community. You may now
+        view recent activity from your peers.
+      </Toast>
+      <Toast
+        onClose={() => dispatch({ type: HIDE_COMMUNITY_OPT_OUT_TOAST })}
+        delay={8000}
+        show={state.shouldShowCommunityOptOutToast}
+      >
+        You left your organization&apos;s learning community. Your own learning activity
+        will no longer be shared with your peers.
+      </Toast>
     </RecentCommunityActivityContext.Provider>
   );
 };
