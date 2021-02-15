@@ -156,9 +156,8 @@ const RecentCommunityActivityProvider = ({ children }) => {
       }
       dispatch({ type: SET_IS_LOADING_RECENT_ACTIVITY, payload: true });
       fetchRecentCommunityActivityFeed()
-        .then((response) => {
-          const data = camelCaseObject(response.data);
-          const mostRecentFeedItems = data.slice(0, 5);
+        .then((data) => {
+          const { results: mostRecentFeedItems } = data;
           dispatch({ type: SET_COMMUNITY_ACTIVITY, payload: mostRecentFeedItems });
         })
         .catch((error) => {
