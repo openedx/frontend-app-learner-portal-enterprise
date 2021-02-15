@@ -20,8 +20,8 @@ const AvatarDropdown = ({ showLabel }) => {
         <Dropdown.Item href={`${LMS_BASE_URL}/dashboard`}>Personal</Dropdown.Item>
         <Dropdown.Item as={NavLink} to={enterpriseDashboardLink}>Enterprise</Dropdown.Item>
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={`${LMS_BASE_URL}/u/${authenticatedUser.username}`}>My Profile</Dropdown.Item>
-        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account Settings</Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/u/${authenticatedUser.username}`}>My profile</Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account settings</Dropdown.Item>
         <Dropdown.Item href="https://support.edx.org/hc/en-us">Help</Dropdown.Item>
         <Dropdown.Divider className="border-light" />
         <Dropdown.Item href={`${LOGOUT_URL}?next=${BASE_URL}${enterpriseDashboardLink}`}>Sign out</Dropdown.Item>

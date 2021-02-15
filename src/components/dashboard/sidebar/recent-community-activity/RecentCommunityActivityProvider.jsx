@@ -3,10 +3,8 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Toast } from '@edx/paragon';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import {
   fetchRecentCommunityActivityFeed,
@@ -53,7 +51,6 @@ function reducer(state, action) {
           isCommunityOptInLoading: false,
         };
     case COMMUNITY_JOINED:
-      sendTrackEvent('edx.enterprise.learner_portal.community.joined');
       return {
         ...state,
         isCommunityOptInLoading: false,
@@ -71,7 +68,6 @@ function reducer(state, action) {
           isCommunityOptOutLoading: false,
         };
     case COMMUNITY_LEFT:
-      sendTrackEvent('edx.enterprise.learner_portal.community.left');
       return {
         ...state,
         isCommunityOptIn: false,
@@ -140,6 +136,7 @@ const RecentCommunityActivityProvider = ({ children }) => {
           dispatch({ type: SET_IS_COMMUNITY_OPT_IN, payload: isCommunityMember });
         })
         .catch((error) => {
+          logError(error);
           dispatch({ type: SET_FETCH_ERROR, payload: error });
         })
         .finally(() => {
@@ -161,6 +158,7 @@ const RecentCommunityActivityProvider = ({ children }) => {
           dispatch({ type: SET_COMMUNITY_ACTIVITY, payload: mostRecentFeedItems });
         })
         .catch((error) => {
+          logError(error);
           dispatch({ type: SET_FETCH_ERROR, payload: error });
         })
         .finally(() => {
