@@ -15,11 +15,10 @@ export const fetchRecentCommunityActivityFeed = () => {
 
 export const fetchEnterpriseLearnerCommunityStatus = (options) => {
   const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/?${qs.stringify(options)}`;
+  const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_customer_user/?${qs.stringify(options)}`;
   return getAuthenticatedHttpClient().get(url)
     .then((response) => {
-      const { results } = camelCaseObject(response.data);
-      const enterpriseLearner = results.pop();
+      const enterpriseLearner = camelCaseObject(response.data);
       return !!enterpriseLearner?.isCommunityMember;
     });
 };
