@@ -59,7 +59,7 @@ export function useEnrollData() {
 *     courseHasOffer,
  * }
  */
-export function useSubsidyData() {
+export function useSubsidyDataForCourse() {
   const { state: courseData } = useContext(CourseContext);
   const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
 

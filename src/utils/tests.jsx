@@ -1,6 +1,7 @@
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
+import moment from 'moment';
 import { render } from '@testing-library/react';
 
 // eslint-disable import/prefer-default-export
@@ -37,4 +38,48 @@ export const fakeReduxStore = {
     offersCount: 0,
     offers: [],
   },
+};
+
+/**
+ * Factory for app initial state to be used with AppContext.Provider `value`
+ * e.g., <AppContext.Provider value={appInitialState()}/>
+ */
+export const initialAppState = ({
+  enterpriseConfig = { slug: 'test-enterprise-slug' },
+  config = {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+}) => ({
+  enterpriseConfig,
+  config,
+});
+
+/**
+ * Factory to be used to create initial course statee used with CourseContext
+ * e.g. <CourseContext.Provider />
+ * Returns a self-paced course with a license subsidy, by default.
+ */
+export const initialCourseState = ({
+  pacingType = 'self-paced',
+  userSubsidyApplicableToCourse = { subsidyType: 'license' },
+}) => ({
+  course: {},
+  activeCourseRun: {
+    key: 'test-course-run-key',
+    isEnrollable: true,
+    pacingType,
+    start: moment().subtract(1, 'w').toISOString(),
+    end: moment().add(8, 'w').toISOString(),
+    availability: 'Current',
+    courseUuid: 'Foo',
+    weeksToComplete: 4,
+  },
+  userEnrollments: [],
+  userEntitlements: [],
+  userSubsidyApplicableToCourse,
+  catalog: { catalogList: [] },
+});
+
+export const A_100_PERCENT_OFFER = {
+  catalog: 'a-catalog', discountValue: 100, discountType: 'Percentage',
 };
