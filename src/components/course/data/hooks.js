@@ -288,6 +288,8 @@ export function useCourseEnrollmentUrl({
         const enrollOptions = {
           ...baseEnrollmentOptions,
           sku,
+          left_sidebar_text: '', // We don't want a sidebar when we call the data consent page from this t
+
         };
         // get the index of the first offer that applies to a catalog that the course is in
         const offerForCourse = findOfferForCourse(offers, catalogList);
