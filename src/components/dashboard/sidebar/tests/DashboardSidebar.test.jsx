@@ -12,6 +12,7 @@ import DashboardSidebar, {
 
 import { renderWithRouter } from '../../../../utils/tests';
 import { OFFER_SUMMARY_TITLE, SUBSCRIPTION_SUMMARY_CARD_TITLE } from '../data/constants';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 
 /* eslint-disable react/prop-types */
 const DashboardSidebarContext = ({
@@ -47,6 +48,12 @@ describe('<DashboardSidebar />', () => {
       expirationDate: '2021-10-25',
     },
   };
+  const userSubsidyStateWithSubscription = {
+    ...defaultUserSubsidyState,
+    subscriptionLicense: {
+      status: LICENSE_STATUS.ACTIVATED,
+    },
+  };
   test('offer summary card is displayed when offers are available', () => {
     renderWithRouter(
       <DashboardSidebarContext
@@ -76,17 +83,28 @@ describe('<DashboardSidebar />', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={appStateWithSubscription}
-        initialUserSubsidyState={defaultUserSubsidyState}
+        initialUserSubsidyState={userSubsidyStateWithSubscription}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeTruthy();
   });
-  test('subscription summary card is not displayed when subscription is not available', () => {
+  test('subscription summary card is not displayed when enterprise subscription is not available', () => {
     renderWithRouter(
       <DashboardSidebarContext
         initialAppState={initialAppState}
+        initialUserSubsidyState={defaultUserSubsidyState}
+      >
+        <DashboardSidebar />
+      </DashboardSidebarContext>,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
+  });
+  test('subscription summary card is not displayed when enterprise subscription is available but user subscription is not available', () => {
+    renderWithRouter(
+      <DashboardSidebarContext
+        initialAppState={appStateWithSubscription}
         initialUserSubsidyState={defaultUserSubsidyState}
       >
         <DashboardSidebar />

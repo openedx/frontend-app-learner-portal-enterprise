@@ -9,6 +9,7 @@ import OfferSummaryCard from './OfferSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import SidebarCard from './SidebarCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
 export const NEED_HELP_BLOCK_TITLE = 'Need help?';
@@ -23,6 +24,7 @@ const DashboardSidebar = () => {
     subscriptionPlan,
   } = useContext(AppContext);
   const {
+    subscriptionLicense: userSubscriptionLicense,
     hasAccessToPortal,
     offers: { offersCount },
   } = useContext(UserSubsidyContext);
@@ -41,9 +43,9 @@ const DashboardSidebar = () => {
 
   return (
     <div className="mt-3 mt-lg-0">
-      {(subscriptionPlan || offersCount > 0) && (
+      {(userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED || offersCount > 0) && (
         <SidebarCard cardClassNames="border-primary border-brand-primary catalog-access-card mb-5">
-          {subscriptionPlan && (
+          {userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED && (
             <SubscriptionSummaryCard
               subscriptionPlan={subscriptionPlan}
               className="mb-3"

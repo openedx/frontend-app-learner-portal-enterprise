@@ -18,7 +18,6 @@ import {
 
 const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const { daysUntilExpiration, expirationDate } = subscriptionPlan;
-
   const renderCardTitle = () => {
     // Active Subscription
     let statusBadgeLabel = SUBSCRIPTION_ACTIVE_BADGE_LABEL;
