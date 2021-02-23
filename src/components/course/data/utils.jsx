@@ -137,8 +137,8 @@ export function getAvailableCourseRuns(course) {
   );
 }
 
-export function findOfferForCourse(offers, catalogList) {
-  const offerIndex = offers.findIndex((offer) => catalogList.includes(offer.catalog));
+export function findOfferForCourse(offers, catalogList = []) {
+  const offerIndex = offers.findIndex((offer) => catalogList?.includes(offer.catalog));
   if (offerIndex !== -1) {
     return offers[offerIndex];
   }

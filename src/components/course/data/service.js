@@ -90,7 +90,12 @@ export default class CourseService {
   }
 
   fetchEnterpriseCustomerContainsContent() {
-    const options = { course_run_ids: this.courseKey, get_catalog_list: true };
+    // This API call will *only* obtain the enterprise's catalogs whose
+    // catalog queries return/contain the specified courseKey.
+    const options = {
+      course_run_ids: this.courseKey,
+      get_catalogs_containing_specified_content_ids: true,
+    };
     const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
