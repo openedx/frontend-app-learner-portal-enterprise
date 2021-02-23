@@ -1,10 +1,9 @@
 import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
-import { Button, Hyperlink } from '@edx/paragon';
+import { Hyperlink } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
-import { logError } from '@edx/frontend-platform/logging';
 
 import { RecentCommunityActivityContext } from './RecentCommunityActivityProvider';
 import SidebarActivityBlock from './SidebarActivityBlock';
@@ -53,7 +52,7 @@ const CommunityFeed = () => {
           {' '}
           {item.verb}
           {' '}
-          {item.verb === VERB_JOINED && `${item.target.name} community`}
+          {item.verb === VERB_JOINED && `${item.target.name} learning community`}
           {[VERB_ENROLLED, VERB_COMPLETED].includes(item.verb) && (
             <>
               <Link
