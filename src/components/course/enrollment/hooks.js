@@ -56,7 +56,8 @@ export function useEnrollData() {
  *    subscriptionLicense,
  *    userSubsidyApplicableToCourse,
  *    offersCount,
-*     courseHasOffer,
+ *    offers,
+ *     courseHasOffer,
  * }
  */
 export function useSubsidyDataForCourse() {
@@ -68,6 +69,7 @@ export function useSubsidyDataForCourse() {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     offersCount,
+    offers,
     courseHasOffer: !!findOfferForCourse(offers, catalogList),
   };
 }

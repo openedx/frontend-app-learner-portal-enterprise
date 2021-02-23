@@ -20,6 +20,7 @@ export default function EnrollButton() {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     courseHasOffer,
+    offers,
   } = useSubsidyDataForCourse();
   const location = useLocation();
 
@@ -54,6 +55,7 @@ export default function EnrollButton() {
     enterpriseConfig,
     key,
     location,
+    offers,
     sku,
     subscriptionLicense,
     userSubsidyApplicableToCourse,
