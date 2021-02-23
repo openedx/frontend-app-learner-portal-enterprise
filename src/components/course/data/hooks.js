@@ -312,7 +312,7 @@ useCourseEnrollmentUrl.propTypes = {
   enterpriseConfig: PropTypes.shape({}).isRequired,
   key: PropTypes.string.isRequired,
   location: PropTypes.shape({}).isRequired,
-  offers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  offers: PropTypes.arrayOf(PropTypes.shape({})),
   sku: PropTypes.string.isRequired,
   subscriptionLicense: PropTypes.shape({}).isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,
