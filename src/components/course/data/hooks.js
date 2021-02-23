@@ -289,7 +289,7 @@ export function useCourseEnrollmentUrl({
           ...baseEnrollmentOptions,
           sku,
           // We don't want any sidebar text we show the data consent page from this workflow:
-          left_sidebar_text: '',
+          left_sidebar_text_override: '',
 
         };
         // get the index of the first offer that applies to a catalog that the course is in
