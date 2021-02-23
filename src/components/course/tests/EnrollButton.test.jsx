@@ -53,7 +53,7 @@ describe('Enroll Button behavior', () => {
       </AppContext.Provider>,
     );
   };
-  test.only('when there is no license subsidy, and there is an offer, url should be rendered', () => {
+  test('when there is no license subsidy, and there is an offer, url should be rendered', () => {
     renderButton({ AnEnrollButton: <EnrollButton /> });
     expect(screen.getByText('Enroll')).toBeInTheDocument();
     // instead of directly testing the mock call of useCourseEnrollmentUrl,
