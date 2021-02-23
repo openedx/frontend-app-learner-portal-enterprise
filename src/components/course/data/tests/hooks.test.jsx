@@ -18,6 +18,16 @@ describe('useCourseEnrollmentUrl', () => {
     catalogList: ['bears'],
     location: { search: 'foo' },
   };
+  // just skip the offers here to ensure we process absence correctly
+  const noOffersEnrollmentInputs = {
+    enterpriseConfig: {
+      uuid: 'foo',
+    },
+    key: 'bar',
+    sku: 'xkcd',
+    catalogList: ['bears'],
+    location: { search: 'foo' },
+  };
   const enrollmentInputs = {
     ...noSubscriptionEnrollmentInputs,
     subscriptionLicense: {
@@ -70,6 +80,15 @@ describe('useCourseEnrollmentUrl', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noSubscriptionEnrollmentInputs,
         offers: [],
+      }));
+      expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
+      expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
+      expect(result.current).toContain(enrollmentInputs.key);
+      expect(result.current).not.toContain('code');
+    });
+    test('with no offers passed, treats it as empty offers and does not fail', () => {
+      const { result } = renderHook(() => useCourseEnrollmentUrl({
+        ...noOffersEnrollmentInputs,
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);

@@ -76,6 +76,7 @@ describe('useSubsidyDataForCourse', () => {
     const expected = {
       courseHasOffer: false,
       offersCount: 0,
+      offers: [],
       subscriptionLicense,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
@@ -101,6 +102,7 @@ describe('useSubsidyDataForCourse', () => {
       courseHasOffer: true,
       offersCount: 1,
       subscriptionLicense,
+      offers: [{ catalog: 'catalog-1', discountValue: 10 }],
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const initialUserSubsidyState = {

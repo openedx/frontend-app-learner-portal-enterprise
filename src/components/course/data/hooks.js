@@ -252,16 +252,16 @@ useCoursePriceForUserSubsidy.propTypes = {
  *
  * @returns {string} url for enrollment
  */
-export function useCourseEnrollmentUrl({
+const useCourseEnrollmentUrl = ({
   catalogList,
   enterpriseConfig,
   key,
   location,
-  offers,
+  offers = [],
   sku,
   subscriptionLicense,
   userSubsidyApplicableToCourse,
-}) {
+}) => {
   const config = getConfig();
   const enrollmentFailedParams = { ...qs.parse(location.search) };
   enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
@@ -305,6 +305,17 @@ export function useCourseEnrollmentUrl({
   );
 
   return enrollmentUrl;
-}
+};
 
-export { useCoursePriceForUserSubsidy };
+useCourseEnrollmentUrl.propTypes = {
+  catalogList: PropTypes.shape({}).isRequired,
+  enterpriseConfig: PropTypes.shape({}).isRequired,
+  key: PropTypes.string.isRequired,
+  location: PropTypes.shape({}).isRequired,
+  offers: PropTypes.arrayOf(PropTypes.shape({})),
+  sku: PropTypes.string.isRequired,
+  subscriptionLicense: PropTypes.shape({}).isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,
+};
+
+export { useCoursePriceForUserSubsidy, useCourseEnrollmentUrl };
