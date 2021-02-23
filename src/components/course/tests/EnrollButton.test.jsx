@@ -57,7 +57,7 @@ describe('Enroll Button behavior', () => {
     renderButton({ AnEnrollButton: <EnrollButton /> });
     expect(screen.getByText('Enroll')).toBeInTheDocument();
     // instead of directly testing the mock call of useCourseEnrollmentUrl,
-    // we test that we do render the hyperlink correctly
+    // we test that we do render the contents of the real component (to_courseware_page) correctly
     expect(screen.getByText('Continue to payment')).toBeInTheDocument();
   });
 });
