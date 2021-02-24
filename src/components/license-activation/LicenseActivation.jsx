@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
-import { StatusAlert } from '@edx/paragon';
+import { StatusAlert, Container } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import { useLicenseActivation } from './data/hooks';
@@ -34,7 +34,7 @@ export default function LicenseActivation() {
     return (
       <>
         <Helmet title={PAGE_TITLE} />
-        <div className="container-fluid mt-3">
+        <Container className="mt-3">
           <StatusAlert
             alertType="danger"
             dialog={(
@@ -47,7 +47,7 @@ export default function LicenseActivation() {
             dismissible={false}
             open
           />
-        </div>
+        </Container>
       </>
     );
   }
@@ -55,9 +55,9 @@ export default function LicenseActivation() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <div className="container-fluid py-5">
+      <Container className="py-5">
         <LoadingSpinner screenReaderText={LOADING_MESSAGE} />
-      </div>
+      </Container>
     </>
   );
 }

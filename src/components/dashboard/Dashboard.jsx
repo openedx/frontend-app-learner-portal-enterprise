@@ -2,7 +2,9 @@ import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 import MediaQuery from 'react-responsive';
-import { StatusAlert, breakpoints } from '@edx/paragon';
+import {
+  Container, StatusAlert, Row, breakpoints,
+} from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
@@ -39,9 +41,9 @@ export default function Dashboard() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <div className="container-fluid py-5">
+      <Container className="py-5">
         {state?.activationSuccess && renderLicenseActivationSuccess()}
-        <div className="row">
+        <Row>
           <MainContent>
             <DashboardMainContent />
           </MainContent>
@@ -54,8 +56,8 @@ export default function Dashboard() {
           </MediaQuery>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
           {subscriptionPlan && <SubscriptionExpirationModal />}
-        </div>
-      </div>
+        </Row>
+      </Container>
     </>
   );
 }

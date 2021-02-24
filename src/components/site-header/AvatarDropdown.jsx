@@ -15,13 +15,27 @@ const AvatarDropdown = ({ showLabel }) => {
       <Dropdown.Toggle showLabel={showLabel} as={AvatarButton} src={profileImage.imageUrlMedium}>
         {username}
       </Dropdown.Toggle>
-      <Dropdown.Menu alignRight>
+      <Dropdown.Menu
+        style={{ maxWidth: 280 }}
+        alignRight
+      >
         <Dropdown.Header className="text-uppercase">Switch Dashboard</Dropdown.Header>
         <Dropdown.Item href={`${LMS_BASE_URL}/dashboard`}>Personal</Dropdown.Item>
-        <Dropdown.Item as={NavLink} to={enterpriseDashboardLink}>Enterprise</Dropdown.Item>
+        {/* TODO: support multiple enterprises! */}
+        <Dropdown.Item
+          as={NavLink}
+          to={enterpriseDashboardLink}
+          style={{
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {enterpriseConfig.name}
+        </Dropdown.Item>
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={`${LMS_BASE_URL}/u/${authenticatedUser.username}`}>My Profile</Dropdown.Item>
-        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account Settings</Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/u/${authenticatedUser.username}`}>My profile</Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account settings</Dropdown.Item>
         <Dropdown.Item href="https://support.edx.org/hc/en-us">Help</Dropdown.Item>
         <Dropdown.Divider className="border-light" />
         <Dropdown.Item href={`${LOGOUT_URL}?next=${BASE_URL}${enterpriseDashboardLink}`}>Sign out</Dropdown.Item>

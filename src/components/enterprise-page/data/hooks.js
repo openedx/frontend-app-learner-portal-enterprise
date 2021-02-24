@@ -4,10 +4,9 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import colors from '../../../colors.scss';
 import {
-  fetchEnterpriseCustomerConfig,
+  fetchEnterpriseCustomerConfigForSlug,
   fetchEnterpriseCustomerSubscriptionPlan,
 } from './service';
-import { isDefinedAndNull } from '../../../utils/common';
 
 export const defaultPrimaryColor = colors?.primary;
 export const defaultSecondaryColor = colors?.info100;
@@ -29,7 +28,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
-    fetchEnterpriseCustomerConfig(enterpriseSlug)
+    fetchEnterpriseCustomerConfigForSlug(enterpriseSlug)
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
@@ -85,15 +84,12 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   return [enterpriseConfig, fetchError];
 }
 
-export function useEnterpriseCustomerSubscriptionPlan(enterpriseConfig) {
+export function useEnterpriseCustomerSubscriptionPlan(enterpriseUUID) {
   const [subscriptionPlan, setSubscriptionPlan] = useState();
 
   useEffect(() => {
-    if (isDefinedAndNull(enterpriseConfig)) {
-      setSubscriptionPlan(null);
-    }
-    if (enterpriseConfig && enterpriseConfig.uuid) {
-      fetchEnterpriseCustomerSubscriptionPlan(enterpriseConfig.uuid)
+    if (enterpriseUUID) {
+      fetchEnterpriseCustomerSubscriptionPlan(enterpriseUUID)
         .then((response) => {
           const { results } = camelCaseObject(response.data);
           const activePlans = results.filter(plan => plan.isActive);
@@ -107,8 +103,10 @@ export function useEnterpriseCustomerSubscriptionPlan(enterpriseConfig) {
           logError(new Error(error));
           setSubscriptionPlan(null);
         });
+    } else {
+      setSubscriptionPlan(null);
     }
-  }, [enterpriseConfig]);
+  }, [enterpriseUUID]);
 
   return subscriptionPlan;
 }

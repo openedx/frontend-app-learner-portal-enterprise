@@ -6,7 +6,7 @@ import {
   defaultSecondaryColor,
   defaultTertiaryColor,
 } from '../hooks';
-import { fetchEnterpriseCustomerConfig } from '../service';
+import { fetchEnterpriseCustomerConfigForSlug } from '../service';
 
 const TEST_ENTERPRISE_SLUG = 'test-enterprise';
 
@@ -68,7 +68,7 @@ const responseWithBrandingConfigNullValues = {
 
 describe('customer config with various states of branding_configuration', () => {
   test('null branding_configuration uses default values and does not fail', async () => {
-    fetchEnterpriseCustomerConfig.mockResolvedValue(responseWithNullBrandingConfig);
+    fetchEnterpriseCustomerConfigForSlug.mockResolvedValue(responseWithNullBrandingConfig);
 
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig(TEST_ENTERPRISE_SLUG));
 
@@ -85,7 +85,7 @@ describe('customer config with various states of branding_configuration', () => 
   });
 
   test('null values for fields in branding_config uses defaults and does not fail', async () => {
-    fetchEnterpriseCustomerConfig.mockResolvedValue(responseWithBrandingConfigNullValues);
+    fetchEnterpriseCustomerConfigForSlug.mockResolvedValue(responseWithBrandingConfigNullValues);
 
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig(TEST_ENTERPRISE_SLUG));
 
@@ -102,7 +102,7 @@ describe('customer config with various states of branding_configuration', () => 
   });
 
   test('valid branding_config results in correct values for logo and other branding settings', async () => {
-    fetchEnterpriseCustomerConfig.mockResolvedValue(responseWithBrandingConfig);
+    fetchEnterpriseCustomerConfigForSlug.mockResolvedValue(responseWithBrandingConfig);
 
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCustomerConfig(TEST_ENTERPRISE_SLUG));
 

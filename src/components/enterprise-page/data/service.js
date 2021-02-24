@@ -2,7 +2,7 @@ import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
-export function fetchEnterpriseCustomerConfig(slug) {
+export function fetchEnterpriseCustomerConfigForSlug(slug) {
   const config = getConfig();
   const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/?slug=${slug}`;
   const httpClient = getAuthenticatedHttpClient({

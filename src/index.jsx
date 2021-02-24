@@ -27,7 +27,6 @@ initialize({
     config: () => {
       mergeConfig({
         USE_API_CACHE: process.env.USE_API_CACHE || null,
-        FULLSTORY_ORG_ID: process.env.FULLSTORY_ORG_ID || null,
         ENTERPRISE_CATALOG_API_BASE_URL: process.env.ENTERPRISE_CATALOG_API_BASE_URL || null,
         LICENSE_MANAGER_URL: process.env.LICENSE_MANAGER_URL || null,
         ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID || null,
