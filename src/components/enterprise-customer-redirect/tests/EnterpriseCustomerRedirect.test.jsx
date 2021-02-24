@@ -5,17 +5,11 @@ import '@testing-library/jest-dom/extend-expect';
 
 import EnterpriseCustomerRedirect from '../EnterpriseCustomerRedirect';
 
-import { fetchEnterpriseCustomersForUser } from '../data/service';
+import { fetchEnterpriseCustomerByUUID } from '../data/service';
 
 import { renderWithRouter } from '../../../utils/tests';
 
 jest.mock('../data/service');
-
-const responseWithEmptyEnterpriseCustomers = {
-  data: {
-    results: [],
-  },
-};
 
 const TEST_ENTERPRISES = [
   {
@@ -29,16 +23,6 @@ const TEST_ENTERPRISES = [
     slug: 'another-enterprise',
   },
 ];
-const responseWithIndividualEnterpriseCustomer = {
-  data: {
-    results: [TEST_ENTERPRISES[0]],
-  },
-};
-const responseWithSeveralEnterpriseCustomers = {
-  data: {
-    results: TEST_ENTERPRISES,
-  },
-};
 
 /* eslint-disable react/prop-types */
 const EnterpriseCustomerRedirectWithContext = ({
@@ -62,24 +46,28 @@ describe('<EnterpriseCustomerRedirect />', () => {
   };
 
   beforeEach(() => {
-    fetchEnterpriseCustomersForUser.mockClear();
+    fetchEnterpriseCustomerByUUID.mockClear();
   });
 
   test('renders NotFoundPage if user is not linked to any Enterprise Customers', async () => {
-    fetchEnterpriseCustomersForUser.mockResolvedValue(responseWithEmptyEnterpriseCustomers);
-
     renderWithRouter(
       <EnterpriseCustomerRedirectWithContext initialAppState={initialAppState} />,
     );
 
-    await waitFor(() => expect(fetchEnterpriseCustomersForUser).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(0));
 
     // assert 404 page not found is shown
     expect(screen.getByText('404'));
   });
 
   test('redirects to Enterprise Customer when user is linked to an individual Enterprise Customer', async () => {
-    fetchEnterpriseCustomersForUser.mockResolvedValue(responseWithIndividualEnterpriseCustomer);
+    const mockResponse = {
+      data: {
+        count: 1,
+        results: [TEST_ENTERPRISES[0]],
+      },
+    };
+    fetchEnterpriseCustomerByUUID.mockResolvedValue(mockResponse);
 
     const initialState = {
       ...initialAppState,
@@ -90,17 +78,21 @@ describe('<EnterpriseCustomerRedirect />', () => {
     };
 
     const Component = <EnterpriseCustomerRedirectWithContext initialAppState={initialState} />;
-    const { history } = renderWithRouter(Component, {
-      route: '/',
-    });
+    const { history } = renderWithRouter(Component, { route: '/' });
 
-    await waitFor(() => expect(fetchEnterpriseCustomersForUser).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
     expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}`);
   });
 
-  test('redirects to Enterprise Customer when user is linked to 2+ Enterprise Customers', async () => {
-    fetchEnterpriseCustomersForUser.mockResolvedValue(responseWithSeveralEnterpriseCustomers);
+  test('redirects to selected Enterprise Customer when user is linked to more than 1 Enterprise Customer', async () => {
+    const mockResponse = {
+      data: {
+        count: 1,
+        results: [TEST_ENTERPRISES[1]],
+      },
+    };
+    fetchEnterpriseCustomerByUUID.mockResolvedValue(mockResponse);
 
     const initialState = {
       ...initialAppState,
@@ -114,11 +106,9 @@ describe('<EnterpriseCustomerRedirect />', () => {
     };
 
     const Component = <EnterpriseCustomerRedirectWithContext initialAppState={initialState} />;
-    const { history } = renderWithRouter(Component, {
-      route: '/',
-    });
+    const { history } = renderWithRouter(Component, { route: '/' });
 
-    await waitFor(() => expect(fetchEnterpriseCustomersForUser).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
     expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}`);
   });

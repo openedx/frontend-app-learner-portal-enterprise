@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 
-import { fetchEnterpriseCustomersForUser } from './service';
+import { fetchEnterpriseCustomerByUUID } from './service';
 
 /**
  * A React hook that will fetch all the enterprise customers linked to the specified user id.
@@ -13,33 +13,38 @@ import { fetchEnterpriseCustomersForUser } from './service';
  *  until the fetch promise has finished resolving.
  * @returns {bool} obj.isLoading A Boolean for whether the request is pending.
  */
-export const useEnterpriseCustomersForUser = (userId) => {
-  const [enterpriseCustomers, setEnterpriseCustomers] = useState([]);
+export const useEnterpriseCustomerByUUID = (enterpriseUUID) => {
+  const [enterpriseCustomer, setEnterpriseCustomer] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(
     () => {
-      if (!userId) {
+      if (!enterpriseUUID) {
+        setIsLoading(false);
         return;
       }
 
-      fetchEnterpriseCustomersForUser()
+      fetchEnterpriseCustomerByUUID(enterpriseUUID)
         .then((response) => {
           const data = camelCaseObject(response.data);
           const results = data?.results || [];
-          setEnterpriseCustomers(results);
+          setEnterpriseCustomer(results.shift());
         })
         .catch((error) => {
-          logError(`EnterpriseCustomerRedirect could not fetch enterprise customers: ${error.message}`);
+          const errorMessage = (
+            `EnterpriseCustomerRedirect could not fetch metadata for 
+            enterprise customer (${enterpriseUUID}): ${error.message}`
+          );
+          logError(errorMessage);
         })
         .finally(() => {
           setIsLoading(false);
         });
     },
-    [userId],
+    [enterpriseUUID],
   );
 
-  return { enterpriseCustomers, isLoading };
+  return [enterpriseCustomer, isLoading];
 };
 
 /**
@@ -50,30 +55,15 @@ export const useEnterpriseCustomersForUser = (userId) => {
  * @returns {string} The user's selected enterprise UUID for their session.
  */
 export const useSelectedEnterpriseUUIDByUserRoles = (userRoles) => {
-  const selectedEnterpriseRole = useMemo(
-    () => userRoles.find((role) => {
-      const parts = role.split(':');
-      return parts[0] === 'enterprise_learner';
-    }),
+  const selectedEnterpriseUUID = useMemo(
+    () => {
+      const enterpriseLearnerRole = userRoles.find((role) => {
+        const parts = role.split(':');
+        return parts[0] === 'enterprise_learner';
+      });
+      return enterpriseLearnerRole?.split(':').pop();
+    },
     [userRoles],
   );
-
-  const selectedEnterpriseUUID = selectedEnterpriseRole?.split(':')[1];
   return selectedEnterpriseUUID;
-};
-
-/**
- * Finds the enterprise customer's slug for a given enterprise UUID.
- *
- * @param {string} uuid An enterprise customer UUID
- * @param {array} enterpriseCustomers List of enterprise customers linked to the user.
- *
- * @returns {string} The slug of the enterprise matching the given UUID.
- */
-export const useEnterpriseCustomerSlugByUUID = (uuid, enterpriseCustomers) => {
-  const enterpriseCustomer = useMemo(
-    () => enterpriseCustomers?.find(customer => customer?.uuid === uuid),
-    [uuid, enterpriseCustomers],
-  );
-  return enterpriseCustomer?.slug;
 };

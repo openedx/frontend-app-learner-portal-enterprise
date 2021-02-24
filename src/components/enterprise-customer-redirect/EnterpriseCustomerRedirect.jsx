@@ -6,31 +6,29 @@ import NotFoundPage from '../NotFoundPage';
 import { LoadingSpinner } from '../loading-spinner';
 
 import {
-  useEnterpriseCustomersForUser,
+  useEnterpriseCustomerByUUID,
   useSelectedEnterpriseUUIDByUserRoles,
-  useEnterpriseCustomerSlugByUUID,
 } from './data/hooks';
 
 const EnterpriseCustomerRedirect = () => {
   const { authenticatedUser } = useContext(AppContext);
-  const { userId, roles } = authenticatedUser;
-  const { enterpriseCustomers, isLoading } = useEnterpriseCustomersForUser(userId);
+  const { roles } = authenticatedUser;
   const selectedEnterpriseUUID = useSelectedEnterpriseUUIDByUserRoles(roles);
-  const selectedEnterpriseSlug = useEnterpriseCustomerSlugByUUID(selectedEnterpriseUUID, enterpriseCustomers);
+  const [enterpriseCustomer, isLoading] = useEnterpriseCustomerByUUID(selectedEnterpriseUUID);
 
   if (isLoading) {
     return (
       <div className="py-5">
-        <LoadingSpinner screenReaderText="loading my linked organizations" />
+        <LoadingSpinner screenReaderText="loading linked organizations" />
       </div>
     );
   }
 
-  if (!selectedEnterpriseSlug) {
+  if (!enterpriseCustomer?.slug) {
     return <NotFoundPage />;
   }
 
-  return <Redirect to={`/${selectedEnterpriseSlug}`} />;
+  return <Redirect to={`/${enterpriseCustomer.slug}`} />;
 };
 
 export default EnterpriseCustomerRedirect;
