@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, act, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import EnterpriseCustomerRedirect from '../EnterpriseCustomerRedirect';
