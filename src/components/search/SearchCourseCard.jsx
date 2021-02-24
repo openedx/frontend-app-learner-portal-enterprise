@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { Card } from '@edx/paragon';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 
@@ -47,22 +48,23 @@ const SearchCourseCard = ({ hit, isLoading }) => {
 
   return (
     <div
-      className="discovery-card mb-4"
+      className="search-course-card mb-4"
       role="group"
       aria-label={course.title}
     >
       <Link to={linkToCourse}>
-        <div className="card">
+        <Card>
           {isLoading ? (
-            <Skeleton
-              className="card-img-top"
+            <Card.Img
+              as={Skeleton}
+              variant="top"
               duration={0}
               height={100}
               data-testid="card-img-loading"
             />
           ) : (
-            <img
-              className="card-img-top"
+            <Card.Img
+              variant="top"
               src={course.cardImageUrl}
               alt=""
             />
@@ -72,7 +74,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
             </div>
           )}
-          {!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
+          {(!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo) && (
             <div className="partner-logo-wrapper">
               <img
                 src={partnerDetails.primaryPartner.logoImageUrl}
@@ -81,8 +83,8 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               />
             </div>
           )}
-          <div className="card-body py-4">
-            <h3 className="card-title h4 mb-1">
+          <Card.Body>
+            <Card.Title as="h4" className="card-title mb-1">
               {isLoading ? (
                 <Skeleton count={2} data-testid="course-title-loading" />
               ) : (
@@ -90,7 +92,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
                   {course.title}
                 </Truncate>
               )}
-            </h3>
+            </Card.Title>
             {isLoading ? (
               <Skeleton duration={0} data-testid="partner-name-loading" />
             ) : (
@@ -104,22 +106,22 @@ const SearchCourseCard = ({ hit, isLoading }) => {
                 )}
               </>
             )}
-          </div>
-          <div className="card-footer bg-white border-0 pt-0 pb-2">
+          </Card.Body>
+          <Card.Footer className="bg-white border-0 pt-0 pb-2">
             {isLoading ? (
               <Skeleton duration={0} data-testid="content-type-loading" />
             ) : (
               <span className="text-muted">Course</span>
             )}
-          </div>
-        </div>
+          </Card.Footer>
+        </Card>
       </Link>
     </div>
   );
 };
 
-const SkeletonCourseCard = () => (
-  <SearchCourseCard isLoading />
+const SkeletonCourseCard = (props) => (
+  <SearchCourseCard {...props} isLoading />
 );
 
 SearchCourseCard.Skeleton = SkeletonCourseCard;

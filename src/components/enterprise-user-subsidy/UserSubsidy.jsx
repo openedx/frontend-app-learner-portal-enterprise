@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
+import { Container } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 
@@ -22,7 +23,7 @@ const UserSubsidy = ({ children }) => {
     [isLoadingLicense, isLoadingOffers],
   );
 
-  const value = useMemo(
+  const contextValue = useMemo(
     () => {
       let hasAccessToPortal = true;
 
@@ -44,15 +45,15 @@ const UserSubsidy = ({ children }) => {
 
   if (isLoadingSubsidies) {
     return (
-      <div className="container-fluid py-5">
+      <Container className="py-5">
         <LoadingSpinner screenReaderText={LOADING_SCREEN_READER_TEXT} />
-      </div>
+      </Container>
     );
   }
   return (
     <>
       {/* Render the children so the rest of the page shows */}
-      <UserSubsidyContext.Provider value={value}>
+      <UserSubsidyContext.Provider value={contextValue}>
         {children}
       </UserSubsidyContext.Provider>
     </>

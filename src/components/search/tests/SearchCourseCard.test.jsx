@@ -58,7 +58,7 @@ describe('<SearchCourseCard />', () => {
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(TEST_PARTNER.name)).toBeInTheDocument();
 
-    expect(container.querySelector('.discovery-card > a')).toHaveAttribute(
+    expect(container.querySelector('.search-course-card > a')).toHaveAttribute(
       'href',
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );

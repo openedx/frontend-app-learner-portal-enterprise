@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
-import { Breadcrumb, StatusAlert } from '@edx/paragon';
+import { Breadcrumb, Container, StatusAlert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -39,7 +39,7 @@ export default function CourseHeader() {
 
   const renderFailedEnrollmentAlert = () => (
     <>
-      <div className="container-fluid pt-3">
+      <Container className="pt-3">
         <StatusAlert
           alertType="danger"
           className="mb-0"
@@ -53,14 +53,14 @@ export default function CourseHeader() {
           dismissible={false}
           open
         />
-      </div>
+      </Container>
     </>
   );
 
   return (
     <div className="course-header">
       {enrollmentFailed && renderFailedEnrollmentAlert()}
-      <div className="container-fluid">
+      <Container>
         <div className="row py-4">
           <div className="col-12 col-lg-7">
             {primarySubject && (
@@ -131,7 +131,7 @@ export default function CourseHeader() {
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

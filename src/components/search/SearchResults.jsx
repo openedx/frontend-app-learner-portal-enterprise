@@ -2,8 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
-
 import { useNbHitsFromSearchResults, SearchContext, SearchPagination } from '@edx/frontend-enterprise';
+import { Container, Row } from '@edx/paragon';
+
 import SearchCourseCard from './SearchCourseCard';
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
@@ -54,7 +55,7 @@ const SearchResults = ({
   );
 
   return (
-    <div className="search-results container-fluid my-5">
+    <Container className="search-results my-5">
       <>
         <div className="d-flex align-items-center mb-2">
           <h2 className="flex-grow-1 mb-0">
@@ -75,13 +76,13 @@ const SearchResults = ({
         {isSearchStalled && (
           <>
             <Skeleton className="lead mb-4" width={160} />
-            <div className="row">
+            <Row>
               {[...Array(NUM_RESULTS_PER_PAGE).keys()].map(resultNum => (
                 <div key={resultNum} className="skeleton-course-card">
                   <SearchCourseCard.Skeleton />
                 </div>
               ))}
-            </div>
+            </Row>
           </>
         )}
         {!isSearchStalled && nbHits > 0 && (
@@ -100,7 +101,7 @@ const SearchResults = ({
           <SearchError />
         )}
       </>
-    </div>
+    </Container>
   );
 };
 

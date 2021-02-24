@@ -3,21 +3,18 @@ import Responsive from 'react-responsive';
 import { Link, NavLink } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
+import { Menu as MenuIcon } from '@edx/paragon/icons';
+import { Container } from '@edx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
 
 import { Menu, MenuTrigger, MenuContent } from './menu';
 import AvatarDropdown from './AvatarDropdown';
 
-import { ReactComponent as MenuIcon } from '../../assets/icons/menu.svg';
-
 export default function SiteHeader() {
   const { enterpriseConfig } = useContext(AppContext);
 
   const renderLogo = () => (
-    <Link
-      to={`/${enterpriseConfig.slug}`}
-      className="logo"
-    >
+    <Link to="/" className="logo">
       <img
         className="d-block"
         src={enterpriseConfig.branding.logo || edXLogo}
@@ -45,7 +42,7 @@ export default function SiteHeader() {
 
   const renderDesktopHeader = () => (
     <header className="site-header-desktop">
-      <div className="container-fluid">
+      <Container>
         <div className="nav-container position-relative d-flex align-items-center">
           {renderLogo()}
           <nav aria-label="Main" className="nav main-nav">
@@ -58,7 +55,7 @@ export default function SiteHeader() {
             <AvatarDropdown />
           </nav>
         </div>
-      </div>
+      </Container>
     </header>
   );
 
