@@ -12,19 +12,17 @@ import NotFoundPage from '../NotFoundPage';
 import { isDefined, isDefinedAndNull } from '../../utils/common';
 import {
   useEnterpriseCustomerConfig,
-  useEnterpriseCustomerSubscriptionPlan,
 } from './data/hooks';
 
 export default function EnterprisePage({ children }) {
   const { enterpriseSlug } = useParams();
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug);
-  const subscriptionPlan = useEnterpriseCustomerSubscriptionPlan(enterpriseConfig?.uuid);
 
   const user = getAuthenticatedUser();
   const { profileImage } = user;
 
   // Render the app as loading while waiting on the configuration or additional user metadata
-  if (!isDefined([enterpriseConfig, subscriptionPlan, profileImage])) {
+  if (!isDefined([enterpriseConfig, profileImage])) {
     return (
       <Container className="py-5">
         <LoadingSpinner screenReaderText="loading organization details" />
@@ -53,7 +51,6 @@ export default function EnterprisePage({ children }) {
           },
         },
         enterpriseConfig,
-        subscriptionPlan,
       }}
     >
       {children}

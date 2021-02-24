@@ -3,10 +3,7 @@ import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import colors from '../../../colors.scss';
-import {
-  fetchEnterpriseCustomerConfigForSlug,
-  fetchEnterpriseCustomerSubscriptionPlan,
-} from './service';
+import { fetchEnterpriseCustomerConfigForSlug } from './service';
 
 export const defaultPrimaryColor = colors?.primary;
 export const defaultSecondaryColor = colors?.info100;
@@ -82,31 +79,4 @@ export function useEnterpriseCustomerConfig(enterpriseSlug) {
   }, [enterpriseSlug]);
 
   return [enterpriseConfig, fetchError];
-}
-
-export function useEnterpriseCustomerSubscriptionPlan(enterpriseUUID) {
-  const [subscriptionPlan, setSubscriptionPlan] = useState();
-
-  useEffect(() => {
-    if (enterpriseUUID) {
-      fetchEnterpriseCustomerSubscriptionPlan(enterpriseUUID)
-        .then((response) => {
-          const { results } = camelCaseObject(response.data);
-          const activePlans = results.filter(plan => plan.isActive);
-          if (activePlans.length) {
-            setSubscriptionPlan(activePlans.pop());
-          } else {
-            setSubscriptionPlan(null);
-          }
-        })
-        .catch((error) => {
-          logError(new Error(error));
-          setSubscriptionPlan(null);
-        });
-    } else {
-      setSubscriptionPlan(null);
-    }
-  }, [enterpriseUUID]);
-
-  return subscriptionPlan;
 }

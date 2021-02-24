@@ -5,8 +5,8 @@ import OffersAlert from './OffersAlert';
 import SubscriptionSubsidy from './SubscriptionSubsidy';
 
 const UserSubsidyAlerts = () => {
-  const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
-  const { subscriptionLicense, offers } = useContext(UserSubsidyContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const { subscriptionPlan, subscriptionLicense, offers } = useContext(UserSubsidyContext);
 
   return (
     <>

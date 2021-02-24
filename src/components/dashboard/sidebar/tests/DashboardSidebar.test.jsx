@@ -30,6 +30,8 @@ const DashboardSidebarContext = ({
 
 describe('<DashboardSidebar />', () => {
   const defaultUserSubsidyState = {
+    subscriptionPlan: undefined,
+    subscriptionLicense: undefined,
     hasAccessToPortal: true,
     offers: {
       offers: [],
@@ -41,15 +43,12 @@ describe('<DashboardSidebar />', () => {
     enterpriseConfig: { contactEmail: 'foo@foo.com' },
     name: 'Bears Inc.',
   };
-  const appStateWithSubscription = {
-    ...initialAppState,
+  const userSubsidyStateWithSubscription = {
+    ...defaultUserSubsidyState,
     subscriptionPlan: {
       daysUntilExpiration: 70,
       expirationDate: '2021-10-25',
     },
-  };
-  const userSubsidyStateWithSubscription = {
-    ...defaultUserSubsidyState,
     subscriptionLicense: {
       status: LICENSE_STATUS.ACTIVATED,
     },
@@ -82,7 +81,7 @@ describe('<DashboardSidebar />', () => {
   test('subscription summary card is displayed when subscription is available', () => {
     renderWithRouter(
       <DashboardSidebarContext
-        initialAppState={appStateWithSubscription}
+        initialAppState={initialAppState}
         initialUserSubsidyState={userSubsidyStateWithSubscription}
       >
         <DashboardSidebar />
@@ -101,11 +100,18 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('subscription summary card is not displayed when enterprise subscription is available but user subscription is not available', () => {
+  test('subscription summary card is not displayed when enterprise subscription is available but user license is not available', () => {
     renderWithRouter(
       <DashboardSidebarContext
-        initialAppState={appStateWithSubscription}
-        initialUserSubsidyState={defaultUserSubsidyState}
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          subscriptionPlan: {
+            daysUntilExpiration: 70,
+            isActive: true,
+            expirationDate: '2021-10-25',
+          },
+        }}
       >
         <DashboardSidebar />
       </DashboardSidebarContext>,

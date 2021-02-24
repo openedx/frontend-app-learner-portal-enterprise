@@ -68,10 +68,6 @@ describe('<Dashboard />', () => {
     enterpriseConfig: {
       name: 'BearsRUs',
     },
-    subscriptionPlan: {
-      expirationDate: '2020-10-25',
-      daysUntilExpiration: 365,
-    },
     config: {
       LMS_BASE_URL: process.env.LMS_BASE_URL,
     },
@@ -113,6 +109,10 @@ describe('<Dashboard />', () => {
       containsContentItems: true,
     },
   };
+  const mockSubscriptionPlan = {
+    expirationDate: '2020-10-25',
+    daysUntilExpiration: 365,
+  };
 
   afterAll(() => {
     jest.restoreAllMocks();
@@ -148,17 +148,17 @@ describe('<Dashboard />', () => {
   });
 
   it('renders the subscription expiration warning modal when 60 >= daysUntilExpiration > 0', () => {
-    const expiringSubscriptionAppState = {
-      ...initialAppState,
+    const expiringSubscriptionUserSubsidyState = {
+      ...initialUserSubsidyState,
       subscriptionPlan: {
-        ...initialAppState.subscriptionPlan,
+        ...mockSubscriptionPlan,
         daysUntilExpiration: 60,
       },
     };
     renderWithRouter(
       <DashboardWithContext
-        initialAppState={expiringSubscriptionAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
+        initialAppState={initialAppState}
+        initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
         initialCourseState={initialCourseState}
       />,
     );
@@ -167,17 +167,17 @@ describe('<Dashboard />', () => {
   });
 
   it('renders the subscription expired modal when 0 >= daysUntilExpiration', () => {
-    const expiringSubscriptionAppState = {
-      ...initialAppState,
+    const expiringSubscriptionUserSubsidyState = {
+      ...initialUserSubsidyState,
       subscriptionPlan: {
-        ...initialAppState.subscriptionPlan,
+        ...mockSubscriptionPlan,
         daysUntilExpiration: 0,
       },
     };
     renderWithRouter(
       <DashboardWithContext
-        initialAppState={expiringSubscriptionAppState}
-        initialUserSubsidyState={initialUserSubsidyState}
+        initialAppState={initialAppState}
+        initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
         initialCourseState={initialCourseState}
       />,
     );

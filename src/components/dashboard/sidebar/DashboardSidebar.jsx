@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -21,9 +21,9 @@ const DashboardSidebar = () => {
       contactEmail,
       slug,
     },
-    subscriptionPlan,
   } = useContext(AppContext);
   const {
+    subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,
     hasAccessToPortal,
     offers: { offersCount },
@@ -41,11 +41,22 @@ const DashboardSidebar = () => {
     return message;
   };
 
+  const shouldShowCatalogAccessCard = useMemo(
+    () => {
+      const hasSubscriptionPlan = !!subscriptionPlan;
+      const hasActivatedLicense = userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+      const hasOffers = offersCount > 0;
+
+      return (hasSubscriptionPlan && hasActivatedLicense) || hasOffers;
+    },
+    [subscriptionPlan, userSubscriptionLicense, offersCount],
+  );
+
   return (
     <div className="mt-3 mt-lg-0">
-      {(userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED || offersCount > 0) && (
+      {shouldShowCatalogAccessCard && (
         <SidebarCard cardClassNames="border-primary border-brand-primary catalog-access-card mb-5">
-          {userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED && (
+          {(subscriptionPlan && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) && (
             <SubscriptionSummaryCard
               subscriptionPlan={subscriptionPlan}
               className="mb-3"

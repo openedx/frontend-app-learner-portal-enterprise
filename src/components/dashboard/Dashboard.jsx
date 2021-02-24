@@ -12,11 +12,14 @@ import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
 import { DashboardSidebar } from './sidebar';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully activated.';
 
 export default function Dashboard() {
-  const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const { subscriptionPlan } = useContext(UserSubsidyContext);
+
   const { state } = useLocation();
 
   const renderLicenseActivationSuccess = () => (
