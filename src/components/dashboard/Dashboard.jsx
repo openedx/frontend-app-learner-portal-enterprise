@@ -2,7 +2,9 @@ import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 import MediaQuery from 'react-responsive';
-import { Container, StatusAlert, Row, breakpoints } from '@edx/paragon';
+import {
+  Container, StatusAlert, Row, breakpoints,
+} from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
