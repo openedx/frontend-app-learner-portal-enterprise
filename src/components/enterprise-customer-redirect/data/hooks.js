@@ -22,6 +22,7 @@ export const useEnterpriseCustomersForUser = (userId) => {
       if (!userId) {
         return;
       }
+
       fetchEnterpriseCustomersForUser()
         .then((response) => {
           const data = camelCaseObject(response.data);
