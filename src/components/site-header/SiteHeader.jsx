@@ -14,7 +14,7 @@ export default function SiteHeader() {
   const { enterpriseConfig } = useContext(AppContext);
 
   const renderLogo = () => (
-    <Link to="/" className="logo">
+    <Link to={`/${enterpriseConfig.slug}`} className="logo">
       <img
         className="d-block"
         src={enterpriseConfig.branding.logo || edXLogo}
