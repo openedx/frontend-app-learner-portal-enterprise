@@ -15,6 +15,7 @@ import {
   SUBSCRIPTION_WARNING_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from './data/constants';
+import { isDefined } from '../../../utils/common';
 
 const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const { daysUntilExpiration, expirationDate } = subscriptionPlan;
@@ -47,12 +48,21 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
     );
   };
 
-  const renderCardBody = () => (
-    <>
-      {daysUntilExpiration > SUBSCRIPTION_EXPIRED ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-      {' '}<span className="font-weight-bold">{moment(expirationDate).format('MMMM Do, YYYY')}</span>
-    </>
-  );
+  const renderCardBody = () => {
+    if (!isDefined(daysUntilExpiration)) {
+      return null;
+    }
+    return (
+      <>
+        {daysUntilExpiration > SUBSCRIPTION_EXPIRED ? (
+          SUBSCRIPTION_ACTIVE_DATE_PREFIX
+        ) : (
+          SUBSCRIPTION_EXPIRED_DATE_PREFIX
+        )}
+        {' '}<span className="font-weight-bold">{moment(expirationDate).format('MMMM Do, YYYY')}</span>
+      </>
+    );
+  };
 
   return (
     <SidebarCard
@@ -68,12 +78,13 @@ SubscriptionSummaryCard.propTypes = {
   subscriptionPlan: PropTypes.shape({
     daysUntilExpiration: PropTypes.number.isRequired,
     expirationDate: PropTypes.string.isRequired,
-  }).isRequired,
+  }),
   className: PropTypes.string,
 };
 
 SubscriptionSummaryCard.defaultProps = {
   className: undefined,
+  subscriptionPlan: {},
 };
 
 export default SubscriptionSummaryCard;
