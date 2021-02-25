@@ -2,13 +2,3 @@
 @import './MobileSearchFilters';
 @import './SearchCourseCard';
 @import './SearchResults';
-
-.search-header-wrapper {
-  div.container-fluid {
-    // TODO: the ``SearchHeader`` component from frontend-enterprise uses a hardcoded
-    // .container-fluid class that is no longer "compatible" with the updates to the Paragon
-    // container max widths. This CSS override of the ``max-width`` is temporary until
-    // an improved strategy for handling container width within ``SearchHeader`` is implemented.
-    max-width: $max-width-lg + $grid-gutter-width;
-  }
-}
