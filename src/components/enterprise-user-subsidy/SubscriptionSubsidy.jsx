@@ -98,7 +98,7 @@ const SubscriptionSubsidy = ({
     return null;
   }
   return (
-    <Container fluid className="mt-3">
+    <Container size="lg" className="mt-3">
       <StatusAlert
         alertType={alertType}
         className="mb-0"

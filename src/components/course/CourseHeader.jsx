@@ -39,7 +39,7 @@ export default function CourseHeader() {
 
   const renderFailedEnrollmentAlert = () => (
     <>
-      <Container className="pt-3">
+      <Container size="lg" className="pt-3">
         <StatusAlert
           alertType="danger"
           className="mb-0"
@@ -60,7 +60,7 @@ export default function CourseHeader() {
   return (
     <div className="course-header">
       {enrollmentFailed && renderFailedEnrollmentAlert()}
-      <Container>
+      <Container size="lg">
         <div className="row py-4">
           <div className="col-12 col-lg-7">
             {primarySubject && (

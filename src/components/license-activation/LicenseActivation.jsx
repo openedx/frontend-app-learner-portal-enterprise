@@ -34,7 +34,7 @@ export default function LicenseActivation() {
     return (
       <>
         <Helmet title={PAGE_TITLE} />
-        <Container className="mt-3">
+        <Container size="lg" className="mt-3">
           <StatusAlert
             alertType="danger"
             dialog={(

@@ -64,7 +64,7 @@ export default function Course() {
 
   if (!initialState) {
     return (
-      <Container className="py-5" fluid>
+      <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />
       </Container>
     );
@@ -82,7 +82,7 @@ export default function Course() {
       <Helmet title={PAGE_TITLE} />
       <CourseContextProvider initialState={initialState}>
         <CourseHeader />
-        <Container className="py-5" fluid>
+        <Container size="lg" className="py-5">
           <Row>
             <MainContent>
               <CourseMainContent />
