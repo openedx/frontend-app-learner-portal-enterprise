@@ -41,7 +41,7 @@ export default function Dashboard() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <Container className="py-5">
+      <Container size="lg" className="py-5">
         {state?.activationSuccess && renderLicenseActivationSuccess()}
         <Row>
           <MainContent>

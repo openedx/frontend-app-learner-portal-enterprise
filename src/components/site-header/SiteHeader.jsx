@@ -42,7 +42,7 @@ export default function SiteHeader() {
 
   const renderDesktopHeader = () => (
     <header className="site-header-desktop">
-      <Container>
+      <Container size="lg">
         <div className="nav-container position-relative d-flex align-items-center">
           {renderLogo()}
           <nav aria-label="Main" className="nav main-nav">

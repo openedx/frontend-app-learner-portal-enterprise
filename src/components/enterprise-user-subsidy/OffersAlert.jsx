@@ -13,7 +13,7 @@ const OffersAlert = ({ offers }) => {
   }
   return (
     <Alert className="rounded-0" variant="info">
-      <Container fluid>
+      <Container size="lg">
         <FontAwesomeIcon className="mr-2" icon={faInfoCircle} />
         {getOffersText(offers.offersCount)}
       </Container>

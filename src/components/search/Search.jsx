@@ -4,7 +4,6 @@ import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-
 import {
   SearchHeader,
   useDefaultSearchFilters,
@@ -42,7 +41,9 @@ const Search = () => {
         searchClient={searchClient}
       >
         <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />
-        <SearchHeader />
+        <div className="search-header-wrapper">
+          <SearchHeader />
+        </div>
         <SearchResults />
       </InstantSearch>
       <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
