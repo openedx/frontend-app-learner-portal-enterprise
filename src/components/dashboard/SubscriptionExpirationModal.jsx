@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
+import moment from 'moment';
 import { Modal, MailtoLink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-
-import moment from 'moment';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+
 import {
   SUBSCRIPTION_DAYS_REMAINING_SEVERE,
   SUBSCRIPTION_EXPIRED,
@@ -12,20 +14,16 @@ import {
 } from '../../config/constants';
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
-export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your Subscription has Expired';
-export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your Subscription is Expiring';
+export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
+export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 
 const SubscriptionExpirationModal = () => {
   const {
-    subscriptionPlan: {
-      daysUntilExpiration,
-      expirationDate,
-    },
-    enterpriseConfig: {
-      contactEmail,
-    },
+    enterpriseConfig: { contactEmail },
     config,
   } = useContext(AppContext);
+  const { subscriptionPlan } = useContext(UserSubsidyContext);
+  const { daysUntilExpiration, expirationDate } = subscriptionPlan;
 
   const renderTitle = () => {
     if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {

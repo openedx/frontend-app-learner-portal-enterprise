@@ -8,7 +8,10 @@ import UserSubsidy, { UserSubsidyContext } from '../UserSubsidy';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from '../data/constants';
-import { fetchSubscriptionLicensesForUser } from '../data/service';
+import {
+  fetchSubscriptionLicensesForUser,
+  fetchEnterpriseCustomerSubscriptionPlan,
+} from '../data/service';
 import { fetchOffers } from '../offers/data/service';
 
 jest.mock('../data/service');
@@ -21,6 +24,13 @@ const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
+
+const mockSubscriptionPlan = {
+  uuid: TEST_SUBSCRIPTION_UUID,
+  isActive: true,
+  startDate: moment().subtract(1, 'w').toISOString(),
+  expirationDate: moment().add(1, 'y').toISOString(),
+};
 
 // eslint-disable-next-line react/prop-types
 const UserSubsidyWithAppContext = ({ contextValue = {}, children }) => (
@@ -55,20 +65,17 @@ const OffersConsumer = () => {
 };
 
 describe('UserSubsidy', () => {
-  describe('without subscription plan', () => {
-    const contextValue = {
-      subscriptionPlan: null,
-    };
-
+  describe('without a subsidy', () => {
     beforeEach(() => {
-      const promise = Promise.resolve({
+      const response = {
         data: {
           count: 0,
           results: [],
         },
-      });
-      fetchOffers.mockResolvedValueOnce(promise);
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+      };
+      fetchOffers.mockResolvedValueOnce(response);
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(response);
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce(response);
     });
 
     afterEach(() => {
@@ -77,7 +84,7 @@ describe('UserSubsidy', () => {
 
     test('renders children on Dashboard page route', async () => {
       const Component = (
-        <UserSubsidyWithAppContext contextValue={contextValue}>
+        <UserSubsidyWithAppContext>
           <span data-testid="did-i-render" />
         </UserSubsidyWithAppContext>
       );
@@ -98,53 +105,53 @@ describe('UserSubsidy', () => {
   });
 
   describe('no offers', () => {
-    const contextValue = {
-      subscriptionPlan: {
-        uuid: TEST_SUBSCRIPTION_UUID,
-        startDate: moment().subtract(1, 'w').toISOString(),
-        expirationDate: moment().add(1, 'y').toISOString(),
-      },
-    };
-
     beforeEach(() => {
-      const promise = Promise.resolve({
+      fetchOffers.mockResolvedValueOnce({
         data: {
           count: 0,
           results: [],
         },
       });
-      fetchOffers.mockResolvedValueOnce(promise);
     });
 
     afterEach(() => {
       jest.resetAllMocks();
     });
 
-    test('no license, shows correct portal access', async () => {
-      const promise = Promise.resolve({
+    test('no subscription plan or license, shows correct portal access', async () => {
+      const response = {
         data: {
           results: [],
         },
-      });
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
+      };
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce(response);
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(response);
       const Component = (
-        <UserSubsidyWithAppContext contextValue={contextValue}>
+        <UserSubsidyWithAppContext>
           <HasAccessConsumer />
         </UserSubsidyWithAppContext>
       );
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True' });
+      expect(fetchOffers).toHaveBeenCalledWith({
+        enterprise_uuid: TEST_ENTERPRISE_UUID,
+        full_discount_only: 'True',
+      });
       await waitFor(() => {
         expect(screen.queryByText('Has access: false')).toBeInTheDocument();
       });
     });
 
     test('with license, shows correct portal access', async () => {
-      const promise = Promise.resolve({
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
             uuid: TEST_LICENSE_UUID,
@@ -152,18 +159,20 @@ describe('UserSubsidy', () => {
           }],
         },
       });
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
       const Component = (
-        <UserSubsidyWithAppContext contextValue={contextValue}>
+        <UserSubsidyWithAppContext>
           <HasAccessConsumer />
         </UserSubsidyWithAppContext>
       );
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True' });
+      expect(fetchOffers).toHaveBeenCalledWith({
+        enterprise_uuid: TEST_ENTERPRISE_UUID,
+        full_discount_only: 'True',
+      });
 
       await waitFor(() => {
         expect(screen.queryByText('Has access: true')).toBeInTheDocument();
@@ -171,7 +180,12 @@ describe('UserSubsidy', () => {
     });
 
     test('provides license data', async () => {
-      const promise = Promise.resolve({
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
             uuid: TEST_LICENSE_UUID,
@@ -179,18 +193,20 @@ describe('UserSubsidy', () => {
           }],
         },
       });
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
       const Component = (
-        <UserSubsidyWithAppContext contextValue={contextValue}>
+        <UserSubsidyWithAppContext>
           <SubscriptionLicenseConsumer />
         </UserSubsidyWithAppContext>
       );
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True' });
+      expect(fetchOffers).toHaveBeenCalledWith({
+        enterprise_uuid: TEST_ENTERPRISE_UUID,
+        full_discount_only: 'True',
+      });
 
       await waitFor(() => {
         expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
@@ -198,7 +214,12 @@ describe('UserSubsidy', () => {
     });
 
     test('provides offers data', async () => {
-      const promise = Promise.resolve({
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
             uuid: TEST_LICENSE_UUID,
@@ -206,16 +227,15 @@ describe('UserSubsidy', () => {
           }],
         },
       });
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
       const Component = (
-        <UserSubsidyWithAppContext contextValue={contextValue}>
+        <UserSubsidyWithAppContext>
           <OffersConsumer />
         </UserSubsidyWithAppContext>
       );
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledTimes(1);
       expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True' });
@@ -227,29 +247,26 @@ describe('UserSubsidy', () => {
   });
 
   describe('with subscription plan that has started, but not yet ended, no offers', () => {
-    const contextValue = {
-      subscriptionPlan: {
-        uuid: TEST_SUBSCRIPTION_UUID,
-        startDate: moment().subtract(1, 'w').toISOString(),
-        expirationDate: moment().add(1, 'y').toISOString(),
-      },
-    };
-
     beforeEach(() => {
-      const promise = Promise.resolve({
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
+      fetchOffers.mockResolvedValueOnce({
         data: {
           count: 0,
           results: [],
         },
       });
-      fetchOffers.mockResolvedValueOnce(promise);
     });
+
     afterEach(() => {
       jest.resetAllMocks();
     });
 
     test('renders children if user has an activated license from any route', async () => {
-      const promise = Promise.resolve({
+      fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
             uuid: TEST_LICENSE_UUID,
@@ -257,9 +274,12 @@ describe('UserSubsidy', () => {
           }],
         },
       });
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(promise);
 
-      const Component = <UserSubsidyWithAppContext contextValue={contextValue}><span data-testid="did-i-render" /></UserSubsidyWithAppContext>;
+      const Component = (
+        <UserSubsidyWithAppContext>
+          <span data-testid="did-i-render" />
+        </UserSubsidyWithAppContext>
+      );
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}/search`,
       });
@@ -267,7 +287,7 @@ describe('UserSubsidy', () => {
       // assert component is initially loading
       expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledTimes(1);
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
 
       await waitFor(() => {

@@ -16,8 +16,8 @@ import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const Search = () => {
-  const { enterpriseConfig, subscriptionPlan } = useContext(AppContext);
-  const { offers: { offers } } = useContext(UserSubsidyContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,

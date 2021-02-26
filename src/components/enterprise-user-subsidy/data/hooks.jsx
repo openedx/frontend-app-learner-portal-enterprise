@@ -8,8 +8,39 @@ import { fetchOffers } from '../offers';
 import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
 import { LICENSE_STATUS } from './constants';
-import { fetchSubscriptionLicensesForUser } from './service';
+import {
+  fetchEnterpriseCustomerSubscriptionPlan,
+  fetchSubscriptionLicensesForUser,
+} from './service';
 import { features } from '../../../config';
+
+export function useEnterpriseCustomerSubscriptionPlan(enterpriseUUID) {
+  const [subscriptionPlan, setSubscriptionPlan] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!enterpriseUUID) {
+      setSubscriptionPlan(null);
+      return;
+    }
+    fetchEnterpriseCustomerSubscriptionPlan(enterpriseUUID)
+      .then((response) => {
+        const { results } = camelCaseObject(response.data);
+        const activePlans = results.filter(plan => plan.isActive);
+        const activeSubscriptionPlan = activePlans.pop() || null;
+        setSubscriptionPlan(activeSubscriptionPlan);
+      })
+      .catch((error) => {
+        logError(new Error(error));
+        setSubscriptionPlan(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [enterpriseUUID]);
+
+  return [subscriptionPlan, isLoading];
+}
 
 export function useSubscriptionLicenseForUser(enterpriseId) {
   const [license, setLicense] = useState();
