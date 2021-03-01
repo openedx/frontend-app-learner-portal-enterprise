@@ -6,8 +6,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import {
   SearchHeader,
-  useDefaultSearchFilters,
 } from '@edx/frontend-enterprise';
+import { useDefaultSearchFilters } from './data/hooks';
 
 import { NUM_RESULTS_PER_PAGE } from './constants';
 import SearchResults from './SearchResults';
@@ -17,11 +17,12 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const Search = () => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
+  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
+    subscriptionLicense,
     offerCatalogs,
   });
 
