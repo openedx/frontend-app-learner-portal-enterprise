@@ -10,10 +10,13 @@ import ToVoucherRedeemPage from './ToVoucherRedeemPage';
  * @param {Component} args.enrollLabel An EnrollLabel component
  * @returns {Component} Rendered enroll button with a enrollment modal behavior included.
  */
-const ToEcomBasketPage = ({ enrollLabel }) => (
-  <ToVoucherRedeemPage enrollLabel={enrollLabel} />
+const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl }) => (
+  <ToVoucherRedeemPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />
 );
 
-ToEcomBasketPage.propTypes = { enrollLabel: PropTypes.node.isRequired };
+ToEcomBasketPage.propTypes = {
+  enrollLabel: PropTypes.node.isRequired,
+  enrollmentUrl: PropTypes.string.isRequired,
+};
 
 export default ToEcomBasketPage;

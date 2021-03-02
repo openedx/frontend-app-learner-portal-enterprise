@@ -7,8 +7,8 @@ import EnrollModal from '../../EnrollModal';
 import { enrollLinkClass } from '../constants';
 import { EnrollButtonCta } from '../common';
 
-const ToVoucherRedeemPage = ({ enrollLabel }) => {
-  const { courseHasOffer, offersCount, enrollmentUrl } = useSubsidyDataForCourse();
+const ToVoucherRedeemPage = ({ enrollLabel, enrollmentUrl }) => {
+  const { courseHasOffer, offersCount } = useSubsidyDataForCourse();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -28,5 +28,9 @@ const ToVoucherRedeemPage = ({ enrollLabel }) => {
     </>
   );
 };
-ToVoucherRedeemPage.propTypes = { enrollLabel: PropTypes.shape.isRequired };
+ToVoucherRedeemPage.propTypes = {
+  enrollLabel: PropTypes.shape.isRequired,
+  enrollmentUrl: PropTypes.string.isRequired,
+};
+
 export default ToVoucherRedeemPage;

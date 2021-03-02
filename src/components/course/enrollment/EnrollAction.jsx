@@ -59,9 +59,9 @@ const EnrollAction = ({
             />
           );
       case TO_VOUCHER_REDEEM:
-          return <ToVoucherRedeemPage enrollLabel={enrollLabel} />;
+          return <ToVoucherRedeemPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />;
       case TO_ECOM_BASKET:
-          return <ToEcomBasketPage enrollLabel={enrollLabel} />;
+          return <ToEcomBasketPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />;
       default: return null;
   }
 };
