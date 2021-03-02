@@ -176,7 +176,6 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
     const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
-    screen.debug();
     expect(screen.getByText(regex)).toBeInTheDocument();
 
     const PAYMENT_TEXT = 'Continue to payment';
