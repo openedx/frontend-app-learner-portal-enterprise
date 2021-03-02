@@ -176,7 +176,15 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
     const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
+    screen.debug();
     expect(screen.getByText(regex)).toBeInTheDocument();
+
+    const PAYMENT_TEXT = 'Continue to payment';
+    // also check url is rendered in the modal correctly
+    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
+    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
+    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
+    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
   });
   test('ecom basket link rendered when enrollmentType is TO_VOUCHER_REDEEM', () => {
     // offers must exist, subscriptionlicense must not, catalogs list must exist.
@@ -217,5 +225,12 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
     const regex = new RegExp().compile(createUseVoucherText(1));
     expect(screen.getByText(regex)).toBeInTheDocument();
+
+    const PAYMENT_TEXT = 'Enroll in course';
+    // also check url is rendered in the modal correctly
+    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
+    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
+    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
+    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
   });
 });
