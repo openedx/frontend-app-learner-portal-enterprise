@@ -14,9 +14,9 @@ import {
   useEnterpriseCustomerConfig,
 } from './data/hooks';
 
-export default function EnterprisePage({ children }) {
+export default function EnterprisePage({ children, useCache }) {
   const { enterpriseSlug } = useParams();
-  const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug);
+  const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useCache);
 
   const user = getAuthenticatedUser();
   const { profileImage } = user;
@@ -60,4 +60,9 @@ export default function EnterprisePage({ children }) {
 
 EnterprisePage.propTypes = {
   children: PropTypes.node.isRequired,
+  useCache: PropTypes.bool,
+};
+
+EnterprisePage.defaultProps = {
+  useCache: true,
 };

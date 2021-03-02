@@ -4,7 +4,7 @@ import LicenseActivation from './LicenseActivation';
 import AuthenticatedPage from '../app/AuthenticatedPage';
 
 const LicenseActivationPage = () => (
-  <AuthenticatedPage>
+  <AuthenticatedPage useCache={false}>
     <LicenseActivation />
   </AuthenticatedPage>
 

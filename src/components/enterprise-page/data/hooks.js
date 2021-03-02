@@ -18,14 +18,15 @@ const defaultBrandingConfig = {
 
 /**
  * @param {string} [enterpriseSlug] enterprise slug.
+ * @param {boolean} [useCache] indicates whether cache should be used
  * @returns {object} EnterpriseConfig
  */
-export function useEnterpriseCustomerConfig(enterpriseSlug) {
+export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
   const [enterpriseConfig, setEnterpriseConfig] = useState();
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
-    fetchEnterpriseCustomerConfigForSlug(enterpriseSlug)
+    fetchEnterpriseCustomerConfigForSlug(enterpriseSlug, useCache)
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         const config = results.pop();
