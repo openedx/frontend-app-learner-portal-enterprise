@@ -133,9 +133,16 @@ describe('scenarios when use is not enrolled and is not eligible to', () => {
 });
 
 describe('scenarios user not yet enrolled, but eligible to enroll', () => {
+  const A_COURSE_WITH_NO_SUBSCRIPTIONS = {
+    ...selfPacedCourseWithLicenseSubsidy,
+    catalog: {
+      catalogList: ['a-catalog'],
+    },
+    userSubsidyApplicableToCourse: null,
+  };
+  const enrollmentUrl = 'http://test';
+  const enrollLabelText = 'disabled text!';
   test('datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
-    const enrollLabelText = 'disabled text!';
-    const enrollmentUrl = 'http://test';
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_DATASHARING_CONSENT}
@@ -150,9 +157,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${enrollmentUrl}`);
   });
-  test('ecom basket link rendered when enrollmentType is TO_ECOM_BASKET', () => {
-    const enrollLabelText = 'some text!';
-    const enrollmentUrl = 'http://test';
+  test('no vouchers text is rendered when enrollmentType is TO_ECOM_BASKET', () => {
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_ECOM_BASKET}
@@ -178,11 +183,34 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
     expect(screen.getByText(regex)).toBeInTheDocument();
   });
-  test('ecom basket link rendered when enrollmentType is TO_VOUCHER_REDEEM', () => {
+  test('ecom basket link rendered when enrollmentType is TO_ECOM_BASKET', () => {
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_ECOM_BASKET}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        enrollmentUrl={enrollmentUrl}
+        subscriptionLicense={subscriptionLicense}
+      />
+    );
+    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
+    // which is then used by a hook to check if the user has a license
+    renderEnrollAction({
+      enrollAction,
+      initialUserSubsidyState: {
+        subscriptionLicense,
+        offers: { offers: [] },
+      },
+    });
+    const PAYMENT_TEXT = 'Continue to payment';
+    // also check url is rendered in the modal correctly
+    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
+    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
+    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
+    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
+  });
+  test('enroll text with voucher count is rendered when enrollmentType is TO_VOUCHER_REDEEM', () => {
     // offers must exist, subscriptionlicense must not, catalogs list must exist.
     // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
-    const enrollLabelText = 'some text!';
-    const enrollmentUrl = 'http://test';
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_VOUCHER_REDEEM}
@@ -190,13 +218,6 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         enrollmentUrl={enrollmentUrl}
       />
     );
-    const A_COURSE_WITH_NO_SUBSCRIPTIONS = {
-      ...selfPacedCourseWithLicenseSubsidy,
-      catalog: {
-        catalogList: ['a-catalog'],
-      },
-      userSubsidyApplicableToCourse: null,
-    };
     // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
     // which is then used by a hook to check if the user has a license
     renderEnrollAction({
@@ -217,5 +238,37 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
     const regex = new RegExp().compile(createUseVoucherText(1));
     expect(screen.getByText(regex)).toBeInTheDocument();
+  });
+  test('ecom basket link rendered in modal when enrollmentType is TO_VOUCHER_REDEEM', () => {
+    // offers must exist, subscriptionlicense must not, catalogs list must exist.
+    // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
+    const enrollAction = (
+      <EnrollAction
+        enrollmentType={TO_VOUCHER_REDEEM}
+        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        enrollmentUrl={enrollmentUrl}
+      />
+    );
+    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
+    // which is then used by a hook to check if the user has a license
+    renderEnrollAction({
+      enrollAction,
+      courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
+      initialUserSubsidyState: {
+        subscriptionLicense: null,
+        offers: {
+          offers: [A_100_PERCENT_OFFER],
+          offersCount: 1,
+        },
+      },
+    });
+
+    // ensure button is rendered with label text indicating voucher count
+    const PAYMENT_TEXT = 'Enroll in course';
+    // also check url is rendered in the modal correctly
+    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
+    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
+    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
+    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
   });
 });
