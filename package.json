@@ -69,6 +69,7 @@
     "build": "fedx-scripts webpack",
     "i18n_extract": "BABEL_ENV=i18n fedx-scripts babel src --quiet > /dev/null",
     "lint": "fedx-scripts eslint --ext .js --ext .jsx .",
+    "lint:fix": "fedx-scripts eslint --fix --ext .js --ext .jsx .",
     "is-es5": "es-check es5 ./dist/*.js",
     "precommit": "npm run lint",
     "snapshot": "fedx-scripts jest --updateSnapshot",
