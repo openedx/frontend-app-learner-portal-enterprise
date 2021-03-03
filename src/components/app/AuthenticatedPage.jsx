@@ -6,10 +6,10 @@ import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
 import { LoginRedirect } from '../login-redirect';
 
-export default function AuthenticatedPage({ children }) {
+export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
   return (
     <LoginRedirect>
-      <EnterprisePage>
+      <EnterprisePage useEnterpriseConfigCache={useEnterpriseConfigCache}>
         <Layout>
           <EnterpriseBanner />
           {children}
@@ -21,4 +21,9 @@ export default function AuthenticatedPage({ children }) {
 
 AuthenticatedPage.propTypes = {
   children: PropTypes.node.isRequired,
+  useEnterpriseConfigCache: PropTypes.bool,
+};
+
+AuthenticatedPage.defaultProps = {
+  useEnterpriseConfigCache: true,
 };
