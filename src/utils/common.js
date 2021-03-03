@@ -38,7 +38,9 @@ export const hasTruthyValue = (value) => {
   return values.every(item => !!item);
 };
 
-export const hasValidStartExpirationDates = ({ startDate, expirationDate }) => {
+export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
   const now = moment();
-  return now.isBetween(startDate, expirationDate);
+  // Subscriptions use "expirationDate" while Codes use "endDate"
+  const realEndDate = expirationDate || endDate;
+  return now.isBetween(startDate, realEndDate);
 };

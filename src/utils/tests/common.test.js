@@ -1,8 +1,10 @@
+import moment from 'moment';
 import {
   isDefinedAndNotNull,
   createArrayFromValue,
   isDefinedAndNull,
   hasTruthyValue,
+  hasValidStartExpirationDates,
 } from '../common';
 
 function assertTestCaseEquals(testCase, expectedValue) {
@@ -93,6 +95,61 @@ describe('hasTruthyValue', () => {
 
   it('returns false when passed an array with 1 empty string', () => {
     const result = hasTruthyValue(['']);
+    expect(result).toBeFalsy();
+  });
+});
+
+const now = moment();
+const validStartDate = moment(now).subtract(5, 'days');
+const validEndDate = moment(now).add(5, 'days');
+const validExpirationDate = moment(now).add(6, 'days');
+const invalidStartDate = moment(now).add(1, 'days');
+const invalidEndDate = moment(now).subtract(1, 'days');
+const invalidExpirationDate = moment(now).subtract(2, 'days');
+
+describe('hasValidStartExpirationDates', () => {
+  it('returns true when now is between startDate and endDate', () => {
+    const validStartEnd = {
+      startDate: validStartDate,
+      endDate: validEndDate,
+    };
+    const result = hasValidStartExpirationDates(validStartEnd);
+    expect(result).toBeTruthy();
+  });
+
+  it('returns true when now is between startDate and expirationDate', () => {
+    const validStartExp = {
+      startDate: validStartDate,
+      expirationDate: validExpirationDate,
+    };
+    const result = hasValidStartExpirationDates(validStartExp);
+    expect(result).toBeTruthy();
+  });
+
+  it('returns false when startDate is invalid', () => {
+    const invalidStart = {
+      startDate: invalidStartDate,
+      endDate: validEndDate,
+    };
+    const result = hasValidStartExpirationDates(invalidStart);
+    expect(result).toBeFalsy();
+  });
+
+  it('returns false when endDate is invalid', () => {
+    const invalidEnd = {
+      startDate: validStartDate,
+      endDate: invalidEndDate,
+    };
+    const result = hasValidStartExpirationDates(invalidEnd);
+    expect(result).toBeFalsy();
+  });
+
+  it('returns false when expirationDate is invalid', () => {
+    const invalidExp = {
+      startDate: validStartDate,
+      expirationDate: invalidExpirationDate,
+    };
+    const result = hasValidStartExpirationDates(invalidExp);
     expect(result).toBeFalsy();
   });
 });
