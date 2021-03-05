@@ -139,6 +139,7 @@ describe('UserSubsidy', () => {
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
         full_discount_only: 'True',
+        is_active: 'True',
       });
       await waitFor(() => {
         expect(screen.queryByText('Has access: false')).toBeInTheDocument();
@@ -172,6 +173,7 @@ describe('UserSubsidy', () => {
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
         full_discount_only: 'True',
+        is_active: 'True',
       });
 
       await waitFor(() => {
@@ -206,6 +208,7 @@ describe('UserSubsidy', () => {
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
         full_discount_only: 'True',
+        is_active: 'True',
       });
 
       await waitFor(() => {
@@ -238,7 +241,7 @@ describe('UserSubsidy', () => {
       expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledTimes(1);
-      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True' });
+      expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True', is_active: 'True' });
 
       await waitFor(() => {
         expect(screen.queryByText('Offers count: 0')).toBeInTheDocument();
