@@ -1,4 +1,5 @@
 export const FEATURE_ENROLL_WITH_CODES = 'ENROLL_WITH_CODES';
+export const FEATURE_SKILLS_FILTER = 'SKILLS_FILTER';
 
 // Subscription expiration constants
 // LP only needs warnings within 60 days of expiration and past expiration
