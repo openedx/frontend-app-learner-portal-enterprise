@@ -3,20 +3,39 @@ import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import OffersAlert, { getOffersText } from '../OffersAlert';
+import { UserSubsidyContext } from '..';
+
+/* eslint-disable react/prop-types */
+const OffersAlertWithContext = ({
+  subsidyContext = {},
+}) => (
+  <UserSubsidyContext.Provider value={subsidyContext}>
+    <OffersAlert />
+  </UserSubsidyContext.Provider>
+);
+/* eslint-enable react/prop-types */
 
 describe('<OffersAlert />', () => {
-  const offers = {
-    loading: false,
-    offers: [],
-    offersCount: 3,
-  };
-
   it('renders an alert when loading is complete and there are offers', () => {
-    render(<OffersAlert offers={offers} />);
-    expect(screen.queryByText(getOffersText(offers.offersCount))).toBeInTheDocument();
+    const subsidyContext = {
+      offers: {
+        loading: false,
+        offers: [],
+        offersCount: 3,
+      },
+    };
+    render(<OffersAlertWithContext subsidyContext={subsidyContext} />);
+    expect(screen.queryByText(getOffersText(subsidyContext.offers.offersCount))).toBeInTheDocument();
   });
   it('does not render an alert if there are no offers', () => {
-    render(<OffersAlert offers={{ ...offers, offersCount: 0 }} />);
-    expect(screen.queryByText(getOffersText(offers.offersCount))).not.toBeInTheDocument();
+    const subsidyContext = {
+      offers: {
+        loading: false,
+        offers: [],
+        offersCount: 0,
+      },
+    };
+    render(<OffersAlertWithContext subsidyContext={subsidyContext} />);
+    expect(screen.queryByText(getOffersText(subsidyContext.offers.offersCount))).not.toBeInTheDocument();
   });
 });

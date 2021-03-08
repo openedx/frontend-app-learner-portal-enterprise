@@ -1,14 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 
 import { Alert, Container } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { UserSubsidyContext } from '.';
 
-export const getOffersText = (number) => `You have ${number} course redemption voucher${number > 1 ? 's' : ''} left to use.`;
+export const getOffersText = (number) => `You have ${number} enrollment codes${number > 1 ? 's' : ''} left to use.`;
 
-const OffersAlert = ({ offers }) => {
-  if (!offers.offersCount) {
+const OffersAlert = () => {
+  const { offers } = useContext(UserSubsidyContext);
+  if (!offers?.offersCount) {
     return null;
   }
   return (
@@ -19,12 +20,6 @@ const OffersAlert = ({ offers }) => {
       </Container>
     </Alert>
   );
-};
-
-OffersAlert.propTypes = {
-  offers: PropTypes.shape({
-    offersCount: PropTypes.number.isRequired,
-  }).isRequired,
 };
 
 export default OffersAlert;
