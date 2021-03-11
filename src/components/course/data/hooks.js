@@ -280,7 +280,7 @@ const useCourseEnrollmentUrl = ({
           license_uuid: subscriptionLicense.uuid,
           course_id: key,
           enterprise_customer_uuid: enterpriseConfig.uuid,
-          // We don't want any sidebar text we show the data consent page from this workflow since 
+          // We don't want any sidebar text we show the data consent page from this workflow since
           // the text on the sidebar is used when a learner is coming from their employer's system.
           left_sidebar_text_override: '',
         };
@@ -291,7 +291,7 @@ const useCourseEnrollmentUrl = ({
         const enrollOptions = {
           ...baseEnrollmentOptions,
           sku,
-          consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect. 
+          consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
         };
         // get the index of the first offer that applies to a catalog that the course is in
         const offerForCourse = findOfferForCourse(offers, catalogList);
