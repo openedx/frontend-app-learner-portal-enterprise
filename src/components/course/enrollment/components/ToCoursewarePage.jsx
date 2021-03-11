@@ -36,7 +36,7 @@ const ToCoursewarePage = ({
 };
 
 ToCoursewarePage.propTypes = {
-  enrollLabel: PropTypes.shape.isRequired,
+  enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
   userEnrollment: PropTypes.shape.isRequired,
   subscriptionLicense: PropTypes.shape.isRequired,

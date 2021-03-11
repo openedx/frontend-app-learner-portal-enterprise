@@ -12,7 +12,7 @@ const EnrollBtnDisabled = ({ enrollLabel }) => (
 );
 
 EnrollBtnDisabled.propTypes = {
-  enrollLabel: PropTypes.shape.isRequired,
+  enrollLabel: PropTypes.node.isRequired,
 };
 
 export default EnrollBtnDisabled;
