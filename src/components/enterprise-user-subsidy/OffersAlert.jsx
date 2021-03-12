@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { UserSubsidyContext } from '.';
 
-export const getOffersText = (number) => `You have ${number} enrollment codes${number > 1 ? 's' : ''} left to use.`;
+export const getOffersText = (number) => `You have ${number} enrollment code${number > 1 ? 's' : ''} left to use.`;
 
 const OffersAlert = () => {
   const { offers } = useContext(UserSubsidyContext);

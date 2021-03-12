@@ -33,6 +33,6 @@ const EnrollButtonCta = ({ enrollLabel: EnrollLabel, ...props }) => (
   </EnrollButtonWrapper>
 );
 
-EnrollButtonCta.propTypes = { enrollLabel: PropTypes.shape.isRequired };
+EnrollButtonCta.propTypes = { enrollLabel: PropTypes.node.isRequired };
 
 export { EnrollButtonCta };

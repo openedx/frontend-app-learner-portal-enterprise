@@ -16,7 +16,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => (
 );
 
 ToDataSharingConsentPage.propTypes = {
-  enrollLabel: PropTypes.shape.isRequired,
+  enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
 };
 

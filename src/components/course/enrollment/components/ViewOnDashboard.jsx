@@ -22,7 +22,7 @@ const ViewOnDashboard = ({ enrollLabel }) => {
 };
 
 ViewOnDashboard.propTypes = {
-  enrollLabel: PropTypes.shape.isRequired,
+  enrollLabel: PropTypes.node.isRequired,
 };
 
 export default ViewOnDashboard;

@@ -29,7 +29,7 @@ const ToVoucherRedeemPage = ({ enrollLabel, enrollmentUrl }) => {
   );
 };
 ToVoucherRedeemPage.propTypes = {
-  enrollLabel: PropTypes.shape.isRequired,
+  enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
 };
 
