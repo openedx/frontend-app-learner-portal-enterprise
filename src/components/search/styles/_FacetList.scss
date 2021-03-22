@@ -41,3 +41,34 @@
     }
   }
 }
+
+.typeahead {
+    .dropdown-menu {
+      .facet-list & {
+        padding: 50px 0 0;
+        max-height: none;
+        overflow: visible;
+        width: 420px;
+      }
+
+      .typeahead-dropdown-menu-scrollable-items {
+        position: relative;
+        max-height: 200px;
+        overflow: auto;
+
+        .no-options-found {
+          display: block;
+        }
+      }
+
+      .typeahead-dropdown-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 98%;
+        background: white;
+        padding: 5px;
+        margin: 4px;
+      }
+    }
+  }
