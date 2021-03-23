@@ -1,6 +1,8 @@
 @import "@edx/brand/paragon/fonts";
 @import "@edx/brand/paragon/variables";
 @import "@edx/paragon/scss/core/core";
+// frontend-enterprise must come before the paragon overrides for correct styling
+@import "~@edx/frontend-enterprise";
 @import "@edx/brand/paragon/overrides";
 
 $fa-font-path: "~font-awesome/fonts";
@@ -14,9 +16,6 @@ $fa-font-path: "~font-awesome/fonts";
 @import "./components/dashboard/sidebar/offers/styles/Offer";
 @import "./components/dashboard/sidebar/styles/SidebarCard";
 @import "./components/dashboard/styles/SubscriptionExpirationModal";
-@import "./components/search/styles/FacetList";
-@import "./components/search/styles/SearchCourseCard";
-@import "./components/search/styles/SearchResults";
-@import "./components/search/styles/Search";
+@import "./components/search/styles/";
 @import "./components/site-header/styles/Header";
 @import "./components/preview-expand/styles/PreviewExpand";
