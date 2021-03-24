@@ -13,8 +13,8 @@ export default function CourseSkills() {
   const skillsButtonLabel = showMore ? SKILLS_BUTTON_LABEL.SHOW_LESS : SKILLS_BUTTON_LABEL.SHOW_MORE;
 
   return (
-    <div className="mb-4">
-      <h6> Skills you&apos;ll gain</h6>
+    <div className="mb-5">
+      <h5> Skills you&apos;ll gain</h5>
       <div>
         {skillNames.map((skill, index) => (
           <Badge

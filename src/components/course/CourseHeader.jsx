@@ -89,7 +89,7 @@ export default function CourseHeader() {
                     <img
                       src={partner.logoImageUrl}
                       alt={`${partner.name} logo`}
-                      style={{ maxWidth: 160, maxHeight: 44 }}
+                      style={{ maxWidth: 160, maxHeight: 144 }}
                     />
                   </a>
                 ))}
