@@ -7,6 +7,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import CourseRunSelector from './CourseRunSelector';
+import CourseSkills from './CourseSkills';
 import EnrollButton from './EnrollButton';
 
 import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
@@ -77,6 +78,23 @@ export default function CourseHeader() {
                 ]}
               />
             )}
+            {partners.length > 0 && (
+              <div className="mt-4 mb-2">
+                {partners.map(partner => (
+                  <a
+                    className="d-inline-block mr-4"
+                    href={partner.marketingUrl}
+                    key={partner.uuid}
+                  >
+                    <img
+                      src={partner.logoImageUrl}
+                      alt={`${partner.name} logo`}
+                      style={{ maxWidth: 160, maxHeight: 44 }}
+                    />
+                  </a>
+                ))}
+              </div>
+            )}
             <div className={classNames({ 'mb-4': !course.shortDescription })}>
               <h2>{course.title}</h2>
             </div>
@@ -87,23 +105,7 @@ export default function CourseHeader() {
                 dangerouslySetInnerHTML={{ __html: course.shortDescription }}
               />
             )}
-            {partners.length > 0 && (
-              <div className="mb-4">
-                {partners.map(partner => (
-                  <a
-                    className="d-inline-block mr-4"
-                    href={partner.marketingUrl}
-                    key={partner.uuid}
-                  >
-                    <img
-                      src={partner.logoImageUrl}
-                      alt={`${partner.name} logo`}
-                      style={{ maxWidth: 160 }}
-                    />
-                  </a>
-                ))}
-              </div>
-            )}
+            {course.skillNames.length > 0 && <CourseSkills />}
             {catalog.containsContentItems ? (
               <>
                 <CourseRunSelector />

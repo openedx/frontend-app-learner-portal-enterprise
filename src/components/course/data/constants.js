@@ -23,6 +23,11 @@ export const COURSE_AVAILABILITY_MAP = {
   ARCHIVED: 'Archived',
 };
 
+export const SKILLS_BUTTON_LABEL = {
+  SHOW_MORE: 'show more',
+  SHOW_LESS: 'show less',
+};
+
 export const ENROLL_BUTTON_LABEL_COMING_SOON = 'Coming Soon';
 export const ENROLL_BUTTON_LABEL_NOT_AVAILABLE = 'Not Currently Available';
 
