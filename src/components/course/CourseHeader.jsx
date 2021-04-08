@@ -65,18 +65,17 @@ export default function CourseHeader() {
         <div className="row py-4">
           <div className="col-12 col-lg-7">
             {primarySubject && (
-              <Breadcrumb
-                links={[
-                  {
-                    label: 'Find a Course',
-                    url: `/${enterpriseConfig.slug}/search`,
-                  },
-                  {
-                    label: `${primarySubject.name} Courses`,
-                    url: primarySubject.url,
-                  },
-                ]}
-              />
+              <div className="small">
+                <Breadcrumb
+                  links={[
+                    {
+                      label: 'Find a Course',
+                      url: `/${enterpriseConfig.slug}/search`,
+                    },
+                  ]}
+                  activeLabel={course.title}
+                />
+              </div>
             )}
             {partners.length > 0 && (
               <div className="mt-4 mb-2">
