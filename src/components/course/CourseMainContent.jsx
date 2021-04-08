@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import MediaQuery from 'react-responsive';
-import { breakpoints } from '@edx/paragon';
+import { breakpoints, Hyperlink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { PreviewExpand } from '../preview-expand';
@@ -74,13 +74,12 @@ export default function CourseMainContent() {
                     <img src={sponsor.logoImageUrl} alt={`${sponsor.name} logo`} />
                   </a>
                 </div>
-                <a
-                  href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
+                <Hyperlink
+                  destination={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
                   target="_blank"
-                  rel="noopener noreferrer"
                 >
                   {sponsor.name}
-                </a>
+                </Hyperlink>
               </div>
             ))}
           </div>
