@@ -91,8 +91,7 @@ describe('<CourseHeader />', () => {
       />,
     );
     expect(screen.queryByText('Find a Course')).toBeInTheDocument();
-    const subject = initialCourseState.course.subjects[0];
-    expect(screen.queryByText(`${subject.name} Courses`)).toBeInTheDocument();
+    expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
   });
 
   test('renders course title and short description', () => {
@@ -105,7 +104,7 @@ describe('<CourseHeader />', () => {
     );
 
     const { title, shortDescription } = initialCourseState.course;
-    expect(screen.queryByText(title)).toBeInTheDocument();
+    expect(screen.queryAllByText(title)[1]).toBeInTheDocument();
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
