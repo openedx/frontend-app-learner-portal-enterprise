@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
+import { Hyperlink } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
-
 import { getProgramIcon, formatProgramType } from './data/utils';
 
 export default function CourseAssociatedPrograms() {
@@ -28,9 +28,9 @@ export default function CourseAssociatedPrograms() {
               </div>
             </div>
             <div className="col">
-              <a href={program.marketingUrl}>
+              <Hyperlink destination={program.marketingUrl} target="_blank">
                 {program.title}
-              </a>
+              </Hyperlink>
             </div>
           </li>
         ))}

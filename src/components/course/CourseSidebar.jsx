@@ -11,6 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import ISO6391 from 'iso-639-1';
 
+import { Hyperlink } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
@@ -66,9 +67,9 @@ export default function CourseSidebar() {
             label={institutionLabel}
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
-                <a href={partner.marketingUrl}>
+                <Hyperlink destination={partner.marketingUrl} target="_blank">
                   {partner.key}
-                </a>
+                </Hyperlink>
               </span>
             ))}
           />
@@ -78,9 +79,9 @@ export default function CourseSidebar() {
             icon={faGraduationCap}
             label="Subject"
             content={(
-              <a href={primarySubject.url}>
+              <Hyperlink destination={primarySubject.url} target="_blank">
                 {primarySubject.name}
-              </a>
+              </Hyperlink>
             )}
           />
         )}

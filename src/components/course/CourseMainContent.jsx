@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import MediaQuery from 'react-responsive';
-import { breakpoints } from '@edx/paragon';
+import { breakpoints, Hyperlink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { PreviewExpand } from '../preview-expand';
@@ -64,13 +64,22 @@ export default function CourseMainContent() {
             {course.sponsors.map((sponsor) => (
               <div className="col-lg-6 mb-3" key={sponsor.name}>
                 <div className="mb-2">
-                  <a href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`} aria-hidden="true" tabIndex="-1">
+                  <a
+                    href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
+                    aria-hidden="true"
+                    tabIndex="-1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <img src={sponsor.logoImageUrl} alt={`${sponsor.name} logo`} />
                   </a>
                 </div>
-                <a href={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}>
+                <Hyperlink
+                  destination={`${config.MARKETING_SITE_BASE_URL}/${sponsor.marketingUrl}`}
+                  target="_blank"
+                >
                   {sponsor.name}
-                </a>
+                </Hyperlink>
               </div>
             ))}
           </div>
