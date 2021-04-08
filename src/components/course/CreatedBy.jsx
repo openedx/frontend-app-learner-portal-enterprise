@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { Hyperlink } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
-
 import { useCoursePartners } from './data/hooks';
 
 export default function CreatedBy() {
@@ -35,9 +35,9 @@ export default function CreatedBy() {
                   <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
                 </a>
               </div>
-              <a href={partner.marketingUrl} target="_blank" rel="noopener noreferrer">
+              <Hyperlink destination={partner.marketingUrl} target="_blank">
                 {partner.name}
-              </a>
+              </Hyperlink>
             </div>
           ))}
         </div>
@@ -53,14 +53,13 @@ export default function CreatedBy() {
                 style={{ width: 72, height: 72 }}
               />
               <div>
-                <a
-                  href={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`}
+                <Hyperlink
+                  destination={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`}
                   className="font-weight-bold"
                   target="_blank"
-                  rel="noopener noreferrer"
                 >
                   {formatStaffFullName(staff)}
-                </a>
+                </Hyperlink>
                 {staff.position && (
                   <>
                     <div className="font-italic">{staff.position.title}</div>
