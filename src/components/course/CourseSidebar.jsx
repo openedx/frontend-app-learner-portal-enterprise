@@ -66,7 +66,7 @@ export default function CourseSidebar() {
             label={institutionLabel}
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
-                <a href={partner.marketingUrl}>
+                <a href={partner.marketingUrl} target="_blank" rel="noopener noreferrer">
                   {partner.key}
                 </a>
               </span>
@@ -78,7 +78,7 @@ export default function CourseSidebar() {
             icon={faGraduationCap}
             label="Subject"
             content={(
-              <a href={primarySubject.url}>
+              <a href={primarySubject.url} target="_blank" rel="noopener noreferrer">
                 {primarySubject.name}
               </a>
             )}

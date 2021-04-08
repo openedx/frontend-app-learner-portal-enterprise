@@ -25,11 +25,19 @@ export default function CreatedBy() {
           {partners.map(partner => (
             <div className="col-lg-6 mb-3" key={partner.name}>
               <div className="mb-2">
-                <a href={partner.marketingUrl} aria-hidden="true" tabIndex="-1">
+                <a
+                  href={partner.marketingUrl}
+                  aria-hidden="true"
+                  tabIndex="-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img src={partner.logoImageUrl} alt={`${partner.name} logo`} />
                 </a>
               </div>
-              <a href={partner.marketingUrl}>{partner.name}</a>
+              <a href={partner.marketingUrl} target="_blank" rel="noopener noreferrer">
+                {partner.name}
+              </a>
             </div>
           ))}
         </div>
@@ -45,7 +53,12 @@ export default function CreatedBy() {
                 style={{ width: 72, height: 72 }}
               />
               <div>
-                <a href={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`} className="font-weight-bold">
+                <a
+                  href={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`}
+                  className="font-weight-bold"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {formatStaffFullName(staff)}
                 </a>
                 {staff.position && (

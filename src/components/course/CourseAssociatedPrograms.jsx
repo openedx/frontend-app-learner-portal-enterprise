@@ -28,7 +28,7 @@ export default function CourseAssociatedPrograms() {
               </div>
             </div>
             <div className="col">
-              <a href={program.marketingUrl}>
+              <a href={program.marketingUrl} target="_blank" rel="noopener noreferrer">
                 {program.title}
               </a>
             </div>

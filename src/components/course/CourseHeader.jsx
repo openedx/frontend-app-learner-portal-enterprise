@@ -85,6 +85,8 @@ export default function CourseHeader() {
                     className="d-inline-block mr-4"
                     href={partner.marketingUrl}
                     key={partner.uuid}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <img
                       src={partner.logoImageUrl}
