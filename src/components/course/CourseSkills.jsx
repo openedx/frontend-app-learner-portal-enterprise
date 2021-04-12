@@ -18,16 +18,16 @@ export default function CourseSkills() {
       <h5> Skills you&apos;ll gain</h5>
       <div>
         {skillNames.map((skill, index) => (
-          <a href={`/${enterpriseConfig.slug}/search?skill_names=${skill}`}>
-            <Badge
-              key={skill.id}
-              className="course-skill"
-              variant="light"
-              style={{ display: ((index < MAX_VISIBLE_SKILLS) || showMore) ? 'inline-block' : 'none' }}
-            >
-              { skill }
-            </Badge>
-          </a>
+          <Badge
+            as="a"
+            href={`/${enterpriseConfig.slug}/search?skill_names=${skill}`}
+            key={skill.id}
+            className="course-skill"
+            variant="light"
+            style={{ display: ((index < MAX_VISIBLE_SKILLS) || showMore) ? 'inline-block' : 'none' }}
+          >
+            { skill }
+          </Badge>
         ))}
         {skillNames.length > MAX_VISIBLE_SKILLS && (
           <Button className="d-inline-block" variant="link" onClick={() => { setShowMore(!showMore); }}>
