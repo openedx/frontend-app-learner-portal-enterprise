@@ -1,7 +1,8 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { renderWithRouter } from '../../../utils/tests';
 
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseSkills, { MAX_VISIBLE_SKILLS } from '../CourseSkills';
@@ -34,7 +35,7 @@ describe('<CourseSkills />', () => {
   };
 
   test('renders course skills less than limit', () => {
-    render(
+    renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
@@ -54,7 +55,7 @@ describe('<CourseSkills />', () => {
         skillNames: skillGreaterThanLimit,
       },
     };
-    render(
+    renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
         initialCourseState={courseState}

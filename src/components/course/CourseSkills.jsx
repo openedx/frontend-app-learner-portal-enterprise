@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge, Button } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -19,8 +20,8 @@ export default function CourseSkills() {
       <div>
         {skillNames.map((skill, index) => (
           <Badge
-            as="a"
-            href={`/${enterpriseConfig.slug}/search?skill_names=${skill}`}
+            as={Link}
+            to={`/${enterpriseConfig.slug}/search?skill_names=${skill}`}
             key={skill.id}
             className="course-skill"
             variant="light"
