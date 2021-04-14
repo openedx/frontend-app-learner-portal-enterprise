@@ -43,7 +43,7 @@ const Search = () => {
       >
         <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} filters={filters} />
         <div className="search-header-wrapper">
-          <SearchHeader />
+          <SearchHeader containerSize="lg" />
         </div>
         <SearchResults />
       </InstantSearch>
