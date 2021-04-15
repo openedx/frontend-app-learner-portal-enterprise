@@ -10,6 +10,7 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import ISO6391 from 'iso-639-1';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import { Hyperlink } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
@@ -67,7 +68,15 @@ export default function CourseSidebar() {
             label={institutionLabel}
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
-                <Hyperlink destination={partner.marketingUrl} target="_blank">
+                <Hyperlink
+                  destination={partner.marketingUrl}
+                  target="_blank"
+                  onClick={() => {
+                    sendTrackEvent('edx.learner_portal.course.sidebar.partner.clicked', {
+                      partner_name: partner.key,
+                    });
+                  }}
+                >
                   {partner.key}
                 </Hyperlink>
               </span>
@@ -79,7 +88,15 @@ export default function CourseSidebar() {
             icon={faGraduationCap}
             label="Subject"
             content={(
-              <Hyperlink destination={primarySubject.url} target="_blank">
+              <Hyperlink
+                destination={primarySubject.url}
+                target="_blank"
+                onClick={() => {
+                  sendTrackEvent('edx.learner_portal.course.sidebar.subject.clicked', {
+                    subject: primarySubject.name,
+                  });
+                }}
+              >
                 {primarySubject.name}
               </Hyperlink>
             )}

@@ -29,13 +29,13 @@ const SavedForLaterCourseCard = (props) => {
 
   const handleMoveToInProgressOnClose = () => {
     setIsModalOpen(false);
-    sendTrackEvent('edx.learner_portal.course.move_to_in_progress.modal.closed', {
+    sendTrackEvent('edx.learner_portal.dashboard.course.move_to_in_progress.modal.closed', {
       course_run_id: courseRunId,
     });
   };
 
   const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
-    sendTrackEvent('edx.learner_portal.course.move_to_in_progress.saved', {
+    sendTrackEvent('edx.learner_portal.dashboard.course.move_to_in_progress.saved', {
       course_run_id: courseRunId,
     });
     setIsModalOpen(false);
@@ -63,7 +63,7 @@ const SavedForLaterCourseCard = (props) => {
         type: 'button',
         onClick: () => {
           setIsModalOpen(true);
-          sendTrackEvent('edx.learner_portal.course.move_to_in_progress.modal.opened', {
+          sendTrackEvent('edx.learner_portal.dashboard.course.move_to_in_progress.modal.opened', {
             course_run_id: courseRunId,
           });
         },
