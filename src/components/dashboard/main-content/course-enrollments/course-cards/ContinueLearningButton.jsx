@@ -15,7 +15,7 @@ import { sendTrackEvent } from '@edx/frontend-platform/analytics';
  */
 export default function ContinueLearningButton({ linkToCourse, title, courseRunId }) {
   const onClickHandler = () => {
-    sendTrackEvent('edx.learner_portal.course.continued', {
+    sendTrackEvent('edx.learner_portal.dashboard.course.continued', {
       course_run_id: courseRunId,
     });
   };

@@ -55,7 +55,7 @@ const InProgressCourseCard = ({
         type: 'button',
         onClick: () => {
           setIsMarkCompleteModalOpen(true);
-          sendTrackEvent('edx.learner_portal.course.mark_complete.modal.opened', {
+          sendTrackEvent('edx.learner_portal.dashboard.course.mark_complete.modal.opened', {
             course_run_id: courseRunId,
           });
         },
@@ -72,13 +72,13 @@ const InProgressCourseCard = ({
 
   const handleMarkCompleteModalOnClose = () => {
     setIsMarkCompleteModalOpen(false);
-    sendTrackEvent('edx.learner_portal.course.mark_complete.modal.closed', {
+    sendTrackEvent('edx.learner_portal.dashboard.course.mark_complete.modal.closed', {
       course_run_id: courseRunId,
     });
   };
 
   const handleMarkCompleteModalOnSuccess = ({ response, resetModalState }) => {
-    sendTrackEvent('edx.learner_portal.course.mark_complete.saved', {
+    sendTrackEvent('edx.learner_portal.dashboard.course.mark_complete.saved', {
       course_run_id: courseRunId,
     });
     setIsMarkCompleteModalOpen(false);

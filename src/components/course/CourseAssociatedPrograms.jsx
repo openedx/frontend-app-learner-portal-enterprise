@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Hyperlink } from '@edx/paragon';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 
 import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
@@ -28,7 +29,16 @@ export default function CourseAssociatedPrograms() {
               </div>
             </div>
             <div className="col">
-              <Hyperlink destination={program.marketingUrl} target="_blank">
+              <Hyperlink
+                destination={program.marketingUrl}
+                target="_blank"
+                onClick={() => {
+                  sendTrackEvent('edx.learner_portal.course.sidebar.program.clicked', {
+                    program_title: program.title,
+                    program_type: program.type,
+                  });
+                }}
+              >
                 {program.title}
               </Hyperlink>
             </div>
