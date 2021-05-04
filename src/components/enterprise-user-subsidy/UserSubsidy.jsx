@@ -1,6 +1,4 @@
-import React, {
-  createContext, useContext, useEffect, useMemo, useState,
-} from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
@@ -8,6 +6,7 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 
 import {
+  useEnterpriseCustomerSubscriptionPlan,
   useSubscriptionLicenseForUser,
   useOffers,
 } from './data/hooks';
@@ -17,23 +16,19 @@ export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
+  const [
+    subscriptionPlan,
+    isLoadingSubscriptionPlan,
+  ] = useEnterpriseCustomerSubscriptionPlan(enterpriseConfig.uuid);
   const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicenseForUser(enterpriseConfig.uuid);
   const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
-  const [subscriptionPlan, setSubscriptionPlan] = useState();
-
-  useEffect(
-    () => {
-      setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
-    },
-    [subscriptionLicense],
-  );
 
   const isLoadingSubsidies = useMemo(
     () => {
-      const loadingStates = [isLoadingLicense, isLoadingOffers];
+      const loadingStates = [isLoadingSubscriptionPlan, isLoadingLicense, isLoadingOffers];
       return loadingStates.includes(true);
     },
-    [isLoadingLicense, isLoadingOffers],
+    [isLoadingSubscriptionPlan, isLoadingLicense, isLoadingOffers],
   );
 
   const contextValue = useMemo(
@@ -42,7 +37,7 @@ const UserSubsidy = ({ children }) => {
         return {};
       }
       let hasAccessToPortal = false;
-      if (subscriptionLicense) {
+      if (subscriptionPlan) {
         hasAccessToPortal = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
       }
       if (offers.offersCount > 0) {

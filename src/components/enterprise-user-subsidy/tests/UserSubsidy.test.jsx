@@ -10,6 +10,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import {
   fetchSubscriptionLicensesForUser,
+  fetchEnterpriseCustomerSubscriptionPlan,
 } from '../data/service';
 import { fetchOffers } from '../offers/data/service';
 
@@ -74,6 +75,7 @@ describe('UserSubsidy', () => {
       };
       fetchOffers.mockResolvedValueOnce(response);
       fetchSubscriptionLicensesForUser.mockResolvedValueOnce(response);
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce(response);
     });
 
     afterEach(() => {
@@ -122,6 +124,7 @@ describe('UserSubsidy', () => {
           results: [],
         },
       };
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce(response);
       fetchSubscriptionLicensesForUser.mockResolvedValueOnce(response);
       const Component = (
         <UserSubsidyWithAppContext>
@@ -131,6 +134,7 @@ describe('UserSubsidy', () => {
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
@@ -143,6 +147,11 @@ describe('UserSubsidy', () => {
     });
 
     test('with license, shows correct portal access', async () => {
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
       fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
@@ -159,6 +168,7 @@ describe('UserSubsidy', () => {
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
@@ -172,12 +182,16 @@ describe('UserSubsidy', () => {
     });
 
     test('provides license data', async () => {
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
       fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
             uuid: TEST_LICENSE_UUID,
             status: LICENSE_STATUS.ACTIVATED,
-            subscriptionPlan: mockSubscriptionPlan,
           }],
         },
       });
@@ -189,6 +203,7 @@ describe('UserSubsidy', () => {
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
@@ -202,12 +217,16 @@ describe('UserSubsidy', () => {
     });
 
     test('provides offers data', async () => {
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
+        data: {
+          results: [mockSubscriptionPlan],
+        },
+      });
       fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
         data: {
           results: [{
             uuid: TEST_LICENSE_UUID,
             status: LICENSE_STATUS.ACTIVATED,
-            subscriptionPlan: mockSubscriptionPlan,
           }],
         },
       });
@@ -219,6 +238,7 @@ describe('UserSubsidy', () => {
       renderWithRouter(Component, {
         route: `/${TEST_ENTERPRISE_SLUG}`,
       });
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledTimes(1);
       expect(fetchOffers).toHaveBeenCalledWith({ enterprise_uuid: TEST_ENTERPRISE_UUID, full_discount_only: 'True', is_active: 'True' });
@@ -231,13 +251,9 @@ describe('UserSubsidy', () => {
 
   describe('with subscription plan that has started, but not yet ended, no offers', () => {
     beforeEach(() => {
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
+      fetchEnterpriseCustomerSubscriptionPlan.mockResolvedValueOnce({
         data: {
-          results: [{
-            uuid: TEST_LICENSE_UUID,
-            status: LICENSE_STATUS.ACTIVATED,
-            subscriptionPlan: mockSubscriptionPlan,
-          }],
+          results: [mockSubscriptionPlan],
         },
       });
       fetchOffers.mockResolvedValueOnce({
@@ -258,7 +274,6 @@ describe('UserSubsidy', () => {
           results: [{
             uuid: TEST_LICENSE_UUID,
             status: LICENSE_STATUS.ACTIVATED,
-            subscriptionPlan: mockSubscriptionPlan,
           }],
         },
       });
@@ -275,6 +290,7 @@ describe('UserSubsidy', () => {
       // assert component is initially loading
       expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
+      expect(fetchEnterpriseCustomerSubscriptionPlan).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
 
       await waitFor(() => {
