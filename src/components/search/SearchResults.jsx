@@ -2,7 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
-import { useNbHitsFromSearchResults, SearchContext, SearchPagination } from '@edx/frontend-enterprise';
+import {
+  useNbHitsFromSearchResults, SearchContext, SearchPagination,
+} from '@edx/frontend-enterprise-catalog-search';
 import { Container, Row } from '@edx/paragon';
 
 import SearchCourseCard from './SearchCourseCard';
