@@ -14,6 +14,9 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
   const user = getAuthenticatedUser();
 
   if (!user) {
+    // if user is not authenticated, remove cookie that controls whether the user will see
+    // the integration warning modal on their next visit. the expected behavior is to only
+    // see the modal once per authenticated session.
     const cookies = new Cookies();
     cookies.remove(config.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME);
   }
