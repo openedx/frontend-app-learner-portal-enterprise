@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Hits, connectStateResults } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
 
-import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise';
+import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchError from '../SearchError';
 

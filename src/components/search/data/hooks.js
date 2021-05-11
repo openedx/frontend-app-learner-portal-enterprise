@@ -1,7 +1,7 @@
 import { useContext, useMemo, useEffect } from 'react';
 import {
   SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
-} from '@edx/frontend-enterprise';
+} from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../../config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 

@@ -4,9 +4,7 @@ import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import {
-  SearchHeader,
-} from '@edx/frontend-enterprise';
+import { SearchHeader } from '@edx/frontend-enterprise-catalog-search';
 import { useDefaultSearchFilters } from './data/hooks';
 
 import { NUM_RESULTS_PER_PAGE } from './constants';

@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 import {
   getCatalogString, SearchContext, SearchData, SHOW_ALL_NAME,
-} from '@edx/frontend-enterprise';
+} from '@edx/frontend-enterprise-catalog-search';
 import {
   useDefaultSearchFilters,
 } from '../hooks';
