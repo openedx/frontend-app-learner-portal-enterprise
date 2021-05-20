@@ -68,7 +68,7 @@ In this section you will:
     * The `slug` is used as a url path to visit the enterprise portal for this customer, more on that later
 * Now click on the `Test Enterprise` user link
 * Click on `Manage learners` to view learner accounts
-* This page should list at least one learner account like enterprise_learner_1@example.com (username), password is the same as `edx` user
+* This page should list at least one learner account like test-enterprise_learner_1@example.com (username), password is the same as `edx` user
 
 
 
@@ -76,7 +76,7 @@ In this section you will:
 
 * Log out of any users if you logged in previously, or use a new incognito window, and browse to http://localhost:8734/test-enterprise
 * The `test-enterprise`, you will note, is the slug for this enterprise customer
-* Login as a learner, using `enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8734/test-enterprise/
+* Login as a learner, using `test-enterprise_learner_1@example.com` account, you may need to re-browse to page http://localhost:8734/test-enterprise/
 * You can now go to 'Find a Course' and enroll in courses
 
 You are now in the Learner portal for the enterpriser customer `Test Enterprise`, as a learner!
