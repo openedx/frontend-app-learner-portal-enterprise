@@ -106,7 +106,7 @@ export default function CourseHeader() {
                 dangerouslySetInnerHTML={{ __html: course.shortDescription }}
               />
             )}
-            {course.skillNames.length > 0 && <CourseSkills />}
+            {course.skillNames?.length > 0 && <CourseSkills />}
             {catalog.containsContentItems ? (
               <>
                 <CourseRunSelector />
