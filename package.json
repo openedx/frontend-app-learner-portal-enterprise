@@ -45,6 +45,7 @@
     "react-router-redux": "5.0.0-alpha.9",
     "react-transition-group": "4.4.1",
     "react-truncate": "2.4.0",
+    "react-use-hotjar": "^1.1.2",
     "redux": "4.0.5",
     "redux-devtools-extension": "2.13.8",
     "redux-logger": "3.0.6",
