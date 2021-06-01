@@ -28,6 +28,8 @@ export const SKILLS_BUTTON_LABEL = {
   SHOW_LESS: 'show less',
 };
 
+export const SKILL_DESCRIPTION_PLACEHOLDER = 'No description available.';
+
 export const ENROLL_BUTTON_LABEL_COMING_SOON = 'Coming Soon';
 export const ENROLL_BUTTON_LABEL_NOT_AVAILABLE = 'Not Currently Available';
 
