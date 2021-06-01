@@ -56,7 +56,7 @@ describe('<CourseHeader />', () => {
       image: {
         src: 'http://test-image.url',
       },
-      skillNames: [],
+      skills: [],
     },
     activeCourseRun: {
       isEnrollable: true,

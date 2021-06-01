@@ -1,0 +1,27 @@
+// Generate an array of random skills with name and description key value pairs.
+/*
+Example:
+[
+  {
+    "name": "Test Skill 1",
+    "description": "Description for Test Skill 1"
+  },
+  {
+    "name": "Test Skill 2",
+    "description": "Description for Test Skill 2"
+  },
+  {
+    "name": "Test Skill 3",
+    "description": "Description for Test Skill 3"
+  }
+]
+*/
+const generateRandomSkills = (skillCount) => {
+  const skillsData = Array(skillCount).fill(1).map((item, index) => ({
+    name: `Test skill ${++index}`, // eslint-disable-line no-param-reassign
+    description: 'Description for Test Skill',
+  }));
+  return skillsData;
+};
+
+export default generateRandomSkills;
