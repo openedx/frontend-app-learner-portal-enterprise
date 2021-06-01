@@ -4,24 +4,21 @@ Example:
 [
   {
     "name": "Test Skill 1",
-    "description": "Description for Test Skill 1"
+    "description": "Description for Test Skill"
   },
   {
     "name": "Test Skill 2",
-    "description": "Description for Test Skill 2"
+    "description": "Description for Test Skill"
   },
   {
     "name": "Test Skill 3",
-    "description": "Description for Test Skill 3"
+    "description": "Description for Test Skill"
   }
 ]
 */
-const generateRandomSkills = (skillCount) => {
-  const skillsData = Array(skillCount).fill(1).map((item, index) => ({
-    name: `Test skill ${++index}`, // eslint-disable-line no-param-reassign
-    description: 'Description for Test Skill',
-  }));
-  return skillsData;
-};
+const generateRandomSkills = (skillCount) => Array(skillCount).fill(1).map((item, index) => ({
+  name: `Test skill ${++index}`, // eslint-disable-line no-param-reassign
+  description: 'Description for Test Skill',
+}));
 
 export default generateRandomSkills;
