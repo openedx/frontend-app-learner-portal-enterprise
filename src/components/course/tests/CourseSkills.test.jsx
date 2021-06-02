@@ -1,11 +1,12 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '../../../utils/tests';
 
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseSkills, { MAX_VISIBLE_SKILLS } from '../CourseSkills';
+import generateRandomSkills from './testUtils';
 
 import { SKILLS_BUTTON_LABEL } from '../data/constants';
 
@@ -30,29 +31,29 @@ describe('<CourseSkills />', () => {
   };
   const initialCourseState = {
     course: {
-      skillNames: ['test-skill1', 'test-skill2', 'test-skill3', 'test-skill4'],
+      skills: generateRandomSkills(MAX_VISIBLE_SKILLS),
     },
   };
 
-  test('renders course skills less than limit', () => {
+  test('renders course skills less than or equal to limit', () => {
     renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
       />,
     );
-    initialCourseState.course.skillNames.forEach((skill) => {
-      expect(screen.queryByText(skill)).toBeVisible();
+    initialCourseState.course.skills.forEach((skill) => {
+      expect(screen.queryByText(skill.name)).toBeVisible();
     });
   });
 
   test('renders course skills greater than limit', () => {
-    const skillGreaterThanLimit = ['test-skill1', 'test-skill2', 'test-skill3', 'test-skill4', 'test-skill5', 'test-skill6'];
+    const skillsCount = MAX_VISIBLE_SKILLS + 2; // random number greater than limit
     const courseState = {
       ...initialCourseState,
       course: {
         ...initialCourseState.course,
-        skillNames: skillGreaterThanLimit,
+        skills: generateRandomSkills(skillsCount),
       },
     };
     renderWithRouter(
@@ -62,19 +63,37 @@ describe('<CourseSkills />', () => {
       />,
     );
 
-    const shownSkills = initialCourseState.course.skillNames.slice(0, MAX_VISIBLE_SKILLS);
-    const hiddenSkills = initialCourseState.course.skillNames.slice(MAX_VISIBLE_SKILLS, skillGreaterThanLimit.length);
+    const shownSkills = initialCourseState.course.skills.slice(0, MAX_VISIBLE_SKILLS);
+    const hiddenSkills = initialCourseState.course.skills.slice(MAX_VISIBLE_SKILLS, skillsCount);
 
     shownSkills.forEach((skill) => {
-      expect(screen.queryByText(skill)).toBeVisible();
+      expect(screen.queryByText(skill.name)).toBeVisible();
     });
 
     // do not display skills greater than limit
     hiddenSkills.forEach((skill) => {
-      expect(screen.queryByText(skill)).not.toBeVisible();
+      expect(screen.queryByText(skill.name)).not.toBeVisible();
     });
 
     // display show more inline link when skills count is greater than limit
     expect(screen.queryByText(SKILLS_BUTTON_LABEL.SHOW_MORE)).toBeInTheDocument();
+  });
+
+  test('renders tooltip with course skill description on hover', async () => {
+    renderWithRouter(
+      <CourseSkillsWithContext
+        initialAppState={initialAppState}
+        initialCourseState={initialCourseState}
+      />,
+    );
+    /* eslint-disable no-await-in-loop */
+
+    for (const skill of initialCourseState.course.skills) { // eslint-disable-line no-restricted-syntax
+      await act(async () => {
+        fireEvent.mouseOver(screen.getByText(skill.name));
+      });
+      expect(await screen.queryByText(skill.description)).toBeInTheDocument();
+    }
+    /* eslint-disable no-await-in-loop */
   });
 });
