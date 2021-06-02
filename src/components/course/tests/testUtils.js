@@ -19,7 +19,7 @@ Example:
 const generateRandomSkills = (skillCount) => {
   const skillsData = Array(skillCount).fill(1).map((item, index) => ({
     name: `Test skill ${++index}`, // eslint-disable-line no-param-reassign
-    description: 'Description for Test Skill',
+    description: `Description for Test Skill ${index}`,
   }));
   return skillsData;
 };
