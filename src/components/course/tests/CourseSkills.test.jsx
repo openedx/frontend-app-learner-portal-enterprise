@@ -6,9 +6,10 @@ import { renderWithRouter } from '../../../utils/tests';
 
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseSkills, { MAX_VISIBLE_SKILLS } from '../CourseSkills';
-import generateRandomSkills from './testUtils';
+import { generateRandomSkills, generateRandomString } from './testUtils';
 
-import { SKILLS_BUTTON_LABEL } from '../data/constants';
+import { SKILLS_BUTTON_LABEL, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR } from '../data/constants';
+import { shortenString } from '../data/utils';
 
 /* eslint-disable react/prop-types */
 const CourseSkillsWithContext = ({
@@ -92,8 +93,37 @@ describe('<CourseSkills />', () => {
       await act(async () => {
         fireEvent.mouseOver(screen.getByText(skill.name));
       });
-      expect(await screen.queryByText(skill.description)).toBeInTheDocument();
+      expect(await screen.queryByText(skill.description)).toBeVisible();
     }
     /* eslint-disable no-await-in-loop */
+  });
+
+  test('renders tooltip text only till maximum cutoff value when skill description is too long', async () => {
+    // set a skill description greater than description cutoff limit
+    const courseState = {
+      ...initialCourseState,
+      course: {
+        ...initialCourseState.course,
+        skills: [
+          {
+            name: 'Skill with long description',
+            description: generateRandomString(SKILL_DESCRIPTION_CUTOFF_LIMIT + 100),
+          },
+        ],
+      },
+    };
+
+    renderWithRouter(
+      <CourseSkillsWithContext
+        initialAppState={initialAppState}
+        initialCourseState={courseState}
+      />,
+    );
+    const { skills } = courseState.course;
+    const maxVisibleDesc = shortenString(skills[0].description, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR);
+    await act(async () => {
+      fireEvent.mouseOver(screen.getByText(skills[0].name));
+    });
+    expect(await screen.queryByText(maxVisibleDesc)).toBeVisible();
   });
 });

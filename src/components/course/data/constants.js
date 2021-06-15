@@ -29,6 +29,8 @@ export const SKILLS_BUTTON_LABEL = {
 };
 
 export const SKILL_DESCRIPTION_PLACEHOLDER = 'No description available.';
+export const SKILL_DESCRIPTION_CUTOFF_LIMIT = 950;
+export const ELLIPSIS_STR = '...';
 
 export const ENROLL_BUTTON_LABEL_COMING_SOON = 'Coming Soon';
 export const ENROLL_BUTTON_LABEL_NOT_AVAILABLE = 'Not Currently Available';

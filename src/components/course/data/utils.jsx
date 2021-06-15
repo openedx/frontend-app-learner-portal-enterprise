@@ -198,3 +198,9 @@ export function hasLicenseSubsidy(subsidy) {
 export function hasOfferSubsidy(subsidy) {
   return subsidy?.subsidyType === OFFER_SUBSIDY_TYPE;
 }
+
+// Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
+export function shortenString(str, maxLength, suffix, separator = ' ') {
+  if (str.length <= maxLength) { return str; }
+  return `${str.substr(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
+}
