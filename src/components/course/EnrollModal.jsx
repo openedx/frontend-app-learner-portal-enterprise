@@ -4,7 +4,7 @@ import { Modal } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-export const ENROLL_MODAL_TEXT_NO_OFFERS = 'You do not have any applicable vouchers, but you can still enroll in this course.';
+export const ENROLL_MODAL_TEXT_NO_OFFERS = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
 export const createUseVoucherText = offersCount => `Enrolling in this course will use 1 of your ${offersCount} enrollment codes.`;
 
 export const modalText = {

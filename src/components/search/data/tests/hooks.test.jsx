@@ -82,8 +82,8 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toBeDefined();
-      expect(filters)
-        .toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID} OR ${getCatalogString(offerCatalogs)}`);
+      const expectedFilters = `${getCatalogString(offerCatalogs)} OR enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`;
+      expect(filters).toEqual(expectedFilters);
     });
     test('with invalid subscription: returns offer catalogs', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
