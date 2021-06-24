@@ -187,6 +187,19 @@ npm run debug-test
 
 Then chrome://inspect in chrome along with debugger in the code to trigger a breakpoint?
 
+### Routes
+
+This micro-frontend application consists of the following URL routes:
+
+| Route                                                                  | Description                                                                                                                                                                                                                                                                                             |
+|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://localhost:8734/                                                 | The main entry point for the Enterprise Learner Portal. Detects which enterprise(s) you're linked to and redirects you to the appropriate dashboard page for a specific enterprise.                                                                                                                     |
+| http://localhost:8734/:enterpriseSlug                                  | The dashboard page for a specific enterprise customer. Displays all course enrollments for a learner associated with that enterprise.                                                                                                                                                                   |
+| http://localhost:8734/:enterpriseSlug/search                           | The search page for a specific enterprise customer. Shows all enrollable courses associated with that enterprise's content catalogs. Utilizes Algolia as a hosted search provider.                                                                                                                      |
+| http://localhost:8734/:enterpriseSlug/course/:courseKey                | The course page with information about the course and provides a way for learners to enroll using their enterprise's subsidy (e.g., subscription license, codes).                                                                                                                                       |
+| http://localhost:8734/:enterpriseSlug/licenses/:activationKey/activate | The license activation page allows new learners who have an assigned license to activate their license.                                                                                                                                                                                                 |
+| http://localhost:8734/r/:redirectPath                                  | This route allows deep linking to a specific page within the Enterprise Learner Portal (i.e., the redirect path) without yet knowing an enterprise slug. This route is helpful to send generic links to pages within the Enterprise Learner Portal in marketing, support, account management scenarios. |
+
 ### Code layout / components
 
 TODO/WIP
