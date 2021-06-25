@@ -24,19 +24,21 @@ export const useDefaultSearchFilters = ({
         // show all enterprise catalogs
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
-      // if there's a subscriptionPlan, filter results by the subscription catalog
-      // and any catalogs for which the user has vouchers
-      if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
-        if (features.ENROLL_WITH_CODES && offerCatalogs.length > 0) {
-          const catalogs = [subscriptionPlan.enterpriseCatalogUuid, ...offerCatalogs];
-          return getCatalogString(catalogs);
-        }
-        return `enterprise_catalog_uuids:${subscriptionPlan.enterpriseCatalogUuid}`;
+
+      // Filter catalogs by offer catalogs (if any) and/or by the subscription plan catalog associated
+      // with learner's license.
+      const catalogs = [];
+      if (features.ENROLL_WITH_CODES) {
+        catalogs.push(...offerCatalogs);
       }
-      if (features.ENROLL_WITH_CODES && offerCatalogs.length > 0) {
-        // shows catalogs for which a user has 100% vouchers
-        return getCatalogString(offerCatalogs);
+      if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+        catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
       }
+      if (catalogs.length > 0) {
+        return getCatalogString(catalogs);
+      }
+
+      // If learner has no subsidy available to them, show all enterprise catalogs
       return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
     [
