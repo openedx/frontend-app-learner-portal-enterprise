@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 
-// import { AppContext } from '@edx/frontend-platform/react';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import {
   Container, Row,
@@ -11,9 +11,8 @@ import { MainContent } from '../layout';
 import SkillsQuizStepper from './SkillsQuizStepper';
 
 const SkillsQuiz = () => {
-  // const { enterpriseConfig } = useContext(AppContext);
-  // const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
-  const PAGE_TITLE = 'Skills Quiz';
+  const { enterpriseConfig } = useContext(AppContext);
+  const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
 
   return (
     <>
