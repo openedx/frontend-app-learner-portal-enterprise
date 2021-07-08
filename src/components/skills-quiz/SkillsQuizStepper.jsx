@@ -5,12 +5,14 @@ import {
 import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
-import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import SearchResults from './SearchResults';
+import TagCloud from '../TagCloud';
+
 import { DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS } from './constants';
 
 const SkillsQuizStepper = () => {
@@ -22,11 +24,9 @@ const SkillsQuizStepper = () => {
   const steps = ['skills-search', 'review'];
   const [currentStep, setCurrentStep] = useState(steps[0]);
   const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
-  const handleGoalOptionChange = (selectedGoalOption) => {
-    setShowSearchJobsAndSearchResults(selectedGoalOption !== DROPDOWN_OPTION_CHANGE_ROLE);
-  };
+  const handleGoalChange = (goal) => setShowSearchJobsAndSearchResults(goal !== DROPDOWN_OPTION_CHANGE_ROLE);
 
-  const { refinementsFromQueryParams } = useContext(SearchContext);
+  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
   // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
   const { skill_names: skills } = refinementsFromQueryParams;
   const skillQuizFacets = useMemo(
@@ -52,6 +52,11 @@ const SkillsQuizStepper = () => {
         </>
       );
     },
+    [refinementsFromQueryParams],
+  );
+
+  const selectedSkills = useMemo(
+    () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
     [refinementsFromQueryParams],
   );
 
@@ -92,7 +97,7 @@ const SkillsQuizStepper = () => {
                 edX is here to help you find the course(s) or program(s) to help you take the next step in your career.
                 Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
               </p>
-              <GoalDropdown handleGoalOptionChange={handleGoalOptionChange} />
+              <GoalDropdown handleGoalOptionChange={handleGoalChange} />
               <InstantSearch
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
@@ -102,6 +107,20 @@ const SkillsQuizStepper = () => {
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
                 { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
               </InstantSearch>
+              { selectedSkills.length > 0 && (
+                <TagCloud
+                  tags={selectedSkills}
+                  onRemove={
+                    (skillMetadata) => {
+                      if (selectedSkills.length > 1) {
+                        dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
+                      } else {
+                        dispatch(deleteRefinementAction('skill_names'));
+                      }
+                    }
+                  }
+                />
+              )}
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
