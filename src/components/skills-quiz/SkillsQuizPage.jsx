@@ -6,6 +6,8 @@ import { Redirect } from 'react-router-dom';
 import SkillsQuiz from './SkillsQuiz';
 import AuthenticatedUserSubsidyPage from '../app/AuthenticatedUserSubsidyPage';
 
+import './styles/SkillsQuizPage.scss';
+
 export default function DashboardPage() {
   const config = getConfig();
   if (!config.ENABLE_SKILLS_QUIZ) {

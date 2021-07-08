@@ -7,6 +7,7 @@ import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import SearchResults from './SearchResults';
 import { DROPDOWN_OPTION_CHANGE_ROLE } from './constants';
+import TagCloud from './TagCloud';
 
 const SkillsQuizStepper = () => {
   const steps = ['skills-search', 'review'];
@@ -55,6 +56,7 @@ const SkillsQuizStepper = () => {
               <GoalDropdown handleGoalOptionChange={handleGoalOptionChange} />
               { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
               { showSearchJobsAndSearchResults ? <SearchResults /> : null }
+              <TagCloud tags={[{ title: 'test', metadata: { id: 1 } }]} onRemove={console.log} />
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
