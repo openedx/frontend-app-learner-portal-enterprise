@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Icon, FavoriteBorder } from '@edx/paragon';
+import { Form } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_RULE, DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_OTHER,
