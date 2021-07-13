@@ -1,34 +1,27 @@
 import React from 'react';
-import { Dropdown } from '@edx/paragon';
+import { Form, Icon, FavoriteBorder } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_RULE, DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_OTHER,
 } from './constants';
 
 const GoalDropdown = ({ currentGoal, setCurrentGoal }) => {
-  const handleDropdownChange = selectedGoal => {
-    setCurrentGoal(selectedGoal);
+  const handleDropdownChange = e => {
+    setCurrentGoal(e.target.value);
   };
   return (
-    <Dropdown>
-      <Dropdown.Toggle variant="success" id="skill-quiz-goal-dropdown">
-        {currentGoal}
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item onClick={() => handleDropdownChange(DROPDOWN_OPTION_CHANGE_CAREERS)}>
-          {DROPDOWN_OPTION_CHANGE_CAREERS}
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => handleDropdownChange(DROPDOWN_OPTION_GET_PROMOTED)}>
-          {DROPDOWN_OPTION_GET_PROMOTED}
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => handleDropdownChange(DROPDOWN_OPTION_CHANGE_RULE)}>
-          {DROPDOWN_OPTION_CHANGE_RULE}
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => handleDropdownChange(DROPDOWN_OPTION_OTHER)}>
-          {DROPDOWN_OPTION_OTHER}
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
+    <Form.Control
+      as="select"
+      value={currentGoal}
+      onChange={handleDropdownChange}
+      floatingLabel="Goal"
+    >
+      <option value="">Select a goal</option>
+      <option>{DROPDOWN_OPTION_CHANGE_CAREERS}</option>
+      <option>{DROPDOWN_OPTION_GET_PROMOTED}</option>
+      <option>{DROPDOWN_OPTION_CHANGE_RULE}</option>
+      <option>{DROPDOWN_OPTION_OTHER}</option>
+    </Form.Control>
   );
 };
 
