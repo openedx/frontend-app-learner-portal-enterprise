@@ -37,6 +37,7 @@ initialize({
         // Logs JS errors matching the following regex as NewRelic page actions instead of
         // errors,reducing JS error noise.
         IGNORED_ERROR_REGEX: '(Axios Error|\'removeChild\'|Script error|getReadModeExtract)',
+        ENABLE_SKILLS_QUIZ: process.env.ENABLE_SKILLS_QUIZ || false,
       });
     },
   },

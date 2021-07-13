@@ -12,6 +12,7 @@ import { DashboardPage } from '../dashboard';
 import { CoursePage } from '../course';
 import { SearchPage } from '../search';
 import { LicenseActivationPage } from '../license-activation';
+import { SkillsQuizPage } from '../skills-quiz';
 
 import store from '../../store';
 
@@ -31,6 +32,7 @@ export default function App() {
         <PageRoute exact path="/:enterpriseSlug/search" component={SearchPage} />
         <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
         <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
+        <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
         <PageRoute path="*" component={NotFoundPage} />
       </Switch>
     </AppProvider>
