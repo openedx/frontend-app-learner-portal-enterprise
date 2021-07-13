@@ -10,14 +10,14 @@ import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 
 import { isDefined, isDefinedAndNull } from '../../utils/common';
-import {
-  useEnterpriseCustomerConfig,
-} from './data/hooks';
+import { useAlgoliaSearch } from '../../utils/hooks';
+import { useEnterpriseCustomerConfig } from './data/hooks';
 
 export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
   const { enterpriseSlug } = useParams();
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
-
+  const config = getConfig();
+  const [searchClient, searchIndex] = useAlgoliaSearch(config);
   const user = getAuthenticatedUser();
   const { profileImage } = user;
 
@@ -42,7 +42,8 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
     <AppContext.Provider
       value={{
         authenticatedUser: getAuthenticatedUser(),
-        config: getConfig(),
+        config,
+        enterpriseConfig,
         courseCards: {
           'in-progress': {
             settingsMenu: {
@@ -50,7 +51,10 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
             },
           },
         },
-        enterpriseConfig,
+        algolia: {
+          client: searchClient,
+          index: searchIndex,
+        },
       }}
     >
       {children}

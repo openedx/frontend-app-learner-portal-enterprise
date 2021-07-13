@@ -1,9 +1,9 @@
 import {
-  useEffect, useState, useMemo, useContext,
+  useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import qs from 'query-string';
 import PropTypes from 'prop-types';
-
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -174,7 +174,7 @@ export function useCoursePacingType(courseRun) {
  *
  * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
  */
-const useCoursePriceForUserSubsidy = ({
+export const useCoursePriceForUserSubsidy = ({
   activeCourseRun, userSubsidyApplicableToCourse,
 }) => {
   const currency = CURRENCY_USD;
@@ -252,7 +252,7 @@ useCoursePriceForUserSubsidy.propTypes = {
  *
  * @returns {string} url for enrollment
  */
-const useCourseEnrollmentUrl = ({
+export const useCourseEnrollmentUrl = ({
   catalogList,
   enterpriseConfig,
   key,
@@ -322,4 +322,49 @@ useCourseEnrollmentUrl.propTypes = {
   userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,
 };
 
-export { useCoursePriceForUserSubsidy, useCourseEnrollmentUrl };
+/**
+ * Returns a function to be used as a click handler that emits an analytics event for a
+ * search conversion via ``sendTrackEvent``. When used on a hyperlink (i.e., `href` is specified),
+ * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
+ *
+ * @param {object} args
+ * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
+ * @param {string} args.objectId Algolia object id
+ * @param {string} args.queryId Algolia query id
+ * @param {string} args.courseKey Unique course key identifying the course
+ * @param {string} args.eventName Name of the event
+ *
+ * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
+ * internal hyperlinks (e.g., using ``Link``).
+ */
+export const useTrackSearchConversionClickHandler = ({
+  href,
+  objectId,
+  queryId,
+  courseKey,
+  eventName,
+}) => {
+  const CLICK_DELAY_MS = 300;
+  const handleClick = useCallback(
+    (e) => {
+      if (!queryId || !objectId) {
+        return;
+      }
+      if (href) {
+        e.preventDefault();
+        setTimeout(() => {
+          global.location.href = href;
+        }, CLICK_DELAY_MS);
+      }
+      sendTrackEvent(eventName, {
+        products: [{ objectID: objectId }],
+        index: getConfig().ALGOLIA_INDEX_NAME,
+        queryID: queryId,
+        courseKey,
+      });
+    },
+    [href, objectId, queryId, courseKey, eventName],
+  );
+
+  return handleClick;
+};

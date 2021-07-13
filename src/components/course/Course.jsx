@@ -1,6 +1,8 @@
+import React, {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 import qs from 'query-string';
-import React, { useContext, useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints, Container, Row } from '@edx/paragon';
@@ -20,15 +22,34 @@ import NotFoundPage from '../NotFoundPage';
 
 export default function Course() {
   const { courseKey } = useParams();
+  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({
+    queryId: undefined,
+    objectId: undefined,
+  });
   const { enterpriseConfig } = useContext(AppContext);
-  const location = useLocation();
+  const { search } = useLocation();
+  const history = useHistory();
 
-  const courseRunKey = useMemo(
+  const queryParams = useMemo(
+    () => camelCaseObject(qs.parse(search)),
+    [search],
+  );
+  const { courseRunKey, queryId, objectId } = queryParams;
+
+  // extract search queryId and objectId that led to this course page view from
+  // the URL query parameters and then remove it to keep the URLs clean.
+  useEffect(
     () => {
-      const queryParams = camelCaseObject(qs.parse(location.search));
-      return queryParams.courseRunKey;
+      if (queryId && objectId) {
+        setAlgoliaSearchParams({ queryId, objectId });
+        delete queryParams.queryId;
+        delete queryParams.objectId;
+        history.replace({
+          search: qs.stringify(queryParams),
+        });
+      }
     },
-    [location],
+    [queryId, objectId],
   );
 
   const [courseData, fetchError] = useAllCourseData({
@@ -39,23 +60,29 @@ export default function Course() {
 
   const initialState = useMemo(
     () => {
-      if (courseData) {
-        const {
-          courseDetails, userEnrollments, userEntitlements, userSubsidyApplicableToCourse, catalog,
-        } = courseData;
-        return {
-          course: courseDetails,
-          activeCourseRun: getActiveCourseRun(courseDetails),
-          availableCourseRuns: getAvailableCourseRuns(courseDetails),
-          userEnrollments,
-          userEntitlements,
-          userSubsidyApplicableToCourse,
-          catalog,
-        };
+      if (!courseData) {
+        return undefined;
       }
-      return undefined;
+      const {
+        courseDetails,
+        userEnrollments,
+        userEntitlements,
+        userSubsidyApplicableToCourse,
+        catalog,
+      } = courseData;
+
+      return {
+        course: courseDetails,
+        activeCourseRun: getActiveCourseRun(courseDetails),
+        availableCourseRuns: getAvailableCourseRuns(courseDetails),
+        userEnrollments,
+        userEntitlements,
+        userSubsidyApplicableToCourse,
+        catalog,
+        algoliaSearchParams,
+      };
     },
-    [courseData],
+    [courseData, algoliaSearchParams],
   );
 
   if (fetchError) {

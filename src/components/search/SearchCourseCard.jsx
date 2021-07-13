@@ -1,9 +1,12 @@
 import React, { useContext, useMemo } from 'react';
+import qs from 'query-string';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card } from '@edx/paragon';
 
@@ -12,24 +15,20 @@ import { isDefinedAndNotNull } from '../../utils/common';
 const SearchCourseCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug } } = useContext(AppContext);
 
-  const course = useMemo(
-    () => {
-      if (!hit) {
-        return {};
-      }
-      return camelCaseObject(hit);
-    },
-    [hit],
-  );
+  const course = hit ? camelCaseObject(hit) : {};
 
   const linkToCourse = useMemo(
     () => {
       if (!Object.keys(course).length) {
         return '#';
       }
-      return `/${slug}/course/${course.key}`;
+      const queryParams = {
+        queryId: course.queryId,
+        objectId: course.objectId,
+      };
+      return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
     },
-    [isLoading, course],
+    [isLoading, JSON.stringify(course)],
   );
 
   const partnerDetails = useMemo(
@@ -43,7 +42,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
         showPartnerLogo: course.partners.length === 1,
       };
     },
-    [course],
+    [JSON.stringify(course)],
   );
 
   return (
@@ -52,7 +51,18 @@ const SearchCourseCard = ({ hit, isLoading }) => {
       role="group"
       aria-label={course.title}
     >
-      <Link to={linkToCourse}>
+      <Link
+        to={linkToCourse}
+        onClick={() => {
+          sendTrackEvent('edx.ui.enterprise.learner_portal.search.card.clicked', {
+            objectID: course.objectId,
+            position: course.position,
+            index: getConfig().ALGOLIA_INDEX_NAME,
+            queryID: course.queryId,
+            courseKey: course.key,
+          });
+        }}
+      >
         <Card>
           {isLoading ? (
             <Card.Img
@@ -124,8 +134,6 @@ const SkeletonCourseCard = (props) => (
   <SearchCourseCard {...props} isLoading />
 );
 
-SearchCourseCard.Skeleton = SkeletonCourseCard;
-
 SearchCourseCard.propTypes = {
   hit: PropTypes.shape({
     key: PropTypes.string,
@@ -138,5 +146,7 @@ SearchCourseCard.defaultProps = {
   hit: undefined,
   isLoading: false,
 };
+
+SearchCourseCard.Skeleton = SkeletonCourseCard;
 
 export default SearchCourseCard;
