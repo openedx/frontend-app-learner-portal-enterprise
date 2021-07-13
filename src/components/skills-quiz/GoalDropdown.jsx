@@ -1,13 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Form } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_RULE, DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_OTHER,
 } from './constants';
 
-const GoalDropdown = ({ currentGoal, setCurrentGoal }) => {
+const GoalDropdown = ({ handleGoalOptionChange }) => {
+  const [currentGoal, setCurrentGoal] = useState('Goal');
   const handleDropdownChange = e => {
     setCurrentGoal(e.target.value);
+    handleGoalOptionChange(e.target.value);
   };
   return (
     <Form.Control
@@ -26,8 +28,7 @@ const GoalDropdown = ({ currentGoal, setCurrentGoal }) => {
 };
 
 GoalDropdown.propTypes = {
-  currentGoal: PropTypes.string.isRequired,
-  setCurrentGoal: PropTypes.func.isRequired,
+  handleGoalOptionChange: PropTypes.func.isRequired,
 };
 
 export default GoalDropdown;
