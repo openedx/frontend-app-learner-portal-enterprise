@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Form } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import {
