@@ -3,9 +3,15 @@ import {
   Button, Stepper, FullscreenModal, Container,
 } from '@edx/paragon';
 
+import GoalDropdown from './GoalDropdown';
+import SearchJobDropdown from './SearchJobDropdown';
+import SearchResults from './SearchResults';
+import { DROPDOWN_OPTION_CHANGE_RULE } from './constants';
+
 const SkillsQuizStepper = () => {
   const steps = ['skills-search', 'review'];
   const [currentStep, setCurrentStep] = useState(steps[0]);
+  const [currentGoal, setCurrentGoal] = useState('Goal');
   return (
     <>
       <Stepper activeKey={currentStep}>
@@ -43,6 +49,17 @@ const SkillsQuizStepper = () => {
                 edX is here to help you find the course(s) or program(s) to help you take the next step in your career.
                 Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
               </p>
+              <GoalDropdown currentGoal={currentGoal} setCurrentGoal={setCurrentGoal} />
+              {
+                currentGoal !== DROPDOWN_OPTION_CHANGE_RULE
+                  ? <SearchJobDropdown />
+                  : null
+              }
+              {
+                currentGoal !== DROPDOWN_OPTION_CHANGE_RULE
+                  ? <SearchResults />
+                  : null
+              }
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
