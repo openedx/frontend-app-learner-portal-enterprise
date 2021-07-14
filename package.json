@@ -10,7 +10,7 @@
     "@edx/frontend-enterprise-logistration": "0.1.5",
     "@edx/frontend-enterprise-utils": "0.1.5",
     "@edx/frontend-platform": "1.11.0",
-    "@edx/paragon": "^14.16.10",
+    "@edx/paragon": "16.3.1",
     "@fortawesome/fontawesome-svg-core": "1.2.32",
     "@fortawesome/free-brands-svg-icons": "5.15.1",
     "@fortawesome/free-regular-svg-icons": "5.15.1",
@@ -51,7 +51,6 @@
     "redux-logger": "3.0.6",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sanitize-html": "^2.4.0",
     "universal-cookie": "4.0.4"
   },
   "devDependencies": {

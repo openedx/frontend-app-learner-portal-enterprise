@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
-import { Breadcrumb, Container, StatusAlert } from '@edx/paragon';
+import { Breadcrumb, Container, Alert } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -41,19 +41,10 @@ export default function CourseHeader() {
   const renderFailedEnrollmentAlert = () => (
     <>
       <Container size="lg" className="pt-3">
-        <StatusAlert
-          alertType="danger"
-          className="mb-0"
-          dialog={(
-            <>
-              You were not enrolled in your selected course.
-              In order to enroll, you must accept the data sharing consent terms.
-              Please {renderContactHelpText()} for further information.
-            </>
-          )}
-          dismissible={false}
-          open
-        />
+        <Alert variant="danger">
+          You were not enrolled in your selected course. In order to enroll, you must accept the data sharing
+          consent terms. Please {renderContactHelpText(Alert.Link)} for further information.
+        </Alert>
       </Container>
     </>
   );

@@ -368,9 +368,6 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  *
  * @param {object} args
  * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
- * @param {string} args.objectId Algolia object id
- * @param {string} args.queryId Algolia query id
- * @param {string} args.courseKey Unique course key identifying the course
  * @param {string} args.eventName Name of the event
  *
  * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
@@ -383,7 +380,7 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
       algoliaSearchParams,
     },
   } = useContext(CourseContext);
-  const CLICK_DELAY_MS = 300;
+  const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;
