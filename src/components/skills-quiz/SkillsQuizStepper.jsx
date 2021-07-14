@@ -6,14 +6,14 @@ import {
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import SearchResults from './SearchResults';
-import { DROPDOWN_OPTION_CHANGE_RULE } from './constants';
+import { DROPDOWN_OPTION_CHANGE_ROLE } from './constants';
 
 const SkillsQuizStepper = () => {
   const steps = ['skills-search', 'review'];
   const [currentStep, setCurrentStep] = useState(steps[0]);
   const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
   const handleGoalOptionChange = (selectedGoalOption) => {
-    setShowSearchJobsAndSearchResults(selectedGoalOption !== DROPDOWN_OPTION_CHANGE_RULE);
+    setShowSearchJobsAndSearchResults(selectedGoalOption !== DROPDOWN_OPTION_CHANGE_ROLE);
   };
   return (
     <>

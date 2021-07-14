@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import {
-  DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_RULE, DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_OTHER,
+  DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_ROLE, DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_OTHER,
 } from './constants';
 
 const GoalDropdown = ({ handleGoalOptionChange }) => {
@@ -21,7 +21,7 @@ const GoalDropdown = ({ handleGoalOptionChange }) => {
       <option value="">Select a goal</option>
       <option>{DROPDOWN_OPTION_CHANGE_CAREERS}</option>
       <option>{DROPDOWN_OPTION_GET_PROMOTED}</option>
-      <option>{DROPDOWN_OPTION_CHANGE_RULE}</option>
+      <option>{DROPDOWN_OPTION_CHANGE_ROLE}</option>
       <option>{DROPDOWN_OPTION_OTHER}</option>
     </Form.Control>
   );
