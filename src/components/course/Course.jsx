@@ -1,5 +1,5 @@
-import qs from 'query-string';
 import React, { useContext, useMemo } from 'react';
+import qs from 'query-string';
 import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
@@ -14,22 +14,24 @@ import CourseHeader from './CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useAllCourseData } from './data/hooks';
+import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 
 export default function Course() {
   const { courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
-  const location = useLocation();
+  const { search } = useLocation();
 
-  const courseRunKey = useMemo(
-    () => {
-      const queryParams = camelCaseObject(qs.parse(location.search));
-      return queryParams.courseRunKey;
-    },
-    [location],
+  const queryParams = useMemo(
+    () => camelCaseObject(qs.parse(search)),
+    [search],
   );
+  const { courseRunKey } = queryParams;
+
+  // extract search queryId and objectId that led to this course page view from
+  // the URL query parameters and then remove it to keep the URLs clean.
+  const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const [courseData, fetchError] = useAllCourseData({
     courseKey,
@@ -39,23 +41,29 @@ export default function Course() {
 
   const initialState = useMemo(
     () => {
-      if (courseData) {
-        const {
-          courseDetails, userEnrollments, userEntitlements, userSubsidyApplicableToCourse, catalog,
-        } = courseData;
-        return {
-          course: courseDetails,
-          activeCourseRun: getActiveCourseRun(courseDetails),
-          availableCourseRuns: getAvailableCourseRuns(courseDetails),
-          userEnrollments,
-          userEntitlements,
-          userSubsidyApplicableToCourse,
-          catalog,
-        };
+      if (!courseData) {
+        return undefined;
       }
-      return undefined;
+      const {
+        courseDetails,
+        userEnrollments,
+        userEntitlements,
+        userSubsidyApplicableToCourse,
+        catalog,
+      } = courseData;
+
+      return {
+        course: courseDetails,
+        activeCourseRun: getActiveCourseRun(courseDetails),
+        availableCourseRuns: getAvailableCourseRuns(courseDetails),
+        userEnrollments,
+        userEntitlements,
+        userSubsidyApplicableToCourse,
+        catalog,
+        algoliaSearchParams,
+      };
     },
-    [courseData],
+    [courseData, algoliaSearchParams],
   );
 
   if (fetchError) {

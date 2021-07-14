@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 import MediaQuery from 'react-responsive';
 import {
-  Container, StatusAlert, Row, breakpoints,
+  Container, Alert, Row, breakpoints, useToggle,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -19,24 +19,13 @@ export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully ac
 export default function Dashboard() {
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionPlan } = useContext(UserSubsidyContext);
-
   const { state } = useLocation();
+  const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
 
   const renderLicenseActivationSuccess = () => (
-    <>
-      <div>
-        <StatusAlert
-          alertType="success"
-          dialog={(
-            <>
-              {LICENCE_ACTIVATION_MESSAGE}
-            </>
-          )}
-          onClose={() => {}}
-          open
-        />
-      </div>
-    </>
+    <Alert variant="success" show={isActivationAlertOpen} onClose={closeActivationAlert} dismissible>
+      {LICENCE_ACTIVATION_MESSAGE}
+    </Alert>
   );
 
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
@@ -45,7 +34,7 @@ export default function Dashboard() {
     <>
       <Helmet title={PAGE_TITLE} />
       <Container size="lg" className="py-5">
-        {state?.activationSuccess && renderLicenseActivationSuccess()}
+        {renderLicenseActivationSuccess()}
         <Row>
           <MainContent>
             <DashboardMainContent />

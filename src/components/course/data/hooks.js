@@ -1,9 +1,10 @@
 import {
-  useEffect, useState, useMemo, useContext,
+  useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import qs from 'query-string';
+import { useHistory, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -12,6 +13,7 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
+import { CourseContext } from '../CourseContextProvider';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
@@ -174,7 +176,7 @@ export function useCoursePacingType(courseRun) {
  *
  * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
  */
-const useCoursePriceForUserSubsidy = ({
+export const useCoursePriceForUserSubsidy = ({
   activeCourseRun, userSubsidyApplicableToCourse,
 }) => {
   const currency = CURRENCY_USD;
@@ -252,7 +254,7 @@ useCoursePriceForUserSubsidy.propTypes = {
  *
  * @returns {string} url for enrollment
  */
-const useCourseEnrollmentUrl = ({
+export const useCourseEnrollmentUrl = ({
   catalogList,
   enterpriseConfig,
   key,
@@ -322,4 +324,86 @@ useCourseEnrollmentUrl.propTypes = {
   userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,
 };
 
-export { useCoursePriceForUserSubsidy, useCourseEnrollmentUrl };
+/**
+ * A hook that parses the URL query parameters to extract an objectId and queryId and then
+ * immediately remove them from the URL via a history replace to keep the URLs clean.
+ *
+ * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
+ */
+export const useExtractAndRemoveSearchParamsFromURL = () => {
+  const { search } = useLocation();
+  const history = useHistory();
+  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({
+    queryId: undefined,
+    objectId: undefined,
+  });
+
+  const queryParams = useMemo(
+    () => camelCaseObject(qs.parse(search)),
+    [search],
+  );
+  const { queryId, objectId } = queryParams;
+
+  useEffect(
+    () => {
+      if (queryId && objectId) {
+        setAlgoliaSearchParams({ queryId, objectId });
+        delete queryParams.queryId;
+        delete queryParams.objectId;
+        history.replace({
+          search: qs.stringify(queryParams),
+        });
+      }
+    },
+    [queryParams],
+  );
+
+  return algoliaSearchParams;
+};
+
+/**
+ * Returns a function to be used as a click handler that emits an analytics event for a
+ * search conversion via ``sendTrackEvent``. When used on a hyperlink (i.e., `href` is specified),
+ * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
+ *
+ * @param {object} args
+ * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
+ * @param {string} args.eventName Name of the event
+ *
+ * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
+ * internal hyperlinks (e.g., using ``Link``).
+ */
+export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
+  const {
+    state: {
+      activeCourseRun: { key: courseKey },
+      algoliaSearchParams,
+    },
+  } = useContext(CourseContext);
+  const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
+  const handleClick = useCallback(
+    (e) => {
+      const { queryId, objectId } = algoliaSearchParams;
+      if (!queryId || !objectId) {
+        return;
+      }
+      // if tracking is on a link with an external href destination, we must intentionally delay the default click
+      // behavior to allow enough time for the async analytics event call to resolve.
+      if (href) {
+        e.preventDefault();
+        setTimeout(() => {
+          global.location.href = href;
+        }, CLICK_DELAY_MS);
+      }
+      sendTrackEvent(eventName, {
+        products: [{ objectID: objectId }],
+        index: getConfig().ALGOLIA_INDEX_NAME,
+        queryID: queryId,
+        courseKey,
+      });
+    },
+    [href, algoliaSearchParams, courseKey, eventName],
+  );
+
+  return handleClick;
+};

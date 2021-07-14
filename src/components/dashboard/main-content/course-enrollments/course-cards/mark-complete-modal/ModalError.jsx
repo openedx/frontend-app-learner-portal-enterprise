@@ -1,32 +1,15 @@
 import React, { useContext } from 'react';
-import { StatusAlert } from '@edx/paragon';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert } from '@edx/paragon';
+import { Error } from '@edx/paragon/icons';
 
 import MarkCompleteModalContext from './MarkCompleteModalContext';
 
 const ModalError = () => {
   const { courseLink, courseTitle } = useContext(MarkCompleteModalContext);
   return (
-    <StatusAlert
-      alertType="danger"
-      dialog={(
-        <div className="d-flex">
-          <div>
-            <FontAwesomeIcon className="mr-3" icon={faExclamationTriangle} />
-          </div>
-          <div>
-            Unable to save
-            {' '}
-            <a href={courseLink}>{courseTitle}</a>.
-            {' '}
-            for later. Please try again.
-          </div>
-        </div>
-      )}
-      dismissible={false}
-      open
-    />
+    <Alert variant="danger" icon={Error}>
+      Unable to save <Alert.Link href={courseLink}>{courseTitle}</Alert.Link> for later. Please try again.
+    </Alert>
   );
 };
 
