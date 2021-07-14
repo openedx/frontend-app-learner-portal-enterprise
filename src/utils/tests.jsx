@@ -78,6 +78,10 @@ export const initialCourseState = ({
   userEntitlements: [],
   userSubsidyApplicableToCourse,
   catalog: { catalogList: [] },
+  algoliaSearchParams: {
+    queryId: undefined,
+    objectId: undefined,
+  },
 });
 
 export const A_100_PERCENT_OFFER = {

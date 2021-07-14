@@ -22,7 +22,6 @@ const ToCoursewarePage = ({
   const {
     state: {
       activeCourseRun: { key: courseKey },
-      algoliaSearchParams,
     },
   } = useContext(CourseContext);
   const courseInfoUrl = createCourseInfoUrl({ baseUrl: config.LMS_BASE_URL, courseKey });
@@ -34,9 +33,6 @@ const ToCoursewarePage = ({
   const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl;
   const handleClick = useTrackSearchConversionClickHandler({
     href: landingUrl,
-    objectId: algoliaSearchParams.objectId,
-    queryId: algoliaSearchParams.queryId,
-    courseKey,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_courseware.clicked',
   });
 

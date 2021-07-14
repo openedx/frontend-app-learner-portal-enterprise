@@ -1,8 +1,6 @@
-import React, {
-  useContext, useEffect, useMemo, useState,
-} from 'react';
+import React, { useContext, useMemo } from 'react';
 import qs from 'query-string';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import { breakpoints, Container, Row } from '@edx/paragon';
@@ -16,41 +14,24 @@ import CourseHeader from './CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useAllCourseData } from './data/hooks';
+import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 
 export default function Course() {
   const { courseKey } = useParams();
-  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({
-    queryId: undefined,
-    objectId: undefined,
-  });
   const { enterpriseConfig } = useContext(AppContext);
   const { search } = useLocation();
-  const history = useHistory();
 
   const queryParams = useMemo(
     () => camelCaseObject(qs.parse(search)),
     [search],
   );
-  const { courseRunKey, queryId, objectId } = queryParams;
+  const { courseRunKey } = queryParams;
 
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.
-  useEffect(
-    () => {
-      if (queryId && objectId) {
-        setAlgoliaSearchParams({ queryId, objectId });
-        delete queryParams.queryId;
-        delete queryParams.objectId;
-        history.replace({
-          search: qs.stringify(queryParams),
-        });
-      }
-    },
-    [queryId, objectId],
-  );
+  const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const [courseData, fetchError] = useAllCourseData({
     courseKey,

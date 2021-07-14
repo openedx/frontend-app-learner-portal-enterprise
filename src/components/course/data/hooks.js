@@ -2,6 +2,7 @@ import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import qs from 'query-string';
+import { useHistory, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { logError } from '@edx/frontend-platform/logging';
@@ -12,6 +13,7 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import CourseService from './service';
+import { CourseContext } from '../CourseContextProvider';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
@@ -323,6 +325,43 @@ useCourseEnrollmentUrl.propTypes = {
 };
 
 /**
+ * A hook that parses that the URL query parameters to extract an objectId and queryId and then
+ * immediately remove them from the URL via a history replace to keep the URLs clean.
+ *
+ * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
+ */
+export const useExtractAndRemoveSearchParamsFromURL = () => {
+  const { search } = useLocation();
+  const history = useHistory();
+  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({
+    queryId: undefined,
+    objectId: undefined,
+  });
+
+  const queryParams = useMemo(
+    () => camelCaseObject(qs.parse(search)),
+    [search],
+  );
+  const { queryId, objectId } = queryParams;
+
+  useEffect(
+    () => {
+      if (queryId && objectId) {
+        setAlgoliaSearchParams({ queryId, objectId });
+        delete queryParams.queryId;
+        delete queryParams.objectId;
+        history.replace({
+          search: qs.stringify(queryParams),
+        });
+      }
+    },
+    [queryParams],
+  );
+
+  return algoliaSearchParams;
+};
+
+/**
  * Returns a function to be used as a click handler that emits an analytics event for a
  * search conversion via ``sendTrackEvent``. When used on a hyperlink (i.e., `href` is specified),
  * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
@@ -337,19 +376,22 @@ useCourseEnrollmentUrl.propTypes = {
  * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
  * internal hyperlinks (e.g., using ``Link``).
  */
-export const useTrackSearchConversionClickHandler = ({
-  href,
-  objectId,
-  queryId,
-  courseKey,
-  eventName,
-}) => {
+export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
+  const {
+    state: {
+      activeCourseRun: { key: courseKey },
+      algoliaSearchParams,
+    },
+  } = useContext(CourseContext);
   const CLICK_DELAY_MS = 300;
   const handleClick = useCallback(
     (e) => {
+      const { queryId, objectId } = algoliaSearchParams;
       if (!queryId || !objectId) {
         return;
       }
+      // if tracking is on a link with an external href destination, we must intentionally delay the default click
+      // behavior to allow enough time for the async analytics event call to resolve.
       if (href) {
         e.preventDefault();
         setTimeout(() => {
@@ -363,7 +405,7 @@ export const useTrackSearchConversionClickHandler = ({
         courseKey,
       });
     },
-    [href, objectId, queryId, courseKey, eventName],
+    [href, algoliaSearchParams, courseKey, eventName],
   );
 
   return handleClick;

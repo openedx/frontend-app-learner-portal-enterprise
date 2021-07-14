@@ -1,10 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { CourseContext } from './CourseContextProvider';
 import { useTrackSearchConversionClickHandler } from './data/hooks';
 
 export const ENROLL_MODAL_TEXT_NO_OFFERS = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
@@ -30,17 +29,8 @@ const EnrollModal = ({
   offersCount,
   setIsModalOpen,
 }) => {
-  const {
-    state: {
-      activeCourseRun: { key: courseKey },
-      algoliaSearchParams,
-    },
-  } = useContext(CourseContext);
   const handleTrackingClick = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
-    objectId: algoliaSearchParams.objectId,
-    queryId: algoliaSearchParams.queryId,
-    courseKey,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_ecommerce_basket.clicked',
   });
   const [submitting, setSubmitting] = useState(false);
