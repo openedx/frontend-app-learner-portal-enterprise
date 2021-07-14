@@ -325,7 +325,7 @@ useCourseEnrollmentUrl.propTypes = {
 };
 
 /**
- * A hook that parses that the URL query parameters to extract an objectId and queryId and then
+ * A hook that parses the URL query parameters to extract an objectId and queryId and then
  * immediately remove them from the URL via a history replace to keep the URLs clean.
  *
  * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
