@@ -41,7 +41,7 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
   return (
     <AppContext.Provider
       value={{
-        authenticatedUser: getAuthenticatedUser(),
+        authenticatedUser: user,
         config,
         enterpriseConfig,
         courseCards: {
