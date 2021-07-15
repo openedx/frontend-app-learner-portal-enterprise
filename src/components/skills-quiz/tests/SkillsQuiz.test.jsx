@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Provider as ReduxProvider } from 'react-redux';
+import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import {
@@ -73,7 +74,9 @@ describe('<SkillsQuiz />', () => {
   it('renders skills quiz page successfully.', () => {
     const SILLS_QUIZ_PAGE_MESSAGE = 'edX is here to help you find the course(s) or program(s) to help you take the next step in your career. Tell us a bit about your current role, and skills or jobs you\'re interested in.';
     renderWithRouter(
-      <SkillsQuizWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />,
+      <SearchData>
+        <SkillsQuizWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />
+      </SearchData>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText('Skills Quiz')).toBeTruthy();

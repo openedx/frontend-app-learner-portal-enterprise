@@ -5,7 +5,8 @@ import {
 import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
-import { SearchContext, FacetListRefinement } from '@edx/frontend-enterprise-catalog-search';
+import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
