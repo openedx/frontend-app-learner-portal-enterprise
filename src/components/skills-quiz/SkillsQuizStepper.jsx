@@ -5,7 +5,9 @@ import {
 import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
-import { SearchContext, FacetListRefinement } from '@edx/frontend-enterprise-catalog-search';
+import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
+import CurrentRefinements from '@edx/frontend-enterprise-catalog-search/CurrentRefinements';
 import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
@@ -99,6 +101,7 @@ const SkillsQuizStepper = () => {
               >
                 <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} />
                 {skillQuizFacets}
+                <CurrentRefinements />
               </InstantSearch>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
