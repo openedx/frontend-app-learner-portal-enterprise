@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
+import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -20,7 +21,9 @@ const SkillsQuiz = () => {
       <Container size="lg" className="py-5">
         <Row>
           <MainContent>
-            <SkillsQuizStepper />
+            <SearchData>
+              <SkillsQuizStepper />
+            </SearchData>
           </MainContent>
         </Row>
 

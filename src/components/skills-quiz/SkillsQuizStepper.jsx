@@ -1,20 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import {
   Button, Stepper, FullscreenModal, Container,
 } from '@edx/paragon';
+import algoliasearch from 'algoliasearch/lite';
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
+import { getConfig } from '@edx/frontend-platform/config';
+import { SearchContext, FacetListRefinement } from '@edx/frontend-enterprise-catalog-search';
+import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import SearchResults from './SearchResults';
-import { DROPDOWN_OPTION_CHANGE_ROLE } from './constants';
+import { DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS } from './constants';
 
 const SkillsQuizStepper = () => {
+  const config = getConfig();
+  const searchClient = algoliasearch(
+    config.ALGOLIA_APP_ID,
+    config.ALGOLIA_SEARCH_API_KEY,
+  );
   const steps = ['skills-search', 'review'];
   const [currentStep, setCurrentStep] = useState(steps[0]);
   const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
   const handleGoalOptionChange = (selectedGoalOption) => {
     setShowSearchJobsAndSearchResults(selectedGoalOption !== DROPDOWN_OPTION_CHANGE_ROLE);
   };
+
+  const { refinementsFromQueryParams } = useContext(SearchContext);
+  const skillQuizFacets = useMemo(
+    () => {
+      const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
+        title, attribute, typeaheadOptions,
+      }) => (
+        <FacetListRefinement
+          key={attribute}
+          title={title}
+          attribute={attribute}
+          limit={300} // this is replicating the B2C search experience
+          refinementsFromQueryParams={refinementsFromQueryParams}
+          defaultRefinement={refinementsFromQueryParams[attribute]}
+          facetValueType="array"
+          typeaheadOptions={typeaheadOptions}
+          searchable={!!typeaheadOptions}
+        />
+      ));
+      return (
+        <>
+          {filtersFromRefinements}
+        </>
+      );
+    },
+    [refinementsFromQueryParams],
+  );
+
   return (
     <>
       <Stepper activeKey={currentStep}>
@@ -55,6 +93,13 @@ const SkillsQuizStepper = () => {
               <GoalDropdown handleGoalOptionChange={handleGoalOptionChange} />
               { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
               { showSearchJobsAndSearchResults ? <SearchResults /> : null }
+              <InstantSearch
+                indexName={config.ALGOLIA_INDEX_NAME}
+                searchClient={searchClient}
+              >
+                <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} />
+                {skillQuizFacets}
+              </InstantSearch>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
