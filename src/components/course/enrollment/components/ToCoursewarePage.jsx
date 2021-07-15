@@ -39,7 +39,7 @@ const ToCoursewarePage = ({
   return (
     <EnrollButtonCta
       enrollLabel={enrollLabel}
-      className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
+      className={classNames('btn btn-primary btn-brand-primary d-block', enrollLinkClass)}
       destination={landingUrl}
       as={Hyperlink}
       onClick={handleClick}

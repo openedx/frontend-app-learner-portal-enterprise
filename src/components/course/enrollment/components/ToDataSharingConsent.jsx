@@ -18,7 +18,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
     <EnrollButtonCta
       enrollLabel={enrollLabel}
       as={Hyperlink}
-      className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
+      className={classNames('btn btn-primary btn-brand-primary d-block', enrollLinkClass)}
       destination={enrollmentUrl}
       onClick={handleClick}
     />
