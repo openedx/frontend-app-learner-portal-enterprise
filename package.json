@@ -54,7 +54,7 @@
     "universal-cookie": "4.0.4"
   },
   "devDependencies": {
-    "@edx/frontend-build": "7.0.6",
+    "@edx/frontend-build": "github:edx/frontend-build#astankiewicz/css-loader-import-options",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.5",
     "@testing-library/react-hooks": "3.7.0",

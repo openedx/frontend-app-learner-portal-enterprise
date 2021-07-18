@@ -19,7 +19,7 @@ const ViewOnDashboard = ({ enrollLabel }) => {
     <EnrollButtonCta
       enrollLabel={enrollLabel}
       as={Link}
-      className={classNames('btn btn-primary btn-brand-primary', enrollLinkClass)}
+      className={classNames('btn btn-primary btn-brand-primary d-block', enrollLinkClass)}
       to={`/${enterpriseConfig.slug}`}
       onClick={handleClick}
     />
