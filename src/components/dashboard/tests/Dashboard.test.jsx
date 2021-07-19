@@ -14,7 +14,7 @@ import { TEST_OWNER } from '../../course/tests/data/constants';
 import {
   renderWithRouter, fakeReduxStore,
 } from '../../../utils/tests';
-import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
+import DashboardPage, { LICENCE_ACTIVATION_MESSAGE } from '../DashboardPage';
 import {
   SUBSCRIPTION_EXPIRED_MODAL_TITLE,
   SUBSCRIPTION_EXPIRING_MODAL_TITLE,
@@ -33,7 +33,7 @@ const DashboardWithContext = ({
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <CourseContextProvider initialState={initialCourseState}>
         <ReduxProvider store={mockStore(initialReduxStore)}>
-          <Dashboard />
+          <DashboardPage />
         </ReduxProvider>
       </CourseContextProvider>
     </UserSubsidyContext.Provider>
