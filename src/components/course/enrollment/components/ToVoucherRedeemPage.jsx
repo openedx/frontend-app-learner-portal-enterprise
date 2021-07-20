@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import { useSubsidyDataForCourse } from '../hooks';
 import EnrollModal from '../../EnrollModal';
@@ -15,7 +16,7 @@ const ToVoucherRedeemPage = ({ enrollLabel, enrollmentUrl }) => {
     <>
       <EnrollButtonCta
         enrollLabel={enrollLabel}
-        className={enrollLinkClass}
+        className={classNames('d-block', enrollLinkClass)}
         onClick={() => setIsModalOpen(true)}
       />
       <EnrollModal
