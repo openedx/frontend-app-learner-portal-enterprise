@@ -21,7 +21,7 @@ const SearchResults = ({
         {isSearchStalled && (
           <>
             <Skeleton className="lead mb-4" width={160} />
-            <div className="skeleton-course-card">
+            <div className="skeleton-job-card">
               <SearchJobCard.Skeleton />
             </div>
           </>

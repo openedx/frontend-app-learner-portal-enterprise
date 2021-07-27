@@ -19,7 +19,7 @@ const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
       {skills?.map(result => (
         <div
           key={result}
-          className="mb-3"
+          className="search-job-card mb-3"
           role="group"
           aria-label={result}
         >
