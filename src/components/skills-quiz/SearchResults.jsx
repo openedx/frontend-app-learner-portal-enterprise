@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
-import { useNbHitsFromSearchResults, SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
 import { Container } from '@edx/paragon';
 
 import SearchJobCard from './SearchJobCard';
@@ -13,7 +13,6 @@ const SearchResults = ({
   isSearchStalled,
   error,
 }) => {
-  const { refinementsFromQueryParams } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
 
   return (
@@ -29,7 +28,7 @@ const SearchResults = ({
         )}
         {!isSearchStalled && nbHits > 0 && (
           <>
-             <Hits hitComponent={SearchJobCard} />
+            <Hits hitComponent={SearchJobCard} />
           </>
         )}
         {!isSearchStalled && nbHits === 0 && (

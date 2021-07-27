@@ -8,7 +8,6 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import CurrentRefinements from '@edx/frontend-enterprise-catalog-search/CurrentRefinements';
-import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -30,7 +29,7 @@ const SkillsQuizStepper = () => {
 
   const { refinementsFromQueryParams } = useContext(SearchContext);
   // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
-  const { skill_names } = refinementsFromQueryParams;
+  const { skill_names: skills } = refinementsFromQueryParams;
   const skillQuizFacets = useMemo(
     () => {
       const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
@@ -103,7 +102,7 @@ const SkillsQuizStepper = () => {
                 {skillQuizFacets}
                 <CurrentRefinements />
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
-                { (showSearchJobsAndSearchResults && (skill_names?.length > 0)) ? <SearchResults /> : null }
+                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
               </InstantSearch>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
