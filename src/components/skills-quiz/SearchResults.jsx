@@ -3,10 +3,25 @@ import PropTypes from 'prop-types';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
-import { Container } from '@edx/paragon';
+import { Container, StatusAlert } from '@edx/paragon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import SearchJobCard from './SearchJobCard';
 import { isDefinedAndNotNull } from '../../utils/common';
+
+const renderError = () => (
+  <div>
+    <div>
+      <FontAwesomeIcon icon={faExclamationTriangle} />
+    </div>
+    <div>
+      An error occured while fetching your selected job.
+      <br />
+      Please try again later.
+    </div>
+  </div>
+);
 
 const SearchResults = ({
   searchResults,
@@ -31,11 +46,13 @@ const SearchResults = ({
             <Hits hitComponent={SearchJobCard} />
           </>
         )}
-        {!isSearchStalled && nbHits === 0 && (
-          <p>No jobs found </p>
-        )}
         {!isSearchStalled && isDefinedAndNotNull(error) && (
-          <p> An error occured while fetching jobs </p>
+          <StatusAlert
+            alertType="danger"
+            dialog={renderError()}
+            dismissible={false}
+            open
+          />
         )}
       </>
     </Container>
