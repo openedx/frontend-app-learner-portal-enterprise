@@ -1,12 +1,12 @@
 import React from 'react';
 
 import Dashboard from './Dashboard';
-import AuthenticatedUserSubsidyPage from '../app/AuthenticatedUserSubsidyPage';
+import AuthenticatedPage from '../app/AuthenticatedPage';
 
 export default function DashboardPage() {
   return (
-    <AuthenticatedUserSubsidyPage>
+    <AuthenticatedPage>
       <Dashboard />
-    </AuthenticatedUserSubsidyPage>
+    </AuthenticatedPage>
   );
 }
