@@ -7,7 +7,6 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import CurrentRefinements from '@edx/frontend-enterprise-catalog-search/CurrentRefinements';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -100,7 +99,6 @@ const SkillsQuizStepper = () => {
               >
                 <Configure hitsPerPage={1} />
                 {skillQuizFacets}
-                <CurrentRefinements />
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
                 { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
               </InstantSearch>

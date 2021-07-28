@@ -7,7 +7,7 @@ const EnrollBtnDisabled = ({ enrollLabel }) => (
   <EnrollButtonCta
     enrollLabel={enrollLabel}
     as="div"
-    className="btn btn-light btn-block disabled"
+    className="btn btn-light btn-block disabled d-block"
   />
 );
 
