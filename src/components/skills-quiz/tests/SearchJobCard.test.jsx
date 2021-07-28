@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+// import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import SearchJobCard from '../SearchJobCard';
@@ -41,9 +41,9 @@ describe('<SearchJobCard />', () => {
     renderWithSearchContext(<SearchJobCard {...defaultProps} />);
 
     // TODO: Uncomment these lines when jobs data is available as hits
-    //expect(screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
-    //expect(screen.getByText(TEST_MEDIAN_SALARY)).toBeInTheDocument();
-    //expect(screen.getByText(TEST_JOB_POSTINGS)).toBeInTheDocument();
+    // expect(screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
+    // expect(screen.getByText(TEST_MEDIAN_SALARY)).toBeInTheDocument();
+    // expect(screen.getByText(TEST_JOB_POSTINGS)).toBeInTheDocument();
   });
 
   test('renders the loading state when job data is being fetched', () => {
@@ -52,7 +52,7 @@ describe('<SearchJobCard />', () => {
     // job card is properly in a loading state.
 
     // TODO: Uncomment these lines when jobs data is available as hits
-    //expect(screen.queryByTestId('job-title-loading')).toBeInTheDocument();
-    //expect(screen.queryByTestId('job-content-loading')).toBeInTheDocument();
+    // expect(screen.queryByTestId('job-title-loading')).toBeInTheDocument();
+    // expect(screen.queryByTestId('job-content-loading')).toBeInTheDocument();
   });
 });

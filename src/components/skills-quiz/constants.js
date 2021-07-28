@@ -17,11 +17,11 @@ export const SKILLS_QUIZ_FACET_FILTERS = [
 ];
 
 export const JOBS_QUIZ_FACET_FILTERS = {
-    attribute: 'skill_names',
-    title: 'Search jobs',
-    typeaheadOptions: {
-      placeholder: 'Find a job...',
-      ariaLabel: 'Type to find a job',
-      minLength: 3,
-    },
+  attribute: 'skill_names',
+  title: 'Search jobs',
+  typeaheadOptions: {
+    placeholder: 'Find a job...',
+    ariaLabel: 'Type to find a job',
+    minLength: 3,
+  },
 };
