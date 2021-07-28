@@ -1,6 +1,5 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
-//import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import SearchJobCard from '../SearchJobCard';
@@ -18,16 +17,6 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
-/*const SearchJobCardWithContext = (props) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-    }}
-  >
-    <SearchJobCard {...props} />
-  </AppContext.Provider>
-);
-*/
 const TEST_JOB_KEY = 'test-job-key';
 const TEST_JOB_TITLE = 'Test Job Title';
 const TEST_MEDIAN_SALARY = '$10,0000';
