@@ -16,8 +16,7 @@ export const SKILLS_QUIZ_FACET_FILTERS = [
   },
 ];
 
-export const JOBS_QUIZ_FACET_FILTERS = [
-  {
+export const JOBS_QUIZ_FACET_FILTERS = {
     attribute: 'skill_names',
     title: 'Search jobs',
     typeaheadOptions: {
@@ -25,5 +24,4 @@ export const JOBS_QUIZ_FACET_FILTERS = [
       ariaLabel: 'Type to find a job',
       minLength: 3,
     },
-  },
-];
+};

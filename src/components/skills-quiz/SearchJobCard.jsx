@@ -27,7 +27,7 @@ const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
             <Card.Body>
               <Card.Title as="h4" className="card-title mb-1">
                 {isLoading ? (
-                  <Skeleton count={1} />
+                  <Skeleton count={1} data-testid="job-title-loading" />
                 ) : (
                   <Truncate lines={1} trimWhitespace>
                     {result}
@@ -35,7 +35,7 @@ const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
                 )}
               </Card.Title>
               {isLoading ? (
-                <Skeleton duration={0} />
+                <Skeleton duration={0} data-testid="job-content-loading" />
               ) : (
                 <>
                   <p className="text-muted m-0">

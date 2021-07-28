@@ -6,11 +6,10 @@ import { JOBS_QUIZ_FACET_FILTERS } from './constants';
 
 const SearchJobDropdown = () => {
   const { refinementsFromQueryParams } = useContext(SearchContext);
+  const { title, attribute, typeaheadOptions } = JOBS_QUIZ_FACET_FILTERS;
   const skillQuizFacets = useMemo(
     () => {
-      const filtersFromRefinements = JOBS_QUIZ_FACET_FILTERS.map(({
-        title, attribute, typeaheadOptions,
-      }) => (
+      const filtersFromRefinements = () => (
         <FacetListRefinement
           key={attribute}
           title={title}
@@ -22,10 +21,10 @@ const SearchJobDropdown = () => {
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
         />
-      ));
+      );
       return (
         <>
-          {filtersFromRefinements}
+          {filtersFromRefinements()}
         </>
       );
     },
