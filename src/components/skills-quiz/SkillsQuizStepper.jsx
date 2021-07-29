@@ -7,6 +7,8 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
+import { useHistory, useLocation } from 'react-router-dom';
+import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -29,10 +31,25 @@ const SkillsQuizStepper = () => {
   const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
   // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
   const { skill_names: skills } = refinementsFromQueryParams;
+  const history = useHistory();
+  const location = useLocation();
+  const handleSeeMoreButtonClick = () => {
+    // TODO: incorporate handling of skills related to jobs as well
+    // get comma seperated representation of selected skills
+    const queryString = refinementsFromQueryParams?.skill_names?.reduce((a, b) => String(`${a},${b}`));
+    // get current path of the page: to get enterprise slug from url
+    let path = location.pathname;
+    // remove current page section from url
+    path = path.replace('/skills-quiz', '');
+    path = queryString ? `${path}/search?skill_names=${queryString}`.replace(/\/\/+/g, '/') : `${path}search`;
+    history.push(path);
+  };
   const skillQuizFacets = useMemo(
     () => {
       const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
-        title, attribute, typeaheadOptions,
+        title,
+        attribute,
+        typeaheadOptions,
       }) => (
         <FacetListRefinement
           key={attribute}
@@ -68,21 +85,21 @@ const SkillsQuizStepper = () => {
           className="bg-light-200"
           isOpen
           onClose={() => console.log('Skills quiz closed.')}
-          beforeBodyNode={<Stepper.Header className="border-bottom border-light" />}
+          beforeBodyNode={<Stepper.Header className="border-bottom border-light"/>}
           footerNode={(
             <>
               <Stepper.ActionRow eventKey="skills-search">
                 <Button variant="outline-primary" onClick={() => console.log('Skills quiz closed.')}>
                   Cancel
                 </Button>
-                <Stepper.ActionRow.Spacer />
+                <Stepper.ActionRow.Spacer/>
                 <Button onClick={() => setCurrentStep('review')}>Continue</Button>
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
                 <Button variant="outline-primary" onClick={() => setCurrentStep('skills-search')}>
                   Go Back
                 </Button>
-                <Stepper.ActionRow.Spacer />
+                <Stepper.ActionRow.Spacer/>
                 <Button onClick={() => console.log('Skills quiz completed.')}>Done</Button>
               </Stepper.ActionRow>
             </>
@@ -102,7 +119,7 @@ const SkillsQuizStepper = () => {
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
               >
-                <Configure hitsPerPage={1} />
+                <Configure hitsPerPage={NUM_RESULTS_PER_PAGE}/>
                 {skillQuizFacets}
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
                 { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
@@ -129,6 +146,9 @@ const SkillsQuizStepper = () => {
               <p>
                 Skills Review Page.
               </p>
+              <div className="row justify-content-center">
+                <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See More Courses</Button>
+              </div>
             </Stepper.Step>
           </Container>
         </FullscreenModal>
