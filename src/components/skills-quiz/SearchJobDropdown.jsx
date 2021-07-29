@@ -7,7 +7,7 @@ import { JOBS_QUIZ_FACET_FILTERS } from './constants';
 const SearchJobDropdown = () => {
   const { refinementsFromQueryParams } = useContext(SearchContext);
   const { title, attribute, typeaheadOptions } = JOBS_QUIZ_FACET_FILTERS;
-  const skillQuizFacets = useMemo(
+  const jobsDropdown = useMemo(
     () => {
       const filtersFromRefinements = () => (
         <FacetListRefinement
@@ -33,7 +33,7 @@ const SearchJobDropdown = () => {
 
   return (
     <>
-      {skillQuizFacets}
+      {jobsDropdown}
     </>
   );
 };

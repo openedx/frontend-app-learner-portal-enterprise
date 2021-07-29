@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
 import Skeleton from 'react-loading-skeleton';
+// TODO: Uncomment this line when jobs are coming as hits from Algolia
 // import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card } from '@edx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -16,12 +17,12 @@ const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
 
   return (
     <>
-      {skills?.map(result => (
+      {skills?.map(skill => (
         <div
-          key={result}
+          key={skill}
           className="search-job-card mb-3"
           role="group"
-          aria-label={result}
+          aria-label={skill}
         >
           <Card>
             <Card.Body>
@@ -30,7 +31,7 @@ const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
                   <Skeleton count={1} data-testid="job-title-loading" />
                 ) : (
                   <Truncate lines={1} trimWhitespace>
-                    {result}
+                    {skill}
                   </Truncate>
                 )}
               </Card.Title>
@@ -40,7 +41,7 @@ const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
                 <>
                   <p className="text-muted m-0">
                     <Truncate lines={1} trimWhitespace>
-                      {result}
+                      {skill}
                     </Truncate>
                   </p>
                 </>
