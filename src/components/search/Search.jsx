@@ -15,7 +15,6 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 const Search = () => {
   const { enterpriseConfig, algolia } = useContext(AppContext);
   const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
-  subscriptionPlan['enterpriseCatalogUuid'] = "88fce376-946e-419e-967b-ea6e68a44d23";
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
