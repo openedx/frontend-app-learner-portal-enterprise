@@ -84,21 +84,21 @@ const SkillsQuizStepper = () => {
           className="bg-light-200"
           isOpen
           onClose={() => console.log('Skills quiz closed.')}
-          beforeBodyNode={<Stepper.Header className="border-bottom border-light"/>}
+          beforeBodyNode={<Stepper.Header className="border-bottom border-light" />}
           footerNode={(
             <>
               <Stepper.ActionRow eventKey="skills-search">
                 <Button variant="outline-primary" onClick={() => console.log('Skills quiz closed.')}>
                   Cancel
                 </Button>
-                <Stepper.ActionRow.Spacer/>
+                <Stepper.ActionRow.Spacer />
                 <Button onClick={() => setCurrentStep('review')}>Continue</Button>
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
                 <Button variant="outline-primary" onClick={() => setCurrentStep('skills-search')}>
                   Go Back
                 </Button>
-                <Stepper.ActionRow.Spacer/>
+                <Stepper.ActionRow.Spacer />
                 <Button onClick={() => console.log('Skills quiz completed.')}>Done</Button>
               </Stepper.ActionRow>
             </>
@@ -118,7 +118,7 @@ const SkillsQuizStepper = () => {
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
               >
-                <Configure hitsPerPage={NUM_RESULTS_PER_PAGE}/>
+                <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} />
                 {skillQuizFacets}
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
                 { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
