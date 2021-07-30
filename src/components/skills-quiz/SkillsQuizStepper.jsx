@@ -35,13 +35,12 @@ const SkillsQuizStepper = () => {
   const location = useLocation();
   const handleSeeMoreButtonClick = () => {
     // TODO: incorporate handling of skills related to jobs as well
-    // get comma seperated representation of selected skills
-    const queryString = refinementsFromQueryParams?.skill_names?.reduce((a, b) => String(`${a},${b}`));
-    // get current path of the page: to get enterprise slug from url
+    const queryString = new URLSearchParams({ skill_names: refinementsFromQueryParams.skill_names });
     let path = location.pathname;
     // remove current page section from url
     path = path.replace('/skills-quiz', '');
-    path = queryString ? `${path}/search?skill_names=${queryString}`.replace(/\/\/+/g, '/') : `${path}search`;
+    path = refinementsFromQueryParams.skill_names ? `${path}/search?${queryString}` : `${path}/search`;
+    path = path.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur because of trailing slash url before redirection
     history.push(path);
   };
   const skillQuizFacets = useMemo(
