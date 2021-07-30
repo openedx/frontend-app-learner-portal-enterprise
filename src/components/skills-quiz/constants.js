@@ -25,3 +25,5 @@ export const JOBS_QUIZ_FACET_FILTERS = {
     minLength: 3,
   },
 };
+
+export const JOBS_ERROR_ALERT_MESSAGE = 'An error occured while fetching your selected job. Please try again later.';

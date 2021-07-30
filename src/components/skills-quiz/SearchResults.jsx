@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import SearchJobCard from './SearchJobCard';
+import { JOBS_ERROR_ALERT_MESSAGE } from './constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 
 const renderError = () => (
@@ -15,11 +16,9 @@ const renderError = () => (
     <div>
       <FontAwesomeIcon icon={faExclamationTriangle} />
     </div>
-    <div>
-      An error occured while fetching your selected job.
-      <br />
-      Please try again later.
-    </div>
+    <p>
+      { JOBS_ERROR_ALERT_MESSAGE }
+    </p>
   </div>
 );
 
@@ -50,7 +49,7 @@ const SearchResults = ({
           <StatusAlert
             alertType="danger"
             dialog={renderError()}
-            dismissible={false}
+            dismissible
             open
           />
         )}
