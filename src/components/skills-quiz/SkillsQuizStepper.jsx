@@ -9,7 +9,6 @@ import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -117,7 +116,7 @@ const SkillsQuizStepper = () => {
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
               >
-                <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} />
+                <Configure hitsPerPage={1} />
                 {skillQuizFacets}
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
                 { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
