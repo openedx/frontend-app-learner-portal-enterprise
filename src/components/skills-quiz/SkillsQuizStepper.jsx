@@ -7,7 +7,8 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
 import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
@@ -31,17 +32,15 @@ const SkillsQuizStepper = () => {
   const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
   // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
   const { skill_names: skills } = refinementsFromQueryParams;
+  const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
-  const location = useLocation();
   const handleSeeMoreButtonClick = () => {
     // TODO: incorporate handling of skills related to jobs as well
     const queryString = new URLSearchParams({ skill_names: refinementsFromQueryParams.skill_names });
-    let path = location.pathname;
-    // remove current page section from url
-    path = path.replace('/skills-quiz', '');
-    path = refinementsFromQueryParams.skill_names ? `${path}/search?${queryString}` : `${path}/search`;
-    path = path.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur because of trailing slash url before redirection
-    history.push(path);
+    const ENT_PATH = `/${enterpriseConfig.slug}`;
+    let SEARCH_PATH = refinementsFromQueryParams.skill_names ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
+    SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
+    history.push(SEARCH_PATH);
   };
   const skillQuizFacets = useMemo(
     () => {
