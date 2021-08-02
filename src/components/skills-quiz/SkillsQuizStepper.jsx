@@ -36,9 +36,9 @@ const SkillsQuizStepper = () => {
   const history = useHistory();
   const handleSeeMoreButtonClick = () => {
     // TODO: incorporate handling of skills related to jobs as well
-    const queryString = new URLSearchParams({ skill_names: refinementsFromQueryParams.skill_names });
+    const queryString = new URLSearchParams({ skill_names: skills });
     const ENT_PATH = `/${enterpriseConfig.slug}`;
-    let SEARCH_PATH = refinementsFromQueryParams.skill_names ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
+    let SEARCH_PATH = skills ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
   };
