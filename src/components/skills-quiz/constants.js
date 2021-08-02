@@ -15,3 +15,15 @@ export const SKILLS_QUIZ_FACET_FILTERS = [
     },
   },
 ];
+
+export const JOBS_QUIZ_FACET_FILTERS = {
+  attribute: 'skill_names',
+  title: 'Search jobs',
+  typeaheadOptions: {
+    placeholder: 'Find a job...',
+    ariaLabel: 'Type to find a job',
+    minLength: 3,
+  },
+};
+
+export const JOBS_ERROR_ALERT_MESSAGE = 'An error occured while fetching your selected job. Please try again later.';

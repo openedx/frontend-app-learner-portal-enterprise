@@ -7,7 +7,6 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import { NUM_RESULTS_PER_PAGE } from '../search/constants';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -28,6 +27,8 @@ const SkillsQuizStepper = () => {
   };
 
   const { refinementsFromQueryParams } = useContext(SearchContext);
+  // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
+  const { skill_names: skills } = refinementsFromQueryParams;
   const skillQuizFacets = useMemo(
     () => {
       const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
@@ -92,14 +93,14 @@ const SkillsQuizStepper = () => {
                 Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
               </p>
               <GoalDropdown handleGoalOptionChange={handleGoalOptionChange} />
-              { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
-              { showSearchJobsAndSearchResults ? <SearchResults /> : null }
               <InstantSearch
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
               >
-                <Configure hitsPerPage={NUM_RESULTS_PER_PAGE} />
+                <Configure hitsPerPage={1} />
                 {skillQuizFacets}
+                { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
+                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
               </InstantSearch>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
