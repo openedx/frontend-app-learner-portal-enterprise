@@ -7,6 +7,8 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
+import { useHistory } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -29,10 +31,22 @@ const SkillsQuizStepper = () => {
   const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
   // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
   const { skill_names: skills } = refinementsFromQueryParams;
+  const { enterpriseConfig } = useContext(AppContext);
+  const history = useHistory();
+  const handleSeeMoreButtonClick = () => {
+    // TODO: incorporate handling of skills related to jobs as well
+    const queryString = new URLSearchParams({ skill_names: skills });
+    const ENT_PATH = `/${enterpriseConfig.slug}`;
+    let SEARCH_PATH = skills ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
+    SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
+    history.push(SEARCH_PATH);
+  };
   const skillQuizFacets = useMemo(
     () => {
       const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
-        title, attribute, typeaheadOptions,
+        title,
+        attribute,
+        typeaheadOptions,
       }) => (
         <FacetListRefinement
           key={attribute}
@@ -129,6 +143,9 @@ const SkillsQuizStepper = () => {
               <p>
                 Skills Review Page.
               </p>
+              <div className="row justify-content-center">
+                <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See More Courses</Button>
+              </div>
             </Stepper.Step>
           </Container>
         </FullscreenModal>
