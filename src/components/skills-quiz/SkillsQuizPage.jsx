@@ -4,7 +4,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { Redirect } from 'react-router-dom';
 
 import SkillsQuiz from './SkillsQuiz';
-import AuthenticatedUserSubsidyPage from '../app/AuthenticatedUserSubsidyPage';
+import AuthenticatedPage from '../app/AuthenticatedPage';
 
 export default function DashboardPage() {
   const config = getConfig();
@@ -12,8 +12,8 @@ export default function DashboardPage() {
     return <Redirect to="/" />;
   }
   return (
-    <AuthenticatedUserSubsidyPage>
+    <AuthenticatedPage>
       <SkillsQuiz />
-    </AuthenticatedUserSubsidyPage>
+    </AuthenticatedPage>
   );
 }
