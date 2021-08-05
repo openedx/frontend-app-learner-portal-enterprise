@@ -27,3 +27,5 @@ export const JOBS_QUIZ_FACET_FILTERS = {
 };
 
 export const JOBS_ERROR_ALERT_MESSAGE = 'An error occured while fetching your selected job. Please try again later.';
+export const STEP1 = 'skills-search';
+export const STEP2 = 'review';

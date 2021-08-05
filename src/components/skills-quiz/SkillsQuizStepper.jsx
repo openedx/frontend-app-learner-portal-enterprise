@@ -15,7 +15,9 @@ import SearchJobDropdown from './SearchJobDropdown';
 import SearchResults from './SearchResults';
 import TagCloud from '../TagCloud';
 
-import { DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS } from './constants';
+import {
+  DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS, STEP1, STEP2,
+} from './constants';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -23,8 +25,7 @@ const SkillsQuizStepper = () => {
     config.ALGOLIA_APP_ID,
     config.ALGOLIA_SEARCH_API_KEY,
   );
-  const steps = ['skills-search', 'review'];
-  const [currentStep, setCurrentStep] = useState(steps[0]);
+  const [currentStep, setCurrentStep] = useState(STEP1);
   const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
   const handleGoalChange = (goal) => setShowSearchJobsAndSearchResults(goal !== DROPDOWN_OPTION_CHANGE_ROLE);
 
@@ -90,10 +91,10 @@ const SkillsQuizStepper = () => {
                   Cancel
                 </Button>
                 <Stepper.ActionRow.Spacer />
-                <Button onClick={() => setCurrentStep('review')}>Continue</Button>
+                <Button onClick={() => setCurrentStep(STEP2)}>Continue</Button>
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
-                <Button variant="outline-primary" onClick={() => setCurrentStep('skills-search')}>
+                <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
                   Go Back
                 </Button>
                 <Stepper.ActionRow.Spacer />
@@ -119,7 +120,7 @@ const SkillsQuizStepper = () => {
                 <Configure hitsPerPage={1} />
                 {skillQuizFacets}
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
-                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults /> : null }
+                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults className="search-results" currentStep={currentStep} /> : null }
               </InstantSearch>
               { selectedSkills.length > 0 && (
                 <TagCloud
@@ -139,10 +140,15 @@ const SkillsQuizStepper = () => {
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
                 <h2>Review!</h2>
+                <InstantSearch
+                  indexName={config.ALGOLIA_INDEX_NAME}
+                  searchClient={searchClient}
+                >
+                  <Configure hitsPerPage={1} />
+                  { skills?.length > 0 ? <SearchResults className="select-job-results" currentStep={currentStep} /> : null }
+                </InstantSearch>
+
               </div>
-              <p>
-                Skills Review Page.
-              </p>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See More Courses</Button>
               </div>
