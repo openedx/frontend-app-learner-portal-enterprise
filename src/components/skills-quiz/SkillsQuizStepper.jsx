@@ -120,7 +120,7 @@ const SkillsQuizStepper = () => {
                 <Configure hitsPerPage={1} />
                 {skillQuizFacets}
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
-                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults className="search-results" currentStep={currentStep} /> : null }
+                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults isJobResult /> : null }
               </InstantSearch>
               { selectedSkills.length > 0 && (
                 <TagCloud
@@ -145,10 +145,17 @@ const SkillsQuizStepper = () => {
                   searchClient={searchClient}
                 >
                   <Configure hitsPerPage={1} />
-                  { skills?.length > 0 ? <SearchResults className="select-job-results" currentStep={currentStep} /> : null }
+                  { skills?.length > 0 ? <SearchResults className="select-job-results" currentStep={currentStep} isJobResult /> : null }
                 </InstantSearch>
 
               </div>
+              <InstantSearch
+                indexName={config.ALGOLIA_INDEX_NAME}
+                searchClient={searchClient}
+              >
+                <Configure hitsPerPage={3} />
+                { skills?.length > 0 ? <SearchResults currentStep={currentStep} /> : null }
+              </InstantSearch>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See More Courses</Button>
               </div>
