@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connectStateResults, Hits } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
@@ -9,19 +10,32 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import SearchJobCard from './SearchJobCard';
 import SelectJobCard from './SelectJobCard';
-import { JOBS_ERROR_ALERT_MESSAGE, STEP1, STEP2 } from './constants';
+import {
+  COURSE_ERROR_ALERT_MESSAGE, JOBS_ERROR_ALERT_MESSAGE, STEP1, STEP2,
+} from './constants';
+import SearchCourseCard from './SearchCourseCard';
 import { isDefinedAndNotNull } from '../../utils/common';
 
-const renderError = () => (
+const renderError = (isJobResult) => (
   <div>
     <div>
       <FontAwesomeIcon icon={faExclamationTriangle} />
     </div>
     <p>
-      { JOBS_ERROR_ALERT_MESSAGE }
+      { isJobResult ? JOBS_ERROR_ALERT_MESSAGE : COURSE_ERROR_ALERT_MESSAGE }
     </p>
   </div>
 );
+
+const hitResultComponent = (isJobResult, currentStep) => {
+  if (!isJobResult) {
+    return SearchCourseCard;
+  }
+  if (currentStep === STEP1) {
+    return SearchJobCard;
+  }
+  return SelectJobCard;
+};
 
 const SearchResults = ({
   searchResults,
@@ -29,6 +43,7 @@ const SearchResults = ({
   error,
   currentStep,
   className,
+  isJobResult,
 }) => {
   const nbHits = useNbHitsFromSearchResults(searchResults);
   return (
@@ -37,22 +52,23 @@ const SearchResults = ({
         {isSearchStalled && (
           <>
             <Skeleton className="lead mb-4" width={160} />
-            <div className="skeleton-job-card">
-              {currentStep === STEP2 ? (
-                <SelectJobCard.Skeleton />)
-                : (<SearchJobCard.Skeleton />)}
+            <div className={classNames({ 'skeleton-job-card': isJobResult, 'skeleton-course-card': !isJobResult })}>
+              { !isJobResult && <SearchCourseCard.Skeleton /> }
+              { isJobResult && (currentStep === STEP1) && <SearchJobCard.Skeleton /> }
+              { isJobResult && (currentStep === STEP2) && <SelectJobCard.Skeleton /> }
             </div>
           </>
         )}
         {!isSearchStalled && nbHits > 0 && (
-          <>
-            <Hits hitComponent={currentStep === STEP2 ? SelectJobCard : SearchJobCard} />
-          </>
+          <div className="hits-results">
+            { !isJobResult && <h3> Recommended Courses </h3> }
+            <Hits hitComponent={hitResultComponent(isJobResult, currentStep)} />
+          </div>
         )}
         {!isSearchStalled && isDefinedAndNotNull(error) && (
           <StatusAlert
             alertType="danger"
-            dialog={renderError()}
+            dialog={renderError(isJobResult)}
             dismissible
             open
           />
@@ -70,6 +86,7 @@ SearchResults.propTypes = {
   error: PropTypes.shape(),
   currentStep: PropTypes.string,
   className: PropTypes.string,
+  isJobResult: PropTypes.bool,
 };
 
 SearchResults.defaultProps = {
@@ -77,7 +94,8 @@ SearchResults.defaultProps = {
   isSearchStalled: false,
   error: undefined,
   currentStep: STEP1,
-  className: 'search-results',
+  className: 'skills-quiz-search-results',
+  isJobResult: false,
 };
 
 export default connectStateResults(SearchResults);

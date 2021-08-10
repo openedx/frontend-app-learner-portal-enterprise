@@ -43,6 +43,7 @@ const propsForLoading = {
   searchResults: TEST_SEARCH_RESULTS,
   isSearchStalled: true,
   error: undefined,
+  isJobResult: true,
 };
 
 const propsForError = {
@@ -51,6 +52,7 @@ const propsForError = {
   error: {
     body: 'Test Error String',
   },
+  isJobResult: true,
 };
 
 describe('<SearchResults />', () => {

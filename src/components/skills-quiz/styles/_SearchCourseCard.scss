@@ -1,0 +1,61 @@
+.course-card-result {
+  a {
+    color: $gray-700;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: $gray-700;
+      text-decoration: none;
+
+      .card {
+        box-shadow: $box-shadow-lg;
+      }
+    }
+  }
+
+  .card {
+    height: 337px;
+    box-shadow: $box-shadow;
+    overflow: hidden;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border: none;
+  }
+
+  .partner-logo-wrapper {
+    padding: 5px;
+    position: absolute;
+    top: 54px;
+    left: 20px;
+    background: $white;
+    border-radius: 3px;
+    box-shadow: $box-shadow-sm;
+
+    .partner-logo {
+      width: auto;
+      max-height: 45px;
+    }
+  }
+
+  .card-body {
+    .partner {
+      font-size: $font-size-sm;
+    }
+
+    .course-badge {
+      padding: 3px;
+      margin-right: 2px;
+      margin-bottom: 0px;
+      margin-top: 1px;
+      font-size: 10px;
+      font-weight: normal;
+      display: inline;
+    }
+  }
+}
+
