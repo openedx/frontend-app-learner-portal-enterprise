@@ -10,6 +10,7 @@ import { LoadingSpinner } from '../loading-spinner';
 import {
   useSubscriptionLicenseForUser,
   useOffers,
+  useCustomerAgreementData,
 } from './data/hooks';
 import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
 
@@ -18,22 +19,25 @@ export const UserSubsidyContext = createContext();
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicenseForUser(enterpriseConfig.uuid);
+  const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
   const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
+  const [showExpirationNotifications, setShowExpirationNotifications] = useState();
 
   useEffect(
     () => {
       setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
+      setShowExpirationNotifications(!(customerAgreementConfig?.disableExpirationNotifications));
     },
-    [subscriptionLicense],
+    [subscriptionLicense, customerAgreementConfig],
   );
 
   const isLoadingSubsidies = useMemo(
     () => {
-      const loadingStates = [isLoadingLicense, isLoadingOffers];
+      const loadingStates = [isLoadingLicense, isLoadingOffers, isLoadingCustomerAgreementConfig];
       return loadingStates.includes(true);
     },
-    [isLoadingLicense, isLoadingOffers],
+    [isLoadingLicense, isLoadingOffers, isLoadingCustomerAgreementConfig],
   );
 
   const contextValue = useMemo(
@@ -53,9 +57,15 @@ const UserSubsidy = ({ children }) => {
         subscriptionLicense,
         subscriptionPlan,
         offers,
+        showExpirationNotifications,
       };
     },
-    [isLoadingSubsidies, subscriptionPlan, subscriptionLicense, offers, enterpriseConfig?.uuid],
+    [isLoadingSubsidies,
+      subscriptionPlan,
+      subscriptionLicense,
+      offers,
+      enterpriseConfig?.uuid,
+      customerAgreementConfig],
   );
 
   if (isLoadingSubsidies) {
