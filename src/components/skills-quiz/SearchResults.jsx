@@ -8,7 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import SearchJobCard from './SearchJobCard';
-import { JOBS_ERROR_ALERT_MESSAGE } from './constants';
+import SelectJobCard from './SelectJobCard';
+import { JOBS_ERROR_ALERT_MESSAGE, STEP1, STEP2 } from './constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 
 const renderError = () => (
@@ -26,23 +27,26 @@ const SearchResults = ({
   searchResults,
   isSearchStalled,
   error,
+  currentStep,
+  className,
 }) => {
   const nbHits = useNbHitsFromSearchResults(searchResults);
-
   return (
-    <Container size="lg" className="search-results my-5">
+    <Container size="lg" className={`my-5 ${className}`}>
       <>
         {isSearchStalled && (
           <>
             <Skeleton className="lead mb-4" width={160} />
             <div className="skeleton-job-card">
-              <SearchJobCard.Skeleton />
+              {currentStep === STEP2 ? (
+                <SelectJobCard.Skeleton />)
+                : (<SearchJobCard.Skeleton />)}
             </div>
           </>
         )}
         {!isSearchStalled && nbHits > 0 && (
           <>
-            <Hits hitComponent={SearchJobCard} />
+            <Hits hitComponent={currentStep === STEP2 ? SelectJobCard : SearchJobCard} />
           </>
         )}
         {!isSearchStalled && isDefinedAndNotNull(error) && (
@@ -64,12 +68,16 @@ SearchResults.propTypes = {
   }),
   isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),
+  currentStep: PropTypes.string,
+  className: PropTypes.string,
 };
 
 SearchResults.defaultProps = {
   searchResults: undefined,
   isSearchStalled: false,
   error: undefined,
+  currentStep: STEP1,
+  className: 'search-results',
 };
 
 export default connectStateResults(SearchResults);

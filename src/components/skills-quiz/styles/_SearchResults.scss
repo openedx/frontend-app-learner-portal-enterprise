@@ -7,3 +7,12 @@
     @extend .mb-4;
   }
 }
+.select-job-results {
+  .pgn__form-radio{
+    float: right;
+  }
+  .ais-Hits-list {
+    list-style: none;
+    padding: 0;
+  }
+}
