@@ -14,6 +14,7 @@ import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import SearchResults from './SearchResults';
 import TagCloud from '../TagCloud';
+import AlgoliaMultiSelect from './AlgoliaMultiSelect';
 
 import {
   DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS, STEP1, STEP2,
@@ -136,6 +137,7 @@ const SkillsQuizStepper = () => {
                   }
                 />
               )}
+              <AlgoliaMultiSelect />
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
