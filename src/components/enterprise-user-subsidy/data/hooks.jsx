@@ -10,6 +10,7 @@ import offersReducer, { initialOfferState } from '../offers/data/reducer';
 import { LICENSE_STATUS } from './constants';
 import {
   fetchSubscriptionLicensesForUser,
+  fetchCustomerAgreementData,
 } from './service';
 import { features } from '../../../config';
 
@@ -65,4 +66,29 @@ export function useOffers(enterpriseId) {
   );
 
   return [offerState, offerState.loading];
+}
+
+export function useCustomerAgreementData(enterpriseId) {
+  const [customerAgreement, setCustomerAgreement] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCustomerAgreementData(enterpriseId)
+      .then((response) => {
+        const { results } = camelCaseObject(response.data);
+        // Note: customer agreements are unique, only 1 can exist per customer
+        if (results.length) {
+          setCustomerAgreement(results[0]);
+        }
+      })
+      .catch((error) => {
+        logError(new Error(error));
+        setCustomerAgreement(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [enterpriseId]);
+
+  return [customerAgreement, isLoading];
 }

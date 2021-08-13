@@ -10,3 +10,13 @@ export function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${qs.stringify(queryParams)}`;
   return getAuthenticatedHttpClient().get(url);
 }
+
+export function fetchCustomerAgreementData(enterpriseUUID) {
+  const queryParams = {
+    enterprise_customer_uuid: enterpriseUUID,
+
+  };
+  const config = getConfig();
+  const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${qs.stringify(queryParams)}`;
+  return getAuthenticatedHttpClient().get(url);
+}
