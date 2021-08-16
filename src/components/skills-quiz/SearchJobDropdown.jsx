@@ -16,10 +16,10 @@ const SearchJobDropdown = () => {
           attribute={attribute}
           limit={300} // this is replicating the B2C search experience
           refinements={refinements}
-          defaultRefinement={refinements[attribute]}
           facetValueType="array"
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
+          doRefinement={false}
         />
       );
       return (
