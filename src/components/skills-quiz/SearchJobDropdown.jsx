@@ -5,7 +5,7 @@ import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetLi
 import { JOBS_QUIZ_FACET_FILTERS } from './constants';
 
 const SearchJobDropdown = () => {
-  const { refinementsFromQueryParams } = useContext(SearchContext);
+  const { refinements } = useContext(SearchContext);
   const { title, attribute, typeaheadOptions } = JOBS_QUIZ_FACET_FILTERS;
   const jobsDropdown = useMemo(
     () => {
@@ -15,8 +15,8 @@ const SearchJobDropdown = () => {
           title={title}
           attribute={attribute}
           limit={300} // this is replicating the B2C search experience
-          refinementsFromQueryParams={refinementsFromQueryParams}
-          defaultRefinement={refinementsFromQueryParams[attribute]}
+          refinements={refinements}
+          defaultRefinement={refinements[attribute]}
           facetValueType="array"
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
@@ -28,7 +28,7 @@ const SearchJobDropdown = () => {
         </>
       );
     },
-    [refinementsFromQueryParams],
+    [JSON.stringify(refinements)],
   );
 
   return (

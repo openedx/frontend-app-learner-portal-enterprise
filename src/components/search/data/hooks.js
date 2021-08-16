@@ -9,7 +9,7 @@ export const useDefaultSearchFilters = ({
   enterpriseConfig, subscriptionPlan, subscriptionLicense, offerCatalogs = [],
 }) => {
   // default to showing all catalogs
-  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
+  const { refinements, dispatch } = useContext(SearchContext);
 
   useEffect(() => {
     // if the user has no subscriptions or offers, we default to showing all catalogs
@@ -20,8 +20,8 @@ export const useDefaultSearchFilters = ({
 
   const filters = useMemo(
     () => {
-      if (refinementsFromQueryParams[SHOW_ALL_NAME]) {
-        // show all enterprise catalogs
+      // show all enterprise catalogs
+      if (refinements && refinements[SHOW_ALL_NAME]) {
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
 
@@ -45,7 +45,7 @@ export const useDefaultSearchFilters = ({
       enterpriseConfig,
       subscriptionPlan,
       offerCatalogs,
-      refinementsFromQueryParams[SHOW_ALL_NAME],
+      JSON.stringify(refinements),
       subscriptionLicense?.status,
     ],
   );
