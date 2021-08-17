@@ -21,7 +21,7 @@ export const useDefaultSearchFilters = ({
   const filters = useMemo(
     () => {
       // show all enterprise catalogs
-      if (refinements && refinements[SHOW_ALL_NAME]) {
+      if (refinements[SHOW_ALL_NAME]) {
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
 

@@ -25,7 +25,7 @@ const SearchResults = ({
 
   const query = useMemo(
     () => {
-      if (refinements?.q) {
+      if (refinements.q) {
         return refinements.q;
       }
       return searchState?.query;
@@ -35,7 +35,7 @@ const SearchResults = ({
 
   const page = useMemo(
     () => {
-      if (refinements?.page) {
+      if (refinements.page) {
         return refinements.page;
       }
       return searchState?.page;
