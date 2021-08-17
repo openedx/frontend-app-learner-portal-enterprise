@@ -7,7 +7,18 @@ export const DROPDOWN_OPTION_OTHER = 'Other';
 export const SKILLS_QUIZ_FACET_FILTERS = [
   {
     attribute: 'skill_names',
+    title: 'Current jobs',
+    facetValueType: 'single-item',
+    typeaheadOptions: {
+      placeholder: 'Find a current job...',
+      ariaLabel: 'Type to find a current job',
+      minLength: 3,
+    },
+  },
+  {
+    attribute: 'skill_names',
     title: 'Skills',
+    facetValueType: 'array',
     typeaheadOptions: {
       placeholder: 'Find a skill...',
       ariaLabel: 'Type to find a skill',
