@@ -48,6 +48,7 @@ const SkillsQuizStepper = () => {
         title,
         attribute,
         typeaheadOptions,
+        facetValueType,
       }) => (
         <FacetListRefinement
           key={attribute}
@@ -56,7 +57,7 @@ const SkillsQuizStepper = () => {
           limit={300} // this is replicating the B2C search experience
           refinementsFromQueryParams={refinementsFromQueryParams}
           defaultRefinement={refinementsFromQueryParams[attribute]}
-          facetValueType="array"
+          facetValueType={facetValueType}
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
         />
