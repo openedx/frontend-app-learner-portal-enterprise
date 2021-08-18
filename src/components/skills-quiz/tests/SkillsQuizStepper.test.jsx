@@ -38,7 +38,7 @@ describe('<SkillsQuizStepper />', () => {
 
   it('Handles removal skill is handled correctly.', () => {
     const searchContext = {
-      refinementsFromQueryParams: { skill_names: ['test-skill-1', 'test-skill-2'] },
+      refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
       dispatch: () => null,
     };
 
@@ -58,7 +58,7 @@ describe('<SkillsQuizStepper />', () => {
 
   it('Handles removal of the last skill is handled correctly.', () => {
     const searchContext = {
-      refinementsFromQueryParams: { skill_names: ['test-skill-1'] },
+      refinements: { skill_names: ['test-skill-1'] },
       dispatch: () => null,
     };
 

@@ -11,7 +11,7 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
-const context = { refinementsFromQueryParams: { skill_names: ['Skill_1'] } };
+const context = { refinements: { skill_names: ['Skill_1'] } };
 
 /* eslint-enable react/prop-types */
 const SearchResultsWithContext = (props) => (

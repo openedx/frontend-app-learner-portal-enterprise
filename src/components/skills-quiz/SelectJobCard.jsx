@@ -7,9 +7,8 @@ import { Card, Form } from '@edx/paragon';
 import { SearchContext, setRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 
 const SelectJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused-vars
-  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
-  const { selectedJob } = refinementsFromQueryParams;
-  const { skill_names: skills } = refinementsFromQueryParams;
+  const { refinements, dispatch } = useContext(SearchContext);
+  const { selectedJob, skill_names: skills } = refinements;
 
   const jobs = skills?.length > 0 ? skills.slice(0, 3) : null;
   // This statement will be usable once we have jobs data available in Algolia

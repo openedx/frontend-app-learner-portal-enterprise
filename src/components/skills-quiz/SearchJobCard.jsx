@@ -8,8 +8,8 @@ import { Card } from '@edx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 
 const SearchJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused-vars
-  const { refinementsFromQueryParams } = useContext(SearchContext);
-  const { skill_names: skills } = refinementsFromQueryParams;
+  const { refinements } = useContext(SearchContext);
+  const { skill_names: skills } = refinements;
 
   // This statement will be usable once we have jobs data available in Algolia
   // Currently we are showing skills data in place of that, 'hit' will be passed as props to SearchJobCard

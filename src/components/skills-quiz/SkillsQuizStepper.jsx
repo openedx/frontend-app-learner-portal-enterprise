@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useContext, useMemo } from 'react';
 import {
   Button, Stepper, FullscreenModal, Container,
@@ -29,13 +30,15 @@ const SkillsQuizStepper = () => {
   const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
   const handleGoalChange = (goal) => setShowSearchJobsAndSearchResults(goal !== DROPDOWN_OPTION_CHANGE_ROLE);
 
-  const { refinementsFromQueryParams, dispatch } = useContext(SearchContext);
+  const { refinements, dispatch } = useContext(SearchContext);
   // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
-  const { skill_names: skills } = refinementsFromQueryParams;
+  const { skill_names: skills } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
   const handleSeeMoreButtonClick = () => {
-    // TODO: incorporate handling of skills related to jobs as well
+    // TODO: incorporate handling of skills related to jobs as well; additionally, if there are
+    // multiple skills, the URL query parameters should be denoted as `skill_names=A&skill_names=B`
+    // versus `skill_names=A,B`.
     const queryString = new URLSearchParams({ skill_names: skills });
     const ENT_PATH = `/${enterpriseConfig.slug}`;
     let SEARCH_PATH = skills ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
@@ -55,8 +58,8 @@ const SkillsQuizStepper = () => {
           title={title}
           attribute={attribute}
           limit={300} // this is replicating the B2C search experience
-          refinementsFromQueryParams={refinementsFromQueryParams}
-          defaultRefinement={refinementsFromQueryParams[attribute]}
+          refinements={refinements}
+          defaultRefinement={refinements[attribute]}
           facetValueType={facetValueType}
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
@@ -68,12 +71,12 @@ const SkillsQuizStepper = () => {
         </>
       );
     },
-    [refinementsFromQueryParams],
+    [JSON.stringify(refinements)],
   );
 
   const selectedSkills = useMemo(
     () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
-    [refinementsFromQueryParams],
+    [JSON.stringify(refinements)],
   );
 
   return (
@@ -96,7 +99,7 @@ const SkillsQuizStepper = () => {
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
                 <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
-                  Go Back
+                  Go back
                 </Button>
                 <Stepper.ActionRow.Spacer />
                 <Button onClick={() => console.log('Skills quiz completed.')}>Done</Button>
@@ -158,7 +161,7 @@ const SkillsQuizStepper = () => {
                 { skills?.length > 0 ? <SearchResults currentStep={currentStep} /> : null }
               </InstantSearch>
               <div className="row justify-content-center">
-                <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See More Courses</Button>
+                <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more courses</Button>
               </div>
             </Stepper.Step>
           </Container>
