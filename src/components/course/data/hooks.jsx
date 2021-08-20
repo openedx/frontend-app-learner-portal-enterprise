@@ -449,7 +449,7 @@ export const useRenderFailedEnrollmentAlert = ({
         ),
       };
 
-      if (!isEnrollmentFailed || !failureReasonSlug || !failureMessagesBySlug[failureReasonSlug]) {
+      if (!isEnrollmentFailed || !failureMessagesBySlug[failureReasonSlug]) {
         return null;
       }
 
