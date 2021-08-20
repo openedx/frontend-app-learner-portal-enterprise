@@ -1,4 +1,4 @@
-import {
+import React, {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import qs from 'query-string';
@@ -8,12 +8,15 @@ import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+import { Container, Alert } from '@edx/paragon';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
+import { useRenderContactHelpText } from '../../../utils/hooks';
+import { features } from '../../../config';
 import CourseService from './service';
-import { CourseContext } from '../CourseContextProvider';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
@@ -26,7 +29,6 @@ import {
   CURRENCY_USD,
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
-import { features } from '../../../config';
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();
@@ -406,4 +408,61 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
   );
 
   return handleClick;
+};
+
+/**
+ * A React hook to render an alert when a learner fails to enroll in a course for any number of
+ * reasons. Thecontents of the alert are determined by a ``failureReasonSlug`` which is passed
+ * from the Data Sharing Consent page.
+ *
+ * @param {object} args
+ * @param {object} args.enterpriseConfig Details about the learner's enterprise customer.
+ * @param {boolean} args.isEnrollmentFailed Whether learner's enrollment failed due to an error
+ * @param {boolean} args.failureReasonSlug The lookup key for the reason why the enrollment
+ *  failed; used to determine the appropriate messaging to show in the alert.
+ *
+ * @returns Function to render the alert.
+ */
+export const useRenderFailedEnrollmentAlert = ({
+  enterpriseConfig,
+  isEnrollmentFailed,
+  failureReasonSlug,
+}) => {
+  const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
+
+  const renderFailedEnrollmentAlert = useCallback(
+    () => {
+      // map alert contents to specific enrollment failure reasons based on the failure reason
+      // slug provided by the Data Sharing Consent (DSC) page.
+      const failureMessagesBySlug = {
+        dsc_denied: (
+          <>
+            You were not enrolled in your selected course. In order to enroll, you must accept the data sharing
+            consent terms. Please {renderContactHelpText(Alert.Link)} for further information.
+          </>
+        ),
+        verification_deadline: (
+          <>
+            You were not enrolled in your selected course as the verification deadline has
+            passed. Please {renderContactHelpText(Alert.Link)} for further information.
+          </>
+        ),
+      };
+
+      if (!isEnrollmentFailed || !failureReasonSlug || !failureMessagesBySlug[failureReasonSlug]) {
+        return null;
+      }
+
+      return (
+        <Container size="lg" className="pt-3">
+          <Alert variant="danger">
+            {failureMessagesBySlug[failureReasonSlug]}
+          </Alert>
+        </Container>
+      );
+    },
+    [enterpriseConfig, isEnrollmentFailed, failureReasonSlug],
+  );
+
+  return renderFailedEnrollmentAlert;
 };

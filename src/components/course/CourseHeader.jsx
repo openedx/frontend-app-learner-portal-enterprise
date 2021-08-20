@@ -1,8 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { useLocation } from 'react-router-dom';
-import qs from 'query-string';
-import { Breadcrumb, Container, Alert } from '@edx/paragon';
+import { Breadcrumb, Container } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -10,14 +9,20 @@ import CourseRunSelector from './CourseRunSelector';
 import CourseSkills from './CourseSkills';
 import EnrollButton from './EnrollButton';
 
-import { ENROLLMENT_FAILED_QUERY_PARAM } from './data/constants';
+import {
+  ENROLLMENT_FAILED_QUERY_PARAM,
+  ENROLLMENT_FAILURE_REASON_QUERY_PARAM,
+} from './data/constants';
 import {
   isArchived,
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
-import { useCourseSubjects, useCoursePartners } from './data/hooks';
-import { useRenderContactHelpText } from '../../utils/hooks';
+import {
+  useCourseSubjects,
+  useCoursePartners,
+  useRenderFailedEnrollmentAlert,
+} from './data/hooks';
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
@@ -25,33 +30,23 @@ export default function CourseHeader() {
   const { enterpriseConfig } = useContext(AppContext);
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
-  const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
-  const { search } = useLocation();
-
-  const enrollmentFailed = useMemo(
-    () => qs.parse(search)[ENROLLMENT_FAILED_QUERY_PARAM],
-    [search],
-  );
 
   const defaultProgram = useMemo(
     () => getDefaultProgram(course.programs),
     [course],
   );
 
-  const renderFailedEnrollmentAlert = () => (
-    <>
-      <Container size="lg" className="pt-3">
-        <Alert variant="danger">
-          You were not enrolled in your selected course. In order to enroll, you must accept the data sharing
-          consent terms. Please {renderContactHelpText(Alert.Link)} for further information.
-        </Alert>
-      </Container>
-    </>
-  );
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+  const renderFailedEnrollmentAlert = useRenderFailedEnrollmentAlert({
+    enterpriseConfig,
+    isEnrollmentFailed: searchParams.get(ENROLLMENT_FAILED_QUERY_PARAM),
+    failureReasonSlug: searchParams.get(ENROLLMENT_FAILURE_REASON_QUERY_PARAM),
+  });
 
   return (
     <div className="course-header">
-      {enrollmentFailed && renderFailedEnrollmentAlert()}
+      {renderFailedEnrollmentAlert()}
       <Container size="lg">
         <div className="row py-4">
           <div className="col-12 col-lg-7">
