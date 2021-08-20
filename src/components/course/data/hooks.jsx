@@ -412,8 +412,8 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
 
 /**
  * A React hook to render an alert when a learner fails to enroll in a course for any number of
- * reasons. Thecontents of the alert are determined by a ``failureReasonSlug`` which is passed
- * from the Data Sharing Consent page.
+ * reasons. The contents of the alert are determined by a ``failureReasonSlug`` which is passed
+ * from the Data Sharing Consent (DSC) page.
  *
  * @param {object} args
  * @param {object} args.enterpriseConfig Details about the learner's enterprise customer.
