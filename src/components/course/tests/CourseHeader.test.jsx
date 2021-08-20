@@ -206,7 +206,7 @@ describe('<CourseHeader />', () => {
         />,
       );
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    }
+    },
   );
 
   test.each`
@@ -229,7 +229,7 @@ describe('<CourseHeader />', () => {
       );
       expect(screen.queryByRole('alert')).toBeInTheDocument();
       expect(screen.queryByText(expectedMessage, { exact: false })).toBeInTheDocument();
-    }
+    },
   );
 
   describe('renders program messaging', () => {
