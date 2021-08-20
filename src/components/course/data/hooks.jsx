@@ -441,10 +441,10 @@ export const useRenderFailedEnrollmentAlert = ({
             consent terms. Please {renderContactHelpText(Alert.Link)} for further information.
           </>
         ),
-        verification_deadline: (
+        verified_mode_unavailable: (
           <>
-            You were not enrolled in your selected course as the verification deadline has
-            passed. Please {renderContactHelpText(Alert.Link)} for further information.
+            You were not enrolled in your selected course as the verified course mode is
+            unavailable. Please {renderContactHelpText(Alert.Link)} for further information.
           </>
         ),
       };

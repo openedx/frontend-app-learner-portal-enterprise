@@ -210,9 +210,9 @@ describe('<CourseHeader />', () => {
   );
 
   test.each`
-    enrollmentFailed  | failureReason               | expectedMessage
-    ${'true'}         | ${'dsc_denied'}             | ${'accept the data sharing consent'}
-    ${'true'}         | ${'verification_deadline'}  | ${'verification deadline has passed'}
+    enrollmentFailed  | failureReason                   | expectedMessage
+    ${'true'}         | ${'dsc_denied'}                 | ${'accept the data sharing consent'}
+    ${'true'}         | ${'verified_mode_unavailable'}  | ${'verified course mode is unavailable'}
   `(
     'renders $failureReason alert with `enrollment_failed=$enrollmentFailed` and `failure_reason=$failureReason`',
     ({ enrollmentFailed, failureReason, expectedMessage }) => {
