@@ -8,10 +8,11 @@ import { Container, StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
-import SearchJobCard from './SearchJobCard';
 import SelectJobCard from './SelectJobCard';
 import {
-  COURSE_ERROR_ALERT_MESSAGE, JOBS_ERROR_ALERT_MESSAGE, STEP1, STEP2,
+  COURSES_ERROR_ALERT_MESSAGE,
+  NO_COURSES_ALERT_MESSAGE,
+  JOBS_ERROR_ALERT_MESSAGE,
 } from './constants';
 import SearchCourseCard from './SearchCourseCard';
 import { isDefinedAndNotNull } from '../../utils/common';
@@ -22,26 +23,26 @@ const renderError = (isJobResult) => (
       <FontAwesomeIcon icon={faExclamationTriangle} />
     </div>
     <p>
-      { isJobResult ? JOBS_ERROR_ALERT_MESSAGE : COURSE_ERROR_ALERT_MESSAGE }
+      { isJobResult ? JOBS_ERROR_ALERT_MESSAGE : COURSES_ERROR_ALERT_MESSAGE }
     </p>
   </div>
 );
 
-const hitResultComponent = (isJobResult, currentStep) => {
-  if (!isJobResult) {
-    return SearchCourseCard;
-  }
-  if (currentStep === STEP1) {
-    return SearchJobCard;
-  }
-  return SelectJobCard;
-};
+const renderDialog = () => (
+  <div>
+    <div>
+      <FontAwesomeIcon icon={faExclamationTriangle} />
+    </div>
+    <p>
+      { NO_COURSES_ALERT_MESSAGE }
+    </p>
+  </div>
+);
 
 const SearchResults = ({
   searchResults,
   isSearchStalled,
   error,
-  currentStep,
   className,
   isJobResult,
 }) => {
@@ -53,17 +54,23 @@ const SearchResults = ({
           <>
             <Skeleton className="lead mb-4" width={160} />
             <div className={classNames({ 'skeleton-job-card': isJobResult, 'skeleton-course-card': !isJobResult })}>
-              { !isJobResult && <SearchCourseCard.Skeleton /> }
-              { isJobResult && (currentStep === STEP1) && <SearchJobCard.Skeleton /> }
-              { isJobResult && (currentStep === STEP2) && <SelectJobCard.Skeleton /> }
+              { !isJobResult ? <SearchCourseCard.Skeleton /> : <SelectJobCard.Skeleton /> }
             </div>
           </>
         )}
         {!isSearchStalled && nbHits > 0 && (
           <div className="hits-results">
             { !isJobResult && <h3> Recommended Courses </h3> }
-            <Hits hitComponent={hitResultComponent(isJobResult, currentStep)} />
+            <Hits hitComponent={!isJobResult ? SearchCourseCard : SelectJobCard} />
           </div>
+        )}
+        {!isSearchStalled && nbHits === 0 && (
+          <StatusAlert
+            alertType="info"
+            dialog={renderDialog()}
+            dismissible={false}
+            open
+          />
         )}
         {!isSearchStalled && isDefinedAndNotNull(error) && (
           <StatusAlert
@@ -84,7 +91,6 @@ SearchResults.propTypes = {
   }),
   isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),
-  currentStep: PropTypes.string,
   className: PropTypes.string,
   isJobResult: PropTypes.bool,
 };
@@ -93,7 +99,6 @@ SearchResults.defaultProps = {
   searchResults: undefined,
   isSearchStalled: false,
   error: undefined,
-  currentStep: STEP1,
   className: 'skills-quiz-search-results',
   isJobResult: false,
 };

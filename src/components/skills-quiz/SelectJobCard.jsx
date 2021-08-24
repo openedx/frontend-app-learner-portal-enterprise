@@ -12,7 +12,7 @@ const SelectJobCard = ({ hit, isLoading }) => { // eslint-disable-line no-unused
 
   const jobs = skills?.length > 0 ? skills.slice(0, 3) : null;
   // This statement will be usable once we have jobs data available in Algolia
-  // Currently we are showing skills data in place of that, 'hit' will be passed as props to SearchJobCard
+  // Currently we are showing skills data in place of that, 'hit' will be passed as props to SelectJobCard
   // const job = hit ? camelCaseObject(hit) : {};
   const jobsCharactersCutOffLimit = 14;
 

@@ -13,6 +13,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
+import SearchJobCard from './SearchJobCard';
 import SearchResults from './SearchResults';
 import TagCloud from '../TagCloud';
 
@@ -26,13 +27,14 @@ const SkillsQuizStepper = () => {
     config.ALGOLIA_APP_ID,
     config.ALGOLIA_SEARCH_API_KEY,
   );
+  const index = searchClient.initIndex(config.ALGOLIA_INDEX_NAME);
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
   const handleGoalChange = (goal) => setShowSearchJobsAndSearchResults(goal !== DROPDOWN_OPTION_CHANGE_ROLE);
 
   const { refinements, dispatch } = useContext(SearchContext);
-  // TODO: Change this statement to destructure jobs instead of skills once Algolia part is done.
   const { skill_names: skills } = refinements;
+  const { name: jobs } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
   const handleSeeMoreButtonClick = () => {
@@ -124,7 +126,6 @@ const SkillsQuizStepper = () => {
                 <Configure hitsPerPage={1} />
                 {skillQuizFacets}
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
-                { (showSearchJobsAndSearchResults && (skills?.length > 0)) ? <SearchResults isJobResult /> : null }
               </InstantSearch>
               { selectedSkills.length > 0 && (
                 <TagCloud
@@ -140,6 +141,7 @@ const SkillsQuizStepper = () => {
                   }
                 />
               )}
+              { (showSearchJobsAndSearchResults && (jobs?.length > 0)) ? <SearchJobCard index={index} /> : null }
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
@@ -149,7 +151,7 @@ const SkillsQuizStepper = () => {
                   searchClient={searchClient}
                 >
                   <Configure hitsPerPage={1} />
-                  { skills?.length > 0 ? <SearchResults className="select-job-results" currentStep={currentStep} isJobResult /> : null }
+                  { skills?.length > 0 ? <SearchResults className="select-job-results" isJobResult /> : null }
                 </InstantSearch>
 
               </div>
@@ -158,7 +160,7 @@ const SkillsQuizStepper = () => {
                 searchClient={searchClient}
               >
                 <Configure hitsPerPage={3} />
-                { skills?.length > 0 ? <SearchResults currentStep={currentStep} /> : null }
+                { skills?.length > 0 ? <SearchResults /> : null }
               </InstantSearch>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more courses</Button>
