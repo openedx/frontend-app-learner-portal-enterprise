@@ -17,14 +17,14 @@ describe('fetchOffers action', () => {
       {
         type: FETCH_OFFERS_SUCCESS,
         payload: {
-          offers: [{ fooBar: 'foo' }],
+          offers: [{ fooBar: 'foo', redemptionsRemaining: 2 }],
           offersCount: 2,
         },
       },
     ];
 
     service.fetchOffers.mockImplementation((
-      () => Promise.resolve({ data: { results: [{ foo_bar: 'foo' }], count: 2 } })
+      () => Promise.resolve({ data: { results: [{ foo_bar: 'foo', redemptions_remaining: 2 }], count: 2 } })
     ));
     const dispatchSpy = jest.fn();
     return fetchOffers(null, dispatchSpy)
