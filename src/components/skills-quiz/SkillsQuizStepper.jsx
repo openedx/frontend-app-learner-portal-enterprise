@@ -59,10 +59,10 @@ const SkillsQuizStepper = () => {
           attribute={attribute}
           limit={300} // this is replicating the B2C search experience
           refinements={refinements}
-          defaultRefinement={refinements[attribute]}
           facetValueType={facetValueType}
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
+          doRefinement={false}
         />
       ));
       return (
