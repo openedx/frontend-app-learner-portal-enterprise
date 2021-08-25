@@ -1,5 +1,11 @@
 .search-job-card {
   .card {
     box-shadow: $box-shadow;
+    width: 325px;
+    padding: 5px;
   }
+
+ .medium-font {
+    font-size: medium;
+ }
 }

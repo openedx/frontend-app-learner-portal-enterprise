@@ -28,7 +28,7 @@ export const SKILLS_QUIZ_FACET_FILTERS = [
 ];
 
 export const JOBS_QUIZ_FACET_FILTERS = {
-  attribute: 'skill_names',
+  attribute: 'name',
   title: 'Search jobs',
   typeaheadOptions: {
     placeholder: 'Find a job...',
@@ -38,7 +38,8 @@ export const JOBS_QUIZ_FACET_FILTERS = {
 };
 
 export const JOBS_ERROR_ALERT_MESSAGE = 'An error occured while fetching your selected job. Please try again later.';
-export const COURSE_ERROR_ALERT_MESSAGE = 'No courses were found. Please search for another job, or click see more courses.';
+export const COURSES_ERROR_ALERT_MESSAGE = 'An error occured while fetching courses. Please try again later.';
+export const NO_COURSES_ALERT_MESSAGE = 'No courses were found. Please search for another job, or click see more courses.';
 
 export const STEP1 = 'skills-search';
 export const STEP2 = 'review';
