@@ -32,6 +32,7 @@ initialize({
         ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID || null,
         ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY || null,
         ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME || null,
+        ALGOLIA_INDEX_NAME_JOBS: process.env.ALGOLIA_INDEX_NAME_JOBS || null,
         INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: process.env.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME || null,
         SHOW_MAINTENANCE_ALERT: process.env.SHOW_MAINTENANCE_ALERT,
         // Logs JS errors matching the following regex as NewRelic page actions instead of

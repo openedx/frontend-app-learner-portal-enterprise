@@ -7,18 +7,19 @@ import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
-import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
+import CurrentJobDropdown from './CurrentJobDropdown';
+import SkillsDropDown from './SkillsDropDown';
 import SearchJobCard from './SearchJobCard';
 import SearchResults from './SearchResults';
 import TagCloud from '../TagCloud';
 
 import {
-  DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS, STEP1, STEP2,
+  DROPDOWN_OPTION_CHANGE_ROLE, STEP1, STEP2,
 } from './constants';
 
 const SkillsQuizStepper = () => {
@@ -47,34 +48,6 @@ const SkillsQuizStepper = () => {
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
   };
-  const skillQuizFacets = useMemo(
-    () => {
-      const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
-        title,
-        attribute,
-        typeaheadOptions,
-        facetValueType,
-      }) => (
-        <FacetListRefinement
-          key={attribute}
-          title={title}
-          attribute={attribute}
-          limit={300} // this is replicating the B2C search experience
-          refinements={refinements}
-          facetValueType={facetValueType}
-          typeaheadOptions={typeaheadOptions}
-          searchable={!!typeaheadOptions}
-          doRefinement={false}
-        />
-      ));
-      return (
-        <>
-          {filtersFromRefinements}
-        </>
-      );
-    },
-    [JSON.stringify(refinements)],
-  );
 
   const selectedSkills = useMemo(
     () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
@@ -123,8 +96,13 @@ const SkillsQuizStepper = () => {
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
               >
-                <Configure hitsPerPage={1} />
-                {skillQuizFacets}
+                <SkillsDropDown />
+              </InstantSearch>
+              <InstantSearch
+                indexName={config.ALGOLIA_INDEX_NAME_JOBS}
+                searchClient={searchClient}
+              >
+                <CurrentJobDropdown />
                 { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
               </InstantSearch>
               { selectedSkills.length > 0 && (
