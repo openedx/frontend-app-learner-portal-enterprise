@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Form } from '@edx/paragon';
-import PropTypes from 'prop-types';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_ROLE, DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_OTHER,
 } from './constants';
+import { SET_KEY_VALUE } from './data/constants';
+import { SkillsContext } from './SkillsContextProvider';
 
-const GoalDropdown = ({ handleGoalOptionChange }) => {
-  const [currentGoal, setCurrentGoal] = useState('Goal');
-  const handleDropdownChange = e => {
-    setCurrentGoal(e.target.value);
-    handleGoalOptionChange(e.target.value);
-  };
+const GoalDropdown = () => {
+  const { dispatch, state } = useContext(SkillsContext);
+  const { goal } = state;
+
   return (
     <Form.Control
       as="select"
-      value={currentGoal}
-      onChange={handleDropdownChange}
+      value={goal}
+      onChange={(e) => dispatch({ type: SET_KEY_VALUE, key: 'goal', value: e.target.value })}
       floatingLabel="Goal"
     >
       <option value="">Select a goal</option>
@@ -25,10 +24,6 @@ const GoalDropdown = ({ handleGoalOptionChange }) => {
       <option>{DROPDOWN_OPTION_OTHER}</option>
     </Form.Control>
   );
-};
-
-GoalDropdown.propTypes = {
-  handleGoalOptionChange: PropTypes.func.isRequired,
 };
 
 export default GoalDropdown;

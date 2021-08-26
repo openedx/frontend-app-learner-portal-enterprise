@@ -7,7 +7,7 @@ import { CURRENT_JOB_FACET } from './constants';
 const CurrentJobDropdown = () => {
   const { refinements } = useContext(SearchContext);
   const {
-    title, attribute, typeaheadOptions, facetValueType,
+    title, attribute, typeaheadOptions, facetValueType, customAttribute,
   } = CURRENT_JOB_FACET;
   const currentJobDropdown = useMemo(
     () => {
@@ -22,7 +22,7 @@ const CurrentJobDropdown = () => {
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
           doRefinement={false}
-          customAttribute="current_job"
+          customAttribute={customAttribute}
         />
       );
       return (

@@ -19,7 +19,8 @@ export const SKILLS_FACET = {
 
 export const CURRENT_JOB_FACET = {
   attribute: JOB_ATTRIBUTE_NAME,
-  title: 'Current jobs',
+  customAttribute: 'current_job',
+  title: 'Current job',
   facetValueType: 'single-item',
   typeaheadOptions: {
     placeholder: 'Find a current job...',

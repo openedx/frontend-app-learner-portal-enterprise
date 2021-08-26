@@ -8,6 +8,7 @@ import {
   renderWithRouter,
 } from '../../../utils/tests';
 import SkillsQuizStepper from '../SkillsQuizStepper';
+import { SkillsContextProvider } from '../SkillsContextProvider';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -45,7 +46,9 @@ describe('<SkillsQuizStepper />', () => {
     renderWithRouter(
       <AppContext.Provider value={initialAppState}>
         <SearchContext.Provider value={{ ...searchContext }}>
-          <SkillsQuizStepper />
+          <SkillsContextProvider>
+            <SkillsQuizStepper />
+          </SkillsContextProvider>
         </SearchContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -65,7 +68,9 @@ describe('<SkillsQuizStepper />', () => {
     renderWithRouter(
       <AppContext.Provider value={initialAppState}>
         <SearchContext.Provider value={{ ...searchContext }}>
-          <SkillsQuizStepper />
+          <SkillsContextProvider>
+            <SkillsQuizStepper />
+          </SkillsContextProvider>
         </SearchContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
