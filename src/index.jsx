@@ -34,9 +34,6 @@ initialize({
         ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME || null,
         INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: process.env.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME || null,
         SHOW_MAINTENANCE_ALERT: process.env.SHOW_MAINTENANCE_ALERT,
-        // Logs JS errors matching the following regex as NewRelic page actions instead of
-        // errors,reducing JS error noise.
-        IGNORED_ERROR_REGEX: '(Axios Error|\'removeChild\'|Script error|getReadModeExtract)',
         ENABLE_SKILLS_QUIZ: process.env.ENABLE_SKILLS_QUIZ || false,
       });
     },
