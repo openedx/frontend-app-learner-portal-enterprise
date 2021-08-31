@@ -87,39 +87,47 @@ const SkillsQuizStepper = () => {
               <div className="row justify-content-center">
                 <h2>Skills Search</h2>
               </div>
+
               <p>
                 edX is here to help you find the course(s) or program(s) to help you take the next step in your career.
                 Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
               </p>
-              <GoalDropdown />
-              <InstantSearch
-                indexName={config.ALGOLIA_INDEX_NAME}
-                searchClient={searchClient}
-              >
-                <SkillsDropDown />
-              </InstantSearch>
-              <InstantSearch
-                indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-                searchClient={searchClient}
-              >
-                <CurrentJobDropdown />
-                { goal !== DROPDOWN_OPTION_CHANGE_ROLE ? <SearchJobDropdown /> : null }
-              </InstantSearch>
-              { selectedSkills.length > 0 && (
-                <TagCloud
-                  tags={selectedSkills}
-                  onRemove={
-                    (skillMetadata) => {
-                      if (selectedSkills.length > 1) {
-                        dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
-                      } else {
-                        dispatch(deleteRefinementAction('skill_names'));
+              <div className="row">
+                <div className="col col-6">
+                  <GoalDropdown />
+                  <InstantSearch
+                    indexName={config.ALGOLIA_INDEX_NAME}
+                    searchClient={searchClient}
+                  >
+                    <SkillsDropDown />
+                  </InstantSearch>
+                  { selectedSkills.length > 0 && (
+                    <TagCloud
+                      tags={selectedSkills}
+                      onRemove={
+                        (skillMetadata) => {
+                          if (selectedSkills.length > 1) {
+                            dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
+                          } else {
+                            dispatch(deleteRefinementAction('skill_names'));
+                          }
+                        }
                       }
-                    }
-                  }
-                />
-              )}
-              { (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0)) ? <SearchJobCard index={index} /> : null }
+                    />
+                  )}
+                </div>
+                <div className="col col-6">
+                  <InstantSearch
+                    indexName={config.ALGOLIA_INDEX_NAME_JOBS}
+                    searchClient={searchClient}
+                  >
+                    <CurrentJobDropdown />
+                    { goal !== DROPDOWN_OPTION_CHANGE_ROLE ? <SearchJobDropdown /> : null }
+                  </InstantSearch>
+                  { (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0))
+                    ? <SearchJobCard index={index} /> : null }
+                </div>
+              </div>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
