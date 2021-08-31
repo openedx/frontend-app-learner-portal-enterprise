@@ -6,12 +6,15 @@ import Truncate from 'react-truncate';
 import Skeleton from 'react-loading-skeleton';
 import { Card } from '@edx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { SkillsContext } from './SkillsContextProvider';
+import { SET_KEY_VALUE } from './data/constants';
 
 const SearchJobCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
   const { name: jobs } = refinements;
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedJobs, setSelectedJobs] = useState([]);
+  const { dispatch, state } = useContext(SkillsContext);
+  const { interestedJobs } = state;
   const jobsToFetch = useMemo(() => {
     const jobsArray = [];
     if (jobs) {
@@ -35,7 +38,8 @@ const SearchJobCard = ({ index }) => {
           ],
         });
         if (!fetch) { return; }
-        setSelectedJobs(hits.length <= 3 ? hits : hits.slice(0, 3));
+        const jobHits = hits.length <= 3 ? hits : hits.slice(0, 3);
+        dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: jobHits });
         setIsLoading(false);
       }
     },
@@ -44,7 +48,7 @@ const SearchJobCard = ({ index }) => {
 
   return (
     <div>
-      {selectedJobs?.map(job => (
+      {interestedJobs?.map(job => (
         <div
           key={job.name}
           className="search-job-card mb-3"

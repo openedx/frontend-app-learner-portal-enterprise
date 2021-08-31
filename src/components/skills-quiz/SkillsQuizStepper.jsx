@@ -4,22 +4,24 @@ import {
   Button, Stepper, FullscreenModal, Container,
 } from '@edx/paragon';
 import algoliasearch from 'algoliasearch/lite';
-import { Configure, InstantSearch } from 'react-instantsearch-dom';
+import { InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
-import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
+import CurrentJobDropdown from './CurrentJobDropdown';
+import SkillsDropDown from './SkillsDropDown';
 import SearchJobCard from './SearchJobCard';
-import SearchResults from './SearchResults';
+import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 
 import {
-  DROPDOWN_OPTION_CHANGE_ROLE, SKILLS_QUIZ_FACET_FILTERS, STEP1, STEP2,
+  DROPDOWN_OPTION_CHANGE_ROLE, STEP1, STEP2,
 } from './constants';
+import { SkillsContext } from './SkillsContextProvider';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -27,14 +29,13 @@ const SkillsQuizStepper = () => {
     config.ALGOLIA_APP_ID,
     config.ALGOLIA_SEARCH_API_KEY,
   );
-  const index = searchClient.initIndex(config.ALGOLIA_INDEX_NAME);
+  const index = searchClient.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
   const [currentStep, setCurrentStep] = useState(STEP1);
-  const [showSearchJobsAndSearchResults, setShowSearchJobsAndSearchResults] = useState(true);
-  const handleGoalChange = (goal) => setShowSearchJobsAndSearchResults(goal !== DROPDOWN_OPTION_CHANGE_ROLE);
 
+  const { state } = useContext(SkillsContext);
+  const { goal } = state;
   const { refinements, dispatch } = useContext(SearchContext);
-  const { skill_names: skills } = refinements;
-  const { name: jobs } = refinements;
+  const { skill_names: skills, name: jobs } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
   const handleSeeMoreButtonClick = () => {
@@ -47,34 +48,6 @@ const SkillsQuizStepper = () => {
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
   };
-  const skillQuizFacets = useMemo(
-    () => {
-      const filtersFromRefinements = SKILLS_QUIZ_FACET_FILTERS.map(({
-        title,
-        attribute,
-        typeaheadOptions,
-        facetValueType,
-      }) => (
-        <FacetListRefinement
-          key={attribute}
-          title={title}
-          attribute={attribute}
-          limit={300} // this is replicating the B2C search experience
-          refinements={refinements}
-          facetValueType={facetValueType}
-          typeaheadOptions={typeaheadOptions}
-          searchable={!!typeaheadOptions}
-          doRefinement={false}
-        />
-      ));
-      return (
-        <>
-          {filtersFromRefinements}
-        </>
-      );
-    },
-    [JSON.stringify(refinements)],
-  );
 
   const selectedSkills = useMemo(
     () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
@@ -118,14 +91,19 @@ const SkillsQuizStepper = () => {
                 edX is here to help you find the course(s) or program(s) to help you take the next step in your career.
                 Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
               </p>
-              <GoalDropdown handleGoalOptionChange={handleGoalChange} />
+              <GoalDropdown />
               <InstantSearch
                 indexName={config.ALGOLIA_INDEX_NAME}
                 searchClient={searchClient}
               >
-                <Configure hitsPerPage={1} />
-                {skillQuizFacets}
-                { showSearchJobsAndSearchResults ? <SearchJobDropdown /> : null }
+                <SkillsDropDown />
+              </InstantSearch>
+              <InstantSearch
+                indexName={config.ALGOLIA_INDEX_NAME_JOBS}
+                searchClient={searchClient}
+              >
+                <CurrentJobDropdown />
+                { goal !== DROPDOWN_OPTION_CHANGE_ROLE ? <SearchJobDropdown /> : null }
               </InstantSearch>
               { selectedSkills.length > 0 && (
                 <TagCloud
@@ -141,27 +119,15 @@ const SkillsQuizStepper = () => {
                   }
                 />
               )}
-              { (showSearchJobsAndSearchResults && (jobs?.length > 0)) ? <SearchJobCard index={index} /> : null }
+              { (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0)) ? <SearchJobCard index={index} /> : null }
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
               <div className="row justify-content-center">
                 <h2>Review!</h2>
-                <InstantSearch
-                  indexName={config.ALGOLIA_INDEX_NAME}
-                  searchClient={searchClient}
-                >
-                  <Configure hitsPerPage={1} />
-                  { skills?.length > 0 ? <SearchResults className="select-job-results" isJobResult /> : null }
-                </InstantSearch>
-
               </div>
-              <InstantSearch
-                indexName={config.ALGOLIA_INDEX_NAME}
-                searchClient={searchClient}
-              >
-                <Configure hitsPerPage={3} />
-                { skills?.length > 0 ? <SearchResults /> : null }
-              </InstantSearch>
+              <div className="search-job-card mb-3">
+                {(goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
+              </div>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more courses</Button>
               </div>

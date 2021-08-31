@@ -4,31 +4,33 @@ export const DROPDOWN_OPTION_GET_PROMOTED = 'I want to get promoted';
 export const DROPDOWN_OPTION_CHANGE_ROLE = 'I want to get better at my current role';
 export const DROPDOWN_OPTION_OTHER = 'Other';
 
-export const SKILLS_QUIZ_FACET_FILTERS = [
-  {
-    attribute: 'skill_names',
-    title: 'Current jobs',
-    facetValueType: 'single-item',
-    typeaheadOptions: {
-      placeholder: 'Find a current job...',
-      ariaLabel: 'Type to find a current job',
-      minLength: 3,
-    },
+export const JOB_ATTRIBUTE_NAME = 'name';
+
+export const SKILLS_FACET = {
+  attribute: 'skill_names',
+  title: 'Skills',
+  facetValueType: 'array',
+  typeaheadOptions: {
+    placeholder: 'Find a skill...',
+    ariaLabel: 'Type to find a skill',
+    minLength: 3,
   },
-  {
-    attribute: 'skill_names',
-    title: 'Skills',
-    facetValueType: 'array',
-    typeaheadOptions: {
-      placeholder: 'Find a skill...',
-      ariaLabel: 'Type to find a skill',
-      minLength: 3,
-    },
+};
+
+export const CURRENT_JOB_FACET = {
+  attribute: JOB_ATTRIBUTE_NAME,
+  customAttribute: 'current_job',
+  title: 'Current job',
+  facetValueType: 'single-item',
+  typeaheadOptions: {
+    placeholder: 'Find a current job...',
+    ariaLabel: 'Type to find a current job',
+    minLength: 3,
   },
-];
+};
 
 export const JOBS_QUIZ_FACET_FILTERS = {
-  attribute: 'name',
+  attribute: JOB_ATTRIBUTE_NAME,
   title: 'Search jobs',
   typeaheadOptions: {
     placeholder: 'Find a job...',

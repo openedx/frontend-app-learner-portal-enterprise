@@ -12,6 +12,7 @@ import {
   renderWithRouter, fakeReduxStore,
 } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
+import { SkillsContextProvider } from '../SkillsContextProvider';
 
 const mockStore = configureMockStore([thunk]);
 
@@ -75,7 +76,9 @@ describe('<SkillsQuiz />', () => {
     const SILLS_QUIZ_PAGE_MESSAGE = 'edX is here to help you find the course(s) or program(s) to help you take the next step in your career. Tell us a bit about your current role, and skills or jobs you\'re interested in.';
     renderWithRouter(
       <SearchData>
-        <SkillsQuizWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />
+        <SkillsContextProvider>
+          <SkillsQuizWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />
+        </SkillsContextProvider>
       </SearchData>,
       { route: '/test/skills-quiz/' },
     );
