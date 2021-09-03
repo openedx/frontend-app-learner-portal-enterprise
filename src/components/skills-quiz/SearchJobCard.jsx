@@ -57,7 +57,7 @@ const SearchJobCard = ({ index }) => {
         >
           <Card>
             <Card.Body>
-              <Card.Title as="h4" className="card-title mb-3">
+              <Card.Title as="h5" className="card-title mb-3">
                 {isLoading ? (
                   <Skeleton count={1} data-testid="job-title-loading" />
                 ) : (
@@ -73,10 +73,10 @@ const SearchJobCard = ({ index }) => {
                   {job.job_postings && job.job_postings.length > 0 && (
                     <div>
                       <p className="text-muted m-0 medium-font">
-                        <span style={{ fontWeight: 700 }}>Median Salary:</span> {job.job_postings[0].median_salary}
+                        <span style={{ fontWeight: 500 }}>Median Salary:</span> {job.job_postings[0].median_salary}
                       </p>
                       <p className="text-muted m-0 medium-font">
-                        <span style={{ fontWeight: 700 }}>Job Postings:</span> {job.job_postings[0].unique_postings}
+                        <span style={{ fontWeight: 500 }}>Job Postings:</span> {job.job_postings[0].unique_postings}
                       </p>
                     </div>
                   )}

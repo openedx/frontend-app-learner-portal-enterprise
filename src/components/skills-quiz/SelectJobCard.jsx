@@ -10,6 +10,7 @@ const SelectJobCard = () => {
 
   return (
     <>
+      <h4>Related jobs and skills</h4>
       <Form.Group>
         <Form.RadioSet
           name="selected-job"

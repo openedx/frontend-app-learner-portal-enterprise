@@ -1,58 +1,115 @@
 import React from 'react';
-// import { screen } from '@testing-library/react';
+import { AppContext } from '@edx/frontend-platform/react';
+import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-
+import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 
-import { renderWithSearchContext } from './utils';
-
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  // eslint-disable-next-line react/prop-types
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
-}));
-
-const TEST_JOB_KEY = 'test-job-key';
-const TEST_JOB_TITLE = 'Test Job Title';
-const TEST_MEDIAN_SALARY = '$10,0000';
-const TEST_JOB_POSTINGS = '4321';
-
-const defaultProps = {
-  hit: {
-    key: TEST_JOB_KEY,
-    title: TEST_JOB_TITLE,
-    medianSalary: TEST_MEDIAN_SALARY,
-    jobPostings: TEST_JOB_POSTINGS,
+const initialAppState = {
+  enterpriseConfig: {
+    name: 'BearsRUs',
+  },
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
 };
 
-const propsForLoading = {
-  hit: {},
-  isLoading: true,
-};
+/* eslint-disable react/prop-types */
+const SelectJobCardWithContext = ({
+  initialJobCardState = {},
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <SearchContext.Provider>
+      <SkillsContextProvider initialState={initialJobCardState}>
+        <SelectJobCard />
+      </SkillsContextProvider>
+    </SearchContext.Provider>
+  </AppContext.Provider>
+);
+/* eslint-enable react/prop-types */
 
 describe('<SelectJobCard />', () => {
-  test('renders the data in job cards correctly', () => {
-    renderWithSearchContext(<SelectJobCard {...defaultProps} />);
+  test('renders job card', () => {
+    const initialJobCardState = {
+      interestedJobs: [{
+        name: 'TEST_JOB_TITLE',
+        objectID: 'TEST_JOB_KEY',
+        job_postings: [
+          {
+            median_salary: '$10000',
+            unique_postings: '45',
+          },
+        ],
 
-    // TODO: Uncomment these lines when jobs data is available as hits
-    // expect(screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
-    // expect(screen.getByText(TEST_MEDIAN_SALARY)).toBeInTheDocument();
-    // expect(screen.getByText(TEST_JOB_POSTINGS)).toBeInTheDocument();
+      },
+      ],
+    };
+    render(
+      <SelectJobCardWithContext
+        initialAppState={initialAppState}
+        initialJobCardState={initialJobCardState}
+      />,
+    );
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].name)).toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].median_salary)).toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].unique_postings))
+      .toBeInTheDocument();
   });
 
-  test('renders the loading state when job data is being fetched', () => {
-    renderWithSearchContext(<SelectJobCard {...propsForLoading} />);
-    // assert <Skeleton /> loading components render to verify
-    // job card is properly in a loading state.
+  test('renders multiple job card', () => {
+    const initialJobCardState = {
+      interestedJobs: [{
+        name: 'Engineer',
+        objectID: '11',
+        job_postings: [
+          {
+            median_salary: '$10000',
+            unique_postings: '45',
+          },
+        ],
 
-    // TODO: Uncomment these lines when jobs data is available as hits
-    // expect(screen.queryByTestId('job-title-loading')).toBeInTheDocument();
-    // expect(screen.queryByTestId('job-content-loading')).toBeInTheDocument();
+      },
+      {
+        name: 'Programmer',
+        objectID: '12',
+        job_postings: [
+          {
+            median_salary: '$20000',
+            unique_postings: '35',
+          },
+        ],
+
+      },
+      ],
+    };
+    render(
+      <SelectJobCardWithContext
+        initialAppState={initialAppState}
+        initialJobCardState={initialJobCardState}
+      />,
+    );
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].name)).toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].median_salary)).toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].unique_postings))
+      .toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[1].name)).toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[1].job_postings[0].median_salary)).toBeInTheDocument();
+    expect(screen.queryByText(initialJobCardState.interestedJobs[1].job_postings[0].unique_postings))
+      .toBeInTheDocument();
+  });
+
+  test('renders no job card', () => {
+    const initialJobCardState = {
+      interestedJobs: [],
+    };
+    render(
+      <SelectJobCardWithContext
+        initialAppState={initialAppState}
+        initialJobCardState={initialJobCardState}
+      />,
+    );
+
+    expect(screen.queryByRole('Card')).toBe(null);
   });
 });
