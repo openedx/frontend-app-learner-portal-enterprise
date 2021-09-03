@@ -15,7 +15,9 @@
   }
 
   .card {
-    height: 337px;
+    height: 348px;
+    width: 312px;
+    padding: 10px;
     box-shadow: $box-shadow;
     overflow: hidden;
   }
@@ -43,6 +45,10 @@
   }
 
   .card-body {
+    padding: 0.25rem;
+    margin-top: 16px;
+    margin-left: 9px;
+
     .partner {
       font-size: $font-size-sm;
     }
@@ -59,3 +65,9 @@
   }
 }
 
+.course-results {
+ display: flex;
+ flex-wrap: wrap;
+ flex-direction: row;
+ column-gap: 1.0rem;
+}
