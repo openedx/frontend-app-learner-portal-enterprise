@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import MediaQuery from 'react-responsive';
 import {
   Container, Alert, Row, breakpoints, useToggle,
@@ -14,13 +14,22 @@ import { DashboardSidebar } from './sidebar';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
-export const LICENCE_ACTIVATION_MESSAGE = 'Your license has been successfully activated.';
+export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
 export default function Dashboard() {
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
+  const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
+
+  useEffect(() => {
+    if (state?.activationSuccess) {
+      const updatedLocationState = { ...state };
+      delete updatedLocationState.activationSuccess;
+      history.replace({ ...history.location, state: updatedLocationState });
+    }
+  }, []);
 
   const renderLicenseActivationSuccess = () => (
     <Alert variant="success" show={isActivationAlertOpen} onClose={closeActivationAlert} dismissible>
@@ -32,8 +41,10 @@ export default function Dashboard() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <Container size="lg" className="py-5">
+      <Container size="lg" className="mt-3">
         {renderLicenseActivationSuccess()}
+      </Container>
+      <Container size="lg" className="py-5">
         <Row>
           <MainContent>
             <DashboardMainContent />
