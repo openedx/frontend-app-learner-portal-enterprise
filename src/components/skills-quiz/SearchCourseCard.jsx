@@ -15,6 +15,7 @@ import { isDefinedAndNotNull } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { shortenString } from '../course/data/utils';
 import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_CARD } from './constants';
+import { useSelectedSkillsAndJobSkills } from './data/hooks';
 
 const getCourseSkills = (course) => (
   course.skill_names?.length > 0 ? course.skill_names.slice(0, MAX_VISIBLE_SKILLS_CARD) : null
@@ -38,20 +39,12 @@ const SearchCourseCard = ({ index }) => {
   const [courses, setCourses] = useState([]);
   const { refinements } = useContext(SearchContext);
   const { skill_names: skills } = refinements;
-  const { selectedJob, interestedJobs } = state;
-  const skillsFromSelectedJob = useMemo(
-    () => interestedJobs.map((job) => { // eslint-disable-line array-callback-return, consistent-return
-      if (selectedJob && job.name === selectedJob) {
-        return job.skills?.map(skill => skill.name);
-      }
-    }),
-    [selectedJob],
-  );
-  const skillsForCourses = skills.concat(skillsFromSelectedJob);
+  const { selectedJob } = state;
+  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills();
   const skillsFacetFilter = useMemo(
     () => {
-      if (skillsForCourses) {
-        return skillsForCourses.map((skill) => `skill_names:${skill}`);
+      if (selectedSkillsAndJobSkills) {
+        return selectedSkillsAndJobSkills.map((skill) => `skill_names:${skill}`);
       }
       return [];
     },

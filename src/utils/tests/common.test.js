@@ -5,12 +5,29 @@ import {
   isDefinedAndNull,
   hasTruthyValue,
   hasValidStartExpirationDates,
+  fixedEncodeURIComponent,
 } from '../common';
 
 function assertTestCaseEquals(testCase, expectedValue) {
   const result = createArrayFromValue(testCase);
   expect(result).toEqual(expectedValue);
 }
+
+describe('fixedEncodeURIComponent', () => {
+  it('returns correctly encoded string', () => {
+    const str = 'Python Programming Language';
+    const expected = 'Python%20Programming%20Language';
+    const result = fixedEncodeURIComponent(str);
+    expect(result).toEqual(expected);
+  });
+
+  it('returns encoded string for characters that are not supported by encodeURIComponent', () => {
+    const str = 'Python (Programming Language)';
+    const expected = 'Python%20%28Programming%20Language%29';
+    const result = fixedEncodeURIComponent(str);
+    expect(result).toEqual(expected);
+  });
+});
 
 describe('createArrayFromValue', () => {
   it('handles array value', () => {
