@@ -15,6 +15,7 @@ import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
 import SkillsDropDown from './SkillsDropDown';
 import SearchJobCard from './SearchJobCard';
+import SearchCourseCard from './SearchCourseCard';
 import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 
@@ -29,10 +30,12 @@ const SkillsQuizStepper = () => {
     config.ALGOLIA_APP_ID,
     config.ALGOLIA_SEARCH_API_KEY,
   );
-  const index = searchClient.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
+  const courseIndex = searchClient.initIndex(config.ALGOLIA_INDEX_NAME);
+  const jobIndex = searchClient.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
   const [currentStep, setCurrentStep] = useState(STEP1);
 
   const { state } = useContext(SkillsContext);
+  const { selectedJob } = state;
   const { goal } = state;
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs } = refinements;
@@ -125,7 +128,7 @@ const SkillsQuizStepper = () => {
                     { goal !== DROPDOWN_OPTION_CHANGE_ROLE ? <SearchJobDropdown /> : null }
                   </InstantSearch>
                   { (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0))
-                    ? <SearchJobCard index={index} /> : null }
+                    ? <SearchJobCard index={jobIndex} /> : null }
                 </div>
               </div>
             </Stepper.Step>
@@ -135,6 +138,9 @@ const SkillsQuizStepper = () => {
               </div>
               <div className="search-job-card mb-3">
                 {(goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
+              </div>
+              <div>
+                { selectedJob && <SearchCourseCard index={courseIndex} /> }
               </div>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more courses</Button>
