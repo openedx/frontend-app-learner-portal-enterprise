@@ -65,3 +65,5 @@ export const loginRefresh = async () => {
     return Promise.resolve();
   }
 };
+
+export const fixedEncodeURIComponent = (str) => encodeURIComponent(str).replace(/[!()*]/g, (c) => `%${ c.charCodeAt(0).toString(16)}`);

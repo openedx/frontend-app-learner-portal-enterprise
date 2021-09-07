@@ -19,6 +19,8 @@ import SearchCourseCard from './SearchCourseCard';
 import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 
+import { fixedEncodeURIComponent } from '../../utils/common';
+import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import {
   DROPDOWN_OPTION_CHANGE_ROLE, STEP1, STEP2,
 } from './constants';
@@ -41,13 +43,20 @@ const SkillsQuizStepper = () => {
   const { skill_names: skills, name: jobs } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
+  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills();
+
+  const getQueryParamString = () => {
+    if (selectedSkillsAndJobSkills) {
+      const queryParams = selectedSkillsAndJobSkills.map((skill) => `skill_names=${ fixedEncodeURIComponent(skill)}`);
+      return queryParams.join('&');
+    }
+    return '';
+  };
+
   const handleSeeMoreButtonClick = () => {
-    // TODO: incorporate handling of skills related to jobs as well; additionally, if there are
-    // multiple skills, the URL query parameters should be denoted as `skill_names=A&skill_names=B`
-    // versus `skill_names=A,B`.
-    const queryString = new URLSearchParams({ skill_names: skills });
+    const queryString = getQueryParamString();
     const ENT_PATH = `/${enterpriseConfig.slug}`;
-    let SEARCH_PATH = skills ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
+    let SEARCH_PATH = queryString ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
   };
