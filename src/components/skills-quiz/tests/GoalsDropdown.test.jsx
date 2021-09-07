@@ -6,7 +6,9 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-
+import {
+  GOAL_DROPDOWN_DEFAULT_OPTION,
+} from '../constants';
 import {
   renderWithRouter, fakeReduxStore,
 } from '../../../utils/tests';
@@ -60,6 +62,6 @@ describe('<GoalDropdown />', () => {
       <GoalDropdownWithContext />,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText('Goal')).toBeTruthy();
+    expect(screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeTruthy();
   });
 });

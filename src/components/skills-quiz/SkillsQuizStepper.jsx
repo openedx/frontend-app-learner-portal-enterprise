@@ -104,14 +104,16 @@ const SkillsQuizStepper = () => {
                 edX is here to help you find the course(s) or program(s) to help you take the next step in your career.
                 Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
               </p>
-              <div className="row">
+              <div className="row skils-quiz-dropdown">
                 <div className="col col-6">
                   <GoalDropdown />
                   <InstantSearch
                     indexName={config.ALGOLIA_INDEX_NAME}
                     searchClient={searchClient}
                   >
-                    <SkillsDropDown />
+                    <div className="skills-drop-down">
+                      <SkillsDropDown />
+                    </div>
                   </InstantSearch>
                   { selectedSkills.length > 0 && (
                     <TagCloud

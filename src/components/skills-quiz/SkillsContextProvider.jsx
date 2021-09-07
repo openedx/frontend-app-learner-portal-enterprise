@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   SET_KEY_VALUE,
 } from './data/constants';
+import { GOAL_DROPDOWN_DEFAULT_OPTION } from './constants';
 
 export const SkillsContext = createContext();
 
@@ -18,7 +19,7 @@ const reducer = (state, action) => {
   }
 };
 
-export function SkillsContextProvider({ children, initialState = { goal: 'Goal' } }) {
+export function SkillsContextProvider({ children, initialState = { goal: GOAL_DROPDOWN_DEFAULT_OPTION } }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const value = { state, dispatch };
 
