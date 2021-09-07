@@ -34,7 +34,7 @@ const ActivateLicenseAlert = () => {
             }}
             data-testid="activateCta"
           >
-            Activate your license
+            Activate now
           </Button>
         </div>
       </Alert>
