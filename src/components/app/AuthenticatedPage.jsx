@@ -8,6 +8,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
+import LoginRefresh from './LoginRefresh';
 
 export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
   const config = getConfig();
@@ -23,12 +24,14 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
 
   return (
     <LoginRedirect>
-      <EnterprisePage useEnterpriseConfigCache={useEnterpriseConfigCache}>
-        <Layout>
-          <EnterpriseBanner />
-          {children}
-        </Layout>
-      </EnterprisePage>
+      <LoginRefresh>
+        <EnterprisePage useEnterpriseConfigCache={useEnterpriseConfigCache}>
+          <Layout>
+            <EnterpriseBanner />
+            {children}
+          </Layout>
+        </EnterprisePage>
+      </LoginRefresh>
     </LoginRedirect>
   );
 }
