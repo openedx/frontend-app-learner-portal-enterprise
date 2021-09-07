@@ -25,6 +25,7 @@ import {
   DROPDOWN_OPTION_CHANGE_ROLE, STEP1, STEP2,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
+import { SET_KEY_VALUE } from './data/constants';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -36,9 +37,8 @@ const SkillsQuizStepper = () => {
   const jobIndex = searchClient.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
   const [currentStep, setCurrentStep] = useState(STEP1);
 
-  const { state } = useContext(SkillsContext);
-  const { selectedJob } = state;
-  const { goal } = state;
+  const { state, dispatch: skillsDispatch } = useContext(SkillsContext);
+  const { selectedJob, goal } = state;
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
@@ -66,6 +66,22 @@ const SkillsQuizStepper = () => {
     [JSON.stringify(refinements)],
   );
 
+  const flipToRecommendedCourses = () => {
+    // show  courses if learner has selected skills or jobs.
+    if (skills?.length > 0 || (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0))) {
+      // verify if selectedJob is still checked and within first 3 jobs else
+      // set first job as selected by default to show courses.
+      if ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob) {
+        skillsDispatch({
+          type: SET_KEY_VALUE,
+          key: 'selectedJob',
+          value: jobs[0],
+        });
+      }
+      setCurrentStep(STEP2);
+    }
+  };
+
   return (
     <>
       <Stepper activeKey={currentStep}>
@@ -82,7 +98,7 @@ const SkillsQuizStepper = () => {
                   Cancel
                 </Button>
                 <Stepper.ActionRow.Spacer />
-                <Button onClick={() => setCurrentStep(STEP2)}>Continue</Button>
+                <Button onClick={() => flipToRecommendedCourses()}>Continue</Button>
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
                 <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
