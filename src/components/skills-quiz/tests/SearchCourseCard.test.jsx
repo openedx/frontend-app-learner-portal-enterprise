@@ -4,11 +4,12 @@ import { screen, act } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchCourseCard from '../SearchCourseCard';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 
 jest.mock('react-truncate', () => ({
@@ -26,17 +27,18 @@ jest.mock('react-loading-skeleton', () => ({
 const SearchCourseCardWithContext = ({
   initialAppState,
   initialSkillsState,
+  initialUserSubsidyState,
   searchContext,
   index,
 }) => (
-  <AppContext.Provider
-    value={initialAppState}
-  >
-    <SearchContext.Provider value={searchContext}>
-      <SkillsContext.Provider value={initialSkillsState}>
-        <SearchCourseCard index={index} />
-      </SkillsContext.Provider>
-    </SearchContext.Provider>
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SearchContext.Provider value={searchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SearchCourseCard index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
+    </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
 /* eslint-enable react/prop-types */
@@ -59,6 +61,7 @@ const courses = {
       skill_names: [],
     },
   ],
+  nbHits: 1,
 };
 
 const testIndex = {
@@ -74,6 +77,7 @@ const initialAppState = {
 
 const searchContext = {
   refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
+  dispatch: () => null,
 };
 
 const initialSkillsState = {
@@ -93,6 +97,17 @@ const initialSkillsState = {
   },
 };
 
+const defaultOffersState = {
+  offers: [],
+  loading: false,
+  offersCount: 0,
+};
+
+const initialUserSubsidyState = {
+  hasAccessToPortal: true,
+  offers: defaultOffersState,
+};
+
 describe('<SearchCourseCard />', () => {
   test('renders the correct data', async () => {
     let containerDOM = {};
@@ -101,6 +116,7 @@ describe('<SearchCourseCard />', () => {
         <SearchCourseCardWithContext
           initialAppState={initialAppState}
           initialSkillsState={initialSkillsState}
+          initialUserSubsidyState={initialUserSubsidyState}
           index={testIndex}
           searchContext={searchContext}
         />,
@@ -131,6 +147,7 @@ describe('<SearchCourseCard />', () => {
           skill_names: skillNames,
         },
       ],
+      nbHits: 1,
     };
     const courseIndex = {
       indexName: 'test-index-name',
@@ -141,6 +158,7 @@ describe('<SearchCourseCard />', () => {
         <SearchCourseCardWithContext
           initialAppState={initialAppState}
           initialSkillsState={initialSkillsState}
+          initialUserSubsidyState={initialUserSubsidyState}
           index={courseIndex}
           searchContext={searchContext}
         />,
@@ -148,5 +166,28 @@ describe('<SearchCourseCard />', () => {
     });
     expect(screen.getByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
+  });
+
+  test('renders an alert in case of no courses returned', async () => {
+    const noCourses = {
+      hits: [],
+      nbHits: 0,
+    };
+    const courseIndex = {
+      indexName: 'test-index-name',
+      search: jest.fn().mockImplementation(() => Promise.resolve(noCourses)),
+    };
+    await act(async () => {
+      renderWithRouter(
+        <SearchCourseCardWithContext
+          initialAppState={initialAppState}
+          initialSkillsState={initialSkillsState}
+          initialUserSubsidyState={initialUserSubsidyState}
+          index={courseIndex}
+          searchContext={searchContext}
+        />,
+      );
+    });
+    expect(screen.getByText(NO_COURSES_ALERT_MESSAGE)).toBeTruthy();
   });
 });

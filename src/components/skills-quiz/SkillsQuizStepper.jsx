@@ -167,7 +167,8 @@ const SkillsQuizStepper = () => {
                 {(goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
               </div>
               <div>
-                { selectedJob && <SearchCourseCard index={courseIndex} /> }
+                { (selectedJob || skills || goal === DROPDOWN_OPTION_CHANGE_ROLE)
+                    && <SearchCourseCard index={courseIndex} /> }
               </div>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more courses</Button>
