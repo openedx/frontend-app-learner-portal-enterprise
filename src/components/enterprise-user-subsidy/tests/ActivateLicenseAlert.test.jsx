@@ -43,11 +43,7 @@ describe('<ActivateLicenseAlert />', () => {
   });
 
   test('renders alert when license status is assigned', () => {
-    const TEST_ACTIVATION_KEY = 'activation-key-uuid';
-    const subscriptionLicense = {
-      status: 'assigned',
-      activationKey: TEST_ACTIVATION_KEY,
-    };
+    const subscriptionLicense = { status: 'assigned' };
     const Component = (
       <Route path="/:enterpriseSlug">
         <UserSubsidyContext.Provider value={{ subscriptionLicense }}>
@@ -59,8 +55,5 @@ describe('<ActivateLicenseAlert />', () => {
       route: `/${TEST_ENTERPRISE_SLUG}`,
     });
     expect(screen.getByRole('alert')).toBeTruthy();
-    const activateCtaPath = screen.getByTestId('activateCta').getAttribute('href');
-    const expectedActivateCtaPath = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
-    expect(activateCtaPath).toEqual(expectedActivateCtaPath);
   });
 });
