@@ -8,14 +8,18 @@ import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card, StatusAlert } from '@edx/paragon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { SkillsContext } from './SkillsContextProvider';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { shortenString } from '../course/data/utils';
-import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_CARD } from './constants';
+import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_CARD, NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
+import { useDefaultSearchFilters } from '../search/data/hooks';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const getCourseSkills = (course) => (
   course.skill_names?.length > 0 ? course.skill_names.slice(0, MAX_VISIBLE_SKILLS_CARD) : null
@@ -32,11 +36,33 @@ const linkToCourse = (course, slug) => {
   return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
 };
 
+const renderDialog = () => (
+  <div className="lead d-flex align-items-center py-3">
+    <div className="mr-3">
+      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
+    </div>
+    <p>
+      { NO_COURSES_ALERT_MESSAGE }
+    </p>
+  </div>
+);
+
 const SearchCourseCard = ({ index }) => {
-  const { enterpriseConfig: { slug } } = useContext(AppContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const { slug } = enterpriseConfig;
+  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    subscriptionPlan,
+    subscriptionLicense,
+    offerCatalogs,
+  });
+
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);
+  const [hitCount, setHitCount] = useState(undefined);
   const { refinements } = useContext(SearchContext);
   const { skill_names: skills } = refinements;
   const { selectedJob } = state;
@@ -58,14 +84,21 @@ const SearchCourseCard = ({ index }) => {
 
       async function fetchCourses() {
         setIsLoading(true);
-        const { hits } = await index.search('', {
+        const { hits, nbHits } = await index.search('', {
+          filters: filters, // eslint-disable-line object-shorthand
           facetFilters: [
             skillsFacetFilter,
           ],
         });
         if (!fetch) { return; }
-        setCourses(hits.length <= 3 ? hits : hits.slice(0, 3));
-        setIsLoading(false);
+        if (nbHits > 0) {
+          setCourses(hits.length <= 3 ? hits : hits.slice(0, 3));
+          setHitCount(nbHits);
+          setIsLoading(false);
+        } else {
+          setHitCount(nbHits);
+          setIsLoading(false);
+        }
       }
     },
     [selectedJob, skills],
@@ -90,7 +123,7 @@ const SearchCourseCard = ({ index }) => {
 
   return (
     <div>
-      <h3 className="mt-2 mb-2"> Recommended Courses </h3>
+      {hitCount !== undefined && (hitCount > 0) ? <h3 className="mt-2 mb-2"> Recommended Courses </h3> : null}
       <div className="course-results">
         {courses.map(course => (
           <div
@@ -178,6 +211,17 @@ const SearchCourseCard = ({ index }) => {
             </Link>
           </div>
         ))}
+      </div>
+      <div>
+        { hitCount !== undefined && hitCount === 0 && (
+          <StatusAlert
+            className="mt-4 mb-5"
+            alertType="info"
+            dialog={renderDialog()}
+            dismissible={false}
+            open
+          />
+        )}
       </div>
     </div>
   );
