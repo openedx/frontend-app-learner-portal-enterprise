@@ -10,10 +10,11 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
+import { features } from '../../../config';
 import CourseService from './service';
-import { CourseContext } from '../CourseContextProvider';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
@@ -26,7 +27,6 @@ import {
   CURRENCY_USD,
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
-import { features } from '../../../config';
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();

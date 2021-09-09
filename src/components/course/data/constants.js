@@ -53,3 +53,4 @@ export const COURSE_MODES_MAP = {
 };
 
 export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';
+export const ENROLLMENT_FAILURE_REASON_QUERY_PARAM = 'failure_reason';
