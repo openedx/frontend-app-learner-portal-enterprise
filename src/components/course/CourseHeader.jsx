@@ -1,6 +1,11 @@
 import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import { Breadcrumb, Container, Row, Col } from '@edx/paragon';
+import {
+  Breadcrumb,
+  Container,
+  Row,
+  Col,
+} from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
