@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import { Breadcrumb, Container } from '@edx/paragon';
+import { Breadcrumb, Container, Row, Col } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -35,8 +35,8 @@ export default function CourseHeader() {
     <div className="course-header">
       <CourseEnrollmentFailedAlert />
       <Container size="lg">
-        <div className="row py-4">
-          <div className="col-12 col-lg-7">
+        <Row className="py-4">
+          <Col xs={12} lg={7}>
             {primarySubject && (
               <div className="small">
                 <Breadcrumb
@@ -100,13 +100,13 @@ export default function CourseHeader() {
                 This course is not part of your company&apos;s curated course catalog.
               </p>
             )}
-          </div>
+          </Col>
           {course.image?.src && (
-            <div className="col-12 col-lg-4 offset-lg-1 mt-3 mt-lg-0">
+            <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
               <img src={course.image.src} alt="course preview" className="w-100" />
-            </div>
+            </Col>
           )}
-        </div>
+        </Row>
       </Container>
     </div>
   );
