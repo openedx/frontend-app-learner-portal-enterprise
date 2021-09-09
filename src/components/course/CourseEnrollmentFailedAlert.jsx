@@ -43,16 +43,23 @@ const CourseEnrollmentFailedAlert = () => {
         unavailable. Please {renderContactHelpText(Alert.Link)} for further information.
       </>
     ),
+    default: (
+      <>
+        You were not enrolled in your selected course due to an unknown
+        error. Please {renderContactHelpText(Alert.Link)} for further
+        information.
+      </>
+    ),
   };
 
-  if (!hasEnrollmentFailed || !failureReasonMessages[failureReason]) {
+  if (!hasEnrollmentFailed) {
     return null;
   }
 
   return (
     <Container size="lg" className="pt-3">
       <Alert variant="danger">
-        {failureReasonMessages[failureReason]}
+        {failureReasonMessages[failureReason] || failureReasonMessages.default}
       </Alert>
     </Container>
   );
