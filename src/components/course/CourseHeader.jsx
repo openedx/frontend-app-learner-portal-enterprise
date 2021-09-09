@@ -1,6 +1,5 @@
 import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import { useLocation } from 'react-router-dom';
 import { Breadcrumb, Container } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -8,11 +7,8 @@ import { CourseContext } from './CourseContextProvider';
 import CourseRunSelector from './CourseRunSelector';
 import CourseSkills from './CourseSkills';
 import EnrollButton from './EnrollButton';
+import CourseEnrollmentFailedAlert from './CourseEnrollmentFailedAlert';
 
-import {
-  ENROLLMENT_FAILED_QUERY_PARAM,
-  ENROLLMENT_FAILURE_REASON_QUERY_PARAM,
-} from './data/constants';
 import {
   isArchived,
   getDefaultProgram,
@@ -21,7 +17,6 @@ import {
 import {
   useCourseSubjects,
   useCoursePartners,
-  useRenderFailedEnrollmentAlert,
 } from './data/hooks';
 
 export default function CourseHeader() {
@@ -36,17 +31,9 @@ export default function CourseHeader() {
     [course],
   );
 
-  const { search } = useLocation();
-  const searchParams = new URLSearchParams(search);
-  const renderFailedEnrollmentAlert = useRenderFailedEnrollmentAlert({
-    enterpriseConfig,
-    isEnrollmentFailed: searchParams.get(ENROLLMENT_FAILED_QUERY_PARAM),
-    failureReasonSlug: searchParams.get(ENROLLMENT_FAILURE_REASON_QUERY_PARAM),
-  });
-
   return (
     <div className="course-header">
-      {renderFailedEnrollmentAlert()}
+      <CourseEnrollmentFailedAlert />
       <Container size="lg">
         <div className="row py-4">
           <div className="col-12 col-lg-7">
