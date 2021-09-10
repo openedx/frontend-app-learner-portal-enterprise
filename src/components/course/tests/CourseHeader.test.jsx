@@ -212,7 +212,7 @@ describe('<CourseHeader />', () => {
     enrollmentFailed  | failureReason                   | expectedMessage
     ${'true'}         | ${'dsc_denied'}                 | ${'accept the data sharing consent'}
     ${'true'}         | ${'verified_mode_unavailable'}  | ${'verified course mode is unavailable'}
-    ${'true'}         | ${''}                           | ${'unknown error'}
+    ${'true'}         | ${''}                           | ${'not enrolled'}
   `(
     'renders $failureReason alert with `enrollment_failed=$enrollmentFailed` and `failure_reason=$failureReason`',
     ({ enrollmentFailed, failureReason, expectedMessage }) => {
