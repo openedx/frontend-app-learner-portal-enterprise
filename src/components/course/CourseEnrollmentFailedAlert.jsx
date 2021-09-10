@@ -45,9 +45,8 @@ const CourseEnrollmentFailedAlert = () => {
     ),
     default: (
       <>
-        You were not enrolled in your selected course due to an unknown
-        error. Please {renderContactHelpText(Alert.Link)} for further
-        information.
+        You were not enrolled in your selected course. Please
+        {' '}{renderContactHelpText(Alert.Link)} for further information.
       </>
     ),
   };
