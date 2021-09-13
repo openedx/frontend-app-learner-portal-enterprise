@@ -189,7 +189,6 @@ describe('<CourseHeader />', () => {
   test.each`
     enrollmentFailed  | failureReason
     ${''}             | ${''}
-    ${'true'}         | ${''}
     ${''}             | ${'dsc_denied'}
   `(
     'does not render alert when `enrollment_failed=$enrollmentFailed` or `failure_reason=$failureReason`',
@@ -213,11 +212,16 @@ describe('<CourseHeader />', () => {
     enrollmentFailed  | failureReason                   | expectedMessage
     ${'true'}         | ${'dsc_denied'}                 | ${'accept the data sharing consent'}
     ${'true'}         | ${'verified_mode_unavailable'}  | ${'verified course mode is unavailable'}
+    ${'true'}         | ${''}                           | ${'not enrolled'}
   `(
     'renders $failureReason alert with `enrollment_failed=$enrollmentFailed` and `failure_reason=$failureReason`',
     ({ enrollmentFailed, failureReason, expectedMessage }) => {
+      let mockedSearchString = `?enrollment_failed=${enrollmentFailed}`;
+      if (failureReason) {
+        mockedSearchString += `&failure_reason=${failureReason}`;
+      }
       useLocation.mockImplementation(() => ({
-        search: `?enrollment_failed=${enrollmentFailed}&failure_reason=${failureReason}`,
+        search: mockedSearchString,
       }));
 
       render(
