@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Dropdown } from '@edx/paragon';
 import {
-  DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_CHANGE_ROLE, DROPDOWN_OPTION_GET_PROMOTED,
+  DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_GET_PROMOTED,
   DROPDOWN_OPTION_OTHER, GOAL_DROPDOWN_DEFAULT_OPTION,
 } from './constants';
 import { SET_KEY_VALUE } from './data/constants';
@@ -14,7 +14,7 @@ const GoalDropdown = () => {
     dispatch({ type: SET_KEY_VALUE, key: 'goal', value: selectedGoal });
   };
   const gaolDropdownOptions = [GOAL_DROPDOWN_DEFAULT_OPTION, DROPDOWN_OPTION_CHANGE_CAREERS,
-    DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_CHANGE_ROLE, DROPDOWN_OPTION_OTHER];
+    DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_OTHER];
 
   return (
     <Dropdown className="form-floating mr-md-3">
