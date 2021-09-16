@@ -22,7 +22,7 @@ import TagCloud from '../TagCloud';
 import { fixedEncodeURIComponent } from '../../utils/common';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import {
-  DROPDOWN_OPTION_CHANGE_ROLE, STEP1, STEP2,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -68,10 +68,10 @@ const SkillsQuizStepper = () => {
 
   const flipToRecommendedCourses = () => {
     // show  courses if learner has selected skills or jobs.
-    if (skills?.length > 0 || (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0))) {
+    if (skills?.length > 0 || (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0))) {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
-      if ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob) {
+      if (jobs?.length > 0 && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)) {
         skillsDispatch({
           type: SET_KEY_VALUE,
           key: 'selectedJob',
@@ -152,9 +152,9 @@ const SkillsQuizStepper = () => {
                     searchClient={searchClient}
                   >
                     <CurrentJobDropdown />
-                    { goal !== DROPDOWN_OPTION_CHANGE_ROLE ? <SearchJobDropdown /> : null }
+                    { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <SearchJobDropdown /> : null }
                   </InstantSearch>
-                  { (goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0))
+                  { (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0))
                     ? <SearchJobCard index={jobIndex} /> : null }
                 </div>
               </div>
@@ -164,10 +164,10 @@ const SkillsQuizStepper = () => {
                 <h2>Review!</h2>
               </div>
               <div className="search-job-card mb-3">
-                {(goal !== DROPDOWN_OPTION_CHANGE_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
+                {(goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
               </div>
               <div>
-                { (selectedJob || skills || goal === DROPDOWN_OPTION_CHANGE_ROLE)
+                { (selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
                     && <SearchCourseCard index={courseIndex} /> }
               </div>
               <div className="row justify-content-center">

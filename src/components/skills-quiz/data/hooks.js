@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from '../SkillsContextProvider';
-import { DROPDOWN_OPTION_CHANGE_ROLE } from '../constants';
+import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from '../constants';
 
 export const useSelectedSkillsAndJobSkills = () => {
   const { state } = useContext(SkillsContext);
@@ -13,7 +13,7 @@ export const useSelectedSkillsAndJobSkills = () => {
       let skillsFromJob = [];
       // if goal is to get better at current job, we should ignore the selectedJob value in SkillsContext
       // we should only show courses based on skills that learner selected
-      if (selectedJob && goal !== DROPDOWN_OPTION_CHANGE_ROLE) {
+      if (selectedJob && goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
         interestedJobs.forEach((job) => {
           if (job.name === selectedJob) {
             skillsFromJob = job.skills?.map(skill => skill.name);
