@@ -14,7 +14,7 @@ const CurrentJobDropdown = () => {
       const filtersFromRefinements = () => (
         <FacetListRefinement
           key={attribute}
-          title={refinements[customAttribute] ? refinements[customAttribute] : title}
+          title={refinements[customAttribute]?.length > 0 ? refinements[customAttribute][0] : title}
           attribute={attribute}
           limit={300} // this is replicating the B2C search experience
           refinements={refinements}

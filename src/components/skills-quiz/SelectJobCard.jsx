@@ -2,12 +2,23 @@ import React, { useContext } from 'react';
 import { Card, Form } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
+import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
-  const { interestedJobs, selectedJob } = state;
+  const {
+    interestedJobs, selectedJob, currentJobRole, goal,
+  } = state;
   const jobsCharactersCutOffLimit = 20;
-
+  let jobSelected;
+  let jobsCard;
+  if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJobRole?.length > 0) {
+    jobSelected = currentJobRole[0].name;
+    jobsCard = currentJobRole;
+  } else {
+    jobSelected = selectedJob;
+    jobsCard = interestedJobs;
+  }
   return (
     <>
       <h4>Related jobs and skills</h4>
@@ -15,12 +26,12 @@ const SelectJobCard = () => {
         <Form.RadioSet
           name="selected-job"
           onChange={(e) => dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: e.target.value })}
-          defaultValue={selectedJob}
+          defaultValue={jobSelected}
           isInline
           className="row"
         >
 
-          {interestedJobs?.map(job => (
+          {jobsCard?.map(job => (
             <div
               key={job.name}
               role="group"
@@ -36,7 +47,7 @@ const SelectJobCard = () => {
                     <Form.Radio value={job.name} />
                   </Card.Title>
                   <>
-                    {job.job_postings && job.job_postings.length > 0 && (
+                    {job.job_postings?.length > 0 && (
                       <div>
                         <p className="text-muted m-0 medium-font">
                           <span style={{ fontWeight: 500 }}>Median Salary:</span> {job.job_postings[0].median_salary}
