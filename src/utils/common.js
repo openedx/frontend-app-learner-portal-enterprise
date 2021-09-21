@@ -67,3 +67,9 @@ export const loginRefresh = async () => {
 };
 
 export const fixedEncodeURIComponent = (str) => encodeURIComponent(str).replace(/[!()*]/g, (c) => `%${ c.charCodeAt(0).toString(16)}`);
+
+export const formatStringAsNumber = (str, radix = 10) => {
+  // converts a string into a number and format it with separated commas
+  const num = parseInt(str, radix);
+  return num.toLocaleString();
+};
