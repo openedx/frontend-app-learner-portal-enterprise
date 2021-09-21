@@ -2,25 +2,26 @@ import React, {
   useContext, useState, useEffect, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
+
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from './SkillsContextProvider';
-import { SET_KEY_VALUE } from './data/constants';
 import JobCardComponent from './JobCardComponent';
+import { SET_KEY_VALUE } from './data/constants';
 
-const SearchJobCard = ({ index }) => {
+const SearchCurrentJobCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
-  const { name: jobs } = refinements;
+  const { current_job: currentJob } = refinements;
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, state } = useContext(SkillsContext);
-  const { interestedJobs } = state;
-  const jobsToFetch = useMemo(() => {
+  const { currentJobRole } = state;
+  const jobToFetch = useMemo(() => {
     const jobsArray = [];
-    if (jobs) {
-      jobs.forEach(job => jobsArray.push(`name:${job}`));
+    if (currentJob?.length > 0) {
+      jobsArray.push(`name:${currentJob[0]}`);
     }
     return jobsArray;
   },
-  [jobs]);
+  [currentJobRole]);
 
   useEffect(
     () => {
@@ -32,26 +33,25 @@ const SearchJobCard = ({ index }) => {
         setIsLoading(true);
         const { hits } = await index.search('', {
           facetFilters: [
-            jobsToFetch,
+            jobToFetch,
           ],
         });
         if (!fetch) { return; }
-        const jobHits = hits.length <= 3 ? hits : hits.slice(0, 3);
-        dispatch({ type: SET_KEY_VALUE, key: 'interestedJobs', value: jobHits });
+        dispatch({ type: SET_KEY_VALUE, key: 'currentJobRole', value: hits });
         setIsLoading(false);
       }
     },
-    [jobs],
+    [currentJob],
   );
 
   return (
     <div>
-      <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
+      <JobCardComponent jobs={currentJobRole} isLoading={isLoading} />
     </div>
   );
 };
 
-SearchJobCard.propTypes = {
+SearchCurrentJobCard.propTypes = {
   index: PropTypes.shape({
     appId: PropTypes.string,
     indexName: PropTypes.string,
@@ -59,4 +59,4 @@ SearchJobCard.propTypes = {
   }).isRequired,
 };
 
-export default SearchJobCard;
+export default SearchCurrentJobCard;

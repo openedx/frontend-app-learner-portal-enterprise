@@ -130,6 +130,7 @@ const SearchCourseCard = ({ index }) => {
             className="course-card-result mb-4"
             role="group"
             aria-label={course.title}
+            key={course.title}
           >
             { /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
             <Link to={isLoading ? '#' : linkToCourse(course, slug)}>

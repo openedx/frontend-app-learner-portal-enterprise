@@ -15,6 +15,7 @@ import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
 import SkillsDropDown from './SkillsDropDown';
 import SearchJobCard from './SearchJobCard';
+import SearchCurrentJobCard from './SearchCurrentJobCard';
 import SearchCourseCard from './SearchCourseCard';
 import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
@@ -40,7 +41,7 @@ const SkillsQuizStepper = () => {
   const { state, dispatch: skillsDispatch } = useContext(SkillsContext);
   const { selectedJob, goal } = state;
   const { refinements, dispatch } = useContext(SearchContext);
-  const { skill_names: skills, name: jobs } = refinements;
+  const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
   const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills();
@@ -68,7 +69,7 @@ const SkillsQuizStepper = () => {
 
   const flipToRecommendedCourses = () => {
     // show  courses if learner has selected skills or jobs.
-    if (skills?.length > 0 || (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0))) {
+    if (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0)) {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
       if (jobs?.length > 0 && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)) {
@@ -78,6 +79,13 @@ const SkillsQuizStepper = () => {
           value: jobs[0],
         });
       }
+      setCurrentStep(STEP2);
+    } else if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0) {
+      skillsDispatch({
+        type: SET_KEY_VALUE,
+        key: 'selectedJob',
+        value: currentJob[0],
+      });
       setCurrentStep(STEP2);
     }
   };
@@ -156,6 +164,8 @@ const SkillsQuizStepper = () => {
                   </InstantSearch>
                   { (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0))
                     ? <SearchJobCard index={jobIndex} /> : null }
+                  { (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (currentJob?.length > 0))
+                    ? <SearchCurrentJobCard index={jobIndex} /> : null }
                 </div>
               </div>
             </Stepper.Step>
@@ -164,7 +174,8 @@ const SkillsQuizStepper = () => {
                 <h2>Review!</h2>
               </div>
               <div className="search-job-card mb-3">
-                {(goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
+                {(goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0)
+                || (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0)) ? <SelectJobCard /> : null}
               </div>
               <div>
                 { (selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
