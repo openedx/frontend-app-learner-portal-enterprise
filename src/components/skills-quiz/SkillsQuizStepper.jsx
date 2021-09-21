@@ -44,8 +44,7 @@ const SkillsQuizStepper = () => {
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const history = useHistory();
-  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills();
-
+  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
   const getQueryParamString = () => {
     if (selectedSkillsAndJobSkills) {
       const queryParams = selectedSkillsAndJobSkills.map((skill) => `skill_names=${ fixedEncodeURIComponent(skill)}`);

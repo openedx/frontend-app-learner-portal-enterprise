@@ -3,7 +3,7 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from '../SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from '../constants';
 
-export const useSelectedSkillsAndJobSkills = () => {
+export const useSelectedSkillsAndJobSkills = ({ getAllSkills }) => {
   const { state } = useContext(SkillsContext);
   const {
     selectedJob, interestedJobs, goal, currentJobRole,
@@ -26,7 +26,12 @@ export const useSelectedSkillsAndJobSkills = () => {
       }
       return skillsFromJob;
     },
-    [skills, interestedJobs, selectedJob, goal, currentJobRole],
+    [skills, interestedJobs, selectedJob, goal, currentJobRole, getAllSkills],
   );
-  return skills ? skills.concat(skillsFromSelectedJob) : skillsFromSelectedJob;
+  // Top 3 Recommended courses are shown based on job-skills only
+  // But on search page show courses based on job-skills and skills selected in skills dropdown as well
+  if (getAllSkills) {
+    return skills ? skills.concat(skillsFromSelectedJob) : skillsFromSelectedJob;
+  }
+  return skillsFromSelectedJob;
 };
