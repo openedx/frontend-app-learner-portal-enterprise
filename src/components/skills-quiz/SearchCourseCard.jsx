@@ -66,7 +66,7 @@ const SearchCourseCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
   const { skill_names: skills } = refinements;
   const { selectedJob } = state;
-  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills();
+  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: false });
   const skillsFacetFilter = useMemo(
     () => {
       if (selectedSkillsAndJobSkills) {
