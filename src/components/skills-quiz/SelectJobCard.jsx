@@ -3,6 +3,7 @@ import { Card, Form } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
+import { formatStringAsNumber } from '../../utils/common';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
@@ -21,7 +22,7 @@ const SelectJobCard = () => {
   }
   return (
     <>
-      <h4>Related jobs and skills</h4>
+      <h3>Related jobs and skills</h3>
       <Form.Group>
         <Form.RadioSet
           name="selected-job"
@@ -39,7 +40,7 @@ const SelectJobCard = () => {
             >
               <Card className={`${selectedJob === job.name ? 'border border-dark' : null}`}>
                 <Card.Body>
-                  <Card.Title as="h5" className="card-title mb-1">
+                  <Card.Title as="h4" className="card-title mb-2">
                     <>
                       {job.name.length > jobsCharactersCutOffLimit
                         ? `${job.name.substring(0, jobsCharactersCutOffLimit)}...` : job.name}
@@ -48,12 +49,14 @@ const SelectJobCard = () => {
                   </Card.Title>
                   <>
                     {job.job_postings?.length > 0 && (
-                      <div>
-                        <p className="text-muted m-0 medium-font">
-                          <span style={{ fontWeight: 500 }}>Median Salary:</span> {job.job_postings[0].median_salary}
+                      <div className="text-gray-700">
+                        <p className="m-0 medium-font">
+                          <span style={{ fontWeight: 700 }}>Median Salary: </span>
+                          ${formatStringAsNumber(job.job_postings[0].median_salary)}
                         </p>
-                        <p className="text-muted m-0 medium-font">
-                          <span style={{ fontWeight: 500 }}>Job Postings:</span> {job.job_postings[0].unique_postings}
+                        <p className="m-0 medium-font">
+                          <span style={{ fontWeight: 700 }}>Job Postings: </span>
+                          {formatStringAsNumber(job.job_postings[0].unique_postings)}
                         </p>
                       </div>
                     )}

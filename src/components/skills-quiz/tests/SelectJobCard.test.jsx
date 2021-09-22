@@ -29,6 +29,13 @@ const SelectJobCardWithContext = ({
 );
 /* eslint-enable react/prop-types */
 
+const TEST_MEDIAN_SALARY = '100000';
+const TEST_MEDIAN_SALARY_2 = '250000';
+const TEST_UNIQUE_POSTINGS = '45';
+const TEST_UNIQUE_POSTINGS_2 = '500';
+const TRANSFORMED_MEDIAN_SALARY = '$100,000';
+const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
+
 describe('<SelectJobCard />', () => {
   test('renders job card', () => {
     const initialJobCardState = {
@@ -37,8 +44,8 @@ describe('<SelectJobCard />', () => {
         objectID: 'TEST_JOB_KEY',
         job_postings: [
           {
-            median_salary: '$10000',
-            unique_postings: '45',
+            median_salary: TEST_MEDIAN_SALARY,
+            unique_postings: TEST_UNIQUE_POSTINGS,
           },
         ],
 
@@ -52,9 +59,8 @@ describe('<SelectJobCard />', () => {
       />,
     );
     expect(screen.queryByText(initialJobCardState.interestedJobs[0].name)).toBeInTheDocument();
-    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].median_salary)).toBeInTheDocument();
-    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].unique_postings))
-      .toBeInTheDocument();
+    expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.queryByText(TEST_UNIQUE_POSTINGS)).toBeInTheDocument();
   });
 
   test('renders multiple job card', () => {
@@ -64,8 +70,8 @@ describe('<SelectJobCard />', () => {
         objectID: '11',
         job_postings: [
           {
-            median_salary: '$10000',
-            unique_postings: '45',
+            median_salary: TEST_MEDIAN_SALARY,
+            unique_postings: TEST_UNIQUE_POSTINGS,
           },
         ],
 
@@ -75,8 +81,8 @@ describe('<SelectJobCard />', () => {
         objectID: '12',
         job_postings: [
           {
-            median_salary: '$20000',
-            unique_postings: '35',
+            median_salary: TEST_MEDIAN_SALARY_2,
+            unique_postings: TEST_UNIQUE_POSTINGS_2,
           },
         ],
 
@@ -90,13 +96,11 @@ describe('<SelectJobCard />', () => {
       />,
     );
     expect(screen.queryByText(initialJobCardState.interestedJobs[0].name)).toBeInTheDocument();
-    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].median_salary)).toBeInTheDocument();
-    expect(screen.queryByText(initialJobCardState.interestedJobs[0].job_postings[0].unique_postings))
-      .toBeInTheDocument();
+    expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.queryByText(TEST_UNIQUE_POSTINGS)).toBeInTheDocument();
     expect(screen.queryByText(initialJobCardState.interestedJobs[1].name)).toBeInTheDocument();
-    expect(screen.queryByText(initialJobCardState.interestedJobs[1].job_postings[0].median_salary)).toBeInTheDocument();
-    expect(screen.queryByText(initialJobCardState.interestedJobs[1].job_postings[0].unique_postings))
-      .toBeInTheDocument();
+    expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY_2)).toBeInTheDocument();
+    expect(screen.queryByText(TEST_UNIQUE_POSTINGS_2)).toBeInTheDocument();
   });
 
   test('renders no job card', () => {

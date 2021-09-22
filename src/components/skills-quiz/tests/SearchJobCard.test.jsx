@@ -19,8 +19,10 @@ jest.mock('react-loading-skeleton', () => ({
 
 const TEST_JOB_KEY = 'test-job-key';
 const TEST_JOB_TITLE = 'Test Job Title';
-const TEST_MEDIAN_SALARY = '$10,0000';
+const TEST_MEDIAN_SALARY = '100000';
 const TEST_JOB_POSTINGS = '4321';
+const TRANSFORMED_MEDIAN_SALARY = '$100,000';
+const TRANSFORMED_JOB_POSTINGS = '4,321';
 
 const hitObject = {
   hits: [
@@ -48,7 +50,7 @@ describe('<SearchJobCard />', () => {
       renderWithSearchContext(<SearchJobCard index={testIndex} />);
     });
     expect(await screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
-    expect(await screen.getByText(TEST_MEDIAN_SALARY)).toBeInTheDocument();
-    expect(await screen.getByText(TEST_JOB_POSTINGS)).toBeInTheDocument();
+    expect(await screen.getByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
+    expect(await screen.getByText(TRANSFORMED_JOB_POSTINGS)).toBeInTheDocument();
   });
 });
