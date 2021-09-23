@@ -53,6 +53,9 @@ const SkillsQuizStepper = () => {
     return '';
   };
 
+  const canContinueWithJobsSelected = goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && jobs?.length > 0;
+  const canContinueWithCurrentJobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0;
+  const canContinueToRecommendedCourses = canContinueWithJobsSelected || canContinueWithCurrentJobSelected;
   const handleSeeMoreButtonClick = () => {
     const queryString = getQueryParamString();
     const ENT_PATH = `/${enterpriseConfig.slug}`;
@@ -72,7 +75,7 @@ const SkillsQuizStepper = () => {
 
   const flipToRecommendedCourses = () => {
     // show  courses if learner has selected skills or jobs.
-    if (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && (jobs?.length > 0)) {
+    if (canContinueWithJobsSelected) {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
       if (jobs?.length > 0 && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)) {
@@ -83,7 +86,7 @@ const SkillsQuizStepper = () => {
         });
       }
       setCurrentStep(STEP2);
-    } else if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0) {
+    } else if (canContinueWithCurrentJobSelected) {
       skillsDispatch({
         type: SET_KEY_VALUE,
         key: 'selectedJob',
@@ -109,7 +112,19 @@ const SkillsQuizStepper = () => {
                   Cancel
                 </Button>
                 <Stepper.ActionRow.Spacer />
-                <Button onClick={() => flipToRecommendedCourses()}>Continue</Button>
+                {
+                  canContinueToRecommendedCourses
+                    ? (
+                      <Button onClick={() => flipToRecommendedCourses()}>Continue</Button>
+                    )
+                    : (
+                      <Button
+                        disabled
+                        style={{ backgroundColor: '#6c757d', borderColor: '#6c757d', color: '#fff' }}
+                      >Continue
+                      </Button>
+                    )
+                }
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
                 <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
