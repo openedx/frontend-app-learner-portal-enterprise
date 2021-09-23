@@ -112,19 +112,11 @@ const SkillsQuizStepper = () => {
                   Cancel
                 </Button>
                 <Stepper.ActionRow.Spacer />
-                {
-                  canContinueToRecommendedCourses
-                    ? (
-                      <Button onClick={() => flipToRecommendedCourses()}>Continue</Button>
-                    )
-                    : (
-                      <Button
-                        disabled
-                        style={{ backgroundColor: '#6c757d', borderColor: '#6c757d', color: '#fff' }}
-                      >Continue
-                      </Button>
-                    )
-                }
+                <Button
+                  disabled={!canContinueToRecommendedCourses}
+                  onClick={() => flipToRecommendedCourses()}
+                >Continue
+                </Button>
               </Stepper.ActionRow>
               <Stepper.ActionRow eventKey="review">
                 <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
