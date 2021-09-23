@@ -61,6 +61,10 @@ const SkillsQuizStepper = () => {
     history.push(SEARCH_PATH);
   };
 
+  const closeSkillsQuiz = () => {
+    history.push(`/${enterpriseConfig.slug}/search`);
+  };
+
   const selectedSkills = useMemo(
     () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
     [JSON.stringify(refinements)],
@@ -96,12 +100,12 @@ const SkillsQuizStepper = () => {
           title="Skills Quiz"
           className="bg-light-200"
           isOpen
-          onClose={() => console.log('Skills quiz closed.')}
+          onClose={() => closeSkillsQuiz()}
           beforeBodyNode={<Stepper.Header className="border-bottom border-light" />}
           footerNode={(
             <>
               <Stepper.ActionRow eventKey="skills-search">
-                <Button variant="outline-primary" onClick={() => console.log('Skills quiz closed.')}>
+                <Button variant="outline-primary" onClick={() => closeSkillsQuiz()}>
                   Cancel
                 </Button>
                 <Stepper.ActionRow.Spacer />
@@ -112,7 +116,7 @@ const SkillsQuizStepper = () => {
                   Go back
                 </Button>
                 <Stepper.ActionRow.Spacer />
-                <Button onClick={() => console.log('Skills quiz completed.')}>Done</Button>
+                <Button onClick={() => closeSkillsQuiz()}>Done</Button>
               </Stepper.ActionRow>
             </>
           )}
