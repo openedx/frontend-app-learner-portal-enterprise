@@ -20,6 +20,7 @@ const SearchJobDropdown = () => {
           typeaheadOptions={typeaheadOptions}
           searchable={!!typeaheadOptions}
           doRefinement={false}
+          showBadge={false}
         />
       );
       return (

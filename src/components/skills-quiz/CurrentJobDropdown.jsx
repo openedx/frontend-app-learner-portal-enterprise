@@ -23,6 +23,7 @@ const CurrentJobDropdown = () => {
           searchable={!!typeaheadOptions}
           doRefinement={false}
           customAttribute={customAttribute}
+          showBadge={false}
         />
       );
       return (
