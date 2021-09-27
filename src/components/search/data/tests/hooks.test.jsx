@@ -38,7 +38,7 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toBeDefined();
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`NOT content_type:program AND enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
 
     test('with valid subscription: returns subscription catalog uuid as filter', () => {
@@ -47,7 +47,7 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toBeDefined();
-      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
+      expect(filters).toEqual(`NOT content_type:program AND enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
     });
 
     test('with invalid subscription: returns enterprise customer uuid as a filter', () => {
@@ -58,7 +58,7 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toBeDefined();
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`NOT content_type:program AND enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
     test('with valid subscription and showAllCatalogs: returns subscription and all enterprise catalogs', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
@@ -68,7 +68,7 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
 
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`NOT content_type:program AND enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
   describe('with catalogs', () => {
@@ -82,7 +82,7 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toBeDefined();
-      const expectedFilters = `${getCatalogString(offerCatalogs)} OR enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`;
+      const expectedFilters = `NOT content_type:program AND ${getCatalogString(offerCatalogs)} OR enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`;
       expect(filters).toEqual(expectedFilters);
     });
     test('with invalid subscription: returns offer catalogs', () => {
@@ -95,7 +95,7 @@ describe('useDefaultSearchFilters hook', () => {
       const { filters } = result.current;
       expect(filters).toBeDefined();
       expect(filters)
-        .toEqual(getCatalogString(offerCatalogs));
+        .toEqual(`NOT content_type:program AND ${getCatalogString(offerCatalogs)}`);
     });
     test('no subscription: returns only offers', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
@@ -105,7 +105,7 @@ describe('useDefaultSearchFilters hook', () => {
       }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toBeDefined();
-      expect(filters).toEqual(getCatalogString(offerCatalogs));
+      expect(filters).toEqual(`NOT content_type:program AND ${getCatalogString(offerCatalogs)}`);
     });
     test('with showAllCatalogs: returns all enterprise catalgos', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
@@ -114,7 +114,7 @@ describe('useDefaultSearchFilters hook', () => {
         offerCatalogs,
       }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`NOT content_type:program AND enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
     test('with valid subscription and show all: returns all enterprise catalogs', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
@@ -124,7 +124,7 @@ describe('useDefaultSearchFilters hook', () => {
         offerCatalogs,
       }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
       const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+      expect(filters).toEqual(`NOT content_type:program AND enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });
   });
 });
