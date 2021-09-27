@@ -32,7 +32,7 @@ const JobCardComponent = ({ jobs, isLoading }) => (
                 {job.job_postings?.length > 0 && (
                   <div className="text-gray-700">
                     <p className="m-0 medium-font">
-                      <span style={{ fontWeight: 700 }}>Median Salary: </span>
+                      <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
                       ${formatStringAsNumber(job.job_postings[0].median_salary)}
                     </p>
                     <p className="m-0 medium-font">
