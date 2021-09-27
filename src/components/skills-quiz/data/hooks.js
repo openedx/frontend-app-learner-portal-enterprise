@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from '../SkillsContextProvider';
-import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from '../constants';
+import { checkValidGoalAndJobSelected } from '../../utils/skills-quiz';
 
 export const useSelectedSkillsAndJobSkills = ({ getAllSkills }) => {
   const { state } = useContext(SkillsContext);
@@ -13,14 +13,14 @@ export const useSelectedSkillsAndJobSkills = ({ getAllSkills }) => {
   const skillsFromSelectedJob = useMemo(
     () => {
       let skillsFromJob = [];
-      if (selectedJob && goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && interestedJobs?.length > 0) {
+      if (selectedJob && checkValidGoalAndJobSelected(goal, interestedJobs, false)) {
         interestedJobs.forEach((job) => {
           if (job.name === selectedJob) {
             skillsFromJob = job.skills?.map(skill => skill.name);
           }
         });
       }
-      if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJobRole?.length > 0) {
+      if (checkValidGoalAndJobSelected(goal, currentJobRole, true)) {
         // there can be only one current job.
         skillsFromJob = currentJobRole[0].skills?.map(skill => skill.name);
       }

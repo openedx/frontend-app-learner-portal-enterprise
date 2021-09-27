@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { Card, Form } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
-import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 import { formatStringAsNumber } from '../../utils/common';
+import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
@@ -13,7 +13,7 @@ const SelectJobCard = () => {
   const jobsCharactersCutOffLimit = 20;
   let jobSelected;
   let jobsCard;
-  if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJobRole?.length > 0) {
+  if (checkValidGoalAndJobSelected(goal, currentJobRole, true)) {
     jobSelected = currentJobRole[0].name;
     jobsCard = currentJobRole;
   } else {
@@ -51,7 +51,7 @@ const SelectJobCard = () => {
                     {job.job_postings?.length > 0 && (
                       <div className="text-gray-700">
                         <p className="m-0 medium-font">
-                          <span style={{ fontWeight: 700 }}>Median Salary: </span>
+                          <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
                           ${formatStringAsNumber(job.job_postings[0].median_salary)}
                         </p>
                         <p className="m-0 medium-font">
