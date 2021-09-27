@@ -120,6 +120,30 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
     expect(screen.getByText('Continue').disabled).toBeFalsy();
   });
+
+  it('checks continue is disabled when improvement option is selected and current job not selected', () => {
+    const searchContext = {
+      refinements: {},
+      dispatch: () => null,
+    };
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+    };
+
+    renderWithRouter(
+      <AppContext.Provider value={initialAppState}>
+        <SearchContext.Provider value={{ ...searchContext }}>
+          <SkillsContext.Provider value={skillsQuizContextInitialState}>
+            <SkillsQuizStepper />
+          </SkillsContext.Provider>
+        </SearchContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/' },
+    );
+    expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
+    expect(screen.getByText('Continue').disabled).toBeTruthy();
+  });
+
   it('Handles removal of the last skill is handled correctly.', () => {
     const searchContext = {
       refinements: { skill_names: ['test-skill-1'] },
