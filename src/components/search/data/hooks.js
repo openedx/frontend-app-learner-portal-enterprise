@@ -20,9 +20,12 @@ export const useDefaultSearchFilters = ({
 
   const filters = useMemo(
     () => {
+      // Do not show programs in the search result.
+      const defaultFilter = 'NOT content_type:program AND';
+
       // show all enterprise catalogs
       if (refinements[SHOW_ALL_NAME]) {
-        return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+        return `${defaultFilter} enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
 
       // Filter catalogs by offer catalogs (if any) and/or by the subscription plan catalog associated
@@ -35,11 +38,11 @@ export const useDefaultSearchFilters = ({
         catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
       }
       if (catalogs.length > 0) {
-        return getCatalogString(catalogs);
+        return `${defaultFilter} ${getCatalogString(catalogs)}`;
       }
 
       // If learner has no subsidy available to them, show all enterprise catalogs
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      return `${defaultFilter} enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
     [
       enterpriseConfig,
