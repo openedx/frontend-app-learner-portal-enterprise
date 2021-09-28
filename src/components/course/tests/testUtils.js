@@ -41,8 +41,6 @@ export const generateRandomString = (MAX_LENGTH) => {
   // there might be a chance that we get a string larger than MX_LENGTH based on the random integer value,
   // to ensure the length is equal to MAX_LENGTH passed, we slice the string
   let resStr = result.join(' ');
-  if (resStr.length > MAX_LENGTH) {
-    resStr = resStr.substr(0, MAX_LENGTH);
-  }
+  resStr = (resStr.length > MAX_LENGTH) ? resStr.substr(0, MAX_LENGTH) : resStr;
   return resStr;
 };
