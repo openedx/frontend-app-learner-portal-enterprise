@@ -21,9 +21,10 @@ import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
-const getCourseSkills = (course) => (
-  course.skill_names?.length > 0 ? course.skill_names.slice(0, MAX_VISIBLE_SKILLS_CARD) : null
-);
+const getCommonJobCourseSkills = (course, selectedJobSkills) => {
+  const courseSkills = course.skill_names || [];
+  return courseSkills.filter(skill => selectedJobSkills.includes(skill)).slice(0, MAX_VISIBLE_SKILLS_CARD);
+};
 
 const linkToCourse = (course, slug) => {
   if (!Object.keys(course).length) {
@@ -66,11 +67,12 @@ const SearchCourseCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
   const { skill_names: skills } = refinements;
   const { selectedJob } = state;
-  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: false });
+  // Top 3 Recommended courses are determined based on job-skills only, coming either from Search Job or Current Job
+  const selectedJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: false });
   const skillsFacetFilter = useMemo(
     () => {
-      if (selectedSkillsAndJobSkills) {
-        return selectedSkillsAndJobSkills.map((skill) => `skill_names:${skill}`);
+      if (selectedJobSkills) {
+        return selectedJobSkills.map((skill) => `skill_names:${skill}`);
       }
       return [];
     },
@@ -123,9 +125,9 @@ const SearchCourseCard = ({ index }) => {
 
   return (
     <div>
-      {hitCount !== undefined && (hitCount > 0) ? <h3 className="mt-2 mb-2"> Recommended Courses </h3> : null}
+      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Recommended Courses </h3> : null}
       <div className="course-results">
-        {courses.map(course => (
+        {(hitCount > 0) && courses.map(course => (
           <div
             className="course-card-result mb-4"
             role="group"
@@ -166,11 +168,11 @@ const SearchCourseCard = ({ index }) => {
                   </div>
                 )}
                 <Card.Body>
-                  <Card.Title as="h4" className="card-title mb-1">
+                  <Card.Title as="h4" className="card-title mb-2">
                     {isLoading ? (
                       <Skeleton count={2} data-testid="course-title-loading" />
                     ) : (
-                      <Truncate lines={course.skill_names?.length < 4 ? 3 : 2} trimWhitespace>
+                      <Truncate lines={course.skill_names?.length < 5 ? 3 : 2} trimWhitespace>
                         { course.title }
                       </Truncate>
                     )}
@@ -181,7 +183,7 @@ const SearchCourseCard = ({ index }) => {
                     <>
                       {course.partners.length > 0 && (
                         <p className="partner text-muted m-0">
-                          <Truncate lines={1} trimWhitespace>
+                          <Truncate lines={2} trimWhitespace>
                             {course.partners.map(partner => partner.name).join(', ')}
                           </Truncate>
                         </p>
@@ -194,7 +196,7 @@ const SearchCourseCard = ({ index }) => {
                     <>
                       { course.skill_names?.length > 0 && (
                         <div className="mb-2 d-inline">
-                          {getCourseSkills(course).map((skill) => (
+                          {getCommonJobCourseSkills(course, selectedJobSkills).map((skill) => (
                             <Badge
                               key={skill}
                               className="course-badge"
@@ -214,7 +216,7 @@ const SearchCourseCard = ({ index }) => {
         ))}
       </div>
       <div>
-        { hitCount !== undefined && hitCount === 0 && (
+        { hitCount === 0 && (
           <StatusAlert
             className="mt-4 mb-5"
             alertType="info"

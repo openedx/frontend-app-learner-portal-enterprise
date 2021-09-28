@@ -47,4 +47,4 @@ export const STEP1 = 'skills-search';
 export const STEP2 = 'review';
 
 export const SKILL_NAME_CUTOFF_LIMIT = 50;
-export const MAX_VISIBLE_SKILLS_CARD = 8;
+export const MAX_VISIBLE_SKILLS_CARD = 6;
