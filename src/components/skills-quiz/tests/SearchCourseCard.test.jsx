@@ -89,7 +89,10 @@ const initialSkillsState = {
         name: 'job-1',
         skills: [
           {
-            name: 'test-skill-3',
+            name: 'test-skill-1',
+          },
+          {
+            name: 'test-skill-2',
           },
         ],
       },
@@ -136,7 +139,7 @@ describe('<SearchCourseCard />', () => {
   });
 
   test('renders the correct data with skills', async () => {
-    const skillNames = ['Research', 'Algorithms'];
+    const skillNames = ['test-skill-1', 'test-skill-2'];
     const coursesWithSkills = {
       hits: [
         {
@@ -166,6 +169,42 @@ describe('<SearchCourseCard />', () => {
     });
     expect(screen.getByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
+  });
+
+  test('only show course skills that match job-skills', async () => {
+    const irrelevantSkill = 'test-skills-3';
+    const skillNames = ['test-skill-1', 'test-skill-2'];
+    skillNames.push(irrelevantSkill);
+    const coursesWithSkills = {
+      hits: [
+        {
+          key: TEST_COURSE_KEY,
+          title: TEST_TITLE,
+          card_image_url: TEST_CARD_IMG_URL,
+          partners: [TEST_PARTNER],
+          skill_names: skillNames,
+        },
+      ],
+      nbHits: 1,
+    };
+    const courseIndex = {
+      indexName: 'test-index-name',
+      search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
+    };
+    await act(async () => {
+      renderWithRouter(
+        <SearchCourseCardWithContext
+          initialAppState={initialAppState}
+          initialSkillsState={initialSkillsState}
+          initialUserSubsidyState={initialUserSubsidyState}
+          index={courseIndex}
+          searchContext={searchContext}
+        />,
+      );
+    });
+    expect(screen.getByText(skillNames[0])).toBeInTheDocument();
+    expect(screen.getByText(skillNames[1])).toBeInTheDocument();
+    expect(screen.queryByText(irrelevantSkill)).not.toBeInTheDocument();
   });
 
   test('renders an alert in case of no courses returned', async () => {

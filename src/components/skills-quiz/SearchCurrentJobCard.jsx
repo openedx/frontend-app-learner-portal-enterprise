@@ -21,7 +21,7 @@ const SearchCurrentJobCard = ({ index }) => {
     }
     return jobsArray;
   },
-  [currentJobRole]);
+  [currentJob]);
 
   useEffect(
     () => {
