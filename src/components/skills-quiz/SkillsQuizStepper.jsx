@@ -31,12 +31,18 @@ import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
-  const searchClient = algoliasearch(
-    config.ALGOLIA_APP_ID,
-    config.ALGOLIA_SEARCH_API_KEY,
+  const [searchClient, courseIndex, jobIndex] = useMemo(
+    () => {
+      const client = algoliasearch(
+        config.ALGOLIA_APP_ID,
+        config.ALGOLIA_SEARCH_API_KEY,
+      );
+      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
+      const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
+      return [client, cIndex, jIndex];
+    },
+    [], // only initialized once
   );
-  const courseIndex = searchClient.initIndex(config.ALGOLIA_INDEX_NAME);
-  const jobIndex = searchClient.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
   const [currentStep, setCurrentStep] = useState(STEP1);
 
   const { state, dispatch: skillsDispatch } = useContext(SkillsContext);
@@ -71,7 +77,7 @@ const SkillsQuizStepper = () => {
 
   const selectedSkills = useMemo(
     () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
-    [JSON.stringify(refinements)],
+    [skills],
   );
 
   const flipToRecommendedCourses = () => {
