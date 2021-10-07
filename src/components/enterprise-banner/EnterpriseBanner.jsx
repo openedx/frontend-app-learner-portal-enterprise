@@ -23,7 +23,7 @@ export default function EnterpriseBanner() {
               to={`/${ enterpriseConfig.slug }/skills-quiz`}
               variant="inverse-primary"
               className="skills-quiz-btn"
-            > Skills Quiz
+            > Recommend courses for me
             </Button>
           )}
         </div>
