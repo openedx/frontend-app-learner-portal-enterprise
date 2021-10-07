@@ -16,6 +16,10 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
 }));
 
+jest.mock('@edx/frontend-platform/analytics', () => ({
+  sendTrackEvent: jest.fn(),
+}));
+
 // Add mocks.
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
@@ -28,6 +32,7 @@ describe('<SkillsQuizStepper />', () => {
   const initialAppState = {
     enterpriseConfig: {
       name: 'BearsRUs',
+      slug: 'BearsRYou',
     },
     config: {
       LMS_BASE_URL: process.env.LMS_BASE_URL,
