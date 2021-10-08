@@ -12,6 +12,15 @@ import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constan
 import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
+}));
+
+jest.mock('@edx/frontend-platform/analytics', () => ({
+  sendTrackEvent: jest.fn(),
+}));
+
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,

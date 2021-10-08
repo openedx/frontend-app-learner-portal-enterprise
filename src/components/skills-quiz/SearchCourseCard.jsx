@@ -11,6 +11,8 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { Badge, Card, StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { SkillsContext } from './SkillsContextProvider';
 
 import { isDefinedAndNotNull } from '../../utils/common';
@@ -34,6 +36,8 @@ const linkToCourse = (course, slug) => {
     queryId: course.queryId,
     objectId: course.objectId,
   };
+  sendTrackEvent('edx.learner_portal.skills_quiz.course.clicked',
+    { userName: getAuthenticatedUser(), enterprise: slug, selectedCourse: course.key });
   return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
 };
 

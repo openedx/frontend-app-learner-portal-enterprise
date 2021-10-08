@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import React, { useState, useContext, useMemo } from 'react';
+/* eslint-disable object-curly-newline */
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import {
   Button, Stepper, FullscreenModal, Container,
 } from '@edx/paragon';
@@ -9,6 +10,8 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
@@ -31,6 +34,7 @@ import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
+  const userName = getAuthenticatedUser();
   const [searchClient, courseIndex, jobIndex] = useMemo(
     () => {
       const client = algoliasearch(
@@ -69,10 +73,13 @@ const SkillsQuizStepper = () => {
     let SEARCH_PATH = queryString ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
+    sendTrackEvent('edx.learner_portal.skills_quiz.see_more_courses.clicked',
+      { userName, enterprise: enterpriseConfig.slug });
   };
 
   const closeSkillsQuiz = () => {
-    history.push(`/${enterpriseConfig.slug}/search`);
+    sendTrackEvent('edx.learner_portal.skills_quiz.done.clicked',
+      { userName, enterprise: enterpriseConfig.slug });
   };
 
   const selectedSkills = useMemo(
@@ -86,6 +93,8 @@ const SkillsQuizStepper = () => {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
       if (jobs?.length > 0 && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)) {
+        sendTrackEvent('edx.learner_portal.skills_quiz.continue.clicked',
+          { userName, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] });
         skillsDispatch({
           type: SET_KEY_VALUE,
           key: 'selectedJob',
@@ -94,6 +103,8 @@ const SkillsQuizStepper = () => {
       }
       setCurrentStep(STEP2);
     } else if (improveGoalAndCurrentJobSelected) {
+      sendTrackEvent('edx.learner_portal.skills_quiz.continue.clicked',
+        { userName, enterprise: enterpriseConfig.slug, selectedJob: currentJob[0] });
       skillsDispatch({
         type: SET_KEY_VALUE,
         key: 'selectedJob',
@@ -102,6 +113,11 @@ const SkillsQuizStepper = () => {
       setCurrentStep(STEP2);
     }
   };
+
+  useEffect(() => {
+    sendTrackEvent('edx.learner_portal.skills_quiz.started',
+      { userName, enterprise: enterpriseConfig.slug });
+  }, []);
 
   return (
     <>

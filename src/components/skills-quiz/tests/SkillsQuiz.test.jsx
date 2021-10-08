@@ -49,6 +49,10 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
 }));
 
+jest.mock('@edx/frontend-platform/analytics', () => ({
+  sendTrackEvent: jest.fn(),
+}));
+
 describe('<SkillsQuiz />', () => {
   const defaultOffersState = {
     offers: [],
