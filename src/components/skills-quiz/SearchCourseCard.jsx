@@ -36,8 +36,9 @@ const linkToCourse = (course, slug) => {
     queryId: course.queryId,
     objectId: course.objectId,
   };
+  const { userId } = getAuthenticatedUser();
   sendTrackEvent('edx.learner_portal.skills_quiz.course.clicked',
-    { userName: getAuthenticatedUser(), enterprise: slug, selectedCourse: course.key });
+    { userId, enterprise: slug, selectedCourse: course.key });
   return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
 };
 
