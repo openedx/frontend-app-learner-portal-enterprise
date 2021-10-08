@@ -34,7 +34,7 @@ import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
-  const userName = getAuthenticatedUser();
+  const { userId } = getAuthenticatedUser();
   const [searchClient, courseIndex, jobIndex] = useMemo(
     () => {
       const client = algoliasearch(
@@ -74,12 +74,12 @@ const SkillsQuizStepper = () => {
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
     sendTrackEvent('edx.learner_portal.skills_quiz.see_more_courses.clicked',
-      { userName, enterprise: enterpriseConfig.slug });
+      { userId, enterprise: enterpriseConfig.slug });
   };
 
   const closeSkillsQuiz = () => {
     sendTrackEvent('edx.learner_portal.skills_quiz.done.clicked',
-      { userName, enterprise: enterpriseConfig.slug });
+      { userId, enterprise: enterpriseConfig.slug });
   };
 
   const selectedSkills = useMemo(
@@ -94,7 +94,7 @@ const SkillsQuizStepper = () => {
       // set first job as selected by default to show courses.
       if (jobs?.length > 0 && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)) {
         sendTrackEvent('edx.learner_portal.skills_quiz.continue.clicked',
-          { userName, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] });
+          { userId, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] });
         skillsDispatch({
           type: SET_KEY_VALUE,
           key: 'selectedJob',
@@ -104,7 +104,7 @@ const SkillsQuizStepper = () => {
       setCurrentStep(STEP2);
     } else if (improveGoalAndCurrentJobSelected) {
       sendTrackEvent('edx.learner_portal.skills_quiz.continue.clicked',
-        { userName, enterprise: enterpriseConfig.slug, selectedJob: currentJob[0] });
+        { userId, enterprise: enterpriseConfig.slug, selectedJob: currentJob[0] });
       skillsDispatch({
         type: SET_KEY_VALUE,
         key: 'selectedJob',
@@ -116,7 +116,7 @@ const SkillsQuizStepper = () => {
 
   useEffect(() => {
     sendTrackEvent('edx.learner_portal.skills_quiz.started',
-      { userName, enterprise: enterpriseConfig.slug });
+      { userId, enterprise: enterpriseConfig.slug });
   }, []);
 
   return (
