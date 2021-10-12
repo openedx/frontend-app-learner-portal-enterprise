@@ -6,18 +6,10 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 
-const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-};
-
 /* eslint-disable react/prop-types */
 const SelectJobCardWithContext = ({
   initialJobCardState = {},
+  initialAppState,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <SearchContext.Provider>
@@ -35,6 +27,16 @@ const TEST_UNIQUE_POSTINGS = '45';
 const TEST_UNIQUE_POSTINGS_2 = '500';
 const TRANSFORMED_MEDIAN_SALARY = '$100,000';
 const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
+
+const initialAppState = {
+  enterpriseConfig: {
+    name: 'BearsRUs',
+    hideLaborMarketData: false,
+  },
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
 
 describe('<SelectJobCard />', () => {
   test('renders job card', () => {
@@ -61,6 +63,38 @@ describe('<SelectJobCard />', () => {
     expect(screen.queryByText(initialJobCardState.interestedJobs[0].name)).toBeInTheDocument();
     expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
     expect(screen.queryByText(TEST_UNIQUE_POSTINGS)).toBeInTheDocument();
+  });
+
+  test('does not render salary data when hideLaborMarketData is true', () => {
+    const initialJobCardState = {
+      interestedJobs: [{
+        name: 'TEST_JOB_TITLE',
+        objectID: 'TEST_JOB_KEY',
+        job_postings: [
+          {
+            median_salary: TEST_MEDIAN_SALARY,
+            unique_postings: TEST_UNIQUE_POSTINGS,
+          },
+        ],
+
+      },
+      ],
+    };
+    const appState = {
+      enterpriseConfig: {
+        name: 'BearsRUs',
+        hideLaborMarketData: true,
+      },
+    };
+    render(
+      <SelectJobCardWithContext
+        initialAppState={appState}
+        initialJobCardState={initialJobCardState}
+      />,
+    );
+    expect(screen.queryByText(initialJobCardState.interestedJobs[0].name)).toBeInTheDocument();
+    expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).not.toBeInTheDocument();
+    expect(screen.queryByText(TEST_UNIQUE_POSTINGS)).not.toBeInTheDocument();
   });
 
   test('renders multiple job card', () => {
