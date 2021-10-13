@@ -6,10 +6,10 @@ import { ProgramContext } from './ProgramContextProvider';
 const ProgramEndorsements = () => {
   const { program: { corporateEndorsements } } = useContext(ProgramContext);
 
-  if (corporateEndorsements && corporateEndorsements.length > 0) {
-    return (
+  return corporateEndorsements?.length > 0
+    ? (
       <div className="endorsements p-2">
-        <h2 style={{ color: '#001b1e' }}>Program endorsements</h2>
+        <h2 className="program-section-heading">Program endorsements</h2>
         <div className="quote-icon-wrapper">
           <FontAwesomeIcon icon={faQuoteLeft} className="quote-icon" size="2x" />
         </div>
@@ -46,9 +46,7 @@ const ProgramEndorsements = () => {
           }
         </div>
       </div>
-    );
-  }
-  return null;
+    ) : null;
 };
 
 export default ProgramEndorsements;

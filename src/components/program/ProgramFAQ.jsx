@@ -3,14 +3,13 @@ import { Collapsible } from '@edx/paragon';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ProgramContext } from './ProgramContextProvider';
-import './styles/index.scss';
 
 function ProgramFAQ() {
   const { program: { faq } } = useContext(ProgramContext);
-  if (faq && faq.length > 0) {
-    return (
+  return faq?.length > 0
+    ? (
       <div className="col-lg-8 p-2">
-        <h2 style={{ color: '#001b1e' }}>FAQs</h2>
+        <h2 className="program-section-heading">FAQs</h2>
         <div className="faq mb-4">
           {
             faq.map((q) => (
@@ -28,9 +27,7 @@ function ProgramFAQ() {
           }
         </div>
       </div>
-    );
-  }
-  return null;
+    ) : null;
 }
 
 export default ProgramFAQ;

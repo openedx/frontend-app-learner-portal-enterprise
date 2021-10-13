@@ -2,6 +2,9 @@
 @import "@edx/paragon/scss/core/core";
 @import "@edx/brand/paragon/overrides";
 
+.program-section-heading {
+  color: #001b1e;
+}
 .collapsible {
   margin-bottom: 1.3rem;
   border-radius: .3rem !important;
