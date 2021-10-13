@@ -13,7 +13,7 @@ import ProgramMainContent from './ProgramMainContent';
 import ProgramSidebar from './ProgramSidebar';
 
 import { useAllProgramData } from './data/hooks';
-import Endorsements from './Endorsements';
+import ProgramEndorsements from './ProgramEndorsements';
 import ProgramFAQ from './ProgramFAQ';
 
 const Program = () => {
@@ -69,7 +69,7 @@ const Program = () => {
             </MediaQuery>
           </Row>
           <Row>
-            <Endorsements />
+            <ProgramEndorsements />
             <ProgramFAQ />
           </Row>
         </Container>
