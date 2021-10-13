@@ -36,6 +36,8 @@ describe('<ProgramMainContent />', () => {
   const initialProgramState = {
     program: {
       title: 'Test Program Title',
+      authoringOrganizations: [],
+      staff: [],
     },
   };
   const initialUserSubsidyState = {

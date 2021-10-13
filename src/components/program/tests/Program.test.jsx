@@ -12,6 +12,8 @@ const waitForAsync = () => new Promise(resolve => setImmediate(resolve));
 const programData = {
   title: 'Test Program Title',
   uuid: 'abcd-1234-213',
+  authoringOrganizations: [],
+  staff: [],
 };
 
 jest.mock('react-router-dom', () => ({
