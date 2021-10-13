@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Button, Container } from '@edx/paragon';
 
@@ -15,13 +16,21 @@ const ActivateLicenseAlert = () => {
   if (!subscriptionLicense?.activationKey || ['activated', 'revoked'].includes(subscriptionLicense?.status)) {
     return null;
   }
+
   const activationLink = `/${enterpriseConfig.slug}/licenses/${subscriptionLicense.activationKey}/activate`;
+
   return (
     <Container size="lg" className="mt-3">
       <Alert
         variant="warning"
         actions={[
-          <Button as={Link} to={activationLink}>Activate now</Button>,
+          <Button
+            as={Link}
+            to={activationLink}
+            onClick={() => sendTrackEvent('edx.ui.enterprise.learner_portal.license_activation_alert.activate_btn.clicked')}
+          >
+            Activate now
+          </Button>,
         ]}
       >
         Your subscription license is not activated. To enroll in courses without
