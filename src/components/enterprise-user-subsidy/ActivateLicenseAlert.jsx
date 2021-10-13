@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
-import { Alert, Container } from '@edx/paragon';
+import { Link } from 'react-router-dom';
+import { AppContext } from '@edx/frontend-platform/react';
+import { Alert, Button, Container } from '@edx/paragon';
 
 import { UserSubsidyContext } from './UserSubsidy';
 
@@ -8,16 +10,22 @@ import { UserSubsidyContext } from './UserSubsidy';
  * that is not yet activated.
  */
 const ActivateLicenseAlert = () => {
+  const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense } = useContext(UserSubsidyContext);
-  if (!subscriptionLicense || ['activated', 'revoked'].includes(subscriptionLicense.status)) {
+  if (!subscriptionLicense?.activationKey || ['activated', 'revoked'].includes(subscriptionLicense?.status)) {
     return null;
   }
+  const activationLink = `/${enterpriseConfig.slug}/licenses/${subscriptionLicense.activationKey}/activate`;
   return (
     <Container size="lg" className="mt-3">
-      <Alert variant="warning">
+      <Alert
+        variant="warning"
+        actions={[
+          <Button as={Link} to={activationLink}>Activate now</Button>,
+        ]}
+      >
         Your subscription license is not activated. To enroll in courses without
-        payment, you must activate your license by clicking the activation link
-        sent to your email.
+        payment, you must activate your license.
       </Alert>
     </Container>
   );
