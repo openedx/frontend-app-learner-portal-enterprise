@@ -14,7 +14,7 @@ const TEST_ENTERPRISE_SLUG = 'test-slug';
 // eslint-disable-next-line react/prop-types
 const ActivateLicenseAlertWrapper = ({ subscriptionLicense }) => (
   <Route path="/:enterpriseSlug">
-    <AppContext.Provider value={{ enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG }}}>
+    <AppContext.Provider value={{ enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG } }}>
       <UserSubsidyContext.Provider value={{ subscriptionLicense }}>
         <ActivateLicenseAlert />
       </UserSubsidyContext.Provider>
