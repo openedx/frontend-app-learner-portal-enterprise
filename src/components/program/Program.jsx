@@ -13,6 +13,9 @@ import ProgramMainContent from './ProgramMainContent';
 import ProgramSidebar from './ProgramSidebar';
 
 import { useAllProgramData } from './data/hooks';
+import ProgramEndorsements from './ProgramEndorsements';
+import ProgramFAQ from './ProgramFAQ';
+import './styles/index.scss';
 
 const Program = () => {
   const { programUuid } = useParams();
@@ -65,6 +68,10 @@ const Program = () => {
                 </Sidebar>
               )}
             </MediaQuery>
+          </Row>
+          <Row>
+            <ProgramEndorsements />
+            <ProgramFAQ />
           </Row>
         </Container>
       </ProgramContextProvider>
