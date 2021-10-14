@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { AppContext } from '@edx/frontend-platform/react';
 import { Card, Form } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -7,6 +8,7 @@ import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
+  const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
   const {
     interestedJobs, selectedJob, currentJobRole, goal,
   } = state;
@@ -48,7 +50,7 @@ const SelectJobCard = () => {
                     <Form.Radio value={job.name} />
                   </Card.Title>
                   <>
-                    {job.job_postings?.length > 0 && (
+                    {job.job_postings?.length > 0 && !hideLaborMarketData && (
                       <div className="text-gray-700">
                         <p className="m-0 medium-font">
                           <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>

@@ -46,6 +46,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
+            hideLaborMarketData,
           } = config;
           setEnterpriseConfig({
             name,
@@ -53,6 +54,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
             slug,
             contactEmail,
             hideCourseOriginalPrice,
+            hideLaborMarketData,
             disableSearch,
             showIntegrationWarning,
             branding: {
