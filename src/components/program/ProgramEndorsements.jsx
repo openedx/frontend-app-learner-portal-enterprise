@@ -4,8 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MediaQuery from 'react-responsive';
 import { breakpoints } from '@edx/paragon';
 import { ProgramContext } from './ProgramContextProvider';
-import { Sidebar } from '../layout';
-import ProgramSidebar from './ProgramSidebar';
 
 const ProgramEndorsements = () => {
   const { program: { corporateEndorsements } } = useContext(ProgramContext);
