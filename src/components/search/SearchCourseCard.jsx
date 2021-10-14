@@ -5,15 +5,15 @@ import Truncate from 'react-truncate';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card } from '@edx/paragon';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 
 const SearchCourseCard = ({ hit, isLoading }) => {
-  const { enterpriseConfig: { slug } } = useContext(AppContext);
+  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
 
   const course = hit ? camelCaseObject(hit) : {};
 
@@ -54,13 +54,17 @@ const SearchCourseCard = ({ hit, isLoading }) => {
       <Link
         to={linkToCourse}
         onClick={() => {
-          sendTrackEvent('edx.ui.enterprise.learner_portal.search.card.clicked', {
-            objectID: course.objectId,
-            position: course.position,
-            index: getConfig().ALGOLIA_INDEX_NAME,
-            queryID: course.queryId,
-            courseKey: course.key,
-          });
+          sendEnterpriseTrackEvent(
+            uuid,
+            'edx.ui.enterprise.learner_portal.search.card.clicked',
+            {
+              objectID: course.objectId,
+              position: course.position,
+              index: getConfig().ALGOLIA_INDEX_NAME,
+              queryID: course.queryId,
+              courseKey: course.key,
+            },
+          );
         }}
       >
         <Card>

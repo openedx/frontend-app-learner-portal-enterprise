@@ -5,7 +5,7 @@ import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dropdown } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
@@ -115,6 +115,7 @@ class BaseCourseCard extends Component {
     const {
       hasEmailsEnabled,
     } = this.state;
+    const { enterpriseConfig } = this.context;
     this.setModalState({
       key: 'emailSettings',
       open: true,
@@ -122,7 +123,11 @@ class BaseCourseCard extends Component {
         hasEmailsEnabled,
       },
     });
-    sendTrackEvent('edx.learner_portal.email_settings_modal.opened', { course_run_id: courseRunId });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.email_settings_modal.opened',
+      { course_run_id: courseRunId },
+    );
   };
 
   handleEmailSettingsModalOnClose = (hasEmailsEnabled) => {

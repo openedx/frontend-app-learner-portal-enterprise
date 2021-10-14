@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
@@ -24,20 +25,29 @@ const SavedForLaterCourseCard = (props) => {
     endDate,
     isRevoked,
   } = props;
+  const { enterpriseConfig } = useContext(AppContext);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleMoveToInProgressOnClose = () => {
     setIsModalOpen(false);
-    sendTrackEvent('edx.learner_portal.dashboard.course.move_to_in_progress.modal.closed', {
-      course_run_id: courseRunId,
-    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.modal.closed',
+      {
+        course_run_id: courseRunId,
+      },
+    );
   };
 
   const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
-    sendTrackEvent('edx.learner_portal.dashboard.course.move_to_in_progress.saved', {
-      course_run_id: courseRunId,
-    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.saved',
+      {
+        course_run_id: courseRunId,
+      },
+    );
     setIsModalOpen(false);
     resetModalState();
     modifyCourseRunStatus({
@@ -63,9 +73,13 @@ const SavedForLaterCourseCard = (props) => {
         type: 'button',
         onClick: () => {
           setIsModalOpen(true);
-          sendTrackEvent('edx.learner_portal.dashboard.course.move_to_in_progress.modal.opened', {
-            course_run_id: courseRunId,
-          });
+          sendEnterpriseTrackEvent(
+            enterpriseConfig.uuid,
+            'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.modal.opened',
+            {
+              course_run_id: courseRunId,
+            },
+          );
         },
         children: (
           <div role="menuitem">

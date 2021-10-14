@@ -10,7 +10,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import GoalDropdown from './GoalDropdown';
@@ -73,13 +73,19 @@ const SkillsQuizStepper = () => {
     let SEARCH_PATH = queryString ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
     SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
     history.push(SEARCH_PATH);
-    sendTrackEvent('edx.learner_portal.skills_quiz.see_more_courses.clicked',
-      { userId, enterprise: enterpriseConfig.slug });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.see_more_courses.clicked',
+      { userId, enterprise: enterpriseConfig.slug },
+    );
   };
 
   const closeSkillsQuiz = () => {
-    sendTrackEvent('edx.learner_portal.skills_quiz.done.clicked',
-      { userId, enterprise: enterpriseConfig.slug });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',
+      { userId, enterprise: enterpriseConfig.slug },
+    );
   };
 
   const selectedSkills = useMemo(
@@ -93,8 +99,11 @@ const SkillsQuizStepper = () => {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
       if (jobs?.length > 0 && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)) {
-        sendTrackEvent('edx.learner_portal.skills_quiz.continue.clicked',
-          { userId, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] });
+        sendEnterpriseTrackEvent(
+          enterpriseConfig.uuid,
+          'edx.ui.enterprise.learner_portal.skills_quiz.continue.clicked',
+          { userId, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] },
+        );
         skillsDispatch({
           type: SET_KEY_VALUE,
           key: 'selectedJob',
@@ -103,8 +112,11 @@ const SkillsQuizStepper = () => {
       }
       setCurrentStep(STEP2);
     } else if (improveGoalAndCurrentJobSelected) {
-      sendTrackEvent('edx.learner_portal.skills_quiz.continue.clicked',
-        { userId, enterprise: enterpriseConfig.slug, selectedJob: currentJob[0] });
+      sendEnterpriseTrackEvent(
+        enterpriseConfig.uuid,
+        'edx.ui.enterprise.learner_portal.skills_quiz.continue.clicked',
+        { userId, enterprise: enterpriseConfig.slug, selectedJob: currentJob[0] },
+      );
       skillsDispatch({
         type: SET_KEY_VALUE,
         key: 'selectedJob',
@@ -115,8 +127,11 @@ const SkillsQuizStepper = () => {
   };
 
   useEffect(() => {
-    sendTrackEvent('edx.learner_portal.skills_quiz.started',
-      { userId, enterprise: enterpriseConfig.slug });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.started',
+      { userId, enterprise: enterpriseConfig.slug },
+    );
   }, []);
 
   return (

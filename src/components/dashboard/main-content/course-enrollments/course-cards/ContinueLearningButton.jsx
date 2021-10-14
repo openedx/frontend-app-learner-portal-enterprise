@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { AppContext } from '@edx/frontend-platform/react';
 
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 /**
  * A 'Continue Learning' button with parameters.
@@ -14,10 +15,16 @@ import { sendTrackEvent } from '@edx/frontend-platform/analytics';
  * @returns {Function} A functional React component for the continue learning button.
  */
 export default function ContinueLearningButton({ linkToCourse, title, courseRunId }) {
+  const { enterpriseConfig } = useContext(AppContext);
+
   const onClickHandler = () => {
-    sendTrackEvent('edx.learner_portal.dashboard.course.continued', {
-      course_run_id: courseRunId,
-    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.continued',
+      {
+        course_run_id: courseRunId,
+      },
+    );
   };
   return (
     <a

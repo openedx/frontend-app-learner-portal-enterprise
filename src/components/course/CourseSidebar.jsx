@@ -10,9 +10,10 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import ISO6391 from 'iso-639-1';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { Hyperlink } from '@edx/paragon';
+import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
@@ -35,6 +36,7 @@ export default function CourseSidebar() {
   const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);
   const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);
   const [pacingType, pacingTypeContent] = useCoursePacingType(activeCourseRun);
+  const { enterpriseConfig } = useContext(AppContext);
 
   return (
     <>
@@ -72,9 +74,13 @@ export default function CourseSidebar() {
                   destination={partner.marketingUrl}
                   target="_blank"
                   onClick={() => {
-                    sendTrackEvent('edx.learner_portal.course.sidebar.partner.clicked', {
-                      partner_name: partner.key,
-                    });
+                    sendEnterpriseTrackEvent(
+                      enterpriseConfig.uuid,
+                      'edx.ui.enterprise.learner_portal.course.sidebar.partner.clicked',
+                      {
+                        partner_name: partner.key,
+                      },
+                    );
                   }}
                 >
                   {partner.key}
@@ -92,9 +98,13 @@ export default function CourseSidebar() {
                 destination={primarySubject.url}
                 target="_blank"
                 onClick={() => {
-                  sendTrackEvent('edx.learner_portal.course.sidebar.subject.clicked', {
-                    subject: primarySubject.name,
-                  });
+                  sendEnterpriseTrackEvent(
+                    enterpriseConfig.uuid,
+                    'edx.ui.enterprise.learner_portal.course.sidebar.subject.clicked',
+                    {
+                      subject: primarySubject.name,
+                    },
+                  );
                 }}
               >
                 {primarySubject.name}

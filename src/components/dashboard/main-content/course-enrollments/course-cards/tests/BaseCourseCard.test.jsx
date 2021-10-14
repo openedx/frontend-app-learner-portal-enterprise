@@ -8,8 +8,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import BaseCourseCard from '../BaseCourseCard';
 
-jest.mock('@edx/frontend-platform/analytics', () => ({
-  sendTrackEvent: jest.fn(),
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  ...jest.requireActual('@edx/frontend-enterprise-utils'),
+  sendEnterpriseTrackEvent: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/auth');

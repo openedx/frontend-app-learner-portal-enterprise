@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Button, Container } from '@edx/paragon';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { UserSubsidyContext } from './UserSubsidy';
 
@@ -27,7 +27,10 @@ const ActivateLicenseAlert = () => {
           <Button
             as={Link}
             to={activationLink}
-            onClick={() => sendTrackEvent('edx.ui.enterprise.learner_portal.license_activation_alert.activate_btn.clicked')}
+            onClick={() => sendEnterpriseTrackEvent(
+              enterpriseConfig.uuid,
+              'edx.ui.enterprise.learner_portal.license_activation_alert.activate_btn.clicked',
+            )}
           >
             Activate now
           </Button>,
