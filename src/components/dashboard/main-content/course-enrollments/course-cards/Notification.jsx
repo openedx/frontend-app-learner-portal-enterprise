@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 const Notification = props => (
   <li>
@@ -10,7 +10,11 @@ const Notification = props => (
         <div className="col-12">
           <a
             href={props.url}
-            onClick={() => { sendTrackEvent('edx.learner_portal.notification.clicked', { course_run_id: props.courseRunId, name: props.name }); }}
+            onClick={() => sendEnterpriseTrackEvent(
+              props.enterpriseUUID,
+              'edx.ui.enterprise.learner_portal.notification.clicked',
+              { course_run_id: props.courseRunId, name: props.name },
+            )}
           >
             {props.name}
           </a>
@@ -31,6 +35,7 @@ Notification.propTypes = {
   date: PropTypes.string.isRequired,
   url: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
+  enterpriseUUID: PropTypes.string.isRequired,
 };
 
 export default Notification;

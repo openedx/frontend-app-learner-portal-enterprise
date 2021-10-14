@@ -11,8 +11,8 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { Badge, Card, StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SkillsContext } from './SkillsContextProvider';
 
 import { isDefinedAndNotNull } from '../../utils/common';
@@ -28,7 +28,7 @@ const getCommonJobCourseSkills = (course, selectedJobSkills) => {
   return courseSkills.filter(skill => selectedJobSkills.includes(skill)).slice(0, MAX_VISIBLE_SKILLS_CARD);
 };
 
-const linkToCourse = (course, slug) => {
+const linkToCourse = (course, slug, enterpriseUUID) => {
   if (!Object.keys(course).length) {
     return '#';
   }
@@ -37,8 +37,11 @@ const linkToCourse = (course, slug) => {
     objectId: course.objectId,
   };
   const { userId } = getAuthenticatedUser();
-  sendTrackEvent('edx.learner_portal.skills_quiz.course.clicked',
-    { userId, enterprise: slug, selectedCourse: course.key });
+  sendEnterpriseTrackEvent(
+    enterpriseUUID,
+    'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
+    { userId, enterprise: slug, selectedCourse: course.key },
+  );
   return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
 };
 
@@ -55,7 +58,7 @@ const renderDialog = () => (
 
 const SearchCourseCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { slug } = enterpriseConfig;
+  const { slug, uuid } = enterpriseConfig;
   const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
@@ -140,7 +143,7 @@ const SearchCourseCard = ({ index }) => {
             key={course.title}
           >
             { /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-            <Link to={isLoading ? '#' : linkToCourse(course, slug)}>
+            <Link to={isLoading ? '#' : linkToCourse(course, slug, uuid)}>
               <Card>
                 {isLoading ? (
                   <Card.Img

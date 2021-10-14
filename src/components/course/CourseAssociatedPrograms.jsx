@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Hyperlink } from '@edx/paragon';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
@@ -8,6 +9,7 @@ import { getProgramIcon, formatProgramType } from './data/utils';
 export default function CourseAssociatedPrograms() {
   const { state } = useContext(CourseContext);
   const { course } = state;
+  const { enterpriseConfig } = useContext(AppContext);
 
   return (
     <div className="associated-programs mb-5">
@@ -33,10 +35,12 @@ export default function CourseAssociatedPrograms() {
                 destination={program.marketingUrl}
                 target="_blank"
                 onClick={() => {
-                  sendTrackEvent('edx.learner_portal.course.sidebar.program.clicked', {
-                    program_title: program.title,
-                    program_type: program.type,
-                  });
+                  sendEnterpriseTrackEvent(enterpriseConfig.uuid,
+                    'edx.ui.enterprise.learner_portal.course.sidebar.program.clicked',
+                    {
+                      program_title: program.title,
+                      program_type: program.type,
+                    });
                 }}
               >
                 {program.title}

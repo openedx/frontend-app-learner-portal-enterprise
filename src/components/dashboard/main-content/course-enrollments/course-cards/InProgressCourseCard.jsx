@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import BaseCourseCard from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
@@ -26,6 +26,7 @@ const InProgressCourseCard = ({
   ...rest
 }) => {
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
+  const { courseCards, enterpriseConfig } = useContext(AppContext);
 
   const renderButtons = () => (
     <ContinueLearningButton
@@ -44,7 +45,6 @@ const InProgressCourseCard = ({
   });
 
   const getDropdownMenuItems = () => {
-    const { courseCards } = useContext(AppContext);
     const cardConfig = courseCards && courseCards['in-progress'];
     const settingsMenu = cardConfig ? cardConfig.settingsMenu : undefined;
     const hasMarkComplete = settingsMenu ? settingsMenu.hasMarkComplete : false;
@@ -55,9 +55,13 @@ const InProgressCourseCard = ({
         type: 'button',
         onClick: () => {
           setIsMarkCompleteModalOpen(true);
-          sendTrackEvent('edx.learner_portal.dashboard.course.mark_complete.modal.opened', {
-            course_run_id: courseRunId,
-          });
+          sendEnterpriseTrackEvent(
+            enterpriseConfig.uuid,
+            'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.opened',
+            {
+              course_run_id: courseRunId,
+            },
+          );
         },
         children: (
           <>
@@ -72,15 +76,23 @@ const InProgressCourseCard = ({
 
   const handleMarkCompleteModalOnClose = () => {
     setIsMarkCompleteModalOpen(false);
-    sendTrackEvent('edx.learner_portal.dashboard.course.mark_complete.modal.closed', {
-      course_run_id: courseRunId,
-    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.closed',
+      {
+        course_run_id: courseRunId,
+      },
+    );
   };
 
   const handleMarkCompleteModalOnSuccess = ({ response, resetModalState }) => {
-    sendTrackEvent('edx.learner_portal.dashboard.course.mark_complete.saved', {
-      course_run_id: courseRunId,
-    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.saved',
+      {
+        course_run_id: courseRunId,
+      },
+    );
     setIsMarkCompleteModalOpen(false);
     resetModalState();
     modifyCourseRunStatus({
@@ -107,6 +119,7 @@ const InProgressCourseCard = ({
             <Notification
               key={`notification-${notificationProps.url}-${notificationProps.date}`}
               courseRunId={courseRunId}
+              enterpriseUUID={enterpriseConfig.uuid}
               {...notificationProps}
             />
           ))}

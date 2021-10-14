@@ -15,8 +15,9 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
 }));
 
-jest.mock('@edx/frontend-platform/analytics', () => ({
-  sendTrackEvent: jest.fn(),
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  ...jest.requireActual('@edx/frontend-enterprise-utils'),
+  sendEnterpriseTrackEvent: jest.fn(),
 }));
 
 const facetsToTest = [JOBS_QUIZ_FACET_FILTERS, SKILLS_FACET, CURRENT_JOB_FACET];

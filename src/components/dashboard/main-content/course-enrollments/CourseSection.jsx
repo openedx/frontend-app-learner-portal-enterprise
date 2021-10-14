@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { Collapsible } from '@edx/paragon';
 import { faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons';
 
+import { AppContext } from '@edx/frontend-platform/react';
 import {
   InProgressCourseCard,
   UpcomingCourseCard,
@@ -68,10 +69,17 @@ class CourseSection extends React.Component {
     this.setState({
       isOpen,
     });
-    sendTrackEvent('edx.learner_portal.section.toggled', {
-      is_open: isOpen,
-      section_title: title,
-    });
+    const {
+      enterpriseConfig,
+    } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.section.toggled',
+      {
+        is_open: isOpen,
+        section_title: title,
+      },
+    );
   };
 
   renderCourseCards = () => {
@@ -138,5 +146,7 @@ CourseSection.propTypes = {
 CourseSection.defaultProps = {
   subtitle: null,
 };
+
+CourseSection.contextType = AppContext;
 
 export default CourseSection;

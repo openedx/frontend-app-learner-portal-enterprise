@@ -4,10 +4,11 @@ import {
 import qs from 'query-string';
 import { useHistory, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from '../CourseContextProvider';
@@ -363,7 +364,7 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
 
 /**
  * Returns a function to be used as a click handler that emits an analytics event for a
- * search conversion via ``sendTrackEvent``. When used on a hyperlink (i.e., `href` is specified),
+ * search conversion via ``sendEnterpriseTrackEvent``. When used on a hyperlink (i.e., `href` is specified),
  * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
  *
  * @param {object} args
@@ -380,6 +381,7 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
       algoliaSearchParams,
     },
   } = useContext(CourseContext);
+  const { enterpriseConfig } = useContext(AppContext);
   const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
   const handleClick = useCallback(
     (e) => {
@@ -395,12 +397,16 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
           global.location.href = href;
         }, CLICK_DELAY_MS);
       }
-      sendTrackEvent(eventName, {
-        products: [{ objectID: objectId }],
-        index: getConfig().ALGOLIA_INDEX_NAME,
-        queryID: queryId,
-        courseKey,
-      });
+      sendEnterpriseTrackEvent(
+        enterpriseConfig.uuid,
+        eventName,
+        {
+          products: [{ objectID: objectId }],
+          index: getConfig().ALGOLIA_INDEX_NAME,
+          queryID: queryId,
+          courseKey,
+        },
+      );
     },
     [href, algoliaSearchParams, courseKey, eventName],
   );
