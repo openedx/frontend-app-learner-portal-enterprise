@@ -13,16 +13,12 @@
   padding-bottom: 30px;
 
   .quote-icon-wrapper {
-    display: none;
+    display: block;
+    margin-left: -45px;
+    color: #00688d;
 
-    @include media-breakpoint-up(md) {
-      display: block;
-      margin-left: -45px;
-      color: #00688d;
-
-      .quote-icon {
-        position: absolute;
-      }
+    .quote-icon {
+      position: absolute;
     }
   }
 
