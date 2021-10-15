@@ -36,6 +36,7 @@ initialize({
         INTEGRATION_WARNING_DISMISSED_COOKIE_NAME: process.env.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME || null,
         SHOW_MAINTENANCE_ALERT: process.env.SHOW_MAINTENANCE_ALERT,
         ENABLE_SKILLS_QUIZ: process.env.ENABLE_SKILLS_QUIZ || false,
+        ENABLE_NOTICES: process.env.ENABLE_NOTICES || null,
       });
     },
   },
