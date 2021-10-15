@@ -5,14 +5,14 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
-import ProgramMainContent from '../ProgramMainContent';
+import ProgramCourses from '../ProgramCourses';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
 /* eslint-disable react/prop-types */
-const ProgramMainContentWithContext = ({
+const ProgramCoursestWithContext = ({
   initialAppState = {},
   initialProgramState = {},
   initialUserSubsidyState = {},
@@ -20,14 +20,14 @@ const ProgramMainContentWithContext = ({
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <ProgramContextProvider initialState={initialProgramState}>
-        <ProgramMainContent />
+        <ProgramCourses />
       </ProgramContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
 /* eslint-enable react/prop-types */
 
-describe('<ProgramMainContent />', () => {
+describe('<ProgramCourses />', () => {
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
@@ -36,9 +36,19 @@ describe('<ProgramMainContent />', () => {
   const initialProgramState = {
     program: {
       title: 'Test Program Title',
-      authoringOrganizations: [],
-      courses: [],
-      staff: [],
+      courses: [
+        {
+          title: 'Test Course Title',
+          shortDescription: 'Test course description',
+          courseRuns: [
+            {
+              title: 'Test Course Run Title',
+              start: '2013-02-05T05:00:00Z',
+              shortDescription: 'Test course description',
+            },
+          ],
+        },
+      ],
     },
   };
   const initialUserSubsidyState = {
@@ -51,15 +61,15 @@ describe('<ProgramMainContent />', () => {
     },
   };
 
-  test('renders program main content.', () => {
+  test('renders program courses.', () => {
     render(
-      <ProgramMainContentWithContext
+      <ProgramCoursestWithContext
         initialAppState={initialAppState}
         initialProgramState={initialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
 
-    expect(screen.getByText('Program Main Content Placeholder')).toBeInTheDocument();
+    expect(screen.getByText('Test Course Title')).toBeInTheDocument();
   });
 });
