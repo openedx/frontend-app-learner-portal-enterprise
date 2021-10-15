@@ -13,6 +13,7 @@ const programData = {
   title: 'Test Program Title',
   uuid: 'abcd-1234-213',
   authoringOrganizations: [],
+  courses: [],
   staff: [],
 };
 
