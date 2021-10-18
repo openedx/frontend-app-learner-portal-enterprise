@@ -1,6 +1,7 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+import { getAvailableCourseRuns } from '../../course/data/utils';
 
 export default class ProgramService {
   constructor(options = {}) {
@@ -22,6 +23,10 @@ export default class ProgramService {
 
     const programData = camelCaseObject(programDataRaw);
     const programDetails = programData[0];
+    programDetails.courses.forEach((course, index) => {
+      const availableCourseRuns = getAvailableCourseRuns(course);
+      programDetails.courses[index].activeCourseRun = availableCourseRuns ? availableCourseRuns[0] : undefined;
+    });
 
     return {
       programDetails,

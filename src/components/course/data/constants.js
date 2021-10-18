@@ -35,15 +35,6 @@ export const ELLIPSIS_STR = '...';
 export const ENROLL_BUTTON_LABEL_COMING_SOON = 'Coming Soon';
 export const ENROLL_BUTTON_LABEL_NOT_AVAILABLE = 'Not Currently Available';
 
-export const PROGRAM_TYPE_MAP = {
-  MICROMASTERS: 'MicroMasters',
-  CREDIT: 'Credit',
-  XSERIES: 'XSeries',
-  PROFESSIONAL_CERTIFICATE: 'Professional Certificate',
-  MICROBACHELORS: 'MicroBachelors',
-  MASTERS: 'Masters',
-};
-
 export const COURSE_MODES_MAP = {
   VERIFIED: 'verified',
   PROFESSIONAL: 'professional',
