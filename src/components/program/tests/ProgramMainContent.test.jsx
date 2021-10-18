@@ -39,6 +39,8 @@ describe('<ProgramMainContent />', () => {
       authoringOrganizations: [],
       courses: [],
       staff: [],
+      overview: '<p>A sample overview</p>',
+      expectedLearningItems: ['Sample item 1', 'Sample item 2'],
     },
   };
   const initialUserSubsidyState = {
@@ -51,7 +53,7 @@ describe('<ProgramMainContent />', () => {
     },
   };
 
-  test('renders program main content.', () => {
+  test('renders program overview.', () => {
     render(
       <ProgramMainContentWithContext
         initialAppState={initialAppState}
@@ -60,6 +62,18 @@ describe('<ProgramMainContent />', () => {
       />,
     );
 
-    expect(screen.getByText('Program Main Content Placeholder')).toBeInTheDocument();
+    expect(screen.getByText('About this program')).toBeInTheDocument();
+  });
+
+  test('renders what will you learn.', () => {
+    render(
+      <ProgramMainContentWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    expect(screen.getByText('What you\'ll learn')).toBeInTheDocument();
   });
 });

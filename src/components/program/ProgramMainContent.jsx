@@ -8,8 +8,9 @@ import BulletList from './BulletList';
 const ProgramMainContent = () => {
   const { program } = useContext(ProgramContext);
   const { expectedLearningItems } = program;
+  const { overview } = program;
   return (
-    <div>
+    <div className="program-main-content">
       {expectedLearningItems && expectedLearningItems.length > 0 && (
         <PreviewExpand
           className="mb-5"
@@ -23,7 +24,7 @@ const ProgramMainContent = () => {
           <div><BulletList items={expectedLearningItems} /></div>
         </PreviewExpand>
       )}
-      {program.overview && (
+      {overview && (
         <PreviewExpand
           className="mb-5"
           cta={{
@@ -34,7 +35,7 @@ const ProgramMainContent = () => {
           heading={<h3>About this program</h3>}
         >
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: program.overview }} />
+          <div dangerouslySetInnerHTML={{ __html: overview }} />
         </PreviewExpand>
       )}
       <ProgramInstructors />
