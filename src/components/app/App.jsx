@@ -17,6 +17,7 @@ import { LicenseActivationPage } from '../license-activation';
 import { SkillsQuizPage } from '../skills-quiz';
 
 import store from '../../store';
+import { features } from '../../config';
 
 export default function App() {
   if (process.env.HOTJAR_APP_ID) {
@@ -25,6 +26,7 @@ export default function App() {
       initHotjar(process.env.HOTJAR_APP_ID, process.env.HOTJAR_VERSION, process.env.HOTJAR_DEBUG);
     }, [initHotjar]);
   }
+
   return (
     <AppProvider store={store}>
       <NoticesProvider>
@@ -34,7 +36,13 @@ export default function App() {
           <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
           <PageRoute exact path="/:enterpriseSlug/search" component={SearchPage} />
           <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
-          <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
+          <PageRoute
+            exact
+            path="/:enterpriseSlug/program/:programUuid"
+            render={() => (
+              features.ENABLE_PROGRAMS ? <ProgramPage /> : <NotFoundPage />
+            )}
+          />
           <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
           <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
           <PageRoute path="*" component={NotFoundPage} />

@@ -1,4 +1,5 @@
 export const FEATURE_ENROLL_WITH_CODES = 'ENROLL_WITH_CODES';
+export const FEATURE_ENABLE_PROGRAMS = 'ENABLE_PROGRAMS';
 
 // Subscription expiration constants
 export const SUBSCRIPTION_DAYS_REMAINING_SEVERE = 60;
