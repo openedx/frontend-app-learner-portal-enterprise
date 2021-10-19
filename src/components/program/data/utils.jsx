@@ -1,4 +1,4 @@
-import { PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP } from './constants';
+import { PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT } from './constants';
 
 export function getProgramPacing(program) {
   const { courses } = program;
@@ -31,10 +31,10 @@ export function programIsProfessionalCertificate(program) {
 
 export function getProgramPacingTypeContent(PacingType) {
   if (PacingType === PROGRAM_PACING_MAP.INSTRUCTOR_PACED) {
-    return 'Assignments and exams have specific due dates';
+    return PACING_TYPE_CONTENT.INSTRUCTOR_PACED;
   }
   if (PacingType === PROGRAM_PACING_MAP.SELF_PACED) {
-    return 'Progress at your own speed';
+    return PACING_TYPE_CONTENT.SELF_PACED;
   }
   return undefined;
 }
@@ -51,7 +51,7 @@ export function getExpertInstructionSecondaryContent(program) {
   return `${courseCount} high-quality courses`;
 }
 
-function getTotalWeeks(program) {
+export function getTotalWeeks(program) {
   const totalWeeks = program.weeksToComplete;
   if (totalWeeks !== null) {
     return totalWeeks;
@@ -102,9 +102,9 @@ export function getProgramDuration(program) {
 
   if (totalRemainderMonths === 0) {
     if (totalYears === 1) {
-      return `${totalMonths} year`;
+      return `${totalYears} year`;
     }
-    return `${totalMonths} years`;
+    return `${totalYears} years`;
   }
   if (totalYears === 1 && totalRemainderMonths === 1) {
     return '1 year 1 month';

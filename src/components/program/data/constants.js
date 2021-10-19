@@ -12,3 +12,8 @@ export const PROGRAM_PACING_MAP = {
   INSTRUCTOR_PACED: 'instructor_paced',
   MIXED: 'mixed',
 };
+
+export const PACING_TYPE_CONTENT = {
+  SELF_PACED: 'Assignments and exams have specific due dates',
+  INSTRUCTOR_PACED: 'Progress at your own speed',
+};
