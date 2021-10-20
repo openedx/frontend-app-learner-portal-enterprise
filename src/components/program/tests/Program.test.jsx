@@ -15,6 +15,7 @@ const programData = {
   authoringOrganizations: [],
   courses: [],
   staff: [],
+  overview: '<p>A sample overview</p>',
 };
 
 jest.mock('react-router-dom', () => ({
@@ -72,7 +73,7 @@ describe('<Program />', () => {
       );
       await waitForAsync();
 
-      expect(screen.getByText('Program Main Content Placeholder')).toBeInTheDocument();
+      expect(screen.getByText('About this program')).toBeInTheDocument();
       expect(screen.getByText('Program Header Placeholder.')).toBeInTheDocument();
     });
   });

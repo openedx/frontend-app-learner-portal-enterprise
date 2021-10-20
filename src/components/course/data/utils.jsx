@@ -2,9 +2,8 @@ import React from 'react';
 
 import {
   COURSE_AVAILABILITY_MAP,
-  PROGRAM_TYPE_MAP,
-  COURSE_PACING_MAP,
   COURSE_MODES_MAP,
+  COURSE_PACING_MAP,
   LICENSE_SUBSIDY_TYPE,
   OFFER_SUBSIDY_TYPE,
 } from './constants';
@@ -14,6 +13,8 @@ import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
 import VerifiedSvgIcon from '../../../assets/icons/verified.svg';
 import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
+import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
+import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -62,14 +63,6 @@ export function isCourseInstructorPaced(pacingType) {
   return pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED;
 }
 
-export function programIsMicroMasters(type) {
-  return type === PROGRAM_TYPE_MAP.MICROMASTERS;
-}
-
-export function programIsProfessionalCertificate(type) {
-  return type === PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE;
-}
-
 export function getDefaultProgram(programs = []) {
   if (programs.length === 0) {
     return undefined;
@@ -79,12 +72,12 @@ export function getDefaultProgram(programs = []) {
     return programs[0];
   }
 
-  const microMasters = programs.find(({ type }) => programIsMicroMasters(type));
+  const microMasters = programs.find((program) => programIsMicroMasters(program));
   if (microMasters) {
     return microMasters;
   }
 
-  const professionalCertificate = programs.find(({ type }) => programIsProfessionalCertificate(type));
+  const professionalCertificate = programs.find((program) => programIsProfessionalCertificate(program));
   if (professionalCertificate) {
     return professionalCertificate;
   }
