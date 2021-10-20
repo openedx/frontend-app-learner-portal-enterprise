@@ -36,6 +36,7 @@ describe('<ProgramSidebar />', () => {
   const initialProgramState = {
     program: {
       title: 'Test Program Title',
+      courses: [],
     },
   };
   const initialUserSubsidyState = {
@@ -57,6 +58,6 @@ describe('<ProgramSidebar />', () => {
       />,
     );
 
-    expect(screen.getByText('Program Sidebar Placeholder')).toBeInTheDocument();
+    expect(screen.getByText('0 high-quality courses')).toBeInTheDocument();
   });
 });
