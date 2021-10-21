@@ -6,7 +6,9 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramSidebar from '../ProgramSidebar';
-import { PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT } from '../data/constants';
+import {
+  PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT, VERBOSE_PROGRAM_PACING_MAP,
+} from '../data/constants';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -81,7 +83,7 @@ describe('<ProgramSidebar />', () => {
 
     // renders pacing type and pacing type content
     const { activeCourseRun: { pacingType } } = initialProgramState.program.courses[0];
-    expect(screen.getByText(`${pacingType}:`)).toBeInTheDocument();
+    expect(screen.getByText(`${VERBOSE_PROGRAM_PACING_MAP[pacingType]}:`)).toBeInTheDocument();
     expect(screen.getByText(PACING_TYPE_CONTENT.SELF_PACED)).toBeInTheDocument();
 
     // renders program duration

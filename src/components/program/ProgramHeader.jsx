@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { Container } from '@edx/paragon';
+import { ProgramContext } from './ProgramContextProvider';
 
-const ProgramHeader = () => (
-  <div className="program-header">
-    <Container size="lg">
-      <h1>Program Header Placeholder.</h1>
-    </Container>
-  </div>
-);
+const ProgramHeader = () => {
+  const { program: { title } } = useContext(ProgramContext);
+
+  return (
+    <div className="program-header">
+      <Container size="lg">
+        <h1>{title}</h1>
+      </Container>
+    </div>
+  );
+};
 
 export default ProgramHeader;
