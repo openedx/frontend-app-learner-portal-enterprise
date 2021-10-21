@@ -10,12 +10,14 @@ import {
   getExpertInstructionSecondaryContent,
   getProgramDuration,
   getTotalEstimatedEffortInHoursPerWeek,
+  getVerboseProgramPacing,
 } from './data/utils';
 
 const ProgramSidebar = () => {
   const { program } = useContext(ProgramContext);
   const expertInstructionSecondaryContent = getExpertInstructionSecondaryContent(program);
   const programPacingType = getProgramPacing(program);
+  const verboseProgramPacingType = getVerboseProgramPacing(programPacingType);
   const programPacingTypeContent = getProgramPacingTypeContent(programPacingType);
   const programDuration = getProgramDuration(program);
   const totalEstimatedEffortInHoursPerWeek = getTotalEstimatedEffortInHoursPerWeek(program);
@@ -30,10 +32,10 @@ const ProgramSidebar = () => {
         />
 
         {
-          programPacingType && programPacingTypeContent && (
+          verboseProgramPacingType && programPacingTypeContent && (
             <ProgramSidebarListItem
               icon={faUser}
-              label={programPacingType}
+              label={verboseProgramPacingType}
               content={programPacingTypeContent}
             />
           )

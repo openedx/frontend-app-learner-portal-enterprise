@@ -74,7 +74,7 @@ describe('<Program />', () => {
       await waitForAsync();
 
       expect(screen.getByText('About this program')).toBeInTheDocument();
-      expect(screen.getByText('Program Header Placeholder.')).toBeInTheDocument();
+      expect(screen.getByText('Test Program Title')).toBeInTheDocument();
     });
   });
 

@@ -13,7 +13,12 @@ export const PROGRAM_PACING_MAP = {
   MIXED: 'mixed',
 };
 
+export const VERBOSE_PROGRAM_PACING_MAP = {
+  self_paced: 'Self-paced',
+  instructor_paced: 'Instructor-led',
+};
+
 export const PACING_TYPE_CONTENT = {
-  SELF_PACED: 'Assignments and exams have specific due dates',
-  INSTRUCTOR_PACED: 'Progress at your own speed',
+  SELF_PACED: 'Progress at your own speed',
+  INSTRUCTOR_PACED: 'Assignments and exams have specific due dates',
 };

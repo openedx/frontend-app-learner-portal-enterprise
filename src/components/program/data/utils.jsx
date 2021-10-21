@@ -1,4 +1,6 @@
-import { PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT } from './constants';
+import {
+  PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT, VERBOSE_PROGRAM_PACING_MAP,
+} from './constants';
 
 export function getProgramPacing(program) {
   const { courses } = program;
@@ -17,6 +19,10 @@ export function getProgramPacing(program) {
   }
 
   return PROGRAM_PACING_MAP.MIXED;
+}
+
+export function getVerboseProgramPacing(pacing) {
+  return VERBOSE_PROGRAM_PACING_MAP[pacing];
 }
 
 export function programIsMicroMasters(program) {

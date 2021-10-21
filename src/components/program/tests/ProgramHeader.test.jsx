@@ -57,6 +57,6 @@ describe('<ProgramHeader />', () => {
       />,
     );
 
-    expect(screen.getByText('Program Header Placeholder.')).toBeInTheDocument();
+    expect(screen.getByText('Test Program Title')).toBeInTheDocument();
   });
 });
