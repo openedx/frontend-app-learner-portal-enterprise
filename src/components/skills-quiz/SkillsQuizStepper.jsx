@@ -81,6 +81,7 @@ const SkillsQuizStepper = () => {
   };
 
   const closeSkillsQuiz = () => {
+    history.push(`/${enterpriseConfig.slug}/search`);
     sendEnterpriseTrackEvent(
       enterpriseConfig.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',
