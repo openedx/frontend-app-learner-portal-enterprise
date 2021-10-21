@@ -12,7 +12,7 @@ const ProgramEndorsements = () => {
 
   return corporateEndorsements?.length > 0
     ? (
-      <div className="endorsements p-2">
+      <div className="endorsements p-2 mb-3">
         <h2 className="program-section-heading">Program endorsements</h2>
         <MediaQuery minWidth={breakpoints.medium.minWidth}>
           {matches => matches && (

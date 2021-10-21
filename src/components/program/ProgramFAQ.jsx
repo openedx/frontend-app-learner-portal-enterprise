@@ -8,7 +8,7 @@ function ProgramFAQ() {
   const { program: { faq } } = useContext(ProgramContext);
   return faq?.length > 0
     ? (
-      <div className="col-lg-8 p-2">
+      <div className="col-lg-8 p-2 mb-3">
         <h2 className="program-section-heading">FAQs</h2>
         <div className="faq mb-4">
           {
