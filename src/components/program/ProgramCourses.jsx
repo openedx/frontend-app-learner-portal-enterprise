@@ -3,7 +3,9 @@ import React, { useContext } from 'react';
 import moment from 'moment';
 import { Collapsible } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDown, faAngleUp, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAngleDown, faAngleUp, faBook, faCalendarAlt,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { ProgramContext } from './ProgramContextProvider';
 
@@ -21,15 +23,16 @@ const ProgramCourses = () => {
 
   return (
     <>
-      <h2 className="h2 section-title"> Courses in this program </h2>
-      <div className="mb-5">
+      <h2 className="h2 section-title pb-3"> Courses in this program </h2>
+      <div className="ml-3 mb-5">
         {
           program.courses && program.courses.map((course) => {
             const courseRun = getCourseRun(course);
             return (
               <Collapsible.Advanced className="collapsible-card-lg" key={course.title}>
                 <Collapsible.Trigger className="collapsible-trigger">
-                  <h5 className="flex-grow-1">{course.title}</h5>
+                  <div className="marker"><FontAwesomeIcon icon={faBook} className="fa-book mr-2" /></div>
+                  <h4 className="h4 flex-grow-1">{course.title}</h4>
                   <Collapsible.Visible whenClosed>
                     <FontAwesomeIcon icon={faAngleDown} className="fa-angle-down mr-2" />
                   </Collapsible.Visible>
@@ -39,14 +42,14 @@ const ProgramCourses = () => {
                   </Collapsible.Visible>
                 </Collapsible.Trigger>
 
-                <Collapsible.Body className="collapsible-body">
-                  <div className="course-card-result">
+                <Collapsible.Body className="collapsible-body mt-3 ml-4.5">
+                  <div className="course-card-result mb-2">
                     <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
-                    {courseRun && <span>Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>}
+                    {courseRun && <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>}
                   </div>
                   {course.shortDescription && (
                     <div
-                      className="lead font-weight-normal mb-4"
+                      className="font-weight-normal mb-4"
                       // eslint-disable-next-line react/no-danger
                       dangerouslySetInnerHTML={{ __html: course.shortDescription }}
                     />
