@@ -5,6 +5,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
+import { features } from '../../config';
 
 export default function CourseAssociatedPrograms() {
   const { state } = useContext(CourseContext);
@@ -32,7 +33,8 @@ export default function CourseAssociatedPrograms() {
             </div>
             <div className="col">
               <Hyperlink
-                destination={program.marketingUrl}
+                destination={features.ENABLE_PROGRAMS ? `/${enterpriseConfig.slug}/program/${program.uuid}`
+                  : program.marketingUrl}
                 target="_blank"
                 onClick={() => {
                   sendEnterpriseTrackEvent(enterpriseConfig.uuid,
