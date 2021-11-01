@@ -38,8 +38,8 @@ const ProgramMainContent = () => {
           <div dangerouslySetInnerHTML={{ __html: overview }} />
         </PreviewExpand>
       )}
-      <ProgramInstructors />
       <ProgramCourses />
+      <ProgramInstructors />
     </div>
   );
 };
