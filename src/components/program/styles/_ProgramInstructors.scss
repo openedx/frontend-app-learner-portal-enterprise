@@ -1,0 +1,15 @@
+.collapsible.program-staff {
+
+  .collapsible-trigger {
+    align-items: center;
+
+    &,
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  h4.title {
+    text-decoration: underline;
+  }
+}

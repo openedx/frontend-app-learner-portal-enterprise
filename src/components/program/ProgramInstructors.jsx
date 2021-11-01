@@ -1,14 +1,64 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Hyperlink } from '@edx/paragon';
+import { Collapsible, Hyperlink } from '@edx/paragon';
+import { faPlusCircle, faMinusCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ProgramContext } from './ProgramContextProvider';
 
-const ProgramInstructors = () => {
+const ProgramStaff = ({ program }) => {
   const { config } = useContext(AppContext);
-  const { program } = useContext(ProgramContext);
-
   const formatStaffFullName = staff => `${staff.givenName} ${staff.familyName}`;
+
+  return (
+    <div className="row no-gutters mt-3">
+      {program.staff.map(staff => (
+        <div className="d-flex col-lg-6 mb-3" key={formatStaffFullName(staff)}>
+          <img
+            src={staff.profileImageUrl}
+            className="rounded-circle mr-3"
+            alt={formatStaffFullName(staff)}
+            style={{ width: 72, height: 72 }}
+          />
+          <div>
+            <Hyperlink
+              destination={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`}
+              className="font-weight-bold"
+              target="_blank"
+            >
+              {formatStaffFullName(staff)}
+            </Hyperlink>
+            {staff.position && (
+              <>
+                <div className="font-italic">{staff.position.title}</div>
+                {staff.position.organizationName}
+              </>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+ProgramStaff.propTypes = {
+  program: PropTypes.shape({
+    staff: PropTypes.arrayOf(PropTypes.shape({
+      givenName: PropTypes.string.isRequired,
+      familyName: PropTypes.string.isRequired,
+      profileImageUrl: PropTypes.string.isRequired,
+      slug: PropTypes.string.isRequired,
+      position: PropTypes.shape({
+        title: PropTypes.string.isRequired,
+        organizationName: PropTypes.string.isRequired,
+      }).isRequired,
+    })).isRequired,
+  }).isRequired,
+};
+
+const ProgramInstructors = () => {
+  const { program } = useContext(ProgramContext);
 
   return (
     <div className="mb-5">
@@ -35,34 +85,24 @@ const ProgramInstructors = () => {
           ))}
         </div>
       )}
-      {program.staff.length > 0 && (
-        <div className="row no-gutters mt-3">
-          {program.staff.map(staff => (
-            <div className="d-flex col-lg-6 mb-3" key={formatStaffFullName(staff)}>
-              <img
-                src={staff.profileImageUrl}
-                className="rounded-circle mr-3"
-                alt={formatStaffFullName(staff)}
-                style={{ width: 72, height: 72 }}
-              />
-              <div>
-                <Hyperlink
-                  destination={`${config.MARKETING_SITE_BASE_URL}/bio/${staff.slug}`}
-                  className="font-weight-bold"
-                  target="_blank"
-                >
-                  {formatStaffFullName(staff)}
-                </Hyperlink>
-                {staff.position && (
-                  <>
-                    <div className="font-italic">{staff.position.title}</div>
-                    {staff.position.organizationName}
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+      {program.staff.length <= 4 && <ProgramStaff program={program} />}
+      {program.staff.length > 4 && (
+        <Collapsible.Advanced className="collapsible program-staff">
+          <Collapsible.Trigger className="collapsible-trigger d-flex">
+            <h4 className="h4 mb-0 mr-2 title">See instructor bios</h4>
+            <Collapsible.Visible whenClosed>
+              <FontAwesomeIcon icon={faPlusCircle} className="fa-angle-down mr-2" />
+            </Collapsible.Visible>
+
+            <Collapsible.Visible whenOpen>
+              <FontAwesomeIcon icon={faMinusCircle} className="fa-angle-up mr-2" />
+            </Collapsible.Visible>
+          </Collapsible.Trigger>
+
+          <Collapsible.Body className="collapsible-body mt-3 ml-4.5">
+            <ProgramStaff program={program} />
+          </Collapsible.Body>
+        </Collapsible.Advanced>
       )}
     </div>
   );
