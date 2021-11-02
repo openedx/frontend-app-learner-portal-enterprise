@@ -130,6 +130,18 @@ describe('<DashboardSidebar />', () => {
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
     expect(catalogAccessButton).toBeFalsy();
   });
+  test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
+    renderWithRouter(
+      <DashboardSidebarContext
+        initialAppState={{ enterpriseConfig: { disableSearch: true } }}
+        initialUserSubsidyState={userSubsidyStateWithSubscription}
+      >
+        <DashboardSidebar />
+      </DashboardSidebarContext>,
+    );
+    const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
+    expect(catalogAccessButton).toBeFalsy();
+  });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(
       <DashboardSidebarContext
