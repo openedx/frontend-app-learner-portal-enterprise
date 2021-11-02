@@ -42,7 +42,7 @@ export default function CourseHeader() {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            {primarySubject && (
+            {primarySubject && !enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
                   links={[

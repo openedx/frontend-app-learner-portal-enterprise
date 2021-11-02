@@ -35,6 +35,7 @@ const defaultAppState = {
   enterpriseConfig: {
     name: 'BearsRUs',
     uuid: 'BearsRUs',
+    disableSearch: false,
   },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
@@ -162,6 +163,32 @@ describe('<Dashboard />', () => {
       <DashboardWithContext />,
     );
     expect(screen.getByTestId('sidebar')).toBeTruthy();
+  });
+
+  it('renders Find a Course when search is enabled for the customer', () => {
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+    expect(screen.queryByText('Find a Course')).toBeTruthy();
+  });
+
+  it('does not render Find a Course when search is disabled for the customer', () => {
+    const appState = {
+      enterpriseConfig: {
+        name: 'BearsRUs',
+        uuid: 'BearsRUs',
+        disableSearch: true,
+      },
+      config: {
+        LMS_BASE_URL: process.env.LMS_BASE_URL,
+      },
+    };
+    renderWithRouter(
+      <DashboardWithContext
+        initialAppState={appState}
+      />,
+    );
+    expect(screen.queryByText('Find a Course')).toBeFalsy();
   });
 
   describe('SubscriptionExpirationModal', () => {

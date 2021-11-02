@@ -94,6 +94,18 @@ describe('<CourseHeader />', () => {
     expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
   });
 
+  test('does not render breadcrumb when search is disabled for customer', () => {
+    render(
+      <CourseHeaderWithContext
+        initialAppState={{ enterpriseConfig: { disableSearch: true } }}
+        initialCourseState={initialCourseState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.queryByText('Find a Course')).toBeFalsy();
+    expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
+  });
+
   test('renders course title and short description', () => {
     render(
       <CourseHeaderWithContext

@@ -20,6 +20,7 @@ const DashboardSidebar = () => {
     enterpriseConfig: {
       contactEmail,
       slug,
+      disableSearch,
     },
   } = useContext(AppContext);
   const {
@@ -68,12 +69,14 @@ const DashboardSidebar = () => {
               className="mb-3"
             />
           )}
-          <Link
-            to={`/${slug}/search`}
-            className={classNames('btn btn-outline-primary btn-block', { disabled: !hasAccessToPortal })}
-          >
-            {CATALOG_ACCESS_CARD_BUTTON_TEXT}
-          </Link>
+          {!disableSearch && (
+            <Link
+              to={`/${slug}/search`}
+              className={classNames('btn btn-outline-primary btn-block', { disabled: !hasAccessToPortal })}
+            >
+              {CATALOG_ACCESS_CARD_BUTTON_TEXT}
+            </Link>
+          )}
         </SidebarCard>
       )}
       <SidebarBlock
