@@ -122,7 +122,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
               {isLoading ? (
                 <Skeleton count={2} data-testid="program-title-loading" />
               ) : (
-                <Truncate lines={3} trimWhitespace>
+                <Truncate lines={2} trimWhitespace>
                   {program.title}
                 </Truncate>
               )}
@@ -133,7 +133,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
               <>
                 {program.authoringOrganizations.length > 0 && (
                   <p className="partner text-muted m-0">
-                    <Truncate lines={2} trimWhitespace>
+                    <Truncate lines={1} trimWhitespace>
                       {program.authoringOrganizations.map(org => org.key).join(', ')}
                     </Truncate>
                   </p>
