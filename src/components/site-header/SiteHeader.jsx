@@ -13,15 +13,26 @@ import AvatarDropdown from './AvatarDropdown';
 export default function SiteHeader() {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const renderLogo = () => (
-    <Link to={`/${enterpriseConfig.slug}`} className="logo">
+  const renderLogo = () => {
+    const image = (
       <img
         className="d-block"
         src={enterpriseConfig.branding.logo || edXLogo}
         alt={`${enterpriseConfig.name} logo`}
+        data-testid="header-logo-image-id"
       />
-    </Link>
-  );
+    );
+    if (enterpriseConfig.disableSearch) {
+      return image;
+    }
+    return (
+      <>
+        <Link to={`/${enterpriseConfig.slug}`} className="logo" data-testid="header-logo-link-id">
+          {image}
+        </Link>
+      </>
+    );
+  };
 
   const renderMainMenu = () => {
     const mainMenuLinkClassName = 'nav-link';
