@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { Parallax } from 'react-parallax';
 import { breakpoints } from '@edx/paragon';
+import { getConfig } from '@edx/frontend-platform/config';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramHeader = () => {
+  const config = getConfig();
   const { program: { subjects, marketingHook } } = useContext(ProgramContext);
 
   let isMobileWindow = true;
@@ -26,8 +28,7 @@ const ProgramHeader = () => {
     }
     handleResize();
     const imageSize = isMobileWindow ? 'sm' : 'lg';
-    const urlPrefix = 'https://www.edx.org/images/experiments/ProgramDetails';
-    return `${urlPrefix}/${subjectFolder}/hook-background-${imageSize}.jpg`;
+    return `${config.MARKETING_SITE_BASE_URL}/images/experiments/ProgramDetails/${subjectFolder}/hook-background-${imageSize}.jpg`;
   };
 
   const backgroundImage = getHeaderBackgroundImage();

@@ -16,6 +16,8 @@ const programData = {
   courses: [],
   staff: [],
   overview: '<p>A sample overview</p>',
+  marketingHook: 'Test program marketing hook',
+  subjects: [{ slug: 'my-slug' }],
 };
 
 jest.mock('react-router-dom', () => ({
@@ -74,7 +76,7 @@ describe('<Program />', () => {
       await waitForAsync();
 
       expect(screen.getByText('About this program')).toBeInTheDocument();
-      expect(screen.getByText('Test Program Title')).toBeInTheDocument();
+      expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
     });
   });
 

@@ -35,7 +35,13 @@ describe('<ProgramHeader />', () => {
   };
   const initialProgramState = {
     program: {
-      title: 'Test Program Title',
+      marketingHook: 'Test program marketing hook',
+      subjects: [{ slug: 'my-slug' }],
+    },
+  };
+  const programStateWithoutSubjects = {
+    program: {
+      marketingHook: 'Test program marketing hook',
     },
   };
   const initialUserSubsidyState = {
@@ -48,7 +54,19 @@ describe('<ProgramHeader />', () => {
     },
   };
 
-  test('renders program header.', () => {
+  test('does not render program header with marketing hook if subject is not available.', () => {
+    render(
+      <ProgramHeaderWithContext
+        initialAppState={initialAppState}
+        initialProgramState={programStateWithoutSubjects}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    const marketingHook = screen.queryByText('Test program marketing hook');
+    expect(marketingHook).not.toBeInTheDocument();
+  });
+
+  test('renders program header with marketing hook.', () => {
     render(
       <ProgramHeaderWithContext
         initialAppState={initialAppState}
@@ -56,7 +74,6 @@ describe('<ProgramHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-
-    expect(screen.getByText('Test Program Title')).toBeInTheDocument();
+    expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
   });
 });
