@@ -1,0 +1,19 @@
+.program-header {
+  margin-bottom: 0;
+  background: none;
+  padding-bottom: 12px;
+
+  @include media-breakpoint-up(lg) {
+    padding: {
+      top: 30px;
+      bottom: 22px;
+    }
+
+    .program-header-container {
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+}
