@@ -4,14 +4,14 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import ProgramService from './service';
 
-export function useAllProgramData({ programUuid }) {
+export function useAllProgramData({ enterpriseUuid, programUuid }) {
   const [programData, setProgramData] = useState();
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       if (programUuid) {
-        const programService = new ProgramService({ programUuid });
+        const programService = new ProgramService({ enterpriseUuid, programUuid });
         try {
           const data = await programService.fetchAllProgramData();
           setProgramData(data);

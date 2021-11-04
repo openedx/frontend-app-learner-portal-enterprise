@@ -1,11 +1,13 @@
 import React, { useContext } from 'react';
 
 import moment from 'moment';
-import { Collapsible } from '@edx/paragon';
+import { Alert, Collapsible, Hyperlink } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { WarningFilled } from '@edx/paragon/icons';
 import {
   faAngleDown, faAngleUp, faBook, faCalendarAlt,
 } from '@fortawesome/free-solid-svg-icons';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { ProgramContext } from './ProgramContextProvider';
 
@@ -19,12 +21,13 @@ const getCourseRun = course => (
 );
 
 const ProgramCourses = () => {
+  const { enterpriseConfig: { slug } } = useContext(AppContext);
   const { program } = useContext(ProgramContext);
 
   return (
     <>
       <h2 className="h2 section-title pb-3"> Courses in this program </h2>
-      <div className="ml-3 mb-5">
+      <div className="courses-in-program-wrapper ml-3 mb-5">
         {
           program.courses && program.courses.map((course) => {
             const courseRun = getCourseRun(course);
@@ -53,6 +56,20 @@ const ProgramCourses = () => {
                       // eslint-disable-next-line react/no-danger
                       dangerouslySetInnerHTML={{ __html: course.shortDescription }}
                     />
+                  )}
+                  {course.enterpriseHasCourse ? (
+                    <Hyperlink
+                      isInline
+                      destination={`/${slug}/course/${course.key}`}
+                      target="_blank"
+                      showLaunchIcon={false}
+                    >
+                      View the course
+                    </Hyperlink>
+                  ) : (
+                    <Alert variant="warning" icon={WarningFilled}>
+                      This course is not included in your organization&apos;s catalog.
+                    </Alert>
                   )}
                 </Collapsible.Body>
               </Collapsible.Advanced>
