@@ -16,7 +16,7 @@ export default function SiteHeader() {
   const renderLogo = () => {
     const image = (
       <img
-        className="d-block"
+        className="d-block logo"
         src={enterpriseConfig.branding.logo || edXLogo}
         alt={`${enterpriseConfig.name} logo`}
         data-testid="header-logo-image-id"
@@ -27,7 +27,7 @@ export default function SiteHeader() {
     }
     return (
       <>
-        <Link to={`/${enterpriseConfig.slug}`} className="logo" data-testid="header-logo-link-id">
+        <Link to={`/${enterpriseConfig.slug}`} data-testid="header-logo-link-id">
           {image}
         </Link>
       </>
