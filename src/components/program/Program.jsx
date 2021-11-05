@@ -15,6 +15,7 @@ import ProgramSidebar from './ProgramSidebar';
 import { useAllProgramData } from './data/hooks';
 import ProgramEndorsements from './ProgramEndorsements';
 import ProgramFAQ from './ProgramFAQ';
+import ProgramCTA from './ProgramCTA';
 import './styles/index.scss';
 
 const Program = () => {
@@ -71,6 +72,7 @@ const Program = () => {
           </Row>
           <Row>
             <ProgramEndorsements />
+            <ProgramCTA />
             <ProgramFAQ />
           </Row>
         </Container>

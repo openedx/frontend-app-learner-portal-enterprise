@@ -2,6 +2,7 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from 'react-intl';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import Program from '../Program';
@@ -37,11 +38,13 @@ const ProgramWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <Program />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <Program />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 /* eslint-enable react/prop-types */
 
