@@ -2,11 +2,11 @@ import React, { useContext, useMemo } from 'react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 
-import { JOBS_QUIZ_FACET_FILTERS } from './constants';
+import { DESIRED_JOB_FACET } from './constants';
 
 const SearchJobDropdown = () => {
   const { refinements } = useContext(SearchContext);
-  const { title, attribute, typeaheadOptions } = JOBS_QUIZ_FACET_FILTERS;
+  const { title, attribute, typeaheadOptions } = DESIRED_JOB_FACET;
   const jobsDropdown = useMemo(
     () => {
       const filtersFromRefinements = () => (

@@ -10,7 +10,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { sendEnterpriseTrackEvent, useIsFirstRender } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import GoalDropdown from './GoalDropdown';
@@ -35,6 +35,7 @@ import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 const SkillsQuizStepper = () => {
   const config = getConfig();
   const { userId } = getAuthenticatedUser();
+  const isFirstRender = useIsFirstRender();
   const [searchClient, courseIndex, jobIndex] = useMemo(
     () => {
       const client = algoliasearch(
@@ -135,6 +136,9 @@ const SkillsQuizStepper = () => {
     );
   }, []);
 
+  const skillsVisible = useMemo(() => !isFirstRender, [goal]);
+  const jobsDropdownsVisible = useMemo(() => !isFirstRender, [skills]);
+
   return (
     <>
       <Stepper activeKey={currentStep}>
@@ -180,15 +184,20 @@ const SkillsQuizStepper = () => {
               <div className="row skils-quiz-dropdown">
                 <div className="col col-6">
                   <GoalDropdown />
-                  <InstantSearch
-                    indexName={config.ALGOLIA_INDEX_NAME}
-                    searchClient={searchClient}
-                  >
-                    <div className="skills-drop-down">
-                      <SkillsDropDown />
-                    </div>
-                  </InstantSearch>
-                  { selectedSkills.length > 0 && (
+                  {
+                    skillsVisible && (
+                      <InstantSearch
+                        indexName={config.ALGOLIA_INDEX_NAME}
+                        searchClient={searchClient}
+                      >
+                        <div className="skills-drop-down">
+                          <SkillsDropDown />
+                        </div>
+                      </InstantSearch>
+                    )
+                  }
+
+                  { (skillsVisible && selectedSkills.length > 0) && (
                     <TagCloud
                       tags={selectedSkills}
                       onRemove={
@@ -203,19 +212,23 @@ const SkillsQuizStepper = () => {
                     />
                   )}
                 </div>
-                <div className="col col-6">
-                  <InstantSearch
-                    indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-                    searchClient={searchClient}
-                  >
-                    <CurrentJobDropdown />
-                    { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <SearchJobDropdown /> : null }
-                  </InstantSearch>
-                  { goalExceptImproveAndJobSelected
-                    ? <SearchJobCard index={jobIndex} /> : null }
-                  { improveGoalAndCurrentJobSelected
-                    ? <SearchCurrentJobCard index={jobIndex} /> : null }
-                </div>
+                {
+                  jobsDropdownsVisible && (
+                    <div className="col col-6">
+                      <InstantSearch
+                        indexName={config.ALGOLIA_INDEX_NAME_JOBS}
+                        searchClient={searchClient}
+                      >
+                        <CurrentJobDropdown />
+                        { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <SearchJobDropdown /> : null }
+                      </InstantSearch>
+                      { goalExceptImproveAndJobSelected
+                        ? <SearchJobCard index={jobIndex} /> : null }
+                      { improveGoalAndCurrentJobSelected
+                        ? <SearchCurrentJobCard index={jobIndex} /> : null }
+                    </div>
+                  )
+                }
               </div>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">

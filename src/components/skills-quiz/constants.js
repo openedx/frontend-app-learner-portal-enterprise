@@ -20,7 +20,7 @@ export const SKILLS_FACET = {
 export const CURRENT_JOB_FACET = {
   attribute: JOB_ATTRIBUTE_NAME,
   customAttribute: 'current_job',
-  title: 'Current job',
+  title: 'Current job title',
   facetValueType: 'single-item',
   typeaheadOptions: {
     placeholder: 'Find a current job...',
@@ -29,9 +29,9 @@ export const CURRENT_JOB_FACET = {
   },
 };
 
-export const JOBS_QUIZ_FACET_FILTERS = {
+export const DESIRED_JOB_FACET = {
   attribute: JOB_ATTRIBUTE_NAME,
-  title: 'Search jobs',
+  title: 'Desired job title',
   typeaheadOptions: {
     placeholder: 'Find a job...',
     ariaLabel: 'Type to find a job',
