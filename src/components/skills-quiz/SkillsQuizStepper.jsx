@@ -10,7 +10,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { sendEnterpriseTrackEvent, useIsFirstRender } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import GoalDropdown from './GoalDropdown';
@@ -36,6 +36,7 @@ import SkillsQuizImg from './images/skills-quiz.png';
 const SkillsQuizStepper = () => {
   const config = getConfig();
   const { userId } = getAuthenticatedUser();
+  const isFirstRender = useIsFirstRender();
   const [searchClient, courseIndex, jobIndex] = useMemo(
     () => {
       const client = algoliasearch(
@@ -135,6 +136,9 @@ const SkillsQuizStepper = () => {
       { userId, enterprise: enterpriseConfig.slug },
     );
   }, []);
+
+  const skillsVisible = useMemo(() => !isFirstRender, [goal]);
+  const jobsDropdownsVisible = useMemo(() => !isFirstRender, [skills]);
 
   return (
     <>
