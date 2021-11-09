@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render } from '@testing-library/react';
+import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -38,6 +38,7 @@ describe('<ProgramCourses />', () => {
       title: 'Test Program Title',
       courses: [
         {
+          key: 'edX+DemoX',
           title: 'Test Course Title',
           shortDescription: 'Test course description',
           courseRuns: [
@@ -47,6 +48,7 @@ describe('<ProgramCourses />', () => {
               shortDescription: 'Test course description',
             },
           ],
+          enterpriseHasCourse: true,
         },
       ],
     },
@@ -71,5 +73,36 @@ describe('<ProgramCourses />', () => {
     );
 
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
+  });
+
+  test('renders view the course link if course in catalog', () => {
+    render(
+      <ProgramCoursestWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Test Course Title'));
+    expect(screen.getByText('View the course')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View the course' })).toHaveAttribute('href', '/test-enterprise-slug/course/edX+DemoX');
+  });
+
+  test('does not renders view the course link if course is not in catalog', () => {
+    const newInitialProgramState = { ...initialProgramState };
+    newInitialProgramState.program.courses[0].enterpriseHasCourse = false;
+
+    render(
+      <ProgramCoursestWithContext
+        initialAppState={initialAppState}
+        initialProgramState={newInitialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    expect(screen.queryByText('View the course')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('Test Course Title'));
+    expect(screen.getByText("This course is not included in your organization's catalog.")).toBeInTheDocument();
   });
 });
