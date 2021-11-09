@@ -9,6 +9,7 @@ import ProgramHeader from '../ProgramHeader';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
+  useParams: jest.fn().mockReturnValue({ enterpriseSlug: 'test-enterprise-slug' }),
 }));
 
 /* eslint-disable react/prop-types */
@@ -36,7 +37,17 @@ describe('<ProgramHeader />', () => {
   const initialProgramState = {
     program: {
       marketingHook: 'Test program marketing hook',
-      subjects: [{ slug: 'my-slug' }],
+      subjects: [{ slug: 'my-slug', name: 'Subject' }],
+      authoringOrganizations: [{ key: 'program-key' }],
+      title: 'test-title',
+    },
+  };
+  const programStateWithMultipleOrganizations = {
+    program: {
+      marketingHook: 'Test program marketing hook',
+      subjects: [{ slug: 'my-slug', name: 'Subject' }],
+      authoringOrganizations: [{ key: 'program-key' }, { key: 'program-key-2' }],
+      title: 'test-title',
     },
   };
   const programStateWithoutSubjects = {
@@ -75,5 +86,33 @@ describe('<ProgramHeader />', () => {
       />,
     );
     expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
+  });
+
+  test('renders breadcrumbs', () => {
+    const organizationKeyWithTitle = "program-key's test-title";
+    render(
+      <ProgramHeaderWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByText('Subject Courses')).toBeInTheDocument();
+    expect(screen.getByText('Catalog')).toBeInTheDocument();
+    expect(screen.getByText(organizationKeyWithTitle)).toBeInTheDocument();
+  });
+
+  test('renders breadcrumbs with multiple organizations', () => {
+    const organizationKeyWithTitle = "program-key and program-key-2's test-title";
+    render(
+      <ProgramHeaderWithContext
+        initialAppState={initialAppState}
+        initialProgramState={programStateWithMultipleOrganizations}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByText('Subject Courses')).toBeInTheDocument();
+    expect(screen.getByText('Catalog')).toBeInTheDocument();
+    expect(screen.getByText(organizationKeyWithTitle)).toBeInTheDocument();
   });
 });

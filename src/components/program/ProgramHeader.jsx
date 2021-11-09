@@ -1,18 +1,24 @@
 import React, { useContext } from 'react';
 import { Parallax } from 'react-parallax';
-import { breakpoints } from '@edx/paragon';
+import { breakpoints, Breadcrumb } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
+import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramHeader = () => {
   const config = getConfig();
-  const { program: { subjects, marketingHook } } = useContext(ProgramContext);
+  const { enterpriseSlug } = useParams();
+  const {
+    program: {
+      title, authoringOrganizations, subjects, marketingHook,
+    },
+  } = useContext(ProgramContext);
 
   let isMobileWindow = true;
-
   // Use the first subject as the primary subject
   const primarySubject = subjects?.length > 0 ? subjects[0] : '';
-  const subjectSlug = primarySubject?.slug ? primarySubject?.slug.toLowerCase() : '';
+  const subjectName = primarySubject?.name || '';
+  const subjectSlug = primarySubject?.slug?.toLowerCase() || '';
 
   const handleResize = () => {
     const isMobileWindowRefresh = window.matchMedia(`(max-width: ${breakpoints.small.maxWidth}px)`).matches;
@@ -33,6 +39,32 @@ const ProgramHeader = () => {
 
   const backgroundImage = getHeaderBackgroundImage();
 
+  const prependProgramOrganizationsToTitle = () => {
+    const organizationCount = authoringOrganizations.length;
+
+    if (organizationCount === 1) {
+      return `${authoringOrganizations[0].key}'s ${title}`;
+    }
+    if (organizationCount === 2) {
+      return `${authoringOrganizations[0].key} and ${authoringOrganizations[1].key}'s ${title}`;
+    }
+
+    const multipleOrganizationString = authoringOrganizations.reduce((organizationString, organization, index) => {
+      if (index + 1 < organizationCount) {
+        return `${organizationString}${organization.key}, `;
+      }
+
+      return `${organizationString}and ${organization.key}`;
+    }, '');
+
+    return `${multipleOrganizationString}'s ${title}`;
+  };
+
+  const links = [{ label: 'Catalog', url: '/search' }];
+  if (subjectName && subjectSlug) {
+    links.push({ label: `${subjectName} Courses`, url: `/${enterpriseSlug}/search?subjects=${subjectSlug}` });
+  }
+
   return (
     <>
       {subjectSlug
@@ -45,8 +77,12 @@ const ProgramHeader = () => {
           >
             <header className="program-header">
               <div className="container mw-lg program-header-container">
-                {/* this div is added to add breadcrumbs at the top of banner. */}
-                <div className="header-breadcrumbs ml-2" />
+                <div className="header-breadcrumbs ml-2">
+                  <Breadcrumb
+                    links={links}
+                    activeLabel={prependProgramOrganizationsToTitle()}
+                  />
+                </div>
                 <h1 className="display-3">{marketingHook}</h1>
               </div>
             </header>
