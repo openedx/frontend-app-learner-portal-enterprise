@@ -7,7 +7,7 @@ import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-se
 
 import { useDefaultSearchFilters } from './data/hooks';
 import {
-  NUM_RESULTS_PER_PAGE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, COURSE_TITLE, PROGRAM_TITLE,
+  NUM_RESULTS_PER_PAGE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, COURSE_TITLE, PROGRAM_TITLE, HEADER_TITLE,
 } from './constants';
 import SearchProgram from './SearchProgram';
 import SearchCourse from './SearchCourse';
@@ -32,7 +32,7 @@ const Search = () => {
 
   const config = getConfig();
 
-  const PAGE_TITLE = `Search Courses and Programs - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
 
   return (
     <>
@@ -49,7 +49,7 @@ const Search = () => {
           />
         )}
         <div className="search-header-wrapper">
-          <SearchHeader containerSize="lg" />
+          <SearchHeader containerSize="lg" headerTitle={HEADER_TITLE} />
         </div>
 
         { (contentType === undefined || contentType.length === 0) && (
