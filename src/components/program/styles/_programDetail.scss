@@ -30,3 +30,57 @@
 
   }
 }
+
+.program-enroll-wrapper {
+  padding: 75px 30px 60px;
+  background: {
+    image: url('../../../assets/images/data-science/enrolling-image-lg.jpg');
+    repeat: no-repeat;
+    position: center;
+    size: cover;
+  }
+
+  &.business-management {
+    background-image: url('../../../assets/images/business-management/enrolling-image-lg.jpg');
+  }
+
+  &.computer-science {
+    background-image: url('../../../assets/images/computer-science/enrolling-image-lg.jpg');
+  }
+
+  @include media-breakpoint-up(xl) {
+    background-image: url('../../../assets/images/data-science/enrolling-image-xl.jpg');
+
+    &.business-management {
+      background-image: url('../../../assets/images/business-management/enrolling-image-xl.jpg');
+    }
+
+    &.computer-science {
+      background-image: url('../../../assets/images/computer-science/enrolling-image-xl.jpg');
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    padding: {
+      top: 136px;
+      bottom: 110px;
+    }
+  }
+
+  .program-price {
+    font: {
+      size: 1.5rem;
+      weight: $font-weight-bold;
+    }
+  }
+}
+
+.program-details-btn {
+  width: 100%;
+  max-width: 380px;
+
+  .dropdown-menu {
+    width: 100%;
+    transform: translate3d(0,44px, 0) !important;
+  }
+}
