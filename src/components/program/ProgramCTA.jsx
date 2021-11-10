@@ -5,9 +5,11 @@ import { Dropdown } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { ProgramContext } from './ProgramContextProvider';
+import { getProgramDuration } from './data/utils';
 
 function ProgramCTA() {
-  const { program: { courses, subjects } } = useContext(ProgramContext);
+  const { program } = useContext(ProgramContext);
+  const { courses, subjects } = program;
   const { enterpriseConfig: { slug } } = useContext(AppContext);
 
   const { courseCount, availableCourseCount } = useMemo(() => (
@@ -20,108 +22,6 @@ function ProgramCTA() {
   // Use the first subject as the primary subject
   const primarySubject = subjects?.length > 0 ? subjects[0] : '';
   const subjectSlug = primarySubject?.slug ? primarySubject?.slug.toLowerCase() : '';
-
-  const getTotalWeeks = () => {
-    const reducer = (totalWeeks, course) => {
-      let additionalWeeks = 0;
-      if (course.activeCourseRun) {
-        additionalWeeks = Number.parseInt(course.activeCourseRun.weeksToComplete, 10);
-      }
-
-      return totalWeeks + additionalWeeks;
-    };
-
-    return Number.parseInt(courses.reduce(reducer, 0), 10);
-  };
-
-  const getProgramDuration = () => {
-    const intl = useIntl();
-
-    const totalWeeks = getTotalWeeks();
-    const totalMonths = Math.round(totalWeeks / 4);
-
-    const messages = defineMessages({
-      'enterprise.program.main.statistic.duration.months': {
-        id: 'enterprise.program.main.statistic.duration.months',
-        description: 'Describe estimated duration of the program in months',
-        defaultMessage: '{totalMonths, plural, '
-          + 'one {# month} '
-          + 'other {# months}}',
-      },
-      'enterprise.program.main.statistic.duration.years': {
-        id: 'enterprise.program.main.statistic.duration.years',
-        description: 'Describe estimated duration of the program in years',
-        defaultMessage: '{totalYears, plural, '
-          + 'one {# year} '
-          + 'other {# years}}',
-      },
-      'enterprise.program.main.statistic.duration.yearAndMonth': {
-        id: 'enterprise.program.main.statistic.duration.yearAndMonth',
-        description: 'Describe estimated duration of the program in year and month',
-        defaultMessage: '1 year 1 month',
-      },
-      'enterprise.program.main.statistic.duration.yearAndMonths': {
-        id: 'enterprise.program.main.statistic.duration.yearAndMonths',
-        description: 'Describe estimated duration of the program in year and months',
-        defaultMessage: '1 year {monthCount} months',
-      },
-      'enterprise.program.main.statistic.duration.yearsAndMonth': {
-        id: 'enterprise.program.main.statistic.duration.yearsAndMonth',
-        description: 'Describe estimated duration of the program in years and month',
-        defaultMessage: '{yearCount} years 1 month',
-      },
-      'enterprise.program.main.statistic.duration.yearsAndMonths': {
-        id: 'enterprise.program.main.statistic.duration.yearsAndMonths',
-        description: 'Describe estimated duration of the program in years and months',
-        defaultMessage: '{yearCount} years {monthCount} months',
-      },
-    });
-
-    if (totalMonths < 12) {
-      return intl.formatMessage(
-        messages['enterprise.program.main.statistic.duration.months'],
-        {
-          totalMonths,
-        },
-      );
-    }
-
-    const totalYears = Math.floor(totalMonths / 12);
-    const totalRemainderMonths = Math.round(totalMonths % 12);
-
-    if (totalRemainderMonths === 0) {
-      return intl.formatMessage(
-        messages['enterprise.program.main.statistic.duration.years'],
-        {
-          totalYears,
-        },
-      );
-    } if (totalYears === 1 && totalRemainderMonths === 1) {
-      return intl.formatMessage(messages['enterprise.program.main.statistic.duration.yearAndMonth']);
-    } if (totalYears === 1) {
-      return intl.formatMessage(
-        messages['enterprise.program.main.statistic.duration.yearAndMonths'],
-        {
-          monthCount: totalRemainderMonths,
-        },
-      );
-    } if (totalRemainderMonths === 1) {
-      return intl.formatMessage(
-        messages['enterprise.program.main.statistic.duration.yearsAndMonth'],
-        {
-          yearCount: totalYears,
-        },
-      );
-    }
-
-    return intl.formatMessage(
-      messages['enterprise.program.main.statistic.duration.yearsAndMonths'],
-      {
-        yearCount: totalYears,
-        monthCount: totalRemainderMonths,
-      },
-    );
-  };
 
   const getAvailableCourses = () => {
     const intl = useIntl();
@@ -156,7 +56,7 @@ function ProgramCTA() {
     return intl.formatMessage(messages['enterprise.program.courses.allCoursesAvailable']);
   };
 
-  const totalEstimatedDuration = getProgramDuration();
+  const programDuration = getProgramDuration(program);
   const availableCourses = getAvailableCourses();
 
   return (
@@ -189,10 +89,12 @@ function ProgramCTA() {
       <FormattedMessage
         id="enterprise.program.main.enroll.context"
         description="Context for the enroll button stating the number of courses and estimated duration."
-        defaultMessage={`{courseCount} ${courseCount > 1 ? 'courses' : 'course' } in {estimatedDuration}`}
+        defaultMessage={
+          `{courseCount} ${courseCount > 1 ? 'courses' : 'course' } ${programDuration ? 'in {estimatedDuration}' : 'present in this program'}`
+        }
         values={{
           courseCount,
-          estimatedDuration: totalEstimatedDuration,
+          estimatedDuration: programDuration,
         }}
       >{text => <div className="enroll-context">{text}</div>}
       </FormattedMessage>

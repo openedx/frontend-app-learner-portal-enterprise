@@ -169,6 +169,7 @@ describe('<ProgramCTA />', () => {
       courseRuns: [courseRun],
       enterpriseHasCourse: true,
     }];
+    initialProgramState.program.weeksToComplete = 4;
     render(
       <ProgramCTAtWithContext
         initialAppState={initialAppState}
@@ -205,6 +206,9 @@ describe('<ProgramCTA />', () => {
         enterpriseHasCourse: true,
       },
     ];
+
+    initialProgramState.program.weeksToComplete = 48;
+
     render(
       <ProgramCTAtWithContext
         initialAppState={initialAppState}
@@ -241,6 +245,8 @@ describe('<ProgramCTA />', () => {
         enterpriseHasCourse: true,
       },
     ];
+
+    initialProgramState.program.weeksToComplete = 52;
     render(
       <ProgramCTAtWithContext
         initialAppState={initialAppState}
@@ -277,6 +283,8 @@ describe('<ProgramCTA />', () => {
         enterpriseHasCourse: true,
       },
     ];
+
+    initialProgramState.program.weeksToComplete = 100;
     render(
       <ProgramCTAtWithContext
         initialAppState={initialAppState}
@@ -313,6 +321,8 @@ describe('<ProgramCTA />', () => {
         enterpriseHasCourse: true,
       },
     ];
+
+    initialProgramState.program.weeksToComplete = 118;
     render(
       <ProgramCTAtWithContext
         initialAppState={initialAppState}
@@ -322,5 +332,43 @@ describe('<ProgramCTA />', () => {
     );
 
     expect(screen.getByText('2 courses in 2 years 6 months')).toBeInTheDocument();
+  });
+
+  test('renders program CTA 2 years and 4 months course duration.', () => {
+    const courseRun = {
+      title: 'Test Course Run 1 Title',
+      start: '2013-02-05T05:00:00Z',
+      shortDescription: 'Test course 1 description',
+      weeksToComplete: 59,
+    };
+    initialProgramState.program.courses = [
+      {
+        key: 'edX+DemoX',
+        title: 'Test Course 1 Title',
+        shortDescription: 'Test course 1 description',
+        activeCourseRun: courseRun,
+        courseRuns: [courseRun],
+        enterpriseHasCourse: true,
+      },
+      {
+        key: 'edX+DemoX',
+        title: 'Test Course 1 Title',
+        shortDescription: 'Test course 1 description',
+        activeCourseRun: courseRun,
+        courseRuns: [courseRun],
+        enterpriseHasCourse: true,
+      },
+    ];
+
+    initialProgramState.program.weeksToComplete = null;
+    render(
+      <ProgramCTAtWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    expect(screen.getByText('2 courses present in this program')).toBeInTheDocument();
   });
 });
