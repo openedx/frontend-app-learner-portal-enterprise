@@ -18,6 +18,7 @@ const programData = {
   overview: '<p>A sample overview</p>',
   marketingHook: 'Test program marketing hook',
   subjects: [{ slug: 'my-slug' }],
+  isCatalogueContainsProgram: true,
 };
 
 jest.mock('react-router-dom', () => ({
@@ -94,6 +95,26 @@ describe('<Program />', () => {
 
       expect(screen.getByText('This is a test message.')).toBeInTheDocument();
       expect(screen.getByText('Try again')).toBeInTheDocument();
+    });
+  });
+
+  test('renders program not found error.', async () => {
+    programData.isCatalogueContainsProgram = false;
+    useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
+
+    await act(async () => {
+      render(
+        <ProgramWithContext
+          initialAppState={initialAppState}
+          initialUserSubsidyState={initialUserSubsidyState}
+        />,
+      );
+      await waitForAsync();
+
+      expect(screen.getByText('Program not found')).toBeInTheDocument();
+      expect(screen.getByText(
+        "Oops, sorry This program is not included in your organization's catalog.",
+      )).toBeInTheDocument();
     });
   });
 
