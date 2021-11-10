@@ -6,3 +6,4 @@ export const NUM_RESULTS_PROGRAM = 4;
 export const NUM_RESULTS_COURSE = 20;
 export const COURSE_TITLE = 'Courses';
 export const PROGRAM_TITLE = 'Programs';
+export const HEADER_TITLE = 'Search Courses and Programs';
