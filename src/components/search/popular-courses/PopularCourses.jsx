@@ -5,7 +5,9 @@ import Skeleton from 'react-loading-skeleton';
 
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
 import SearchCourseCard from '../SearchCourseCard';
+import SearchProgramCard from '../SearchProgramCard';
 import SearchError from '../SearchError';
+import { COURSE_TITLE } from '../constants';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
@@ -14,6 +16,7 @@ const PopularCourses = ({
   searchResults,
   isSearchStalled,
   error,
+  title,
 }) => {
   const nbHits = useNbHitsFromSearchResults(searchResults);
 
@@ -24,7 +27,7 @@ const PopularCourses = ({
           <Skeleton className="h2 d-block mb-3" width={240} />
         )}
         {!isSearchStalled && (
-          <>Popular Courses</>
+          <>{`Popular ${title}`}</>
         )}
       </h2>
       {isSearchStalled && (
@@ -37,7 +40,7 @@ const PopularCourses = ({
         </div>
       )}
       {!isSearchStalled && nbHits > 0 && (
-        <Hits hitComponent={SearchCourseCard} />
+        <Hits hitComponent={title === COURSE_TITLE ? SearchCourseCard : SearchProgramCard} />
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && (
         <SearchError />
@@ -50,6 +53,7 @@ PopularCourses.propTypes = {
   searchResults: PropTypes.shape(),
   isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),
+  title: PropTypes.string.isRequired,
 };
 
 PopularCourses.defaultProps = {

@@ -60,8 +60,8 @@ const SearchProgramCard = ({ hit, isLoading }) => {
       }
 
       return {
-        primaryPartner: program.authoringOrganizations.length > 0 ? program.authoringOrganizations[0] : undefined,
-        showPartnerLogo: program.authoringOrganizations.length === 1,
+        primaryPartner: program.authoringOrganizations?.length > 0 ? program.authoringOrganizations[0] : undefined,
+        showPartnerLogo: program.authoringOrganizations?.length === 1,
       };
     },
     [JSON.stringify(program)],
@@ -131,7 +131,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
               <Skeleton duration={0} data-testid="partner-key-loading" />
             ) : (
               <>
-                {program.authoringOrganizations.length > 0 && (
+                {program.authoringOrganizations?.length > 0 && (
                   <p className="partner text-muted m-0">
                     <Truncate lines={1} trimWhitespace>
                       {program.authoringOrganizations.map(org => org.key).join(', ')}
@@ -150,8 +150,8 @@ const SearchProgramCard = ({ hit, isLoading }) => {
                   variant="light"
                   className={classNames(
                     'program-badge d-flex justify-content-center align-items-center text-primary-500',
-                    { 'mb-2': program.courseKeys.length > 1 },
-                    { 'mb-4': program.courseKeys.length <= 1 },
+                    { 'mb-2': program.courseKeys?.length > 1 },
+                    { 'mb-4': program.courseKeys?.length <= 1 },
                   )}
                 >
                   <Icon src={Program} className="badge-icon" />
@@ -165,7 +165,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
               <Skeleton duration={0} data-testid="program-courses-count-loading" />
             ) : (
               <>
-                {program.courseKeys.length > 0 && (
+                {program.courseKeys?.length > 0 && (
                   <span className="program-courses-count-text">{program.courseKeys.length} Courses</span>
                 )}
               </>

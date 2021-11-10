@@ -38,8 +38,8 @@ const SearchCourseCard = ({ hit, isLoading }) => {
       }
 
       return {
-        primaryPartner: course.partners.length > 0 ? course.partners[0] : undefined,
-        showPartnerLogo: course.partners.length === 1,
+        primaryPartner: course.partners?.length > 0 ? course.partners[0] : undefined,
+        showPartnerLogo: course.partners?.length === 1,
       };
     },
     [JSON.stringify(course)],
@@ -111,7 +111,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
               <Skeleton duration={0} data-testid="partner-name-loading" />
             ) : (
               <>
-                {course.partners.length > 0 && (
+                {course.partners?.length > 0 && (
                   <p className="partner text-muted m-0">
                     <Truncate lines={1} trimWhitespace>
                       {course.partners.map(partner => partner.name).join(', ')}

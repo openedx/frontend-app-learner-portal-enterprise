@@ -1,9 +1,11 @@
 import React, { useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
-const SearchError = () => {
+const SearchError = ({ title }) => {
+  const lowerCaseTitle = title.toLowerCase();
   const renderDialog = useCallback(
     () => (
       <div className="lead d-flex align-items-center py-3">
@@ -11,7 +13,7 @@ const SearchError = () => {
           <FontAwesomeIcon icon={faExclamationTriangle} size="2x" />
         </div>
         <div>
-          An error occured while finding courses that match your search.
+          An error occured while finding {lowerCaseTitle} that match your search.
           <br />
           Please try again later.
         </div>
@@ -28,6 +30,10 @@ const SearchError = () => {
       open
     />
   );
+};
+
+SearchError.propTypes = {
+  title: PropTypes.string.isRequired,
 };
 
 export default SearchError;
