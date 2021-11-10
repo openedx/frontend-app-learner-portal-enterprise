@@ -205,11 +205,11 @@ function ProgramCTA() {
           <Dropdown.Menu>
             {courses?.map(course => (
               course.enterpriseHasCourse ? (
-                <Dropdown.Item key={course.title} as="a" href={`/${slug}/course/${course.key}`}>
+                <Dropdown.Item key={course.title} as="a" href={`/${slug}/course/${course.key}`} className="wrap-word">
                   {course.title}
                 </Dropdown.Item>
               ) : (
-                <Dropdown.Item key={course.title}>{course.title}</Dropdown.Item>
+                <Dropdown.Item key={course.title} className="wrap-word">{course.title}</Dropdown.Item>
               )
             ))}
           </Dropdown.Menu>
