@@ -40,7 +40,7 @@ const ProgramType = ({ type }) => {
 const SearchProgramCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const program = hit ? camelCaseObject(hit) : {};
-  const programUUID = Object.keys(program).length ? program.aggregationKey.split(':').pop() : undefined;
+  const programUuid = Object.keys(program).length ? program.aggregationKey.split(':').pop() : undefined;
 
   const linkToProgram = useMemo(
     () => {
@@ -48,7 +48,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
         return '#';
       }
 
-      return `/${slug}/program/${programUUID}`;
+      return `/${slug}/program/${programUuid}`;
     },
     [isLoading, JSON.stringify(program)],
   );
@@ -82,7 +82,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
             'edx.ui.enterprise.learner_portal.search.program.card.clicked',
             {
               userId,
-              programUUID,
+              programUuid,
             },
           );
         }}
