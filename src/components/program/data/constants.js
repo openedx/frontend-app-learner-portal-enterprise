@@ -24,4 +24,4 @@ export const PACING_TYPE_CONTENT = {
 };
 
 export const PROGRAM_NOT_FOUND_TITLE = 'Program not found';
-export const PROGRAM_NOT_FOUND_MESSAGE = "Oops, sorry This program is not included in your organization's catalog.";
+export const PROGRAM_NOT_FOUND_MESSAGE = "This program is not included in your organization's catalog.";
