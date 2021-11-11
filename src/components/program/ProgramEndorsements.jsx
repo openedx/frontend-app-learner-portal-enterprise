@@ -10,7 +10,8 @@ const ProgramEndorsements = () => {
   const formatAuthorFullName = endorser => `${endorser.givenName} ${endorser.familyName}`;
   const title = endorser => (endorser.position ? endorser.position.title : '');
 
-  return corporateEndorsements?.length > 0
+  return ((corporateEndorsements?.length > 0)
+      && (corporateEndorsements.some((e) => e.individualEndorsements?.length > 0)))
     ? (
       <div className="endorsements p-2 mb-3">
         <h2 className="program-section-heading">Program endorsements</h2>
@@ -30,8 +31,8 @@ const ProgramEndorsements = () => {
               individualEndorsements: endorsements,
             }) => {
               const { endorser, quote } = endorsements[0];
-              return (
-                <div className="d-flex callout-wrapper col-12 col-lg-6" key={formatAuthorFullName(endorser)}>
+              return (endorser && quote) ? (
+                <div className="d-flex callout-wrapper col-12 col-lg-6" key={formatAuthorFullName(endorsements[0].endorser)}>
                   <div className="content">
                     {image && (
                       <div className="company-endorser-logo-wrapper">
@@ -39,16 +40,16 @@ const ProgramEndorsements = () => {
                       </div>
                     )}
                     {!image && <h3 className="h3">{corporation}</h3>}
-                    <p className="endorsement">{quote}</p>
+                    <p className="endorsement">{endorsements[0].quote}</p>
                     <div className="attribution d-flex align-items-center">
                       <div
                         className="attribution-label"
-                      >{formatAuthorFullName(endorser)} {title(endorser).length > 0 && `, ${title(endorser)}`}
+                      >{formatAuthorFullName(endorsements[0].endorser)} {title(endorsements[0].endorser).length > 0 && `, ${title(endorsements[0].endorser)}`}
                       </div>
                     </div>
                   </div>
                 </div>
-              );
+              ) : null;
             })
           }
         </div>
