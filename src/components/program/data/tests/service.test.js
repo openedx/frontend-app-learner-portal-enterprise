@@ -51,7 +51,7 @@ const PROGRAM_DATA = {
       short_description: 'course description',
     },
   ],
-  isCatalogueContainsProgram: true,
+  catalogContainsProgram: true,
 };
 
 jest.mock('@edx/frontend-platform/auth');

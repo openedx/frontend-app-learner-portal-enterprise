@@ -16,7 +16,8 @@ import { useAllProgramData } from './data/hooks';
 import ProgramEndorsements from './ProgramEndorsements';
 import ProgramFAQ from './ProgramFAQ';
 import './styles/index.scss';
-import ProgramNotFoundPage from './ProgramNotFound';
+import NotFoundPage from '../NotFoundPage';
+import {PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE} from "./data/constants";
 
 const Program = () => {
   const { programUuid } = useParams();
@@ -50,9 +51,15 @@ const Program = () => {
     );
   }
 
-  if (initialState && !initialState.program.isCatalogueContainsProgram) {
-    // if there is not even single course that does not belongs to the enterprise customer's catalog
-    return <ProgramNotFoundPage />;
+  // if there is not even single course that does not belongs to the enterprise customer's catalog
+  if (initialState && !initialState.program.catalogContainsProgram) {
+    return (
+      <NotFoundPage
+        pageTitle={PROGRAM_NOT_FOUND_TITLE}
+        errorHeading={PROGRAM_NOT_FOUND_TITLE}
+        errorMessage={PROGRAM_NOT_FOUND_MESSAGE}
+      />
+    );
   }
   const PAGE_TITLE = `${initialState.program.title} - ${enterpriseConfig.name}`;
 

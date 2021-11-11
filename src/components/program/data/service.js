@@ -34,7 +34,7 @@ export default class ProgramService {
       programDetails.courses[index].enterpriseHasCourse = programCoursesInfo[programDetails.courses[index].key];
     });
 
-    programDetails.isCatalogueContainsProgram = programDetails.courses.map(
+    programDetails.catalogContainsProgram = programDetails.courses.map(
       course => course.enterpriseHasCourse,
     ).includes(true);
 

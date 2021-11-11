@@ -6,6 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import Program from '../Program';
 import { useAllProgramData } from '../data/hooks';
+import {PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE} from "../data/constants";
 
 const waitForAsync = () => new Promise(resolve => setImmediate(resolve));
 
@@ -18,7 +19,7 @@ const programData = {
   overview: '<p>A sample overview</p>',
   marketingHook: 'Test program marketing hook',
   subjects: [{ slug: 'my-slug' }],
-  isCatalogueContainsProgram: true,
+  catalogContainsProgram: true,
 };
 
 jest.mock('react-router-dom', () => ({
@@ -99,7 +100,7 @@ describe('<Program />', () => {
   });
 
   test('renders program not found error.', async () => {
-    programData.isCatalogueContainsProgram = false;
+    programData.catalogContainsProgram = false;
     useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
 
     await act(async () => {
@@ -111,10 +112,8 @@ describe('<Program />', () => {
       );
       await waitForAsync();
 
-      expect(screen.getByText('Program not found')).toBeInTheDocument();
-      expect(screen.getByText(
-        "Oops, sorry This program is not included in your organization's catalog.",
-      )).toBeInTheDocument();
+      expect(screen.getByText(PROGRAM_NOT_FOUND_TITLE)).toBeInTheDocument();
+      expect(screen.getByText(PROGRAM_NOT_FOUND_MESSAGE)).toBeInTheDocument();
     });
   });
 
