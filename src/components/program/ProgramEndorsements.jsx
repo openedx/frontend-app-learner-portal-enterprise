@@ -32,7 +32,7 @@ const ProgramEndorsements = () => {
             }) => {
               const { endorser, quote } = endorsements[0];
               return (endorser && quote) ? (
-                <div className="d-flex callout-wrapper col-12 col-lg-6" key={formatAuthorFullName(endorsements[0].endorser)}>
+                <div className="d-flex callout-wrapper col-12 col-lg-6" key={formatAuthorFullName(endorser)}>
                   <div className="content">
                     {image && (
                       <div className="company-endorser-logo-wrapper">
@@ -40,11 +40,11 @@ const ProgramEndorsements = () => {
                       </div>
                     )}
                     {!image && <h3 className="h3">{corporation}</h3>}
-                    <p className="endorsement">{endorsements[0].quote}</p>
+                    <p className="endorsement">{quote}</p>
                     <div className="attribution d-flex align-items-center">
                       <div
                         className="attribution-label"
-                      >{formatAuthorFullName(endorsements[0].endorser)} {title(endorsements[0].endorser).length > 0 && `, ${title(endorsements[0].endorser)}`}
+                      >{formatAuthorFullName(endorser)} {title(endorser).length > 0 && `, ${title(endorser)}`}
                       </div>
                     </div>
                   </div>
