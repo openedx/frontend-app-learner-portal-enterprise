@@ -17,7 +17,7 @@ import ProgramEndorsements from './ProgramEndorsements';
 import ProgramFAQ from './ProgramFAQ';
 import './styles/index.scss';
 import NotFoundPage from '../NotFoundPage';
-import {PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE} from "./data/constants";
+import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from './data/constants';
 
 const Program = () => {
   const { programUuid } = useParams();

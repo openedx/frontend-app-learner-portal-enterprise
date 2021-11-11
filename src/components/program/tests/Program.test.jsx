@@ -6,7 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import Program from '../Program';
 import { useAllProgramData } from '../data/hooks';
-import {PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE} from "../data/constants";
+import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
 
 const waitForAsync = () => new Promise(resolve => setImmediate(resolve));
 
