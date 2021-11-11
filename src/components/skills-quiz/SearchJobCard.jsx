@@ -45,7 +45,7 @@ const SearchJobCard = ({ index }) => {
   );
 
   return (
-    <div>
+    <div className="row">
       <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
     </div>
   );

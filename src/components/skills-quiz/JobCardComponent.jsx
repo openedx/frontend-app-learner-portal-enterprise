@@ -13,7 +13,7 @@ const JobCardComponent = ({ jobs, isLoading }) => {
       {jobs?.map(job => (
         <div
           key={job.name}
-          className="search-job-card mb-3"
+          className="search-job-card mb-3 col-4"
           role="group"
           aria-label={job.name}
         >

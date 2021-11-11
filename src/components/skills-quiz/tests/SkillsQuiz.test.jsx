@@ -78,7 +78,7 @@ describe('<SkillsQuiz />', () => {
   });
 
   it('renders skills quiz page successfully.', () => {
-    const SILLS_QUIZ_PAGE_MESSAGE = 'edX is here to help you find the course(s) or program(s) to help you take the next step in your career. Tell us a bit about your current role, and skills or jobs you\'re interested in.';
+    const SILLS_QUIZ_PAGE_MESSAGE = 'edX is here to help you find the course(s) and program(s) to help you take the next step in your career. To get started, tell us a bit about your learning goals.';
     renderWithRouter(
       <SearchData>
         <SkillsContextProvider>

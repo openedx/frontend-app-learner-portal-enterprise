@@ -1,6 +1,6 @@
-.skils-quiz-dropdown {
+.skills-quiz-dropdown {
   .dropdown-toggle {
-    width: 70% !important;
+    width: 55% !important;
     border-color: #707070;
     justify-content: left;
     font-variant-caps: all-small-caps;
@@ -11,4 +11,11 @@
       margin-top: 15px;
     }
   }
+}
+
+.side-image {
+  clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+  margin-top: 42px;
+  height: 480px;
+  width: 450px;
 }
