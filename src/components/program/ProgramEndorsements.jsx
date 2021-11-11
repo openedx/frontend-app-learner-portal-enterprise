@@ -10,7 +10,8 @@ const ProgramEndorsements = () => {
   const formatAuthorFullName = endorser => `${endorser.givenName} ${endorser.familyName}`;
   const title = endorser => (endorser.position ? endorser.position.title : '');
 
-  return corporateEndorsements?.length > 0
+  return ((corporateEndorsements?.length > 0)
+      && (corporateEndorsements.some((e) => e.individualEndorsements?.length > 0)))
     ? (
       <div className="endorsements p-2 mb-3">
         <h2 className="program-section-heading">Program endorsements</h2>
@@ -30,7 +31,7 @@ const ProgramEndorsements = () => {
               individualEndorsements: endorsements,
             }) => {
               const { endorser, quote } = endorsements[0];
-              return (
+              return (endorser && quote) ? (
                 <div className="d-flex callout-wrapper col-12 col-lg-6" key={formatAuthorFullName(endorser)}>
                   <div className="content">
                     {image && (
@@ -48,7 +49,7 @@ const ProgramEndorsements = () => {
                     </div>
                   </div>
                 </div>
-              );
+              ) : null;
             })
           }
         </div>
