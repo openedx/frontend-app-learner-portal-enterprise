@@ -262,7 +262,6 @@ describe('<SkillsQuizStepper />', () => {
       await screen.queryByText(DROPDOWN_OPTION_GET_PROMOTED).click();
     });
     expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
-    // expect(screen.queryByText('test-skill-1')).toBeInTheDocument();
     // remove the last skill as well and make sure deleteRefinementAction is called.
     screen.getByTestId('test-skill-1').click();
     expect(deleteRefinementAction.mock.calls.length).toBe(1);
