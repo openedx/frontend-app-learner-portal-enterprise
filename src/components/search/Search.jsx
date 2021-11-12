@@ -14,6 +14,7 @@ import SearchCourse from './SearchCourse';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
 import SearchResults from './SearchResults';
+import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -49,12 +50,12 @@ const Search = () => {
           />
         )}
         <div className="search-header-wrapper">
-          <SearchHeader containerSize="lg" headerTitle={HEADER_TITLE} />
+          <SearchHeader containerSize="lg" headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''} />
         </div>
 
         { (contentType === undefined || contentType.length === 0) && (
           <>
-            <SearchProgram filter={filters} />
+            { features.ENABLE_PROGRAMS ? <SearchProgram filter={filters} /> : <div /> }
             <SearchCourse filter={filters} />
           </>
         )}
