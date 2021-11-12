@@ -22,6 +22,7 @@ const PROGRAM_DATA = {
       key: COURSE_KEY,
       uuid: '12345678-be4c-4e1d-0000-2d60323db911',
       title: 'Introduction to Cloud Computing',
+      activeCourseRun: undefined,
       course_runs: [
         {
           key: 'course-v1:edX+DemoX+2T2020',
@@ -37,6 +38,7 @@ const PROGRAM_DATA = {
       key: COURSE_KEY2,
       uuid: '12345678-be4c-4e1d-0000-2d60323db911',
       title: 'Introduction to Cloud Computing',
+      activeCourseRun: undefined,
       course_runs: [
         {
           key: 'course-v1:edX+DemoX+2T2020',
@@ -49,6 +51,7 @@ const PROGRAM_DATA = {
       short_description: 'course description',
     },
   ],
+  catalogContainsProgram: true,
 };
 
 jest.mock('@edx/frontend-platform/auth');

@@ -1,12 +1,13 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 
-const NotFoundPage = () => {
+const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  let PAGE_TITLE = 'Page not found';
+  let PAGE_TITLE = pageTitle;
   if (enterpriseConfig) {
     PAGE_TITLE += ` - ${enterpriseConfig.name}`;
   }
@@ -16,11 +17,23 @@ const NotFoundPage = () => {
       <Helmet title={PAGE_TITLE} />
       <div className="text-center py-5">
         <h1>404</h1>
-        <p className="lead">Oops, sorry we can&apos;t find that page!</p>
-        <p>Either something went wrong or the page doesn&apos;t exist anymore.</p>
+        <p className="lead">{errorHeading}</p>
+        <p>{errorMessage}</p>
       </div>
     </Container>
   );
+};
+
+NotFoundPage.defaultProps = {
+  pageTitle: 'Page not found',
+  errorHeading: "Oops, sorry we can't find that page!",
+  errorMessage: "Either something went wrong or the page doesn't exist anymore.",
+};
+
+NotFoundPage.propTypes = {
+  pageTitle: PropTypes.string,
+  errorHeading: PropTypes.string,
+  errorMessage: PropTypes.string,
 };
 
 export default NotFoundPage;

@@ -7,6 +7,7 @@ import { IntlProvider } from 'react-intl';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import Program from '../Program';
 import { useAllProgramData } from '../data/hooks';
+import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
 
 const waitForAsync = () => new Promise(resolve => setImmediate(resolve));
 
@@ -19,6 +20,7 @@ const programData = {
   overview: '<p>A sample overview</p>',
   marketingHook: 'Test program marketing hook',
   subjects: [{ slug: 'my-slug' }],
+  catalogContainsProgram: true,
 };
 
 jest.mock('react-router-dom', () => ({
@@ -97,6 +99,24 @@ describe('<Program />', () => {
 
       expect(screen.getByText('This is a test message.')).toBeInTheDocument();
       expect(screen.getByText('Try again')).toBeInTheDocument();
+    });
+  });
+
+  test('renders program not found error.', async () => {
+    programData.catalogContainsProgram = false;
+    useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
+
+    await act(async () => {
+      render(
+        <ProgramWithContext
+          initialAppState={initialAppState}
+          initialUserSubsidyState={initialUserSubsidyState}
+        />,
+      );
+      await waitForAsync();
+
+      expect(screen.getByText(PROGRAM_NOT_FOUND_TITLE)).toBeInTheDocument();
+      expect(screen.getByText(PROGRAM_NOT_FOUND_MESSAGE)).toBeInTheDocument();
     });
   });
 
