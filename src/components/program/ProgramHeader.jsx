@@ -4,6 +4,7 @@ import { breakpoints, Breadcrumb } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
+import { fixedEncodeURIComponent } from '../../utils/common';
 
 const ProgramHeader = () => {
   const config = getConfig();
@@ -60,9 +61,9 @@ const ProgramHeader = () => {
     return `${multipleOrganizationString}'s ${title}`;
   };
 
-  const links = [{ label: 'Catalog', url: '/search' }];
+  const links = [{ label: 'Catalog', url: `/${enterpriseSlug}/search` }];
   if (subjectName && subjectSlug) {
-    links.push({ label: `${subjectName} Courses`, url: `/${enterpriseSlug}/search?subjects=${subjectSlug}` });
+    links.push({ label: `${subjectName} Courses`, url: `/${enterpriseSlug}/search?subjects=${ fixedEncodeURIComponent(subjectName)}` });
   }
 
   return (
