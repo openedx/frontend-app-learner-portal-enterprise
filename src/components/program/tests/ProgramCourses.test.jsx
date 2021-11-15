@@ -3,12 +3,26 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCourses from '../ProgramCourses';
 
+const programUuid = '00000000-0000-0000-0000-000000000000';
+const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
+const userId = 'batman';
+const courseKey = 'edX+DemoX';
+
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
+  useParams: jest.fn().mockReturnValue({ programUuid }),
+}));
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  getAuthenticatedUser: () => ({ userId }),
+}));
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  sendEnterpriseTrackEvent: jest.fn(),
 }));
 
 /* eslint-disable react/prop-types */
@@ -31,6 +45,7 @@ describe('<ProgramCourses />', () => {
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
+      uuid: enterpriseUuid,
     },
   };
   const initialProgramState = {
@@ -38,7 +53,7 @@ describe('<ProgramCourses />', () => {
       title: 'Test Program Title',
       courses: [
         {
-          key: 'edX+DemoX',
+          key: courseKey,
           title: 'Test Course Title',
           shortDescription: 'Test course description',
           courseRuns: [
@@ -73,6 +88,24 @@ describe('<ProgramCourses />', () => {
     );
 
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
+  });
+
+  test('sends correct event data upon click on view the course link', () => {
+    render(
+      <ProgramCoursestWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Test Course Title'));
+    fireEvent.click(screen.getByRole('link', { name: 'View the course' }));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      enterpriseUuid,
+      'edx.ui.enterprise.learner_portal.program.course.clicked',
+      { courseKey, programUuid, userId },
+    );
   });
 
   test('renders view the course link if course in catalog', () => {

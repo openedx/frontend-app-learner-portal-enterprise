@@ -1,15 +1,28 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render } from '@testing-library/react';
+import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from 'react-intl';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCTA from '../ProgramCTA';
 
+const userId = 'batman';
+const courseKey = 'edX+DemoX';
+const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
+const programUuid = '00000000-0000-0000-0000-000000000000';
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
+  useParams: jest.fn().mockReturnValue({ programUuid }),
+}));
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  getAuthenticatedUser: () => ({ userId }),
+}));
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  sendEnterpriseTrackEvent: jest.fn(),
 }));
 
 /* eslint-disable react/prop-types */
@@ -34,6 +47,7 @@ describe('<ProgramCTA />', () => {
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
+      uuid: enterpriseUuid,
     },
   };
   const initialProgramState = {
@@ -102,6 +116,14 @@ describe('<ProgramCTA />', () => {
     );
 
     expect(screen.getByText('2 courses included in your enterprise catalog')).toBeInTheDocument();
+    expect(screen.getByText('View Course Details')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('View Course Details'));
+    fireEvent.click(screen.getByText('Test Course 1 Title'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      enterpriseUuid,
+      'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
+      { courseKey, programUuid, userId },
+    );
   });
 
   test('renders program CTA with no courses available.', () => {

@@ -8,7 +8,9 @@ import {
   faAngleDown, faAngleUp, faBook, faCalendarAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { AppContext } from '@edx/frontend-platform/react';
-
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 
 const DATE_FORMAT = 'MMM D, YYYY';
@@ -21,8 +23,10 @@ const getCourseRun = course => (
 );
 
 const ProgramCourses = () => {
-  const { enterpriseConfig: { slug } } = useContext(AppContext);
+  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const { program } = useContext(ProgramContext);
+  const { programUuid } = useParams();
+  const { userId } = getAuthenticatedUser();
 
   return (
     <>
@@ -63,6 +67,17 @@ const ProgramCourses = () => {
                       destination={`/${slug}/course/${course.key}`}
                       target="_blank"
                       showLaunchIcon={false}
+                      onClick={() => {
+                        sendEnterpriseTrackEvent(
+                          uuid,
+                          'edx.ui.enterprise.learner_portal.program.course.clicked',
+                          {
+                            userId,
+                            programUuid,
+                            courseKey: course.key,
+                          },
+                        );
+                      }}
                     >
                       View the course
                     </Hyperlink>

@@ -1,13 +1,15 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
-
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import SearchProgramCard from '../SearchProgramCard';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG } from './constants';
 
+const userId = 'batman';
+const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
@@ -21,13 +23,17 @@ jest.mock('react-loading-skeleton', () => ({
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
+  getAuthenticatedUser: () => ({ username: 'b.wayne', userId }),
+}));
+
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  sendEnterpriseTrackEvent: jest.fn(),
 }));
 
 const SearchProgramCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
     }}
   >
     <SearchProgramCard {...props} />
@@ -119,5 +125,16 @@ describe('<SearchProgramCard />', () => {
     expect(screen.queryByTestId('partner-key-loading')).toBeInTheDocument();
     expect(screen.queryByTestId('program-type-loading')).toBeInTheDocument();
     expect(screen.queryByTestId('program-courses-count-loading')).toBeInTheDocument();
+  });
+
+  test('sends correct event data upon click on view the course link', () => {
+    const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
+
+    fireEvent.click(container.querySelector('.search-program-card > a'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      enterpriseUuid,
+      'edx.ui.enterprise.learner_portal.search.program.card.clicked',
+      { programUuid: PROGRAM_UUID, userId },
+    );
   });
 });
