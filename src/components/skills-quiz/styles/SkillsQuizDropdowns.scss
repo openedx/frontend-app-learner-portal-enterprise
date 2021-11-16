@@ -14,8 +14,10 @@
 }
 
 .side-image {
-  clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
-  margin-top: 42px;
-  height: 480px;
+  clip-path: polygon(19% 0, 100% 0, 78% 100%, 0 100%);
+  margin-top: 20px;
+  height: 585px;
   width: 450px;
+  object-fit: cover;
+  object-position: right top;
 }
