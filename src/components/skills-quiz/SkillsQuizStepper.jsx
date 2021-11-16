@@ -183,19 +183,24 @@ const SkillsQuizStepper = () => {
                     your career. To get started, tell us a bit about your learning goals.
                   </p>
                   <GoalDropdown />
-                  <InstantSearch
-                    indexName={config.ALGOLIA_INDEX_NAME}
-                    searchClient={searchClient}
-                  >
-                    <div className="skills-drop-down">
-                      <div className="mt-4.5">
-                        Next, select at least 1 (one) skill you&apos;re interested in learning or are
-                        relevant to your goals.
-                      </div>
-                      <SkillsDropDown />
-                    </div>
-                  </InstantSearch>
-                  { selectedSkills.length > 0 && (
+                  {
+                    skillsVisible && (
+                      <InstantSearch
+                        indexName={config.ALGOLIA_INDEX_NAME}
+                        searchClient={searchClient}
+                      >
+                        <div className="skills-drop-down">
+                          <div className="mt-4.5">
+                            Next, select at least 1 (one) skill you&apos;re interested in learning or are
+                            relevant to your goals.
+                          </div>
+                          <SkillsDropDown />
+                        </div>
+                      </InstantSearch>
+                    )
+                  }
+
+                  { (skillsVisible && selectedSkills.length > 0) && (
                     <TagCloud
                       tags={selectedSkills}
                       onRemove={
@@ -209,27 +214,40 @@ const SkillsQuizStepper = () => {
                       }
                     />
                   )}
-                  <div className="mt-4.5 mb-3">
-                    Finally, tell us about your current job and select at least 1 (one) job you&apos;re interested in.
-                    if you&apos;re a student, you can leave the &quot;Current job title&quot; field blank.
-                  </div>
-                  <InstantSearch
-                    indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-                    searchClient={searchClient}
-                  >
-                    <CurrentJobDropdown />
-                    { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <div className="mt-4.5"><SearchJobDropdown /></div> : null }
-                  </InstantSearch>
+                  {
+                    jobsDropdownsVisible && (
+                      <div>
+                        <div className="mt-4.5 mb-3">
+                          Finally, tell us about your current job and select at least 1 (one) job you&apos;re interested
+                          in. if you&apos;re a student, you can leave the &quot;Current job title&quot; field blank.
+                        </div>
+                        <InstantSearch
+                          indexName={config.ALGOLIA_INDEX_NAME_JOBS}
+                          searchClient={searchClient}
+                        >
+                          <CurrentJobDropdown />
+                          { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <div className="mt-4.5"><SearchJobDropdown /></div> : null }
+                        </InstantSearch>
+                      </div>
+                    )
+                  }
+
                 </div>
                 <div className="col-4">
                   <img className="side-image" src={SkillsQuizImg} alt="skills quiz preview" />
                 </div>
-                <div className="col-12 mt-4">
-                  { goalExceptImproveAndJobSelected
-                    ? <SearchJobCard index={jobIndex} /> : null }
-                  { improveGoalAndCurrentJobSelected
-                    ? <SearchCurrentJobCard index={jobIndex} /> : null }
-                </div>
+
+                {
+                  jobsDropdownsVisible && (
+                    <div className="col-12 mt-4">
+                      { goalExceptImproveAndJobSelected
+                        ? <SearchJobCard index={jobIndex} /> : null }
+                      { improveGoalAndCurrentJobSelected
+                        ? <SearchCurrentJobCard index={jobIndex} /> : null }
+                    </div>
+                  )
+                }
+
               </div>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
