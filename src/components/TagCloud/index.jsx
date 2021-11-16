@@ -5,7 +5,7 @@ import './styles/TagCloud.scss';
 
 const TagCloud = ({ tags, onRemove }) => (
   <>
-    <div>
+    <div className="skills-tag">
       <ul className="item">
         {
           tags.map(

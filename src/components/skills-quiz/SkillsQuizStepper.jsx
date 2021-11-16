@@ -31,6 +31,7 @@ import {
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
+import SkillsQuizImg from './images/skills-quiz.png';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -167,24 +168,26 @@ const SkillsQuizStepper = () => {
             </>
           )}
         >
-          <Container size="md">
+          <Container size="lg">
             <Stepper.Step eventKey="skills-search" title="Skills Search">
-              <div className="row justify-content-center">
-                <h2>Skills Search</h2>
-              </div>
 
-              <p>
-                edX is here to help you find the course(s) or program(s) to help you take the next step in your career.
-                Tell us a bit about your current role, and skills or jobs you&apos;re interested in.
-              </p>
-              <div className="row skils-quiz-dropdown">
-                <div className="col col-6">
+              <div className="row skills-quiz-dropdown">
+                <div className="col col-8">
+                  <h2>Looking for something?</h2>
+                  <p>
+                    edX is here to help you find the course(s) and program(s) to help you take the next step in
+                    your career. To get started, tell us a bit about your learning goals.
+                  </p>
                   <GoalDropdown />
                   <InstantSearch
                     indexName={config.ALGOLIA_INDEX_NAME}
                     searchClient={searchClient}
                   >
                     <div className="skills-drop-down">
+                      <div className="mt-4.5">
+                        Next, select at least 1 (one) skill you&apos;re interested in learning or are
+                        relevant to your goals.
+                      </div>
                       <SkillsDropDown />
                     </div>
                   </InstantSearch>
@@ -202,15 +205,22 @@ const SkillsQuizStepper = () => {
                       }
                     />
                   )}
-                </div>
-                <div className="col col-6">
+                  <div className="mt-4.5 mb-3">
+                    Finally, tell us about your current job and select at least 1 (one) job you&apos;re interested in.
+                    if you&apos;re a student, you can leave the &quot;Current job title&quot; field blank.
+                  </div>
                   <InstantSearch
                     indexName={config.ALGOLIA_INDEX_NAME_JOBS}
                     searchClient={searchClient}
                   >
                     <CurrentJobDropdown />
-                    { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <SearchJobDropdown /> : null }
+                    { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <div className="mt-4.5"><SearchJobDropdown /></div> : null }
                   </InstantSearch>
+                </div>
+                <div className="col-4">
+                  <img className="side-image" src={SkillsQuizImg} alt="skills quiz preview" />
+                </div>
+                <div className="col-12 mt-4">
                   { goalExceptImproveAndJobSelected
                     ? <SearchJobCard index={jobIndex} /> : null }
                   { improveGoalAndCurrentJobSelected

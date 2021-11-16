@@ -15,7 +15,6 @@
 
 .item{
     padding-left: 0 !important;
-    display: inline-block;
 }
 
 .remove {
@@ -30,4 +29,10 @@
 .remove:hover {
     background: #273F2F;
     color: silver;
+}
+
+.skills-tag {
+  line-height: 1.5em;
+  height: 6em;
+  overflow: hidden;
 }
