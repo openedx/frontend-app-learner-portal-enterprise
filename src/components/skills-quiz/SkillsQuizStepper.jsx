@@ -247,7 +247,6 @@ const SkillsQuizStepper = () => {
                     </div>
                   )
                 }
-
               </div>
             </Stepper.Step>
             <Stepper.Step eventKey="review" title="Review Skills">
