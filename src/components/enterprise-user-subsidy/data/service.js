@@ -20,3 +20,9 @@ export function fetchCustomerAgreementData(enterpriseUUID) {
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${qs.stringify(queryParams)}`;
   return getAuthenticatedHttpClient().get(url);
 }
+
+export function requestAutoAppliedLicense(customerAgreementId) {
+  const config = getConfig();
+  const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
+  return getAuthenticatedHttpClient().post(url);
+}

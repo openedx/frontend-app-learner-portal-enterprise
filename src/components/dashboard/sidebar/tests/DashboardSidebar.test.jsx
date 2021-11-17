@@ -32,7 +32,6 @@ describe('<DashboardSidebar />', () => {
   const defaultUserSubsidyState = {
     subscriptionPlan: undefined,
     subscriptionLicense: undefined,
-    hasAccessToPortal: true,
     offers: {
       offers: [],
       loading: false,
