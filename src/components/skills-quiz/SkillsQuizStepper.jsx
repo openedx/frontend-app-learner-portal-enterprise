@@ -137,7 +137,10 @@ const SkillsQuizStepper = () => {
     );
   }, []);
 
-  const skillsVisible = useMemo(() => !isFirstRender, [goal]);
+  // will be true if goal or skills changed not because of first render, if link shared and there are more than one
+  // selected skills, or if skillsVisible variable is ever been true for once.
+  const skillsVisible = useMemo(() => (!isFirstRender || skillsVisible || (selectedSkills?.length > 0)),
+    [goal, selectedSkills]);
   const jobsDropdownsVisible = useMemo(() => !isFirstRender, [skills]);
 
   return (
@@ -200,7 +203,7 @@ const SkillsQuizStepper = () => {
                     )
                   }
 
-                  { (skillsVisible && selectedSkills.length > 0) && (
+                  { skillsVisible && (
                     <TagCloud
                       tags={selectedSkills}
                       onRemove={
