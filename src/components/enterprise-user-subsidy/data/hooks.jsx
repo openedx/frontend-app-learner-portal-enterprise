@@ -102,17 +102,20 @@ export function useSubscriptionLicense({
     async function retrieveUserLicense() {
       let result = await fetchExistingUserLicense(enterpriseId);
 
-      const customerAgreementMetadata = [
-        customerAgreementConfig?.uuid,
-        customerAgreementConfig?.subscriptionForAutoAppliedLicenses,
-      ];
-      const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
+      if (features.ENABLE_AUTO_APPLIED_LICENSES) {
+        const customerAgreementMetadata = [
+          customerAgreementConfig?.uuid,
+          customerAgreementConfig?.subscriptionForAutoAppliedLicenses,
+        ];
+        const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
 
-      // Per the product requirements, we only want to attempt requesting an auto-applied license
-      // when the enterprise customer has an SSO/LMS provider configured.
-      if (!result && enterpriseIdentityProvider && hasCustomerAgreementData) {
-        result = await requestAutoAppliedUserLicense(customerAgreementConfig?.uuid);
+        // Per the product requirements, we only want to attempt requesting an auto-applied license
+        // when the enterprise customer has an SSO/LMS provider configured.
+        if (!result && enterpriseIdentityProvider && hasCustomerAgreementData) {
+          result = await requestAutoAppliedUserLicense(customerAgreementConfig?.uuid);
+        }
       }
+
       return result;
     }
     if (!isLoadingCustomerAgreementConfig) {

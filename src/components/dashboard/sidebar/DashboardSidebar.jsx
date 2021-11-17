@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Button, MailtoLink } from '@edx/paragon';
+import { MailtoLink } from '@edx/paragon';
 
 import { SidebarBlock } from '../../layout';
 import OfferSummaryCard from './OfferSummaryCard';
@@ -69,9 +69,8 @@ const DashboardSidebar = () => {
           )}
           {!disableSearch && (
             <Link
-              as={Button}
               to={`/${slug}/search`}
-              className="btn-outline-primary btn-block"
+              className="btn btn-outline-primary btn-block"
             >
               {CATALOG_ACCESS_CARD_BUTTON_TEXT}
             </Link>
