@@ -15,6 +15,10 @@ import {
   renderWithRouter,
 } from '../../../utils/tests';
 
+jest.mock('../../../config', () => ({
+  features: { PROGRAM_TYPE_FACET: true },
+}));
+
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
   // eslint-disable-next-line react/prop-types
