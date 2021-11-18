@@ -165,7 +165,7 @@ const SkillsQuizStepper = () => {
                 >Continue
                 </Button>
               </Stepper.ActionRow>
-              <Stepper.ActionRow eventKey="review">
+              <Stepper.ActionRow eventKey="recommended-courses">
                 <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
                   Go back
                 </Button>
@@ -252,9 +252,9 @@ const SkillsQuizStepper = () => {
                 }
               </div>
             </Stepper.Step>
-            <Stepper.Step eventKey="review" title="Review Skills">
+            <Stepper.Step eventKey="recommended-courses" title="View Recommendations">
               <div className="row justify-content-center">
-                <h2>Review!</h2>
+                <h2>Recommended Courses!</h2>
               </div>
               <div className="search-job-card mb-3">
                 { canContinueToRecommendedCourses ? <SelectJobCard /> : null}
