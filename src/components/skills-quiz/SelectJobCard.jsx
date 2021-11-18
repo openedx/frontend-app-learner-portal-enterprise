@@ -23,7 +23,7 @@ const SelectJobCard = () => {
     jobsCard = interestedJobs;
   }
   return (
-    <>
+    <div style={{ paddingLeft: '10%' }}>
       <h3>Related jobs and skills</h3>
       <Form.Group>
         <Form.RadioSet
@@ -40,7 +40,7 @@ const SelectJobCard = () => {
               role="group"
               aria-label={job.name}
             >
-              <Card className={`${selectedJob === job.name ? 'border border-dark' : null}`}>
+              <Card className={`${selectedJob === job.name ? 'border border-dark' : null} mt-2 ml-2`}>
                 <Card.Body>
                   <Card.Title as="h4" className="card-title mb-2">
                     <>
@@ -69,7 +69,7 @@ const SelectJobCard = () => {
           ))}
         </Form.RadioSet>
       </Form.Group>
-    </>
+    </div>
   );
 };
 
