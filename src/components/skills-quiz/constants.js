@@ -44,7 +44,7 @@ export const COURSES_ERROR_ALERT_MESSAGE = 'An error occured while fetching cour
 export const NO_COURSES_ALERT_MESSAGE = 'No courses were found. Please search for another job, or click see more courses.';
 
 export const STEP1 = 'skills-search';
-export const STEP2 = 'review';
+export const STEP2 = 'recommended-courses';
 
 export const SKILL_NAME_CUTOFF_LIMIT = 50;
 export const MAX_VISIBLE_SKILLS_CARD = 6;
