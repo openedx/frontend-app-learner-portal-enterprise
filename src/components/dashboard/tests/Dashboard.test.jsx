@@ -43,7 +43,6 @@ const defaultAppState = {
 };
 
 const defaultUserSubsidyState = {
-  hasAccessToPortal: true,
   offers: defaultOffersState,
 };
 

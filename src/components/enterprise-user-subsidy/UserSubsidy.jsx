@@ -8,18 +8,22 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 
 import {
-  useSubscriptionLicenseForUser,
+  useSubscriptionLicense,
   useOffers,
   useCustomerAgreementData,
 } from './data/hooks';
-import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from './data/constants';
+import { LOADING_SCREEN_READER_TEXT } from './data/constants';
 
 export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicenseForUser(enterpriseConfig.uuid);
   const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
+  const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicense({
+    enterpriseConfig,
+    customerAgreementConfig,
+    isLoadingCustomerAgreementConfig,
+  });
   const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
@@ -45,27 +49,21 @@ const UserSubsidy = ({ children }) => {
       if (isLoadingSubsidies) {
         return {};
       }
-      let hasAccessToPortal = false;
-      if (subscriptionLicense) {
-        hasAccessToPortal = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-      }
-      if (offers.offersCount > 0) {
-        hasAccessToPortal = true;
-      }
       return {
-        hasAccessToPortal,
         subscriptionLicense,
         subscriptionPlan,
         offers,
         showExpirationNotifications,
       };
     },
-    [isLoadingSubsidies,
+    [
+      isLoadingSubsidies,
       subscriptionPlan,
       subscriptionLicense,
       offers,
-      enterpriseConfig?.uuid,
-      customerAgreementConfig],
+      enterpriseConfig.uuid,
+      customerAgreementConfig,
+    ],
   );
 
   if (isLoadingSubsidies) {

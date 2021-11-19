@@ -69,7 +69,6 @@ describe('<SkillsQuiz />', () => {
     },
   };
   const initialUserSubsidyState = {
-    hasAccessToPortal: true,
     offers: defaultOffersState,
   };
 

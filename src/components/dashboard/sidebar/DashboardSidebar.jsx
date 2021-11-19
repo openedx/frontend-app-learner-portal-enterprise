@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from 'react';
-import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { MailtoLink } from '@edx/paragon';
@@ -26,7 +25,6 @@ const DashboardSidebar = () => {
   const {
     subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,
-    hasAccessToPortal,
     offers: { offersCount },
   } = useContext(UserSubsidyContext);
 
@@ -72,7 +70,7 @@ const DashboardSidebar = () => {
           {!disableSearch && (
             <Link
               to={`/${slug}/search`}
-              className={classNames('btn btn-outline-primary btn-block', { disabled: !hasAccessToPortal })}
+              className="btn btn-outline-primary btn-block"
             >
               {CATALOG_ACCESS_CARD_BUTTON_TEXT}
             </Link>
