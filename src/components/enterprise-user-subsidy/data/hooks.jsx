@@ -43,12 +43,7 @@ const fetchExistingUserLicense = async (enterpriseId) => {
     results.forEach((item) => {
       licensesByStatus[item.status].push(item);
     });
-    const applicableLicense = Object.values(licensesByStatus).reduce((acc, licenses) => {
-      if (!acc && licenses.length > 0) {
-        return licenses[0];
-      }
-      return acc;
-    }, null);
+    const applicableLicense = Object.values(licensesByStatus).flat()[0];
     return applicableLicense;
   } catch (error) {
     logError(error);
@@ -112,7 +107,7 @@ export function useSubscriptionLicense({
         // Per the product requirements, we only want to attempt requesting an auto-applied license
         // when the enterprise customer has an SSO/LMS provider configured.
         if (!result && enterpriseIdentityProvider && hasCustomerAgreementData) {
-          result = await requestAutoAppliedUserLicense(customerAgreementConfig?.uuid);
+          result = await requestAutoAppliedUserLicense(customerAgreementConfig.uuid);
         }
       }
 
