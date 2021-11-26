@@ -5,16 +5,18 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import SearchCourseCard from '../SearchCourseCard';
+import SearchProgramCard from '../SearchProgramCard';
 
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
-import { NO_COURSES_ALERT_MESSAGE } from '../constants';
+import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
+
+const userId = 'batman';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
+  getAuthenticatedUser: () => ({ username: 'b.wayne', userId }),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -34,7 +36,7 @@ jest.mock('react-loading-skeleton', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-const SearchCourseCardWithContext = ({
+const SearchProgramCardWithContext = ({
   initialAppState,
   initialSkillsState,
   initialUserSubsidyState,
@@ -45,7 +47,7 @@ const SearchCourseCardWithContext = ({
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <SearchContext.Provider value={searchContext}>
         <SkillsContext.Provider value={initialSkillsState}>
-          <SearchCourseCard index={index} />
+          <SearchProgramCard index={index} />
         </SkillsContext.Provider>
       </SearchContext.Provider>
     </UserSubsidyContext.Provider>
@@ -53,21 +55,30 @@ const SearchCourseCardWithContext = ({
 );
 /* eslint-enable react/prop-types */
 
-const TEST_COURSE_KEY = 'test-course-key';
-const TEST_TITLE = 'Test Title';
-const TEST_CARD_IMG_URL = 'http://fake.image';
-const TEST_PARTNER = {
-  name: 'Partner Name',
-  logo_image_url: TEST_IMAGE_URL,
+const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
+const PROGRAM_TITLE = 'Intro to BatVerse';
+const PROGRAM_TYPE_DISPLAYED = 'MicroMasters® Program';
+const PROGRAM_CARD_IMG_URL = 'http://card.image';
+const PROGRAM_PARTNER_LOGO_IMG_URL = 'http://logo.image';
+const PROGRAM_COURSES_COUNT_TEXT = '2 Courses';
+const PROGRAM_AUTHOR_ORG = {
+  key: 'Hogwarts',
+  name: 'Hogwarts',
+  logo_image_url: PROGRAM_PARTNER_LOGO_IMG_URL,
 };
+const TEST_COURSE_KEYS = ['HarvardX+CS50x', 'HarvardX+CS50AI'];
 
-const courses = {
+const programs = {
   hits: [
     {
-      key: TEST_COURSE_KEY,
-      title: TEST_TITLE,
-      card_image_url: TEST_CARD_IMG_URL,
-      partners: [TEST_PARTNER],
+      aggregation_key: `program:${PROGRAM_UUID}`,
+      authoring_organizations: [
+        PROGRAM_AUTHOR_ORG,
+      ],
+      card_image_url: PROGRAM_CARD_IMG_URL,
+      course_keys: TEST_COURSE_KEYS,
+      title: PROGRAM_TITLE,
+      type: 'MicroMasters',
       skill_names: [],
     },
   ],
@@ -76,12 +87,13 @@ const courses = {
 
 const testIndex = {
   indexName: 'test-index-name',
-  search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
+  search: jest.fn().mockImplementation(() => Promise.resolve(programs)),
 };
 
 const initialAppState = {
   enterpriseConfig: {
-    slug: 'test-enterprise-slug',
+    slug: TEST_ENTERPRISE_SLUG,
+    uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
   },
 };
 
@@ -120,12 +132,12 @@ const initialUserSubsidyState = {
   offers: defaultOffersState,
 };
 
-describe('<SearchCourseCard />', () => {
+describe('<SearchProgramCard />', () => {
   test('renders the correct data', async () => {
     let containerDOM = {};
     await act(async () => {
       const { container } = renderWithRouter(
-        <SearchCourseCardWithContext
+        <SearchProgramCardWithContext
           initialAppState={initialAppState}
           initialSkillsState={initialSkillsState}
           initialUserSubsidyState={initialUserSubsidyState}
@@ -136,42 +148,50 @@ describe('<SearchCourseCard />', () => {
       containerDOM = container;
     });
 
-    expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
-    expect(screen.getByAltText(TEST_PARTNER.name)).toBeInTheDocument();
+    expect(screen.getByText(PROGRAM_TITLE)).toBeInTheDocument();
+    expect(screen.getByAltText(PROGRAM_AUTHOR_ORG.name)).toBeInTheDocument();
 
     expect(containerDOM.querySelector('.search-result-card > a')).toHaveAttribute(
       'href',
-      `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
+      `/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`,
     );
-    expect(containerDOM.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
-    expect(containerDOM.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+
+    expect(containerDOM.querySelector('p.partner')).toHaveTextContent(PROGRAM_AUTHOR_ORG.name);
+    expect(containerDOM.querySelector('.card-img-top')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
+    expect(containerDOM.querySelector('.partner-logo')).toHaveAttribute('src', PROGRAM_PARTNER_LOGO_IMG_URL);
+    expect(containerDOM.querySelector('span.badge-text')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
+    expect(containerDOM.querySelector('span.program-courses-count-text')).toHaveTextContent(PROGRAM_COURSES_COUNT_TEXT);
   });
 
   test('renders the correct data with skills', async () => {
     const skillNames = ['test-skill-1', 'test-skill-2'];
-    const coursesWithSkills = {
+    const programWithSkills = {
       hits: [
         {
-          key: TEST_COURSE_KEY,
-          title: TEST_TITLE,
-          card_image_url: TEST_CARD_IMG_URL,
-          partners: [TEST_PARTNER],
+          aggregation_key: `program:${PROGRAM_UUID}`,
+          authoring_organizations: [
+            PROGRAM_AUTHOR_ORG,
+          ],
+          card_image_url: PROGRAM_CARD_IMG_URL,
+          course_keys: TEST_COURSE_KEYS,
+          title: PROGRAM_TITLE,
+          type: 'MicroMasters',
           skill_names: skillNames,
         },
       ],
       nbHits: 1,
     };
-    const courseIndex = {
+    const index = {
       indexName: 'test-index-name',
-      search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
+      search: jest.fn().mockImplementation(() => Promise.resolve(programWithSkills)),
     };
     await act(async () => {
       renderWithRouter(
-        <SearchCourseCardWithContext
+        <SearchProgramCardWithContext
           initialAppState={initialAppState}
           initialSkillsState={initialSkillsState}
           initialUserSubsidyState={initialUserSubsidyState}
-          index={courseIndex}
+          index={index}
           searchContext={searchContext}
         />,
       );
@@ -184,29 +204,33 @@ describe('<SearchCourseCard />', () => {
     const irrelevantSkill = 'test-skills-3';
     const skillNames = ['test-skill-1', 'test-skill-2'];
     skillNames.push(irrelevantSkill);
-    const coursesWithSkills = {
+    const programWithSkills = {
       hits: [
         {
-          key: TEST_COURSE_KEY,
-          title: TEST_TITLE,
-          card_image_url: TEST_CARD_IMG_URL,
-          partners: [TEST_PARTNER],
+          aggregation_key: `program:${PROGRAM_UUID}`,
+          authoring_organizations: [
+            PROGRAM_AUTHOR_ORG,
+          ],
+          card_image_url: PROGRAM_CARD_IMG_URL,
+          course_keys: TEST_COURSE_KEYS,
+          title: PROGRAM_TITLE,
+          type: 'MicroMasters',
           skill_names: skillNames,
         },
       ],
       nbHits: 1,
     };
-    const courseIndex = {
+    const index = {
       indexName: 'test-index-name',
-      search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
+      search: jest.fn().mockImplementation(() => Promise.resolve(programWithSkills)),
     };
     await act(async () => {
       renderWithRouter(
-        <SearchCourseCardWithContext
+        <SearchProgramCardWithContext
           initialAppState={initialAppState}
           initialSkillsState={initialSkillsState}
           initialUserSubsidyState={initialUserSubsidyState}
-          index={courseIndex}
+          index={index}
           searchContext={searchContext}
         />,
       );
@@ -216,26 +240,26 @@ describe('<SearchCourseCard />', () => {
     expect(screen.queryByText(irrelevantSkill)).not.toBeInTheDocument();
   });
 
-  test('renders an alert in case of no courses returned', async () => {
-    const noCourses = {
+  test('renders an alert in case of no programs returned', async () => {
+    const noPrograms = {
       hits: [],
       nbHits: 0,
     };
-    const courseIndex = {
+    const index = {
       indexName: 'test-index-name',
-      search: jest.fn().mockImplementation(() => Promise.resolve(noCourses)),
+      search: jest.fn().mockImplementation(() => Promise.resolve(noPrograms)),
     };
     await act(async () => {
       renderWithRouter(
-        <SearchCourseCardWithContext
+        <SearchProgramCardWithContext
           initialAppState={initialAppState}
           initialSkillsState={initialSkillsState}
           initialUserSubsidyState={initialUserSubsidyState}
-          index={courseIndex}
+          index={index}
           searchContext={searchContext}
         />,
       );
     });
-    expect(screen.getByText(NO_COURSES_ALERT_MESSAGE)).toBeTruthy();
+    expect(screen.getByText(NO_PROGRAMS_ALERT_MESSAGE)).toBeTruthy();
   });
 });

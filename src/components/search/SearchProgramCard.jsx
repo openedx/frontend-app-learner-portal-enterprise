@@ -13,7 +13,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 
-const ProgramType = ({ type }) => {
+export const ProgramType = ({ type }) => {
   let programTypeToDisplay = type;
 
   switch (type) {

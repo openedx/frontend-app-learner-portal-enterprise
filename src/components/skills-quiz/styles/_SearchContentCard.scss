@@ -1,4 +1,4 @@
-.course-card-result {
+.search-result-card {
   a {
     color: $gray-700;
     text-decoration: none;
@@ -53,7 +53,7 @@
       font-size: $font-size-sm;
     }
 
-    .course-badge {
+    .skill-badge {
       padding: 3px;
       margin-right: 2px;
       margin-bottom: 0px;
@@ -63,9 +63,19 @@
       display: inline;
     }
   }
+
+  .card-footer {
+    font-size: 0.75rem;
+
+    .badge-text {
+      font-family: $font-family-monospace;
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+  }
 }
 
-.course-results {
+.skill-quiz-results {
  display: flex;
  flex-wrap: wrap;
  flex-direction: row;
