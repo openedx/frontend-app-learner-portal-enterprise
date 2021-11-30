@@ -48,3 +48,5 @@ export const STEP2 = 'recommended-courses';
 
 export const SKILL_NAME_CUTOFF_LIMIT = 50;
 export const MAX_VISIBLE_SKILLS_CARD = 6;
+
+export const NOT_AVAILABLE = 'N/A';

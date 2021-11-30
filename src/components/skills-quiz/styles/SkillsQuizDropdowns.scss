@@ -21,3 +21,9 @@
   object-fit: cover;
   object-position: right top;
 }
+.pgn__form-control-set{
+  flex-direction: row;
+}
+.pgn__form-control-set-inline{
+  align-items: unset;
+}

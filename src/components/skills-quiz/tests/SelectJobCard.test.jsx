@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
+import { NOT_AVAILABLE } from '../constants';
 
 /* eslint-disable react/prop-types */
 const SelectJobCardWithContext = ({
@@ -27,6 +28,8 @@ const TEST_UNIQUE_POSTINGS = '45';
 const TEST_UNIQUE_POSTINGS_2 = '500';
 const TRANSFORMED_MEDIAN_SALARY = '$100,000';
 const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
+const MEDIAN_SALARY = 'Median U.S. Salary:';
+const JOB_POSTINGS = 'Job Postings:';
 
 const initialAppState = {
   enterpriseConfig: {
@@ -135,6 +138,58 @@ describe('<SelectJobCard />', () => {
     expect(screen.queryByText(initialJobCardState.interestedJobs[1].name)).toBeInTheDocument();
     expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY_2)).toBeInTheDocument();
     expect(screen.queryByText(TEST_UNIQUE_POSTINGS_2)).toBeInTheDocument();
+  });
+
+  test('renders multiple job cards without unique job postings', () => {
+    const initialJobCardStateWithOutJobs = {
+      interestedJobs: [{
+        name: 'Engineer',
+        objectID: '11',
+        job_postings: [
+          {
+            median_salary: TEST_MEDIAN_SALARY,
+          },
+        ],
+      },
+      ],
+    };
+    render(
+      <SelectJobCardWithContext
+        initialAppState={initialAppState}
+        initialJobCardState={initialJobCardStateWithOutJobs}
+      />,
+    );
+    expect(screen.queryByText(initialJobCardStateWithOutJobs.interestedJobs[0].name)).toBeInTheDocument();
+    expect(screen.queryByText(NOT_AVAILABLE)).toBeVisible();
+    expect(screen.queryByText(MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.queryByText(JOB_POSTINGS)).toBeInTheDocument();
+  });
+
+  test('renders multiple job card without median salary', () => {
+    const initialJobCardStateWithOutSalary = {
+      interestedJobs: [{
+        name: 'Engineer',
+        objectID: '11',
+        job_postings: [
+          {
+            unique_postings: TEST_UNIQUE_POSTINGS,
+          },
+        ],
+      },
+      ],
+    };
+    render(
+      <SelectJobCardWithContext
+        initialAppState={initialAppState}
+        initialJobCardState={initialJobCardStateWithOutSalary}
+      />,
+    );
+    expect(screen.queryByText(initialJobCardStateWithOutSalary.interestedJobs[0].name)).toBeInTheDocument();
+    expect(screen.queryByText(JOB_POSTINGS)).toBeInTheDocument();
+    expect(screen.queryByText(MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.queryByText(TEST_UNIQUE_POSTINGS)).toBeVisible();
+    expect(screen.queryByText(NOT_AVAILABLE)).toBeVisible();
   });
 
   test('renders no job card', () => {
