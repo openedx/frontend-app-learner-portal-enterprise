@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 import { MailtoLink } from '@edx/paragon';
 
 import { SidebarBlock } from '../../layout';
@@ -15,6 +16,7 @@ export const NEED_HELP_BLOCK_TITLE = 'Need help?';
 export const EMAIL_MESSAGE = 'contact your organization\'s edX administrator';
 
 const DashboardSidebar = () => {
+  const config = getConfig();
   const {
     enterpriseConfig: {
       contactEmail,
@@ -84,7 +86,7 @@ const DashboardSidebar = () => {
       >
         <p>
           For technical support, visit the{' '}
-          <a href="https://support.edx.org/hc/en-us">edX Help Center</a>.
+          <a href={config.LEARNER_SUPPORT_URL}>edX Help Center</a>.
         </p>
         <p>
           To request more benefits or specific courses, {renderContactHelpText()}.

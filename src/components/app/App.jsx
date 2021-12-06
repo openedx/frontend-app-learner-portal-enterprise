@@ -15,6 +15,7 @@ import { ProgramPage } from '../program';
 import { SearchPage } from '../search';
 import { LicenseActivationPage } from '../license-activation';
 import { SkillsQuizPage } from '../skills-quiz';
+import { EnterpriseInvitePage } from '../enterprise-invite';
 
 import store from '../../store';
 import { features } from '../../config';
@@ -33,16 +34,13 @@ export default function App() {
         <Switch>
           <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
           <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
+          <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
           <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
           <PageRoute exact path="/:enterpriseSlug/search" component={SearchPage} />
           <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
-          <PageRoute
-            exact
-            path="/:enterpriseSlug/program/:programUuid"
-            render={() => (
-              features.ENABLE_PROGRAMS ? <ProgramPage /> : <NotFoundPage />
-            )}
-          />
+          {features.ENABLE_PROGRAMS && (
+            <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
+          )}
           <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
           <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
           <PageRoute path="*" component={NotFoundPage} />
