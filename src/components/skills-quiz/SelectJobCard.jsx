@@ -5,6 +5,7 @@ import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { formatStringAsNumber } from '../../utils/common';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
+import { NOT_AVAILABLE } from './constants';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
@@ -12,7 +13,6 @@ const SelectJobCard = () => {
   const {
     interestedJobs, selectedJob, currentJobRole, goal,
   } = state;
-  const jobsCharactersCutOffLimit = 20;
   let jobSelected;
   let jobsCard;
   if (checkValidGoalAndJobSelected(goal, currentJobRole, true)) {
@@ -39,30 +39,36 @@ const SelectJobCard = () => {
               key={job.name}
               role="group"
               aria-label={job.name}
+              className="ml-2 mt-2"
             >
-              <Card className={`${selectedJob === job.name ? 'border border-dark' : null} mt-2 ml-2`}>
-                <Card.Body>
-                  <Card.Title as="h4" className="card-title mb-2">
+              <Card className={`${selectedJob === job.name ? 'border border-dark' : null} h-100`}>
+                <Card.Body className="row">
+                  <div className="col-11">
+                    <Card.Title as="h4" className="card-title mb-2">
+                      <span>
+                        {job.name}
+                      </span>
+                    </Card.Title>
                     <>
-                      {job.name.length > jobsCharactersCutOffLimit
-                        ? `${job.name.substring(0, jobsCharactersCutOffLimit)}...` : job.name}
+                      {!hideLaborMarketData
+                      && (
+                        <div className="text-gray-700">
+                          <p className="m-0 medium-font">
+                            <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
+                            {job.job_postings?.length > 0 && job.job_postings[0].median_salary
+                              ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}` : NOT_AVAILABLE }
+                          </p>
+                          <p className="m-0 medium-font">
+                            <span style={{ fontWeight: 700 }}>Job Postings: </span>
+                            {job.job_postings?.length > 0 && job.job_postings[0].unique_postings
+                              ? formatStringAsNumber(job.job_postings[0].unique_postings)
+                              : NOT_AVAILABLE }
+                          </p>
+                        </div>
+                      )}
                     </>
-                    <Form.Radio value={job.name} />
-                  </Card.Title>
-                  <>
-                    {job.job_postings?.length > 0 && !hideLaborMarketData && (
-                      <div className="text-gray-700">
-                        <p className="m-0 medium-font">
-                          <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
-                          ${formatStringAsNumber(job.job_postings[0].median_salary)}
-                        </p>
-                        <p className="m-0 medium-font">
-                          <span style={{ fontWeight: 700 }}>Job Postings: </span>
-                          {formatStringAsNumber(job.job_postings[0].unique_postings)}
-                        </p>
-                      </div>
-                    )}
-                  </>
+                  </div>
+                  <div className="col-1"><Form.Radio value={job.name} /></div>
                 </Card.Body>
               </Card>
             </div>

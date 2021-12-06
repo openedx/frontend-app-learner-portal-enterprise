@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
 import Skeleton from 'react-loading-skeleton';
-import Truncate from 'react-truncate';
 import PropTypes from 'prop-types';
 import { formatStringAsNumber } from '../../utils/common';
+import { NOT_AVAILABLE } from './constants';
 
 const JobCardComponent = ({ jobs, isLoading }) => {
   const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
@@ -17,33 +17,36 @@ const JobCardComponent = ({ jobs, isLoading }) => {
           role="group"
           aria-label={job.name}
         >
-          <Card>
+          <Card className="h-100">
             <Card.Body>
               <Card.Title as="h4" className="card-title mb-3">
                 {isLoading ? (
                   <Skeleton count={1} data-testid="job-title-loading" />
                 ) : (
-                  <Truncate lines={1} trimWhitespace>
+                  <span>
                     {job.name}
-                  </Truncate>
+                  </span>
                 )}
               </Card.Title>
               {isLoading ? (
                 <Skeleton duration={0} data-testid="job-content-loading" />
               ) : (
                 <>
-                  {job.job_postings?.length > 0 && !hideLaborMarketData && (
-                    <div className="text-gray-700">
-                      <p className="m-0 medium-font">
-                        <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
-                        ${formatStringAsNumber(job.job_postings[0].median_salary)}
-                      </p>
-                      <p className="m-0 medium-font">
-                        <span style={{ fontWeight: 700 }}>Job Postings: </span>
-                        {formatStringAsNumber(job.job_postings[0].unique_postings)}
-                      </p>
-                    </div>
-                  )}
+                  {!hideLaborMarketData
+                      && (
+                        <div className="text-gray-700">
+                          <p className="m-0 medium-font">
+                            <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
+                            {job.job_postings?.length > 0 ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}`
+                              : NOT_AVAILABLE }
+                          </p>
+                          <p className="m-0 medium-font">
+                            <span style={{ fontWeight: 700 }}>Job Postings: </span>
+                            {job.job_postings?.length > 0 ? formatStringAsNumber(job.job_postings[0].unique_postings)
+                              : NOT_AVAILABLE }
+                          </p>
+                        </div>
+                      )}
                 </>
               )}
             </Card.Body>
