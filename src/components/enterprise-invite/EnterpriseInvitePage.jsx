@@ -11,6 +11,8 @@ import { LoadingSpinner } from '../loading-spinner';
 
 import { postLinkEnterpriseLearner } from './data/service';
 
+export const LOADING_MESSAGE = 'Processing edX invite from your organization.';
+
 const EnterpriseInvitePage = () => {
   const { enterpriseCustomerInviteKey } = useParams();
   const [inviteError, setInviteError] = useState();
@@ -35,13 +37,13 @@ const EnterpriseInvitePage = () => {
       };
       linkEnterpriseLearner();
     }
-  }, [authenticatedUser?.id]);
+  }, []);
 
   return (
     <LoginRedirect>
       {isLoading && (
         <Container className="py-5">
-          <LoadingSpinner screenReaderText="Processing edX invite from your organization." />
+          <LoadingSpinner screenReaderText={LOADING_MESSAGE} />
         </Container>
       )}
       {inviteError && <InviteError />}
