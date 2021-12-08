@@ -19,7 +19,7 @@ export const LOADING_MESSAGE = 'Processing edX invite from your organization.';
  * Redirects user to enterprise logistration flow to create a new account or
  * login to an existing account, then get redirected back to this route. At this
  * point, we attempt to link the user to the EnterpriseCustomer associated with
- * the `enterpriseCustomerinviteKey`.
+ * the `enterpriseCustomerInviteKey`.
  *
  * If successful, the user is redirected to their enterprise customer's Learner Portal
  * slug. If an error occurred, an appropriate error page is shown and an error is logged.
