@@ -16,6 +16,10 @@ import SiteFooter from '@edx/frontend-component-footer';
 import { getConfig } from '@edx/frontend-platform/config';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
+/**
+ * React component for the invite page error case. Renders a minimal header
+ * with just a logo that is not linked.
+ */
 const InviteErrorHeader = () => {
   const config = getConfig();
   const authenticatedUser = getAuthenticatedUser();
@@ -49,6 +53,10 @@ const InviteErrorHeader = () => {
   );
 };
 
+/**
+ * React component for the error case when attempting to link a user to a customer. Renders
+ * a header, error alert, and a footer.
+ */
 const InviteError = () => {
   const config = getConfig();
 
