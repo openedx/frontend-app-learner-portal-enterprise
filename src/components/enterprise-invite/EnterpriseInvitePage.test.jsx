@@ -1,7 +1,5 @@
 import React from 'react';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -29,10 +27,6 @@ getConfig.mockReturnValue({
   MARKETING_SITE_BASE_URL: 'https://edx.org',
   LEARNER_SUPPORT_URL: 'https://support.edx.org',
 });
-const axiosMock = new MockAdapter(axios);
-getAuthenticatedHttpClient.mockReturnValue(axios);
-axiosMock.onAny().reply(200);
-axios.post = jest.fn();
 
 const TEST_ENTEPRRISE_SLUG = 'test-enterprise-slug';
 const TEST_INVITE_KEY = '00000000-0000-0000-0000-000000000000';
