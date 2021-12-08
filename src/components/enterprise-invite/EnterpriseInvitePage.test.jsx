@@ -20,7 +20,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 jest.mock('@edx/frontend-component-footer', () => () => <div data-testid="site-footer" />);
 
 getAuthenticatedUser.mockReturnValue({
-  id: 1,
+  userId: 1,
   profileImage: {
     imageUrlMedium: 'htts://img.url',
   },

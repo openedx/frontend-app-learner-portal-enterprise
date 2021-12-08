@@ -32,7 +32,7 @@ const EnterpriseInvitePage = () => {
   const authenticatedUser = getAuthenticatedUser();
 
   useEffect(() => {
-    if (authenticatedUser?.id) {
+    if (authenticatedUser?.userId) {
       const linkEnterpriseLearner = async () => {
         try {
           const response = await postLinkEnterpriseLearner(enterpriseCustomerInviteKey);
@@ -48,7 +48,7 @@ const EnterpriseInvitePage = () => {
       };
       linkEnterpriseLearner();
     }
-  }, []);
+  }, [authenticatedUser?.userId]);
 
   return (
     <LoginRedirect>
