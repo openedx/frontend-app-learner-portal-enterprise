@@ -1,5 +1,5 @@
 ============================================================
-3. Move from static builds (Gatsby) to client-side React app
+4. Configurable system-wide notices banner
 ============================================================
 
 ******
