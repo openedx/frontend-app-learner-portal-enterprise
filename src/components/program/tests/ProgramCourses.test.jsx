@@ -159,12 +159,33 @@ describe('<ProgramCourses />', () => {
     render(
       <ProgramCoursestWithContext
         initialAppState={initialAppState}
-        initialProgramState={initialProgramState}
+        initialProgramState={newInitialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
 
     fireEvent.click(screen.getByText('Test Course Title'));
     expect(screen.queryByText('Starts Feb 5, 2013')).not.toBeInTheDocument();
+  });
+
+  test('renders latest course run', () => {
+    const newInitialProgramState = { ...initialProgramState };
+    const secondCourseRun = {
+      title: 'Test Course Run Title',
+      start: '2014-02-05T05:00:00Z',
+      shortDescription: 'Test course description',
+      pacingType: 'instructor_paced',
+    };
+    newInitialProgramState.program.courses[0].courseRuns.push(secondCourseRun);
+    render(
+      <ProgramCoursestWithContext
+        initialAppState={initialAppState}
+        initialProgramState={newInitialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    fireEvent.click(screen.getByText('Test Course Title'));
+    expect(screen.queryByText('Starts Feb 5, 2013')).not.toBeInTheDocument();
+    expect(screen.queryByText('Starts Feb 5, 2014')).toBeInTheDocument();
   });
 });
