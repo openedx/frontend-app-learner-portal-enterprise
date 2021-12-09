@@ -57,7 +57,7 @@ const ProgramCourses = () => {
                     && (
                       <div className="course-card-result mb-2">
                         <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
-                        {courseRun && <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>}
+                        <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>
                       </div>
                     )
                   }
