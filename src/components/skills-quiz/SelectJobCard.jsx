@@ -43,7 +43,7 @@ const SelectJobCard = () => {
             >
               <Card className={`${selectedJob === job.name ? 'border border-dark' : null} h-100`}>
                 <Card.Body className="row">
-                  <div className="col-11">
+                  <div className="col-10">
                     <Card.Title as="h4" className="card-title mb-2">
                       <span>
                         {job.name}
@@ -68,7 +68,7 @@ const SelectJobCard = () => {
                       )}
                     </>
                   </div>
-                  <div className="col-1"><Form.Radio value={job.name} /></div>
+                  <div className="col-2"><Form.Radio value={job.name} /></div>
                 </Card.Body>
               </Card>
             </div>
