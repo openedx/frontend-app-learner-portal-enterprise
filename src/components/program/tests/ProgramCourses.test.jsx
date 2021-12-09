@@ -61,6 +61,7 @@ describe('<ProgramCourses />', () => {
               title: 'Test Course Run Title',
               start: '2013-02-05T05:00:00Z',
               shortDescription: 'Test course description',
+              pacingType: 'instructor_paced',
             },
           ],
           enterpriseHasCourse: true,
@@ -137,5 +138,33 @@ describe('<ProgramCourses />', () => {
     expect(screen.queryByText('View the course')).not.toBeInTheDocument();
     fireEvent.click(screen.getByText('Test Course Title'));
     expect(screen.getByText("This course is not included in your organization's catalog.")).toBeInTheDocument();
+  });
+
+  test('renders start date when courses are instructor led', () => {
+    render(
+      <ProgramCoursestWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Test Course Title'));
+    expect(screen.queryByText('Starts Feb 5, 2013')).toBeInTheDocument();
+  });
+
+  test('does not renders start date when courses are self paced', () => {
+    const newInitialProgramState = { ...initialProgramState };
+    newInitialProgramState.program.courses[0].courseRuns[0].pacingType = 'self_paced';
+    render(
+      <ProgramCoursestWithContext
+        initialAppState={initialAppState}
+        initialProgramState={initialProgramState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Test Course Title'));
+    expect(screen.queryByText('Starts Feb 5, 2013')).not.toBeInTheDocument();
   });
 });
