@@ -4,7 +4,10 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import EnterpriseInvitePage, { LOADING_MESSAGE } from './EnterpriseInvitePage';
+import EnterpriseInvitePage, {
+  LOADING_MESSAGE,
+  CTA_BUTTON_TEXT,
+} from './EnterpriseInvitePage';
 import { postLinkEnterpriseLearner } from './data/service';
 
 import { renderWithRouter } from '../../utils/tests';
@@ -15,17 +18,21 @@ jest.mock('@edx/frontend-platform/config');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
-jest.mock('@edx/frontend-component-footer', () => () => <div data-testid="site-footer" />);
+jest.mock('../error-page', () => ({
+  // eslint-disable-next-line react/prop-types
+  ErrorPage: ({ children }) => <div data-testid="error-page-message">{children}</div>,
+}));
 
 getAuthenticatedUser.mockReturnValue({
-  userId: 1,
+  id: 1,
   profileImage: {
     imageUrlMedium: 'htts://img.url',
   },
 });
 getConfig.mockReturnValue({
-  MARKETING_SITE_BASE_URL: 'https://edx.org',
-  LEARNER_SUPPORT_URL: 'https://support.edx.org',
+  MARKETING_SITE_BASE_URL: 'https://marketing.url',
+  LEARNER_SUPPORT_URL: 'https://support.url',
+  LOGOUT_URL: 'https://logout.url',
 });
 
 const TEST_ENTEPRRISE_SLUG = 'test-enterprise-slug';
@@ -56,6 +63,7 @@ describe('EnterpriseInvitePage', () => {
   });
 
   test('handles error when linking user to enterprise', async () => {
+    postLinkEnterpriseLearner.mockResolvedValueOnce(new Error('oh noes'));
     const { history } = renderWithRouter(<EnterpriseInvitePage />, {
       route: TEST_ROUTE,
     });
@@ -67,7 +75,7 @@ describe('EnterpriseInvitePage', () => {
     // assert we did NOT get redirected
     expect(history.location.pathname).toEqual(TEST_ROUTE);
 
-    // assert an error alert appears
-    expect(screen.getByRole('alert')).toHaveClass('alert-danger');
+    // assert the custom error page messaging renders
+    expect(screen.getByText(CTA_BUTTON_TEXT));
   });
 });
