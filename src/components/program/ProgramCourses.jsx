@@ -13,6 +13,8 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 
+import { PROGRAM_PACING_MAP } from './data/constants';
+
 const DATE_FORMAT = 'MMM D, YYYY';
 
 const getCourseRun = course => (
@@ -50,10 +52,16 @@ const ProgramCourses = () => {
                 </Collapsible.Trigger>
 
                 <Collapsible.Body className="collapsible-body mt-3 ml-4.5">
-                  <div className="course-card-result mb-2">
-                    <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
-                    {courseRun && <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>}
-                  </div>
+                  {
+                    (courseRun?.pacingType === PROGRAM_PACING_MAP.INSTRUCTOR_PACED && courseRun.start)
+                    && (
+                      <div className="course-card-result mb-2">
+                        <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
+                        <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>
+                      </div>
+                    )
+                  }
+
                   {course.shortDescription && (
                     <div
                       className="font-weight-normal mb-4"
