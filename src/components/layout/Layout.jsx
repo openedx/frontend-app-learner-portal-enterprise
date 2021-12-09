@@ -1,10 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
 import SiteFooter from '@edx/frontend-component-footer';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Hyperlink } from '@edx/paragon';
 
 import { SystemWideWarningBanner } from '../system-wide-banner';
 import { SiteHeader } from '../site-header';
@@ -19,6 +18,27 @@ export default function Layout({ children }) {
   const { config, enterpriseConfig } = useContext(AppContext);
   const brandStyles = useStylesForCustomBrandColors(enterpriseConfig);
 
+  const isMaintenanceAlertOpen = useMemo(() => {
+    if (!config) {
+      return false;
+    }
+    const isEnabledWithMessage = (
+      config.IS_MAINTENANCE_ALERT_ENABLED && config.MAINTENANCE_ALERT_MESSAGE
+    );
+    if (!isEnabledWithMessage) {
+      return false;
+    }
+    const startTimestamp = config.MAINTENANCE_ALERT_START_TIMESTAMP;
+    if (startTimestamp) {
+      return new Date() > new Date(startTimestamp);
+    }
+    return true;
+  }, [
+    config?.IS_MAINTENANCE_ALERT_ENABLED,
+    config?.MAINTENANCE_ALERT_MESSAGE,
+    config?.MAINTENANCE_ALERT_START_TIMESTAMP,
+  ]);
+
   return (
     <IntlProvider locale="en">
       <>
@@ -28,16 +48,9 @@ export default function Layout({ children }) {
             <style key={key} type="text/css">{styles}</style>
           ))}
         </Helmet>
-        {config?.SHOW_MAINTENANCE_ALERT && (
+        {isMaintenanceAlertOpen && (
           <SystemWideWarningBanner>
-            Some edX services will unavailable for a period of time due to planned maintenance Tuesday,
-            February 2 between 8pm and 9pm EST. See our
-            {' '}
-            <Hyperlink target="_blank" href="https://status.edx.org/incidents/bcp3b0pcvlk4">
-              status page
-            </Hyperlink>
-            {' '}
-            for more information.
+            {config.MAINTENANCE_ALERT_MESSAGE}
           </SystemWideWarningBanner>
         )}
         <SiteHeader />
