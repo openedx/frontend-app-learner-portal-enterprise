@@ -32,6 +32,7 @@ import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 import SkillsQuizImg from './images/skills-quiz.png';
+import SelectedJobSkills from './SelectedJobSkills';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -259,6 +260,7 @@ const SkillsQuizStepper = () => {
               <div className="search-job-card mb-3">
                 { canContinueToRecommendedCourses ? <SelectJobCard /> : null}
               </div>
+              <SelectedJobSkills />
               <div>
                 { (selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
                     && <SearchCourseCard index={courseIndex} /> }
