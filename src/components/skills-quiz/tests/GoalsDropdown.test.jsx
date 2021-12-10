@@ -1,35 +1,27 @@
 import React from 'react';
-import thunk from 'redux-thunk';
-import configureMockStore from 'redux-mock-store';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Provider as ReduxProvider } from 'react-redux';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import {
   GOAL_DROPDOWN_DEFAULT_OPTION,
 } from '../constants';
 import {
-  renderWithRouter, fakeReduxStore,
+  renderWithRouter,
 } from '../../../utils/tests';
 import GoalDropdown from '../GoalDropdown';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-
-const mockStore = configureMockStore([thunk]);
 
 /* eslint-disable react/prop-types */
 const GoalDropdownWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
-  initialReduxStore = fakeReduxStore,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ReduxProvider store={mockStore(initialReduxStore)}>
-        <SkillsContextProvider>
-          <GoalDropdown />
-        </SkillsContextProvider>
-      </ReduxProvider>
+      <SkillsContextProvider>
+        <GoalDropdown />
+      </SkillsContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );

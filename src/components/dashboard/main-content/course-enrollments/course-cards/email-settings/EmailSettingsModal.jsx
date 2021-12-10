@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   Input, Modal, Alert, StatefulButton,
@@ -54,7 +53,7 @@ class EmailSettingsModal extends Component {
 
   handleSaveButtonClick = () => {
     const { hasEmailsEnabled } = this.state;
-    const { courseRunId, updateEmailSettings } = this.props; // eslint-disable-line no-shadow
+    const { courseRunId } = this.props; // eslint-disable-line no-shadow
     this.setState({
       isSubmitting: true,
     }, async () => {
@@ -160,7 +159,6 @@ class EmailSettingsModal extends Component {
 
 EmailSettingsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
-  updateEmailSettings: PropTypes.func.isRequired,
   courseRunId: PropTypes.string.isRequired,
   hasEmailsEnabled: PropTypes.bool,
   open: PropTypes.bool,
@@ -171,17 +169,6 @@ EmailSettingsModal.defaultProps = {
   open: false,
 };
 
-const mapDispatchToProps = dispatch => ({
-  updateEmailSettings: (courseRunId, hasEmailsEnabled) => new Promise((resolve, reject) => {
-    dispatch(updateEmailSettings({
-      courseRunId,
-      hasEmailsEnabled,
-      onSuccess: (response) => { resolve(response); },
-      onError: (error) => { reject(error); },
-    }));
-  }),
-});
-
 export { EmailSettingsModal };
 
-export default connect(null, mapDispatchToProps)(EmailSettingsModal);
+export default EmailSettingsModal;

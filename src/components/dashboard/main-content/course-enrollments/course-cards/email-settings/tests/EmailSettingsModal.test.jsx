@@ -1,29 +1,20 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import thunk from 'redux-thunk';
-import configureMockStore from 'redux-mock-store';
 import { StatefulButton } from '@edx/paragon';
 
 import { EmailSettingsModal } from '../EmailSettingsModal';
+import { updateEmailSettings } from '../data';
 
-const mockStore = configureMockStore([thunk]);
-const store = mockStore({});
+jest.mock('../data');
 
 describe('<EmailSettingsModal />', () => {
   let wrapper;
-  let mockUpdateEmailSettings;
 
   beforeEach(() => {
-    mockUpdateEmailSettings = jest.fn().mockResolvedValueOnce({
-      data: {},
-    });
-
     wrapper = mount((
       <EmailSettingsModal
-        store={store}
         onClose={() => {}}
         courseRunId="my+course+key"
-        updateEmailSettings={mockUpdateEmailSettings}
       />
     ));
 
@@ -53,7 +44,7 @@ describe('<EmailSettingsModal />', () => {
     wrapper.find(StatefulButton).simulate('click');
     await flushPromises();
     wrapper.update();
-    expect(mockUpdateEmailSettings.mock.calls.length).toBe(1);
+    expect(updateEmailSettings).toHaveBeenCalledTimes(1);
     expect(wrapper.find(StatefulButton).prop('state')).toEqual('complete');
   });
 });

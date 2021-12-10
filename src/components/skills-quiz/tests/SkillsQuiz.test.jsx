@@ -1,32 +1,24 @@
 import React from 'react';
-import thunk from 'redux-thunk';
-import configureMockStore from 'redux-mock-store';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Provider as ReduxProvider } from 'react-redux';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import {
-  renderWithRouter, fakeReduxStore,
+  renderWithRouter,
 } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-
-const mockStore = configureMockStore([thunk]);
 
 /* eslint-disable react/prop-types */
 const SkillsQuizWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
-  initialReduxStore = fakeReduxStore,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ReduxProvider store={mockStore(initialReduxStore)}>
-        <SkillsQuiz />
-      </ReduxProvider>
+      <SkillsQuiz />
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );

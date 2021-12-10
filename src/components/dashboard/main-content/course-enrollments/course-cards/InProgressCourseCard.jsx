@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import moment from 'moment';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -11,20 +10,20 @@ import ContinueLearningButton from './ContinueLearningButton';
 
 import Notification from './Notification';
 
-import {
-  updateCourseRunStatus,
-  updateIsMarkCourseCompleteSuccess,
-} from '../data/actions';
+import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
 
 const InProgressCourseCard = ({
   linkToCourse,
   courseRunId,
   title,
   notifications,
-  modifyCourseRunStatus,
-  modifyIsMarkCourseCompleteSuccess,
+  courseRunStatus,
   ...rest
 }) => {
+  const {
+    updateCourseEnrollmentStatus,
+    setShowMarkCourseCompleteSuccess,
+  } = useContext(CourseEnrollmentsContext);
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards, enterpriseConfig } = useContext(AppContext);
 
@@ -95,14 +94,15 @@ const InProgressCourseCard = ({
     );
     setIsMarkCompleteModalOpen(false);
     resetModalState();
-    modifyCourseRunStatus({
-      status: response.courseRunStatus,
-      courseId: response.courseRunId,
-      savedForLater: response.savedForLater,
-    });
-    modifyIsMarkCourseCompleteSuccess({
-      isSuccess: true,
-    });
+    updateCourseEnrollmentStatus(
+      {
+        courseRunId: response.courseRunId,
+        originalStatus: courseRunStatus,
+        newStatus: response.courseRunStatus,
+        savedForLater: response.savedForLater,
+      },
+    );
+    setShowMarkCourseCompleteSuccess(true);
   };
 
   const renderNotifications = () => {
@@ -160,17 +160,7 @@ InProgressCourseCard.propTypes = {
     date: PropTypes.string.isRequired,
   })).isRequired,
   title: PropTypes.string.isRequired,
-  modifyCourseRunStatus: PropTypes.func.isRequired,
-  modifyIsMarkCourseCompleteSuccess: PropTypes.func.isRequired,
+  courseRunStatus: PropTypes.string.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
-  modifyCourseRunStatus: (options) => {
-    dispatch(updateCourseRunStatus(options));
-  },
-  modifyIsMarkCourseCompleteSuccess: (options) => {
-    dispatch(updateIsMarkCourseCompleteSuccess(options));
-  },
-});
-
-export default connect(null, mapDispatchToProps)(InProgressCourseCard);
+export default InProgressCourseCard;

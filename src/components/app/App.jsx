@@ -17,7 +17,6 @@ import { LicenseActivationPage } from '../license-activation';
 import { SkillsQuizPage } from '../skills-quiz';
 import { EnterpriseInvitePage } from '../enterprise-invite';
 
-import store from '../../store';
 import { features } from '../../config';
 
 export default function App() {
@@ -29,7 +28,7 @@ export default function App() {
   }
 
   return (
-    <AppProvider store={store}>
+    <AppProvider>
       <NoticesProvider>
         <Switch>
           <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />

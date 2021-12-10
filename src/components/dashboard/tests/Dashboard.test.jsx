@@ -1,10 +1,7 @@
 import React from 'react';
-import thunk from 'redux-thunk';
-import configureMockStore from 'redux-mock-store';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Provider as ReduxProvider } from 'react-redux';
 import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -16,14 +13,15 @@ import {
 import {
   SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
 } from '../../../config/constants';
-import * as service from '../main-content/course-enrollments/data/service';
+import * as hooks from '../main-content/course-enrollments/data/hooks';
 
 import {
-  renderWithRouter, fakeReduxStore,
+  renderWithRouter,
 } from '../../../utils/tests';
 import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
+import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 const defaultOffersState = {
   offers: [],
@@ -88,22 +86,19 @@ let mockLocation = {
   state: { activationSuccess: true },
 };
 
-const mockStore = configureMockStore([thunk]);
-
 /* eslint-disable react/prop-types */
 const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialCourseState = defaultCourseState,
-  initialReduxStore = fakeReduxStore,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <CourseContextProvider initialState={initialCourseState}>
-        <ReduxProvider store={mockStore(initialReduxStore)}>
+      <CourseEnrollmentsContextProvider>
+        <CourseContextProvider initialState={initialCourseState}>
           <Dashboard />
-        </ReduxProvider>
-      </CourseContextProvider>
+        </CourseContextProvider>
+      </CourseEnrollmentsContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -120,9 +115,16 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 }));
 
 jest.mock('universal-cookie');
-jest.mock('../main-content/course-enrollments/data/service');
+jest.mock('../main-content/course-enrollments/data/hooks');
+hooks.useCourseEnrollments.mockReturnValue({
+  courseEnrollmentsByStatus: {
+    in_progress: [],
+    upcoming: [],
+    completed: [],
+    saved_for_later: [],
+  },
+});
 
-service.fetchEnterpriseCourseEnrollments.mockResolvedValue(undefined);
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
