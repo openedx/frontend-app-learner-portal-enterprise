@@ -49,8 +49,10 @@ const SelectJobCard = () => {
                         {job.name}
                       </span>
                     </Card.Title>
-                    <>
-                      {!hideLaborMarketData
+                  </div>
+                  <div className="col-2"><Form.Radio value={job.name} /></div>
+                  <div className="col-12">
+                    {!hideLaborMarketData
                       && (
                         <div className="text-gray-700">
                           <p className="m-0 medium-font">
@@ -66,9 +68,7 @@ const SelectJobCard = () => {
                           </p>
                         </div>
                       )}
-                    </>
                   </div>
-                  <div className="col-2"><Form.Radio value={job.name} /></div>
                 </Card.Body>
               </Card>
             </div>
