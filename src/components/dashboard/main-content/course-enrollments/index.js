@@ -1,2 +1,2 @@
 export { default as CourseEnrollments } from './CourseEnrollments';
-export { reducer } from './data';
+export { default as CourseEnrollmentsContextProvider } from './CourseEnrollmentsContextProvider';

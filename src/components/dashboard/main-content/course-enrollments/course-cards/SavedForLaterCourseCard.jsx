@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -9,22 +8,23 @@ import ContinueLearningButton from './ContinueLearningButton';
 import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import { isCourseEnded } from '../../../../../utils/common';
-import {
-  updateCourseRunStatus,
-  updateIsMoveToInProgressCourseSuccess,
-} from '../data/actions';
 import { COURSE_STATUSES } from '../data/constants';
+import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
 
 const SavedForLaterCourseCard = (props) => {
   const {
     title,
     linkToCourse,
     courseRunId,
-    modifyCourseRunStatus,
-    modifyIsMoveToInProgressCourseStatus,
+    courseRunStatus,
     endDate,
     isRevoked,
   } = props;
+  const {
+    updateCourseEnrollmentStatus,
+    setShowMoveToInProgressCourseSuccess,
+  } = useContext(CourseEnrollmentsContext);
+
   const { enterpriseConfig } = useContext(AppContext);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,14 +50,13 @@ const SavedForLaterCourseCard = (props) => {
     );
     setIsModalOpen(false);
     resetModalState();
-    modifyCourseRunStatus({
-      status: response.courseRunStatus,
-      courseId: response.courseRunId,
+    updateCourseEnrollmentStatus({
+      courseRunId: response.courseRunId,
+      originalStatus: courseRunStatus,
+      newStatus: response.courseRunStatus,
       savedForLater: response.savedForLater,
     });
-    modifyIsMoveToInProgressCourseStatus({
-      isSuccess: true,
-    });
+    setShowMoveToInProgressCourseSuccess(true);
   };
 
   const getDropdownMenuItems = () => {
@@ -132,8 +131,6 @@ SavedForLaterCourseCard.propTypes = {
   linkToCertificate: PropTypes.string,
   isRevoked: PropTypes.bool.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
-  modifyCourseRunStatus: PropTypes.func.isRequired,
-  modifyIsMoveToInProgressCourseStatus: PropTypes.func.isRequired,
   endDate: PropTypes.string,
 };
 
@@ -142,13 +139,4 @@ SavedForLaterCourseCard.defaultProps = {
   endDate: null,
 };
 
-const mapDispatchToProps = dispatch => ({
-  modifyCourseRunStatus: (options) => {
-    dispatch(updateCourseRunStatus({ ...options }));
-  },
-  modifyIsMoveToInProgressCourseStatus: (options) => {
-    dispatch(updateIsMoveToInProgressCourseSuccess({ ...options }));
-  },
-});
-
-export default connect(null, mapDispatchToProps)(SavedForLaterCourseCard);
+export default SavedForLaterCourseCard;

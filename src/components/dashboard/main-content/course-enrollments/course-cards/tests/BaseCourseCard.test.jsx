@@ -1,8 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -16,8 +13,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
-const mockStore = configureMockStore([thunk]);
-
 describe('<BaseCourseCard />', () => {
   describe('email settings modal', () => {
     let wrapper;
@@ -27,17 +22,15 @@ describe('<BaseCourseCard />', () => {
         name: 'test-enterprise-name',
       };
       wrapper = mount((
-        <Provider store={mockStore()}>
-          <AppContext.Provider value={{ enterpriseConfig }}>
-            <BaseCourseCard
-              type="completed"
-              title="edX Demonstration Course"
-              linkToCourse="https://edx.org"
-              courseRunId="my+course+key"
-              hasEmailsEnabled
-            />
-          </AppContext.Provider>
-        </Provider>
+        <AppContext.Provider value={{ enterpriseConfig }}>
+          <BaseCourseCard
+            type="completed"
+            title="edX Demonstration Course"
+            linkToCourse="https://edx.org"
+            courseRunId="my+course+key"
+            hasEmailsEnabled
+          />
+        </AppContext.Provider>
       ));
       // open email settings modal
       wrapper.find('Dropdown').find('button.dropdown-toggle').simulate('click');

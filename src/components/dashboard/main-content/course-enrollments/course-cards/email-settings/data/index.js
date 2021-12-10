@@ -1,1 +1,1 @@
-export { updateEmailSettings } from './actions';
+export * from './service';

@@ -25,21 +25,6 @@ export function renderWithRouter(
   };
 }
 
-/* warning, this store may not be complete, please add to it as needed */
-export const fakeReduxStore = {
-  courseEnrollments: {
-    courseRuns: [],
-    error: null,
-    isMarkCourseCompleteSuccess: false,
-    isMoveToInProgressSuccess: false,
-  },
-  offers: {
-    loading: false,
-    offersCount: 0,
-    offers: [],
-  },
-};
-
 /**
  * Factory for app initial state to be used with AppContext.Provider `value`
  * e.g., <AppContext.Provider value={appInitialState()}/>
