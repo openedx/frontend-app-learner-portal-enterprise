@@ -39,6 +39,7 @@ initialize({
         MAINTENANCE_ALERT_START_TIMESTAMP: process.env.MAINTENANCE_ALERT_START_TIMESTAMP || null,
         ENABLE_SKILLS_QUIZ: process.env.ENABLE_SKILLS_QUIZ || false,
         ENABLE_NOTICES: process.env.ENABLE_NOTICES || null,
+        LEARNER_SUPPORT_URL: process.env.LEARNER_SUPPORT_URL || null,
       });
     },
   },

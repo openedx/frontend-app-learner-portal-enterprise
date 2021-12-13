@@ -6,7 +6,12 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { AvatarButton, Dropdown } from '@edx/paragon';
 
 const AvatarDropdown = ({ showLabel }) => {
-  const { BASE_URL, LMS_BASE_URL, LOGOUT_URL } = getConfig();
+  const {
+    BASE_URL,
+    LMS_BASE_URL,
+    LOGOUT_URL,
+    LEARNER_SUPPORT_URL,
+  } = getConfig();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username, profileImage } = authenticatedUser;
   const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
@@ -36,7 +41,7 @@ const AvatarDropdown = ({ showLabel }) => {
         <Dropdown.Divider className="border-light" />
         <Dropdown.Item href={`${LMS_BASE_URL}/u/${authenticatedUser.username}`}>My profile</Dropdown.Item>
         <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account settings</Dropdown.Item>
-        <Dropdown.Item href="https://support.edx.org/hc/en-us">Help</Dropdown.Item>
+        <Dropdown.Item href={LEARNER_SUPPORT_URL}>Help</Dropdown.Item>
         <Dropdown.Divider className="border-light" />
         <Dropdown.Item href={`${LOGOUT_URL}?next=${BASE_URL}${enterpriseDashboardLink}`}>Sign out</Dropdown.Item>
       </Dropdown.Menu>

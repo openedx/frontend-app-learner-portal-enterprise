@@ -6,9 +6,9 @@
   "dependencies": {
     "@edx/brand": "npm:@edx/brand-openedx@1.1.0",
     "@edx/frontend-component-footer": "10.1.0",
-    "@edx/frontend-enterprise-catalog-search": "^2.2.5",
-    "@edx/frontend-enterprise-logistration": "1.0.0",
-    "@edx/frontend-enterprise-utils": "1.1.0",
+    "@edx/frontend-enterprise-catalog-search": "2.3.0",
+    "@edx/frontend-enterprise-logistration": "1.1.0",
+    "@edx/frontend-enterprise-utils": "1.2.0",
     "@edx/frontend-platform": "1.11.0",
     "@edx/paragon": "16.14.7",
     "@fortawesome/fontawesome-svg-core": "1.2.32",

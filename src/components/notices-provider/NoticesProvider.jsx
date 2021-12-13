@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { getConfig } from '@edx/frontend-platform';
 import PropTypes from 'prop-types';
 import { getNotices } from './api';
@@ -22,11 +22,7 @@ const NoticesProvider = ({ children }) => {
     getData();
   }, []);
 
-  return (
-    <div>
-      {children}
-    </div>
-  );
+  return children;
 };
 
 NoticesProvider.propTypes = {

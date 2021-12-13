@@ -3,6 +3,7 @@ import Responsive from 'react-responsive';
 import { Link, NavLink } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 import { Menu as MenuIcon } from '@edx/paragon/icons';
 import { Container } from '@edx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
@@ -11,6 +12,7 @@ import { Menu, MenuTrigger, MenuContent } from './menu';
 import AvatarDropdown from './AvatarDropdown';
 
 export default function SiteHeader() {
+  const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
 
   const renderLogo = () => {
@@ -60,7 +62,7 @@ export default function SiteHeader() {
             {renderMainMenu()}
           </nav>
           <nav aria-label="Secondary" className="nav secondary-menu-container align-items-center ml-auto">
-            <a href="https://support.edx.org/hc/en-us" className="text-gray-700 mr-3">
+            <a href={config.LEARNER_SUPPORT_URL} className="text-gray-700 mr-3">
               Help
             </a>
             <AvatarDropdown />
