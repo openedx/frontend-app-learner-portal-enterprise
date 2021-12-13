@@ -20,6 +20,7 @@ import SkillsDropDown from './SkillsDropDown';
 import SearchJobCard from './SearchJobCard';
 import SearchCurrentJobCard from './SearchCurrentJobCard';
 import SearchCourseCard from './SearchCourseCard';
+import SearchProgramCard from './SearchProgramCard';
 import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 
@@ -253,15 +254,21 @@ const SkillsQuizStepper = () => {
               </div>
             </Stepper.Step>
             <Stepper.Step eventKey="recommended-courses" title="View Recommendations">
-              <div className="row justify-content-center">
-                <h2>Recommended Courses!</h2>
+              <div className="row justify-content-center mb-4">
+                <h2>Recommended Courses and Programs</h2>
               </div>
-              <div className="search-job-card mb-3">
+              <div className="search-job-card mb-4">
                 { canContinueToRecommendedCourses ? <SelectJobCard /> : null}
               </div>
               <div>
                 { (selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
-                    && <SearchCourseCard index={courseIndex} /> }
+                  && (
+                    <div>
+                      <SearchCourseCard index={courseIndex} />
+                      <SearchProgramCard index={courseIndex} />
+                    </div>
+
+                  )}
               </div>
               <div className="row justify-content-center">
                 <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more courses</Button>
