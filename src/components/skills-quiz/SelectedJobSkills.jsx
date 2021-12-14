@@ -1,14 +1,17 @@
 import React, { useContext } from 'react';
 import { Badge } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
+import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 
 const SelectedJobSkills = () => {
   const { state } = useContext(SkillsContext);
   const {
-    interestedJobs, selectedJob,
+    interestedJobs, selectedJob, goal, currentJobRole,
   } = state;
 
-  const selectedJobDetails = interestedJobs.filter(job => job.name === selectedJob);
+  // Select currentJobRole from state if goal is to improve current job role otherwise choose interestedJobs
+  const jobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobRole : interestedJobs;
+  const selectedJobDetails = jobSelected.filter(job => job.name === selectedJob);
   let selectedJobSkills = selectedJobDetails[0]?.skills?.sort((a, b) => (
     (a.significance < b.significance) ? 1 : -1));
   selectedJobSkills = selectedJobSkills?.slice(0, 5);
