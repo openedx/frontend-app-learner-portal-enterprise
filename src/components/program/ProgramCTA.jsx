@@ -103,7 +103,7 @@ function ProgramCTA() {
       >{text => <div className="enroll-context">{text}</div>}
       </FormattedMessage>
 
-      <div className="program-details-btn">
+      <div className="program-details-btn" id="program-details-dropdown">
         <Dropdown className="enroll-btn btn btn-brand w-100">
           <Dropdown.Toggle variant="inverse-primary" as="div" id="dropdown-basic" style={{ cursor: 'pointer' }}>
             View Course Details

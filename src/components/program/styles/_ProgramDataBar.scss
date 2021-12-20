@@ -1,0 +1,242 @@
+.data-bar {
+  margin-bottom: 40px;
+  overflow: hidden;
+  background-color: #00262b;
+
+  .data-bar-content {
+    min-height: 100px;
+    margin: 0 auto;
+
+    .partner-image-wrapper {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      width: 100%;
+
+      .partner {
+        width: 200px;
+      }
+
+      @include media-breakpoint-up(sm) {
+        position: relative;
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 300px;
+          top: 0;
+          bottom: 0;
+          background: #fff;
+        }
+
+        &::before {
+          left: -300px;
+        }
+
+        &::after {
+          right: -300px;
+        }
+      }
+
+      @include media-breakpoint-up(lg) {
+        width: 260px;
+        display: flex;
+        flex-direction: column;
+        margin-left: -15px;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      @include media-breakpoint-up(xl) {
+        width: auto;
+        flex-direction: row;
+        margin-left: 0;
+      }
+
+      @media (min-width: 1700px) {
+        &::before {
+          width: 1000px;
+          left: -1000px;
+        }
+      }
+    }
+
+    &.partner-count-2 {
+      .partner {
+        width: 150px;
+      }
+    }
+
+    .program {
+      color: #fff;
+      flex-grow: 1;
+      padding: 15px 30px;
+
+      .type {
+        font-size: 1.5rem;
+      }
+
+      .title {
+        margin-bottom: 10px;
+        font-size: 2rem;
+      }
+
+      .institution {
+        display: none;
+      }
+    }
+
+    .cta-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 30px 30px;
+
+      .btn-of-interest {
+        background: #fff;
+        color: #00262b;;
+        padding: 10px 50px;
+        font-weight: 700;
+        text: {
+          align: center;
+          decoration: none;
+        }
+      }
+    }
+
+    @include media-breakpoint-up(sm) {
+      max-width: 540px;
+
+      .cta-wrapper {
+        position: relative;
+      }
+    }
+
+    @include media-breakpoint-up(md) {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 720px;
+    }
+
+    @include media-breakpoint-up(lg) {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 960px;
+
+      .cta-wrapper {
+        width: 260px;
+        padding: 0;
+      }
+
+      .program {
+        width: calc(100% - ( 260px + 260px));
+      }
+    }
+
+    @include media-breakpoint-up(xl) {
+      max-width: 1140px;
+
+      .cta-wrapper {
+        width: auto;
+      }
+
+      .program {
+        max-width: 560px;
+      }
+    }
+  }
+
+  &.stuck {
+    background: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+
+    & + .program-body {
+      margin-top: 270px;
+
+      @include media-breakpoint-up(sm) {
+        margin-top: 220px;
+      }
+
+      @include media-breakpoint-up(lg) {
+        margin-top: 140px;
+      }
+
+      @include media-breakpoint-up(xl) {
+        margin-top: 200px;
+      }
+    }
+
+    .data-bar-content {
+      background: none;
+      min-height: 0;
+    }
+
+    .program {
+      display: flex;
+      flex-wrap: wrap;
+      background: #fff;
+      color: $primary;
+
+      &::before,
+      &::after {
+        display: none;
+      }
+
+      .type,
+      .title {
+        margin-bottom: 0;
+        font: {
+          size: 1rem;
+          weight: 700;
+        }
+      }
+
+      .type {
+        margin-right: 4px;
+      }
+
+      .institution {
+        display: block;
+        width: 100%;
+        font-size: 0.875rem;
+        color: gray;
+      }
+
+      @include media-breakpoint-up(lg) {
+        .type,
+        .title {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .partner-image-wrapper,
+    .cta-wrapper {
+      display: none;
+    }
+  }
+
+  .alerts-wrapper {
+    background-color: red;
+    color: #000;
+    text-align: center;
+    margin-bottom: 0;
+    font: {
+      style: italic;
+      size: 20px;
+    }
+  }
+}
+
+.alerts-icon {
+  margin-right: 0.5em;
+}

@@ -19,6 +19,7 @@ import ProgramCTA from './ProgramCTA';
 import './styles/index.scss';
 import NotFoundPage from '../NotFoundPage';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from './data/constants';
+import ProgramDataBar from './ProgramDataBar';
 
 const Program = () => {
   const { programUuid } = useParams();
@@ -69,6 +70,7 @@ const Program = () => {
       <Helmet title={PAGE_TITLE} />
       <ProgramContextProvider initialState={initialState}>
         <ProgramHeader />
+        <ProgramDataBar />
         <Container size="lg" className="py-5">
           <Row>
             <MainContent>
