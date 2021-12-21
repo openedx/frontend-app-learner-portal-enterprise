@@ -10,7 +10,7 @@ import ProgramDataBarDetails from './ProgramDataBarDetails';
 const ProgramDataBar = () => {
   const [stuck, setStuck] = useState(false);
   const {
-    program: { authoringOrganizations: owners, isBundled },
+    program: { authoringOrganizations: owners, isProgramEligibleForOneClickPurchase },
   } = useContext(ProgramContext);
   return (
     <div
@@ -22,7 +22,7 @@ const ProgramDataBar = () => {
             <div className="partner-image-wrapper">
               {owners.map(({ logoImageUrl: imgUrl, name, key }) => (
                 <div className="partner" key={key}>
-                  <img src="https://prod-discovery.edx-cdn.org/organization/logos/2a73d2ce-c34a-4e08-8223-83bca9d2f01d-2cc8854c6fee.png" alt={name} className="partner-logo" />
+                  <img src={imgUrl} alt={name} className="partner-logo" />
                 </div>
               ))}
             </div>
@@ -30,17 +30,21 @@ const ProgramDataBar = () => {
               handleStick={() => setStuck(true)}
               handleRelease={() => setStuck(false)}
             />
-            <div className="cta-wrapper">
-              <Link
-                className="btn-of-interest"
-                to="program-details-dropdown"
-                href="#abcdef123"
-                smooth
-              >
-                I'm interested
-                <FontAwesomeIcon icon={faChevronCircleDown} className="icon ml-2 align-self-center" />
-              </Link>
-            </div>
+            {
+              isProgramEligibleForOneClickPurchase && (
+                <div className="cta-wrapper">
+                  <Link
+                    className="btn-of-interest"
+                    to="program-details-dropdown"
+                    href="#program-details-dropdown"
+                    smooth
+                  >
+                    I&apos;m interested
+                    <FontAwesomeIcon icon={faChevronCircleDown} className="icon ml-2 align-self-center" />
+                  </Link>
+                </div>
+              )
+            }
           </div>
         </Container>
       </div>
