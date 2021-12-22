@@ -127,8 +127,8 @@ export function getProgramDuration(program) {
 export function appendProgramToProgramType(programType) {
   switch (programType.toLowerCase()) {
     case 'micromasters':
-    case 'xeries':
-    case 'micorbachelors':
+    case 'xseries':
+    case 'microbachelors':
       return <span> {programType}<markup>®</markup> Program </span>;
     case 'masters':
       return 'Master\'s Degree';
