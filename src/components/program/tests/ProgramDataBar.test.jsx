@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  screen, render,
+  screen, render, fireEvent,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -83,5 +83,20 @@ describe('<ProgramDataBar />', () => {
       initialUserSubsidyState={userSubsidyState}
     />);
     expect(screen.queryByText('I\'m interested')).not.toBeInTheDocument();
+  });
+
+  it('tests stickiness and non stickiness of data bar on scroll', () => {
+    const { container } = render(<ProgramDataBarWithContext
+      initialAppState={appState}
+      initialProgramState={programState}
+      initialUserSubsidyState={userSubsidyState}
+    />);
+    const dataBar = container.getElementsByClassName('data-bar')[0];
+    const topPositionOfDataBar = dataBar.getBoundingClientRect().top + window.scrollY;
+    const downPositionOfDataBar = dataBar.getBoundingClientRect().bottom + window.scrollY;
+    fireEvent.scroll(window, { target: { scrollY: topPositionOfDataBar + 1 } });
+    expect(container.getElementsByClassName('data-bar')[0].classList.contains('stuck')).toBeTruthy();
+    fireEvent.scroll(window, { target: { scrollY: downPositionOfDataBar } });
+    expect(container.getElementsByClassName('data-bar')[0].classList.contains('stuck')).toBeFalsy();
   });
 });
