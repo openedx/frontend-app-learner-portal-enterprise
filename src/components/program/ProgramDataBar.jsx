@@ -8,13 +8,13 @@ import { ProgramContext } from './ProgramContextProvider';
 import ProgramDataBarDetails from './ProgramDataBarDetails';
 
 const ProgramDataBar = () => {
-  const [stuck, setStuck] = useState(false);
+  const [stickProgramDataBar, setStickProgramDataBar] = useState(false);
   const {
     program: { authoringOrganizations: owners, isProgramEligibleForOneClickPurchase },
   } = useContext(ProgramContext);
   return (
     <div
-      className={classNames('data-bar', 'shadow', { stuck })}
+      className={classNames('data-bar', 'shadow', { stuck: stickProgramDataBar })}
     >
       <div className={classNames('data-bar-content', `partner-count-${owners.length}`)}>
         <Container size="lg">
@@ -27,8 +27,8 @@ const ProgramDataBar = () => {
               ))}
             </div>
             <ProgramDataBarDetails
-              handleStick={() => setStuck(true)}
-              handleRelease={() => setStuck(false)}
+              handleStick={() => setStickProgramDataBar(true)}
+              handleRelease={() => setStickProgramDataBar(false)}
             />
             {
               isProgramEligibleForOneClickPurchase && (

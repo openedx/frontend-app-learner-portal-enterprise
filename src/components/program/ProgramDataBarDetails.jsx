@@ -17,6 +17,10 @@ const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
   const [componentTop, setComponentTop] = useState(0);
 
   const getOffsetTop = () => {
+    /**
+     * returns top positon of div being refrenced by adding how much div is away from current visible top and
+     * how much window have been scrolled
+     */
     if (wrapper?.current) {
       const rect = wrapper.current.getBoundingClientRect();
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -28,16 +32,19 @@ const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
   };
 
   const handleScroll = () => {
-    const windowPosition = window.scrollY;
-    const wrapperTop = getOffsetTop();
+    const windowPosition = window.scrollY; // how much window have been scrolled vertically
+    const wrapperTop = getOffsetTop(); // the top position(pixel no) of data bar
     if (!sticky) {
+      // if data bar isnt sticky yet
       if (windowPosition >= wrapperTop) {
+        // see that if window have been scrolled more than top of the data bar, stick the data bar
         setSticky(() => true);
-        setComponentTop(() => wrapperTop);
+        setComponentTop(() => wrapperTop); // save the top of data bar
         handleStick();
       }
     }
     if (windowPosition === 0 || (windowPosition + 30) < componentTop) {
+      // see if the window have no scroll or windows scroll have reaced above the top of component by 30px, unstick it
       setSticky(() => false);
       handleRelease();
     }
