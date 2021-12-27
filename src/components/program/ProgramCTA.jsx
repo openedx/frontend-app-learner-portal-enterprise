@@ -104,7 +104,7 @@ function ProgramCTA() {
       </FormattedMessage>
 
       <div className="program-details-btn">
-        <Dropdown className="enroll-btn btn btn-brand w-100" id="program-details-dropdown" tabIndex="1">
+        <Dropdown className="enroll-btn btn btn-brand w-100" id="program-details-dropdown">
           <Dropdown.Toggle variant="inverse-primary" as="div" id="dropdown-basic" style={{ cursor: 'pointer' }}>
             View Course Details
           </Dropdown.Toggle>
