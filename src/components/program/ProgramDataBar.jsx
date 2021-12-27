@@ -36,8 +36,10 @@ const ProgramDataBar = () => {
                   <Link
                     className="btn-of-interest"
                     to="program-details-dropdown"
-                    href="#program-details-dropdown"
                     smooth
+                    spy
+                    duration={750}
+                    offset={-600}
                   >
                     I&apos;m interested
                     <FontAwesomeIcon icon={faChevronCircleDown} className="icon ml-2 align-self-center" />
