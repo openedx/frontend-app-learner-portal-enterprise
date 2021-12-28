@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT, VERBOSE_PROGRAM_PACING_MAP,
 } from './constants';
@@ -121,4 +122,19 @@ export function getProgramDuration(program) {
   }
 
   return `${totalYears} years ${totalRemainderMonths} months`;
+}
+
+export function appendProgramToProgramType(programType) {
+  switch (programType.toLowerCase()) {
+    case 'micromasters':
+    case 'xseries':
+    case 'microbachelors':
+      return <span> {programType}<markup>®</markup> Program </span>;
+    case 'masters':
+      return 'Master\'s Degree';
+    case 'professional_certificate':
+      return 'Professional Certificate';
+    default:
+      return programType;
+  }
 }

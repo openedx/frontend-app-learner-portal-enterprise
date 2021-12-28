@@ -71,7 +71,7 @@ function ProgramCTA() {
         'd-flex',
         'align-items-center',
         'flex-column',
-        'mb-0',
+        'mb-3',
         'program-enroll-wrapper',
         subjectSlug,
       )
@@ -104,7 +104,7 @@ function ProgramCTA() {
       </FormattedMessage>
 
       <div className="program-details-btn">
-        <Dropdown className="enroll-btn btn btn-brand w-100">
+        <Dropdown className="enroll-btn btn btn-brand w-100" id="program-details-dropdown">
           <Dropdown.Toggle variant="inverse-primary" as="div" id="dropdown-basic" style={{ cursor: 'pointer' }}>
             View Course Details
           </Dropdown.Toggle>

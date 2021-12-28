@@ -1,5 +1,7 @@
+import { render } from '@testing-library/react';
 import * as programUtils from '../utils';
 import { PROGRAM_TYPE_MAP, PROGRAM_PACING_MAP, PACING_TYPE_CONTENT } from '../constants';
+import { appendProgramToProgramType } from '../utils';
 
 const program = {
   courses: [
@@ -282,5 +284,34 @@ describe('getProgramDuration', () => {
     };
     programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
     expect(programDuration).toEqual('2 years 2 months');
+  });
+});
+
+describe('appendProgramToProgramType', () => {
+  it('tests appendProgramToProgramType returns correct results for MicroMasters', () => {
+    expect(render(appendProgramToProgramType('MicroMasters')).baseElement.outerHTML)
+      .toBe('<body><div><span> MicroMasters<markup>®</markup> Program </span></div></body>');
+  });
+
+  it('tests appendProgramToProgramType returns correct results for xSeries', () => {
+    expect(render(appendProgramToProgramType('xSeries')).baseElement.outerHTML)
+      .toBe('<body><div><span> xSeries<markup>®</markup> Program </span></div></body>');
+  });
+
+  it('tests appendProgramToProgramType returns correct results for MicroBachelors', () => {
+    expect(render(appendProgramToProgramType('MicroBachelors')).baseElement.outerHTML)
+      .toBe('<body><div><span> MicroBachelors<markup>®</markup> Program </span></div></body>');
+  });
+
+  it('tests appendProgramToProgramType returns correct results for Masters', () => {
+    expect(appendProgramToProgramType('Masters')).toBe('Master\'s Degree');
+  });
+
+  it('tests appendProgramToProgramType returns correct results for professional_certificate', () => {
+    expect(appendProgramToProgramType('professional_certificate')).toBe('Professional Certificate');
+  });
+
+  it('tests appendProgramToProgramType returns correct results for others', () => {
+    expect(appendProgramToProgramType('otherXYZ')).toBe('otherXYZ');
   });
 });

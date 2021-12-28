@@ -21,6 +21,7 @@ const programData = {
   marketingHook: 'Test program marketing hook',
   subjects: [{ slug: 'my-slug' }],
   catalogContainsProgram: true,
+  type: 'MicroMasters',
 };
 
 jest.mock('react-router-dom', () => ({
