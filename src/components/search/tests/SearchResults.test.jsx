@@ -6,6 +6,8 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import SearchResults from '../SearchResults';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchProgramCard from '../SearchProgramCard';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+
 import {
   NUM_RESULTS_PROGRAM, NUM_RESULTS_COURSE, COURSE_TITLE, PROGRAM_TITLE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM,
 } from '../constants';
@@ -57,12 +59,24 @@ const initialAppState = {
   },
 };
 
+const defaultOffersState = {
+  offers: [],
+  loading: false,
+  offersCount: 0,
+};
+
+const initialUserSubsidyState = {
+  offers: defaultOffersState,
+};
+
 /* eslint-enable react/prop-types */
 const SearchResultsWithContext = (props) => (
   <AppContext.Provider value={initialAppState}>
-    <SearchContext.Provider value={searchContext}>
-      <SearchResults {...props} />
-    </SearchContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SearchContext.Provider value={searchContext}>
+        <SearchResults {...props} />
+      </SearchContext.Provider>
+    </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
 /* eslint-enable react/prop-types */
