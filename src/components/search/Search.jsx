@@ -42,6 +42,7 @@ const Search = () => {
         indexName={config.ALGOLIA_INDEX_NAME}
         searchClient={algolia.client}
       >
+        <Configure facetingAfterDistinct filters={filters} />
         {contentType?.length > 0 && (
           <Configure
             hitsPerPage={NUM_RESULTS_PER_PAGE}
