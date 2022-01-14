@@ -92,7 +92,6 @@ describe('<SelectedJobSkills />', () => {
         initialSelectedJobSkillsState={initialSelectedJobSkillsState}
       />,
     );
-    expect(screen.queryByText(`Top Skills for ${initialSelectedJobSkillsState.selectedJob}`)).toBeInTheDocument();
     expect(screen.queryByText(PYTHON)).toBeInTheDocument();
     expect(screen.queryByText(FILING)).toBeInTheDocument();
     expect(screen.queryByText(PROGRAMMING)).toBeInTheDocument();
@@ -139,7 +138,6 @@ describe('<SelectedJobSkills />', () => {
         initialSelectedJobSkillsState={initialSelectedJobSkillsState}
       />,
     );
-    expect(screen.queryByText(`Top Skills for ${initialSelectedJobSkillsState.selectedJob}`)).toBeInTheDocument();
     expect(screen.queryByText(PYTHON)).toBeInTheDocument();
     expect(screen.queryByText(FILING)).toBeInTheDocument();
     expect(screen.queryByText(ACCOUNTING)).toBeInTheDocument();
@@ -165,7 +163,6 @@ describe('<SelectedJobSkills />', () => {
         initialSelectedJobSkillsState={initialSelectedJobSkillsState}
       />,
     );
-    expect(screen.queryByText(`Top Skills for ${initialSelectedJobSkillsState.selectedJob}`)).toBeInTheDocument();
     expect(screen.queryByTestId('top-skills-badge')).toBeNull();
   });
 });

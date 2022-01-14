@@ -17,8 +17,7 @@ const SelectedJobSkills = () => {
   selectedJobSkills = selectedJobSkills?.slice(0, 5);
 
   return (
-    <div style={{ paddingLeft: '10%' }} className="mb-3 mt-5">
-      <h4>Top Skills for {selectedJob}</h4>
+    <div className="mb-3 mt-5">
       <div className="col-12 row">
         {selectedJobSkills?.map(skill => (
           <Badge
