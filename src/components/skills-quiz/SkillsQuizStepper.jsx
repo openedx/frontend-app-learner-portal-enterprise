@@ -27,12 +27,11 @@ import TagCloud from '../TagCloud';
 import { fixedEncodeURIComponent } from '../../utils/common';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2, SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
-import SkillsQuizImg from './images/skills-quiz.png';
 import SelectedJobSkills from './SelectedJobSkills';
 
 const SkillsQuizStepper = () => {
@@ -181,13 +180,17 @@ const SkillsQuizStepper = () => {
             <Stepper.Step eventKey="skills-search" title="Skills Search">
 
               <div className="row skills-quiz-dropdown">
-                <div className="col col-8">
-                  <h2>Looking for something?</h2>
+                <div className="col col-12">
                   <p>
-                    edX is here to help you find the course(s) and program(s) to help you take the next step in
-                    your career. To get started, tell us a bit about your learning goals.
+                    {SKILLS_QUIZ_SEARCH_PAGE_MESSAGE}
                   </p>
-                  <GoalDropdown />
+                  <p className="mt-4.5">
+                    First, tell us a bit more about what you want to achieve.
+                  </p>
+
+                  <div className="col col-8 p-0 mt-2">
+                    <GoalDropdown />
+                  </div>
                   {
                     skillsVisible && (
                       <InstantSearch
@@ -196,50 +199,60 @@ const SkillsQuizStepper = () => {
                       >
                         <div className="skills-drop-down">
                           <div className="mt-4.5">
-                            Next, select at least 1 (one) skill you&apos;re interested in learning or are
-                            relevant to your goals.
+                            Second, which skills are you interested in developing? (select at least one)
                           </div>
-                          <SkillsDropDown />
+                          <div className="col col-8 p-0 mt-1">
+                            <SkillsDropDown />
+                          </div>
                         </div>
                       </InstantSearch>
                     )
                   }
 
-                  { skillsVisible && (
-                    <TagCloud
-                      tags={selectedSkills}
-                      onRemove={
-                        (skillMetadata) => {
-                          if (selectedSkills.length > 1) {
-                            dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
-                          } else {
-                            dispatch(deleteRefinementAction('skill_names'));
+                  <div className="col col-8 p-0">
+                    { skillsVisible && (
+                      <TagCloud
+                        tags={selectedSkills}
+                        onRemove={
+                          (skillMetadata) => {
+                            if (selectedSkills.length > 1) {
+                              dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
+                            } else {
+                              dispatch(deleteRefinementAction('skill_names'));
+                            }
                           }
                         }
-                      }
-                    />
-                  )}
+                      />
+                    )}
+                  </div>
+
                   {
                     jobsDropdownsVisible && (
                       <div>
-                        <div className="mt-4.5 mb-3">
-                          Finally, tell us about your current job and select at least 1 (one) job you&apos;re interested
-                          in. if you&apos;re a student, you can leave the &quot;Current job title&quot; field blank.
+                        <div className="mt-4.5">
+                          Next, tell us about your current job title.
                         </div>
+
                         <InstantSearch
                           indexName={config.ALGOLIA_INDEX_NAME_JOBS}
                           searchClient={searchClient}
                         >
-                          <CurrentJobDropdown />
-                          { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <div className="mt-4.5"><SearchJobDropdown /></div> : null }
+                          <div className="col col-8 p-0 mt-3">
+                            <CurrentJobDropdown />
+                          </div>
+
+                          <div className="mt-4.5">
+                            Lastly, tell us about career paths you&apos;re interested in (select up to three)
+                          </div>
+                          <div className="col col-8 p-0 mt-n3">
+                            { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <div className="mt-4.5"><SearchJobDropdown /></div> : null }
+                          </div>
                         </InstantSearch>
+
                       </div>
                     )
                   }
 
-                </div>
-                <div className="col-4">
-                  <img className="side-image" src={SkillsQuizImg} alt="skills quiz preview" />
                 </div>
 
                 {
