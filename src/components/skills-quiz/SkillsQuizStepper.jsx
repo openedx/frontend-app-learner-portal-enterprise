@@ -5,7 +5,7 @@ import {
   Button, Stepper, FullscreenModal, Container,
 } from '@edx/paragon';
 import algoliasearch from 'algoliasearch/lite';
-import { InstantSearch } from 'react-instantsearch-dom';
+import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
@@ -25,6 +25,8 @@ import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 
 import { fixedEncodeURIComponent } from '../../utils/common';
+import { useDefaultSearchFilters } from '../search/data/hooks';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import {
   DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2,
@@ -58,6 +60,14 @@ const SkillsQuizStepper = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
+  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    subscriptionPlan,
+    subscriptionLicense,
+    offerCatalogs,
+  });
   const history = useHistory();
   const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
   const getQueryParamString = () => {
@@ -194,6 +204,10 @@ const SkillsQuizStepper = () => {
                         indexName={config.ALGOLIA_INDEX_NAME}
                         searchClient={searchClient}
                       >
+                        <Configure
+                          filters={filters}
+                          facetingAfterDistinct
+                        />
                         <div className="skills-drop-down">
                           <div className="mt-4.5">
                             Next, select at least 1 (one) skill you&apos;re interested in learning or are

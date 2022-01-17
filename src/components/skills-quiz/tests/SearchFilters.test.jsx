@@ -5,6 +5,7 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContextProvider } from '../SkillsContextProvider';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import {
   DESIRED_JOB_FACET,
   SKILLS_FACET,
@@ -33,14 +34,25 @@ describe('<SkillsQuizStepper />', () => {
       slug: 'test-enterprise-slug',
     },
   };
+  const defaultOffersState = {
+    offers: [],
+    loading: false,
+    offersCount: 0,
+  };
+
+  const initialUserSubsidyState = {
+    offers: defaultOffersState,
+  };
   test('renders skills and jobs dropdown with a label', async () => {
     renderWithRouter(
       <AppContext.Provider value={initialAppState}>
-        <SearchData>
-          <SkillsContextProvider>
-            <SkillsQuizStepper />
-          </SkillsContextProvider>
-        </SearchData>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SearchData>
+            <SkillsContextProvider>
+              <SkillsQuizStepper />
+            </SkillsContextProvider>
+          </SearchData>
+        </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=123' },
     );
