@@ -23,13 +23,12 @@ import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
 import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
+import SkillsCourses from './SkillsCourses';
 
-import { fixedEncodeURIComponent } from '../../utils/common';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2, SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2, STEP3, SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -71,30 +70,10 @@ const SkillsQuizStepper = () => {
     offerCatalogs,
   });
   const history = useHistory();
-  const selectedSkillsAndJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
-  const getQueryParamString = () => {
-    if (selectedSkillsAndJobSkills) {
-      const queryParams = selectedSkillsAndJobSkills.map((skill) => `skill_names=${ fixedEncodeURIComponent(skill)}`);
-      return queryParams.join('&');
-    }
-    return '';
-  };
 
   const goalExceptImproveAndJobSelected = checkValidGoalAndJobSelected(goal, jobs, false);
   const improveGoalAndCurrentJobSelected = checkValidGoalAndJobSelected(goal, currentJob, true);
   const canContinueToRecommendedCourses = goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
-  const handleSeeMoreButtonClick = () => {
-    const queryString = getQueryParamString();
-    const ENT_PATH = `/${enterpriseConfig.slug}`;
-    let SEARCH_PATH = queryString ? `${ENT_PATH}/search?${queryString}` : `${ENT_PATH}/search`;
-    SEARCH_PATH = SEARCH_PATH.replace(/\/\/+/g, '/'); // to remove duplicate slashes that can occur
-    history.push(SEARCH_PATH);
-    sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
-      'edx.ui.enterprise.learner_portal.skills_quiz.see_more_courses.clicked',
-      { userId, enterprise: enterpriseConfig.slug },
-    );
-  };
 
   const closeSkillsQuiz = () => {
     history.push(`/${enterpriseConfig.slug}/search`);
@@ -271,7 +250,7 @@ const SkillsQuizStepper = () => {
                   }
                 </div>
               </Stepper.Step>
-              <Stepper.Step eventKey="recommended-courses" title="View Recommendations">
+              <Stepper.Step eventKey="courses-with-jobs" title="Recommended Courses With Jobs">
                 <div className="row mb-4 pl-2 mt-4">
                   <h2>Start Exploring Courses!</h2>
                 </div>
@@ -290,8 +269,13 @@ const SkillsQuizStepper = () => {
                   )}
                 </div>
                 <div className="row justify-content-center">
-                  <Button variant="outline-primary" onClick={handleSeeMoreButtonClick}>See more course recommendations</Button>
+                  <Button variant="outline-primary" onClick={() => setCurrentStep(STEP3)}>See more course recommendations</Button>
                 </div>
+              </Stepper.Step>
+            </Container>
+            <Container size="xl">
+              <Stepper.Step eventKey="courses-with-skills" title="Recommended Courses With Skills">
+                <SkillsCourses index={courseIndex} />
               </Stepper.Step>
             </Container>
           </ModalDialog.Body>
@@ -307,8 +291,15 @@ const SkillsQuizStepper = () => {
               >Continue
               </Button>
             </Stepper.ActionRow>
-            <Stepper.ActionRow eventKey="recommended-courses">
+            <Stepper.ActionRow eventKey="courses-with-jobs">
               <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
+                Go back
+              </Button>
+              <Stepper.ActionRow.Spacer />
+              <Button onClick={() => setCurrentStep(STEP3)}>Continue</Button>
+            </Stepper.ActionRow>
+            <Stepper.ActionRow eventKey="courses-with-skills">
+              <Button variant="outline-primary" onClick={() => setCurrentStep(STEP2)}>
                 Go back
               </Button>
               <Stepper.ActionRow.Spacer />
