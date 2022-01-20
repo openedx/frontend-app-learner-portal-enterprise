@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button } from '@edx/paragon';
@@ -6,36 +6,42 @@ import { Button } from '@edx/paragon';
 import { CourseEnrollments, CourseEnrollmentsContextProvider } from './course-enrollments';
 
 const DashboardMainContent = () => {
-  const { enterpriseConfig: { name, slug, disableSearch } } = useContext(AppContext);
+  const {
+    enterpriseConfig: {
+      name,
+      slug,
+      disableSearch,
+    },
+    authenticatedUser,
+  } = useContext(AppContext);
+
+  const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser?.name]);
 
   return (
     <CourseEnrollmentsContextProvider>
+      <h2 className="h1">
+        {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
+      </h2>
       <CourseEnrollments>
         {/* The children below will only be rendered if there are no course enrollments. */}
         {disableSearch ? (
-          <>
-            <h2>Get Started Learning</h2>
-            <p>
-              You are not enrolled in any courses sponsored by {name}.
-              Reach out to your administrator to begin learning with edX!
-            </p>
-          </>
+          <p>
+            You are not enrolled in any courses sponsored by {name}.
+            Reach out to your administrator to begin learning with edX!
+          </p>
         ) : (
           <>
-            <h2>Find a Course</h2>
             <p>
-              You are not enrolled in any courses sponsored by {name}.
-              To start taking a course, browse the catalog below.
+              Getting started with edX is easy. Simply find a course from your
+              catalog, request enrollment, and get started on your learning journey.
             </p>
-            <p>
-              <Button
-                as={Link}
-                to={`/${slug}/search`}
-                className="btn-brand-primary"
-              >
-                Find a course
-              </Button>
-            </p>
+            <Button
+              as={Link}
+              to={`/${slug}/search`}
+              className="btn-brand-primary"
+            >
+              Find a course
+            </Button>
           </>
         )}
       </CourseEnrollments>
