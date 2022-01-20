@@ -27,7 +27,7 @@ const DashboardMainContent = () => {
         {disableSearch ? (
           <p>
             You are not enrolled in any courses sponsored by {name}.
-            Reach out to your administrator to begin learning with edX!
+            Reach out to your administrator for instructions on how to start learning learning with edX!
           </p>
         ) : (
           <>
