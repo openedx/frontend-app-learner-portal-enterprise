@@ -146,8 +146,8 @@ const SearchProgramCard = ({ index }) => {
   );
 
   return (
-    <div style={{ paddingLeft: '10%' }}>
-      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Recommended Programs </h3> : null}
+    <div>
+      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these programs </h3> : null}
       <div className="skill-quiz-results">
         {(hitCount > 0) && programs.map(program => (
           <div

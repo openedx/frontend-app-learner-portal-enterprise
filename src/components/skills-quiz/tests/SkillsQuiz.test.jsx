@@ -4,6 +4,7 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
 import {
   renderWithRouter,
@@ -69,7 +70,6 @@ describe('<SkillsQuiz />', () => {
   });
 
   it('renders skills quiz page successfully.', () => {
-    const SILLS_QUIZ_PAGE_MESSAGE = 'edX is here to help you find the course(s) and program(s) to help you take the next step in your career. To get started, tell us a bit about your learning goals.';
     renderWithRouter(
       <SearchData>
         <SkillsContextProvider>
@@ -79,6 +79,6 @@ describe('<SkillsQuiz />', () => {
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText('Skills Quiz')).toBeTruthy();
-    expect(screen.getByText(SILLS_QUIZ_PAGE_MESSAGE)).toBeTruthy();
+    expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeTruthy();
   });
 });

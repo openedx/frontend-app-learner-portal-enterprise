@@ -8,7 +8,7 @@ export const JOB_ATTRIBUTE_NAME = 'name';
 
 export const SKILLS_FACET = {
   attribute: 'skill_names',
-  title: 'Skills',
+  title: 'I am interested in learning about',
   facetValueType: 'array',
   typeaheadOptions: {
     placeholder: 'Find a skill...',
@@ -20,7 +20,7 @@ export const SKILLS_FACET = {
 export const CURRENT_JOB_FACET = {
   attribute: JOB_ATTRIBUTE_NAME,
   customAttribute: 'current_job',
-  title: 'Current job title',
+  title: 'I am currently',
   facetValueType: 'single-item',
   typeaheadOptions: {
     placeholder: 'Find a current job...',
@@ -31,7 +31,7 @@ export const CURRENT_JOB_FACET = {
 
 export const DESIRED_JOB_FACET = {
   attribute: JOB_ATTRIBUTE_NAME,
-  title: 'Desired job title',
+  title: 'I\'m interested in careers similar to',
   typeaheadOptions: {
     placeholder: 'Find a job...',
     ariaLabel: 'Type to find a job',
@@ -52,3 +52,5 @@ export const SKILL_NAME_CUTOFF_LIMIT = 50;
 export const NOT_AVAILABLE = 'N/A';
 export const MAX_VISIBLE_SKILLS_COURSE = 6;
 export const MAX_VISIBLE_SKILLS_PROGRAM = 3;
+
+export const SKILLS_QUIZ_SEARCH_PAGE_MESSAGE = 'Let edX be your guide. We combine the educational expertise of the world\'s leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals.';

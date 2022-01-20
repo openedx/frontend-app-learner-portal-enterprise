@@ -23,8 +23,8 @@ const SelectJobCard = () => {
     jobsCard = interestedJobs;
   }
   return (
-    <div style={{ paddingLeft: '10%' }}>
-      <h3>Related jobs and skills</h3>
+    <div>
+      <h3>Your jobs and skills</h3>
       <Form.Group>
         <Form.RadioSet
           name="selected-job"

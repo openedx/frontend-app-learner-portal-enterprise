@@ -129,8 +129,8 @@ const SearchCourseCard = ({ index }) => {
   );
 
   return (
-    <div style={{ paddingLeft: '10%' }}>
-      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Recommended Courses </h3> : null}
+    <div>
+      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these courses </h3> : null}
       <div className="skill-quiz-results">
         {(hitCount > 0) && courses.map(course => (
           <div
