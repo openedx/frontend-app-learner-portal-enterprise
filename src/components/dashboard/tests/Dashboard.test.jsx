@@ -29,6 +29,8 @@ const defaultOffersState = {
   offersCount: 0,
 };
 
+const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
+
 const defaultAppState = {
   enterpriseConfig: {
     name: 'BearsRUs',
@@ -38,6 +40,7 @@ const defaultAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultUserSubsidyState = {
@@ -111,7 +114,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
+  getAuthenticatedUser: () => mockAuthenticatedUser,
 }));
 
 jest.mock('universal-cookie');
@@ -133,12 +136,29 @@ describe('<Dashboard />', () => {
     jest.restoreAllMocks();
   });
 
+  it('renders user first name if available', () => {
+    renderWithRouter(<DashboardWithContext />);
+    expect(screen.getByText('Welcome, John!'));
+  });
+
+  it('does not render user first name if not available', () => {
+    const appState = {
+      ...defaultAppState,
+      authenticatedUser: {
+        ...defaultAppState.authenticatedUser,
+        name: '',
+      },
+    };
+    renderWithRouter(<DashboardWithContext initialAppState={appState} />);
+    expect(screen.getByText('Welcome!'));
+  });
+
   it('renders license activation alert on activation success', () => {
     renderWithRouter(
       <DashboardWithContext />,
       { route: '/?activationSuccess=true' },
     );
-    expect(screen.getByText(LICENCE_ACTIVATION_MESSAGE)).toBeTruthy();
+    expect(screen.getByText(LICENCE_ACTIVATION_MESSAGE));
   });
 
   it('does not render license activation alert without activation success', () => {
@@ -166,14 +186,14 @@ describe('<Dashboard />', () => {
     expect(screen.getByTestId('sidebar')).toBeTruthy();
   });
 
-  it('renders Find a Course when search is enabled for the customer', () => {
+  it('renders "Find a course" when search is enabled for the customer', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.queryByText('Find a Course')).toBeTruthy();
+    expect(screen.getByText('Find a course'));
   });
 
-  it('does not render Find a Course when search is disabled for the customer', () => {
+  it('does not render "Find a course" when search is disabled for the customer', () => {
     const appState = {
       enterpriseConfig: {
         name: 'BearsRUs',
@@ -189,7 +209,7 @@ describe('<Dashboard />', () => {
         initialAppState={appState}
       />,
     );
-    expect(screen.queryByText('Find a Course')).toBeFalsy();
+    expect(screen.queryByText('Find a course')).toBeFalsy();
   });
 
   describe('SubscriptionExpirationModal', () => {

@@ -31,18 +31,20 @@ export default function Dashboard() {
     }
   }, []);
 
-  const renderLicenseActivationSuccess = () => (
-    <Alert variant="success" show={isActivationAlertOpen} onClose={closeActivationAlert} dismissible>
-      {LICENCE_ACTIVATION_MESSAGE}
-    </Alert>
-  );
-
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <Container size="lg" className="mt-3">
-        {renderLicenseActivationSuccess()}
+      <Container size="lg">
+        <Alert
+          variant="success"
+          show={isActivationAlertOpen}
+          onClose={closeActivationAlert}
+          className="mt-3"
+          dismissible
+        >
+          {LICENCE_ACTIVATION_MESSAGE}
+        </Alert>
       </Container>
       <Container size="lg" className="py-5">
         <Row>
