@@ -21,6 +21,8 @@ import {
   DROPDOWN_OPTION_GET_PROMOTED,
 } from '../constants';
 
+import edxLogo from '../images/edx-logo.svg';
+
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
@@ -92,6 +94,28 @@ describe('<SkillsQuizStepper />', () => {
     // Remove the first selected skill.
     screen.getByTestId('test-skill-1').click();
     expect(removeFromRefinementArray.mock.calls.length).toBe(1);
+  });
+
+  it('checks header is correctly rendered', () => {
+    const searchContext = {
+      refinements: {},
+      dispatch: () => null,
+    };
+
+    const { getByAltText } = renderWithRouter(
+      <AppContext.Provider value={initialAppState}>
+        <SearchContext.Provider value={{ ...searchContext }}>
+          <SkillsContextProvider>
+            <SkillsQuizStepper />
+          </SkillsContextProvider>
+        </SearchContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/' },
+    );
+    expect(screen.getByText('Skills Builder')).toBeTruthy();
+    expect(screen.getByText('Start your learning journey with edX')).toBeTruthy();
+    const image = getByAltText('edx-logo');
+    expect(image.src).toContain(edxLogo);
   });
 
   it('checks continue button is in disabled state initially', () => {
