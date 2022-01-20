@@ -104,11 +104,13 @@ describe('<SkillsQuizStepper />', () => {
 
     const { getByAltText } = renderWithRouter(
       <AppContext.Provider value={initialAppState}>
-        <SearchContext.Provider value={{ ...searchContext }}>
-          <SkillsContextProvider>
-            <SkillsQuizStepper />
-          </SkillsContextProvider>
-        </SearchContext.Provider>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SearchContext.Provider value={{ ...searchContext }}>
+            <SkillsContextProvider>
+              <SkillsQuizStepper />
+            </SkillsContextProvider>
+          </SearchContext.Provider>
+        </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
     );
