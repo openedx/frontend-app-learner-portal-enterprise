@@ -15,6 +15,7 @@ export const useCourseEnrollments = (enterpriseUUID) => {
     const fetchData = async () => {
       try {
         const resp = await service.fetchEnterpriseCourseEnrollments(enterpriseUUID);
+        // TODO: fetch enrollment requests, transform them, and merge with actual course enrollments
         const enrollments = camelCaseObject(resp.data).map(transformCourseEnrollment);
         const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
         setCourseEnrollmentsByStatus(enrollmentsByStatus);

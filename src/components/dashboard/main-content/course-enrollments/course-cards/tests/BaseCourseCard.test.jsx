@@ -33,7 +33,7 @@ describe('<BaseCourseCard />', () => {
         </AppContext.Provider>
       ));
       // open email settings modal
-      wrapper.find('Dropdown').find('button.dropdown-toggle').simulate('click');
+      wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
       wrapper.find('Dropdown').find('button.dropdown-item').simulate('click');
       expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeTruthy();
     });

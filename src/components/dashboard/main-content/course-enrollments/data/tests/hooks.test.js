@@ -21,7 +21,7 @@ describe('useCourseEnrollments', () => {
     await waitForNextUpdate();
     expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
     expect(result.current.courseEnrollmentsByStatus).toEqual({
-      inProgress: [mockTransformedMockCourseEnrollment], upcoming: [], completed: [], savedForLater: [],
+      inProgress: [mockTransformedMockCourseEnrollment], upcoming: [], completed: [], savedForLater: [], requested: [],
     });
     expect(result.current.fetchError).toBeUndefined();
   });
@@ -58,6 +58,7 @@ describe('useCourseEnrollments', () => {
             courseRunStatus: COURSE_STATUSES.savedForLater,
             savedForLater: true,
           }],
+          requested: [],
         },
       );
     });

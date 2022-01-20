@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import MediaQuery from 'react-responsive';
-import { breakpoints, Hyperlink } from '@edx/paragon';
+import { breakpoints, Hyperlink, MediaQuery } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { PreviewExpand } from '../preview-expand';

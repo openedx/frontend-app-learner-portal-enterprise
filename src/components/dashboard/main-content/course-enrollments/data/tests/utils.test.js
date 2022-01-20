@@ -39,6 +39,7 @@ describe('groupCourseEnrollmentsByStatus', () => {
         upcoming: [upcomingCourseEnrollment],
         completed: [completedCourseEnrollment],
         savedForLater: [savedForLaterCourseEnrollment],
+        requested: [],
       },
     );
   });

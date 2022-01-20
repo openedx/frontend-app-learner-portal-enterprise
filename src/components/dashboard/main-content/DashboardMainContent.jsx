@@ -1,9 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Button } from '@edx/paragon';
+import { Button, breakpoints, MediaQuery } from '@edx/paragon';
 
 import { CourseEnrollments, CourseEnrollmentsContextProvider } from './course-enrollments';
+
+import SupportInformation from '../sidebar/SupportInformation';
+import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 
 const DashboardMainContent = () => {
   const {
@@ -19,9 +22,16 @@ const DashboardMainContent = () => {
 
   return (
     <CourseEnrollmentsContextProvider>
-      <h2 className="h1">
+      <h2 className="h1 mb-3">
         {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
       </h2>
+
+      <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
+        {matches => (matches ? (
+          <SubsidiesSummary />
+        ) : null)}
+      </MediaQuery>
+
       <CourseEnrollments>
         {/* The children below will only be rendered if there are no course enrollments. */}
         {disableSearch ? (
@@ -38,13 +48,17 @@ const DashboardMainContent = () => {
             <Button
               as={Link}
               to={`/${slug}/search`}
-              className="btn-brand-primary"
+              className="btn-brand-primary d-block d-md-inline-block"
             >
               Find a course
             </Button>
           </>
         )}
       </CourseEnrollments>
+
+      <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
+        {matches => (matches ? <SupportInformation className="mt-5" /> : null)}
+      </MediaQuery>
     </CourseEnrollmentsContextProvider>
   );
 };

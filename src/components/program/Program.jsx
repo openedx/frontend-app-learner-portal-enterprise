@@ -1,8 +1,9 @@
 import React, { useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import MediaQuery from 'react-responsive';
-import { breakpoints, Container, Row } from '@edx/paragon';
+import {
+  breakpoints, Container, Row, MediaQuery,
+} from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 
 import { MainContent, Sidebar } from '../layout';

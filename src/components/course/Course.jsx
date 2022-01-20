@@ -2,8 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import qs from 'query-string';
 import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import MediaQuery from 'react-responsive';
-import { breakpoints, Container, Row } from '@edx/paragon';
+import {
+  breakpoints, Container, Row, MediaQuery,
+} from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
