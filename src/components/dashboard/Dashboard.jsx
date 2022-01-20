@@ -1,9 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
-import MediaQuery from 'react-responsive';
 import {
-  Container, Alert, Row, breakpoints, useToggle,
+  Container, Alert, Row, breakpoints, useToggle, MediaQuery,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -52,11 +51,11 @@ export default function Dashboard() {
             <DashboardMainContent />
           </MainContent>
           <MediaQuery minWidth={breakpoints.large.minWidth}>
-            {matches => matches && (
+            {matches => (matches ? (
               <Sidebar data-testid="sidebar">
                 <DashboardSidebar />
               </Sidebar>
-            )}
+            ) : null)}
           </MediaQuery>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
           {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}

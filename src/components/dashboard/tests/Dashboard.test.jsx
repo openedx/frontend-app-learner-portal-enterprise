@@ -121,10 +121,11 @@ jest.mock('universal-cookie');
 jest.mock('../main-content/course-enrollments/data/hooks');
 hooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
-    in_progress: [],
+    inProgress: [],
     upcoming: [],
     completed: [],
-    saved_for_later: [],
+    savedForLater: [],
+    requested: [],
   },
 });
 
@@ -175,15 +176,22 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.getByTestId('sidebar')).toBeTruthy();
+    expect(screen.getByTestId('sidebar'));
   });
 
-  it('renders a sidebar on a small screen', () => {
+  it('renders subsidies summary on a small screen', () => {
     window.matchMedia.setConfig({ ...mockWindowConfig, width: breakpoints.large.minWidth - 1 });
     renderWithRouter(
-      <DashboardWithContext />,
+      <DashboardWithContext initialUserSubsidyState={{
+        ...defaultUserSubsidyState,
+        subscriptionPlan: {
+          daysUntilExpiration: 60,
+        },
+        hasActiveSubsidies: true,
+      }}
+      />,
     );
-    expect(screen.getByTestId('sidebar')).toBeTruthy();
+    expect(screen.getByTestId('subsidies-summary'));
   });
 
   it('renders "Find a course" when search is enabled for the customer', () => {

@@ -14,3 +14,7 @@ export const SUBSCRIPTION_EXPIRED_BADGE_VARIANT = 'danger';
 // SubscriptionSummaryCard expiration date prefixes
 export const SUBSCRIPTION_ACTIVE_DATE_PREFIX = 'Available until';
 export const SUBSCRIPTION_EXPIRED_DATE_PREFIX = 'Expired on';
+// Dashboard Sidebar texts
+export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
+export const NEED_HELP_BLOCK_TITLE = 'Need help?';
+export const CONTACT_HELP_EMAIL_MESSAGE = 'contact your organization\'s edX administrator';

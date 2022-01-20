@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
-import Responsive from 'react-responsive';
 import { Link, NavLink } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Menu as MenuIcon } from '@edx/paragon/icons';
-import { Container } from '@edx/paragon';
+import { Container, MediaQuery } from '@edx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
 
 import { Menu, MenuTrigger, MenuContent } from './menu';
@@ -115,12 +114,12 @@ export default function SiteHeader() {
           Skip to main content
         </HashLink>
       </div>
-      <Responsive maxWidth={768}>
+      <MediaQuery maxWidth={768}>
         {renderMobileHeader()}
-      </Responsive>
-      <Responsive minWidth={769}>
+      </MediaQuery>
+      <MediaQuery minWidth={769}>
         {renderDesktopHeader()}
-      </Responsive>
+      </MediaQuery>
     </>
   );
 }

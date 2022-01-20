@@ -12,7 +12,7 @@ import {
   useOffers,
   useCustomerAgreementData,
 } from './data/hooks';
-import { LOADING_SCREEN_READER_TEXT } from './data/constants';
+import { LOADING_SCREEN_READER_TEXT, LICENSE_STATUS } from './data/constants';
 
 export const UserSubsidyContext = createContext();
 
@@ -44,6 +44,18 @@ const UserSubsidy = ({ children }) => {
     [isLoadingLicense, isLoadingOffers, isLoadingCustomerAgreementConfig],
   );
 
+  const hasActiveSubsidies = useMemo(
+    () => {
+      const { offersCount } = offers;
+      const hasSubscriptionPlan = !!subscriptionPlan;
+      const hasActivatedLicense = subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+      const hasOffers = offersCount > 0;
+
+      return (hasSubscriptionPlan && hasActivatedLicense) || hasOffers;
+    },
+    [subscriptionPlan, subscriptionLicense, offers],
+  );
+
   const contextValue = useMemo(
     () => {
       if (isLoadingSubsidies) {
@@ -54,6 +66,7 @@ const UserSubsidy = ({ children }) => {
         subscriptionPlan,
         offers,
         showExpirationNotifications,
+        hasActiveSubsidies,
       };
     },
     [
@@ -63,6 +76,7 @@ const UserSubsidy = ({ children }) => {
       offers,
       enterpriseConfig.uuid,
       customerAgreementConfig,
+      hasActiveSubsidies,
     ],
   );
 

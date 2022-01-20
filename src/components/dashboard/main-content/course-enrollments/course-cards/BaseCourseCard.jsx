@@ -1,16 +1,32 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Dropdown } from '@edx/paragon';
+import {
+  Dropdown, Badge, IconButton, Icon,
+} from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
+import { MoreVert } from '@edx/paragon/icons';
 
 import { EmailSettingsModal } from './email-settings';
 import { COURSE_STATUSES } from '../data/constants';
+
+const BADGE_PROPS_BY_COURSE_STATUS = {
+  [COURSE_STATUSES.inProgress]: {
+    variant: 'success',
+    children: 'In Progress',
+  },
+  [COURSE_STATUSES.upcoming]: {
+    variant: 'primary',
+    children: 'Upcoming',
+  },
+  [COURSE_STATUSES.requested]: {
+    variant: 'secondary',
+    children: 'Requested',
+  },
+};
 
 class BaseCourseCard extends Component {
   constructor(props) {
@@ -149,12 +165,12 @@ class BaseCourseCard extends Component {
       return (
         <div className="ml-auto">
           <Dropdown>
-            <Dropdown.Toggle variant="outline-dark">
-              <FontAwesomeIcon icon={faCog} />
-              <span className="sr-only">
-                course settings for {title}
-              </span>
-            </Dropdown.Toggle>
+            <Dropdown.Toggle
+              as={IconButton}
+              src={MoreVert}
+              iconAs={Icon}
+              alt={`course settings for ${title}`}
+            />
             <Dropdown.Menu>
               {menuItems.map(menuItem => (
                 <Dropdown.Item
@@ -266,6 +282,7 @@ class BaseCourseCard extends Component {
 
   render() {
     const {
+      type,
       title,
       linkToCourse,
       hasViewCertificateLink,
@@ -276,9 +293,18 @@ class BaseCourseCard extends Component {
         <div className="d-flex">
           <div className="flex-grow-1 mr-4 mb-3">
             {this.renderMicroMastersTitle()}
-            <h3 className="course-title mb-1">
-              <a className="h3" href={linkToCourse}>{title}</a>
-            </h3>
+            <div className="d-flex align-items-center flex-wrap mb-1">
+              <h4 className="course-title mb-0 mr-2">
+                <a className="h3" href={linkToCourse}>{title}</a>
+              </h4>
+              {
+                BADGE_PROPS_BY_COURSE_STATUS[type] && (
+                  <Badge
+                    {...BADGE_PROPS_BY_COURSE_STATUS[type]}
+                  />
+                )
+              }
+            </div>
             {this.renderOrganizationName()}
           </div>
           {this.renderSettingsDropdown(dropdownMenuItems)}

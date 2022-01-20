@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
 import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import MediaQuery from 'react-responsive';
-import { breakpoints } from '@edx/paragon';
+import { breakpoints, MediaQuery } from '@edx/paragon';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramEndorsements = () => {
