@@ -78,7 +78,6 @@ describe('<SkillsQuiz />', () => {
       </SearchData>,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText('Skills Quiz')).toBeTruthy();
     expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeTruthy();
   });
 });
