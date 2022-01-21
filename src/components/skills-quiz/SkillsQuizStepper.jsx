@@ -163,7 +163,7 @@ const SkillsQuizStepper = () => {
         <ModalDialog
           title="Skills Quiz"
           size="fullscreen"
-          className="bg-light-200"
+          className="bg-light-200 skills-quiz-modal"
           isOpen
           onClose={() => closeSkillsQuiz()}
         >
