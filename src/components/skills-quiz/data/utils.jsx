@@ -18,15 +18,16 @@ export function linkToCourse(course, slug, enterpriseUUID) {
   if (!Object.keys(course).length) {
     return '#';
   }
-  const queryParams = {
-    queryId: course.queryId,
-    objectId: course.objectId,
-  };
+  const queryParams = new URLSearchParams();
+  if (course.queryId && course.objectId) {
+    queryParams.set('queryId', course.queryId);
+    queryParams.set('objectId', course.objectId);
+  }
   const { userId } = getAuthenticatedUser();
   sendEnterpriseTrackEvent(
     enterpriseUUID,
     'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
     { userId, enterprise: slug, selectedCourse: course.key },
   );
-  return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
+  return `/${slug}/course/${course.key}?${queryParams.toString()}`;
 }
