@@ -114,8 +114,18 @@ export function useSubscriptionLicense({
       return result;
     }
     if (!isLoadingCustomerAgreementConfig) {
+      setIsLoading(true);
+
       retrieveUserLicense().then((userLicense) => {
-        setLicense(userLicense);
+        const subscriptionPlan = customerAgreementConfig?.subscriptions?.find(
+          subscription => subscription.uuid === userLicense?.subscriptionPlanUuid,
+        );
+
+        setLicense({
+          ...userLicense,
+          subscriptionPlan,
+        });
+
         setIsLoading(false);
       });
     }

@@ -84,7 +84,7 @@ describe('Course enrollments', () => {
     await waitFor(() => expect(getByText('Your course was moved to In Progress.')));
   });
 
-  it.only('generates course status update on move to saved for later action', async () => {
+  it('generates course status update on move to saved for later action', async () => {
     const { getByText } = renderEnrollmentsComponent();
     const saveForLaterButton = screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL });
     expect(saveForLaterButton).toBeInTheDocument();
