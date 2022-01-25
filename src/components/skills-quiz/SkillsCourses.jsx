@@ -139,7 +139,7 @@ const SkillsCourses = ({ index }) => {
   );
 
   return (
-    <div style={{ paddingLeft: '15%' }}>
+    <div className="mt-4" style={{ paddingLeft: '15%' }}>
       {hitCount > 0 && <h3>Skills</h3>}
       <div className="skills-badge">
         {isLoading ? <Badge as={Skeleton} width={100} count={6} className="course-skill" variant="top" duration={0} height={25} />
