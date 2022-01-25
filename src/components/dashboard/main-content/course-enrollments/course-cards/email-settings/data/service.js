@@ -11,7 +11,7 @@ const updateEmailSettings = (courseRunId, hasEmailsEnabled) => {
     receive_emails: hasEmailsEnabled ? 'on' : undefined,
   };
   // NOTE: this request url cannot use a trailing slash since it causes a 404
-  const emailSettingsUrl = `${config.LMS_BASE_URL}/change_email_settings`;
+  const emailSettingsUrl = `${config.LMS_BASE_URL}/api/change_email_settings`;
   return getAuthenticatedHttpClient().post(
     emailSettingsUrl,
     qs.stringify(queryParams),
