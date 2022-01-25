@@ -179,7 +179,7 @@ const SkillsQuizStepper = () => {
             <Container size="lg">
               <Stepper.Step eventKey="skills-search" title="Skills Search">
 
-                <div className="row skills-quiz-dropdown">
+                <div className="row skills-quiz-dropdown mt-4">
                   <div className="col col-12">
                     <p>
                       {SKILLS_QUIZ_SEARCH_PAGE_MESSAGE}
@@ -272,7 +272,7 @@ const SkillsQuizStepper = () => {
                 </div>
               </Stepper.Step>
               <Stepper.Step eventKey="recommended-courses" title="View Recommendations">
-                <div className="row mb-4 pl-2">
+                <div className="row mb-4 pl-2 mt-4">
                   <h2>Start Exploring Courses!</h2>
                 </div>
                 <div className="search-job-card mb-4">
