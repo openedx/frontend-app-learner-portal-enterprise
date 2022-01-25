@@ -58,7 +58,7 @@ const CourseEnrollments = ({ children }) => {
 
   const savedForLaterCourseEnrollments = useMemo(
     () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.savedForLater),
-    [courseEnrollmentsByStatus.savedCourseEnrollments],
+    [courseEnrollmentsByStatus.savedForLater],
   );
 
   return (

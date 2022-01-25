@@ -4,6 +4,7 @@ import {
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 import _camelCase from 'lodash.camelcase';
+import _cloneDeep from 'lodash.clonedeep';
 import * as service from './service';
 import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './utils';
 
@@ -37,7 +38,7 @@ export const useCourseEnrollments = (enterpriseUUID) => {
     const originalStatusCamelCased = _camelCase(originalStatus);
     const newStatusCamelCased = _camelCase(newStatus);
 
-    const newCourseEnrollmentsByStatus = { ...courseEnrollmentsByStatus };
+    const newCourseEnrollmentsByStatus = _cloneDeep(courseEnrollmentsByStatus);
     const courseEnrollmentToUpdate = newCourseEnrollmentsByStatus[originalStatusCamelCased].find(
       ce => ce.courseRunId === courseRunId,
     );
