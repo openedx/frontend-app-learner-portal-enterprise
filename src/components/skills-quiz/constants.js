@@ -42,10 +42,12 @@ export const DESIRED_JOB_FACET = {
 export const JOBS_ERROR_ALERT_MESSAGE = 'An error occured while fetching your selected job. Please try again later.';
 export const COURSES_ERROR_ALERT_MESSAGE = 'An error occured while fetching courses. Please try again later.';
 export const NO_COURSES_ALERT_MESSAGE = 'No courses were found. Please search for another job, or click see more courses.';
+export const NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS = 'No courses were found. Please search for another job or skills.';
 export const NO_PROGRAMS_ALERT_MESSAGE = 'No programs were found. Please search for another job, or click see more courses.';
 
 export const STEP1 = 'skills-search';
-export const STEP2 = 'recommended-courses';
+export const STEP2 = 'courses-with-jobs';
+export const STEP3 = 'courses-with-skills';
 
 export const SKILL_NAME_CUTOFF_LIMIT = 50;
 
@@ -54,3 +56,5 @@ export const MAX_VISIBLE_SKILLS_COURSE = 6;
 export const MAX_VISIBLE_SKILLS_PROGRAM = 3;
 
 export const SKILLS_QUIZ_SEARCH_PAGE_MESSAGE = 'Let edX be your guide. We combine the educational expertise of the world\'s leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals.';
+export const HITS_PER_PAGE = 500;
+export const LOADING_NO_OF_CARDS = 9;
