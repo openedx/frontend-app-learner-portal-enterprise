@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
@@ -20,7 +19,8 @@ export const updateCourseCompleteStatusRequest = (options) => {
   const config = getConfig();
   let url = `${config.LMS_BASE_URL}${ENROLL_ENDPOINT}`;
   if (options) {
-    url += `?${qs.stringify(options)}`;
+    const queryParams = new URLSearchParams(options);
+    url += `?${queryParams.toString()}`;
   }
   return getAuthenticatedHttpClient().patch(url);
 };

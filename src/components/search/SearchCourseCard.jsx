@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from 'react';
-import qs from 'query-string';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
 import { Link } from 'react-router-dom';
@@ -22,11 +21,12 @@ const SearchCourseCard = ({ hit, isLoading }) => {
       if (!Object.keys(course).length) {
         return '#';
       }
-      const queryParams = {
-        queryId: course.queryId,
-        objectId: course.objectId,
-      };
-      return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
+      const queryParams = new URLSearchParams();
+      if (course.queryId && course.objectId) {
+        queryParams.set('queryId', course.queryId);
+        queryParams.set('objectId', course.objectId);
+      }
+      return `/${slug}/course/${course.key}?${queryParams.toString()}`;
     },
     [isLoading, JSON.stringify(course)],
   );

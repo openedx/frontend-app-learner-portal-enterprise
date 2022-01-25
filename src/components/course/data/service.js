@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -75,12 +74,12 @@ export default class CourseService {
   }
 
   fetchUserEnrollments() {
-    const queryParams = {
+    const queryParams = new URLSearchParams({
       enterprise_id: this.enterpriseUuid,
       is_active: true,
-    };
+    });
     const config = getConfig();
-    const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${qs.stringify(queryParams)}`;
+    const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
     return getAuthenticatedHttpClient().get(url);
   }
 
@@ -92,11 +91,11 @@ export default class CourseService {
   fetchEnterpriseCustomerContainsContent() {
     // This API call will *only* obtain the enterprise's catalogs whose
     // catalog queries return/contain the specified courseKey.
-    const options = {
+    const queryParams = new URLSearchParams({
       course_run_ids: this.courseKey,
       get_catalogs_containing_specified_content_ids: true,
-    };
-    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
+    });
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
@@ -144,11 +143,11 @@ export default class CourseService {
   }
 
   fetchUserLicenseSubsidy() {
-    const options = {
+    const queryParams = new URLSearchParams({
       enterprise_customer_uuid: this.enterpriseUuid,
       course_key: this.activeCourseRun.key,
-    };
-    const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${qs.stringify(options)}`;
+    });
+    const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
