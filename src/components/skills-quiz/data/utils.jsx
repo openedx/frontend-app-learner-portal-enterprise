@@ -2,7 +2,6 @@
 // here content can either be a course or a program
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import qs from 'query-string';
 
 export default function getCommonSkills(content, selectedJobSkills, MAX_VISIBLE_SKILLS) {
   const contentSkills = content.skillNames || [];
