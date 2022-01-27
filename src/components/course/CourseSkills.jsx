@@ -8,7 +8,7 @@ import {
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import {
-  SKILLS_BUTTON_LABEL, SKILL_DESCRIPTION_PLACEHOLDER, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR,
+  SKILL_DESCRIPTION_PLACEHOLDER, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR,
 } from './data/constants';
 import { shortenString } from './data/utils';
 
@@ -18,8 +18,7 @@ export default function CourseSkills() {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { skills } = state.course;
-  const [showMore, setShowMore] = useState(false);
-  const skillsButtonLabel = showMore ? SKILLS_BUTTON_LABEL.SHOW_LESS : SKILLS_BUTTON_LABEL.SHOW_MORE;
+
   return (
     <div className="mb-5">
       <h5> Skills you&apos;ll gain</h5>
@@ -55,11 +54,6 @@ export default function CourseSkills() {
             </Badge>
           </OverlayTrigger>
         ))}
-        {skills.length > MAX_VISIBLE_SKILLS && (
-          <Button className="d-inline-block" variant="link" onClick={() => { setShowMore(!showMore); }}>
-            { skillsButtonLabel }
-          </Button>
-        )}
       </div>
     </div>
   );

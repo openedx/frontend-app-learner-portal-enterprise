@@ -23,11 +23,6 @@ export const COURSE_AVAILABILITY_MAP = {
   ARCHIVED: 'Archived',
 };
 
-export const SKILLS_BUTTON_LABEL = {
-  SHOW_MORE: 'show more',
-  SHOW_LESS: 'show less',
-};
-
 export const SKILL_DESCRIPTION_PLACEHOLDER = 'No description available.';
 export const SKILL_DESCRIPTION_CUTOFF_LIMIT = 950;
 export const ELLIPSIS_STR = '...';
