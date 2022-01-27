@@ -48,7 +48,7 @@ describe('<CourseSkills />', () => {
     });
   });
 
-  test('renders course skills greater than limit', () => {
+  test('does not render more then max visible skills', () => {
     const skillsCount = MAX_VISIBLE_SKILLS + 2; // random number greater than limit
     const courseState = {
       ...initialCourseState,
@@ -75,9 +75,6 @@ describe('<CourseSkills />', () => {
     hiddenSkills.forEach((skill) => {
       expect(screen.queryByText(skill.name)).not.toBeVisible();
     });
-
-    // display show more inline link when skills count is greater than limit
-    expect(screen.queryByText(SKILLS_BUTTON_LABEL.SHOW_MORE)).toBeInTheDocument();
   });
 
   test('renders tooltip with course skill description on hover', async () => {

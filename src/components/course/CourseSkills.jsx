@@ -48,7 +48,7 @@ export default function CourseSkills() {
               key={skill.name}
               className="course-skill"
               variant="light"
-              style={{ display: ((index < MAX_VISIBLE_SKILLS) || showMore) ? 'inline-block' : 'none' }}
+              style={{ display: index < MAX_VISIBLE_SKILLS ? 'inline-block' : 'none' }}
             >
               { skill.name }
             </Badge>
