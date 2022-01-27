@@ -19,7 +19,8 @@ const features = {
   ENROLL_WITH_CODES: process.env.FEATURE_BROWSE_AND_REQUEST || hasFeatureFlagEnabled(FEATURE_ENROLL_WITH_CODES),
   ENABLE_PROGRAMS: (process.env.FEATURE_ENABLE_PROGRAMS === 'true') || hasFeatureFlagEnabled(FEATURE_ENABLE_PROGRAMS),
   PROGRAM_TYPE_FACET: (process.env.FEATURE_PROGRAM_TYPE_FACET === 'true') || hasFeatureFlagEnabled(FEATURE_PROGRAM_TYPE_FACET),
-  FEATURE_BROWSE_AND_REQUEST: process.env.FEATURE_BROWSE_AND_REQUEST  || hasFeatureFlagEnabled(FEATURE_BROWSE_AND_REQUEST),
+  FEATURE_BROWSE_AND_REQUEST: process.env.FEATURE_BROWSE_AND_REQUEST
+    || hasFeatureFlagEnabled(FEATURE_BROWSE_AND_REQUEST),
 };
 
 export { features };

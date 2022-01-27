@@ -50,13 +50,13 @@ const CourseSidebarPrice = () => {
 
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
   // Case 3: No subsidies found but Browse and Request Enabled
-  if(!hasDiscountedPrice && features.FEATURE_BROWSE_AND_REQUEST){
+  if (!hasDiscountedPrice && features.FEATURE_BROWSE_AND_REQUEST) {
     return (
-      <span style={{whiteSpace: 'pre-wrap'}}>
-        <s>${originalPriceDisplay} {currency}</s><br/>
+      <span style={{ whiteSpace: 'pre-wrap' }}>
+        <s>${originalPriceDisplay} {currency}</s><br />
         {FREE_WHEN_APPROVED_MESSAGE}
       </span>
-    )
+    );
   }
 
   // Case 4: No subsidies found

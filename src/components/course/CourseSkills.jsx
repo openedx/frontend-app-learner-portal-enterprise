@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import {
-  Badge, Button, OverlayTrigger, Popover,
+  Badge, OverlayTrigger, Popover,
 } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';

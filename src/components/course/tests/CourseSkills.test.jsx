@@ -8,7 +8,7 @@ import { CourseContextProvider } from '../CourseContextProvider';
 import CourseSkills, { MAX_VISIBLE_SKILLS } from '../CourseSkills';
 import { generateRandomSkills, generateRandomString } from './testUtils';
 
-import { SKILLS_BUTTON_LABEL, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR } from '../data/constants';
+import { SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR } from '../data/constants';
 import { shortenString } from '../data/utils';
 
 /* eslint-disable react/prop-types */
