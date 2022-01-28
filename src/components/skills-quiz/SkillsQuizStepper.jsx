@@ -2,7 +2,7 @@
 /* eslint-disable object-curly-newline */
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import {
-  Button, Stepper, ModalDialog, Container,
+  Button, Stepper, ModalDialog, Container, Form,
 } from '@edx/paragon';
 import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
@@ -55,6 +55,8 @@ const SkillsQuizStepper = () => {
     [], // only initialized once
   );
   const [currentStep, setCurrentStep] = useState(STEP1);
+  const [isStudentChecked, setIsStudentChecked] = useState(false);
+  const handleIsStudentCheckedChange = e => setIsStudentChecked(e.target.checked);
 
   const { state, dispatch: skillsDispatch } = useContext(SkillsContext);
   const { selectedJob, goal } = state;
@@ -129,6 +131,12 @@ const SkillsQuizStepper = () => {
       { userId, enterprise: enterpriseConfig.slug },
     );
   }, []);
+
+  useEffect(() => {
+    if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
+      setIsStudentChecked(false);
+    }
+  }, [goal]);
 
   // will be true if goal or skills changed not because of first render, if link shared and there are more than one
   // selected skills, or if skillsVisible variable is ever been true for once.
@@ -222,13 +230,23 @@ const SkillsQuizStepper = () => {
                           >
                             <div className="col col-8 p-0 mt-3">
                               <CurrentJobDropdown />
+                              <Form.Checkbox
+                                checked={isStudentChecked}
+                                onChange={handleIsStudentCheckedChange}
+                                disabled={goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE}
+                                data-testid="is-student-checkbox"
+                              >
+                                I am currently a student
+                              </Form.Checkbox>
                             </div>
-
-                            <div className="mt-4.5">
-                              Lastly, tell us about career paths you&apos;re interested in (select up to three)
-                            </div>
-                            <div className="col col-8 p-0 mt-n3">
-                              { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? <div className="mt-4.5"><SearchJobDropdown /></div> : null }
+                            <div className="col col-8 p-0 mt-n2">
+                              { goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE
+                                ? (
+                                  <div className="mt-4.5">
+                                    Lastly, tell us about career paths you&apos;re interested in (select up to three)
+                                    <SearchJobDropdown />
+                                  </div>
+                                ) : null }
                             </div>
                           </InstantSearch>
 
