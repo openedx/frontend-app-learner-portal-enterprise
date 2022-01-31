@@ -279,7 +279,7 @@ describe('<SkillsQuizStepper />', () => {
           </SearchData>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/?skill_names=123' },
+      { route: '/test/skills-quiz/?skill_names=xyz' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
     await act(async () => {
@@ -323,25 +323,20 @@ describe('<SkillsQuizStepper />', () => {
   });
 
   it('checks i am currently a student checkbox works correctly', async () => {
-    const searchContext = {
-      refinements: { skill_names: ['test-skill-1'] },
-      dispatch: () => null,
-    };
-
     const skillsQuizContextInitialState = {
       state: { goal: GOAL_DROPDOWN_DEFAULT_OPTION },
     };
     renderWithRouter(
       <AppContext.Provider value={initialAppState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
+          <SearchData>
             <SkillsContextProvider value={{ ...skillsQuizContextInitialState }}>
               <SkillsQuizStepper />
             </SkillsContextProvider>
-          </SearchContext.Provider>
+          </SearchData>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/' },
+      { route: '/test/skills-quiz/?skill_names=xyz' },
     );
     expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
@@ -351,10 +346,6 @@ describe('<SkillsQuizStepper />', () => {
   });
 
   it(`checks i am currently a student is disabled and unchecked on ${DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE}`, () => {
-    const searchContext = {
-      refinements: { skill_names: ['test-skill-1'] },
-      dispatch: () => null,
-    };
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
     };
@@ -362,14 +353,14 @@ describe('<SkillsQuizStepper />', () => {
     renderWithRouter(
       <AppContext.Provider value={initialAppState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
+          <SearchData>
             <SkillsContext.Provider value={skillsQuizContextInitialState}>
               <SkillsQuizStepper />
             </SkillsContext.Provider>
-          </SearchContext.Provider>
+          </SearchData>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/' },
+      { route: '/test/skills-quiz/?skill_names=xyz' },
     );
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();
