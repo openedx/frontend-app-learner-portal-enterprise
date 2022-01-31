@@ -1,7 +1,6 @@
 import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
-import qs from 'query-string';
 import { useHistory, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -266,19 +265,19 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
-  const enrollmentFailedParams = { ...qs.parse(location.search) };
-  enrollmentFailedParams[ENROLLMENT_FAILED_QUERY_PARAM] = true;
+  const baseQueryParams = new URLSearchParams(location.search);
+  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
   const baseEnrollmentOptions = {
     next: `${config.LMS_BASE_URL}/courses/${key}/course`,
     // Redirect back to the same page with a failure query param
-    failure_url: `${global.location.href}?${qs.stringify(enrollmentFailedParams)}`,
+    failure_url: `${global.location.href}?${baseQueryParams.toString()}`,
   };
 
   const enrollmentUrl = useMemo(
     () => {
       // Users must have a license and a valid subsidy from that license to enroll with it
       if (subscriptionLicense && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
-        const enrollOptions = {
+        const queryParams = new URLSearchParams({
           ...baseEnrollmentOptions,
           license_uuid: subscriptionLicense.uuid,
           course_id: key,
@@ -286,23 +285,23 @@ export const useCourseEnrollmentUrl = ({
           // We don't want any sidebar text we show the data consent page from this workflow since
           // the text on the sidebar is used when a learner is coming from their employer's system.
           left_sidebar_text_override: '',
-        };
-        return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${qs.stringify(enrollOptions)}`;
+        });
+        return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
       }
 
       if (features.ENROLL_WITH_CODES && offers.length >= 0 && sku) {
-        const enrollOptions = {
+        const queryParams = new URLSearchParams({
           ...baseEnrollmentOptions,
           sku,
           consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
-        };
+        });
         // get the index of the first offer that applies to a catalog that the course is in
         const offerForCourse = findOfferForCourse(offers, catalogList);
         if (offers.length === 0 || !offerForCourse) {
-          return `${config.ECOMMERCE_BASE_URL}/basket/add/?${qs.stringify(enrollOptions)}`;
+          return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
         }
-        enrollOptions.code = offerForCourse.code;
-        return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${qs.stringify(enrollOptions)}`;
+        queryParams.set('code', offerForCourse.code);
+        return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
       }
 
       // No offer or product SKU is present, so the course cannot be enrolled in.
@@ -334,25 +333,24 @@ useCourseEnrollmentUrl.propTypes = {
 export const useExtractAndRemoveSearchParamsFromURL = () => {
   const { search } = useLocation();
   const history = useHistory();
-  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({
-    queryId: undefined,
-    objectId: undefined,
-  });
+  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
 
   const queryParams = useMemo(
-    () => camelCaseObject(qs.parse(search)),
+    () => new URLSearchParams(search),
     [search],
   );
-  const { queryId, objectId } = queryParams;
 
   useEffect(
     () => {
-      if (queryId && objectId) {
-        setAlgoliaSearchParams({ queryId, objectId });
-        delete queryParams.queryId;
-        delete queryParams.objectId;
+      if (queryParams.get('queryId') && queryParams.get('objectId')) {
+        setAlgoliaSearchParams({
+          queryId: queryParams.get('queryId'),
+          objectId: queryParams.get('objectId'),
+        });
+        queryParams.delete('queryId');
+        queryParams.delete('objectId');
         history.replace({
-          search: qs.stringify(queryParams),
+          search: queryParams.toString(),
         });
       }
     },

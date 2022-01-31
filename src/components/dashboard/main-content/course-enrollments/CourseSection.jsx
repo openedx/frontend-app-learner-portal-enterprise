@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { Collapsible } from '@edx/paragon';
-import { faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -10,10 +9,18 @@ import {
   UpcomingCourseCard,
   CompletedCourseCard,
   SavedForLaterCourseCard,
+  RequestedCourseCard,
 } from './course-cards';
-import CollapsibleIcon from './CollapsibleIcon';
 
 import { COURSE_STATUSES } from './data/constants';
+
+const CARD_COMPONENT_BY_COURSE_STATUS = {
+  [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
+  [COURSE_STATUSES.inProgress]: InProgressCourseCard,
+  [COURSE_STATUSES.completed]: CompletedCourseCard,
+  [COURSE_STATUSES.savedForLater]: SavedForLaterCourseCard,
+  [COURSE_STATUSES.requested]: RequestedCourseCard,
+};
 
 class CourseSection extends React.Component {
   constructor(props) {
@@ -27,7 +34,7 @@ class CourseSection extends React.Component {
     const { isOpen } = this.state;
     const { courseRuns, title } = this.props;
     const sectionTitle = isOpen ? title : `${title} (${courseRuns.length})`;
-    return <h2>{sectionTitle}</h2>;
+    return <h3>{sectionTitle}</h3>;
   };
 
   getFormattedOptionalSubtitle = () => {
@@ -82,15 +89,15 @@ class CourseSection extends React.Component {
     );
   };
 
-  renderCourseCards = () => {
-    const { component: Component, courseRuns } = this.props;
-    return courseRuns.map(courseRun => (
+  renderCourseCards = () => this.props.courseRuns.map(courseRun => {
+    const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
+    return (
       <Component
         {...this.getCourseRunProps(courseRun)}
         key={courseRun.courseRunId}
       />
-    ));
-  };
+    );
+  });
 
   render() {
     const { courseRuns } = this.props;
@@ -100,11 +107,8 @@ class CourseSection extends React.Component {
     return (
       <div className="course-section mb-4">
         <Collapsible
-          styling="card-lg"
-          className="border-0 shadow-none"
+          styling="card"
           title={this.getFormattedSectionTitle()}
-          iconWhenOpen={<CollapsibleIcon icon={faChevronCircleUp} />}
-          iconWhenClosed={<CollapsibleIcon icon={faChevronCircleDown} />}
           onOpen={() => this.handleCollapsibleToggle(true)}
           onClose={() => this.handleCollapsibleToggle(false)}
           defaultOpen
@@ -118,12 +122,6 @@ class CourseSection extends React.Component {
 }
 
 CourseSection.propTypes = {
-  component: PropTypes.oneOf([
-    InProgressCourseCard,
-    UpcomingCourseCard,
-    CompletedCourseCard,
-    SavedForLaterCourseCard,
-  ]).isRequired,
   courseRuns: PropTypes.arrayOf(PropTypes.shape({
     courseRunId: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

@@ -17,6 +17,10 @@ const SearchWrapper = (searchContext, initialSkillsState) => ({ children }) => (
 const skills = ['test-skill-1', 'test-skill-2'];
 const SELECTED_JOB_SKILL_NAME = 'test-skill-3';
 const CURRENT_JOB_SKILL_NAME = 'test-skill-4';
+const SELECTED_JOB_SKILL_NAME_ONE = 'selected-skill-1';
+const SELECTED_JOB_SKILL_NAME_TWO = 'selected-skill-2';
+const SELECTED_JOB_SKILL_NAME_THREE = 'selected-skill-3';
+const SELECTED_JOB_SKILL_NAME_FOUR = 'selected-skill-4';
 const searchContext = {
   refinements: { skill_names: skills },
 };
@@ -80,6 +84,102 @@ describe('useSelectedSkillsAndJobSkills hook', () => {
     }), { wrapper: SearchWrapper(searchContext, skillsContextWithCurrentRole) });
     const skillsArray = result.current;
     const expected = [CURRENT_JOB_SKILL_NAME];
+    expect(skillsArray).toEqual(expected);
+  });
+
+  test('with getAllSkillsWithSignificanceOrder true, returns learner selected skills and'
+    + ' job-skills with significance order', () => {
+    const skillsContextWithSignificanceOrder = {
+      state: {
+        goal: DROPDOWN_OPTION_GET_PROMOTED,
+        selectedJob: 'job-1',
+        interestedJobs: [
+          {
+            name: 'job-1',
+            skills: [
+              {
+                name: SELECTED_JOB_SKILL_NAME_ONE,
+                significance: 230,
+              },
+              {
+                name: SELECTED_JOB_SKILL_NAME_TWO,
+                significance: 400,
+              },
+              {
+                name: SELECTED_JOB_SKILL_NAME_THREE,
+                significance: 120,
+              },
+              {
+                name: SELECTED_JOB_SKILL_NAME_FOUR,
+                significance: 401,
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+      getAllSkills: false,
+      getAllSkillsWithSignificanceOrder: true,
+    }), { wrapper: SearchWrapper(searchContext, skillsContextWithSignificanceOrder) });
+
+    const skillsArray = result.current;
+    const expected = [
+      { key: SELECTED_JOB_SKILL_NAME_FOUR, value: 401 },
+      { key: SELECTED_JOB_SKILL_NAME_TWO, value: 400 },
+      { key: SELECTED_JOB_SKILL_NAME_ONE, value: 230 },
+      { key: SELECTED_JOB_SKILL_NAME_THREE, value: 120 },
+      { key: 'test-skill-1', value: undefined },
+      { key: 'test-skill-2', value: undefined },
+    ];
+    expect(skillsArray).toEqual(expected);
+  });
+
+  test('with getAllSkillsWithSignificanceOrder true, returns learner selected skills and'
+    + ' job-skills for current job with significance order', () => {
+    const skillsContextWithSignificanceOrder = {
+      state: {
+        goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
+        selectedJob: 'job-1',
+        currentJobRole: [
+          {
+            name: 'job-1',
+            skills: [
+              {
+                name: SELECTED_JOB_SKILL_NAME_ONE,
+                significance: 230,
+              },
+              {
+                name: SELECTED_JOB_SKILL_NAME_TWO,
+                significance: 400,
+              },
+              {
+                name: SELECTED_JOB_SKILL_NAME_THREE,
+                significance: 820,
+              },
+              {
+                name: SELECTED_JOB_SKILL_NAME_FOUR,
+                significance: 401,
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+      getAllSkills: false,
+      getAllSkillsWithSignificanceOrder: true,
+    }), { wrapper: SearchWrapper(searchContext, skillsContextWithSignificanceOrder) });
+
+    const skillsArray = result.current;
+    const expected = [
+      { key: SELECTED_JOB_SKILL_NAME_THREE, value: 820 },
+      { key: SELECTED_JOB_SKILL_NAME_FOUR, value: 401 },
+      { key: SELECTED_JOB_SKILL_NAME_TWO, value: 400 },
+      { key: SELECTED_JOB_SKILL_NAME_ONE, value: 230 },
+      { key: 'test-skill-1', value: undefined },
+      { key: 'test-skill-2', value: undefined },
+    ];
     expect(skillsArray).toEqual(expected);
   });
 });

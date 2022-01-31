@@ -5,19 +5,20 @@ Array [
   <header>
     <nav
       className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
+      role="navigation"
     >
       <div
         className="container-fluid"
       >
-        <span
-          className="navbar-brand"
+        <nav
+          className="navbar"
         >
           <img
             alt="edX logo"
             src="icon/mock/path"
             width={50}
           />
-        </span>
+        </nav>
         <nav
           aria-label="Secondary"
           className="nav secondary-menu-container align-items-center ml-auto"
@@ -84,19 +85,20 @@ Array [
   <header>
     <nav
       className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
+      role="navigation"
     >
       <div
         className="container-fluid"
       >
-        <span
-          className="navbar-brand"
+        <nav
+          className="navbar"
         >
           <img
             alt="edX logo"
             src="icon/mock/path"
             width={50}
           />
-        </span>
+        </nav>
         <nav
           aria-label="Secondary"
           className="nav secondary-menu-container align-items-center ml-auto"
@@ -163,19 +165,20 @@ Array [
   <header>
     <nav
       className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
+      role="navigation"
     >
       <div
         className="container-fluid"
       >
-        <span
-          className="navbar-brand"
+        <nav
+          className="navbar"
         >
           <img
             alt="edX logo"
             src="icon/mock/path"
             width={50}
           />
-        </span>
+        </nav>
         <nav
           aria-label="Secondary"
           className="nav secondary-menu-container align-items-center ml-auto"

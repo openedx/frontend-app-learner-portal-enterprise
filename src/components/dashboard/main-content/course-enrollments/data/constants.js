@@ -10,4 +10,7 @@ export const COURSE_STATUSES = {
   upcoming: 'upcoming',
   completed: 'completed',
   savedForLater: 'saved_for_later',
+
+  // Not yet implemented
+  requested: 'requested',
 };

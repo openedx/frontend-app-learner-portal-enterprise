@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -75,7 +74,8 @@ export default class ProgramService {
   async fetchEnterpriseContainsContentItems(programUuid = undefined, courseKey = undefined) {
     const responseKey = courseKey || programUuid;
     const options = courseKey ? { course_run_ids: courseKey } : { program_uuids: this.programUuid };
-    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${qs.stringify(options)}`;
+    const queryParams = new URLSearchParams(options);
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${queryParams.toString()}`;
     const response = await this.cachedAuthenticatedHttpClient.get(url);
     return { [responseKey]: response.data.contains_content_items };
   }

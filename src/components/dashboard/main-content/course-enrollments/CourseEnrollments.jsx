@@ -1,27 +1,17 @@
-import React, { useContext } from 'react';
-import MediaQuery from 'react-responsive';
-import { breakpoints, Row } from '@edx/paragon';
+import React, { useContext, useMemo } from 'react';
 
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { LoadingSpinner } from '../../../loading-spinner';
 import CourseSection from './CourseSection';
-import { Sidebar } from '../../../layout';
-import { DashboardSidebar } from '../../sidebar';
-import {
-  InProgressCourseCard,
-  UpcomingCourseCard,
-  CompletedCourseCard,
-  SavedForLaterCourseCard,
-} from './course-cards';
 
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
 
 export const COURSE_SECTION_TITLES = {
-  inProgress: 'My courses in progress',
-  upcoming: 'Upcoming courses',
+  current: 'My courses',
   completed: 'Completed courses',
-  savedForLater: 'Courses saved for later',
+  savedForLater: 'Saved for later',
 };
 
 const CourseEnrollments = ({ children }) => {
@@ -49,6 +39,28 @@ const CourseEnrollments = ({ children }) => {
     );
   }
 
+  const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
+    enrollments.sort((c1, c2) => moment(c1.created) - moment(c2.created));
+    return enrollments;
+  };
+
+  const currentCourseEnrollments = useMemo(
+    () => sortedEnrollmentsByEnrollmentDate(
+      [...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
+        ...courseEnrollmentsByStatus.requested],
+    ), [courseEnrollmentsByStatus.inProgress, courseEnrollmentsByStatus.upcoming, courseEnrollmentsByStatus.requested],
+  );
+
+  const completedCourseEnrollments = useMemo(
+    () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.completed),
+    [courseEnrollmentsByStatus.completed],
+  );
+
+  const savedForLaterCourseEnrollments = useMemo(
+    () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.savedForLater),
+    [courseEnrollmentsByStatus.savedForLater],
+  );
+
   return (
     <>
       {showMarkCourseCompleteSuccess && (
@@ -69,33 +81,16 @@ const CourseEnrollments = ({ children }) => {
       {!hasCourseEnrollments && children}
       <>
         <CourseSection
-          title={COURSE_SECTION_TITLES.inProgress}
-          component={InProgressCourseCard}
-          courseRuns={courseEnrollmentsByStatus.inProgress}
-        />
-        <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
-          {matches => matches && (
-            <Row>
-              <Sidebar data-testid="sidebar">
-                <DashboardSidebar />
-              </Sidebar>
-            </Row>
-          )}
-        </MediaQuery>
-        <CourseSection
-          title={COURSE_SECTION_TITLES.upcoming}
-          component={UpcomingCourseCard}
-          courseRuns={courseEnrollmentsByStatus.upcoming}
+          title={COURSE_SECTION_TITLES.current}
+          courseRuns={currentCourseEnrollments}
         />
         <CourseSection
           title={COURSE_SECTION_TITLES.completed}
-          component={CompletedCourseCard}
-          courseRuns={courseEnrollmentsByStatus.completed}
+          courseRuns={completedCourseEnrollments}
         />
         <CourseSection
           title={COURSE_SECTION_TITLES.savedForLater}
-          component={SavedForLaterCourseCard}
-          courseRuns={courseEnrollmentsByStatus.savedForLater}
+          courseRuns={savedForLaterCourseEnrollments}
         />
       </>
     </>

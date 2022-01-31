@@ -2,37 +2,44 @@
 @import "@edx/paragon/scss/core/core";
 @import "@edx/brand/paragon/overrides";
 
-.program-section-heading {
-  color: #001b1e;
-}
-.collapsible {
-  margin-bottom: 1.3rem;
-  border-radius: .3rem !important;
-}
-.faq{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+.program-faq {
+  .program-section-heading {
+    color: #001b1e;
+  }
 
-.collapsible-trigger{
-  font-weight: 700;
-  font-size: 1.25rem;
-  font-family: Inter,Helvetica Neue,Arial,sans-serif;
-  color: #001b1e;
-  justify-content: flex-start !important;
-}
-.collapsible-icon{
-  margin-left: .5rem !important;
-}
-.collapsible-trigger:hover{
-  background-color: #f0f2f2;
-}
-.collapsible-trigger[aria-expanded="true"]{
-  background-color: #f0f2f2;
-}
+  .collapsible {
+    margin-bottom: 1.3rem;
+    border-radius: .3rem !important;
+  }
 
-.collapsible-body {
-  font-family: Inter,Helvetica Neue,Arial,sans-serif;
-  font-weight: 350;
+  .faq {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .collapsible-trigger {
+    font-weight: 700;
+    font-size: 1.25rem;
+    font-family: Inter,Helvetica Neue,Arial,sans-serif;
+    color: #001b1e;
+    justify-content: flex-start !important;
+  }
+
+  .collapsible-icon {
+    margin-left: .5rem !important;
+  }
+
+  .collapsible-trigger:hover {
+    background-color: #f0f2f2;
+  }
+
+  .collapsible-trigger[aria-expanded="true"] {
+    background-color: #f0f2f2;
+  }
+
+  .collapsible-body {
+    font-family: Inter,Helvetica Neue,Arial,sans-serif;
+    font-weight: 350;
+  }
 }

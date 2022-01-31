@@ -21,9 +21,13 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: () => ({ userId }),
 }));
-jest.mock('@edx/frontend-enterprise-utils', () => ({
-  sendEnterpriseTrackEvent: jest.fn(),
-}));
+jest.mock('@edx/frontend-enterprise-utils', () => {
+  const originalModule = jest.requireActual('@edx/frontend-enterprise-utils');
+  return ({
+    ...originalModule,
+    sendEnterpriseTrackEvent: jest.fn(),
+  });
+});
 
 /* eslint-disable react/prop-types */
 const ProgramCoursestWithContext = ({

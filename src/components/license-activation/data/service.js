@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { loginRefresh } from '../../../utils/common';
@@ -11,8 +10,8 @@ export async function activateLicense(activationKey) {
   // and thus, have any appropriate permissions when making downstream requests.
   loginRefresh();
 
-  const queryParams = { activation_key: activationKey };
-  const url = `${config.LICENSE_MANAGER_URL}/api/v1/license-activation/?${qs.stringify(queryParams)}`;
+  const queryParams = new URLSearchParams({ activation_key: activationKey });
+  const url = `${config.LICENSE_MANAGER_URL}/api/v1/license-activation/?${queryParams.toString()}`;
 
   return getAuthenticatedHttpClient().post(url);
 }

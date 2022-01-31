@@ -50,9 +50,8 @@ describe('<ProgramInstructors />', () => {
   test('renders program authoring organizations', () => {
     render(<ProgramInstructorsWithContext initialState={initialState} />);
     initialState.program.authoringOrganizations.forEach((org) => {
-      expect(screen.queryByText(org.name)).toBeInTheDocument();
       expect(screen.getByAltText(`${org.name} logo`)).toHaveAttribute('src', org.logoImageUrl);
-      expect(screen.getByRole('link', { name: org.name })).toHaveAttribute('href', org.marketingUrl);
+      expect(screen.getByText(org.name)).toHaveAttribute('href', org.marketingUrl);
     });
   });
 
@@ -62,7 +61,7 @@ describe('<ProgramInstructors />', () => {
       const fullName = `${staff.givenName} ${staff.familyName}`;
       expect(screen.queryByText(fullName)).toBeInTheDocument();
       expect(screen.getByAltText(fullName)).toHaveAttribute('src', staff.profileImageUrl);
-      expect(screen.getByRole('link', { name: fullName })).toHaveAttribute('href', `undefined/bio/${staff.slug}`);
+      expect(screen.getByText(fullName)).toHaveAttribute('href', `undefined/bio/${staff.slug}`);
       expect(screen.queryByText(staff.position.title)).toBeInTheDocument();
       expect(screen.queryByText(staff.position.organizationName)).toBeInTheDocument();
     });

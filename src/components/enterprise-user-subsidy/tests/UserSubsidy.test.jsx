@@ -43,6 +43,7 @@ const mockCustomerAgreementData = {
       uuid: 'test-customer-agreement-uuid',
       disable_expiration_notifications: false,
       subscription_for_auto_applied_licenses: 'test-subscription-uuid',
+      subscriptions: [mockSubscriptionPlan],
     }],
   },
 };
@@ -140,7 +141,7 @@ describe('UserSubsidy', () => {
             results: [{
               uuid: TEST_LICENSE_UUID,
               status: LICENSE_STATUS.ACTIVATED,
-              subscriptionPlan: mockSubscriptionPlan,
+              subscription_plan_uuid: mockSubscriptionPlan.uuid,
             }],
           },
         });

@@ -1,7 +1,6 @@
 import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
-import qs from 'query-string';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
 import { Link } from 'react-router-dom';
@@ -11,8 +10,6 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { Badge, Card, StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
 
@@ -21,26 +18,9 @@ import { ELLIPSIS_STR } from '../course/data/constants';
 import { shortenString } from '../course/data/utils';
 import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_COURSE, NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import getCommonSkills from './data/utils';
+import getCommonSkills, { linkToCourse } from './data/utils';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-
-const linkToCourse = (course, slug, enterpriseUUID) => {
-  if (!Object.keys(course).length) {
-    return '#';
-  }
-  const queryParams = {
-    queryId: course.queryId,
-    objectId: course.objectId,
-  };
-  const { userId } = getAuthenticatedUser();
-  sendEnterpriseTrackEvent(
-    enterpriseUUID,
-    'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
-    { userId, enterprise: slug, selectedCourse: course.key },
-  );
-  return `/${slug}/course/${course.key}?${qs.stringify(queryParams)}`;
-};
 
 const renderDialog = () => (
   <div className="lead d-flex align-items-center py-3">

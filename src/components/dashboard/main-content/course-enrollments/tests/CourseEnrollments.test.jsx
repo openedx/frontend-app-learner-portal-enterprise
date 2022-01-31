@@ -2,11 +2,13 @@ import React from 'react';
 
 import {
   render, screen, fireEvent, act, waitFor,
+  within,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
+import moment from 'moment';
 import {
   createCourseEnrollmentWithStatus,
 } from './enrollment-testutils';
@@ -30,16 +32,19 @@ jest.mock('../data/hooks');
 const enterpriseConfig = {
   uuid: 'test-enterprise-uuid',
 };
+const inProgCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.inProgress);
+const upcomingCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.upcoming);
 const completedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.completed);
-const inProgCourseRun = { ...completedCourseRun, courseRunStatus: COURSE_STATUSES.inProgress };
-const savedForLaterCourseRun = { ...completedCourseRun, courseRunStatus: COURSE_STATUSES.savedForLater };
+const savedForLaterCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.savedForLater);
+const requestedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.requested);
 
 hooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
     inProgress: [inProgCourseRun],
-    upcoming: [],
+    upcoming: [upcomingCourseRun],
     completed: [completedCourseRun],
     savedForLater: [savedForLaterCourseRun],
+    requested: [requestedCourseRun],
   },
   updateCourseEnrollmentStatus: jest.fn(),
 });
@@ -63,15 +68,14 @@ describe('Course enrollments', () => {
 
   it('renders course sections', () => {
     renderEnrollmentsComponent();
-    expect(screen.getByText(COURSE_SECTION_TITLES.inProgress)).toBeInTheDocument();
-    expect(screen.getByText(COURSE_SECTION_TITLES.completed)).toBeInTheDocument();
-    expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater)).toBeInTheDocument();
+    expect(screen.getByText(COURSE_SECTION_TITLES.current));
+    expect(screen.getByText(COURSE_SECTION_TITLES.completed));
+    expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater));
     expect(screen.getAllByText(inProgCourseRun.title).length).toBeGreaterThanOrEqual(1);
   });
 
   it('generates course status update on move to in progress action', async () => {
     const { getByText } = renderEnrollmentsComponent();
-    expect(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL })).toBeInTheDocument();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
     });
@@ -84,15 +88,58 @@ describe('Course enrollments', () => {
     await waitFor(() => expect(getByText('Your course was moved to In Progress.')));
   });
 
-  it.only('generates course status update on move to saved for later action', async () => {
+  it('generates course status update on move to saved for later action', async () => {
     const { getByText } = renderEnrollmentsComponent();
-    const saveForLaterButton = screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL });
-    expect(saveForLaterButton).toBeInTheDocument();
     await act(async () => {
-      fireEvent.click(saveForLaterButton);
+      fireEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
     });
 
     expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(getByText('Your course was saved for later.')));
+  });
+
+  it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {
+    renderEnrollmentsComponent();
+    const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
+    expect(within(currentCourses).getByText(inProgCourseRun.title));
+    expect(within(currentCourses).getByText(upcomingCourseRun.title));
+    expect(within(currentCourses).getByText(requestedCourseRun.title));
+  });
+
+  it('renders courses enrollments within sections by created timestamp', async () => {
+    const now = moment();
+    hooks.useCourseEnrollments.mockReturnValueOnce({
+      courseEnrollmentsByStatus: {
+        inProgress: [{
+          ...inProgCourseRun,
+          title: 'second enrollment',
+          created: now.toISOString(),
+        }],
+        upcoming: [{
+          ...upcomingCourseRun,
+          courseRunId: 'third enrollment',
+          title: 'third enrollment',
+          created: now.add(1, 's').toISOString(),
+        },
+        {
+          ...upcomingCourseRun,
+          courseRunId: 'first enrollment',
+          title: 'first enrollment',
+          created: now.subtract(100, 's').toISOString(),
+        }],
+        completed: [],
+        savedForLater: [],
+        requested: [],
+      },
+    });
+
+    renderEnrollmentsComponent();
+
+    const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
+    const courseTitles = currentCourses.querySelectorAll('.course-title');
+    expect(courseTitles.length).toBe(3);
+    expect([...courseTitles].map(title => title.textContent)).toEqual(
+      ['first enrollment', 'second enrollment', 'third enrollment'],
+    );
   });
 });

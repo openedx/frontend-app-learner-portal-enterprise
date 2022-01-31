@@ -1,11 +1,10 @@
 import React, { useContext, useMemo } from 'react';
-import qs from 'query-string';
 import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import MediaQuery from 'react-responsive';
-import { breakpoints, Container, Row } from '@edx/paragon';
+import {
+  breakpoints, Container, Row, MediaQuery,
+} from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
@@ -23,11 +22,13 @@ export default function Course() {
   const { enterpriseConfig } = useContext(AppContext);
   const { search } = useLocation();
 
-  const queryParams = useMemo(
-    () => camelCaseObject(qs.parse(search)),
+  const courseRunKey = useMemo(
+    () => {
+      const queryParams = new URLSearchParams(search);
+      return queryParams.get('course_run_key');
+    },
     [search],
   );
-  const { courseRunKey } = queryParams;
 
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.

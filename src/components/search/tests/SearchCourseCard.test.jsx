@@ -71,10 +71,10 @@ describe('<SearchCourseCard />', () => {
 
     // assert <Skeleton /> loading components render to verify
     // course card is properly in a loading state.
-    expect(screen.queryByTestId('card-img-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('partner-logo-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('course-title-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('partner-name-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('content-type-loading')).toBeInTheDocument();
+    expect(screen.getByTestId('card-img-loading'));
+    expect(screen.getByTestId('partner-logo-loading'));
+    expect(screen.getByTestId('course-title-loading'));
+    expect(screen.getByTestId('partner-name-loading'));
+    expect(screen.getByTestId('content-type-loading'));
   });
 });

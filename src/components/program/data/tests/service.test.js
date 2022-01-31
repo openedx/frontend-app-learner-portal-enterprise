@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
@@ -68,10 +67,10 @@ describe('course enrollments service', () => {
   });
 
   it('fetches program data with program uuid belongs to enterprise', async () => {
-    const options = {
+    const queryParams = new URLSearchParams({
       program_uuids: PROGRAM_UUID,
-    };
-    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${qs.stringify(options)}`;
+    });
+    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${queryParams.toString()}`;
     axiosMock.onGet(CONTAINS_CONTENT_ITEMS_API_ENDPOINT).reply(200, { contains_content_items: true });
 
     const programService = new ProgramService({ enterpriseUuid: ENTERPRISE_UUID, programUuid: PROGRAM_UUID });
@@ -87,22 +86,22 @@ describe('course enrollments service', () => {
   it('fetches program data with partial program uuid does not belongs to enterprise', async () => {
     // axiosMock.resetHistory();
 
-    const optionsWithProgramUuid = {
+    const paramsWithProgramUuid = new URLSearchParams({
       program_uuids: PROGRAM_UUID,
-    };
-    const optionsWithCourseUuid = {
+    });
+    const paramsWithCourseUuid = new URLSearchParams({
       course_run_ids: COURSE_KEY,
-    };
-    const optionsWithCourse2Uuid = {
+    });
+    const paramsWithCourse2Uuid = new URLSearchParams({
       course_run_ids: COURSE_KEY2,
-    };
-    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_1 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${qs.stringify(optionsWithProgramUuid)}`;
+    });
+    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_1 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${paramsWithProgramUuid.toString()}`;
     axiosMock.onGet(CONTAINS_CONTENT_ITEMS_API_ENDPOINT_1).reply(200, { contains_content_items: false });
 
-    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_2 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${qs.stringify(optionsWithCourseUuid)}`;
+    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_2 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${paramsWithCourseUuid.toString()}`;
     axiosMock.onGet(CONTAINS_CONTENT_ITEMS_API_ENDPOINT_2).reply(200, { contains_content_items: true });
 
-    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_3 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${qs.stringify(optionsWithCourse2Uuid)}`;
+    const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_3 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${paramsWithCourse2Uuid.toString()}`;
     axiosMock.onGet(CONTAINS_CONTENT_ITEMS_API_ENDPOINT_3).reply(200, { contains_content_items: false });
 
     const programService = new ProgramService({ enterpriseUuid: ENTERPRISE_UUID, programUuid: PROGRAM_UUID });

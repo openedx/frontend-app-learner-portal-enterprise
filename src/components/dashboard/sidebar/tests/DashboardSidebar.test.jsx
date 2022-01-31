@@ -4,14 +4,13 @@ import { screen } from '@testing-library/react';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import DashboardSidebar, {
-  CATALOG_ACCESS_CARD_BUTTON_TEXT,
-  EMAIL_MESSAGE,
-  NEED_HELP_BLOCK_TITLE,
-} from '../DashboardSidebar';
-
+import DashboardSidebar from '../DashboardSidebar';
 import { renderWithRouter } from '../../../../utils/tests';
-import { OFFER_SUMMARY_TITLE, SUBSCRIPTION_SUMMARY_CARD_TITLE } from '../data/constants';
+import {
+  OFFER_SUMMARY_TITLE, SUBSCRIPTION_SUMMARY_CARD_TITLE, CATALOG_ACCESS_CARD_BUTTON_TEXT,
+  CONTACT_HELP_EMAIL_MESSAGE,
+  NEED_HELP_BLOCK_TITLE,
+} from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 
 /* eslint-disable react/prop-types */
@@ -37,6 +36,7 @@ describe('<DashboardSidebar />', () => {
       loading: false,
       offersCount: 0,
     },
+    hasActiveSubsidies: false,
   };
   const initialAppState = {
     enterpriseConfig: { contactEmail: 'foo@foo.com' },
@@ -48,6 +48,7 @@ describe('<DashboardSidebar />', () => {
       daysUntilExpiration: 70,
       expirationDate: '2021-10-25',
     },
+    hasActiveSubsidies: true,
     subscriptionLicense: {
       status: LICENSE_STATUS.ACTIVATED,
     },
@@ -59,6 +60,7 @@ describe('<DashboardSidebar />', () => {
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
           offers: { ...defaultUserSubsidyState.offers, offersCount: 2 },
+          hasActiveSubsidies: true,
         }}
       >
         <DashboardSidebar />
@@ -151,6 +153,6 @@ describe('<DashboardSidebar />', () => {
       </DashboardSidebarContext>,
     );
     expect(screen.queryByText(NEED_HELP_BLOCK_TITLE)).toBeTruthy();
-    expect(screen.queryByText(EMAIL_MESSAGE)).toBeTruthy();
+    expect(screen.queryByText(CONTACT_HELP_EMAIL_MESSAGE)).toBeTruthy();
   });
 });
