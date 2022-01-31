@@ -142,7 +142,7 @@ const SkillsQuizStepper = () => {
   // selected skills, or if skillsVisible variable is ever been true for once.
   const skillsVisible = useMemo(() => (!isFirstRender || skillsVisible || (selectedSkills?.length > 0)),
     [goal, selectedSkills]);
-  const jobsDropdownsVisible = useMemo(() => !isFirstRender, [skills]);
+  const jobsDropdownsVisible = useMemo(() => !isFirstRender || skills?.length > 0, [skills]);
 
   return (
     <>
