@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen, act } from '@testing-library/react';
+import { screen, act, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   SearchContext, removeFromRefinementArray, deleteRefinementAction, SearchData,
@@ -241,7 +241,7 @@ describe('<SkillsQuizStepper />', () => {
 
   it('checks skills is rendered when goal is changed and job dropdowns are hidden still', async () => {
     const searchContext = {
-      refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
+      refinements: {},
       dispatch: () => null,
     };
 
@@ -279,7 +279,7 @@ describe('<SkillsQuizStepper />', () => {
           </SearchData>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/?skill_names=123' },
+      { route: '/test/skills-quiz/?skill_names=xyz' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
     await act(async () => {
@@ -320,5 +320,50 @@ describe('<SkillsQuizStepper />', () => {
     // remove the last skill as well and make sure deleteRefinementAction is called.
     screen.getByTestId('test-skill-1').click();
     expect(deleteRefinementAction.mock.calls.length).toBe(1);
+  });
+
+  it('checks i am currently a student checkbox works correctly', async () => {
+    const skillsQuizContextInitialState = {
+      state: { goal: GOAL_DROPDOWN_DEFAULT_OPTION },
+    };
+    renderWithRouter(
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SearchData>
+            <SkillsContextProvider value={{ ...skillsQuizContextInitialState }}>
+              <SkillsQuizStepper />
+            </SkillsContextProvider>
+          </SearchData>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/?skill_names=xyz' },
+    );
+    expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
+    const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
+    expect(isStudentCheckbox).not.toBeChecked();
+    fireEvent.click(isStudentCheckbox);
+    expect(isStudentCheckbox).toBeChecked();
+  });
+
+  it(`checks i am currently a student is disabled and unchecked on ${DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE}`, () => {
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+    };
+
+    renderWithRouter(
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SearchData>
+            <SkillsContext.Provider value={skillsQuizContextInitialState}>
+              <SkillsQuizStepper />
+            </SkillsContext.Provider>
+          </SearchData>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/?skill_names=xyz' },
+    );
+    const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
+    expect(isStudentCheckbox).not.toBeChecked();
+    expect(isStudentCheckbox).toBeDisabled();
   });
 });
