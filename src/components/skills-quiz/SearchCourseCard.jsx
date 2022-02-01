@@ -2,25 +2,19 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
-import { Link } from 'react-router-dom';
-import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { Badge, Card, StatusAlert } from '@edx/paragon';
+import { StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
 
-import { isDefinedAndNotNull } from '../../utils/common';
-import { ELLIPSIS_STR } from '../course/data/constants';
-import { shortenString } from '../course/data/utils';
-import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_COURSE, NO_COURSES_ALERT_MESSAGE } from './constants';
+import { NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import getCommonSkills, { linkToCourse } from './data/utils';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import CourseCard from './CourseCard';
 
 const renderDialog = () => (
   <div className="lead d-flex align-items-center py-3">
@@ -35,7 +29,6 @@ const renderDialog = () => (
 
 const SearchCourseCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { slug, uuid } = enterpriseConfig;
   const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
@@ -65,10 +58,6 @@ const SearchCourseCard = ({ index }) => {
   );
   useEffect(
     () => {
-      let fetch = true;
-      fetchCourses(); // eslint-disable-line no-use-before-define
-      return () => { fetch = false; };
-
       async function fetchCourses() {
         setIsLoading(true);
         const { hits, nbHits } = await index.search('', {
@@ -77,7 +66,6 @@ const SearchCourseCard = ({ index }) => {
             skillsFacetFilter,
           ],
         });
-        if (!fetch) { return; }
         if (nbHits > 0) {
           setCourses(hits.length <= 3 ? camelCaseObject(hits) : camelCaseObject(hits.slice(0, 3)));
           setHitCount(nbHits);
@@ -87,25 +75,9 @@ const SearchCourseCard = ({ index }) => {
           setIsLoading(false);
         }
       }
+      fetchCourses();
     },
     [selectedJob, skills],
-  );
-
-  const partnerDetails = useMemo(
-    () => {
-      const partners = {};
-      courses.forEach((course) => {
-        if (!Object.keys(course).length || !isDefinedAndNotNull(course.partners)) {
-          partners[course.key] = {};
-        }
-        partners[course.key] = {
-          primaryPartner: course.partners.length > 0 ? course.partners[0] : undefined,
-          showPartnerLogo: course.partners.length === 1,
-        };
-      });
-      return partners;
-    },
-    [JSON.stringify(courses)],
   );
 
   return (
@@ -113,91 +85,7 @@ const SearchCourseCard = ({ index }) => {
       {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these courses </h3> : null}
       <div className="skill-quiz-results">
         {(hitCount > 0) && courses.map(course => (
-          <div
-            className="search-result-card mb-4"
-            role="group"
-            aria-label={course.title}
-            key={course.title}
-          >
-            { /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-            <Link to={isLoading ? '#' : linkToCourse(course, slug, uuid)}>
-              <Card>
-                {isLoading ? (
-                  <Card.Img
-                    as={Skeleton}
-                    variant="top"
-                    duration={0}
-                    height={100}
-                    data-testid="card-img-loading"
-                  />
-                ) : (
-                  <Card.Img
-                    variant="top"
-                    src={course.cardImageUrl}
-                    alt=""
-                  />
-                )}
-                {isLoading && (
-                  <div className="partner-logo-wrapper">
-                    <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
-                  </div>
-                )}
-                {(!isLoading
-                  && partnerDetails[course.key].primaryPartner && partnerDetails[course.key].showPartnerLogo) && (
-                  <div className="partner-logo-wrapper">
-                    <img
-                      src={partnerDetails[course.key].primaryPartner.logoImageUrl}
-                      className="partner-logo"
-                      alt={partnerDetails[course.key].primaryPartner.name}
-                    />
-                  </div>
-                )}
-                <Card.Body>
-                  <Card.Title as="h4" className="card-title mb-2">
-                    {isLoading ? (
-                      <Skeleton count={2} data-testid="course-title-loading" />
-                    ) : (
-                      <Truncate lines={course.skillNames?.length < 5 ? 3 : 2} trimWhitespace>
-                        { course.title }
-                      </Truncate>
-                    )}
-                  </Card.Title>
-                  {isLoading ? (
-                    <Skeleton duration={0} data-testid="partner-name-loading" />
-                  ) : (
-                    <>
-                      {course.partners.length > 0 && (
-                        <p className="partner text-muted m-0">
-                          <Truncate lines={2} trimWhitespace>
-                            {course.partners.map(partner => partner.name).join(', ')}
-                          </Truncate>
-                        </p>
-                      )}
-                    </>
-                  )}
-                  {isLoading ? (
-                    <Skeleton count={1} data-testid="skills-loading" />
-                  ) : (
-                    <>
-                      { course.skillNames?.length > 0 && (
-                        <div className="mb-2 d-inline">
-                          {getCommonSkills(course, selectedJobSkills, MAX_VISIBLE_SKILLS_COURSE).map((skill) => (
-                            <Badge
-                              key={skill}
-                              className="skill-badge"
-                              variant="light"
-                            >
-                              { shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR) }
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </Card.Body>
-              </Card>
-            </Link>
-          </div>
+          <CourseCard isLoading={isLoading} course={course} allSkills={selectedJobSkills} />
         ))}
       </div>
       <div>
