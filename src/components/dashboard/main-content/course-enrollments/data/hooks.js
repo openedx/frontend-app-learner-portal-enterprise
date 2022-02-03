@@ -9,7 +9,8 @@ import * as service from './service';
 import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './utils';
 
 export const useCourseEnrollments = (enterpriseUUID) => {
-  const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState({});
+  const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
+  const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
@@ -23,6 +24,8 @@ export const useCourseEnrollments = (enterpriseUUID) => {
       } catch (error) {
         logError(error);
         setFetchError(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -58,6 +61,7 @@ export const useCourseEnrollments = (enterpriseUUID) => {
 
   return {
     courseEnrollmentsByStatus,
+    isLoading,
     fetchError,
     updateCourseEnrollmentStatus,
   };

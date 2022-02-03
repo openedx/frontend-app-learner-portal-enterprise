@@ -7,21 +7,36 @@ import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar from '../DashboardSidebar';
 import { renderWithRouter } from '../../../../utils/tests';
 import {
-  OFFER_SUMMARY_TITLE, SUBSCRIPTION_SUMMARY_CARD_TITLE, CATALOG_ACCESS_CARD_BUTTON_TEXT,
+  SUBSCRIPTION_SUMMARY_CARD_TITLE, CATALOG_ACCESS_CARD_BUTTON_TEXT,
   CONTACT_HELP_EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
+  OFFER_SUMMARY_NOTICE,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
 
 /* eslint-disable react/prop-types */
-const DashboardSidebarContext = ({
+const DashboardSidebarWithContext = ({
   initialAppState = { fakeContext: 'foo' },
   initialUserSubsidyState = {},
-  children,
+  initialSubsidyRequestsState = {
+    subsidyRequestConfiguration: {},
+    licenseRequests: [],
+    couponCodeRequests: [],
+  },
+  initialCourseEnrollmentsState = {
+    courseEnrollmentsByStatus: {},
+  },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      {children}
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
+          <DashboardSidebar />
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -53,57 +68,66 @@ describe('<DashboardSidebar />', () => {
       status: LICENSE_STATUS.ACTIVATED,
     },
   };
-  test('offer summary card is displayed when offers are available', () => {
+  test('Offer summary card is displayed when offers are available', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
           offers: { ...defaultUserSubsidyState.offers, offersCount: 2 },
           hasActiveSubsidies: true,
         }}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
-    expect(screen.queryByText(OFFER_SUMMARY_TITLE)).toBeTruthy();
+    expect(screen.getByText(OFFER_SUMMARY_NOTICE));
   });
-  test('offer summary card is not displayed when no offers are available', () => {
+  test('Offer summary card is displayed when there are pending coupon code requests', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+        initialSubsidyRequestsState={{
+          isLoading: false,
+          couponCodeRequests: [
+            {
+              state: SUBSIDY_REQUEST_STATE.REQUESTED,
+            },
+          ],
+        }}
+      />,
     );
-    expect(screen.queryByText(OFFER_SUMMARY_TITLE)).toBeFalsy();
+    expect(screen.getByText(OFFER_SUMMARY_NOTICE));
   });
-  test('subscription summary card is displayed when subscription is available', () => {
+  test('Offer summary card is not displayed when there are no offers or pending coupon code requests', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={defaultUserSubsidyState}
+      />,
+    );
+    expect(screen.queryByText(OFFER_SUMMARY_NOTICE)).toBeFalsy();
+  });
+  test('Subscription summary card is displayed when subscription is available', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={userSubsidyStateWithSubscription}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeTruthy();
   });
-  test('subscription summary card is not displayed when enterprise subscription is not available', () => {
+  test('Subscription summary card is not displayed when enterprise subscription is not available', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('subscription summary card is not displayed when enterprise subscription is available but user license is not available', () => {
+  test('Subscription summary card is not displayed when enterprise subscription is available but user license is not available', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
@@ -113,44 +137,36 @@ describe('<DashboardSidebar />', () => {
             expirationDate: '2021-10-25',
           },
         }}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
   test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
         initialUserSubsidyState={defaultUserSubsidyState}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
     expect(catalogAccessButton).toBeFalsy();
   });
   test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={{ enterpriseConfig: { disableSearch: true } }}
         initialUserSubsidyState={userSubsidyStateWithSubscription}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
     expect(catalogAccessButton).toBeFalsy();
   });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(
-      <DashboardSidebarContext
+      <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
-      >
-        <DashboardSidebar />
-      </DashboardSidebarContext>,
+      />,
     );
     expect(screen.queryByText(NEED_HELP_BLOCK_TITLE)).toBeTruthy();
     expect(screen.queryByText(CONTACT_HELP_EMAIL_MESSAGE)).toBeTruthy();

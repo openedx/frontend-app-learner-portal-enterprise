@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { COURSE_STATUSES } from './constants';
 
 export const transformCourseEnrollment = (rawCourseEnrollment) => {
@@ -36,4 +37,9 @@ export const groupCourseEnrollmentsByStatus = (courseEnrollments) => {
   }, {});
 
   return courseEnrollmentsByStatus;
+};
+
+export const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
+  enrollments.sort((c1, c2) => moment(c1.created) - moment(c2.created));
+  return enrollments;
 };
