@@ -1,6 +1,12 @@
 // OfferSummaryCard title
 export const OFFER_SUMMARY_TITLE = 'Enrollment Codes';
-export const OFFER_SUMMARY_NOTICE = 'Used to enroll in individual courses found in your catalog search.';
+export const OFFER_SUMMARY_NOTICE = 'Use codes to enroll in courses from your catalog.';
+// OfferSummaryCard badge labels
+export const OFFERS_AVAILABLE_BADGE_LABEL = 'Available';
+export const COUPON_CODES_REQUESTED_BADGE_LABEL = 'Requested';
+// OfferSummaryCard badge variants
+export const OFFERS_AVAILABLE_BADGE_VARIANT = 'success';
+export const COUPON_CODES_REQUESTED_BADGE_VARIANT = 'warning';
 // SubscriptionSummaryCard title
 export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription Status';
 // SubscriptionSummaryCard badge labels

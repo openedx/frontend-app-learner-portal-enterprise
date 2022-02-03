@@ -6,9 +6,6 @@ import {
 import { LICENSE_STATUS } from '../data/constants';
 
 jest.mock('../data/service');
-jest.mock('@edx/frontend-platform/logging', () => ({
-  logError: jest.fn(),
-}));
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';

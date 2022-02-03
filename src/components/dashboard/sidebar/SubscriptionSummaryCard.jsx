@@ -32,7 +32,7 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
       statusBadgeVariant = SUBSCRIPTION_WARNING_BADGE_VARIANT;
     }
     return (
-      <div className="d-flex">
+      <div className="d-flex align-items-start justify-content-between">
         <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
         <div>
           <Badge
