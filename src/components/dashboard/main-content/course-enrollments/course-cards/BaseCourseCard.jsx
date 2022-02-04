@@ -293,13 +293,14 @@ class BaseCourseCard extends Component {
         <div className="d-flex">
           <div className="flex-grow-1 mr-4 mb-3">
             {this.renderMicroMastersTitle()}
-            <div className="d-flex align-items-center flex-wrap mb-1">
+            <div className="d-flex align-items-start justify-content-between mb-1">
               <h4 className="course-title mb-0 mr-2">
                 <a className="h3" href={linkToCourse}>{title}</a>
               </h4>
               {
                 BADGE_PROPS_BY_COURSE_STATUS[type] && (
                   <Badge
+                    className="mt-1"
                     {...BADGE_PROPS_BY_COURSE_STATUS[type]}
                   />
                 )
