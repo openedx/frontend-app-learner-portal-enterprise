@@ -22,16 +22,14 @@ const DashboardMainContent = () => {
 
   return (
     <CourseEnrollmentsContextProvider>
-      <h2 className="h1 mb-3">
+      <h2 className="h1 mb-4">
         {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
       </h2>
-
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
         {matches => (matches ? (
           <SubsidiesSummary />
         ) : null)}
       </MediaQuery>
-
       <CourseEnrollments>
         {/* The children below will only be rendered if there are no course enrollments. */}
         {disableSearch ? (
