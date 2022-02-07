@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { isWithinInterval, add, parseISO } from 'date-fns';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -36,8 +36,8 @@ const InProgressCourseCard = ({
   );
 
   const filteredNotifications = notifications.filter((notification) => {
-    const now = moment();
-    if (moment(notification.date).isBetween(now, moment(now).add('1', 'w'))) {
+    const now = new Date();
+    if (isWithinInterval(parseISO(notification.date), { start: now, end: add(now, { weeks: 1 }) })) {
       return notification;
     }
     return false;

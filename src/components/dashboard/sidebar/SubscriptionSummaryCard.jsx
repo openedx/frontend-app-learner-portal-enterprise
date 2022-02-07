@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from '@edx/paragon';
-import moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
 import {
@@ -50,7 +50,7 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, className }) => {
   const renderCardBody = () => (
     <>
       {daysUntilExpiration > SUBSCRIPTION_EXPIRED ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-      {' '}<span className="font-weight-bold">{moment(expirationDate).format('MMMM Do, YYYY')}</span>
+      {' '}<span className="font-weight-bold">{format(parseISO(expirationDate), 'MMMM Do, yyyy')}</span>
     </>
   );
 

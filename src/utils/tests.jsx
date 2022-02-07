@@ -1,7 +1,7 @@
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import moment from 'moment';
+import { add, sub, formatISO } from 'date-fns';
 import { render } from '@testing-library/react';
 
 // eslint-disable import/prefer-default-export
@@ -53,8 +53,8 @@ export const initialCourseState = ({
     key: 'test-course-run-key',
     isEnrollable: true,
     pacingType,
-    start: moment().subtract(1, 'w').toISOString(),
-    end: moment().add(8, 'w').toISOString(),
+    start: formatISO(sub(new Date(), { weeks: 1 })),
+    end: formatISO(add(new Date(), { weeks: 8 })),
     availability: 'Current',
     courseUuid: 'Foo',
     weeksToComplete: 4,

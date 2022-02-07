@@ -1,9 +1,9 @@
-import moment from 'moment';
 import Cookies from 'universal-cookie';
+import { isWithinInterval, parseISO, isBefore } from 'date-fns';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
-export const isCourseEnded = endDate => moment(endDate) < moment();
+export const isCourseEnded = endDate => isBefore(parseISO(endDate), new Date());
 
 export const createArrayFromValue = (value) => {
   const values = [];
@@ -42,10 +42,10 @@ export const hasTruthyValue = (value) => {
 };
 
 export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
-  const now = moment();
+  const now = new Date();
   // Subscriptions use "expirationDate" while Codes use "endDate"
-  const realEndDate = expirationDate || endDate;
-  return now.isBetween(startDate, realEndDate);
+  const actualEndDate = expirationDate || endDate;
+  return isWithinInterval(now, { start: parseISO(startDate), end: parseISO(actualEndDate) });
 };
 
 export const loginRefresh = async () => {

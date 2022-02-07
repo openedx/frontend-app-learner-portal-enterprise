@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { add, sub, formatISO } from 'date-fns';
 import {
   render, screen, fireEvent, act, waitFor,
   within,
@@ -8,7 +8,6 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
-import moment from 'moment';
 import {
   createCourseEnrollmentWithStatus,
 } from './enrollment-testutils';
@@ -107,25 +106,25 @@ describe('Course enrollments', () => {
   });
 
   it('renders courses enrollments within sections by created timestamp', async () => {
-    const now = moment();
+    const now = new Date();
     hooks.useCourseEnrollments.mockReturnValueOnce({
       courseEnrollmentsByStatus: {
         inProgress: [{
           ...inProgCourseRun,
           title: 'second enrollment',
-          created: now.toISOString(),
+          created: formatISO(now),
         }],
         upcoming: [{
           ...upcomingCourseRun,
           courseRunId: 'third enrollment',
           title: 'third enrollment',
-          created: now.add(1, 's').toISOString(),
+          created: formatISO(add(now, { seconds: 1 })),
         },
         {
           ...upcomingCourseRun,
           courseRunId: 'first enrollment',
           title: 'first enrollment',
-          created: now.subtract(100, 's').toISOString(),
+          created: formatISO(sub(now, { seconds: 100 })),
         }],
         completed: [],
         savedForLater: [],

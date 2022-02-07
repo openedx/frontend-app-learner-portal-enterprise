@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { format, parseISO, formatDistanceToNowStrict } from 'date-fns';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 const Notification = props => (
@@ -20,10 +20,10 @@ const Notification = props => (
           </a>
           {' is due '}
           <span className="font-weight-bold">
-            {moment(props.date).fromNow()}
+            {formatDistanceToNowStrict(props.date, { unit: 'day' })}
           </span>
           {' on '}
-          {moment(props.date).format('ddd MMMM D, YYYY')}
+          {format(parseISO(props.date), 'ddd MMMM d, yyyy')}
         </div>
       </div>
     </div>

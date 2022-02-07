@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import moment from 'moment';
+import { format, parseISO } from 'date-fns';
 
 import {
   COURSE_AVAILABILITY_MAP,
@@ -28,7 +27,7 @@ const EnrollButtonLabel = ({
 }) => {
   // See https://openedx.atlassian.net/wiki/spaces/WS/pages/1045200922/Enroll+button+and+Course+Run+Selector+Logic
   // for more detailed documentation on the enroll button labeling based off course run states.
-  const DATE_FORMAT = 'MMM D, YYYY';
+  const DATE_FORMAT = 'MMM d, yyyy';
   if (!isEnrollable) {
     const availabilityStates = [
       COURSE_AVAILABILITY_MAP.UPCOMING,
@@ -47,7 +46,7 @@ const EnrollButtonLabel = ({
         return (
           <>
             <span className="enroll-btn-label">Enroll</span>
-            <div><small>Starts {moment().format(DATE_FORMAT)}</small></div>
+            <div><small>Starts {format(new Date(), DATE_FORMAT)}</small></div>
           </>
         );
       }
@@ -59,8 +58,7 @@ const EnrollButtonLabel = ({
         <div>
           <small>
             {isCourseStarted ? 'Started' : 'Starts'}
-            {' '}
-            {moment(start).format(DATE_FORMAT)}
+            {' '}{format(parseISO(start), DATE_FORMAT)}
           </small>
         </div>
       </>

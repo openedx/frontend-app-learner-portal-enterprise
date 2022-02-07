@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-
-import moment from 'moment';
+import { format, parseISO, compareDesc } from 'date-fns';
 import { Alert, Collapsible, Hyperlink } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { WarningFilled } from '@edx/paragon/icons';
@@ -15,12 +14,12 @@ import { ProgramContext } from './ProgramContextProvider';
 
 import { PROGRAM_PACING_MAP } from './data/constants';
 
-const DATE_FORMAT = 'MMM D, YYYY';
+const DATE_FORMAT = 'MMM d, yyyy';
 
 const getCourseRun = course => (
   // Get the latest course run.
   course.courseRuns?.sort(
-    (a, b) => (moment(a.start) < moment(b.start) ? 1 : -1),
+    (a, b) => compareDesc(parseISO(a.start), parseISO(b.start)),
   )[0]
 );
 
@@ -57,7 +56,7 @@ const ProgramCourses = () => {
                     && (
                       <div className="course-card-result mb-2">
                         <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
-                        <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>
+                        <span className="font-weight-bold">Starts {format(parseISO(courseRun.start), DATE_FORMAT)}</span>
                       </div>
                     )
                   }

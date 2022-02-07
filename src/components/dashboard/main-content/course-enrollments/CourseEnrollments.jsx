@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
-
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { compareAsc, parseISO } from 'date-fns';
+
 import { LoadingSpinner } from '../../../loading-spinner';
 import CourseSection from './CourseSection';
 
@@ -40,7 +40,7 @@ const CourseEnrollments = ({ children }) => {
   }
 
   const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
-    enrollments.sort((c1, c2) => moment(c1.created) - moment(c2.created));
+    enrollments.sort((c1, c2) => compareAsc(parseISO(c1.created), parseISO(c2.created)));
     return enrollments;
   };
 

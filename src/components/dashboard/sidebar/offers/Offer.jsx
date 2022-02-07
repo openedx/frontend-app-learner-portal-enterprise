@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import { getConfig } from '@edx/frontend-platform/config';
 
 class Offer extends React.Component {
@@ -15,7 +15,7 @@ class Offer extends React.Component {
   }
 
   renderFinePrint(redemptionsRemaining, couponEndDate) {
-    let message = `Expires ${moment(couponEndDate).format('MMMM D, YYYY')}.`;
+    let message = `Expires ${format(parseISO(couponEndDate), 'MMMM d, yyyy')}.`;
     if (redemptionsRemaining > 1) {
       message = `You can use this ${redemptionsRemaining} more times. ${message}`;
     }

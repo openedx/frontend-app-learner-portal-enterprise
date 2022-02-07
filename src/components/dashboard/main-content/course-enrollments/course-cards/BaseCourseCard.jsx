@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { format, parseISO, isAfter } from 'date-fns';
 import {
   Dropdown, Badge, IconButton, Icon,
 } from '@edx/paragon';
@@ -66,7 +66,7 @@ class BaseCourseCard extends Component {
 
   getDateMessage = () => {
     const { type, pacing, endDate } = this.props;
-    const formattedEndDate = endDate ? moment(endDate).format('MMMM D, YYYY') : null;
+    const formattedEndDate = endDate ? format(parseISO(endDate), 'MMMM d, yyyy') : null;
     let message = '';
     if (formattedEndDate) {
       switch (type) {
@@ -81,7 +81,7 @@ class BaseCourseCard extends Component {
         case COURSE_STATUSES.upcoming:
         case COURSE_STATUSES.completed:
         case COURSE_STATUSES.savedForLater: {
-          const isCourseEnded = moment() > moment(endDate);
+          const isCourseEnded = isAfter(new Date(), parseISO(endDate));
           message += isCourseEnded ? 'Ended' : 'Ends';
           message += ` ${formattedEndDate}.`;
           break;
@@ -123,7 +123,7 @@ class BaseCourseCard extends Component {
 
   isCourseEnded = () => {
     const { endDate } = this.props;
-    return moment(endDate) < moment();
+    return isAfter(new Date(), parseISO(endDate));
   };
 
   handleEmailSettingsButtonClick = () => {

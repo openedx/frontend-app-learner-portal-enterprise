@@ -1,4 +1,5 @@
 import React from 'react';
+import { add, formatISO } from 'date-fns';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -14,7 +15,6 @@ import {
   SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
 } from '../../../config/constants';
 import * as hooks from '../main-content/course-enrollments/data/hooks';
-
 import {
   renderWithRouter,
 } from '../../../utils/tests';
@@ -186,6 +186,7 @@ describe('<Dashboard />', () => {
         ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
+          expirationDate: formatISO(add(new Date(), { days: 60 })),
         },
         hasActiveSubsidies: true,
       }}
@@ -234,6 +235,7 @@ describe('<Dashboard />', () => {
         ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
+          expirationDate: formatISO(add(new Date(), { days: 60 })),
         },
         showExpirationNotifications: true,
       };
@@ -251,6 +253,7 @@ describe('<Dashboard />', () => {
         ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 0,
+          expirationDate: formatISO(new Date()),
         },
         showExpirationNotifications: true,
       };
@@ -268,6 +271,7 @@ describe('<Dashboard />', () => {
         ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 0,
+          expirationDate: formatISO(new Date()),
         },
         showExpirationNotifications: false,
       };
@@ -285,6 +289,7 @@ describe('<Dashboard />', () => {
         ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
+          expirationDate: formatISO(add(new Date(), { days: 60 })),
         },
         showExpirationNotifications: false,
       };
@@ -303,6 +308,7 @@ describe('<Dashboard />', () => {
         ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
+          expirationDate: formatISO(add(new Date(), { days: 60 })),
         },
         showExpirationNotifications: true,
       };
@@ -325,6 +331,7 @@ describe('<Dashboard />', () => {
         subscriptionPlan: {
           uuid: subscriptionPlanId,
           daysUntilExpiration: 60,
+          expirationDate: formatISO(add(new Date(), { days: 60 })),
         },
         showExpirationNotifications: true,
       };
@@ -348,6 +355,7 @@ describe('<Dashboard />', () => {
         ...defaultOffersState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
+          expirationDate: formatISO(add(new Date(), { days: 60 })),
         },
         showExpirationNotifications: true,
       };
@@ -370,6 +378,7 @@ describe('<Dashboard />', () => {
         subscriptionPlan: {
           uuid: subscriptionPlanId,
           daysUntilExpiration: 30,
+          expirationDate: formatISO(add(new Date(), { days: 30 })),
         },
         showExpirationNotifications: true,
       };
@@ -393,6 +402,7 @@ describe('<Dashboard />', () => {
         ...defaultOffersState,
         subscriptionPlan: {
           daysUntilExpiration: 30,
+          expirationDate: formatISO(add(new Date(), { days: 30 })),
         },
         showExpirationNotifications: true,
       };

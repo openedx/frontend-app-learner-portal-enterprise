@@ -1,5 +1,5 @@
 import React, { useContext, useState, useRef } from 'react';
-import moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import { Button, Input } from '@edx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
@@ -44,7 +44,7 @@ export default function CourseRunSelector() {
           options={
             availableCourseRuns.map(({ start, uuid }) => (
               {
-                label: moment(start).format('MMM D, YYYY'),
+                label: format(parseISO(start), 'MMM d, yyyy'),
                 value: uuid,
               }
             ))

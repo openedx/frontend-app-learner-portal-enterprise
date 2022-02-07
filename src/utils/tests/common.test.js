@@ -1,4 +1,5 @@
-import moment from 'moment';
+import { add, sub, formatISO } from 'date-fns';
+
 import {
   isDefinedAndNotNull,
   createArrayFromValue,
@@ -116,13 +117,13 @@ describe('hasTruthyValue', () => {
   });
 });
 
-const now = moment();
-const validStartDate = moment(now).subtract(5, 'days');
-const validEndDate = moment(now).add(5, 'days');
-const validExpirationDate = moment(now).add(6, 'days');
-const invalidStartDate = moment(now).add(1, 'days');
-const invalidEndDate = moment(now).subtract(1, 'days');
-const invalidExpirationDate = moment(now).subtract(2, 'days');
+const now = new Date();
+const validStartDate = formatISO(sub(now, { days: 5 }));
+const validEndDate = formatISO(add(now, { days: 5 }));
+const validExpirationDate = formatISO(add(now, { days: 6 }));
+const invalidStartDate = formatISO(add(now, { days: 1 }));
+const invalidEndDate = formatISO(sub(now, { days: 1 }));
+const invalidExpirationDate = formatISO(sub(now, { days: 2 }));
 
 describe('hasValidStartExpirationDates', () => {
   it('returns true when now is between startDate and endDate', () => {

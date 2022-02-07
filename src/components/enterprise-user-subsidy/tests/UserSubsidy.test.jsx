@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import moment from 'moment';
+import { add, sub, formatISO } from 'date-fns';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -32,8 +32,8 @@ const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const mockSubscriptionPlan = {
   uuid: TEST_SUBSCRIPTION_UUID,
   isActive: true,
-  startDate: moment().subtract(1, 'w').toISOString(),
-  expirationDate: moment().add(1, 'y').toISOString(),
+  startDate: formatISO(sub(new Date(), { weeks: 1 })),
+  expirationDate: formatISO(add(new Date(), { years: 1 })),
 };
 
 const mockCustomerAgreementData = {

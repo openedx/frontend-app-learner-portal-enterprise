@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { isAfter, parseISO } from 'date-fns';
 import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
 import SiteFooter from '@edx/frontend-component-footer';
@@ -30,7 +31,7 @@ export default function Layout({ children }) {
     }
     const startTimestamp = config.MAINTENANCE_ALERT_START_TIMESTAMP;
     if (startTimestamp) {
-      return new Date() > new Date(startTimestamp);
+      return isAfter(new Date(), parseISO(startTimestamp));
     }
     return true;
   }, [
