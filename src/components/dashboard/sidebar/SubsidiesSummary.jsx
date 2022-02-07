@@ -30,11 +30,11 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
     subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,
     offers: { offersCount },
-    hasActiveSubsidies,
   } = useContext(UserSubsidyContext);
 
   const {
     couponCodeRequests,
+    licenseRequests,
   } = useContext(SubsidyRequestsContext);
 
   // if there are course enrollments, the cta button below will be the only one on the page
@@ -47,22 +47,30 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
     request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
   ), [couponCodeRequests.length]);
 
-  if (!(hasActiveSubsidies || pendingCouponCodeRequests.length)) {
+  const pendingLicenseRequest = useMemo(() => licenseRequests.find(
+    request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
+  ), [licenseRequests.length]);
+
+  const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
+    && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || !!pendingLicenseRequest;
+
+  const hasOffersOrCouponCodeRequests = offersCount > 0 || pendingCouponCodeRequests.length > 0;
+
+  if (!(hasActiveLicenseOrLicenseRequest || hasOffersOrCouponCodeRequests)) {
     return null;
   }
 
   return (
     <SidebarCard cardClassNames="border-primary border-brand-primary catalog-access-card mb-5">
       <div className={className} data-testid="subsidies-summary">
-        {
-          (subscriptionPlan && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) && (
-            <SubscriptionSummaryCard
-              subscriptionPlan={subscriptionPlan}
-              className="mb-3"
-            />
-          )
-        }
-        {(offersCount > 0 || pendingCouponCodeRequests.length > 0) && (
+        {hasActiveLicenseOrLicenseRequest && (
+          <SubscriptionSummaryCard
+            subscriptionPlan={subscriptionPlan}
+            licenseRequest={pendingLicenseRequest}
+            className="mb-3"
+          />
+        )}
+        {hasOffersOrCouponCodeRequests && (
           <OfferSummaryCard
             offersCount={offersCount}
             couponCodeRequestsCount={pendingCouponCodeRequests.length}

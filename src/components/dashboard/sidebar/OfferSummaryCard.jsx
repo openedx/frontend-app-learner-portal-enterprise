@@ -31,28 +31,26 @@ const OfferSummaryCard = ({ offersCount, couponCodeRequestsCount, className }) =
     return null;
   }, [offersCount, couponCodeRequestsCount]);
 
-  const renderCardTitle = () => (
-    <div className="d-flex align-items-start justify-content-between">
-      {`${OFFER_SUMMARY_TITLE}${offersCount > 0 ? `: ${offersCount}` : ''}`}
-      {badgeVariantAndLabel && (
-        <Badge
-          variant={badgeVariantAndLabel.variant}
-          className="ml-2"
-          data-testid="subscription-status-badge"
-        >
-          {badgeVariantAndLabel.label}
-        </Badge>
-      )}
-    </div>
-  );
-
   if (!(offersCount || couponCodeRequestsCount)) {
     return null;
   }
 
   return (
     <SidebarCard
-      title={renderCardTitle()}
+      title={(
+        <div className="d-flex align-items-start justify-content-between">
+          {`${OFFER_SUMMARY_TITLE}${offersCount > 0 ? `: ${offersCount}` : ''}`}
+          {badgeVariantAndLabel && (
+            <Badge
+              variant={badgeVariantAndLabel.variant}
+              className="ml-2"
+              data-testid="subscription-status-badge"
+            >
+              {badgeVariantAndLabel.label}
+            </Badge>
+          )}
+        </div>
+      )}
       cardClassNames={className}
     >
       <p className="m-0">
