@@ -9,14 +9,17 @@ export const OFFERS_AVAILABLE_BADGE_VARIANT = 'success';
 export const COUPON_CODES_REQUESTED_BADGE_VARIANT = 'warning';
 // SubscriptionSummaryCard title
 export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription Status';
+export const LICENSE_REQUESTED_NOTICE = 'Awaiting approval.';
 // SubscriptionSummaryCard badge labels
 export const SUBSCRIPTION_ACTIVE_BADGE_LABEL = 'Active';
 export const SUBSCRIPTION_WARNING_BADGE_LABEL = 'Expiring';
 export const SUBSCRIPTION_EXPIRED_BADGE_LABEL = 'Expired';
+export const LICENSE_REQUESTED_BADGE_LABEL = 'Requested';
 // SubscriptionSummaryCard badge variants
 export const SUBSCRIPTION_ACTIVE_BADGE_VARIANT = 'success';
 export const SUBSCRIPTION_WARNING_BADGE_VARIANT = 'warning';
 export const SUBSCRIPTION_EXPIRED_BADGE_VARIANT = 'danger';
+export const LICENSE_REQUESTED_BADGE_VARIANT = 'warning';
 // SubscriptionSummaryCard expiration date prefixes
 export const SUBSCRIPTION_ACTIVE_DATE_PREFIX = 'Available until';
 export const SUBSCRIPTION_EXPIRED_DATE_PREFIX = 'Expired on';

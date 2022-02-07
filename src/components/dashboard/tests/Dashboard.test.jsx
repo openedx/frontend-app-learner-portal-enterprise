@@ -22,6 +22,7 @@ import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 const defaultOffersState = {
   offers: [],
@@ -187,7 +188,7 @@ describe('<Dashboard />', () => {
         subscriptionPlan: {
           daysUntilExpiration: 60,
         },
-        hasActiveSubsidies: true,
+        subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
       }}
       />,
     );
