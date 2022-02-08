@@ -16,6 +16,7 @@ import CourseSidebar from './CourseSidebar';
 import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
+import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 
 export default function Course() {
   const { courseKey } = useParams();
@@ -89,23 +90,25 @@ export default function Course() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <CourseContextProvider initialState={initialState}>
-        <CourseHeader />
-        <Container size="lg" className="py-5">
-          <Row>
-            <MainContent>
-              <CourseMainContent />
-            </MainContent>
-            <MediaQuery minWidth={breakpoints.large.minWidth}>
-              {matches => matches && (
-                <Sidebar>
-                  <CourseSidebar />
-                </Sidebar>
-              )}
-            </MediaQuery>
-          </Row>
-        </Container>
-      </CourseContextProvider>
+      <SubsidyRequestsContextProvider>
+        <CourseContextProvider initialState={initialState}>
+          <CourseHeader />
+          <Container size="lg" className="py-5">
+            <Row>
+              <MainContent>
+                <CourseMainContent />
+              </MainContent>
+              <MediaQuery minWidth={breakpoints.large.minWidth}>
+                {matches => matches && (
+                  <Sidebar>
+                    <CourseSidebar />
+                  </Sidebar>
+                )}
+              </MediaQuery>
+            </Row>
+          </Container>
+        </CourseContextProvider>
+      </SubsidyRequestsContextProvider>
     </>
   );
 }

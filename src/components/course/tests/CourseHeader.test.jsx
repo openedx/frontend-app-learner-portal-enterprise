@@ -6,6 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_AVAILABILITY_MAP, COURSE_PACING_MAP } from '../data/constants';
@@ -26,12 +27,15 @@ const CourseHeaderWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
+  initialSubsidyRequestsState = { licenseRequests: [] },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <CourseContextProvider initialState={initialCourseState}>
-        <CourseHeader />
-      </CourseContextProvider>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <CourseContextProvider initialState={initialCourseState}>
+          <CourseHeader />
+        </CourseContextProvider>
+      </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -70,6 +74,7 @@ describe('<CourseHeader />', () => {
     userEntitlements: [],
     catalog: {
       containsContentItems: true,
+      catalogList: ['catalog-uuid'],
     },
   };
   const initialUserSubsidyState = {
@@ -181,6 +186,7 @@ describe('<CourseHeader />', () => {
       ...initialCourseState,
       catalog: {
         containsContentItems: false,
+        catalogList: [],
       },
     };
 

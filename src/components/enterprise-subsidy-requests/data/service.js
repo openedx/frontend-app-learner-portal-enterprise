@@ -1,10 +1,12 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
-export function fetchSubsidyRequestConfiguration(enterpriseUUID) {
+export function fetchSubsidyRequestConfiguration(enterpriseUUID, useCache = true) {
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_API_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
-  return getAuthenticatedHttpClient().get(url);
+  return getAuthenticatedHttpClient({
+    useCache: useCache && config.USE_API_CACHE,
+  }).get(url);
 }
 
 export function fetchLicenseRequests(enterpriseUUID) {

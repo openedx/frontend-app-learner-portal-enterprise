@@ -54,6 +54,7 @@ const UserSubsidy = ({ children }) => {
         subscriptionPlan,
         offers,
         showExpirationNotifications,
+        customerAgreementConfig,
       };
     },
     [
