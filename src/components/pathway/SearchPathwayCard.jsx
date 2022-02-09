@@ -6,9 +6,11 @@ import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card, useToggle } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import classNames from 'classnames';
+
+import PathwayModal from './PathwayModal';
 
 // This function is for filtering list of tags in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -37,6 +39,7 @@ const filterTags = tags => {
 
 const SearchPathwayCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID } } = useContext(AppContext);
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
 
   const pathway = hit ? camelCaseObject(hit) : {};
 
@@ -56,12 +59,19 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
       role="group"
       aria-label={pathway.title}
     >
+      <PathwayModal
+        learnerPathwayUuid={pathway.uuid}
+        isOpen={isLearnerPathwayModalOpen}
+        onClose={onClose}
+      />
+
       <Link
         to={linkToPathway}
         onClick={() => {
+          openLearnerPathwayModal();
           sendEnterpriseTrackEvent(
             enterpriseCustomerUUID,
-            'edx.ui.enterprise.learner_portal.search.card.clicked',
+            'edx.ui.enterprise.learner_portal.search.pathway.card.clicked',
             {
               objectID: pathway.objectId,
               position: pathway.position,
