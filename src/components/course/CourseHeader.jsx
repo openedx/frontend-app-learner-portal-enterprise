@@ -9,13 +9,11 @@ import {
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
-import CourseRunSelector from './CourseRunSelector';
 import CourseSkills from './CourseSkills';
-import EnrollButton from './EnrollButton';
 import CourseEnrollmentFailedAlert from './CourseEnrollmentFailedAlert';
+import CourseRunCards from './CourseRunCards';
 
 import {
-  isArchived,
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
@@ -26,7 +24,7 @@ import {
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
-  const { course, activeCourseRun, catalog } = state;
+  const { course, catalog } = state;
   const { enterpriseConfig } = useContext(AppContext);
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
@@ -87,13 +85,7 @@ export default function CourseHeader() {
             {course.skills?.length > 0 && <CourseSkills />}
             {catalog.containsContentItems ? (
               <>
-                <CourseRunSelector />
-                {isArchived(activeCourseRun) && (
-                  <p className="font-weight-bold">
-                    Archived: Future Dates To Be Announced
-                  </p>
-                )}
-                <EnrollButton />
+                <CourseRunCards />
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
