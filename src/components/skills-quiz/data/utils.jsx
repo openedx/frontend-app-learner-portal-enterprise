@@ -13,6 +13,12 @@ export function sortSkillsWithSignificance(job) {
     (a.significance < b.significance) ? 1 : -1));
 }
 
+// sorts skills in descending order based on # of courses linked with every skill
+export function sortSkillsCoursesWithCourseCount(coursesWithSkill) {
+  return coursesWithSkill.sort((a, b) => (
+    (a.value.length < b.value.length) ? 1 : -1));
+}
+
 export function linkToCourse(course, slug, enterpriseUUID) {
   if (!Object.keys(course).length) {
     return '#';
