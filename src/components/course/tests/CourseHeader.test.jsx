@@ -9,7 +9,7 @@ import { CourseContextProvider } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
-import { COURSE_AVAILABILITY_MAP, COURSE_PACING_MAP } from '../data/constants';
+import { COURSE_PACING_MAP } from '../data/constants';
 import { TEST_OWNER } from './data/constants';
 
 jest.mock('react-router-dom', () => ({
@@ -20,7 +20,7 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../EnrollButton', () => () => <>Enroll</>);
+jest.mock('../CourseRunCards', () => () => <>Cards</>);
 
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
@@ -125,7 +125,7 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
-  test('renders enroll button', () => {
+  test('renders course run cards button', () => {
     render(
       <CourseHeaderWithContext
         initialAppState={initialAppState}
@@ -133,7 +133,7 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Enroll')).toBeInTheDocument();
+    expect(screen.queryByText('Cards')).toBeInTheDocument();
   });
 
   test('renders course image', () => {
@@ -161,26 +161,6 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByAltText(`${partner.name} logo`)).toBeInTheDocument();
   });
 
-  test('renders archived messaging', () => {
-    const courseStateWithArchivedCourse = {
-      ...initialCourseState,
-      activeCourseRun: {
-        ...initialCourseState.activeCourseRun,
-        availability: COURSE_AVAILABILITY_MAP.ARCHIVED,
-      },
-    };
-
-    render(
-      <CourseHeaderWithContext
-        initialAppState={initialAppState}
-        initialCourseState={courseStateWithArchivedCourse}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-
-    expect(screen.queryByText('Archived: Future Dates To Be Announced')).toBeInTheDocument();
-  });
-
   test('renders not in catalog messaging', () => {
     const courseStateWithNoCatalog = {
       ...initialCourseState,
@@ -201,7 +181,7 @@ describe('<CourseHeader />', () => {
     const messaging = 'This course is not part of your company\'s curated course catalog.';
     expect(screen.queryByText(messaging)).toBeInTheDocument();
 
-    expect(screen.queryByText('Enroll')).not.toBeInTheDocument();
+    expect(screen.queryByText('Cards')).not.toBeInTheDocument();
   });
 
   test.each`
