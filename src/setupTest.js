@@ -13,3 +13,6 @@ process.env.MARKETING_SITE_BASE_URL = 'http://marketing.url';
 
 // testing utility to mock window width, etc.
 global.window.matchMedia = matchMediaMock.create();
+
+jest.mock('@edx/frontend-platform/logging');
+jest.mock('@edx/frontend-platform/analytics');

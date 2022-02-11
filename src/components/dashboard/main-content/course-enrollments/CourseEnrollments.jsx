@@ -1,12 +1,11 @@
 import React, { useContext, useMemo } from 'react';
 
 import PropTypes from 'prop-types';
-import moment from 'moment';
-import { LoadingSpinner } from '../../../loading-spinner';
 import CourseSection from './CourseSection';
 
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
+import { sortedEnrollmentsByEnrollmentDate } from './data/utils';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
@@ -24,26 +23,6 @@ const CourseEnrollments = ({ children }) => {
     setShowMoveToInProgressCourseSuccess,
   } = useContext(CourseEnrollmentsContext);
 
-  const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
-  const isLoading = Object.keys(courseEnrollmentsByStatus).length === 0;
-
-  if (isLoading) {
-    return <LoadingSpinner screenReaderText="loading course enrollments" />;
-  }
-
-  if (fetchCourseEnrollmentsError) {
-    return (
-      <CourseEnrollmentsAlert variant="danger">
-        An error occurred while retrieving your course enrollments. Please try again.
-      </CourseEnrollmentsAlert>
-    );
-  }
-
-  const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
-    enrollments.sort((c1, c2) => moment(c1.created) - moment(c2.created));
-    return enrollments;
-  };
-
   const currentCourseEnrollments = useMemo(
     () => sortedEnrollmentsByEnrollmentDate(
       [...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
@@ -60,6 +39,16 @@ const CourseEnrollments = ({ children }) => {
     () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.savedForLater),
     [courseEnrollmentsByStatus.savedForLater],
   );
+
+  if (fetchCourseEnrollmentsError) {
+    return (
+      <CourseEnrollmentsAlert variant="danger">
+        An error occurred while retrieving your course enrollments. Please try again.
+      </CourseEnrollmentsAlert>
+    );
+  }
+
+  const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
 
   return (
     <>

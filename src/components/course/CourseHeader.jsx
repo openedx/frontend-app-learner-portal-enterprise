@@ -21,6 +21,7 @@ import {
   useCourseSubjects,
   useCoursePartners,
 } from './data/hooks';
+import LicenseRequestedAlert from './LicenseRequestedAlert';
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
@@ -36,6 +37,7 @@ export default function CourseHeader() {
 
   return (
     <div className="course-header">
+      <LicenseRequestedAlert catalogList={catalog.catalogList} />
       <CourseEnrollmentFailedAlert />
       <Container size="lg">
         <Row className="py-4">

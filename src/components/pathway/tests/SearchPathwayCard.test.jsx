@@ -1,10 +1,11 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import SearchPathwayCard from '../SearchPathwayCard';
-import { TEST_ENTERPRISE_SLUG } from './constants';
+import { TEST_ENTERPRISE_SLUG, TEST_ENTERPRISE_UUID } from './constants';
 
 import { renderWithRouter } from '../../../utils/tests';
 
@@ -19,10 +20,18 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
+jest.mock('@edx/frontend-enterprise-utils', () => {
+  const originalModule = jest.requireActual('@edx/frontend-enterprise-utils');
+  return ({
+    ...originalModule,
+    sendEnterpriseTrackEvent: jest.fn(),
+  });
+});
+
 const SearchPathwayCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
     }}
   >
     <SearchPathwayCard {...props} />
@@ -57,6 +66,16 @@ describe('<SearchPathwayCard />', () => {
       `/#pathway-${TEST_PATHWAY_UUID}`,
     );
     expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+
+    fireEvent.click(screen.getByText(TEST_TITLE));
+    expect(screen.getByRole('dialog'));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      TEST_ENTERPRISE_UUID,
+      'edx.ui.enterprise.learner_portal.search.pathway.card.clicked',
+      expect.objectContaining({
+        pathwayUUID: TEST_PATHWAY_UUID,
+      }),
+    );
   });
 
   test('renders the tags correctly', () => {
