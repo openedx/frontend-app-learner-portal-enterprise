@@ -95,6 +95,8 @@ const CourseRunCard = ({
 
   const courseRunArchived = isArchived(courseRun);
   /**
+   * Updates to this function should be reflected in docs:
+   * see /docs/images/enroll_button_card_generator.rst
    * Generates three string labels used on course run header card
    * heading, subHeading, buttonLabel
    * |¯¯¯¯¯¯¯¯¯¯¯¯¯|

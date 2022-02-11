@@ -20,6 +20,9 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
+const COURSE_WEEKS_TO_COMPLETE = 1;
+const DATE_FORMAT = 'MMM D';
+const COURSE_ID = '123';
 jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel }) => (<>{enrollLabel}</>));
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -40,15 +43,18 @@ const generateCourseRun = ({
   pacingType = COURSE_PACING_MAP.SELF_PACED,
   enrollmentCount = 0,
   isEnrollable = true,
+  start = COURSE_RUN_START,
 }) => ({
   availability,
   pacingType,
-  courseUuid: COURSE_UUID,
   enrollmentCount,
-  start: COURSE_RUN_START,
-  key: '123',
-  seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
   isEnrollable,
+  start,
+  end: moment().add(COURSE_WEEKS_TO_COMPLETE + 1, 'weeks').format(),
+  key: COURSE_ID,
+  seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
+  courseUuid: COURSE_UUID,
+  weeksToComplete: COURSE_WEEKS_TO_COMPLETE,
 });
 
 const renderCard = ({
@@ -98,7 +104,7 @@ describe('<CourseRunCard/>', () => {
   test('Course not enrollable and no availability', () => {
     const courseRun = generateCourseRun({
       isEnrollable: false,
-      availability: null,
+      availability: '',
     });
     renderCard({ courseRun });
     expect(screen.getByText('Enrollment closed')).toBeTruthy();
@@ -113,5 +119,51 @@ describe('<CourseRunCard/>', () => {
     });
     expect(screen.getByText('Entitlement found')).toBeTruthy();
     expect(screen.getByText('View on dashboard')).toBeTruthy();
+  });
+
+  test('Course self is paced and has started', () => {
+    // const courseRunStart = moment(COURSE_RUN_START).subtract(1, 'd').format();
+    const courseRun = generateCourseRun({});
+    renderCard({
+      courseRun,
+    });
+    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
+    expect(screen.getByText('Be the first to enroll!')).toBeTruthy();
+    expect(screen.queryByText('Enroll')).toBeTruthy();
+  });
+
+  test('Course self is paced, has not started, and enrollment count', () => {
+    const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
+    const courseRun = generateCourseRun({
+      start: courseRunStart,
+      enrollmentCount: 1000,
+    });
+    renderCard({
+      courseRun,
+    });
+    expect(screen.getByText('Course started')).toBeTruthy();
+    expect(screen.getByText('1,000 recently enrolled!')).toBeTruthy();
+    expect(screen.queryByText('Enroll')).toBeTruthy();
+  });
+
+  test('User is enrolled, and course not started', () => {
+    const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
+    const courseRun = generateCourseRun({
+      start: courseRunStart,
+    });
+    const startDate = moment(courseRunStart).format(DATE_FORMAT);
+    renderCard({
+      courseRun,
+      userEnrollments: [{
+        courseRunId: COURSE_ID,
+        isEnrollmentActive: true,
+        isRevoked: false,
+        mode: 'audit',
+      }],
+    });
+    expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
+    expect(screen.getByText('You are enrolled')).toBeTruthy();
+    expect(screen.getByText('View course')).toBeTruthy();
   });
 });

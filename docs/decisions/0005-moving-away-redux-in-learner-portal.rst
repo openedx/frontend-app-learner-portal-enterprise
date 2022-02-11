@@ -12,7 +12,7 @@ Accepted
 Context
 *******
 
-Parts of out micro front-ends (MFEs) have embraced the adoption of React hooks and context API as their main methods of state management. Our MFEs have built walls around individual features, where data is not usually shared. 
+Parts of our micro front-ends (MFEs) have embraced the adoption of React hooks and context API as their main methods of state management. Our MFEs have built walls around individual features, where data is not usually shared. 
 
 Redux is better suited for managing complicated data store shared across a large app.
 
