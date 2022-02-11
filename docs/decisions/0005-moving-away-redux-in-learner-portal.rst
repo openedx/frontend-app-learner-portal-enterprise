@@ -18,7 +18,7 @@ Per the `React docs <https://reactjs.org/docs/context.html#when-to-use-context>`
 
   Context is designed to share data that can be considered “global” for a tree of React components
   
-The important distinction in this definiton is that it's global for a _tree of React components_. This definition does not imply there is a singular Context used as a global store throughout the application, but rather there may be several Contexts used throughout the application, logically separated by `bounded contexts <https://martinfowler.com/bliki/BoundedContext.html>`_.
+The important distinction in this definiton is that it's global for a *tree of React components*. This definition does not imply there is a singular Context used as a global store throughout the application, but rather there may be several Contexts used throughout the application, logically separated by `bounded contexts <https://martinfowler.com/bliki/BoundedContext.html>`_.
 
 Redux is better suited for managing a complicated global data store shared across larger, monolithic apps, or where vanilla React performance optimization mechanisms (e.g., `useMemo`, `useCallback`, `React.memo`) fall short. 
 
