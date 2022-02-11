@@ -58,6 +58,7 @@ export const initialCourseState = ({
     availability: 'Current',
     courseUuid: 'Foo',
     weeksToComplete: 4,
+    enrollmentCount: 0,
   },
   userEnrollments: [],
   userEntitlements: [],
