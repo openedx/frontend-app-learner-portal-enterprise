@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 
+import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, COURSE_TITLE, PROGRAM_TITLE, HEADER_TITLE,
@@ -32,7 +33,17 @@ const Search = () => {
   });
 
   const config = getConfig();
-
+  const courseIndex = useMemo(
+    () => {
+      const client = algoliasearch(
+        config.ALGOLIA_APP_ID,
+        config.ALGOLIA_SEARCH_API_KEY,
+      );
+      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
+      return cIndex;
+    },
+    [], // only initialized once
+  );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
 
   return (
@@ -51,7 +62,13 @@ const Search = () => {
           />
         )}
         <div className="search-header-wrapper">
-          <SearchHeader containerSize="lg" headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''} />
+          <SearchHeader
+            containerSize="lg"
+            headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''}
+            index={courseIndex}
+            filters={filters}
+            enterpriseConfig={enterpriseConfig}
+          />
         </div>
 
         { (contentType === undefined || contentType.length === 0) && (
