@@ -15,6 +15,10 @@ const AvatarDropdown = ({ showLabel }) => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username, profileImage } = authenticatedUser;
   const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
+  // we insert the logout=true in this case to avoid the redirect back to IDP
+  // which brings the user right back in, disallowing a proper logout
+  const nextURL = `${BASE_URL}${enterpriseDashboardLink}${encodeURIComponent('?')}logout=true`;
+  const logoutUrl = `${LOGOUT_URL}?next=${nextURL}`;
   return (
     <Dropdown>
       <Dropdown.Toggle showLabel={showLabel} as={AvatarButton} src={profileImage.imageUrlMedium}>
@@ -43,7 +47,7 @@ const AvatarDropdown = ({ showLabel }) => {
         <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account settings</Dropdown.Item>
         <Dropdown.Item href={LEARNER_SUPPORT_URL}>Help</Dropdown.Item>
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={`${LOGOUT_URL}?next=${BASE_URL}${enterpriseDashboardLink}`}>Sign out</Dropdown.Item>
+        <Dropdown.Item href={logoutUrl}>Sign out</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
   );

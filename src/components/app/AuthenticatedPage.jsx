@@ -4,13 +4,18 @@ import Cookies from 'universal-cookie';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
-
+import { Hyperlink } from '@edx/paragon';
+import { useParams } from 'react-router-dom';
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
 import LoginRefresh from './LoginRefresh';
+import { ErrorPage } from '../error-page';
 
 export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
+  const params = new URLSearchParams(document.location.search);
+  const { enterpriseSlug } = useParams();
+  const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
   const user = getAuthenticatedUser();
 
@@ -22,6 +27,19 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
     cookies.remove(config.INTEGRATION_WARNING_DISMISSED_COOKIE_NAME);
   }
 
+  // in the special case where there is not authenticated user and we are being told it's the logout
+  // flow, we can show the logout message safely
+  if (!user && isLogoutWorkflow) {
+    return (
+      <ErrorPage title="You are now logged out.">
+        Please log back in {' '}
+        <Hyperlink
+          destination={`${config.BASE_URL}/${enterpriseSlug}`}
+        >here
+        </Hyperlink>
+      </ErrorPage>
+    );
+  }
   return (
     <LoginRedirect>
       <LoginRefresh>
