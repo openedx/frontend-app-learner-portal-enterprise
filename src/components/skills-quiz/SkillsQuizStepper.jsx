@@ -269,22 +269,23 @@ const SkillsQuizStepper = () => {
                 </div>
               </Stepper.Step>
               <Stepper.Step eventKey="courses-with-jobs" title="Recommended Courses With Jobs">
-                <div className="row mb-4 pl-2 mt-4">
-                  <h2>Start Exploring Courses!</h2>
-                </div>
-                <div className="search-job-card mb-4">
-                  { canContinueToRecommendedCourses ? <SelectJobCard /> : null}
-                </div>
-                <SelectedJobSkills />
-                <div>
-                  { (selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
-                  && (
-                    <div>
-                      <SearchCourseCard index={courseIndex} />
-                      <SearchProgramCard index={courseIndex} />
-                    </div>
-
-                  )}
+                <div style={{ paddingLeft: '10%' }}>
+                  <div className="row mb-4 pl-2 mt-4">
+                    <h2>Start Exploring Courses!</h2>
+                  </div>
+                  <div className="search-job-card mb-4">
+                    { canContinueToRecommendedCourses ? <SelectJobCard /> : null}
+                  </div>
+                  <SelectedJobSkills />
+                  <div>
+                    { (selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
+                      && (
+                        <div>
+                          <SearchCourseCard index={courseIndex} />
+                          <SearchProgramCard index={courseIndex} />
+                        </div>
+                      )}
+                  </div>
                 </div>
                 <div className="row justify-content-center">
                   <Button variant="outline-primary" onClick={() => setCurrentStep(STEP3)}>See more course recommendations</Button>
