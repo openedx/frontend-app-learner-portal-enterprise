@@ -9,6 +9,7 @@ const {
   TO_ECOM_BASKET,
   TO_VOUCHER_REDEEM,
   VIEW_ON_DASHBOARD,
+  HIDE_BUTTON,
 } = enrollButtonTypes;
 
 /**
@@ -21,6 +22,7 @@ export function determineEnrollmentType({
   isUserEnrolled,
   isEnrollable,
   isCourseStarted,
+  subsidyRequestConfiguration,
 }) {
   const isSubscriptionValid = subscriptionLicense?.uuid;
   if (isUserEnrolled) {
@@ -34,7 +36,9 @@ export function determineEnrollmentType({
   if (isSubscriptionValid && !hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
     return TO_ECOM_BASKET;
   }
-  if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
+
   if (!isSubscriptionValid && courseHasOffer) { return TO_VOUCHER_REDEEM; }
+  if (subsidyRequestConfiguration?.subsidyRequestsEnabled) { return HIDE_BUTTON; }
+  if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
   return ENROLL_DISABLED;
 }

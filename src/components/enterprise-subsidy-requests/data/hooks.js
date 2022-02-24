@@ -49,41 +49,46 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchSubsidyRequests = async (subsidyType) => {
-      setIsLoading(true);
-      try {
-        if (subsidyType === SUBSIDY_TYPE.COUPON) {
-          const { data: { results } } = await fetchCouponCodeRequests(
-            subsidyRequestConfiguration.enterpriseCustomerUuid,
-          );
-          const requests = camelCaseObject(results);
-          setCouponCodeRequests(requests);
-        } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
-          const { data: { results } } = await fetchLicenseRequests(
-            subsidyRequestConfiguration.enterpriseCustomerUuid,
-          );
-          const requests = camelCaseObject(results);
-          setLicenseRequests(requests);
-        }
-      } catch (error) {
-        logError(error);
-      } finally {
-        setIsLoading(false);
+  const fetchSubsidyRequests = async (subsidyType) => {
+    setIsLoading(true);
+    try {
+      if (subsidyType === SUBSIDY_TYPE.COUPON) {
+        const { data: { results } } = await fetchCouponCodeRequests(
+          subsidyRequestConfiguration.enterpriseCustomerUuid,
+        );
+        const requests = camelCaseObject(results);
+        setCouponCodeRequests(requests);
+      } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
+        const { data: { results } } = await fetchLicenseRequests(
+          subsidyRequestConfiguration.enterpriseCustomerUuid,
+        );
+        const requests = camelCaseObject(results);
+        setLicenseRequests(requests);
       }
-    };
+    } catch (error) {
+      logError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const loadSubsidyRequests = () => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
       const { subsidyType } = subsidyRequestConfiguration;
       if (subsidyType) {
         fetchSubsidyRequests(subsidyType);
       }
     }
+  };
+
+  useEffect(() => {
+    loadSubsidyRequests();
   }, [subsidyRequestConfiguration?.subsidyRequestsEnabled]);
 
   return {
     couponCodeRequests,
     licenseRequests,
     isLoading,
+    refreshSubsidyRequests: loadSubsidyRequests,
   };
 }

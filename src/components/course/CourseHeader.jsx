@@ -22,6 +22,7 @@ import {
   useCoursePartners,
 } from './data/hooks';
 import LicenseRequestedAlert from './LicenseRequestedAlert';
+import SubsidyRequestButton from './SubsidyRequestButton';
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
@@ -84,6 +85,7 @@ export default function CourseHeader() {
                 dangerouslySetInnerHTML={{ __html: course.shortDescription }}
               />
             )}
+            <SubsidyRequestButton enterpriseSlug={enterpriseConfig.slug} />
             {course.skills?.length > 0 && <CourseSkills />}
             {catalog.containsContentItems ? (
               <>

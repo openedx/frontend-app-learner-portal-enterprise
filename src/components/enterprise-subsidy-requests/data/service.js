@@ -26,3 +26,23 @@ export function fetchCouponCodeRequests(enterpriseUUID) {
   const url = `${config.ENTERPRISE_ACCESS_API_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
   return getAuthenticatedHttpClient().get(url);
 }
+
+export function postCouponCodeRequest(enterpriseUUID, courseID) {
+  const formData = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    course_id: courseID,
+  });
+  const config = getConfig();
+  const url = `${config.ENTERPRISE_ACCESS_API_BASE_URL}/api/v1/coupon-code-requests/`;
+  return getAuthenticatedHttpClient().post(url, formData);
+}
+
+export function postLicenseRequest(enterpriseUUID, courseID) {
+  const formData = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    course_id: courseID,
+  });
+  const config = getConfig();
+  const url = `${config.ENTERPRISE_ACCESS_API_BASE_URL}/api/v1/license-requests/`;
+  return getAuthenticatedHttpClient().post(url, formData);
+}
