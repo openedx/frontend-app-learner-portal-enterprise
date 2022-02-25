@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { AvatarButton, Dropdown } from '@edx/paragon';
+import { isDefinedAndNotNull } from '../../utils/common';
 
 const AvatarDropdown = ({ showLabel }) => {
   const {
@@ -16,7 +17,7 @@ const AvatarDropdown = ({ showLabel }) => {
   const { username, profileImage } = authenticatedUser;
   const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
 
-  const idpPresent = enterpriseConfig.identity_providers.length > 0;
+  const idpPresent = isDefinedAndNotNull(enterpriseConfig.identityProvider);
   // we insert the logout=true in this case to avoid the redirect back to IDP
   // which brings the user right back in, disallowing a proper logout
   const logoutHint = idpPresent ? `${encodeURIComponent('?')}logout=true` : '';
