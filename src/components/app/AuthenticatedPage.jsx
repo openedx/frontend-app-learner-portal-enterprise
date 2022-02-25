@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
+import { useParams, useLocation } from 'react-router-dom';
+
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Hyperlink } from '@edx/paragon';
-import { useParams } from 'react-router-dom';
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
@@ -13,7 +14,8 @@ import LoginRefresh from './LoginRefresh';
 import { ErrorPage } from '../error-page';
 
 export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
-  const params = new URLSearchParams(document.location.search);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
   const { enterpriseSlug } = useParams();
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
@@ -29,9 +31,11 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
 
   // in the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely
+  // not rendering the SiteFooter here since it looks like it requires additional setup
+  // not available in the logged out state (errors with InjectIntl errors)
   if (!user && isLogoutWorkflow) {
     return (
-      <ErrorPage title="You are now logged out.">
+      <ErrorPage title="You are now logged out." showSiteFooter={false}>
         Please log back in {' '}
         <Hyperlink
           destination={`${config.BASE_URL}/${enterpriseSlug}`}

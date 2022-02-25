@@ -15,6 +15,7 @@ import ErrorPageHeader from './ErrorPageHeader';
 const ErrorPage = ({
   title,
   subtitle,
+  showSiteFooter,
   children,
 }) => (
   <>
@@ -32,7 +33,7 @@ const ErrorPage = ({
         </Col>
       </Container>
     </main>
-    <SiteFooter />
+    {showSiteFooter && <SiteFooter />}
   </>
 );
 
@@ -40,11 +41,13 @@ ErrorPage.propTypes = {
   children: PropTypes.node.isRequired,
   title: PropTypes.node,
   subtitle: PropTypes.node,
+  showSiteFooter: PropTypes.bool,
 };
 
 ErrorPage.defaultProps = {
   title: 'Error occurred while processing your request',
   subtitle: null,
+  showSiteFooter: true,
 };
 
 export default ErrorPage;
