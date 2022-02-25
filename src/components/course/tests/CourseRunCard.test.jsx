@@ -18,8 +18,6 @@ import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SubsidyRequestsContextProvider from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import * as config from '../../../config';
-
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
@@ -62,15 +60,6 @@ const generateCourseRun = ({
   courseUuid: COURSE_UUID,
   weeksToComplete: COURSE_WEEKS_TO_COMPLETE,
 });
-
-const subsidyRequestContextValue = {
-  subsidyRequestConfiguration: null,
-  licenseRequests: [],
-  couponCodeRequests: [],
-  isLoading: false,
-  userHasSubsidyRequest: jest.fn(),
-  requestSubsidy: jest.fn(),
-};
 
 const renderCard = ({
   courseRun,

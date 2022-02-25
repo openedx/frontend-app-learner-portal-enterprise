@@ -1,21 +1,11 @@
-import React, {
-  useContext, createContext, useMemo, useCallback,
-} from 'react';
+import React, { useContext, createContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 import { useSubsidyRequestConfiguration, useSubsidyRequests } from './data/hooks';
 import { features } from '../../config';
 import { LoadingSpinner } from '../loading-spinner';
-import {
-  LOADING_SCREEN_READER_TEXT,
-  SUBSIDY_REQUEST_STATE,
-  SUBSIDY_TYPE,
-} from './constants';
-import {
-  postCouponCodeRequest,
-  postLicenseRequest,
-} from './data/service';
+import { LOADING_SCREEN_READER_TEXT } from './constants';
 
 export const SubsidyRequestsContext = createContext();
 
@@ -36,65 +26,11 @@ const SubsidyRequestsContextProvider = ({ children }) => {
   } = useSubsidyRequests(subsidyRequestConfiguration);
   const isLoading = isLoadingConfiguration || isLoadingSubsidyRequests;
 
-  /**
-   * Returns `true` if user has made a course request.
-   *
-   * Returns `false` if:
-   *  - Subsidy request has not been configured
-   *  - No requests are found under the configured `SUBSIDY_TYPE`
-   *
-   * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
-   * to only return true if courseKey is in one of the requests
-   *
-   * @param {string} [courseKey] - optional filter for specific course
-   * @returns {boolean}
-   */
-  const userHasSubsidyRequest = useCallback((courseKey) => {
-    if (!subsidyRequestConfiguration) {
-      return false;
-    }
-    switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE: {
-        const foundLicenseRequest = licenseRequests.find(
-          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
-        );
-        return !!foundLicenseRequest;
-      }
-      case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = couponCodeRequests.find(
-          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED
-            && (courseKey ? request.courseId === courseKey : true),
-        );
-        return !!foundCouponRequest;
-      }
-      default:
-        return false;
-    }
-  },[subsidyRequestConfiguration, licenseRequests, couponCodeRequests]);
-
-  /**
-   * Requests subsidy to specified course.
-   * @param {string} courseKey - Course to request.
-   * @returns {Promise}
-   */
-  const requestSubsidy = useCallback(async (courseKey) => {
-    switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE:
-        return postLicenseRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, courseKey);
-      case SUBSIDY_TYPE.COUPON:
-        return postCouponCodeRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, courseKey);
-      default:
-        throw new Error('Subsidy request configuration not set');
-    }
-  }, [subsidyRequestConfiguration]);
-
   const context = useMemo(() => ({
     subsidyRequestConfiguration,
     licenseRequests,
     couponCodeRequests,
     refreshSubsidyRequests,
-    userHasSubsidyRequest,
-    requestSubsidy,
   }), [
     subsidyRequestConfiguration,
     licenseRequests,

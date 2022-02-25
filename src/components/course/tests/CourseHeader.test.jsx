@@ -23,7 +23,6 @@ useLocation.mockImplementation(() => ({
 jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
 jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
 
-
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},

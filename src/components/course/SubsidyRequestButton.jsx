@@ -1,4 +1,6 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, {
+  useContext, useMemo, useState, useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
 import { StatefulButton } from '@edx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
@@ -8,6 +10,9 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
+import { useUserHasSubsidyRequest } from '../enterprise-subsidy-requests/data/hooks';
+import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
+import { SUBSIDY_TYPE } from '../enterprise-subsidy-requests/constants';
 
 const props = {
   labels: {
@@ -27,10 +32,6 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
 
   const {
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
-    userHasSubsidyRequest,
-    requestSubsidy,
     refreshSubsidyRequests,
   } = useContext(SubsidyRequestsContext);
 
@@ -77,31 +78,37 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     return null;
   }
 
+  const userHasSubsidyRequest = useUserHasSubsidyRequest(courseKey);
+
   /**
-   * @returns {string} one of 'request', 'pending', or 'requested'
+   * @returns {string} one of `request`, `pending`, or `requested`
    */
   const getButtonState = () => {
     if (loadingRequest) {
       return 'pending';
-    } if (userHasSubsidyRequest(courseKey)) {
+    } if (userHasSubsidyRequest) {
       return 'requested';
     }
     return 'request';
   };
 
-  const requestButtonState = useMemo(getButtonState, [
-    subsidyRequestConfiguration.subsidyType,
-    licenseRequests,
-    couponCodeRequests,
-    loadingRequest,
-  ]);
+  const requestSubsidy = useCallback(async (key) => {
+    switch (subsidyRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE:
+        return postLicenseRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
+      case SUBSIDY_TYPE.COUPON:
+        return postCouponCodeRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
+      default:
+        throw new Error('Subsidy request configuration not set');
+    }
+  }, [subsidyRequestConfiguration]);
 
   const handleRequestButtonClick = async () => {
     setLoadingRequest(true);
     try {
       await requestSubsidy(courseKey);
       setLoadingRequest(false);
-      addToast('Request submitted');
+      addToast('Request for course submitted');
       refreshSubsidyRequests();
       history.push(`/${enterpriseSlug}`);
     } catch (error) {
@@ -111,7 +118,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
   };
 
   return (
-    <StatefulButton {...props} state={requestButtonState} onClick={handleRequestButtonClick} />
+    <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
   );
 };
 

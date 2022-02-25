@@ -1,10 +1,10 @@
 import {
-  useState, useEffect, useContext,
+  useState, useEffect, useContext, useMemo,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
-import { SUBSIDY_TYPE } from '../constants';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
 
 export function useSubsidyRequestConfiguration(enterpriseUUID) {
@@ -92,4 +92,53 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
     isLoading,
     refreshSubsidyRequests: loadSubsidyRequests,
   };
+}
+
+/**
+ * Returns `true` if user has made a course request.
+ *
+ * Returns `false` if:
+ *  - Subsidy request has not been configured
+ *  - No requests are found under the configured `SUBSIDY_TYPE`
+ *
+ * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
+ * to only return true if courseKey is in one of the requests
+ *
+ * @param {string} [courseKey] - optional filter for specific course
+ * @returns {boolean}
+ */
+export function useUserHasSubsidyRequest(courseKey) {
+  const {
+    subsidyRequestConfiguration,
+    licenseRequests,
+    couponCodeRequests,
+  } = useContext(SubsidyRequestsContext);
+
+  return useMemo(() => {
+    if (!subsidyRequestConfiguration) {
+      return false;
+    }
+    switch (subsidyRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE: {
+        const foundLicenseRequest = licenseRequests.find(
+          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
+        );
+        return !!foundLicenseRequest;
+      }
+      case SUBSIDY_TYPE.COUPON: {
+        const foundCouponRequest = couponCodeRequests.find(
+          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED
+            && (courseKey ? request.courseId === courseKey : true),
+        );
+        return !!foundCouponRequest;
+      }
+      default:
+        return false;
+    }
+  }, [
+    courseKey,
+    subsidyRequestConfiguration,
+    licenseRequests,
+    couponCodeRequests,
+  ]);
 }
