@@ -2,6 +2,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@edx/paragon';
+import userEvent from '@testing-library/user-event';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import SiteHeader from '../SiteHeader';
@@ -66,5 +67,16 @@ describe('<SiteHeader />', () => {
     );
     expect(screen.getByTestId('header-logo-image-id'));
     expect(screen.queryByTestId('header-logo-link-id')).toBeFalsy();
+  });
+  test('renders regular logout link in absence of IDP', () => {
+    renderWithRouter(
+      <SiteHeaderWithContext initialAppState={appState} />,
+    );
+
+    userEvent.click(screen.getByText('papa'));
+    expect(screen.getByText('Sign out')).toBeInTheDocument();
+    const logoutLink = screen.getByText('Sign out');
+    // note: the values of these come from the process.env vars in setupTest.js
+    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us');
   });
 });
