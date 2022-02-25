@@ -1,5 +1,5 @@
 import React, {
-  useContext, createContext, useMemo,
+  useContext, createContext, useMemo, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -49,7 +49,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
    * @param {string} [courseKey] - optional filter for specific course
    * @returns {boolean}
    */
-  const userHasRequest = (courseKey) => {
+  const userHasSubsidyRequest = useCallback((courseKey) => {
     if (!subsidyRequestConfiguration) {
       return false;
     }
@@ -70,14 +70,14 @@ const SubsidyRequestsContextProvider = ({ children }) => {
       default:
         return false;
     }
-  };
+  },[subsidyRequestConfiguration, licenseRequests, couponCodeRequests]);
 
   /**
    * Requests subsidy to specified course.
    * @param {string} courseKey - Course to request.
    * @returns {Promise}
    */
-  const requestSubsidy = async (courseKey) => {
+  const requestSubsidy = useCallback(async (courseKey) => {
     switch (subsidyRequestConfiguration.subsidyType) {
       case SUBSIDY_TYPE.LICENSE:
         return postLicenseRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, courseKey);
@@ -86,14 +86,14 @@ const SubsidyRequestsContextProvider = ({ children }) => {
       default:
         throw new Error('Subsidy request configuration not set');
     }
-  };
+  }, [subsidyRequestConfiguration]);
 
   const context = useMemo(() => ({
     subsidyRequestConfiguration,
     licenseRequests,
     couponCodeRequests,
     refreshSubsidyRequests,
-    userHasRequest,
+    userHasSubsidyRequest,
     requestSubsidy,
   }), [
     subsidyRequestConfiguration,

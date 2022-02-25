@@ -1,10 +1,11 @@
 import {
-  useState, useEffect,
+  useState, useEffect, useContext,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
 import { SUBSIDY_TYPE } from '../constants';
+import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
 
 export function useSubsidyRequestConfiguration(enterpriseUUID) {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();

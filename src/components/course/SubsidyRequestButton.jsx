@@ -29,7 +29,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     subsidyRequestConfiguration,
     licenseRequests,
     couponCodeRequests,
-    userHasRequest,
+    userHasSubsidyRequest,
     requestSubsidy,
     refreshSubsidyRequests,
   } = useContext(SubsidyRequestsContext);
@@ -83,7 +83,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
   const getButtonState = () => {
     if (loadingRequest) {
       return 'pending';
-    } if (userHasRequest(courseKey)) {
+    } if (userHasSubsidyRequest(courseKey)) {
       return 'requested';
     }
     return 'request';

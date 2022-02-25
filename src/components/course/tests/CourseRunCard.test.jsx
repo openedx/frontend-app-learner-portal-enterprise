@@ -17,14 +17,19 @@ import {
 import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContextProvider } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import SubsidyRequestsContextProvider from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import * as config from '../../../config';
+
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
 const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
+
 jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel }) => (<>{enrollLabel}</>));
+jest.mock('../../../config');
+// jest.mock('../../enterprise-subsidy-requests/data/hooks');
 
 const INITIAL_APP_STATE = initialAppState({});
 const defaultCourse = initialCourseState({});
@@ -57,6 +62,15 @@ const generateCourseRun = ({
   courseUuid: COURSE_UUID,
   weeksToComplete: COURSE_WEEKS_TO_COMPLETE,
 });
+
+const subsidyRequestContextValue = {
+  subsidyRequestConfiguration: null,
+  licenseRequests: [],
+  couponCodeRequests: [],
+  isLoading: false,
+  userHasSubsidyRequest: jest.fn(),
+  requestSubsidy: jest.fn(),
+};
 
 const renderCard = ({
   courseRun,
