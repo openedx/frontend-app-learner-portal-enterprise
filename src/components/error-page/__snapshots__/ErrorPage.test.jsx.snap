@@ -29,24 +29,6 @@ Array [
           >
             Help
           </a>
-          <div
-            className="dropdown"
-          >
-            <button
-              aria-expanded={false}
-              aria-haspopup={true}
-              className="btn-avatar pgn__avatar-button-avatar pgn__avatar-button-avatar-md dropdown-toggle btn btn-tertiary btn-md"
-              disabled={false}
-              onClick={[Function]}
-              type="button"
-            >
-              <img
-                alt=""
-                className="pgn__avatar pgn__avatar-sm"
-                src="htts://img.url"
-              />
-            </button>
-          </div>
         </nav>
       </div>
     </nav>
@@ -109,24 +91,6 @@ Array [
           >
             Help
           </a>
-          <div
-            className="dropdown"
-          >
-            <button
-              aria-expanded={false}
-              aria-haspopup={true}
-              className="btn-avatar pgn__avatar-button-avatar pgn__avatar-button-avatar-md dropdown-toggle btn btn-tertiary btn-md"
-              disabled={false}
-              onClick={[Function]}
-              type="button"
-            >
-              <img
-                alt=""
-                className="pgn__avatar pgn__avatar-sm"
-                src="htts://img.url"
-              />
-            </button>
-          </div>
         </nav>
       </div>
     </nav>
@@ -189,24 +153,6 @@ Array [
           >
             Help
           </a>
-          <div
-            className="dropdown"
-          >
-            <button
-              aria-expanded={false}
-              aria-haspopup={true}
-              className="btn-avatar pgn__avatar-button-avatar pgn__avatar-button-avatar-md dropdown-toggle btn btn-tertiary btn-md"
-              disabled={false}
-              onClick={[Function]}
-              type="button"
-            >
-              <img
-                alt=""
-                className="pgn__avatar pgn__avatar-sm"
-                src="htts://img.url"
-              />
-            </button>
-          </div>
         </nav>
       </div>
     </nav>
