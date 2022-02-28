@@ -1,8 +1,14 @@
 import { renderHook } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
-import { SUBSIDY_TYPE } from '../../constants';
-import { useSubsidyRequestConfiguration, useSubsidyRequests } from '../hooks';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../constants';
+import {
+  useSubsidyRequestConfiguration,
+  useSubsidyRequests,
+  useUserHasSubsidyRequestForCourse,
+} from '../hooks';
+import { SubsidyRequestsContext } from '../../SubsidyRequestsContextProvider';
 import * as service from '../service';
+/* eslint react/prop-types: 0 */
 
 jest.mock('../service');
 
@@ -156,5 +162,86 @@ describe('useSubsidyRequests', () => {
     );
 
     expect(result.current.couponCodeRequests).toEqual([]);
+  });
+});
+
+describe('useUserHasSubsidyRequestForCourse', () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it('returns false when `subsidyRequestConfiguration` are not set', () => {
+    const context = {
+      subsidyRequestConfiguration: null,
+    };
+    const wrapper = ({ children }) => (
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('returns false when `subsidyType` is undefined', () => {
+    const context = {
+      subsidyRequestConfiguration: { subsidyType: undefined },
+      licenseRequests: [],
+      couponCodeRequests: [],
+      isLoading: false,
+    };
+    const wrapper = ({ children }) => (
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('returns true when `subsidyType` is LICENSE && 1 license request is found', () => {
+    const context = {
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: SUBSIDY_TYPE.LICENSE,
+      },
+      licenseRequests: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED }],
+      couponCodeRequests: [],
+      isLoading: false,
+    };
+    const wrapper = ({ children }) => (
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    expect(result.current).toBe(true);
+  });
+
+  it('returns true when `subsidyType` is COUPON && 1 coupon request is found', () => {
+    const courseId = '123';
+    const context = {
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: SUBSIDY_TYPE.COUPON,
+      },
+      licenseRequests: [],
+      couponCodeRequests: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
+      isLoading: false,
+    };
+    const wrapper = ({ children }) => (
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(courseId), { wrapper });
+    expect(result.current).toBe(true);
+  });
+
+  it('returns false when `subsidyType` is COUPON && no matching courseId', () => {
+    const context = {
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: SUBSIDY_TYPE.COUPON,
+      },
+      licenseRequests: [],
+      couponCodeRequests: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
+      isLoading: false,
+    };
+    const wrapper = ({ children }) => (
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
+    expect(result.current).toBe(false);
   });
 });

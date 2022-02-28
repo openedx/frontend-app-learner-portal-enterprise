@@ -1,6 +1,4 @@
-import React, {
-  useContext, createContext, useMemo,
-} from 'react';
+import React, { useContext, createContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
@@ -23,6 +21,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
   const {
     couponCodeRequests,
     licenseRequests,
+    refreshSubsidyRequests,
     isLoading: isLoadingSubsidyRequests,
   } = useSubsidyRequests(subsidyRequestConfiguration);
   const isLoading = isLoadingConfiguration || isLoadingSubsidyRequests;
@@ -31,6 +30,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     subsidyRequestConfiguration,
     licenseRequests,
     couponCodeRequests,
+    refreshSubsidyRequests,
   }), [
     subsidyRequestConfiguration,
     licenseRequests,

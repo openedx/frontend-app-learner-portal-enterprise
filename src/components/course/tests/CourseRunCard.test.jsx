@@ -17,12 +17,14 @@ import {
 import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import SubsidyRequestsContextProvider from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
 const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
+
 jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel }) => (<>{enrollLabel}</>));
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -75,12 +77,14 @@ const renderCard = ({
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <CourseContextProvider initialState={courseInitState}>
-          <CourseRunCard
-            catalogList={['foo']}
-            userEntitlements={userEntitlements}
-            userEnrollments={userEnrollments}
-            courseRun={courseRun}
-          />
+          <SubsidyRequestsContextProvider>
+            <CourseRunCard
+              catalogList={['foo']}
+              userEntitlements={userEntitlements}
+              userEnrollments={userEnrollments}
+              courseRun={courseRun}
+            />
+          </SubsidyRequestsContextProvider>
         </CourseContextProvider>
       </UserSubsidyContext.Provider>
     </AppContext.Provider>,

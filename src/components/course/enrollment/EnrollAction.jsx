@@ -17,6 +17,7 @@ const {
   TO_DATASHARING_CONSENT,
   TO_VOUCHER_REDEEM,
   TO_ECOM_BASKET,
+  HIDE_BUTTON,
 } = enrollButtonTypes;
 
 /**
@@ -62,6 +63,7 @@ const EnrollAction = ({
           return <ToVoucherRedeemPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />;
       case TO_ECOM_BASKET:
           return <ToEcomBasketPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />;
+      case HIDE_BUTTON:
       default: return null;
   }
 };

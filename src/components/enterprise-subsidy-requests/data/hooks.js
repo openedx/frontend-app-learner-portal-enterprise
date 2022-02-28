@@ -1,10 +1,11 @@
 import {
-  useState, useEffect,
+  useState, useEffect, useContext, useMemo,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
-import { SUBSIDY_TYPE } from '../constants';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
+import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
 
 export function useSubsidyRequestConfiguration(enterpriseUUID) {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
@@ -49,41 +50,98 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchSubsidyRequests = async (subsidyType) => {
-      setIsLoading(true);
-      try {
-        if (subsidyType === SUBSIDY_TYPE.COUPON) {
-          const { data: { results } } = await fetchCouponCodeRequests(
-            subsidyRequestConfiguration.enterpriseCustomerUuid,
-          );
-          const requests = camelCaseObject(results);
-          setCouponCodeRequests(requests);
-        } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
-          const { data: { results } } = await fetchLicenseRequests(
-            subsidyRequestConfiguration.enterpriseCustomerUuid,
-          );
-          const requests = camelCaseObject(results);
-          setLicenseRequests(requests);
-        }
-      } catch (error) {
-        logError(error);
-      } finally {
-        setIsLoading(false);
+  const fetchSubsidyRequests = async (subsidyType) => {
+    setIsLoading(true);
+    try {
+      if (subsidyType === SUBSIDY_TYPE.COUPON) {
+        const { data: { results } } = await fetchCouponCodeRequests(
+          subsidyRequestConfiguration.enterpriseCustomerUuid,
+        );
+        const requests = camelCaseObject(results);
+        setCouponCodeRequests(requests);
+      } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
+        const { data: { results } } = await fetchLicenseRequests(
+          subsidyRequestConfiguration.enterpriseCustomerUuid,
+        );
+        const requests = camelCaseObject(results);
+        setLicenseRequests(requests);
       }
-    };
+    } catch (error) {
+      logError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const loadSubsidyRequests = () => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
       const { subsidyType } = subsidyRequestConfiguration;
       if (subsidyType) {
         fetchSubsidyRequests(subsidyType);
       }
     }
-  }, [subsidyRequestConfiguration?.subsidyRequestsEnabled]);
+  };
+
+  useEffect(() => {
+    loadSubsidyRequests();
+  }, [
+    subsidyRequestConfiguration?.subsidyRequestsEnabled,
+    subsidyRequestConfiguration?.subsidyType,
+  ]);
 
   return {
     couponCodeRequests,
     licenseRequests,
     isLoading,
+    refreshSubsidyRequests: loadSubsidyRequests,
   };
+}
+
+/**
+ * Returns `true` if user has made a subsidy request.
+ *
+ * Returns `false` if:
+ *  - Subsidy request has not been configured
+ *  - No requests are found under the configured `SUBSIDY_TYPE`
+ *
+ * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
+ * to only return true if courseKey is in one of the requests
+ *
+ * @param {string} [courseKey] - optional filter for specific course
+ * @returns {boolean}
+ */
+export function useUserHasSubsidyRequestForCourse(courseKey) {
+  const {
+    subsidyRequestConfiguration,
+    licenseRequests,
+    couponCodeRequests,
+  } = useContext(SubsidyRequestsContext);
+
+  return useMemo(() => {
+    if (!subsidyRequestConfiguration) {
+      return false;
+    }
+    switch (subsidyRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE: {
+        const foundLicenseRequest = licenseRequests.find(
+          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
+        );
+        return !!foundLicenseRequest;
+      }
+      case SUBSIDY_TYPE.COUPON: {
+        const foundCouponRequest = couponCodeRequests.find(
+          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED
+            && (courseKey ? request.courseId === courseKey : true),
+        );
+        return !!foundCouponRequest;
+      }
+      default:
+        return false;
+    }
+  }, [
+    courseKey,
+    subsidyRequestConfiguration,
+    licenseRequests,
+    couponCodeRequests,
+  ]);
 }

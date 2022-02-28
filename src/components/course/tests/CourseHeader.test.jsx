@@ -20,7 +20,8 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../CourseRunCards', () => () => <>Cards</>);
+jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
+jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
 
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
