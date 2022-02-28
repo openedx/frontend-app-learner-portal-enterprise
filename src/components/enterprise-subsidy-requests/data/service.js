@@ -28,21 +28,21 @@ export function fetchCouponCodeRequests(enterpriseUUID) {
 }
 
 export function postCouponCodeRequest(enterpriseUUID, courseID) {
-  const formData = new URLSearchParams({
+  const options = {
     enterprise_customer_uuid: enterpriseUUID,
     course_id: courseID,
-  });
+  };
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_API_BASE_URL}/api/v1/coupon-code-requests/`;
-  return getAuthenticatedHttpClient().post(url, formData);
+  return getAuthenticatedHttpClient().post(url, options);
 }
 
 export function postLicenseRequest(enterpriseUUID, courseID) {
-  const formData = new URLSearchParams({
+  const options = {
     enterprise_customer_uuid: enterpriseUUID,
     course_id: courseID,
-  });
+  };
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_API_BASE_URL}/api/v1/license-requests/`;
-  return getAuthenticatedHttpClient().post(url, formData);
+  return getAuthenticatedHttpClient().post(url, options);
 }
