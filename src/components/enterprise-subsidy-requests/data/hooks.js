@@ -84,7 +84,10 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
 
   useEffect(() => {
     loadSubsidyRequests();
-  }, [subsidyRequestConfiguration?.subsidyRequestsEnabled]);
+  }, [
+    subsidyRequestConfiguration?.subsidyRequestsEnabled,
+    subsidyRequestConfiguration?.subsidyType,
+  ]);
 
   return {
     couponCodeRequests,
@@ -95,7 +98,7 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
 }
 
 /**
- * Returns `true` if user has made a course request.
+ * Returns `true` if user has made a subsidy request.
  *
  * Returns `false` if:
  *  - Subsidy request has not been configured
@@ -107,7 +110,7 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
  * @param {string} [courseKey] - optional filter for specific course
  * @returns {boolean}
  */
-export function useUserHasSubsidyRequest(courseKey) {
+export function useUserHasSubsidyRequestForCourse(courseKey) {
   const {
     subsidyRequestConfiguration,
     licenseRequests,

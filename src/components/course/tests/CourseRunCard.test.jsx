@@ -26,8 +26,6 @@ const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
 jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel }) => (<>{enrollLabel}</>));
-jest.mock('../../../config');
-// jest.mock('../../enterprise-subsidy-requests/data/hooks');
 
 const INITIAL_APP_STATE = initialAppState({});
 const defaultCourse = initialCourseState({});

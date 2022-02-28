@@ -4,7 +4,7 @@ import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../constants';
 import {
   useSubsidyRequestConfiguration,
   useSubsidyRequests,
-  useUserHasSubsidyRequest,
+  useUserHasSubsidyRequestForCourse,
 } from '../hooks';
 import { SubsidyRequestsContext } from '../../SubsidyRequestsContextProvider';
 import * as service from '../service';
@@ -165,7 +165,7 @@ describe('useSubsidyRequests', () => {
   });
 });
 
-describe('useUserHasSubsidyRequest', () => {
+describe('useUserHasSubsidyRequestForCourse', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('returns false when `subsidyRequestConfiguration` are not set', () => {
@@ -175,7 +175,7 @@ describe('useUserHasSubsidyRequest', () => {
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequest(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
     expect(result.current).toBe(false);
   });
 
@@ -189,7 +189,7 @@ describe('useUserHasSubsidyRequest', () => {
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequest(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
     expect(result.current).toBe(false);
   });
 
@@ -206,7 +206,7 @@ describe('useUserHasSubsidyRequest', () => {
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequest(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
     expect(result.current).toBe(true);
   });
 
@@ -224,7 +224,7 @@ describe('useUserHasSubsidyRequest', () => {
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequest(courseId), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(courseId), { wrapper });
     expect(result.current).toBe(true);
   });
 
@@ -241,7 +241,7 @@ describe('useUserHasSubsidyRequest', () => {
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequest('ipsum'), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
     expect(result.current).toBe(false);
   });
 });

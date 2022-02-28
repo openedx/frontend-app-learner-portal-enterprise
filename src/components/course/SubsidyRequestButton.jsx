@@ -10,7 +10,7 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
-import { useUserHasSubsidyRequest } from '../enterprise-subsidy-requests/data/hooks';
+import { useUserHasSubsidyRequestForCourse } from '../enterprise-subsidy-requests/data/hooks';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 import { SUBSIDY_TYPE } from '../enterprise-subsidy-requests/constants';
 
@@ -47,7 +47,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
   const isCourseInCatalog = catalog.containsContentItems;
 
   /**
-   * Check every course run to see if use is enrolled in any of them
+   * Check every course run to see if user is enrolled in any of them
    */
   const isUserEnrolled = useMemo(
     () => {
@@ -78,7 +78,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     return null;
   }
 
-  const userHasSubsidyRequest = useUserHasSubsidyRequest(courseKey);
+  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseKey);
 
   /**
    * @returns {string} one of `request`, `pending`, or `requested`
