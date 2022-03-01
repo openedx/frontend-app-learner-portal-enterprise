@@ -21,8 +21,8 @@ const AvatarDropdown = ({ showLabel }) => {
   // we insert the logout=true in this case to avoid the redirect back to IDP
   // which brings the user right back in, disallowing a proper logout
   const logoutHint = idpPresent ? `${encodeURIComponent('?')}logout=true` : '';
-  const nextURL = `${BASE_URL}${enterpriseDashboardLink}${logoutHint}`;
-  const logoutUrl = `${LOGOUT_URL}?next=${nextURL}`;
+  const nextUrl = `${BASE_URL}${enterpriseDashboardLink}${logoutHint}`;
+  const logoutUrl = `${LOGOUT_URL}?next=${nextUrl}`;
   return (
     <Dropdown>
       <Dropdown.Toggle showLabel={showLabel} as={AvatarButton} src={profileImage.imageUrlMedium}>

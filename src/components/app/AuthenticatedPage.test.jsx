@@ -18,7 +18,7 @@ describe('AuthenticatedPage tests', () => {
   test('page shows logout component when logout mode is detected and user is logged off', () => {
     render(
       <AuthenticatedPage>
-        <div>Your Child, I am but I won{'\''}t be rendered!</div>
+        <div>Your Child, I am but I won&apos;t be rendered!</div>
       </AuthenticatedPage>,
     );
     expect(screen.getByText('You are now logged out.')).toBeInTheDocument();

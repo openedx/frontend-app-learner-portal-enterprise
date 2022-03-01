@@ -37,7 +37,7 @@ const ErrorPageHeader = () => {
               Help
             </a>
             {/* this section makes sense only if the user is logged in */}
-            { username && (
+            {username && (
               <Dropdown>
                 <Dropdown.Toggle showLabel as={AvatarButton} src={profileImage?.imageUrlMedium}>
                   {username}

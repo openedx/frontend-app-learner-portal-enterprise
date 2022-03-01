@@ -37,9 +37,8 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
     return (
       <ErrorPage title="You are now logged out." showSiteFooter={false}>
         Please log back in {' '}
-        <Hyperlink
-          destination={`${config.BASE_URL}/${enterpriseSlug}`}
-        >here
+        <Hyperlink destination={`${config.BASE_URL}/${enterpriseSlug}`}>
+          here.
         </Hyperlink>
       </ErrorPage>
     );
