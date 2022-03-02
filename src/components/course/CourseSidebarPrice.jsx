@@ -8,7 +8,6 @@ import { numberWithPrecision, hasLicenseSubsidy } from './data/utils';
 import {
   useCoursePriceForUserSubsidy,
 } from './data/hooks';
-import { features } from '../../config';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
@@ -52,9 +51,7 @@ const CourseSidebarPrice = () => {
 
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
   // Case 2: No subsidies found but Browse and Request Enabled
-  if (!hasDiscountedPrice
-      && features.FEATURE_BROWSE_AND_REQUEST
-      && subsidyRequestConfiguration?.subsidyRequestsEnabled
+  if (!hasDiscountedPrice && subsidyRequestConfiguration?.subsidyRequestsEnabled
   ) {
     return (
       <span style={{ whiteSpace: 'pre-wrap' }} data-testid="browse-and-request-pricing">

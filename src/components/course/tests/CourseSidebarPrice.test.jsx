@@ -12,9 +12,6 @@ import {
   OFFER_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
 } from '../data/constants';
-import * as config from '../../../config';
-
-jest.mock('../../../config');
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -112,7 +109,6 @@ const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
 describe('<CourseSidebarPrice/> ', () => {
   describe('Browse and Request', () => {
     test('Display correct message when browse and request on and no subsidy', () => {
-      config.features.FEATURE_BROWSE_AND_REQUEST = true;
       render(
         <SidebarWithContext
           initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
