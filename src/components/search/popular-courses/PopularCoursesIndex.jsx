@@ -6,8 +6,8 @@ import { getConfig } from '@edx/frontend-platform/';
 import { useDefaultSearchFilters } from '../data/hooks';
 import PopularCourses from './PopularCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, COURSE_TITLE } from '../constants';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
+import { getContentTypeFromTitle } from '../../utils/search';
 
 const PopularCoursesIndex = ({ title }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -20,7 +20,7 @@ const PopularCoursesIndex = ({ title }) => {
     offerCatalogs,
   });
   const config = getConfig();
-  const contentType = title === COURSE_TITLE ? CONTENT_TYPE_COURSE : CONTENT_TYPE_PROGRAM;
+  const contentType = getContentTypeFromTitle(title);
   const defaultFilter = `content_type:${contentType} AND ${filters}`;
   const searchConfig = {
     query: '',

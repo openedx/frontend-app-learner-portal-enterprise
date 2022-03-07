@@ -14,8 +14,14 @@ import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import {
-  CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, PROGRAM_TITLE, NUM_RESULTS_PROGRAM, NUM_RESULTS_COURSE,
+  PROGRAM_TITLE,
+  NUM_RESULTS_PROGRAM,
+  NUM_RESULTS_COURSE,
+  COURSE_TITLE,
+  PATHWAY_TITLE, NUM_RESULTS_PATHWAY,
 } from './constants';
+import SearchPathwayCard from '../pathway/SearchPathwayCard';
+import { getContentTypeFromTitle } from '../utils/search';
 
 const SearchResults = ({
   searchResults,
@@ -29,7 +35,20 @@ const SearchResults = ({
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
   const linkText = `Show (${nbHits}) >`;
-  const NUMBER_RESULTS = title === PROGRAM_TITLE ? NUM_RESULTS_PROGRAM : NUM_RESULTS_COURSE;
+  let NUMBER_RESULTS;
+  switch (title) {
+    case COURSE_TITLE:
+      NUMBER_RESULTS = NUM_RESULTS_COURSE;
+      break;
+    case PROGRAM_TITLE:
+      NUMBER_RESULTS = NUM_RESULTS_PROGRAM;
+      break;
+    case PATHWAY_TITLE:
+      NUMBER_RESULTS = NUM_RESULTS_PATHWAY;
+      break;
+    default:
+      NUMBER_RESULTS = 0;
+  }
 
   // To prevent from showing same error twice, we only render the StatusAlert when course results are zero */
   const showMessage = (type, heading) => {
@@ -43,10 +62,19 @@ const SearchResults = ({
   };
 
   const clickHandler = () => {
-    if (title === PROGRAM_TITLE) {
-      dispatch(setRefinementAction('content_type', [CONTENT_TYPE_PROGRAM]));
-    } else {
-      dispatch(setRefinementAction('content_type', [CONTENT_TYPE_COURSE]));
+    dispatch(setRefinementAction('content_type', [getContentTypeFromTitle(title)]));
+  };
+
+  const getSkeletonCard = () => {
+    switch (title) {
+      case COURSE_TITLE:
+        return <SearchCourseCard.Skeleton />;
+      case PROGRAM_TITLE:
+        return <SearchProgramCard.Skeleton />;
+      case PATHWAY_TITLE:
+        return <SearchPathwayCard.Skeleton />;
+      default:
+        return null;
     }
   };
 
@@ -117,7 +145,7 @@ const SearchResults = ({
             <Row>
               {[...Array(NUMBER_RESULTS).keys()].map(resultNum => (
                 <div key={resultNum} className="skeleton-course-card">
-                  { title === PROGRAM_TITLE ? (<SearchProgramCard.Skeleton />) : (<SearchCourseCard.Skeleton />)}
+                  {getSkeletonCard()}
                 </div>
               ))}
             </Row>

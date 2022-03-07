@@ -5,12 +5,11 @@ import Skeleton from 'react-loading-skeleton';
 
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
 import SearchCourseCard from '../SearchCourseCard';
-import SearchProgramCard from '../SearchProgramCard';
 import SearchError from '../SearchError';
-import { COURSE_TITLE } from '../constants';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
+import { getHitCardFromTitle } from '../../utils/search';
 
 const PopularCourses = ({
   searchResults,
@@ -40,7 +39,7 @@ const PopularCourses = ({
         </div>
       )}
       {!isSearchStalled && nbHits > 0 && (
-        <Hits hitComponent={title === COURSE_TITLE ? SearchCourseCard : SearchProgramCard} />
+        <Hits hitComponent={getHitCardFromTitle(title)} />
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && (
         <SearchError />
