@@ -23,6 +23,7 @@ import {
   renderWithRouter,
 } from '../../../utils/tests';
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
+import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
 
 jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
@@ -223,70 +224,64 @@ describe('<SearchResults />', () => {
   });
 
   test('renders an alert in case of an error for courses', () => {
-    const errorMessageTitle = 'An error occured while finding courses that match your search.';
-    const errorMessageContent = 'Please try again later.';
+    const searchErrorMessage = getSearchErrorMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForError} />,
     );
-    expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of an error for programs', () => {
     const propsForErrorProgram = { ...propsForError, contentType: CONTENT_TYPE_PROGRAM, title: PROGRAM_TITLE };
-    const errorMessageTitle = 'An error occured while finding programs that match your search.';
-    const errorMessageContent = 'Please try again later.';
+    const searchErrorMessage = getSearchErrorMessage(PROGRAM_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForErrorProgram} />,
     );
-    expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of an error for pathways', () => {
     const propsForErrorPathway = { ...propsForError, contentType: CONTENT_TYPE_PATHWAY, title: PATHWAY_TITLE };
-    const errorMessageTitle = 'An error occured while finding pathways that match your search.';
-    const errorMessageContent = 'Please try again later.';
+    const searchErrorMessage = getSearchErrorMessage(PATHWAY_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForErrorPathway} />,
     );
-    expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of no results for courses', () => {
-    const messageTitle = 'No courses were found to match your search results.';
-    const messageContent = 'Check out some popular courses below.';
+    const noResultsMessage = getNoResultsMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResults} />,
     );
-    expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of no results for programs', () => {
     const propsForNoResultsProgram = {
       ...propsForNoResults, hitComponent: SearchProgramCard, title: PROGRAM_TITLE, contentType: CONTENT_TYPE_PROGRAM,
     };
-    const messageTitle = 'No programs were found to match your search results.';
-    const messageContent = 'Check out some popular programs below.';
+    const noResultsMessage = getNoResultsMessage(PROGRAM_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResultsProgram} />,
     );
-    expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of no results for pathways', () => {
     const propsForNoResultsPathway = {
       ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
     };
-    const messageTitle = 'No pathways were found to match your search results.';
-    const messageContent = 'Check out some popular pathways below.';
+    const noResultsMessage = getNoResultsMessage(PATHWAY_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResultsPathway} />,
     );
-    expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
   });
 });

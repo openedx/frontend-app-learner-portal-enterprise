@@ -4,14 +4,13 @@ import { Hits, connectStateResults } from 'react-instantsearch-dom';
 import Skeleton from 'react-loading-skeleton';
 
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
-import SearchCourseCard from '../SearchCourseCard';
 import SearchError from '../SearchError';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
-import { getHitCardFromTitle } from '../../utils/search';
+import { getHitComponentFromTitle, getSkeletonCardFromTitle } from '../../utils/search';
 
-const PopularCourses = ({
+const PopularResults = ({
   searchResults,
   isSearchStalled,
   error,
@@ -33,13 +32,13 @@ const PopularCourses = ({
         <div className="row">
           {[...Array(NUM_RESULTS_TO_DISPLAY).keys()].map(resultNum => (
             <div key={resultNum} className="skeleton-course-card">
-              <SearchCourseCard.Skeleton />
+              {getSkeletonCardFromTitle(title)}
             </div>
           ))}
         </div>
       )}
       {!isSearchStalled && nbHits > 0 && (
-        <Hits hitComponent={getHitCardFromTitle(title)} />
+        <Hits hitComponent={getHitComponentFromTitle(title)} />
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && (
         <SearchError />
@@ -48,17 +47,17 @@ const PopularCourses = ({
   );
 };
 
-PopularCourses.propTypes = {
+PopularResults.propTypes = {
   searchResults: PropTypes.shape(),
   isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),
   title: PropTypes.string.isRequired,
 };
 
-PopularCourses.defaultProps = {
+PopularResults.defaultProps = {
   searchResults: undefined,
   isSearchStalled: false,
   error: undefined,
 };
 
-export default connectStateResults(PopularCourses);
+export default connectStateResults(PopularResults);

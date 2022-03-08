@@ -7,21 +7,14 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import { Container, Row } from '@edx/paragon';
 
-import SearchCourseCard from './SearchCourseCard';
-import SearchProgramCard from './SearchProgramCard';
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import {
   PROGRAM_TITLE,
-  NUM_RESULTS_PROGRAM,
-  NUM_RESULTS_COURSE,
-  COURSE_TITLE,
-  PATHWAY_TITLE, NUM_RESULTS_PATHWAY,
 } from './constants';
-import SearchPathwayCard from '../pathway/SearchPathwayCard';
-import { getContentTypeFromTitle } from '../utils/search';
+import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 
 const SearchResults = ({
   searchResults,
@@ -35,20 +28,6 @@ const SearchResults = ({
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
   const linkText = `Show (${nbHits}) >`;
-  let NUMBER_RESULTS;
-  switch (title) {
-    case COURSE_TITLE:
-      NUMBER_RESULTS = NUM_RESULTS_COURSE;
-      break;
-    case PROGRAM_TITLE:
-      NUMBER_RESULTS = NUM_RESULTS_PROGRAM;
-      break;
-    case PATHWAY_TITLE:
-      NUMBER_RESULTS = NUM_RESULTS_PATHWAY;
-      break;
-    default:
-      NUMBER_RESULTS = 0;
-  }
 
   // To prevent from showing same error twice, we only render the StatusAlert when course results are zero */
   const showMessage = (type, heading) => {
@@ -63,19 +42,6 @@ const SearchResults = ({
 
   const clickHandler = () => {
     dispatch(setRefinementAction('content_type', [getContentTypeFromTitle(title)]));
-  };
-
-  const getSkeletonCard = () => {
-    switch (title) {
-      case COURSE_TITLE:
-        return <SearchCourseCard.Skeleton />;
-      case PROGRAM_TITLE:
-        return <SearchProgramCard.Skeleton />;
-      case PATHWAY_TITLE:
-        return <SearchPathwayCard.Skeleton />;
-      default:
-        return null;
-    }
   };
 
   const query = useMemo(
@@ -143,9 +109,9 @@ const SearchResults = ({
           <>
             <Skeleton className="lead mb-4" width={160} />
             <Row>
-              {[...Array(NUMBER_RESULTS).keys()].map(resultNum => (
+              {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => (
                 <div key={resultNum} className="skeleton-course-card">
-                  {getSkeletonCard()}
+                  {getSkeletonCardFromTitle(title)}
                 </div>
               ))}
             </Row>
