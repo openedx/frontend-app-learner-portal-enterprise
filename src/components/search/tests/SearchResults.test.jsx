@@ -9,13 +9,20 @@ import SearchProgramCard from '../SearchProgramCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import {
-  NUM_RESULTS_PROGRAM, NUM_RESULTS_COURSE, COURSE_TITLE, PROGRAM_TITLE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM,
+  NUM_RESULTS_PROGRAM,
+  NUM_RESULTS_COURSE,
+  COURSE_TITLE,
+  PROGRAM_TITLE,
+  CONTENT_TYPE_COURSE,
+  CONTENT_TYPE_PROGRAM,
+  PATHWAY_TITLE, CONTENT_TYPE_PATHWAY, NUM_RESULTS_PATHWAY,
 } from '../constants';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 
 import {
   renderWithRouter,
 } from '../../../utils/tests';
+import SearchPathwayCard from '../../pathway/SearchPathwayCard';
 
 jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
@@ -162,6 +169,20 @@ describe('<SearchResults />', () => {
     expect(screen.getByText('HIT')).toBeInTheDocument();
   });
 
+  test('renders correct results for pathways', () => {
+    const propsForPathwayResults = {
+      ...propsForCourseResults,
+      hitComponent: SearchPathwayCard,
+      title: PATHWAY_TITLE,
+      contentType: CONTENT_TYPE_PATHWAY,
+    };
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForPathwayResults} />,
+    );
+    // Algolia Hits widget is mocked to return 'HIT'
+    expect(screen.getByText('HIT')).toBeInTheDocument();
+  });
+
   test('renders loading component for courses correctly when search is stalled', () => {
     const propsForLoadingCourses = { ...propsForCourseResults, isSearchStalled: true };
     renderWithRouter(
@@ -186,6 +207,21 @@ describe('<SearchResults />', () => {
     expect(elements.length).toEqual(NUM_RESULTS_PROGRAM);
   });
 
+  test('renders loading component for pathways correctly when search is stalled', () => {
+    const propsForLoadingPathway = {
+      ...propsForCourseResults,
+      isSearchStalled: true,
+      hitComponent: SearchPathwayCard,
+      title: PATHWAY_TITLE,
+      contentType: CONTENT_TYPE_PATHWAY,
+    };
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForLoadingPathway} />,
+    );
+    const elements = screen.queryAllByTestId('pathway-title-loading');
+    expect(elements.length).toEqual(NUM_RESULTS_PATHWAY);
+  });
+
   test('renders an alert in case of an error for courses', () => {
     const errorMessageTitle = 'An error occured while finding courses that match your search.';
     const errorMessageContent = 'Please try again later.';
@@ -202,6 +238,17 @@ describe('<SearchResults />', () => {
     const errorMessageContent = 'Please try again later.';
     renderWithRouter(
       <SearchResultsWithContext {...propsForErrorProgram} />,
+    );
+    expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
+  });
+
+  test('renders an alert in case of an error for pathways', () => {
+    const propsForErrorPathway = { ...propsForError, contentType: CONTENT_TYPE_PATHWAY, title: PATHWAY_TITLE };
+    const errorMessageTitle = 'An error occured while finding pathways that match your search.';
+    const errorMessageContent = 'Please try again later.';
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForErrorPathway} />,
     );
     expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
     expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
@@ -225,6 +272,19 @@ describe('<SearchResults />', () => {
     const messageContent = 'Check out some popular programs below.';
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResultsProgram} />,
+    );
+    expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
+  });
+
+  test('renders an alert in case of no results for pathways', () => {
+    const propsForNoResultsPathway = {
+      ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
+    };
+    const messageTitle = 'No pathways were found to match your search results.';
+    const messageContent = 'Check out some popular pathways below.';
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForNoResultsPathway} />,
     );
     expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
     expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
