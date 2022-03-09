@@ -8,7 +8,14 @@ import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-se
 import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters } from './data/hooks';
 import {
-  NUM_RESULTS_PER_PAGE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, COURSE_TITLE, PROGRAM_TITLE, HEADER_TITLE,
+  NUM_RESULTS_PER_PAGE,
+  CONTENT_TYPE_COURSE,
+  CONTENT_TYPE_PROGRAM,
+  COURSE_TITLE,
+  PROGRAM_TITLE,
+  HEADER_TITLE,
+  CONTENT_TYPE_PATHWAY,
+  PATHWAY_TITLE,
 } from './constants';
 import SearchProgram from './SearchProgram';
 import SearchCourse from './SearchCourse';
@@ -19,6 +26,8 @@ import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import SearchPathway from './SearchPathway';
+import SearchPathwayCard from '../pathway/SearchPathwayCard';
 
 const Search = () => {
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
@@ -73,9 +82,16 @@ const Search = () => {
 
         { (contentType === undefined || contentType.length === 0) && (
           <>
+            {
+              features.ENABLE_PATHWAYS && <SearchPathway filter={filters} />
+            }
             { features.ENABLE_PROGRAMS ? <SearchProgram filter={filters} /> : <div /> }
             <SearchCourse filter={filters} />
           </>
+        )}
+
+        { contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
+          <SearchResults hitComponent={SearchPathwayCard} title={PATHWAY_TITLE} contentType={CONTENT_TYPE_PATHWAY} />
         )}
 
         { contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (

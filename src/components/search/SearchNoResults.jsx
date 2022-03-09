@@ -4,10 +4,11 @@ import { StatusAlert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
-import { PopularCourses } from './popular-courses';
+import { PopularResults } from './popular-results';
+import { getNoResultsMessage } from '../utils/search';
 
 const SearchNoResults = ({ title }) => {
-  const lowerCaseTitle = title.toLowerCase();
+  const noResultsMessage = getNoResultsMessage(title);
   const renderDialog = useCallback(
     () => (
       <div className="lead d-flex align-items-center py-3">
@@ -15,9 +16,9 @@ const SearchNoResults = ({ title }) => {
           <FontAwesomeIcon icon={faSearchMinus} size="2x" />
         </div>
         <div>
-          No {lowerCaseTitle} were found to match your search results.
+          {noResultsMessage.messageTitle}
           <br />
-          Check out some popular {lowerCaseTitle} below.
+          {noResultsMessage.messageContent}
         </div>
       </div>
     ),
@@ -33,7 +34,7 @@ const SearchNoResults = ({ title }) => {
         dismissible={false}
         open
       />
-      <PopularCourses title={title} />
+      <PopularResults title={title} />
     </>
   );
 };
