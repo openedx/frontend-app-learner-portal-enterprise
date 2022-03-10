@@ -14,7 +14,7 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 
 axiosMock.onAny().reply(200);
 axios.get = jest.fn();
-const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_API_BASE_URL}`;
+const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_BASE_URL}`;
 const mockEnterpriseUUID = 'test-enterprise-id';
 
 describe('fetchSubsidyRequestConfiguration', () => {
