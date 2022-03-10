@@ -44,7 +44,7 @@ const TEST_CARD_IMG_URL = 'http://fake.image';
 
 const defaultProps = {
   hit: {
-    uuid: TEST_PATHWAY_UUID,
+    aggregation_key: `learner_pathway:${TEST_PATHWAY_UUID}`,
     title: TEST_TITLE,
     banner_image_url: TEST_CARD_IMG_URL,
   },

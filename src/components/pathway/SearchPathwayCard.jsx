@@ -43,12 +43,14 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
 
   const pathway = hit ? camelCaseObject(hit) : {};
 
+  const pathwayUuid = Object.keys(pathway).length ? pathway.aggregationKey.split(':').pop() : undefined;
+
   const linkToPathway = useMemo(
     () => {
       if (!Object.keys(pathway).length) {
         return '#';
       }
-      return `#pathway-${pathway.uuid}`;
+      return `#pathway-${pathwayUuid}`;
     },
     [isLoading, JSON.stringify(pathway)],
   );
@@ -60,7 +62,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
       aria-label={pathway.title}
     >
       <PathwayModal
-        learnerPathwayUuid={pathway.uuid}
+        learnerPathwayUuid={pathwayUuid}
         isOpen={isLearnerPathwayModalOpen}
         onClose={onClose}
       />
@@ -77,7 +79,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
               position: pathway.position,
               index: getConfig().ALGOLIA_INDEX_NAME,
               queryID: pathway.queryId,
-              pathwayUUID: pathway.uuid,
+              pathwayUUID: pathwayUuid,
             },
           );
         }}
@@ -146,10 +148,10 @@ const SkeletonPathwayCard = (props) => (
 
 SearchPathwayCard.propTypes = {
   hit: PropTypes.shape({
-    uuid: PropTypes.string,
-    bannerImageUrl: PropTypes.string,
+    aggregation_key: PropTypes.string,
+    banner_image_url: PropTypes.string,
     title: PropTypes.string,
-    skillNames: PropTypes.arrayOf(PropTypes.string),
+    skill_names: PropTypes.arrayOf(PropTypes.string),
   }),
   isLoading: PropTypes.bool,
 };
