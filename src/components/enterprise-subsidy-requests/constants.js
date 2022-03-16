@@ -1,6 +1,6 @@
 export const SUBSIDY_TYPE = {
-  LICENSE: 'License',
-  COUPON: 'Coupon',
+  LICENSE: 'license',
+  COUPON: 'coupon',
 };
 export const SUBSIDY_REQUEST_STATE = {
   REQUESTED: 'requested',
