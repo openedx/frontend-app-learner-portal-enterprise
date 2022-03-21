@@ -44,6 +44,7 @@ const ProgramListingCard = ({ program }) => {
     <Card className="mb-4 program-listing-card mr-5" onClick={handleCardClick}>
       <Card.Img
         src={getBannerImageURL()}
+        data-testid="program-banner-image"
       />
       {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImage) && (
         <div className="partner-logo-wrapper shadow-sm">
@@ -127,10 +128,10 @@ ProgramListingCard.propTypes = {
         }),
       },
     ),
-    authoringOrganizations: PropTypes.arrayOf({
+    authoringOrganizations: PropTypes.arrayOf(PropTypes.shape({
       key: PropTypes.string.isRequired,
       logoImage: PropTypes.string.isRequired,
-    }),
+    })),
   }).isRequired,
 };
 
