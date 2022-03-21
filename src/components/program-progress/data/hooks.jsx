@@ -44,5 +44,5 @@ export function useLearnerProgramsListData(enterpriseUuid) {
     };
     fetchData();
   }, [enterpriseUuid]);
-  return [camelCaseObject([]), fetchError];
+  return [camelCaseObject(learnerProgramsListData), fetchError];
 }
