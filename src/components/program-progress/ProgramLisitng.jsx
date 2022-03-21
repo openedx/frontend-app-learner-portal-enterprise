@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
 
 import { useLearnerProgramsListData } from './data/hooks';
+import { NO_PROGRAMS_ERROR_MESSAGE } from './data/constants';
 import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
@@ -48,7 +49,7 @@ const ProgramListing = () => {
               ? learnerProgramsData.map((program) => <ProgramListingCard program={program} key={program.title} />)
               : (
                 <div className="no-programs-message">
-                  <h2>You are not enrolled in any programs yet.</h2>
+                  <h2>{NO_PROGRAMS_ERROR_MESSAGE}</h2>
                   <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
                     <Button variant="primary" iconBefore={Search} className="mt-2">Explore programs</Button>
                   </Link>
