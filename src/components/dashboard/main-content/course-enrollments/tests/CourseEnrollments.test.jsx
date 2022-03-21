@@ -19,6 +19,7 @@ import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete
 import { COURSE_STATUSES } from '../data/constants';
 import CourseEnrollmentsContextProvider from '../CourseEnrollmentsContextProvider';
 import * as hooks from '../data/hooks';
+import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -36,7 +37,13 @@ const inProgCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.inProgr
 const upcomingCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.upcoming);
 const completedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.completed);
 const savedForLaterCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.savedForLater);
-const requestedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.requested);
+
+const transformedLicenseRequest = {
+  created: '2017-02-05T05:00:00Z',
+  courseRunId: 'edx+101',
+  title: 'requested course',
+  courseRunStatus: COURSE_STATUSES.requested,
+};
 
 hooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
@@ -44,16 +51,18 @@ hooks.useCourseEnrollments.mockReturnValue({
     upcoming: [upcomingCourseRun],
     completed: [completedCourseRun],
     savedForLater: [savedForLaterCourseRun],
-    requested: [requestedCourseRun],
+    requested: [transformedLicenseRequest],
   },
   updateCourseEnrollmentStatus: jest.fn(),
 });
 
 const renderEnrollmentsComponent = () => render(
   <AppContext.Provider value={{ enterpriseConfig }}>
-    <CourseEnrollmentsContextProvider>
-      <CourseEnrollments />
-    </CourseEnrollmentsContextProvider>
+    <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
+      <CourseEnrollmentsContextProvider>
+        <CourseEnrollments />
+      </CourseEnrollmentsContextProvider>
+    </SubsidyRequestsContext.Provider>
   </AppContext.Provider>,
 );
 
@@ -103,7 +112,7 @@ describe('Course enrollments', () => {
     const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
     expect(within(currentCourses).getByText(inProgCourseRun.title));
     expect(within(currentCourses).getByText(upcomingCourseRun.title));
-    expect(within(currentCourses).getByText(requestedCourseRun.title));
+    expect(within(currentCourses).getByText(transformedLicenseRequest.title));
   });
 
   it('renders courses enrollments within sections by created timestamp', async () => {
@@ -133,7 +142,9 @@ describe('Course enrollments', () => {
       },
     });
 
-    renderEnrollmentsComponent();
+    renderEnrollmentsComponent({
+      isSubsidyRequestsEnabled: false,
+    });
 
     const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
     const courseTitles = currentCourses.querySelectorAll('.course-title');

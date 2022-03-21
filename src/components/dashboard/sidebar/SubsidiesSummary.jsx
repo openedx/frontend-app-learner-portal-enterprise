@@ -11,8 +11,7 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { SUBSIDY_REQUEST_STATE } from '../../enterprise-subsidy-requests/constants';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 
 const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
   const {
@@ -33,8 +32,7 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
   } = useContext(UserSubsidyContext);
 
   const {
-    couponCodeRequests,
-    licenseRequests,
+    requestsBySubsidyType,
   } = useContext(SubsidyRequestsContext);
 
   // if there are course enrollments, the cta button below will be the only one on the page
@@ -43,18 +41,13 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
     [courseEnrollmentsByStatus],
   );
 
-  const pendingCouponCodeRequests = useMemo(() => couponCodeRequests.filter(
-    request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
-  ), [couponCodeRequests.length]);
-
-  const pendingLicenseRequest = useMemo(() => licenseRequests.find(
-    request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
-  ), [licenseRequests.length]);
+  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
+  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
 
   const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || !!pendingLicenseRequest;
+    && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
-  const hasOffersOrCouponCodeRequests = offersCount > 0 || pendingCouponCodeRequests.length > 0;
+  const hasOffersOrCouponCodeRequests = offersCount > 0 || couponCodeRequests.length > 0;
 
   if (!(hasActiveLicenseOrLicenseRequest || hasOffersOrCouponCodeRequests)) {
     return null;
@@ -66,14 +59,14 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
         {hasActiveLicenseOrLicenseRequest && (
           <SubscriptionSummaryCard
             subscriptionPlan={subscriptionPlan}
-            licenseRequest={pendingLicenseRequest}
+            licenseRequest={licenseRequests[0]}
             className="mb-3"
           />
         )}
         {hasOffersOrCouponCodeRequests && (
           <OfferSummaryCard
             offersCount={offersCount}
-            couponCodeRequestsCount={pendingCouponCodeRequests.length}
+            couponCodeRequestsCount={couponCodeRequests.length}
             className="mb-3"
           />
         )}

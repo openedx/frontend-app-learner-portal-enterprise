@@ -11,6 +11,6 @@ export const COURSE_STATUSES = {
   completed: 'completed',
   savedForLater: 'saved_for_later',
 
-  // Not yet implemented
+  // Not a real course status, represents a subsidy request.
   requested: 'requested',
 };

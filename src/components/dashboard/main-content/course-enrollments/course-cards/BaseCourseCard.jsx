@@ -206,11 +206,23 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderSponsoredByEnterpriseMessage = () => {
+  renderAdditionalInfo = () => {
     const { enterpriseConfig: { name } } = this.context;
+    const { type } = this.props;
+
+    if (type === COURSE_STATUSES.requested) {
+      return (
+        <small>
+          Please allow 5-10 business days for review.
+          If approved, you will receive an email to get started.
+        </small>
+      );
+    }
+
     if (name) {
       return <small>Sponsored by {name}.</small>;
     }
+
     return null;
   };
 
@@ -317,7 +329,7 @@ class BaseCourseCard extends Component {
             <small className="mb-0">
               {this.getCourseMiscText()}
             </small>
-            {this.renderSponsoredByEnterpriseMessage()}
+            {this.renderAdditionalInfo()}
             {hasViewCertificateLink && this.renderViewCertificateText()}
           </div>
         </div>
@@ -329,7 +341,7 @@ class BaseCourseCard extends Component {
 
 BaseCourseCard.propTypes = {
   type: PropTypes.oneOf([
-    'in_progress', 'upcoming', 'completed', 'saved_for_later',
+    'in_progress', 'upcoming', 'completed', 'saved_for_later', 'requested',
   ]).isRequired,
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,

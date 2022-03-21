@@ -5,7 +5,7 @@ import { Container } from '@edx/paragon';
 import { useSubsidyRequestConfiguration, useSubsidyRequests } from './data/hooks';
 import { features } from '../../config';
 import { LoadingSpinner } from '../loading-spinner';
-import { LOADING_SCREEN_READER_TEXT } from './constants';
+import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from './constants';
 
 export const SubsidyRequestsContext = createContext();
 
@@ -26,15 +26,18 @@ const SubsidyRequestsContextProvider = ({ children }) => {
   } = useSubsidyRequests(subsidyRequestConfiguration);
   const isLoading = isLoadingConfiguration || isLoadingSubsidyRequests;
 
+  const requestsBySubsidyType = useMemo(() => ({
+    [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+    [SUBSIDY_TYPE.COUPON]: couponCodeRequests,
+  }), [licenseRequests, couponCodeRequests]);
+
   const context = useMemo(() => ({
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
+    requestsBySubsidyType,
     refreshSubsidyRequests,
   }), [
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
+    requestsBySubsidyType,
   ]);
 
   if (isLoading) {
@@ -57,12 +60,14 @@ const SubsidyRequestsContextProviderWrapper = (props) => {
     return <SubsidyRequestsContextProvider {...props} />;
   }
 
-  const context = {
+  const context = useMemo(() => ({
     subsidyRequestConfiguration: null,
-    licenseRequests: [],
-    couponCodeRequests: [],
+    requestsBySubsidyType: {
+      [SUBSIDY_TYPE.LICENSE]: [],
+      [SUBSIDY_TYPE.COUPON]: [],
+    },
     isLoading: false,
-  };
+  }), []);
 
   return (
     <SubsidyRequestsContext.Provider value={context}>

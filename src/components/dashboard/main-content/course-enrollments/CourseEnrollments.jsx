@@ -25,9 +25,15 @@ const CourseEnrollments = ({ children }) => {
 
   const currentCourseEnrollments = useMemo(
     () => sortedEnrollmentsByEnrollmentDate(
-      [...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
-        ...courseEnrollmentsByStatus.requested],
-    ), [courseEnrollmentsByStatus.inProgress, courseEnrollmentsByStatus.upcoming, courseEnrollmentsByStatus.requested],
+      [
+        ...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
+        ...courseEnrollmentsByStatus.requested,
+      ],
+    ), [
+      courseEnrollmentsByStatus.inProgress,
+      courseEnrollmentsByStatus.upcoming,
+      courseEnrollmentsByStatus.requested,
+    ],
   );
 
   const completedCourseEnrollments = useMemo(
