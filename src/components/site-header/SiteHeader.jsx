@@ -44,11 +44,11 @@ export default function SiteHeader() {
     return (
       <>
         <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
-          Courses
+          {features.ENABLE_PROGRAMS_PAGE ? 'Courses' : 'Dashboard'}
         </NavLink>
         {
           features.ENABLE_PROGRAMS_PAGE && (
-            <NavLink to={`/${enterpriseConfig.slug}/program-list`} className={mainMenuLinkClassName} exact>
+            <NavLink to={`/${enterpriseConfig.slug}/programs`} className={mainMenuLinkClassName} exact>
               Programs
             </NavLink>
           )

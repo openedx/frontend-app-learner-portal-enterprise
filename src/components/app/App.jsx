@@ -17,7 +17,7 @@ import { SearchPage } from '../search';
 import { LicenseActivationPage } from '../license-activation';
 import { SkillsQuizPage } from '../skills-quiz';
 import { EnterpriseInvitePage } from '../enterprise-invite';
-import { ProgramListingPage } from '../program-listing';
+import { ProgramListingPage } from '../program-progress';
 
 import { features } from '../../config';
 import { ToastsProvider, Toasts } from '../Toasts';
@@ -47,7 +47,7 @@ export default function App() {
             )}
             <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgressPage} />
             {features.ENABLE_PROGRAMS_PAGE && (
-              <PageRoute exact path="/:enterpriseSlug/program-list" component={ProgramListingPage} />
+              <PageRoute exact path="/:enterpriseSlug/programs" component={ProgramListingPage} />
             )}
             <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
             <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />

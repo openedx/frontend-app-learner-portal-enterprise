@@ -1,11 +1,18 @@
 import { breakpoints, Card } from '@edx/paragon';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 
-import { Check } from '@edx/paragon/icons';
+import { AppContext } from '@edx/frontend-platform/react';
 
 const ProgramListingCard = ({ program }) => {
+  const { enterpriseConfig } = useContext(AppContext);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const history = useHistory();
+
+  const handleCardClick = () => {
+    history.push(`/${enterpriseConfig.slug}/program-progress/${program.uuid}`);
+  };
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -34,15 +41,14 @@ const ProgramListingCard = ({ program }) => {
   };
 
   return (
-    <Card className="mb-4 program-listing-card mr-5">
+    <Card className="mb-4 program-listing-card mr-5" onClick={handleCardClick}>
       <Card.Img
         src={getBannerImageURL()}
-        logoSrc={program.authoringOrganizations?.length === 1 ? program.authoringOrganizations[0].logoImage : 'https://via.placeholder.com/150'}
       />
-      {program.authoringOrganizations?.length === 1 && (
+      {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImage) && (
         <div className="partner-logo-wrapper shadow-sm">
           <img
-            src="https://prod-discovery.edx-cdn.org/organization/logos/44022f13-20df-4666-9111-cede3e5dc5b6-2cc39992c67a.png"
+            src={program.authoringOrganizations[0].logoImage}
             className="partner-logo"
             alt={program.authoringOrganizations[0].key}
           />
@@ -51,7 +57,7 @@ const ProgramListingCard = ({ program }) => {
       <Card.Body>
         <div className="font-weight-light d-flex justify-content-between">
           <div>
-            {program.authoringOrganizations?.length > 0 && program.authoringOrganizations[0].key}
+            {program.authoringOrganizations?.length > 0 && program.authoringOrganizations.map(org => org.key).join(' ')}
           </div>
           <div>
             {program.type}
@@ -75,9 +81,7 @@ const ProgramListingCard = ({ program }) => {
           </div>
           <div className="progress-item">
             <div className="completed-courses">
-              {(!program.progress.notStarted && !program.progress.inProgress)
-                ? (<Check />)
-                : program.progress.completed}
+              {program.progress.completed}
             </div>
             Completed
           </div>
@@ -89,6 +93,7 @@ const ProgramListingCard = ({ program }) => {
 
 ProgramListingCard.propTypes = {
   program: PropTypes.shape({
+    uuid: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     progress: PropTypes.shape(
