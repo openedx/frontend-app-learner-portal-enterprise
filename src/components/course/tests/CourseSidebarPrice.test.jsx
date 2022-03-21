@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import CourseSidebarPrice, { INCLUDED_IN_SUBSCRIPTION_MESSAGE, FREE_WHEN_APPROVED_MESSAGE } from '../CourseSidebarPrice';
 import {
   LICENSE_SUBSIDY_TYPE,
@@ -76,9 +76,10 @@ const courseStateWithNoOffersNoLicenseSubsidy = {
 
 const defaultSubsidyRequestsState = {
   subsidyRequestConfiguration: null,
-  licenseRequests: [],
-  couponCodeRequests: [],
-  isLoading: false,
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
 };
 
 /* eslint-disable react/prop-types */

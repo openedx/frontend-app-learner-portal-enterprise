@@ -6,21 +6,41 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 import { useCourseEnrollments } from './data/hooks';
 import { LoadingSpinner } from '../../../loading-spinner';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { transformSubsidyRequest } from './data/utils';
 
 export const CourseEnrollmentsContext = createContext();
 
 const CourseEnrollmentsContextProvider = ({ children }) => {
   const {
     enterpriseConfig: {
-      uuid,
+      uuid: enterpriseUUID,
+      slug,
     },
   } = useContext(AppContext);
+
+  const {
+    subsidyRequestConfiguration,
+    requestsBySubsidyType,
+  } = useContext(SubsidyRequestsContext);
+
+  const isSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
+
+  const requestedCourseEnrollments = isSubsidyRequestsEnabled
+    ? requestsBySubsidyType[subsidyRequestConfiguration.subsidyType].map(subsidyRequest => transformSubsidyRequest({
+      subsidyRequest,
+      slug,
+    })) : [];
+
   const {
     courseEnrollmentsByStatus,
     isLoading,
     fetchCourseEnrollmentsError,
     updateCourseEnrollmentStatus,
-  } = useCourseEnrollments(uuid);
+  } = useCourseEnrollments({
+    enterpriseUUID,
+    requestedCourseEnrollments,
+  });
 
   const [showMarkCourseCompleteSuccess, setShowMarkCourseCompleteSuccess] = useState(false);
   const [showMoveToInProgressCourseSuccess, setShowMoveToInProgressCourseSuccess] = useState(false);

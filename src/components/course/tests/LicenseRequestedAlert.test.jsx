@@ -5,7 +5,7 @@ import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import { CourseContext } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SUBSIDY_REQUEST_STATE } from '../../enterprise-subsidy-requests/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, LICENSE_REQUESTED_ALERT_HEADING, LICENSE_REQUESTED_ALERT_TEXT } from '../data/constants';
 
 const mockCatalogUUID = 'uuid';
@@ -41,9 +41,10 @@ const LicenseRequestedAlertWrapper = ({
     <SubsidyRequestsContext.Provider value={
       {
         subsidyRequestConfiguration: null,
-        licenseRequests,
-        couponCodeRequests: [],
-        isLoading: false,
+        requestsBySubsidyType: {
+          [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+          [SUBSIDY_TYPE.COUPON]: [],
+        },
       }
     }
     >

@@ -23,6 +23,8 @@ import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 
 const defaultOffersState = {
   offers: [],
@@ -77,6 +79,14 @@ const defaultCourseState = {
   },
 };
 
+const defaultSubsidyRequestState = {
+  subsidyRequestConfiguration: null,
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+};
+
 const mockWindowConfig = {
   type: 'screen',
   width: breakpoints.large.minWidth + 1,
@@ -95,14 +105,17 @@ const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialCourseState = defaultCourseState,
+  initialSubsidyRequestState = defaultSubsidyRequestState,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <CourseEnrollmentsContextProvider>
-        <CourseContextProvider initialState={initialCourseState}>
-          <Dashboard />
-        </CourseContextProvider>
-      </CourseEnrollmentsContextProvider>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <CourseEnrollmentsContextProvider>
+          <CourseContextProvider initialState={initialCourseState}>
+            <Dashboard />
+          </CourseContextProvider>
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );

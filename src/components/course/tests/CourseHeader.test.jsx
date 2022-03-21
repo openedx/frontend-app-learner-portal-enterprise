@@ -6,7 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../data/constants';
@@ -28,7 +28,12 @@ const CourseHeaderWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialSubsidyRequestsState = { licenseRequests: [] },
+  initialSubsidyRequestsState = {
+    requestsBySubsidyType: {
+      [SUBSIDY_TYPE.LICENSE]: [],
+      [SUBSIDY_TYPE.COUPON]: [],
+    },
+  },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>

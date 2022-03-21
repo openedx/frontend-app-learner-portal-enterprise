@@ -7,8 +7,12 @@ import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 import * as service from './service';
 import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './utils';
+import { COURSE_STATUSES } from './constants';
 
-export const useCourseEnrollments = (enterpriseUUID) => {
+export const useCourseEnrollments = ({
+  enterpriseUUID,
+  requestedCourseEnrollments = [],
+}) => {
   const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState();
@@ -17,9 +21,9 @@ export const useCourseEnrollments = (enterpriseUUID) => {
     const fetchData = async () => {
       try {
         const resp = await service.fetchEnterpriseCourseEnrollments(enterpriseUUID);
-        // TODO: fetch enrollment requests, transform them, and merge with actual course enrollments
         const enrollments = camelCaseObject(resp.data).map(transformCourseEnrollment);
         const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
+        enrollmentsByStatus[COURSE_STATUSES.requested] = requestedCourseEnrollments;
         setCourseEnrollmentsByStatus(enrollmentsByStatus);
       } catch (error) {
         logError(error);

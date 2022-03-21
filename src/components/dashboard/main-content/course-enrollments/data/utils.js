@@ -43,3 +43,20 @@ export const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
   enrollments.sort((c1, c2) => moment(c1.created) - moment(c2.created));
   return enrollments;
 };
+
+/**
+ * Transforms a subsidy request into the shape expected by CourseCard component(s).
+ * @param {{subsidyRequest: Object, slug: string}} args the subsidy request and slug to use for course link
+ *
+ * @returns {Object} { courseRunId, title, courseRunStatus, linkToCourse, created }
+ */
+export const transformSubsidyRequest = ({
+  subsidyRequest,
+  slug,
+}) => ({
+  courseRunId: subsidyRequest.courseId,
+  title: subsidyRequest.courseTitle,
+  courseRunStatus: COURSE_STATUSES.requested,
+  linkToCourse: `${slug}/course/${subsidyRequest.courseId}`,
+  created: subsidyRequest.created,
+});

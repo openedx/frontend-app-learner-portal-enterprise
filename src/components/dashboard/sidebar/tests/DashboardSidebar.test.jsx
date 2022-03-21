@@ -16,7 +16,7 @@ import {
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
 
 /* eslint-disable react/prop-types */
 const DashboardSidebarWithContext = ({
@@ -24,8 +24,11 @@ const DashboardSidebarWithContext = ({
   initialUserSubsidyState = {},
   initialSubsidyRequestsState = {
     subsidyRequestConfiguration: {},
-    licenseRequests: [],
-    couponCodeRequests: [],
+    requestsBySubsidyType: {
+      [SUBSIDY_TYPE.LICENSE]: [],
+      [SUBSIDY_TYPE.COUPON]: [],
+    },
+
   },
   initialCourseEnrollmentsState = {
     courseEnrollmentsByStatus: {},
@@ -85,13 +88,14 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
         initialSubsidyRequestsState={{
-          isLoading: false,
-          couponCodeRequests: [
-            {
-              state: SUBSIDY_REQUEST_STATE.REQUESTED,
-            },
-          ],
-          licenseRequests: [],
+          requestsBySubsidyType: {
+            [SUBSIDY_TYPE.LICENSE]: [],
+            [SUBSIDY_TYPE.COUPON]: [
+              {
+                state: SUBSIDY_REQUEST_STATE.REQUESTED,
+              },
+            ],
+          },
         }}
       />,
     );
@@ -121,13 +125,14 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
         initialSubsidyRequestsState={{
-          isLoading: false,
-          couponCodeRequests: [],
-          licenseRequests: [
-            {
-              state: SUBSIDY_REQUEST_STATE.REQUESTED,
-            },
-          ],
+          requestsBySubsidyType: {
+            [SUBSIDY_TYPE.LICENSE]: [
+              {
+                state: SUBSIDY_REQUEST_STATE.REQUESTED,
+              },
+            ],
+            [SUBSIDY_TYPE.COUPON]: [],
+          },
         }}
       />,
     );

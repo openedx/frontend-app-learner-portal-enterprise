@@ -3,6 +3,7 @@ import {
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
@@ -53,16 +54,21 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
   const fetchSubsidyRequests = async (subsidyType) => {
     setIsLoading(true);
     try {
+      const { email: userEmail } = getAuthenticatedUser();
+      const { enterpriseCustomerUuid: enterpriseUUID } = subsidyRequestConfiguration;
+
+      const options = {
+        enterpriseUUID,
+        userEmail,
+        state: SUBSIDY_REQUEST_STATE.REQUESTED,
+      };
+
       if (subsidyType === SUBSIDY_TYPE.COUPON) {
-        const { data: { results } } = await fetchCouponCodeRequests(
-          subsidyRequestConfiguration.enterpriseCustomerUuid,
-        );
+        const { data: { results } } = await fetchCouponCodeRequests(options);
         const requests = camelCaseObject(results);
         setCouponCodeRequests(requests);
       } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
-        const { data: { results } } = await fetchLicenseRequests(
-          subsidyRequestConfiguration.enterpriseCustomerUuid,
-        );
+        const { data: { results } } = await fetchLicenseRequests(options);
         const requests = camelCaseObject(results);
         setLicenseRequests(requests);
       }

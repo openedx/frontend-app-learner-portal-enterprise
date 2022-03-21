@@ -5,7 +5,6 @@ import BaseCourseCard from './BaseCourseCard';
 
 import { COURSE_STATUSES } from '../data/constants';
 
-// Partial implementation
 const RequestedCourseCard = (props) => (
   <BaseCourseCard
     type={COURSE_STATUSES.requested}

@@ -17,7 +17,9 @@ describe('useCourseEnrollments', () => {
   it('should fetch and set course enrollments', async () => {
     service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments('uuid'));
+    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments({
+      enterpriseUUID: 'uuid',
+    }));
     await waitForNextUpdate();
     expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
     expect(result.current.courseEnrollmentsByStatus).toEqual({
@@ -30,7 +32,9 @@ describe('useCourseEnrollments', () => {
     const error = Error('something went wrong');
     service.fetchEnterpriseCourseEnrollments.mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments('uuid'));
+    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments({
+      enterpriseUUID: 'uuid',
+    }));
     await waitForNextUpdate();
     expect(result.current.fetchError).toBe(error);
   });
@@ -38,7 +42,9 @@ describe('useCourseEnrollments', () => {
   describe('updateCourseEnrollmentStatus', () => {
     it('should move a course enrollment to the correct status group', async () => {
       service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments('uuid'));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments({
+        enterpriseUUID: 'uuid',
+      }));
       await waitForNextUpdate();
 
       act(() => result.current.updateCourseEnrollmentStatus({

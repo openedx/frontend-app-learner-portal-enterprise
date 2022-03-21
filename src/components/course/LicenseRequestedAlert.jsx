@@ -8,8 +8,7 @@ import {
   LICENSE_REQUESTED_ALERT_HEADING,
   LICENSE_REQUESTED_ALERT_TEXT,
 } from './data/constants';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { SUBSIDY_REQUEST_STATE } from '../enterprise-subsidy-requests/constants';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 /**
@@ -22,13 +21,12 @@ const LicenseRequestedAlert = ({ catalogList }) => {
   const [isAlertOpen, setIsAlertOpen] = useState(!previouslyDismissed);
 
   const {
-    licenseRequests,
+    requestsBySubsidyType,
   } = useContext(SubsidyRequestsContext);
+
   const { customerAgreementConfig } = useContext(UserSubsidyContext);
 
-  const pendingLicenseRequest = useMemo(() => licenseRequests.find(
-    request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
-  ), [licenseRequests]);
+  const hasPendingLicenseRequest = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
 
   const subscriptionCatalogUUIDs = useMemo(() => customerAgreementConfig?.subscriptions?.map(
     subscription => subscription.enterpriseCatalogUuid,
@@ -39,7 +37,7 @@ const LicenseRequestedAlert = ({ catalogList }) => {
   ), [subscriptionCatalogUUIDs]);
 
   // Do not show the alert if there is no applicable subscription or no pending license request
-  if (!(hasApplicableSubscription && pendingLicenseRequest && isAlertOpen)) {
+  if (!(hasApplicableSubscription && hasPendingLicenseRequest && isAlertOpen)) {
     return null;
   }
 
