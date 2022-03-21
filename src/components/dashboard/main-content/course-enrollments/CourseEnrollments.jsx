@@ -16,6 +16,7 @@ export const COURSE_SECTION_TITLES = {
 const CourseEnrollments = ({ children }) => {
   const {
     courseEnrollmentsByStatus,
+    programEnrollments,
     fetchCourseEnrollmentsError,
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
@@ -69,6 +70,21 @@ const CourseEnrollments = ({ children }) => {
       */}
       {!hasCourseEnrollments && children}
       <>
+        {
+          programEnrollments.map(
+            (programEnrollment) => {
+              const courses = currentCourseEnrollments.filter(
+                (x) => (programEnrollment.courses.includes(x.courseRunId)),
+              );
+              return (
+                <CourseSection
+                  title={programEnrollment.program_title}
+                  courseRuns={courses}
+                />
+              );
+            },
+          )
+        }
         <CourseSection
           title={COURSE_SECTION_TITLES.current}
           courseRuns={currentCourseEnrollments}

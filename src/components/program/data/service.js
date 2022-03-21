@@ -19,27 +19,31 @@ export default class ProgramService {
   async fetchAllProgramData() {
     const programDataRaw = await Promise.all([
       this.fetchProgramDetails(),
+      this.fetchEnterpriseCatalogData(),
     ])
       .then((responses) => responses.map(res => res.data));
 
-    const { courses } = programDataRaw[0];
-    const programCoursesInfo = await this.fetchProgramContainsCourses(Array.from(courses, course => course.key));
-
     const programData = camelCaseObject(programDataRaw);
     const programDetails = programData[0];
+    const catalogData = programData[1];
+    const programsUuids = catalogData.programs?.map((program) => program.uuid);
+
     programDetails.courses.forEach((course, index) => {
       const availableCourseRuns = getAvailableCourseRuns(course);
       programDetails.courses[index].activeCourseRun = availableCourseRuns ? availableCourseRuns[0] : undefined;
-      programDetails.courses[index].enterpriseHasCourse = programCoursesInfo[programDetails.courses[index].key];
+      programDetails.courses[index].enterpriseHasCourse = true;
     });
 
-    programDetails.catalogContainsProgram = programDetails.courses.map(
-      course => course.enterpriseHasCourse,
-    ).includes(true);
+    programDetails.catalogContainsProgram = programsUuids.includes(programDetails.uuid);
 
     return {
       programDetails,
     };
+  }
+
+  fetchEnterpriseCatalogData() {
+    const url = `${this.config.LMS_BASE_URL}/api/catalogs/${this.enterpriseUuid}/`;
+    return this.cachedAuthenticatedHttpClient.get(url);
   }
 
   fetchProgramDetails() {

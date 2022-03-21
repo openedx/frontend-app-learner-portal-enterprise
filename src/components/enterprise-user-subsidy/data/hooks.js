@@ -11,6 +11,7 @@ import { LICENSE_STATUS } from './constants';
 import {
   fetchSubscriptionLicensesForUser,
   fetchCustomerAgreementData,
+  fetchEnterpriseCatalogData,
   requestAutoAppliedLicense,
 } from './service';
 import { features } from '../../../config';
@@ -179,4 +180,27 @@ export function useCustomerAgreementData(enterpriseId) {
   }, [enterpriseId]);
 
   return [customerAgreement, isLoading];
+}
+
+export function useCatalogData(enterpriseId) {
+  const [catalogData, setCatalogData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCatalogData = async () => {
+      try {
+        const response = await fetchEnterpriseCatalogData(enterpriseId);
+        setCatalogData(response.data);
+      } catch (error) {
+        logError(error);
+        setCatalogData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCatalogData();
+  }, [enterpriseId]);
+
+  return [catalogData, isLoading];
 }

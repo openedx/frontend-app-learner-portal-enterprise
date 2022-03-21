@@ -11,3 +11,9 @@ export const fetchEnterpriseCourseEnrollments = (uuid) => {
   const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
   return getAuthenticatedHttpClient().get(url);
 };
+
+export const fetchEnterpriseProgramEnrollments = (uuid) => {
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/api/program-enrollment/user-enrollments/?enterprise_uuid=${uuid}`;
+  return getAuthenticatedHttpClient().get(url);
+};

@@ -24,3 +24,9 @@ export function requestAutoAppliedLicense(customerAgreementId) {
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
   return getAuthenticatedHttpClient().post(url);
 }
+
+export const fetchEnterpriseCatalogData = (uuid) => {
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/api/catalogs/${uuid}/`;
+  return getAuthenticatedHttpClient().get(url);
+};

@@ -9,7 +9,6 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
@@ -32,10 +31,6 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
   const [courseData, setCourseData] = useState();
   const [fetchError, setFetchError] = useState();
 
-  // todo: this could get refactored, but since we already fetch offers
-  // we simply pass offers along to the `fetchAllCourseData` call to 'fetch' it back
-  const { offers: { offers } } = useContext(UserSubsidyContext);
-
   useEffect(() => {
     const fetchData = async () => {
       if (courseKey && enterpriseConfig) {
@@ -45,7 +40,7 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
           courseRunKey,
         });
         try {
-          const data = await courseService.fetchAllCourseData({ offers });
+          const data = await courseService.fetchAllCourseData();
           setCourseData(data);
         } catch (error) {
           logError(error);

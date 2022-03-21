@@ -79,7 +79,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           ) : (
             <Card.Img
               variant="top"
-              src={course.cardImageUrl}
+              src={course.image?.src}
               alt=""
             />
           )}

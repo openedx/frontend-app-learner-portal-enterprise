@@ -17,6 +17,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
   } = useContext(AppContext);
   const {
     courseEnrollmentsByStatus,
+    programEnrollments,
     isLoading,
     fetchCourseEnrollmentsError,
     updateCourseEnrollmentStatus,
@@ -27,6 +28,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
 
   const context = useMemo(() => ({
     courseEnrollmentsByStatus,
+    programEnrollments,
     fetchCourseEnrollmentsError,
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
@@ -35,6 +37,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     setShowMoveToInProgressCourseSuccess,
   }), [
     courseEnrollmentsByStatus,
+    programEnrollments,
     fetchCourseEnrollmentsError,
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,

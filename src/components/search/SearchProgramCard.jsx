@@ -40,7 +40,7 @@ export const ProgramType = ({ type }) => {
 const SearchProgramCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const program = hit ? camelCaseObject(hit) : {};
-  const programUuid = Object.keys(program).length ? program.aggregationKey.split(':').pop() : undefined;
+  const programUuid = Object.keys(program).length ? program.uuid : undefined;
 
   const linkToProgram = useMemo(
     () => {

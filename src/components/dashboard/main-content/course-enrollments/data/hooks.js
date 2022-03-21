@@ -10,6 +10,7 @@ import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './uti
 
 export const useCourseEnrollments = (enterpriseUUID) => {
   const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
+  const [programEnrollments, setProgramEnrollments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState();
 
@@ -30,6 +31,22 @@ export const useCourseEnrollments = (enterpriseUUID) => {
     };
 
     fetchData();
+  }, [enterpriseUUID]);
+
+  useEffect(() => {
+    const fetchProgramEnrollments = async () => {
+      try {
+        const response = await service.fetchEnterpriseProgramEnrollments(enterpriseUUID);
+        setProgramEnrollments(response.data);
+      } catch (error) {
+        logError(error);
+        setFetchError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProgramEnrollments();
   }, [enterpriseUUID]);
 
   const updateCourseEnrollmentStatus = useCallback(({
@@ -61,6 +78,7 @@ export const useCourseEnrollments = (enterpriseUUID) => {
 
   return {
     courseEnrollmentsByStatus,
+    programEnrollments,
     isLoading,
     fetchError,
     updateCourseEnrollmentStatus,
