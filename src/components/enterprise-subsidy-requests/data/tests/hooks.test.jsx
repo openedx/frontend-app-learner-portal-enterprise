@@ -201,9 +201,10 @@ describe('useUserHasSubsidyRequestForCourse', () => {
   it('returns false when `subsidyType` is undefined', () => {
     const context = {
       subsidyRequestConfiguration: { subsidyType: undefined },
-      licenseRequests: [],
-      couponCodeRequests: [],
-      isLoading: false,
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [],
+        [SUBSIDY_TYPE.COUPON]: [],
+      },
     };
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
@@ -218,9 +219,10 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         subsidyRequestsEnabled: true,
         subsidyType: SUBSIDY_TYPE.LICENSE,
       },
-      licenseRequests: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED }],
-      couponCodeRequests: [],
-      isLoading: false,
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED }],
+        [SUBSIDY_TYPE.COUPON]: [],
+      },
     };
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
@@ -236,9 +238,10 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         subsidyRequestsEnabled: true,
         subsidyType: SUBSIDY_TYPE.COUPON,
       },
-      licenseRequests: [],
-      couponCodeRequests: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
-      isLoading: false,
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [],
+        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
+      },
     };
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
@@ -253,9 +256,10 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         subsidyRequestsEnabled: true,
         subsidyType: SUBSIDY_TYPE.COUPON,
       },
-      licenseRequests: [],
-      couponCodeRequests: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
-      isLoading: false,
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [],
+        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
+      },
     };
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
