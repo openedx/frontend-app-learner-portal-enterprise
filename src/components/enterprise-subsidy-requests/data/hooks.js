@@ -119,8 +119,7 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
 export function useUserHasSubsidyRequestForCourse(courseKey) {
   const {
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
+    requestsBySubsidyType,
   } = useContext(SubsidyRequestsContext);
 
   return useMemo(() => {
@@ -129,15 +128,11 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
     }
     switch (subsidyRequestConfiguration.subsidyType) {
       case SUBSIDY_TYPE.LICENSE: {
-        const foundLicenseRequest = licenseRequests.find(
-          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
-        );
-        return !!foundLicenseRequest;
+        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
       }
       case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = couponCodeRequests.find(
-          request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED
-            && (courseKey ? request.courseId === courseKey : true),
+        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
+          request => (!courseKey || request.courseId === courseKey),
         );
         return !!foundCouponRequest;
       }
@@ -147,7 +142,6 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   }, [
     courseKey,
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
+    requestsBySubsidyType,
   ]);
 }
