@@ -7,6 +7,10 @@
   box-shadow: 0 0.0625rem 0.125rem rgb(0 0 0 / 20%) !important;
 }
 
+.program-title{
+  color: #454545;
+}
+
 .program-progress{
   display: flex;
   width: 100%;
@@ -62,10 +66,6 @@
       max-height: 45px;
     }
   }
-
-@media screen and (max-width: 700px){
-
-}
 
 @media only screen and (max-width: 750px){
   .partner-logo-wrapper{

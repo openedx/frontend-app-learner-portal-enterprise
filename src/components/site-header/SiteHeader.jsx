@@ -44,10 +44,10 @@ export default function SiteHeader() {
     return (
       <>
         <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
-          {features.ENABLE_PROGRAMS_PAGE ? 'Courses' : 'Dashboard'}
+          {features.ENABLE_PROGRAM_PROGRESS_PAGE ? 'Courses' : 'Dashboard'}
         </NavLink>
         {
-          features.ENABLE_PROGRAMS_PAGE && (
+          features.ENABLE_PROGRAM_PROGRESS_PAGE && (
             <NavLink to={`/${enterpriseConfig.slug}/programs`} className={mainMenuLinkClassName} exact>
               Programs
             </NavLink>

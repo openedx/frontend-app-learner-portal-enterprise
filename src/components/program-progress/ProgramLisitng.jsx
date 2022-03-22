@@ -41,7 +41,7 @@ const ProgramListing = () => {
   return (
     <>
       <Helmet title={`Programs | ${enterpriseConfig.name}`} />
-      <Container size="lg" className="py-5 w-75">
+      <Container size="lg" className="py-5 w-100">
         <Row>
           {
 

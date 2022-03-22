@@ -64,7 +64,7 @@ const ProgramListingCard = ({ program }) => {
             {program.type}
           </div>
         </div>
-        <h3 style={{ color: '#454545' }}>
+        <h3 className="program-title">
           {program.title}
         </h3>
         <div className="program-progress mt-4">

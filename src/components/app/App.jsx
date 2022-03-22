@@ -46,7 +46,7 @@ export default function App() {
               <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
             )}
             <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgressPage} />
-            {features.ENABLE_PROGRAMS_PAGE && (
+            {features.ENABLE_PROGRAM_PROGRESS_PAGE && (
               <PageRoute exact path="/:enterpriseSlug/programs" component={ProgramListingPage} />
             )}
             <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
