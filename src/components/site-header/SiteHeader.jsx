@@ -9,6 +9,7 @@ import edXLogo from '@edx/brand/logo.svg';
 
 import { Menu, MenuTrigger, MenuContent } from './menu';
 import AvatarDropdown from './AvatarDropdown';
+import { features } from '../../config';
 
 export default function SiteHeader() {
   const config = getConfig();
@@ -43,8 +44,15 @@ export default function SiteHeader() {
     return (
       <>
         <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
-          Dashboard
+          {features.ENABLE_PROGRAM_PROGRESS_PAGE ? 'Courses' : 'Dashboard'}
         </NavLink>
+        {
+          features.ENABLE_PROGRAM_PROGRESS_PAGE && (
+            <NavLink to={`/${enterpriseConfig.slug}/programs`} className={mainMenuLinkClassName} exact>
+              Programs
+            </NavLink>
+          )
+        }
         <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
           Find a Course
         </NavLink>
