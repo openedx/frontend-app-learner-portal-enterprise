@@ -5,11 +5,13 @@ import {
   breakpoints, Container, Row, MediaQuery,
 } from '@edx/paragon';
 import { ErrorPage } from '@edx/frontend-platform/react';
-import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
 import {
   ProgramProgressContextProvider,
 } from './ProgramProgressContextProvider';
+import ProgramProgressHeader from './ProgramProgressHeader';
+import ProgramProgressSideBar from './ProgramProgressSidebar';
+
 import { useLearnerProgramProgressData } from './data/hooks';
 
 const ProgramProgressPage = () => {
@@ -45,17 +47,15 @@ const ProgramProgressPage = () => {
     <>
       <Helmet title={PAGE_TITLE} />
       <ProgramProgressContextProvider initialState={initialState}>
-        <div className="col-4 offset-4">Program Progress Header Will Go Here</div>
-        <Container size="lg" className="py-5">
+        <ProgramProgressHeader />
+        <Container fluid={false} style={{ paddingLeft: 30, paddingRight: 30 }}>
           <Row>
-            <MainContent>
+            <article className="col-lg-8">
               <div>Program Courses Will go Here</div>
-            </MainContent>
+            </article>
             <MediaQuery minWidth={breakpoints.large.minWidth}>
               {matches => matches && (
-                <Sidebar>
-                  <div>Program Sidebar Will go Here</div>
-                </Sidebar>
+                <ProgramProgressSideBar />
               )}
             </MediaQuery>
           </Row>
