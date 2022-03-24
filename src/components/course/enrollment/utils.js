@@ -22,14 +22,18 @@ export function determineEnrollmentType({
   isUserEnrolled,
   isEnrollable,
   isCourseStarted,
-  subsidyRequestConfiguration,
+  userHasSubsidyRequestForCourse,
 }) {
   const isSubscriptionValid = subscriptionLicense?.uuid;
   if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
+
+  if (userHasSubsidyRequestForCourse) { return HIDE_BUTTON; }
+
   if (!isEnrollable) { return ENROLL_DISABLED; }
   if (!enrollmentUrl) { return ENROLL_DISABLED; }
+
   if (isSubscriptionValid && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
     return TO_DATASHARING_CONSENT;
   }
@@ -38,7 +42,6 @@ export function determineEnrollmentType({
   }
 
   if (!isSubscriptionValid && courseHasOffer) { return TO_VOUCHER_REDEEM; }
-  if (subsidyRequestConfiguration?.subsidyRequestsEnabled) { return HIDE_BUTTON; }
   if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
   return ENROLL_DISABLED;
 }

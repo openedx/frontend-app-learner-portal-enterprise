@@ -40,8 +40,9 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
   const {
     key: courseKey,
     courseRunKeys,
-    userSubsidyApplicableToCourse,
   } = course;
+
+  const { userSubsidyApplicableToCourse } = state;
 
   const isCourseInCatalog = catalog.containsContentItems;
 
@@ -52,7 +53,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     () => {
       if (courseRunKeys) {
         const enrollments = courseRunKeys.filter(
-          (runKey) => findUserEnrollmentForCourseRun({ userEnrollments, runKey }),
+          (key) => findUserEnrollmentForCourseRun({ userEnrollments, key }),
         );
         return enrollments.length > 0;
       }
@@ -61,23 +62,23 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     [courseRunKeys, userEnrollments],
   );
 
+  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseKey);
+
   /**
    * Show subsidy request button if:
    *  - subsidy requests is enabled
-   *  - course is in catalog
-   *  - user not already enrolled in crouse
-   *  - user has no subsidy for course
+   *    - user has a subsidy request for course
+   *      OR
+   *    - course is in catalog
+   *    - user not already enrolled in crouse
+   *    - user has no subsidy for course
    */
   const showSubsidyRequestButton = subsidyRequestConfiguration?.subsidyRequestsEnabled
-    && isCourseInCatalog
-    && !isUserEnrolled
-    && !userSubsidyApplicableToCourse;
+    && (userHasSubsidyRequest || (isCourseInCatalog && !isUserEnrolled && !userSubsidyApplicableToCourse));
 
   if (!showSubsidyRequestButton) {
     return null;
   }
-
-  const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseKey);
 
   /**
    * @returns {string} one of `request`, `pending`, or `requested`

@@ -15,11 +15,14 @@ const CourseRunCards = () => {
     catalog: { catalogList },
   } = courseData;
 
+  const { course: { key } } = courseData;
+
   return (
     <CardGrid columnSizes={{ sm: 12, lg: 5 }}>
       {availableCourseRuns.map((courseRun) => (
         <CourseRunCard
           key={`course-run-card-${courseRun.key}`}
+          courseKey={key}
           userEnrollments={userEnrollments}
           courseRun={courseRun}
           catalogList={catalogList}
