@@ -2,16 +2,8 @@
   width: 100%;
   max-width: 500px;
   cursor: pointer;
-}
-.program-listing-card:hover{
-  box-shadow: 0 0.0625rem 0.125rem rgb(0 0 0 / 20%) !important;
-}
 
-.program-title{
-  color: #454545;
-}
-
-.program-progress{
+  .program-progress{
   display: flex;
   width: 100%;
   justify-content: space-between;
@@ -28,6 +20,29 @@
       color: white;
     }
   }
+ }
+
+  .program-banner-image{
+    height :165px;
+    object-fit: contain;
+    background: white;
+  }
+
+  .program-type{
+    display: flex;
+    align-items: center;
+  }
+  .program-type-icon{
+    width: auto;
+    height: 17px;
+  }
+}
+.program-listing-card:hover{
+  box-shadow: 0 0.0625rem 0.125rem rgb(0 0 0 / 20%) !important;
+}
+
+.program-title{
+  color: #454545;
 }
 
 .remaining-courses{
@@ -68,11 +83,6 @@
   }
 
 @media only screen and (max-width: 750px){
-  .partner-logo-wrapper{
-      position: absolute;
-      top: 13vw;
-      left: 20px;
-  }
   .program-progress{
     display: flex;
     flex-direction: column;
@@ -82,10 +92,3 @@
   }
 }
 
-@media only screen and (max-width: 600px){
-  .partner-logo-wrapper{
-      position: absolute;
-      top: 10vw;
-      left: 20px;
-  }
-}
