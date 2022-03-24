@@ -15,6 +15,7 @@ import { ErrorPage } from '../error-page';
 import { LoadingSpinner } from '../loading-spinner';
 
 import { postLinkEnterpriseLearner } from './data/service';
+import { loginRefresh } from '../../utils/common';
 
 export const LOADING_MESSAGE = 'Processing edX invite from your organization.';
 export const CTA_BUTTON_TEXT = 'Continue to edX.org';
@@ -44,17 +45,31 @@ const EnterpriseInvitePage = () => {
     // is hydrated before showing error page that requires hydrated user data.
     if (authenticatedUser?.id) {
       const linkEnterpriseLearner = async () => {
+        let redirectTo;
+
         try {
           const response = await postLinkEnterpriseLearner(enterpriseCustomerInviteKey);
           const result = camelCaseObject(response.data);
           const { enterpriseCustomerSlug } = result;
-          history.replace(`/${enterpriseCustomerSlug}`);
+          redirectTo = `/${enterpriseCustomerSlug}`;
         } catch (error) {
           logError(error);
           setInviteError(error);
-        } finally {
-          setIsLoading(false);
         }
+
+        if (redirectTo) {
+          try {
+            // Refresh login so that the user's roles get updated.
+            // There is not much we can do if login refresh fails here, log the error and move on.
+            await loginRefresh();
+          } catch (error) {
+            logError(error);
+          }
+
+          history.replace(redirectTo);
+        }
+
+        setIsLoading(false);
       };
       linkEnterpriseLearner();
     }
