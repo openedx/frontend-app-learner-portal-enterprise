@@ -5,6 +5,8 @@ import { useHistory } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
+import { getProgramIcon } from '../course/data/utils';
+
 const ProgramListingCard = ({ program }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -45,6 +47,7 @@ const ProgramListingCard = ({ program }) => {
       <Card.Img
         src={getBannerImageURL()}
         data-testid="program-banner-image"
+        className="program-banner-image"
       />
       {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImage) && (
         <div className="partner-logo-wrapper shadow-sm">
@@ -60,7 +63,12 @@ const ProgramListingCard = ({ program }) => {
           <div>
             {program.authoringOrganizations?.length > 0 && program.authoringOrganizations.map(org => org.key).join(' ')}
           </div>
-          <div>
+          <div className="program-type">
+            <img
+              src={getProgramIcon(program.type)}
+              alt="Program Type Logo"
+              className="program-type-icon mr-2"
+            />
             {program.type}
           </div>
         </div>
