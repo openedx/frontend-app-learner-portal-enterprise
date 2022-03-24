@@ -54,13 +54,6 @@ export default function Dashboard() {
               <MainContent>
                 <DashboardMainContent />
               </MainContent>
-              <MediaQuery minWidth={breakpoints.large.minWidth}>
-                {matches => (matches ? (
-                  <Sidebar data-testid="sidebar">
-                    <DashboardSidebar />
-                  </Sidebar>
-                ) : null)}
-              </MediaQuery>
             </CourseEnrollmentsContextProvider>
           </SubsidyRequestsContextProvider>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />

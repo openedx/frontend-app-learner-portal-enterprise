@@ -86,10 +86,6 @@ const CourseEnrollments = ({ children }) => {
           )
         }
         <CourseSection
-          title={COURSE_SECTION_TITLES.current}
-          courseRuns={currentCourseEnrollments}
-        />
-        <CourseSection
           title={COURSE_SECTION_TITLES.completed}
           courseRuns={completedCourseEnrollments}
         />
