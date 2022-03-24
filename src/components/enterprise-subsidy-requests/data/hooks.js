@@ -123,7 +123,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   } = useContext(SubsidyRequestsContext);
 
   return useMemo(() => {
-    if (!subsidyRequestConfiguration) {
+    if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
       return false;
     }
     switch (subsidyRequestConfiguration.subsidyType) {

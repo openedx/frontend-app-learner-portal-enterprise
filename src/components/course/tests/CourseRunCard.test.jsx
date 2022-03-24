@@ -18,6 +18,8 @@ import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SubsidyRequestsContextProvider from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import * as subsidyRequestsHooks from '../../enterprise-subsidy-requests/data/hooks';
+import { enrollButtonTypes } from '../enrollment/constants';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
@@ -25,7 +27,15 @@ const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
-jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel }) => (<>{enrollLabel}</>));
+jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) => (
+  <>
+    <span>{enrollLabel}</span>
+    <span>{enrollmentType}</span>
+  </>
+));
+jest.mock('../../enterprise-subsidy-requests/data/hooks', () => ({
+  useUserHasSubsidyRequestForCourse: jest.fn(() => false),
+}));
 
 const INITIAL_APP_STATE = initialAppState({});
 const defaultCourse = initialCourseState({});
@@ -83,6 +93,7 @@ const renderCard = ({
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
               courseRun={courseRun}
+              courseKey={COURSE_ID}
             />
           </SubsidyRequestsContextProvider>
         </CourseContextProvider>
@@ -149,6 +160,18 @@ describe('<CourseRunCard/>', () => {
     expect(screen.getByText('Course started')).toBeTruthy();
     expect(screen.getByText('1,000 recently enrolled!')).toBeTruthy();
     expect(screen.queryByText('Enroll')).toBeTruthy();
+  });
+
+  test('User has a subsidy request for the course', () => {
+    subsidyRequestsHooks.useUserHasSubsidyRequestForCourse.mockReturnValueOnce(true);
+    const courseRun = generateCourseRun({});
+    renderCard({
+      courseRun,
+    });
+    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
+    expect(screen.getByText('Be the first to enroll!')).toBeTruthy();
+    expect(screen.getByText(enrollButtonTypes.HIDE_BUTTON)).toBeTruthy();
   });
 
   test('User is enrolled, and course not started', () => {

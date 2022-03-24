@@ -24,7 +24,7 @@ import { formatStringAsNumber } from '../../utils/common';
 import { useSubsidyDataForCourse } from './enrollment/hooks';
 import { useCourseEnrollmentUrl } from './data/hooks';
 import { determineEnrollmentType } from './enrollment/utils';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useUserHasSubsidyRequestForCourse } from '../enterprise-subsidy-requests/data/hooks';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
@@ -34,6 +34,7 @@ const CourseRunCard = ({
   userEntitlements,
   courseRun,
   userEnrollments,
+  courseKey,
 }) => {
   const {
     availability,
@@ -58,9 +59,7 @@ const CourseRunCard = ({
     [userEnrollments, key],
   );
 
-  const {
-    subsidyRequestConfiguration,
-  } = useContext(SubsidyRequestsContext);
+  const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const isUserEnrolled = !!userEnrollment;
 
@@ -93,7 +92,7 @@ const CourseRunCard = ({
       enrollmentUrl,
       courseHasOffer,
     },
-    subsidyRequestConfiguration,
+    userHasSubsidyRequestForCourse,
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
@@ -214,6 +213,7 @@ const CourseRunCard = ({
 };
 
 CourseRunCard.propTypes = {
+  courseKey: PropTypes.string.isRequired,
   courseRun: PropTypes.shape({
     availability: PropTypes.string.isRequired,
     isEnrollable: PropTypes.bool.isRequired,
