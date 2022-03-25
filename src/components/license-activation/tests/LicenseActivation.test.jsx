@@ -3,13 +3,20 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import * as reactRouterDom from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import LicenseActivation, { LOADING_MESSAGE } from '../LicenseActivation';
 import { useLicenseActivation } from '../data/hooks';
 
 import { renderWithRouter } from '../../../utils/tests';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(() => ({})),
+}));
 jest.mock('../data/hooks');
 
+const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ACTIVATION_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
@@ -17,17 +24,21 @@ const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/act
 const LicenseActivationWithAppContext = () => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, name: 'Test Enterprise' },
+      enterpriseConfig: {
+        uuid: TEST_ENTERPRISE_UUID,
+        slug: TEST_ENTERPRISE_SLUG,
+        name: 'Test Enterprise',
+      },
     }}
   >
-    <LicenseActivation />
+    <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
+      <LicenseActivation />
+    </Route>
   </AppContext.Provider>
 );
 
 describe('LicenseActivation', () => {
-  beforeEach(() => {
-    useLicenseActivation.mockReset();
-  });
+  beforeEach(() => jest.clearAllMocks());
 
   test('renders a loading message initially', async () => {
     // For the initial state, there is no activation success or error
@@ -35,6 +46,12 @@ describe('LicenseActivation', () => {
     const Component = <LicenseActivationWithAppContext />;
     const { history } = renderWithRouter(Component, {
       route: TEST_ROUTE,
+    });
+
+    expect(useLicenseActivation).toHaveBeenCalledWith({
+      activationKey: TEST_ACTIVATION_KEY,
+      enterpriseUUID: TEST_ENTERPRISE_UUID,
+      autoActivated: false,
     });
 
     // assert component is initially loading and displays the loading message as screenreader text
@@ -51,6 +68,12 @@ describe('LicenseActivation', () => {
       route: TEST_ROUTE,
     });
 
+    expect(useLicenseActivation).toHaveBeenCalledWith({
+      activationKey: TEST_ACTIVATION_KEY,
+      enterpriseUUID: TEST_ENTERPRISE_UUID,
+      autoActivated: false,
+    });
+
     // assert an error alert appears
     expect(screen.getByRole('alert')).toHaveClass('alert-danger');
 
@@ -58,14 +81,27 @@ describe('LicenseActivation', () => {
     expect(history.location.pathname).toEqual(TEST_ROUTE);
   });
 
-  test('redirects on activation success', async () => {
+  test.each([undefined, '/some-page'])('redirects on activation success', async (redirectedFrom) => {
+    if (redirectedFrom) {
+      reactRouterDom.useLocation.mockReturnValue({
+        state: {
+          from: redirectedFrom,
+        },
+      });
+    }
+
     useLicenseActivation.mockReturnValue([true, false]);
     const Component = <LicenseActivationWithAppContext />;
     const { history } = renderWithRouter(Component, {
       route: TEST_ROUTE,
     });
 
-    // assert we were redirected to the dashboard
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}`);
+    expect(useLicenseActivation).toHaveBeenCalledWith({
+      activationKey: TEST_ACTIVATION_KEY,
+      enterpriseUUID: TEST_ENTERPRISE_UUID,
+      autoActivated: !!redirectedFrom,
+    });
+
+    expect(history.location.pathname).toEqual(redirectedFrom ?? `/${TEST_ENTERPRISE_SLUG}`);
   });
 });

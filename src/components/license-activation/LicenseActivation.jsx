@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Redirect, useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Container } from '@edx/paragon';
@@ -15,14 +15,21 @@ export default function LicenseActivation() {
   const { activationKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
+  const location = useLocation();
 
-  const [activationSuccess, activationError] = useLicenseActivation(activationKey);
+  const [activationSuccess, activationError] = useLicenseActivation({
+    activationKey,
+    enterpriseUUID: enterpriseConfig.uuid,
+    autoActivated: !!location.state?.from,
+  });
 
   if (activationSuccess) {
+    const redirectToPath = location.state?.from ?? `/${enterpriseConfig.slug}`;
+
     return (
       <Redirect
         to={{
-          pathname: `/${enterpriseConfig.slug}`,
+          pathname: redirectToPath,
           state: { activationSuccess },
         }}
       />

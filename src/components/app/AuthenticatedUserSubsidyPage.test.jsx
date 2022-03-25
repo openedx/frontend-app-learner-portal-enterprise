@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import AuthenticatedPage from './AuthenticatedPage';
-import { ActivateLicenseAlert, UserSubsidy } from '../enterprise-user-subsidy';
+import { AutoActivateLicense, UserSubsidy } from '../enterprise-user-subsidy';
 
 describe('<AuthenticatedUserSubsidyPage />', () => {
   let wrapper;
@@ -21,8 +21,8 @@ describe('<AuthenticatedUserSubsidyPage />', () => {
   it('renders <UserSubsidy>', () => {
     expect(wrapper.find(UserSubsidy)).toBeTruthy();
   });
-  it('renders <ActivateLicenseAlert>', () => {
-    expect(wrapper.find(ActivateLicenseAlert)).toBeTruthy();
+  it('renders <AutoActivateLicense>', () => {
+    expect(wrapper.find(AutoActivateLicense)).toBeTruthy();
   });
   it('renders children', () => {
     expect(wrapper.find('div.did-i-render')).toBeTruthy();
