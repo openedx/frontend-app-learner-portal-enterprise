@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import AuthenticatedPage from './AuthenticatedPage';
 import {
-  ActivateLicenseAlert,
+  AutoActivateLicense,
   UserSubsidy,
 } from '../enterprise-user-subsidy';
 
@@ -11,7 +11,7 @@ export default function AuthenticatedUserSubsidyPage({ children }) {
   return (
     <AuthenticatedPage>
       <UserSubsidy>
-        <ActivateLicenseAlert />
+        <AutoActivateLicense />
         {children}
       </UserSubsidy>
     </AuthenticatedPage>
