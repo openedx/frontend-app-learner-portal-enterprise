@@ -49,10 +49,10 @@ const ProgramListingCard = ({ program }) => {
         data-testid="program-banner-image"
         className="program-banner-image"
       />
-      {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImage) && (
+      {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImageUrl) && (
         <div className="partner-logo-wrapper shadow-sm">
           <img
-            src={program.authoringOrganizations[0].logoImage}
+            src={program.authoringOrganizations[0].logoImageUrl}
             className="partner-logo"
             alt={program.authoringOrganizations[0].key}
           />
@@ -138,7 +138,7 @@ ProgramListingCard.propTypes = {
     ),
     authoringOrganizations: PropTypes.arrayOf(PropTypes.shape({
       key: PropTypes.string.isRequired,
-      logoImage: PropTypes.string.isRequired,
+      logoImageUrl: PropTypes.string.isRequired,
     })),
   }).isRequired,
 };
