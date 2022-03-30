@@ -85,11 +85,11 @@ export default function CourseHeader() {
                 dangerouslySetInnerHTML={{ __html: course.shortDescription }}
               />
             )}
-            <SubsidyRequestButton enterpriseSlug={enterpriseConfig.slug} />
             {course.skills?.length > 0 && <CourseSkills />}
             {catalog.containsContentItems ? (
               <>
                 <CourseRunCards />
+                <SubsidyRequestButton enterpriseSlug={enterpriseConfig.slug} />
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
