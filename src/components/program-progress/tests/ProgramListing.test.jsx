@@ -42,7 +42,7 @@ const dummyProgramData = {
   authoringOrganizations: [
     {
       key: 'test-key',
-      logoImage: '/media/organization/logos/shield.png',
+      logoImageUrl: '/media/organization/logos/shield.png',
     },
   ],
   progress: {
