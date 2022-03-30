@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { enrollButtonTypes } from './constants';
+import { features } from '../../../config';
 import { hasLicenseSubsidy } from '../data/utils';
 
 const {
@@ -17,7 +18,11 @@ const {
  */
 export function determineEnrollmentType({
   subsidyData: {
-    subscriptionLicense, userSubsidyApplicableToCourse, enrollmentUrl, courseHasOffer,
+    subscriptionLicense,
+    userSubsidyApplicableToCourse,
+    enrollmentUrl,
+    courseHasOffer,
+    subsidyRequestConfiguration,
   } = {},
   isUserEnrolled,
   isEnrollable,
@@ -30,6 +35,13 @@ export function determineEnrollmentType({
   }
 
   if (userHasSubsidyRequestForCourse) { return HIDE_BUTTON; }
+
+  if (features.FEATURE_BROWSE_AND_REQUEST
+      && subsidyRequestConfiguration?.subsidyRequestsEnabled
+      && !hasLicenseSubsidy(userSubsidyApplicableToCourse)
+      && !courseHasOffer) {
+    return HIDE_BUTTON;
+  }
 
   if (!isEnrollable) { return ENROLL_DISABLED; }
   if (!enrollmentUrl) { return ENROLL_DISABLED; }
