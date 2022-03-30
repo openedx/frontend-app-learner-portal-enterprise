@@ -9,6 +9,7 @@ import {
   initialCourseState,
 } from '../../../utils/tests';
 
+import * as config from '../../../config';
 import {
   COURSE_MODES_MAP,
   COURSE_AVAILABILITY_MAP,
@@ -26,7 +27,20 @@ const COURSE_RUN_START = moment().format();
 const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
+const mockSubsidyRequestsConfiguration = {
+  subsidyRequestConfiguration: {
+    subsidyRequestsEnabled: true,
+  },
+  isLoading: false,
+};
+const mockUseSubsidyRequests = {
+  couponCodeRequests: [],
+  licenseRequests: [],
+  isLoading: false,
+  refreshSubsidyRequests: jest.fn(),
+};
 
+jest.mock('../../../config');
 jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) => (
   <>
     <span>{enrollLabel}</span>
@@ -35,6 +49,8 @@ jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) 
 ));
 jest.mock('../../enterprise-subsidy-requests/data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
+  useSubsidyRequestConfiguration: jest.fn(() => mockSubsidyRequestsConfiguration),
+  useSubsidyRequests: jest.fn(() => mockUseSubsidyRequests),
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -136,8 +152,9 @@ describe('<CourseRunCard/>', () => {
     expect(screen.getByText('View on dashboard')).toBeTruthy();
   });
 
-  test('Course self is paced and has started', () => {
-    // const courseRunStart = moment(COURSE_RUN_START).subtract(1, 'd').format();
+  test('Course is self paced and has started', () => {
+    // If Browse/Request feature is off, user should always see the enroll button
+    config.features.FEATURE_BROWSE_AND_REQUEST = false;
     const courseRun = generateCourseRun({});
     renderCard({
       courseRun,
@@ -149,6 +166,9 @@ describe('<CourseRunCard/>', () => {
   });
 
   test('Course self is paced, has not started, and enrollment count', () => {
+    // The user has a mocked subsidy from renderCard default values,
+    // so they should see an enroll button.
+    config.features.FEATURE_BROWSE_AND_REQUEST = true;
     const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
     const courseRun = generateCourseRun({
       start: courseRunStart,
@@ -163,10 +183,34 @@ describe('<CourseRunCard/>', () => {
   });
 
   test('User has a subsidy request for the course', () => {
+    config.features.FEATURE_BROWSE_AND_REQUEST = true;
     subsidyRequestsHooks.useUserHasSubsidyRequestForCourse.mockReturnValueOnce(true);
     const courseRun = generateCourseRun({});
     renderCard({
       courseRun,
+    });
+    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
+    expect(screen.getByText('Be the first to enroll!')).toBeTruthy();
+    expect(screen.getByText(enrollButtonTypes.HIDE_BUTTON)).toBeTruthy();
+  });
+
+  test('User must request enrollment', () => {
+    // With Browse/Request feature flag on and mock-enabled for the customer,
+    // the user should only see a Request Enrollment button if they
+    // have no license or offers.
+    config.features.FEATURE_BROWSE_AND_REQUEST = true;
+    const courseRun = generateCourseRun({});
+    const noUserSubsidyState = {
+      subscriptionLicense: null,
+      offers: {
+        offers: [],
+        offersCount: 0,
+      },
+    };
+    renderCard({
+      courseRun,
+      initialUserSubsidyState: noUserSubsidyState,
     });
     const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();

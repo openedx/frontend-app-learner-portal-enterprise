@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import moment from 'moment';
 import {
   Card,
@@ -7,6 +8,7 @@ import {
 
 import { AppContext } from '@edx/frontend-platform/react';
 import EnrollAction from './enrollment/EnrollAction';
+import { enrollButtonTypes } from './enrollment/constants';
 import {
   COURSE_AVAILABILITY_MAP,
 } from './data/constants';
@@ -24,7 +26,10 @@ import { formatStringAsNumber } from '../../utils/common';
 import { useSubsidyDataForCourse } from './enrollment/hooks';
 import { useCourseEnrollmentUrl } from './data/hooks';
 import { determineEnrollmentType } from './enrollment/utils';
-import { useUserHasSubsidyRequestForCourse } from '../enterprise-subsidy-requests/data/hooks';
+import {
+  useSubsidyRequestConfiguration,
+  useUserHasSubsidyRequestForCourse,
+} from '../enterprise-subsidy-requests/data/hooks';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
@@ -59,6 +64,7 @@ const CourseRunCard = ({
     [userEnrollments, key],
   );
 
+  const { subsidyRequestConfiguration } = useSubsidyRequestConfiguration(enterpriseConfig.uuid);
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const isUserEnrolled = !!userEnrollment;
@@ -91,6 +97,7 @@ const CourseRunCard = ({
       userSubsidyApplicableToCourse,
       enrollmentUrl,
       courseHasOffer,
+      subsidyRequestConfiguration,
     },
     userHasSubsidyRequestForCourse,
     isUserEnrolled,
@@ -193,7 +200,13 @@ const CourseRunCard = ({
   return (
     <Card className="w-100">
       <Card.Body className="d-flex flex-column align-items-center justify-content-between">
-        <div className="text-center mb-3.5">
+        <div className={classNames(
+          'text-center',
+          {
+            'mb-3.5': enrollmentType !== enrollButtonTypes.HIDE_BUTTON,
+          },
+        )}
+        >
           <div className="h4 mb-0">{heading}</div>
           <div className="small">{subHeading}</div>
         </div>
