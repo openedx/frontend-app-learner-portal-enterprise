@@ -2,12 +2,10 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SUBSIDY_REQUEST_STATE } from '../constants';
 
-export function fetchSubsidyRequestConfiguration(enterpriseUUID, useCache = true) {
+export function fetchSubsidyRequestConfiguration(enterpriseUUID) {
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
-  return getAuthenticatedHttpClient({
-    useCache: useCache && config.USE_API_CACHE,
-  }).get(url);
+  return getAuthenticatedHttpClient().get(url);
 }
 
 export function fetchLicenseRequests({
