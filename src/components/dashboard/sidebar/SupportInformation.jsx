@@ -11,19 +11,22 @@ const SupportInformation = ({ className }) => {
   const config = getConfig();
   const {
     enterpriseConfig: {
-      contactEmail,
+      adminUsers,
     },
   } = useContext(AppContext);
 
   const renderContactHelpText = () => {
     const message = CONTACT_HELP_EMAIL_MESSAGE;
-    if (contactEmail) {
+    const adminEmails = adminUsers.map(user => user.email);
+
+    if (adminEmails.length > 0) {
       return (
-        <MailtoLink to={contactEmail}>
+        <MailtoLink to={adminEmails}>
           {message}
         </MailtoLink>
       );
     }
+
     return message;
   };
 

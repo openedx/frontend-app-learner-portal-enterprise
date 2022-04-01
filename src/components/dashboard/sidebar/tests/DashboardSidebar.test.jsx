@@ -57,7 +57,10 @@ describe('<DashboardSidebar />', () => {
     },
   };
   const initialAppState = {
-    enterpriseConfig: { contactEmail: 'foo@foo.com' },
+    enterpriseConfig: {
+      contactEmail: 'foo@foo.com',
+      adminUsers: [{ email: 'admin@foo.com' }],
+    },
     name: 'Bears Inc.',
   };
   const userSubsidyStateWithSubscription = {
@@ -167,7 +170,7 @@ describe('<DashboardSidebar />', () => {
   test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
-        initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
+        initialAppState={{ enterpriseConfig: { slug: 'sluggykins', adminUsers: [] } }}
         initialUserSubsidyState={defaultUserSubsidyState}
       />,
     );
@@ -177,7 +180,7 @@ describe('<DashboardSidebar />', () => {
   test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
-        initialAppState={{ enterpriseConfig: { disableSearch: true } }}
+        initialAppState={{ enterpriseConfig: { disableSearch: true, adminUsers: [] } }}
         initialUserSubsidyState={userSubsidyStateWithSubscription}
       />,
     );

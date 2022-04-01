@@ -39,6 +39,7 @@ const defaultAppState = {
     name: 'BearsRUs',
     uuid: 'BearsRUs',
     disableSearch: false,
+    adminUsers: [{ email: 'admin@foo.com' }],
   },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
@@ -221,6 +222,7 @@ describe('<Dashboard />', () => {
         name: 'BearsRUs',
         uuid: 'BearsRUs',
         disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
       },
       config: {
         LMS_BASE_URL: process.env.LMS_BASE_URL,
