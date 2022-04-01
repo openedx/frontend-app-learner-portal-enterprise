@@ -4,31 +4,40 @@
 
 ### Component Architecture
 
-Today, each page in the core enterprise learner experience within `frontend-app-learner-portal-enterprise` renders the `EnterprisePage` component. For example, the "Dashboard" page is rendered via the `DashboardPage` component:
+Today, each page in the core enterprise learner experience within `frontend-app-learner-portal-enterprise` renders the `AuthenticatedUserSubsidyPage` component. For example, the "Dashboard" page is rendered via the `DashboardPage` component and similarly for `SearchPage`:
 
 ```jsx
+// DashboardPage
 <AuthenticatedUserSubsidyPage>
   <Dashboard />
 </AuthenticatedUserSubsidyPage>
 ```
 
-The other core pages like the "Search", "Course", "Program", etc. each independently render their own `AuthenticatedUserSubsidyPage` component as part of their route's logic. This means that, as a learner, when I navigate from "Dashboard" to "Search, we are rendering `AuthenticatedUserSubsidyPage` (and performing all its logic) once and then again once the "Search" page loads, unnecessarily duplicating logic between page views.
+```jsx
+// CoursePage
+<AuthenticatedUserSubsidyPage>
+  <Course />
+</AuthenticatedUserSubsidyPage>
+```
+
+The other core pages like the "Search", "Program", etc. each independently render their own `AuthenticatedUserSubsidyPage` component as part of their route's logic. This means that, as a learner, when navigating from "Dashboard" to "Search", we are rendering `AuthenticatedUserSubsidyPage` (and performing all its logic) once and then again when the "Search" page loads, unnecessarily duplicating logic between page views.
 
 The logic encapsulated by `AuthenticatedUserSubsidyPage` entails:
-
 * Redirecting to logistration, via the enterprise `/proxy-login/` view in the LMS.
 * Refresh the authenticated user's JWT, if necessary.
-* Fetching an enterprise customer configuration
+* Fetching an enterprise customer configuration.
 * Fetching a `CustomerAgreement`, subscription licenses, enterprise coupon codes (and soon enterprise offers).
-* Recompute custom brand styles ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/master/src/components/layout/Layout.jsx#L19))
+* Recompute custom brand styles ([source](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/master/src/components/layout/Layout.jsx#L19)).
 
-By rendering `AuthenticatedUserSubsidyPage` separately for each page route duplicates a lot of work. Some of these tasks are blocking items, in that a spinner or other loading state must be shown to the user before we can proceed to render anything on the page since all this logic deals with determining what experience the learner may have throughout the app. As a result, we've introduced client side API caching to eliminate the need to re-fetch data from the API that we expect to change infrequently (e.g., an enterprise customer configuration), thus reducing the issue of blocking loading states between route changes.
+Clearly, rendering `AuthenticatedUserSubsidyPage` separately for each page route duplicates a lot of work. Some of these tasks are blocking items, in that a spinner or other loading state must be shown to the user before we can proceed to render anything on the page since all this logic deals with determining what experience the learner may have throughout the app.
 
-Even then, there is a brief, but noticeable flicker between page changes due to this component architecute that could be eliminated by moving some components around in the component tree such that the aforementioned logic is no longer called unnecessarily again between route changes.
+As a result, we previously introduced client side API caching to eliminate the need to re-fetch data from the API that we don't expect to change frequently (e.g., an enterprise customer configuration), thus reducing the impact of blocking loading states between route changes.
+
+Even then, there is a brief, but noticeable flicker between page changes due to this component architecure that could be eliminated by moving some components around in the component tree such that the aforementioned logic is no longer executed unnecessarily again between route changes.
 
 ### Bundle Size
 
-As this application has grown in size, it now supports 12 pages or routes:
+As this application has grown in size, it now supports 12 routes (at the time of this writing):
 
 | Route                                                                  | Description                                                                                                                                                                                                                                                                                             |
 |------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -56,3 +65,39 @@ This decision comes in two parts:
 2. We will begin lazy loading components by route to reduce upfront bundle size that must be downloaded by the learner.
 
 
+### Component Architecture
+
+Rather than each page owning the responsibility of rendering the `AuthenticatedUserSubsidyPage` component, which encapsulates much of the more global logic for the application, we will instead:
+
+* Define a new route with path `/:enterpriseSlug` that will render an `EnterpriseAppRoutes` component.
+* `EnterpriseAppRoutes` will be responsible for rendering the `AuthenticatedUserSubsidyPage` once, and define `PageRoutes` as its children.
+
+As such, all routes will instead be wrapped by a single `AuthenticatedUserSubsidyPage` instance, rather than each route defining its own duplicate `AuthenticatedUserSubsidyPage`.
+
+### Bundle Size
+
+To help address some of the increased bundle size from having a larger application, we will introduce [code splitting](https://reactjs.org/docs/code-splitting.html), or lazy loading of components such that certain routes and/or components are not included in the main application bundle, until the learner actually requests that page, at which point, the browser would go fetch the appropriate JavaScript chunk as needed.
+
+This may be done via `React.lazy` in combination with React's `Suspense` component, for example:
+
+```jsx
+import React, { Suspense } from 'react';
+
+const OtherComponent = React.lazy(() => import('./OtherComponent'));
+
+const MyComponent = () => {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <OtherComponent />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+With this approach, only the core parts of the application code and `node_modules` will need to be loaded on initial page load, and the rest of the JavaScript chunks would be loaded in dynamically as the user navigates throughout the application.
+
+# Consequences
+
+* With the `Suspense` approach, a `fallback` may be provided to render something while a lazy loaded component is loading, for example a spinner. We are admittedly introducing a bit more complexity in the UI in terms of needing to deal with a new type of loading state, where relevant.
