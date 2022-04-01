@@ -20,7 +20,7 @@ Today, each page in the core enterprise learner experience within `frontend-app-
 </AuthenticatedUserSubsidyPage>
 ```
 
-The other core pages like the "Search", "Program", etc. each independently render their own `AuthenticatedUserSubsidyPage` component as part of their route's logic. This means that, as a learner, when navigating from "Dashboard" to "Search", we are rendering `AuthenticatedUserSubsidyPage` (and performing all its logic) once and then again when the "Search" page loads, unnecessarily duplicating logic between page views.
+The other core pages like the "Search", "Program", etc. also each independently render their own `AuthenticatedUserSubsidyPage` component as part of their route's logic. This means that, as a learner, when navigating from "Dashboard" to "Search", we are rendering `AuthenticatedUserSubsidyPage` (and performing all its logic) once and then again when the "Search" page loads, unnecessarily duplicating logic between page views.
 
 The logic encapsulated by `AuthenticatedUserSubsidyPage` entails:
 * Redirecting to logistration, via the enterprise `/proxy-login/` view in the LMS.
@@ -54,7 +54,7 @@ As this application has grown in size, it now supports 12 routes (at the time of
 | /r/:redirectPath                                  | This route allows deep linking to a specific page within the Enterprise Learner Portal (i.e., the redirect path) without yet knowing an enterprise slug. This route is helpful to send generic links to pages within the Enterprise Learner Portal in marketing, support, account management scenarios. |
 | * | This represents a catch-all route, displaying a "Not Found" page if the path doesn't match any of these other routes. |
 
-The bundle size of the application has also begun to creep up due to the additional of new pages and features, which bring more installed NPM packages, etc. to the application, increasing the bundle size. At the time of this writing, the application's bundle size is 1.9 MB (parsed) or 477.67 KB (gzipped) according the `webpack-bundle-analyzer` report. This means that when a learner visits this application, they may be downloading nearly 2 MB before being able to effectively use the application.
+The bundle size of the application has also begun to creep up due to the additional of new pages and features, which bring more installed NPM packages, etc. to the application, increasing the bundle size. At the time of this writing, the application's bundle size is 5.29 MB (stat) / 1.9 MB (parsed) / 477.67 KB (gzipped) according the `webpack-bundle-analyzer` report.
 
 We hypothesize we may be able to improve the Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS) synthetic metrics in New Relic through this work.
 
@@ -100,4 +100,4 @@ With this approach, only the core parts of the application code and `node_module
 
 # Consequences
 
-* With the `Suspense` approach, a `fallback` may be provided to render something while a lazy loaded component is loading, for example a spinner. We are admittedly introducing a bit more complexity in the UI in terms of needing to deal with a new type of loading state, where relevant.
+* With the `Suspense` approach, a `fallback` may be provided to render something while a lazy loaded component is loading, for example a spinner or skeleton state. We are admittedly introducing a bit more complexity in the UI in terms of needing to consider a new type of loading state, where relevant.
