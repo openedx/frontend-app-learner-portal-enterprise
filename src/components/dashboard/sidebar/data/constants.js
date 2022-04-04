@@ -1,6 +1,9 @@
 // OfferSummaryCard title
 export const OFFER_SUMMARY_TITLE = 'Enrollment Codes';
 export const OFFER_SUMMARY_NOTICE = 'Use codes to enroll in courses from your catalog.';
+// OfferSummaryCard title on ProgramProgressPage
+export const OFFER_REMAINING_CODES = 'Remaining Codes';
+export const OFFER_SUMMARY_DETAIL = 'Codes remaining, contact your administrator for additional codes.';
 // OfferSummaryCard badge labels
 export const OFFERS_AVAILABLE_BADGE_LABEL = 'Available';
 export const COUPON_CODES_REQUESTED_BADGE_LABEL = 'Requested';
@@ -15,6 +18,8 @@ export const SUBSCRIPTION_ACTIVE_BADGE_LABEL = 'Active';
 export const SUBSCRIPTION_WARNING_BADGE_LABEL = 'Expiring';
 export const SUBSCRIPTION_EXPIRED_BADGE_LABEL = 'Expired';
 export const LICENSE_REQUESTED_BADGE_LABEL = 'Requested';
+// SubscriptionSummaryCard badge labels on ProgramProgressPage
+export const SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL = 'Expiring Soon';
 // SubscriptionSummaryCard badge variants
 export const SUBSCRIPTION_ACTIVE_BADGE_VARIANT = 'success';
 export const SUBSCRIPTION_WARNING_BADGE_VARIANT = 'warning';

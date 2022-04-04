@@ -8,3 +8,4 @@ export const CIRCLE_RADIUS = 16;
 export const CIRCLE_DEGREES = 180;
 export const STROKE_WIDTH = 1.2;
 export const CIRCLE_LABEL = 'Earned Certificates';
+export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'You do not have enough codes to complete the program';

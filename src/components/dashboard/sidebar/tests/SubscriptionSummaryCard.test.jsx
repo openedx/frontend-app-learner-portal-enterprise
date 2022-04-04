@@ -1,6 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { AppContext } from '@edx/frontend-platform/react';
 import { renderWithRouter } from '../../../../utils/tests';
 import SubscriptionSummaryCard from '../SubscriptionSummaryCard';
 import {
@@ -9,10 +10,45 @@ import {
   SUBSCRIPTION_ACTIVE_DATE_PREFIX,
   SUBSCRIPTION_EXPIRED_BADGE_LABEL,
   SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
-  SUBSCRIPTION_EXPIRED_DATE_PREFIX,
+  SUBSCRIPTION_EXPIRED_DATE_PREFIX, SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from '../data/constants';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { TEST_EMAIL, TEST_ENTERPRISE_SLUG } from '../../../search/tests/constants';
+import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../../../program-progress/data/constants';
+
+const initialAppState = {
+  enterpriseConfig: {
+    name: 'BearsRUs',
+    slug: TEST_ENTERPRISE_SLUG,
+    contactEmail: TEST_EMAIL,
+  },
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
+const defaultOffersState = {
+  offers: [],
+  loading: false,
+  offersCount: 0,
+};
+
+const initialUserSubsidyState = {
+  offers: defaultOffersState,
+  subscriptionPlan: {
+    expirationDate: '2022-10-25',
+  },
+};
+
+const SubscriptionSummaryCardForProgressPageWithContext = (props) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubscriptionSummaryCard {...props} />
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SubscriptionSummaryCard />', () => {
   const subscriptionPlan = {
@@ -50,5 +86,25 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
+  });
+  test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpiration > 0 and programProgressPage=true', () => {
+    const expiringSoonSubscriptionPlan = {
+      ...subscriptionPlan,
+      daysUntilExpiration: 50,
+    };
+    const courseEndDate = '2023-08-11';
+    renderWithRouter(
+      <SubscriptionSummaryCardForProgressPageWithContext
+        subscriptionPlan={expiringSoonSubscriptionPlan}
+        courseEndDate={courseEndDate}
+        programProgressPage
+      />,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
+    expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_WARNING_BADGE_VARIANT}`);
+    expect(screen.queryByTestId('warning-icon')).toBeInTheDocument();
+    fireEvent.click(screen.queryByTestId('warning-icon'));
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
   });
 });

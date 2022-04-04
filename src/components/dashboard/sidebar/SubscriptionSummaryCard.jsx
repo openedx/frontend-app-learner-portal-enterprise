@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from '@edx/paragon';
+import { Badge, useToggle } from '@edx/paragon';
 import moment from 'moment';
+import { WarningFilled } from '@edx/paragon/icons';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
 import {
@@ -16,10 +17,20 @@ import {
   SUBSCRIPTION_EXPIRED_DATE_PREFIX,
   SUBSCRIPTION_SUMMARY_CARD_TITLE,
   SUBSCRIPTION_WARNING_BADGE_LABEL,
+  SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from './data/constants';
+import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
 
-const SubscriptionSummaryCard = ({ subscriptionPlan, licenseRequest, className }) => {
+const SubscriptionSummaryCard = ({
+  subscriptionPlan, licenseRequest, className, courseEndDate, programProgressPage,
+}) => {
+  const [
+    isSubscriptionExpiringWarningModalOpen,
+    subscriptionExpiringWarningModalOpen,
+    onSubscriptionExpiringWarningModalClose,
+  ] = useToggle(false);
+
   const badgeVariantAndLabel = useMemo(() => {
     if (subscriptionPlan) {
       if (subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_EXPIRED) {
@@ -28,7 +39,15 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, licenseRequest, className }
           variant: SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
           label: SUBSCRIPTION_EXPIRED_BADGE_LABEL,
         });
-      } if (subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+      }
+      if (programProgressPage && subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
+        // Expiration is approaching
+        return ({
+          variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
+          label: SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
+        });
+      }
+      if (!programProgressPage && subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
         // Expiration is approaching
         return ({
           variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
@@ -57,33 +76,73 @@ const SubscriptionSummaryCard = ({ subscriptionPlan, licenseRequest, className }
   }
 
   return (
-    <SidebarCard
-      title={(
-        <div className="d-flex align-items-start justify-content-between">
-          <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
-          <div>
-            <Badge
-              variant={badgeVariantAndLabel.variant}
-              className="ml-2"
-              data-testid="subscription-status-badge"
-            >
-              {badgeVariantAndLabel.label}
-            </Badge>
-          </div>
-        </div>
-      )}
-      cardClassNames={className}
-    >
-      {
-        subscriptionPlan ? (
-          <>
-            {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
-              ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-            {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
-          </>
-        ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
-      }
-    </SidebarCard>
+    <>
+      {programProgressPage ? (
+        <>
+          <SubscriptionExpirationWarningModal
+            isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
+            onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
+          />
+          <SidebarCard
+            title={(
+              <div className="d-flex align-items-start justify-content-between">
+                <h3>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</h3>
+                <div>
+                  <Badge
+                    variant={badgeVariantAndLabel.variant}
+                    className="ml-2"
+                    data-testid="subscription-status-badge"
+                  >
+                    {badgeVariantAndLabel.label}
+                  </Badge>
+                  {courseEndDate > subscriptionPlan.expirationDate && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
+                </div>
+              </div>
+            )}
+            cardClassNames={className}
+          >
+            {
+              subscriptionPlan ? (
+                <>
+                  {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
+                    ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
+                  {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
+                </>
+              ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
+            }
+          </SidebarCard>
+        </>
+      )
+        : (
+          <SidebarCard
+            title={(
+              <div className="d-flex align-items-start justify-content-between">
+                <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
+                <div>
+                  <Badge
+                    variant={badgeVariantAndLabel.variant}
+                    className="ml-2"
+                    data-testid="subscription-status-badge"
+                  >
+                    {badgeVariantAndLabel.label}
+                  </Badge>
+                </div>
+              </div>
+            )}
+            cardClassNames={className}
+          >
+            {
+              subscriptionPlan ? (
+                <>
+                  {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
+                    ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
+                  {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
+                </>
+              ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
+            }
+          </SidebarCard>
+        )}
+    </>
   );
 };
 
@@ -94,10 +153,14 @@ SubscriptionSummaryCard.propTypes = {
   }),
   licenseRequest: PropTypes.shape({}),
   className: PropTypes.string,
+  courseEndDate: PropTypes.string,
+  programProgressPage: PropTypes.bool,
 };
 
 SubscriptionSummaryCard.defaultProps = {
   className: undefined,
+  programProgressPage: false,
+  courseEndDate: undefined,
   subscriptionPlan: undefined,
   licenseRequest: undefined,
 };
