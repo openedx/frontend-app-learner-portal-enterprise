@@ -79,15 +79,15 @@ export function getNotStartedCourseDetails(courses) {
         courseRunDate = cRun?.end ? `${courseRunDate} - ${moment(cRun.end).format('MMMM Do, YYYY')}`
           : courseRunDate;
         multipleCourseRuns.push({
-          courseRunDate: [courseRunDate], title: course.title, key: course?.key, runType: cRun.runType,
+          courseRunDate: [courseRunDate], title: course.title, key: course?.key, uuid: course.uuid,
         });
       })
   ));
 
   // eslint-disable-next-line array-callback-return
   multipleCourseRuns.map((e) => {
-    const key = e.runType;
-    const i = courseWithMultipleCourseRun.findIndex(r => r.runType === key);
+    const key = e.uuid;
+    const i = courseWithMultipleCourseRun.findIndex(r => r.uuid === key);
     if (i >= 0) {
       courseWithMultipleCourseRun[i].courseRunDate.push(e.courseRunDate[0]);
     } else {
