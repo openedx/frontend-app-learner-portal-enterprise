@@ -12,7 +12,7 @@ import {
 import { DashboardPage } from '../dashboard';
 import { CoursePage } from '../course';
 import { ProgramPage } from '../program';
-import ProgramProgressPage from '../program-progress/ProgramProgressPage';
+import ProgramProgress from '../program-progress/ProgramProgress';
 import { SearchPage } from '../search';
 import { LicenseActivationPage } from '../license-activation';
 import { SkillsQuizPage } from '../skills-quiz';
@@ -45,7 +45,7 @@ export default function App() {
             {features.ENABLE_PROGRAMS && (
               <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
             )}
-            <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgressPage} />
+            <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgress} />
             {features.ENABLE_PROGRAM_PROGRESS_PAGE && (
               <PageRoute exact path="/:enterpriseSlug/programs" component={ProgramListingPage} />
             )}

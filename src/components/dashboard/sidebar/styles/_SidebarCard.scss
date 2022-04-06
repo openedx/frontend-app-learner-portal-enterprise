@@ -1,9 +1,13 @@
 .card {
     &.catalog-access-card {
         border-top-width: 4px;
-        
-        .card-title { 
+
+        .card-title {
             @extend .h4;
         }
     }
+}
+.border-remove {
+    border: 0 !important;
+    padding: 0 !important;
 }
