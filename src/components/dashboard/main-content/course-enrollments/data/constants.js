@@ -13,4 +13,7 @@ export const COURSE_STATUSES = {
 
   // Not a real course status, represents a subsidy request.
   requested: 'requested',
+
+  // Also not a real course status, represents a course highlighted by the customer learning admin.
+  highlighted: 'highlighted',
 };

@@ -341,7 +341,7 @@ class BaseCourseCard extends Component {
 
 BaseCourseCard.propTypes = {
   type: PropTypes.oneOf([
-    'in_progress', 'upcoming', 'completed', 'saved_for_later', 'requested',
+    'in_progress', 'upcoming', 'completed', 'saved_for_later', 'requested', 'highlighted',
   ]).isRequired,
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,

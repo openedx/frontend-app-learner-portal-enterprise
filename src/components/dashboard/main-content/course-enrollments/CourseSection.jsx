@@ -10,6 +10,7 @@ import {
   CompletedCourseCard,
   SavedForLaterCourseCard,
   RequestedCourseCard,
+  HighlightedCourseCard,
 } from './course-cards';
 
 import { COURSE_STATUSES } from './data/constants';
