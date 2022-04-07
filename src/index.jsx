@@ -9,10 +9,12 @@ import {
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
+import * as Logging from '@edx/frontend-platform/logging';
 
 import { App } from './components/app';
 
 import './index.scss';
+import { SentryLoggingService } from './utils/errorHandling';
 
 subscribe(APP_READY, () => {
   ReactDOM.render(<App />, document.getElementById('root'));
@@ -21,6 +23,8 @@ subscribe(APP_READY, () => {
 subscribe(APP_INIT_ERROR, (error) => {
   ReactDOM.render(<ErrorPage message={error.message} />, document.getElementById('root'));
 });
+
+Logging.configure(SentryLoggingService, { projectEnvPrefix: 'dojo-frontend-app-learner-portal' });
 
 initialize({
   handlers: {
