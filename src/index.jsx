@@ -9,7 +9,6 @@ import {
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
-import * as Logging from '@edx/frontend-platform/logging';
 
 import { App } from './components/app';
 
@@ -23,8 +22,6 @@ subscribe(APP_READY, () => {
 subscribe(APP_INIT_ERROR, (error) => {
   ReactDOM.render(<ErrorPage message={error.message} />, document.getElementById('root'));
 });
-
-Logging.configure(SentryLoggingService, { projectEnvPrefix: 'dojo-frontend-app-learner-portal' });
 
 initialize({
   handlers: {
@@ -45,9 +42,13 @@ initialize({
         ENABLE_SKILLS_QUIZ: process.env.ENABLE_SKILLS_QUIZ || false,
         ENABLE_NOTICES: process.env.ENABLE_NOTICES || null,
         LEARNER_SUPPORT_URL: process.env.LEARNER_SUPPORT_URL || null,
+        SENTRY_DSN: process.env.SENTRY_DSN || null,
+        SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT || '',
+        SENTRY_PROJECT_ENV_PREFIX: 'dojo-frontend-app-learner-portal'
       });
     },
   },
+  loggingService: SentryLoggingService,
   messages: [],
   // We don't require authenticated users so that we can perform our own auth redirect to a proxy login that depends on
   // the route, rather than the LMS like frontend-platform does.

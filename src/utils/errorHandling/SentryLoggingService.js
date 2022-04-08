@@ -10,9 +10,22 @@ function sendMessage(message, customAttributes) {
   Sentry.captureMessage(message, customAttributes);
 }
 
+function printBySeverity(error, customAttributes, severityLevel) {
+  switch (severityLevel) {
+    case Sentry.Severity.Info:
+      console.info(error, customAttributes);
+    case Sentry.Severity.Warning:
+      console.warn(error, customAttributes);
+    case Sentry.Severity.Error:
+    case Sentry.Severity.Critical:
+    case Sentry.Severity.Fatal:
+      console.error(error, customAttributes);
+  }
+}
+
 function sendException(error, customAttributes, severityLevel = Sentry.Severity.Error) {
   if (process.env.NODE_ENV === 'development') {
-    console.log(message, customAttributes); // eslint-disable-line
+    printBySeverity(error, customAttributes, severityLevel);
   }
 
   Sentry.withScope(scope => {
@@ -32,11 +45,11 @@ function getAuthUserForSentry() {
 
 export default class SentryLoggingService {
   constructor(options) {
-    const config = options ? options.config : undefined;
+    const { SENTRY_DSN, SENTRY_ENVIRONMENT, SENTRY_PROJECT_PREFIX, IGNORED_ERROR_REGEX } =  options?.config || {};
 
     Sentry.init({
-      dsn: process.env.SENTRY_DSN,
-      environment: `${options.projectEnvPrefix}_${process.env.SENTRY_ENVIRONMENT}`,
+      dsn: SENTRY_DSN,
+      environment: [SENTRY_PROJECT_PREFIX, SENTRY_ENVIRONMENT].filter(value => Boolean(value)).join('_'),
     });
 
     subscribe(AUTHENTICATED_USER_CHANGED, () => {
@@ -70,7 +83,7 @@ export default class SentryLoggingService {
  
          For edx.org, add new error message regexes in edx-internal YAML as needed.
      */
-    this.ignoredErrorRegexes = config ? config.IGNORED_ERROR_REGEX : undefined;
+    this.ignoredErrorRegexes = IGNORED_ERROR_REGEX;
   }
  
   logInfo(infoStringOrErrorObject, customAttributes = {}) {
