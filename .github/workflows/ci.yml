@@ -12,8 +12,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12
+        always-auth: true
+        registry-url: 'https://npm.pkg.github.com'
     - name: Install dependencies
       run: npm ci
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Lint
       run: npm run lint
     - name: Test
