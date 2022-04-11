@@ -273,7 +273,7 @@ describe('<SearchResults />', () => {
     expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
   });
 
-  test('renders an alert in case of no results for pathways', () => {
+  test('does not render an alert in case of no results for pathways', () => {
     const propsForNoResultsPathway = {
       ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
     };
@@ -281,7 +281,7 @@ describe('<SearchResults />', () => {
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResultsPathway} />,
     );
-    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
+    expect(screen.queryByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeNull();
+    expect(screen.queryByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeNull();
   });
 });

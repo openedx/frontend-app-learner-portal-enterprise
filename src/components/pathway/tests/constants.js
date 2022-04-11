@@ -3,7 +3,7 @@ export const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 export const TEST_IMAGE_URL = 'https://fake.image';
 export const TEST_PATHWAY_DATA = {
   uuid: '9d7c7c42-682d-4fa4-a133-2913e939f771',
-  name: 'Computer Science Career Builder',
+  title: 'Computer Science Career Builder',
   overview: 'Learn CS',
   banner_image: 'https://example.com/pathway.banner.image.png',
   status: 'active',

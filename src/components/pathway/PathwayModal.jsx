@@ -133,6 +133,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
 
         {isLoading ? <Skeleton height={40} className="mb-4" data-testid="pathway-overview-loading" /> : (
           <Row className="mb-4">
+            {/* eslint-disable react/no-danger */}
             <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(pathway.overview, { USE_PROFILES: { html: true } }) }} className="pl-3 pr-3" />
           </Row>
         )}
