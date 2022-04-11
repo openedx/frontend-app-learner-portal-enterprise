@@ -24,9 +24,6 @@ const PopularResults = ({
         {isSearchStalled && (
           <Skeleton className="h2 d-block mb-3" width={240} />
         )}
-        {!isSearchStalled && (
-          <>{`Popular ${title}`}</>
-        )}
       </h2>
       {isSearchStalled && (
         <div className="row">
@@ -38,7 +35,12 @@ const PopularResults = ({
         </div>
       )}
       {!isSearchStalled && nbHits > 0 && (
-        <Hits hitComponent={getHitComponentFromTitle(title)} />
+        <>
+          <h2>
+            {`Popular ${title}`}
+          </h2>
+          <Hits hitComponent={getHitComponentFromTitle(title)} />
+        </>
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && (
         <SearchError />

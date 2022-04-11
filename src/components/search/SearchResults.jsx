@@ -12,6 +12,7 @@ import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import {
+  CONTENT_TYPE_PATHWAY,
   PROGRAM_TITLE,
 } from './constants';
 import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
@@ -127,7 +128,7 @@ const SearchResults = ({
             )}
           </>
         )}
-        {!isSearchStalled && nbHits === 0 && (
+        {!isSearchStalled && nbHits === 0 && getContentTypeFromTitle(title) !== CONTENT_TYPE_PATHWAY && (
           <SearchNoResults title={title} />
         )}
         {!isSearchStalled && isDefinedAndNotNull(error) && showMessage(contentType, title) && (

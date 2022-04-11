@@ -7,6 +7,7 @@ import {
   Icon, MarketingModal, ModalDialog, Container, Row, Col, Collapsible, Button, Image,
 } from '@edx/paragon';
 import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
+import DOMPurify from 'dompurify';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
 
@@ -77,7 +78,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
         />
       ) : (
         <ModalDialog.Title as="h2" className="mb-4">
-          {pathway.name}
+          {pathway.title}
         </ModalDialog.Title>
       )}
 
@@ -132,9 +133,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
 
         {isLoading ? <Skeleton height={40} className="mb-4" data-testid="pathway-overview-loading" /> : (
           <Row className="mb-4">
-            <Col>
-              {pathway.overview}
-            </Col>
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(pathway.overview, { USE_PROFILES: { html: true } }) }} className="pl-3 pr-3" />
           </Row>
         )}
 
