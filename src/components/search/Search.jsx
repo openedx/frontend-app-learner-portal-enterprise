@@ -38,16 +38,16 @@ const Search = () => {
             Programs
           </h2>
         </div>
-        <div className="d-flex flex-row">
+        <div style={parentStyle}>
           {catalogData.programs?.map(
             (program) => (
-              <div className="p-3">
+              <div className="mt-4" style={childStyle}>
                 <SearchProgramCard hit={program} />
               </div>
             ),
           )}
         </div>
-        <div className="d-flex align-items-center mb-2">
+        <div className="d-flex align-items-center mb-2 pt-5">
           <h2 className="flex-grow-1 mb-2">
             Courses
           </h2>
