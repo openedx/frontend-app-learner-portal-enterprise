@@ -40,9 +40,8 @@ export default class CourseService {
     const courseData = camelCaseObject(courseDataRaw);
     const courseDetails = courseData[0];
     const catalogData = courseData[4];
-    const allAvailableCourses = [].concat.apply(
-      [],
-      catalogData.programs.map((program) => program.courses.map((course) => course.key)),
+    const allAvailableCourses = [].concat(
+      ...catalogData.programs.map((program) => program.courses.map((course) => course.key))
     );
     // Whether course is included in current catalog
     courseData[3].containsContentItems = allAvailableCourses.includes(this.courseKey);

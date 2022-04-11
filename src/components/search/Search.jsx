@@ -8,7 +8,7 @@ import SearchProgramCard from './SearchProgramCard';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import NotFoundPage from "../NotFoundPage";
+import NotFoundPage from '../NotFoundPage';
 
 const Search = () => {
   const { enterpriseConfig } = useContext(AppContext);

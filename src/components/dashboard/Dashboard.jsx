@@ -2,14 +2,13 @@ import React, { useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
-  Container, Alert, Row, breakpoints, useToggle, MediaQuery,
+  Container, Alert, Row, useToggle,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { MainContent, Sidebar } from '../layout';
+import { MainContent } from '../layout';
 import { DashboardMainContent } from './main-content';
-import { DashboardSidebar } from './sidebar';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
