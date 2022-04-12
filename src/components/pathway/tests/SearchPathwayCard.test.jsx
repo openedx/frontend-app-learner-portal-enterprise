@@ -79,13 +79,13 @@ describe('<SearchPathwayCard />', () => {
   });
 
   test('renders the tags correctly', () => {
-    const skillName50CharactersLong = 'Tag 50 characters long.Tag 50 characters long.Tag 50 characters long.Tag 50 characters.';
+    const skillName45CharactersLong = 'Tag 45 characters long.Tag 45 characters long.Tag 45 characters long.Tag 45 characters.';
     const firstSkillName = 'Software Engineering';
     const secondSkillName = 'Database Design Principles';
     const thirdSkillName = 'Third final tag';
     const fourthSkillName = 'Fourth tag that should not be displayed.';
     defaultProps.hit.skillNames = [
-      skillName50CharactersLong, firstSkillName, secondSkillName, thirdSkillName, fourthSkillName,
+      skillName45CharactersLong, firstSkillName, secondSkillName, thirdSkillName, fourthSkillName,
     ];
     const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
 
