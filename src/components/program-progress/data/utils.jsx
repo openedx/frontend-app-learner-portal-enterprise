@@ -46,19 +46,33 @@ export function getLastEndingCourseDate(courses) {
   )[0].end;
 }
 
+export function isCourseRunEnded(run) {
+  return !run.isEnrollmentOpen
+    && run.isCourseEnded
+    && run.status !== 'published';
+}
+
 export function getEnrolledCourseRunDetails(courses) {
   const enrolledCourseRunDetails = [];
   courses.map((course) => (
     course?.courseRuns.map((cRun) => (cRun.isEnrolled && (enrolledCourseRunDetails.push({
-      start: cRun.start,
+      start: cRun.start ? cRun.start : cRun.advertisedStart,
       title: cRun.title,
       key: course?.key,
       pacingType: cRun?.pacingType,
       certificateUrl: cRun?.certificateUrl,
+      isEnded: isCourseRunEnded(cRun),
     }))
     ))
   ));
   return enrolledCourseRunDetails;
+}
+
+export function isCourseRunEnrollable(run) {
+  return run.isEnrollmentOpen
+  && !run.isEnrolled
+  && !run.isCourseEnded
+  && run.status === 'published';
 }
 
 export function getNotStartedCourseDetails(courses) {
@@ -68,30 +82,44 @@ export function getNotStartedCourseDetails(courses) {
 
   courses.map((course) => (
     course?.courseRuns?.length && course?.courseRuns.length === 1 ? (courseWithSingleCourseRun.push({
-      start: course.courseRuns[0]?.start,
+      start: course.courseRuns[0].start ? course.courseRuns[0].start : course.courseRuns[0].advertisedStart,
       title: course.courseRuns[0].title,
       key: course?.key,
       pacingType: course.courseRuns[0]?.pacingType,
+      isEnrollable: isCourseRunEnrollable(course.courseRuns[0]),
     })) : course?.courseRuns?.length && course?.courseRuns.length > 1
       // eslint-disable-next-line array-callback-return
       && course?.courseRuns.map((cRun) => {
-        let courseRunDate = `${moment(cRun.start).format('MMMM Do, YYYY')}`;
+        const startDate = cRun.start ? cRun.start : cRun.advertisedStart;
+        let courseRunDate = `${moment(startDate).format('MMMM Do, YYYY')}`;
         courseRunDate = cRun?.end ? `${courseRunDate} - ${moment(cRun.end).format('MMMM Do, YYYY')}`
           : courseRunDate;
+        const isEnrollable = isCourseRunEnrollable(cRun);
         multipleCourseRuns.push({
-          courseRunDate: [courseRunDate], title: course.title, key: course?.key, uuid: course.uuid,
+          courseRunDate: isEnrollable ? [courseRunDate] : [],
+          title: course.title,
+          pacingType: cRun.pacingType,
+          key: course?.key,
+          uuid: course.uuid,
+          isEnrollable,
+          start: startDate,
         });
       })
   ));
 
   // eslint-disable-next-line array-callback-return
-  multipleCourseRuns.map((e) => {
-    const key = e.uuid;
-    const i = courseWithMultipleCourseRun.findIndex(r => r.uuid === key);
-    if (i >= 0) {
-      courseWithMultipleCourseRun[i].courseRunDate.push(e.courseRunDate[0]);
+  multipleCourseRuns.map((courseRun) => {
+    const { uuid } = courseRun;
+    const index = courseWithMultipleCourseRun.findIndex(r => r.uuid === uuid);
+    if (index >= 0) {
+      if (courseRun.isEnrollable) {
+        courseWithMultipleCourseRun[index].courseRunDate.push(courseRun.courseRunDate[0]);
+        courseWithMultipleCourseRun[index].isEnrollable = true;
+        courseWithMultipleCourseRun[index].pacingType = courseRun.pacingType;
+        courseWithMultipleCourseRun[index].start = courseRun.start;
+      }
     } else {
-      courseWithMultipleCourseRun.push(e);
+      courseWithMultipleCourseRun.push(courseRun);
     }
   });
   return { courseWithSingleCourseRun, courseWithMultipleCourseRun };
