@@ -1,6 +1,7 @@
 # local dev related
 # https://github.com/edx/frontend-build#local-module-configuration-for-webpack
 .env.private
+.npmrc
 module.config.js
 
 # Logs
