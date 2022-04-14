@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "edX",
   "dependencies": {
-    "@edx/brand": "npm:@edx/brand-openedx@1.1.0",
+    "@edx/brand": "npm:@edx/brand-edx.org@^2.0.5",
     "@edx/frontend-component-footer": "10.1.0",
     "@edx/frontend-enterprise-catalog-search": "2.7.0",
     "@edx/frontend-enterprise-logistration": "1.1.2",
