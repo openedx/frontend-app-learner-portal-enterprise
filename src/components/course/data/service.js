@@ -41,7 +41,7 @@ export default class CourseService {
     const courseDetails = courseData[0];
     const catalogData = courseData[4];
     const allAvailableCourses = [].concat(
-      ...catalogData.programs.map((program) => program.courses.map((course) => course.key)),
+      ...catalogData.programs.map((program) => program.courses.map((course) => course.key))
     );
     // Whether course is included in current catalog
     courseData[3].containsContentItems = allAvailableCourses.includes(this.courseKey);
