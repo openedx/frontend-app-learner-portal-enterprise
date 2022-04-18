@@ -16,7 +16,7 @@ export function getProgramIcon(type) {
     case PROGRAM_TYPE_MAP.MICROMASTERS:
       return MicroMastersProgramDetailsSvgIcon;
     default:
-      return '#';
+      return '';
   }
 }
 
@@ -29,7 +29,7 @@ export function getProgramCertImage(type) {
     case PROGRAM_TYPE_MAP.MICROMASTERS:
       return progCertMicroMaster;
     default:
-      return '#';
+      return '';
   }
 }
 
