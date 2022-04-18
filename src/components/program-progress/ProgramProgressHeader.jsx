@@ -4,13 +4,15 @@ import { getProgramIcon } from './data/utils';
 
 const ProgramProgressHeader = () => {
   const { programData } = useContext(ProgramProgressContext);
+  const programIcon = getProgramIcon(programData.type);
+
   return (
     <>
       <div className="program-details-header">
         <div className="meta-info grid-container">
-          { programData.type && (
+          { programIcon && (
             <img
-              src={getProgramIcon(programData.type)}
+              src={programIcon}
               alt="Program Type Logo"
               className={`program-details-icon ${programData.type.toLowerCase()}`}
             />

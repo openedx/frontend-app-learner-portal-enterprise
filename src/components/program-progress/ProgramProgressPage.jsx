@@ -37,6 +37,9 @@ const ProgramProgressPage = () => {
   const totalCoursesInProgram = courseData?.notStarted?.length
     + courseData?.completed?.length
     + courseData?.inProgress?.length;
+  const allCoursesCompleted = !courseData?.notStarted?.length
+    && !courseData?.inProgress?.length
+    && courseData?.completed?.length;
 
   const coursesNotStarted = courseData?.notStarted;
   const totalCoursesNotStarted = coursesNotStarted?.length;
@@ -55,20 +58,31 @@ const ProgramProgressPage = () => {
       </Container>
     );
   }
-  const PAGE_TITLE = `${initialState.programData.title}`;
+  const PROGRAM_TITLE = `${initialState.programData.title}`;
   return (
     <>
-      <Helmet title={PAGE_TITLE} />
+      <Helmet title={PROGRAM_TITLE} />
       <SubsidyRequestsContextProvider>
         <CourseEnrollmentsContextProvider>
           <ProgramProgressContextProvider initialState={initialState}>
-            <ProgramProgressHeader />
             <Container fluid={false}>
+              <ProgramProgressHeader />
               <Row>
                 <article className="col-8">
-                  <h3> Your Program Journey</h3>
-                  <p>Track and plan your progress through the {totalCoursesInProgram} courses in this program.</p>
-                  <p>To complete the program, you must earn a verified certificate for each course.</p>
+                  {allCoursesCompleted
+                    ? (
+                      <>
+                        <h3>Congratulations!</h3>
+                        <p>You have successfully completed all the requirements for the {PROGRAM_TITLE}.</p>
+                      </>
+                    )
+                    : (
+                      <>
+                        <h3> Your Program Journey</h3>
+                        <p>Track and plan your progress through the {totalCoursesInProgram} courses in this program.</p>
+                        <p>To complete the program, you must earn a verified certificate for each course.</p>
+                      </>
+                    )}
                   <SubsidiesSummary
                     totalCoursesNotStarted={totalCoursesNotStarted}
                     courseEndDate={courseEndDate}
