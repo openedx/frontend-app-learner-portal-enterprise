@@ -38,7 +38,7 @@ const ProgramProgressCourses = ({ courseData }) => {
     </Row>
   );
   return (
-    <div className="col-10">
+    <div className="col-10 p-0">
       {coursesInProgress?.length > 0
       && (
         <div className="mb-5">
