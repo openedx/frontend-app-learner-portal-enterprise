@@ -41,7 +41,7 @@ const ProgramProgressCircle = () => {
   const totalCourses = inProgress.length + completed.length + notStarted.length;
   const title = `${programData.type} Progress`;
   return (
-    <div className="program-sidebar-circle">
+    <>
       <h2 className="progress-heading-circle">{title}</h2>
       <div className="progress-circle-wrapper">
         <svg data-testid="svg-circle" className="progress-circle" viewBox="0 0 44 44" aria-hidden="true">
@@ -61,7 +61,7 @@ const ProgramProgressCircle = () => {
           <div className="label">{ CIRCLE_LABEL }</div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
