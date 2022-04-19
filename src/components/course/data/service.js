@@ -68,8 +68,30 @@ export default class CourseService {
     };
   }
 
+  async fetchAllCourseRecommendations() {
+    const response = await this.fetchCourseRecommendations();
+    // TODO: Filter recommendations on catalogs basis ENT-5735
+    /*
+    const allRecommendations = response.data.all_recommendations.map(rec=>rec.key);
+    const samePartRecommendations = response.data.same_partner_recommendations.map(rec=>rec.key);
+
+    if (allRecommendations.length>0) {
+      const filteredAllRecommendations = await this.fetchFilteredRecommendations(allRecommendations);
+    }
+    if (samePartRecommendations.length>0) {
+      const filteredSamePartRecommendations = await this.fetchFilteredRecommendations(samePartRecommendations);
+    }
+    */
+    return response.data;
+  }
+
   fetchCourseDetails() {
     const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}/`;
+    return this.cachedAuthenticatedHttpClient.get(url);
+  }
+
+  fetchCourseRecommendations() {
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/taxonomy/api/v1/course_recommendations/${this.courseKey}/`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 

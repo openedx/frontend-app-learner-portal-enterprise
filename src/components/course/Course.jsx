@@ -17,6 +17,7 @@ import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
+import CourseRecommendations from './CourseRecommendations';
 
 export default function Course() {
   const { courseKey } = useParams();
@@ -35,7 +36,7 @@ export default function Course() {
   // the URL query parameters and then remove it to keep the URLs clean.
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
-  const [courseData, fetchError] = useAllCourseData({
+  const [courseData, courseRecommendations, fetchError] = useAllCourseData({
     courseKey,
     enterpriseConfig,
     courseRunKey,
@@ -43,7 +44,7 @@ export default function Course() {
 
   const initialState = useMemo(
     () => {
-      if (!courseData) {
+      if (!courseData || !courseRecommendations) {
         return undefined;
       }
       const {
@@ -54,6 +55,8 @@ export default function Course() {
         catalog,
       } = courseData;
 
+      const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
+
       return {
         course: courseDetails,
         activeCourseRun: getActiveCourseRun(courseDetails),
@@ -63,9 +66,13 @@ export default function Course() {
         userSubsidyApplicableToCourse,
         catalog,
         algoliaSearchParams,
+        courseRecommendations: {
+          allRecommendations: allRecommendations?.slice(0, 3),
+          samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
+        },
       };
     },
-    [courseData, algoliaSearchParams],
+    [courseData, courseRecommendations, algoliaSearchParams],
   );
 
   if (fetchError) {
@@ -105,6 +112,7 @@ export default function Course() {
                   </Sidebar>
                 )}
               </MediaQuery>
+              <CourseRecommendations />
             </Row>
           </Container>
         </CourseContextProvider>
