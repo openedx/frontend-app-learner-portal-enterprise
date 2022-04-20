@@ -6,6 +6,7 @@ export const TEST_PATHWAY_DATA = {
   title: 'Computer Science Career Builder',
   overview: 'Learn CS',
   banner_image: 'https://example.com/pathway.banner.image.png',
+  card_image: 'https://example.com/pathway.card.image.png',
   status: 'active',
   steps: [
     {
