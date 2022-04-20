@@ -31,7 +31,8 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
         <h3>
           {node.title}
         </h3>
-        {node.shortDescription}
+        {/* eslint-disable react/no-danger */}
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(node.shortDescription, { USE_PROFILES: { html: true } }) }} />
       </Col>
       <Col className="mt-md-2 mt-lg-0" md="auto">
         <Button

@@ -97,7 +97,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
           ) : (
             <Card.Img
               variant="top"
-              src={pathway.bannerImageUrl}
+              src={pathway.cardImageUrl}
               alt=""
             />
           )}
@@ -150,7 +150,7 @@ const SkeletonPathwayCard = (props) => (
 SearchPathwayCard.propTypes = {
   hit: PropTypes.shape({
     aggregation_key: PropTypes.string,
-    banner_image_url: PropTypes.string,
+    card_image_url: PropTypes.string,
     title: PropTypes.string,
     skill_names: PropTypes.arrayOf(PropTypes.string),
   }),
