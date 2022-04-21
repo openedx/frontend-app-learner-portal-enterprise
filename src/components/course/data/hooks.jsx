@@ -30,6 +30,7 @@ import {
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();
+  const [courseRecommendations, setCourseRecommendations] = useState();
   const [fetchError, setFetchError] = useState();
 
   // todo: this could get refactored, but since we already fetch offers
@@ -51,12 +52,20 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
           logError(error);
           setFetchError(error);
         }
+
+        try {
+          const data = await courseService.fetchAllCourseRecommendations();
+          setCourseRecommendations(data);
+        } catch (error) {
+          logError(error);
+          setCourseRecommendations([]);
+        }
       }
       return undefined;
     };
     fetchData();
   }, [courseKey, enterpriseConfig]);
-  return [camelCaseObject(courseData), fetchError];
+  return [camelCaseObject(courseData), camelCaseObject(courseRecommendations), fetchError];
 }
 
 export function useCourseSubjects(course) {
