@@ -68,6 +68,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
       heroNode={isLoading ? <Skeleton height={120} data-testid="pathway-banner-loading" /> : (
         <ModalDialog.Hero>
           <ModalDialog.Hero.Background
+            className="pathway-bg-img"
             data-testid="modal-hero"
             backgroundSrc={pathway.bannerImage}
           />
