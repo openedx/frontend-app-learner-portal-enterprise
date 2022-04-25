@@ -43,7 +43,7 @@ export function getLastEndingCourseDate(courses) {
   const concatenatedCourseRuns = [].concat(...courseRuns);
   return concatenatedCourseRuns?.sort(
     (a, b) => (moment(a.end) < moment(b.end) ? 1 : -1),
-  )[0].end;
+  )[0]?.end;
 }
 
 export function isCourseRunEnded(run) {
