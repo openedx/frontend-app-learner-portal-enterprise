@@ -4,7 +4,7 @@ import {
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
-import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from './data/constants';
+import { COUPON_CODE_EXPIRING_MODAL_TITLE } from './data/constants';
 
 const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWarningModalClose, offersCount }) => {
   const {
@@ -12,7 +12,7 @@ const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWar
   } = useContext(AppContext);
   if (isCouponCodeWarningModalOpen === false) { return null; }
   const renderTitle = () => (
-    <small className="font-weight-bold">{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</small>
+    <h3>{COUPON_CODE_EXPIRING_MODAL_TITLE}</h3>
   );
   const renderContactText = () => {
     const contactText = 'contact your learning manager';

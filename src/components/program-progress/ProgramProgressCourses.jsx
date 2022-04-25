@@ -7,7 +7,12 @@ import {
 import moment from 'moment';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getEnrolledCourseRunDetails, getNotStartedCourseDetails } from './data/utils';
+import {
+  getCertificatePriceString,
+  getEnrolledCourseRunDetails,
+  getNotStartedCourseDetails,
+  hasLicenseOrCoupon,
+} from './data/utils';
 import { NotCurrentlyAvailable } from './data/constants';
 
 const ProgramProgressCourses = ({ courseData }) => {
@@ -16,6 +21,7 @@ const ProgramProgressCourses = ({ courseData }) => {
   let coursesInProgress = [];
   let coursesNotStarted = [];
   const courseAboutPageURL = (key) => `/${enterpriseConfig.slug}/course/${key}`;
+  const courseSponserdByEnterprise = `Sponsored by ${enterpriseConfig.name}`;
 
   if (courseData?.completed) {
     coursesCompleted = getEnrolledCourseRunDetails(courseData.completed);
@@ -28,15 +34,60 @@ const ProgramProgressCourses = ({ courseData }) => {
   }
   const { courseWithMultipleCourseRun, courseWithSingleCourseRun } = coursesNotStarted;
 
+  const courseUpgradationAvailable = (course) => course.upgradeUrl
+    && !(course.expired === true)
+    && getCertificatePriceString(course);
+
+  const getCertificatePrice = (course) => {
+    const certificatePrice = getCertificatePriceString(course);
+    if (hasLicenseOrCoupon()) {
+      return (
+        <>
+          {certificatePrice
+          && (
+            <del>
+              <span className="text-success-500 pr-1.5 pl-1.5"> {certificatePrice}</span>
+            </del>
+          )}
+          {courseSponserdByEnterprise}
+        </>
+      );
+    }
+    return (
+      <>
+        <span className="pl-2"> Needs verified certificate </span>
+        <span className="text-success-500 pl-2">{certificatePrice}</span>
+      </>
+    );
+  };
+
   const renderCertificatePurchased = () => (
     <Row className="d-flex align-items-start py-3 pt-5">
       <Col className="d-flex align-items-center">
         <span>Certificate Status: </span>
-        <CheckCircle className="fa fa-check-circle circle-color" />
-        <span>Certificate Purchased</span>
+        <CheckCircle className="fa fa-check-circle circle-color pl-1" />
+        <span className="pl-1">Certificate Purchased</span>
       </Col>
     </Row>
   );
+
+  const renderCertificatePriceMessage = (course) => (
+    <>
+      <Row className="d-flex align-items-start py-3 pt-5 add-between-space">
+        <Col className="d-flex align-items-center">
+          <span>Certificate Status: </span>
+          {getCertificatePrice(course)}
+        </Col>
+      </Row>
+      <a
+        className="btn btn-outline-primary btn-xs-block float-right mb-2 pt-2"
+        href={courseAboutPageURL(course.key)}
+      >
+        Upgrade to Verified
+      </a>
+    </>
+  );
+
   return (
     <div className="col-10 p-0">
       {coursesInProgress?.length > 0
@@ -47,7 +98,7 @@ const ProgramProgressCourses = ({ courseData }) => {
           <div className="courses">
             {coursesInProgress.map((course) => (
               (
-                <div className="mt-4.5 pl-3 pb-5 pr-3" key={course.key}>
+                <div className="mt-2.5 pt-2 pl-3 pb-5.5 pr-3" key={course.key}>
                   <h4 className="text-dark-500">{course.title}</h4>
                   <p className="text-gray-500 text-capitalize mt-1">Enrolled:
                     ({course?.pacingType.replace('_', '-')}) Started {moment(course.start)
@@ -60,7 +111,9 @@ const ProgramProgressCourses = ({ courseData }) => {
                     {course.isEnded ? 'View Archived Course' : 'View Course'}
                   </a>
                   {course.certificateUrl
-                && renderCertificatePurchased()}
+                    ? renderCertificatePurchased()
+                    : courseUpgradationAvailable(course)
+                    && renderCertificatePriceMessage(course)}
                 </div>
               )
             ))}
@@ -166,8 +219,9 @@ const ProgramProgressCourses = ({ courseData }) => {
                   View Course
                 </a>
 
-                {course.certificateUrl
-                && renderCertificatePurchased()}
+                {course.certificateUrl ? renderCertificatePurchased()
+                  : courseUpgradationAvailable(course)
+                  && renderCertificatePriceMessage(course)}
               </div>
             )
           ))}
