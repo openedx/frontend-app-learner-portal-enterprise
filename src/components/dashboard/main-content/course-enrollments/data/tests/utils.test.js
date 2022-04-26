@@ -1,3 +1,5 @@
+import { camelCaseObject } from '@edx/frontend-platform';
+
 import { COURSE_STATUSES } from '../constants';
 import { transformCourseEnrollment, groupCourseEnrollmentsByStatus, transformSubsidyRequest } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
@@ -32,6 +34,7 @@ describe('transformSubsidyRequest', () => {
       email: 'edx@example.com',
       course_id: 'edx+101',
       course_title: 'edX 101',
+      course_partners: [{ name: 'edX' }, { name: 'Open edX' }],
       enterprise_customer_uuid: 'enterprise-uuid',
       state: 'requested',
       reviewed_at: null,
@@ -42,16 +45,19 @@ describe('transformSubsidyRequest', () => {
       coupon_id: null,
       coupon_code: null,
     };
+    const subsidyRequestCamelCased = camelCaseObject(subsidyRequest);
 
-    const transformedSubsidyRequest = {
-      courseRunId: subsidyRequest.courseId,
-      title: subsidyRequest.courseTitle,
+    const expectedTransformedSubsidyRequest = {
+      courseRunId: subsidyRequestCamelCased.courseId,
+      title: subsidyRequestCamelCased.courseTitle,
+      orgName: subsidyRequestCamelCased.coursePartners.map(partner => partner.name).join(', '),
       courseRunStatus: COURSE_STATUSES.requested,
-      linkToCourse: `${slug}/course/${subsidyRequest.courseId}`,
-      created: subsidyRequest.created,
+      linkToCourse: `${slug}/course/${subsidyRequestCamelCased.courseId}`,
+      created: subsidyRequestCamelCased.created,
+      notifications: [],
     };
-
-    expect(transformSubsidyRequest({ subsidyRequest, slug })).toEqual(transformedSubsidyRequest);
+    const actualTransformedSubsidyRequest = transformSubsidyRequest({ subsidyRequest: subsidyRequestCamelCased, slug });
+    expect(actualTransformedSubsidyRequest).toEqual(expectedTransformedSubsidyRequest);
   });
 });
 
