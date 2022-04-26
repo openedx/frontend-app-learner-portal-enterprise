@@ -7,8 +7,21 @@ import moment from 'moment';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NotCurrentlyAvailable } from '../data/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 describe('<EnrollModal />', () => {
+  const mockCatalogUUID = 'uuid';
+  const initialSubscriptions = [
+    {
+      enterpriseCatalogUuid: mockCatalogUUID,
+    },
+  ];
+
+  const initialLicenseRequests = [
+    {
+      state: SUBSIDY_REQUEST_STATE.REQUESTED,
+    },
+  ];
   const userSubsidyState = {
     subscriptionLicense: {
       uuid: 'test-license-uuid',
@@ -21,6 +34,7 @@ describe('<EnrollModal />', () => {
   const appState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
+      name: 'test',
     },
   };
   // eslint-disable-next-line react/prop-types
@@ -118,6 +132,104 @@ describe('<EnrollModal />', () => {
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
   });
+  it('displays the in progress course which can be upgrade to verified certificate with license', () => {
+    const courseDataCompletedCourse = {
+      completed: [],
+      notStarted: [],
+      inProgress: [
+        {
+          key: 'HarvardX+CS50x',
+          title: 'Introduction to Computer Science',
+          courseRuns: [
+            {
+              key: 'HarvardX/CS50x/2012',
+              title: 'Introduction to Computer Science1',
+              upgradeUrl: 'https://www.edx.org/course/introduction-computer-science-harvardx-cs50x',
+              start: '2015-10-15T00:00:00Z',
+              isEnrollmentOpen: false,
+              isCourseEnded: true,
+              status: 'archived',
+              end: null,
+              pacingType: 'instructor_paced',
+              uuid: '982c3c80-6bc5-41c4-aa11-bd6e90c3f55d',
+              isEnrolled: true,
+              expired: false,
+              certificate_url: null,
+              seats: [
+                {
+                  type: 'verified',
+                  price: '149.00',
+                  currency: 'USD',
+                  upgradeDeadline: '2022-04-06T06:36:26.667883Z',
+                  sku: '8CF08E5',
+                  bulk_sku: 'A5B6DBE',
+                },
+                {
+                  type: 'audit',
+                  price: '0.00',
+                  currency: 'USD',
+                  sku: '68EFFFF',
+                  bulk_sku: null,
+                },
+              ],
+            },
+            {
+              key: 'HarvardX/CS50x/2012',
+              title: 'Introduction to Computer Science2',
+              start: '2019-10-15T00:00:00Z',
+              isEnrolled: false,
+              end: null,
+              pacingType: 'instructor_paced',
+              uuid: '982c3c80-6bc5-41c4-aa11-bd6e90c3f55d',
+              certificate_url: 'url',
+            },
+          ],
+        },
+      ],
+    };
+
+    const LicenseRequestedAlertWrapper = ({
+      // eslint-disable-next-line react/prop-types
+      subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
+    }) => (
+      <UserSubsidyContext.Provider value={{
+        offers: {
+          offers: [],
+          offersCount: 0,
+        },
+        subscriptionLicense: {},
+        customerAgreementConfig: {
+          subscriptions,
+        },
+      }}
+      >
+        <SubsidyRequestsContext.Provider value={
+          {
+            subsidyRequestConfiguration: null,
+            requestsBySubsidyType: {
+              [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+              [SUBSIDY_TYPE.COUPON]: [],
+            },
+          }
+        }
+        >
+          <ProgramProgressCoursesWithContext
+            initialAppState={appState}
+            initialUserSubsidyState={userSubsidyState}
+            courseData={courseDataCompletedCourse}
+          />
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    );
+
+    render(<LicenseRequestedAlertWrapper />);
+    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
+    expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
+    expect(screen.getByText('View Archived Course').closest('a')).toHaveAttribute('href', courseLink);
+    expect(screen.getByText('Upgrade to Verified').closest('a')).toHaveAttribute('href', courseLink);
+    expect(screen.getByText('Sponsored by test')).toBeInTheDocument();
+  });
+
   it('displays the in progress course which is not open for enrollment anymore', () => {
     const courseDataCompletedCourse = {
       completed: [],

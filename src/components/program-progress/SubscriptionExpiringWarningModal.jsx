@@ -20,7 +20,7 @@ const SubscriptionExpirationWarningModal = ({
   const { subscriptionPlan: { expirationDate } } = useContext(UserSubsidyContext);
   if (isSubscriptionExpiringWarningModalOpen === false) { return null; }
   const renderTitle = () => (
-    <small className="font-weight-bold">{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</small>
+    <h3>{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</h3>
   );
   const renderContactText = () => {
     const contactText = 'contact your learning manager';
