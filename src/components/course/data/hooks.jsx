@@ -29,6 +29,10 @@ import {
   CURRENCY_USD,
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
+import { pushEnrollmentClickEvent } from '../../../utils/optimizely';
+
+// How long to delay an event, so that we allow enough time for any async analytics event call to resolve
+const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
   const [courseData, setCourseData] = useState();
@@ -391,14 +395,13 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
     },
   } = useContext(CourseContext);
   const { enterpriseConfig } = useContext(AppContext);
-  const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;
       if (!queryId || !objectId) {
         return;
       }
-      // if tracking is on a link with an external href destination, we must intentionally delay the default click
+      // If tracking is on a link with an external href destination, we must intentionally delay the default click
       // behavior to allow enough time for the async analytics event call to resolve.
       if (href) {
         e.preventDefault();
@@ -418,6 +421,37 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
       );
     },
     [href, algoliaSearchParams, courseKey, eventName],
+  );
+
+  return handleClick;
+};
+
+/**
+ * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
+ *
+ * @returns Click handler function for clicks on enrollment buttons.
+ */
+export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
+  const {
+    state: {
+      activeCourseRun: { key: courseKey },
+    },
+  } = useContext(CourseContext);
+  const handleClick = useCallback(
+    (e) => {
+      // If tracking is on a link with an external href destination, we must intentionally delay the default click
+      // behavior to allow enough time for the async analytics event call to resolve.
+      if (href) {
+        e.preventDefault();
+        setTimeout(() => {
+          global.location.href = href;
+        }, CLICK_DELAY_MS);
+      }
+      pushEnrollmentClickEvent({
+        courseKey,
+      });
+    },
+    [courseKey],
   );
 
   return handleClick;

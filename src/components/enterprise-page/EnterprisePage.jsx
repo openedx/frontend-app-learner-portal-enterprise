@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -9,9 +9,14 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 
-import { isDefined, isDefinedAndNull } from '../../utils/common';
+import {
+  isDefined,
+  isDefinedAndNotNull,
+  isDefinedAndNull,
+} from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import { useEnterpriseCustomerConfig } from './data/hooks';
+import { pushUserCustomerAttributes } from '../../utils/optimizely';
 
 export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
   const { enterpriseSlug } = useParams();
@@ -20,6 +25,12 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
   const user = getAuthenticatedUser();
   const { profileImage } = user;
+
+  useEffect(() => {
+    if (isDefinedAndNotNull(enterpriseConfig)) {
+      pushUserCustomerAttributes(enterpriseConfig);
+    }
+  }, [enterpriseConfig]);
 
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!isDefined([enterpriseConfig, profileImage])) {
