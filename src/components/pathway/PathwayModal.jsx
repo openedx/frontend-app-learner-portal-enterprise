@@ -10,6 +10,7 @@ import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
 import DOMPurify from 'dompurify';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
+import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
 
 const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).map((node, index) => {
   const nodePageLink = node.contentType === 'course' ? `/${slug}/course/${node.key}` : `/${slug}/program/${node.uuid}`;
@@ -70,7 +71,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
           <ModalDialog.Hero.Background
             className="pathway-bg-img"
             data-testid="modal-hero"
-            backgroundSrc={pathway.bannerImage}
+            backgroundSrc={pathway.bannerImage || defaultBannerImage}
           />
         </ModalDialog.Hero>
       )}
