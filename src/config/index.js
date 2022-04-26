@@ -9,7 +9,6 @@ import {
   FEATURE_BROWSE_AND_REQUEST,
 } from './constants';
 
-console.log(process.env.FEATURE_ENABLE_PATHWAYS);
 const features = {
   ENABLE_AUTO_APPLIED_LICENSES: (
     process.env.ENABLE_AUTO_APPLIED_LICENSES || hasFeatureFlagEnabled(FEATURE_ENABLE_AUTO_APPLIED_LICENSES)
