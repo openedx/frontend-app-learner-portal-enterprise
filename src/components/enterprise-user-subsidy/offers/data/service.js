@@ -8,4 +8,16 @@ const fetchOffers = (options) => {
   return getAuthenticatedHttpClient().get(offersUrl);
 };
 
-export { fetchOffers };
+const fetchCouponsOverview = ({ enterpriseId, options = {} }) => {
+  const queryParams = new URLSearchParams({
+    page: 1,
+    page_size: 50,
+    filter: 'active',
+    ...options,
+  });
+  const config = getConfig();
+  const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
+  return getAuthenticatedHttpClient().get(url);
+};
+
+export { fetchOffers, fetchCouponsOverview };

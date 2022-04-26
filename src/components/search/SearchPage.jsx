@@ -4,12 +4,15 @@ import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import Search from './Search';
 import { SEARCH_FACET_FILTERS } from './constants';
 import AuthenticatedUserSubsidyPage from '../app/AuthenticatedUserSubsidyPage';
+import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 
 const SearchPage = () => (
   <AuthenticatedUserSubsidyPage>
-    <SearchData searchFacetFilters={SEARCH_FACET_FILTERS}>
-      <Search />
-    </SearchData>
+    <SubsidyRequestsContextProvider>
+      <SearchData searchFacetFilters={SEARCH_FACET_FILTERS}>
+        <Search />
+      </SearchData>
+    </SubsidyRequestsContextProvider>
   </AuthenticatedUserSubsidyPage>
 );
 

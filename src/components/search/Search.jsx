@@ -28,17 +28,22 @@ import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const Search = () => {
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
   const { enterpriseConfig, algolia } = useContext(AppContext);
   const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { subsidyRequestConfiguration, catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
     subscriptionLicense,
     offerCatalogs,
+    subsidyRequestConfiguration,
+    catalogsForSubsidyRequests: [...catalogsForSubsidyRequests],
   });
 
   const config = getConfig();
