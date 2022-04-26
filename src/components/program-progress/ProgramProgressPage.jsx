@@ -44,7 +44,7 @@ const ProgramProgressPage = () => {
   const coursesNotStarted = courseData?.notStarted;
   const totalCoursesNotStarted = coursesNotStarted?.length;
   let courseEndDate;
-  if (coursesNotStarted) {
+  if (totalCoursesNotStarted) {
     courseEndDate = getLastEndingCourseDate(coursesNotStarted);
   }
   if (fetchError) {
