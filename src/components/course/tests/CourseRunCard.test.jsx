@@ -18,7 +18,7 @@ import {
 import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import SubsidyRequestsContextProvider from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import * as subsidyRequestsHooks from '../../enterprise-subsidy-requests/data/hooks';
 import { enrollButtonTypes } from '../enrollment/constants';
 
@@ -27,18 +27,6 @@ const COURSE_RUN_START = moment().format();
 const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
-const mockSubsidyRequestsConfiguration = {
-  subsidyRequestConfiguration: {
-    subsidyRequestsEnabled: true,
-  },
-  isLoading: false,
-};
-const mockUseSubsidyRequests = {
-  couponCodeRequests: [],
-  licenseRequests: [],
-  isLoading: false,
-  refreshSubsidyRequests: jest.fn(),
-};
 
 jest.mock('../../../config');
 jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) => (
@@ -49,8 +37,6 @@ jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) 
 ));
 jest.mock('../../enterprise-subsidy-requests/data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
-  useSubsidyRequestConfiguration: jest.fn(() => mockSubsidyRequestsConfiguration),
-  useSubsidyRequests: jest.fn(() => mockUseSubsidyRequests),
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -97,13 +83,19 @@ const renderCard = ({
       offersCount: 0,
     },
   },
+  initialSubsidyRequestsState = {
+    subsidyRequestConfiguration: {
+      subsidyRequestsEnabled: true,
+    },
+    isLoading: false,
+  },
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <CourseContextProvider initialState={courseInitState}>
-          <SubsidyRequestsContextProvider>
+          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
             <CourseRunCard
               catalogList={['foo']}
               userEntitlements={userEntitlements}
@@ -111,7 +103,7 @@ const renderCard = ({
               courseRun={courseRun}
               courseKey={COURSE_ID}
             />
-          </SubsidyRequestsContextProvider>
+          </SubsidyRequestsContext.Provider>
         </CourseContextProvider>
       </UserSubsidyContext.Provider>
     </AppContext.Provider>,

@@ -27,9 +27,9 @@ import { useSubsidyDataForCourse } from './enrollment/hooks';
 import { useCourseEnrollmentUrl } from './data/hooks';
 import { determineEnrollmentType } from './enrollment/utils';
 import {
-  useSubsidyRequestConfiguration,
   useUserHasSubsidyRequestForCourse,
 } from '../enterprise-subsidy-requests/data/hooks';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
@@ -64,7 +64,7 @@ const CourseRunCard = ({
     [userEnrollments, key],
   );
 
-  const { subsidyRequestConfiguration } = useSubsidyRequestConfiguration(enterpriseConfig.uuid);
+  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const isUserEnrolled = !!userEnrollment;
