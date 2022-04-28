@@ -18,6 +18,7 @@ import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 import CourseRecommendations from './CourseRecommendations';
+import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 export default function Course() {
   const { courseKey } = useParams();
@@ -31,6 +32,7 @@ export default function Course() {
     },
     [search],
   );
+  const { subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
 
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.
@@ -42,6 +44,8 @@ export default function Course() {
     courseKey,
     enterpriseConfig,
     courseRunKey,
+    subscriptionLicense,
+    offers,
   });
 
   const initialState = useMemo(

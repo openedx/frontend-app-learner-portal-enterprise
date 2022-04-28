@@ -15,6 +15,7 @@ import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
+import { hasValidStartExpirationDates } from '../../../utils/common';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -131,11 +132,10 @@ export function getAvailableCourseRuns(course) {
 }
 
 export function findOfferForCourse(offers, catalogList = []) {
-  const offerIndex = offers.findIndex((offer) => catalogList?.includes(offer.catalog));
-  if (offerIndex !== -1) {
-    return offers[offerIndex];
-  }
-  return null;
+  return offers.find((offer) => catalogList?.includes(offer.catalog) && hasValidStartExpirationDates({
+    startDate: offer.couponStartDate,
+    endDate: offer.couponEndDate,
+  }));
 }
 
 const getBestCourseMode = (courseModes) => {
@@ -197,3 +197,27 @@ export function shortenString(str, maxLength, suffix, separator = ' ') {
   if (str.length <= maxLength) { return str; }
   return `${str.substr(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
+
+export const getSubsidyToApplyForCourse = ({
+  applicableSubscriptionLicense = undefined,
+  applicableOffer = undefined,
+}) => {
+  if (applicableSubscriptionLicense) {
+    return {
+      ...applicableSubscriptionLicense,
+      subsidyType: LICENSE_SUBSIDY_TYPE,
+    };
+  }
+
+  if (applicableOffer) {
+    return {
+      discountType: applicableOffer.usageType,
+      discountValue: applicableOffer.benefitValue,
+      startDate: applicableOffer.couponStartDate,
+      endDate: applicableOffer.couponEndDate,
+      subsidyType: OFFER_SUBSIDY_TYPE,
+    };
+  }
+
+  return null;
+};

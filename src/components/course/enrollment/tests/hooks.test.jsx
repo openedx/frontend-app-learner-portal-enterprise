@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { renderHook } from '@testing-library/react-hooks';
 
+import moment from 'moment';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
@@ -123,17 +124,24 @@ describe('useSubsidyDataForCourse', () => {
     expect(result.current).toStrictEqual(expected);
   });
   test('correctly extracts subsidy fields from UserSubsidyContext, with offers', () => {
+    const offers = [{
+      catalog: 'catalog-1',
+      discountValue: 10,
+      couponStartDate: moment().subtract(1, 'w').toISOString(),
+      couponEndDate: moment().add(8, 'w').toISOString(),
+    }];
+
     const expected = {
       courseHasOffer: true,
       offersCount: 1,
       subscriptionLicense,
-      offers: [{ catalog: 'catalog-1', discountValue: 10 }],
+      offers,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const initialUserSubsidyState = {
       subscriptionLicense,
       offers: {
-        offers: [{ catalog: 'catalog-1', discountValue: 10 }],
+        offers,
         offersCount: 1,
       },
     };

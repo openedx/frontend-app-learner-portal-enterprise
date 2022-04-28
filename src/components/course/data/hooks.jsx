@@ -9,7 +9,6 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -22,6 +21,7 @@ import {
   isCourseSelfPaced,
   findOfferForCourse,
   hasLicenseSubsidy,
+  getSubsidyToApplyForCourse,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -34,7 +34,13 @@ import { pushEnrollmentClickEvent } from '../../../utils/optimizely';
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
 
-export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
+export function useAllCourseData({
+  courseKey,
+  enterpriseConfig,
+  courseRunKey,
+  subscriptionLicense,
+  offers,
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [courseData, setCourseData] = useState();
   const [courseRecommendations, setCourseRecommendations] = useState();
@@ -42,14 +48,13 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
 
   // todo: this could get refactored, but since we already fetch offers
   // we simply pass offers along to the `fetchAllCourseData` call to 'fetch' it back
-  const { offers: { offers } } = useContext(UserSubsidyContext);
-
   useEffect(() => {
     const fetchData = async () => {
       if (!courseKey || !enterpriseConfig) {
         return;
       }
       setIsLoading(true);
+
       const courseService = new CourseService({
         enterpriseUuid: enterpriseConfig.uuid,
         courseKey,
@@ -57,8 +62,45 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
       });
 
       try {
-        const data = await courseService.fetchAllCourseData({ offers });
-        setCourseData(data);
+        const data = await courseService.fetchAllCourseData();
+
+        const {
+          catalog: {
+            containsContentItems,
+            catalogList: catalogsWithCourse,
+          },
+        } = data;
+
+        let userSubsidyApplicableToCourse = null;
+
+        if (containsContentItems) {
+          let licenseForCourse = null;
+
+          if (subscriptionLicense) {
+            // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+            try {
+              const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
+              licenseForCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
+            } catch (error) {
+              const httpErrorStatus = error.customAttributes?.httpErrorStatus;
+              // 404 means the user's license is not applicable for the course, do nothing
+              if (httpErrorStatus !== 404) {
+                logError(error);
+                setFetchError(error);
+              }
+            }
+          }
+
+          userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
+            applicableSubscriptionLicense: licenseForCourse,
+            applicableOffer: findOfferForCourse(offers, catalogsWithCourse),
+          });
+        }
+
+        setCourseData({
+          ...data,
+          userSubsidyApplicableToCourse,
+        });
       } catch (error) {
         logError(error);
         setFetchError(error);

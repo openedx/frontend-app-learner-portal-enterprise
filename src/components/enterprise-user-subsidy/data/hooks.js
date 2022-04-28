@@ -18,7 +18,7 @@ import { features } from '../../../config';
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
  * specified enterprise customer. Priority is given to activated licenses, then assigned
- * licenses, then revoked licenses.
+ * licenses.
  *
  * @param {string} enterpriseId The UUID of the enterprise customer
  * @returns An object representing a user's subscription license or null if no license was found.
@@ -38,7 +38,6 @@ const fetchExistingUserLicense = async (enterpriseId) => {
     const licensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],
       [LICENSE_STATUS.ASSIGNED]: [],
-      [LICENSE_STATUS.REVOKED]: [],
     };
     results.forEach((item) => {
       licensesByStatus[item.status].push(item);
@@ -121,10 +120,14 @@ export function useSubscriptionLicense({
           subscription => subscription.uuid === userLicense?.subscriptionPlanUuid,
         );
 
-        setLicense({
-          ...userLicense,
-          subscriptionPlan,
-        });
+        if (userLicense) {
+          setLicense({
+            ...userLicense,
+            subscriptionPlan,
+          });
+        } else {
+          setLicense(null);
+        }
 
         setIsLoading(false);
       });
