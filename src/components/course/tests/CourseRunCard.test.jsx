@@ -19,7 +19,7 @@ import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import * as subsidyRequestsHooks from '../../enterprise-subsidy-requests/data/hooks';
+import * as subsidyRequestsHooks from '../data/hooks';
 import { enrollButtonTypes } from '../enrollment/constants';
 
 const COURSE_UUID = 'foo';
@@ -35,8 +35,9 @@ jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) 
     <span>{enrollmentType}</span>
   </>
 ));
-jest.mock('../../enterprise-subsidy-requests/data/hooks', () => ({
+jest.mock('../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
+  useCourseEnrollmentUrl: jest.fn(() => false),
 }));
 
 const INITIAL_APP_STATE = initialAppState({});

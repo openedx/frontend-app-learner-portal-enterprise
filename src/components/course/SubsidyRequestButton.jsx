@@ -8,9 +8,9 @@ import { useHistory } from 'react-router-dom';
 
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
+import { useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
-import { useUserHasSubsidyRequestForCourse } from '../enterprise-subsidy-requests/data/hooks';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 
 const props = {
