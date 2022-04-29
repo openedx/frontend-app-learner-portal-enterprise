@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react-hooks';
 
-import { useCourseEnrollmentUrl } from '../hooks';
+import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse } from '../hooks';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
 import { LICENSE_SUBSIDY_TYPE } from '../constants';
 
 jest.mock('../../../../config', () => ({
@@ -103,5 +105,91 @@ describe('useCourseEnrollmentUrl', () => {
       }));
       expect(result.current).toBeNull();
     });
+  });
+});
+
+describe('useUserHasSubsidyRequestForCourse', () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it('returns false when `subsidyRequestConfiguration` are not set', () => {
+    const context = {
+      subsidyRequestConfiguration: null,
+    };
+    /* eslint-disable react/prop-types */
+    const wrapper = ({ children }) => (
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('returns false when `subsidyType` is undefined', () => {
+    const context = {
+      subsidyRequestConfiguration: { subsidyType: undefined },
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [],
+        [SUBSIDY_TYPE.COUPON]: [],
+      },
+    };
+    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    expect(result.current).toBe(false);
+  });
+
+  it('returns true when `subsidyType` is LICENSE && 1 license request is found', () => {
+    const context = {
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: SUBSIDY_TYPE.LICENSE,
+      },
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED }],
+        [SUBSIDY_TYPE.COUPON]: [],
+      },
+    };
+    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    expect(result.current).toBe(true);
+  });
+
+  it('returns true when `subsidyType` is COUPON && 1 coupon request is found', () => {
+    const courseId = '123';
+    const context = {
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: SUBSIDY_TYPE.COUPON,
+      },
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [],
+        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
+      },
+    };
+    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(courseId), { wrapper });
+    expect(result.current).toBe(true);
+  });
+
+  it('returns false when `subsidyType` is COUPON && no matching courseId', () => {
+    const context = {
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: SUBSIDY_TYPE.COUPON,
+      },
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: [],
+        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
+      },
+    };
+    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+    );
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
+    expect(result.current).toBe(false);
   });
 });

@@ -10,6 +10,8 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
@@ -420,3 +422,46 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
 
   return handleClick;
 };
+
+/**
+ * Returns `true` if user has made a subsidy request.
+ *
+ * Returns `false` if:
+ *  - Subsidy request has not been configured
+ *  - No requests are found under the configured `SUBSIDY_TYPE`
+ *
+ * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
+ * to only return true if courseKey is in one of the requests
+ *
+ * @param {string} [courseKey] - optional filter for specific course
+ * @returns {boolean}
+ */
+export function useUserHasSubsidyRequestForCourse(courseKey) {
+  const {
+    subsidyRequestConfiguration,
+    requestsBySubsidyType,
+  } = useContext(SubsidyRequestsContext);
+
+  return useMemo(() => {
+    if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
+      return false;
+    }
+    switch (subsidyRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE: {
+        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
+      }
+      case SUBSIDY_TYPE.COUPON: {
+        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
+          request => (!courseKey || request.courseId === courseKey),
+        );
+        return !!foundCouponRequest;
+      }
+      default:
+        return false;
+    }
+  }, [
+    courseKey,
+    subsidyRequestConfiguration,
+    requestsBySubsidyType,
+  ]);
+}

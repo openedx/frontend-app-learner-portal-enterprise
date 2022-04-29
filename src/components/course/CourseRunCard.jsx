@@ -24,11 +24,8 @@ import {
 import { formatStringAsNumber } from '../../utils/common';
 
 import { useSubsidyDataForCourse } from './enrollment/hooks';
-import { useCourseEnrollmentUrl } from './data/hooks';
+import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { determineEnrollmentType } from './enrollment/utils';
-import {
-  useUserHasSubsidyRequestForCourse,
-} from '../enterprise-subsidy-requests/data/hooks';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 
 const DATE_FORMAT = 'MMM D';
