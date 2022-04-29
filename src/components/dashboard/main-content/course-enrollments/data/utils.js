@@ -56,7 +56,7 @@ export const transformSubsidyRequest = ({
 }) => ({
   courseRunId: subsidyRequest.courseId,
   title: subsidyRequest.courseTitle,
-  orgName: subsidyRequest.coursePartners.map(partner => partner.name).join(', '),
+  orgName: subsidyRequest.coursePartners?.map(partner => partner.name).join(', '),
   courseRunStatus: COURSE_STATUSES.requested,
   linkToCourse: `${slug}/course/${subsidyRequest.courseId}`,
   created: subsidyRequest.created,
