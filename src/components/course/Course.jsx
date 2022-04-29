@@ -77,16 +77,16 @@ export default function Course() {
     [courseData, courseRecommendations, algoliaSearchParams],
   );
 
+  if (fetchError) {
+    return <ErrorPage message={fetchError.message} />;
+  }
+
   if (isLoading || !initialState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />
       </Container>
     );
-  }
-
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
   }
 
   // If there isn't an active course run we don't show the course at all
