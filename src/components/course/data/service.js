@@ -38,6 +38,11 @@ export default class CourseService {
 
     const courseData = camelCaseObject(courseDataRaw);
     const courseDetails = courseData[0];
+
+    if (!courseDetails.advertisedCourseRunUuid) {
+      courseDetails.advertisedCourseRunUuid = courseDetails.courseRuns[0].uuid;
+    }
+
     // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
 

@@ -6,6 +6,7 @@ import {
   Row,
   Col,
 } from '@edx/paragon';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -41,6 +42,14 @@ export default function CourseHeader() {
       <LicenseRequestedAlert catalogList={catalog.catalogList} />
       <CourseEnrollmentFailedAlert />
       <Container size="lg">
+        <div>
+          <p>
+            <Link to="/test-enterprise/course/edX+DemoX">Go to edX+DemoX</Link>
+          </p>
+          <p>
+            <Link to="/test-enterprise/course/edX+E2E-101">Go to edX+E2E-101</Link>
+          </p>
+        </div>
         <Row className="py-4">
           <Col xs={12} lg={7}>
             {primarySubject && !enterpriseConfig.disableSearch && (
