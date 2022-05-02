@@ -1,9 +1,13 @@
-import React, { useContext, useMemo } from 'react';
+import React, {
+  useContext, useMemo, useEffect,
+} from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { useToggle } from '@edx/paragon';
 
 import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters } from './data/hooks';
@@ -29,9 +33,13 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import PathwayModal from '../pathway/PathwayModal';
 
 const Search = () => {
+  const { pathwayUUID } = useParams();
+  const history = useHistory();
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
   const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
@@ -45,6 +53,11 @@ const Search = () => {
     subsidyRequestConfiguration,
     catalogsForSubsidyRequests: [...catalogsForSubsidyRequests],
   });
+  useEffect(() => {
+    if (pathwayUUID) {
+      openLearnerPathwayModal();
+    }
+  }, [pathwayUUID]);
 
   const config = getConfig();
   const courseIndex = useMemo(
@@ -84,6 +97,15 @@ const Search = () => {
             enterpriseConfig={enterpriseConfig}
           />
         </div>
+
+        <PathwayModal
+          learnerPathwayUuid={pathwayUUID}
+          isOpen={isLearnerPathwayModalOpen}
+          onClose={() => {
+            history.push(`/${enterpriseConfig.slug}/search`);
+            onClose();
+          }}
+        />
 
         { (contentType === undefined || contentType.length === 0) && (
           <>

@@ -6,7 +6,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import SearchPathwayCard from '../SearchPathwayCard';
 import { TEST_ENTERPRISE_SLUG, TEST_ENTERPRISE_UUID } from './constants';
-
+import { PATHWAY_SEARCH_EVENT_NAME, PATHWAY_SKILL_QUIZ_EVENT_NAME } from '../constants';
 import { renderWithRouter } from '../../../utils/tests';
 
 jest.mock('react-truncate', () => ({
@@ -63,15 +63,36 @@ describe('<SearchPathwayCard />', () => {
 
     expect(container.querySelector('.search-pathway-card > a')).toHaveAttribute(
       'href',
-      `/#pathway-${TEST_PATHWAY_UUID}`,
+      `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
     );
     expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
 
     fireEvent.click(screen.getByText(TEST_TITLE));
-    expect(screen.getByRole('dialog'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
-      'edx.ui.enterprise.learner_portal.search.pathway.card.clicked',
+      PATHWAY_SEARCH_EVENT_NAME,
+      expect.objectContaining({
+        pathwayUUID: TEST_PATHWAY_UUID,
+      }),
+    );
+  });
+
+  test('renders the correct data when clicked from skills quiz page', () => {
+    const propsForSkillQuiz = { ...defaultProps, isSkillQuizResult: true };
+    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForSkillQuiz} />);
+
+    expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
+
+    expect(container.querySelector('.search-pathway-card > a')).toHaveAttribute(
+      'href',
+      `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
+    );
+    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+
+    fireEvent.click(screen.getByText(TEST_TITLE));
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      TEST_ENTERPRISE_UUID,
+      PATHWAY_SKILL_QUIZ_EVENT_NAME,
       expect.objectContaining({
         pathwayUUID: TEST_PATHWAY_UUID,
       }),
@@ -93,7 +114,7 @@ describe('<SearchPathwayCard />', () => {
 
     expect(container.querySelector('.search-pathway-card > a')).toHaveAttribute(
       'href',
-      `/#pathway-${TEST_PATHWAY_UUID}`,
+      `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
     );
     expect(container.querySelector('.pathway-skill-names').getElementsByClassName('pathway-badge')).toHaveLength(3);
     expect(container.querySelector('.pathway-skill-names').textContent).toContain(firstSkillName);

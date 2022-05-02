@@ -6,12 +6,11 @@ import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card, useToggle } from '@edx/paragon';
+import { Badge, Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import classNames from 'classnames';
 
-import PathwayModal from './PathwayModal';
-import { MAX_VISIBLE_SKILLS_PATHWAY } from './constants';
+import { MAX_VISIBLE_SKILLS_PATHWAY, PATHWAY_SEARCH_EVENT_NAME, PATHWAY_SKILL_QUIZ_EVENT_NAME } from './constants';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -38,20 +37,18 @@ const filterSkillNames = skillNames => {
   return skillsToReturn;
 };
 
-const SearchPathwayCard = ({ hit, isLoading }) => {
-  const { enterpriseConfig: { uuid: enterpriseCustomerUUID } } = useContext(AppContext);
-  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-
+const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
+  const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
   const pathway = hit ? camelCaseObject(hit) : {};
 
   const pathwayUuid = Object.keys(pathway).length ? pathway.aggregationKey.split(':').pop() : undefined;
-
+  const eventName = isSkillQuizResult ? PATHWAY_SKILL_QUIZ_EVENT_NAME : PATHWAY_SEARCH_EVENT_NAME;
   const linkToPathway = useMemo(
     () => {
       if (!Object.keys(pathway).length) {
         return '#';
       }
-      return `#pathway-${pathwayUuid}`;
+      return `/${slug}/search/${pathwayUuid}`;
     },
     [isLoading, JSON.stringify(pathway)],
   );
@@ -62,19 +59,12 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
       role="group"
       aria-label={pathway.title}
     >
-      <PathwayModal
-        learnerPathwayUuid={pathwayUuid}
-        isOpen={isLearnerPathwayModalOpen}
-        onClose={onClose}
-      />
-
       <Link
         to={linkToPathway}
         onClick={() => {
-          openLearnerPathwayModal();
           sendEnterpriseTrackEvent(
             enterpriseCustomerUUID,
-            'edx.ui.enterprise.learner_portal.search.pathway.card.clicked',
+            eventName,
             {
               objectID: pathway.objectId,
               position: pathway.position,
@@ -85,7 +75,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
           );
         }}
       >
-        <Card>
+        <Card className={classNames({ 'skill-quiz-pathway-card': isSkillQuizResult })}>
           {isLoading ? (
             <Card.Img
               as={Skeleton}
@@ -155,11 +145,13 @@ SearchPathwayCard.propTypes = {
     skill_names: PropTypes.arrayOf(PropTypes.string),
   }),
   isLoading: PropTypes.bool,
+  isSkillQuizResult: PropTypes.bool,
 };
 
 SearchPathwayCard.defaultProps = {
   hit: undefined,
   isLoading: false,
+  isSkillQuizResult: false,
 };
 
 SearchPathwayCard.Skeleton = SkeletonPathwayCard;
