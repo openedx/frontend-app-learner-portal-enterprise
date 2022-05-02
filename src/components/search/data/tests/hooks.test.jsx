@@ -1,17 +1,24 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
-import {
-  getCatalogString, SearchContext, SearchData, SHOW_ALL_NAME,
-} from '@edx/frontend-enterprise-catalog-search';
+import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import {
   useDefaultSearchFilters,
 } from '../hooks';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { features } from '../../../../config';
+
+const {
+  getCatalogString, SearchContext, SearchData, SHOW_ALL_NAME,
+} = frontendEnterpriseCatalogSearch;
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_SUBSCRIPTION_CATALOG_UUID = 'test-subscription-catalog-uuid';
 
+jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
+  ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
+  setRefinementAction: jest.fn(() => ({ key: 'SET_REFINEMENT' })),
+}));
 jest.mock('react-router-dom', () => ({
   useLocation: () => ({
     search: '?q=test%20query&subjects=Computer%20Science,Communication&availability=Upcoming&ignore=true',
@@ -31,6 +38,7 @@ describe('useDefaultSearchFilters hook', () => {
   const validSubscriptionLicense = { status: LICENSE_STATUS.ACTIVATED };
   const invalidSubscriptionLicense = { status: LICENSE_STATUS.ASSIGNED };
   const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
+
   describe('no catalogs', () => {
     test('no subscription: returns enterprise customer uuid as filter', () => {
       const { result } = renderHook(() => useDefaultSearchFilters({
@@ -123,6 +131,83 @@ describe('useDefaultSearchFilters hook', () => {
         subscriptionLicense: validSubscriptionLicense,
         offerCatalogs,
       }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
+      const { filters } = result.current;
+      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    });
+  });
+
+  describe('with subsidy requests enabled', () => {
+    features.FEATURE_BROWSE_AND_REQUEST = true;
+
+    beforeEach(() => jest.clearAllMocks());
+
+    test('sets SHOW_ALL_NAME refinement correctly', () => {
+      const setRefinementActionSpy = jest.spyOn(frontendEnterpriseCatalogSearch, 'setRefinementAction');
+      const subsidyRequestConfiguration = {
+        subsidyRequestsEnabled: true,
+      };
+      const catalogsForSubsidyRequests = ['catalog-1'];
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+        subscriptionLicense: invalidSubscriptionLicense,
+        offerCatalogs: [],
+        subsidyRequestConfiguration,
+        catalogsForSubsidyRequests,
+      }), { wrapper: SearchData });
+      const { filters } = result.current;
+      expect(filters).toEqual(getCatalogString(catalogsForSubsidyRequests));
+      expect(setRefinementActionSpy).not.toHaveBeenCalled();
+    });
+
+    test('returns catalogs for subsidy requests if there are no assigned subsidies', () => {
+      const subsidyRequestConfiguration = {
+        subsidyRequestsEnabled: true,
+      };
+      const catalogsForSubsidyRequests = ['catalog1', 'catalog2'];
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+        subscriptionLicense: invalidSubscriptionLicense,
+        offerCatalogs: [],
+        subsidyRequestConfiguration,
+        catalogsForSubsidyRequests,
+      }), { wrapper: SearchData });
+      const { filters } = result.current;
+      expect(filters).toEqual(getCatalogString(catalogsForSubsidyRequests));
+    });
+
+    test('returns catalogs for subsidy requests and catalogs from assigned subsidies', () => {
+      const subsidyRequestConfiguration = {
+        subsidyRequestsEnabled: true,
+      };
+      const offerCatalogs = ['catalog1'];
+      const catalogsForSubsidyRequests = ['catalog2'];
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+        subscriptionLicense: invalidSubscriptionLicense,
+        offerCatalogs,
+        subsidyRequestConfiguration,
+        catalogsForSubsidyRequests,
+      }), { wrapper: SearchData });
+      const { filters } = result.current;
+      expect(filters).toEqual(getCatalogString([...offerCatalogs, ...catalogsForSubsidyRequests]));
+    });
+
+    test('returns all enterprise catalogs if there are no catalogs for subsidy requests', () => {
+      const subsidyRequestConfiguration = {
+        subsidyRequestsEnabled: true,
+      };
+      const catalogsForSubsidyRequests = [];
+      const { result } = renderHook(() => useDefaultSearchFilters({
+        enterpriseConfig,
+        subscriptionPlan,
+        subscriptionLicense: invalidSubscriptionLicense,
+        offerCatalogs: [],
+        subsidyRequestConfiguration,
+        catalogsForSubsidyRequests,
+      }), { wrapper: SearchData });
       const { filters } = result.current;
       expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     });

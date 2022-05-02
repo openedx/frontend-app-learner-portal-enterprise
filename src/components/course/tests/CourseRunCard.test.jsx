@@ -38,6 +38,7 @@ jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) 
 jest.mock('../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
+  useCatalogsForSubsidyRequests: jest.fn(() => []),
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
