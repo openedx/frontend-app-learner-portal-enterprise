@@ -7,7 +7,6 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
-import { fetchCouponsOverview } from '../../enterprise-user-subsidy/offers/data/service';
 
 export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
@@ -115,9 +114,33 @@ export const useCatalogsForSubsidyRequests = ({
     const getCatalogs = async () => {
       if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
         try {
-          const response = await fetchCouponsOverview(
-            { enterpriseId: subsidyRequestConfiguration.enterpriseCustomerUuid },
-          );
+          // const response = await fetchCouponsOverview(
+          //   { enterpriseId: subsidyRequestConfiguration.enterpriseCustomerUuid },
+          // );
+          const response = {
+            data: {
+              next: null,
+              previous: null,
+              count: 7,
+              num_pages: 1,
+              current_page: 1,
+              start: 0,
+              results: [{
+                id: 83200,
+                title: 'BNR Test Coupon Beggs 5',
+                start_date: '2022-03-28T00:00:00Z',
+                end_date: '2023-03-28T00:00:00Z',
+                num_uses: 0,
+                usage_limitation: 'Single use',
+                num_codes: 1,
+                max_uses: 1,
+                num_unassigned: 1,
+                errors: [],
+                available: true,
+                enterprise_catalog_uuid: '21c540f9-5115-45ee-9ddb-20c45397f0a8',
+              }],
+            },
+          };
           const { results } = camelCaseObject(response.data);
           const catalogsFromCoupons = results.map(coupon => coupon.enterpriseCatalogUuid);
           setCatalogs(new Set(catalogsFromCoupons));
