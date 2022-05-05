@@ -196,8 +196,8 @@ describe('<CourseRunCard/>', () => {
 
   test('User must request enrollment', () => {
     // With Browse/Request feature flag on and mock-enabled for the customer,
-    // the user should only see a Request Enrollment button if they
-    // have no license or offers.
+    // the user should only see a Request Enrollment button if they have no assigned subsidies
+    // and there is an applicable catalog for the configured subsidy request type.
     config.features.FEATURE_BROWSE_AND_REQUEST = true;
     const courseRun = generateCourseRun({});
     const noUserSubsidyState = {
@@ -220,8 +220,9 @@ describe('<CourseRunCard/>', () => {
 
   test('User must request enrollment, but course is not applicable to catalogs for configured subsidy type', () => {
     // With Browse/Request feature flag on and mock-enabled for the customer,
-    // the user should only see a Request Enrollment button if they
-    // have no license or offers.
+    // the user should NOT see a Request Enrollment button if they have no assigned
+    // subsidies and there is no applicable catalog for the configured subsidy type.
+    // Instead, the CTA should bring the user through the ecommerce basket flow.
     config.features.FEATURE_BROWSE_AND_REQUEST = true;
     subsidyRequestsHooks.useCourseEnrollmentUrl.mockReturnValueOnce('https://enrollment.url');
     const courseRun = generateCourseRun({});
