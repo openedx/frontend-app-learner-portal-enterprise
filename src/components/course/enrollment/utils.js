@@ -59,5 +59,6 @@ export function determineEnrollmentType({
 
   if (!isSubscriptionValid && courseHasOffer) { return TO_VOUCHER_REDEEM; }
   if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
+
   return ENROLL_DISABLED;
 }

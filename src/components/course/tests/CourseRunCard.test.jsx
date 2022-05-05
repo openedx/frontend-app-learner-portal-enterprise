@@ -218,6 +218,31 @@ describe('<CourseRunCard/>', () => {
     expect(screen.getByText(enrollButtonTypes.HIDE_BUTTON)).toBeTruthy();
   });
 
+  test('User must request enrollment, but course is not applicable to catalogs for configured subsidy type', () => {
+    // With Browse/Request feature flag on and mock-enabled for the customer,
+    // the user should only see a Request Enrollment button if they
+    // have no license or offers.
+    config.features.FEATURE_BROWSE_AND_REQUEST = true;
+    subsidyRequestsHooks.useCourseEnrollmentUrl.mockReturnValueOnce('https://enrollment.url');
+    const courseRun = generateCourseRun({});
+    const noUserSubsidyState = {
+      subscriptionLicense: null,
+      offers: {
+        offers: [],
+        offersCount: 0,
+      },
+    };
+    renderCard({
+      courseRun,
+      initialUserSubsidyState: noUserSubsidyState,
+      subsidyRequestCatalogsApplicableToCourse: new Set(),
+    });
+    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
+    expect(screen.getByText('Be the first to enroll!')).toBeTruthy();
+    expect(screen.getByText(enrollButtonTypes.TO_ECOM_BASKET)).toBeTruthy();
+  });
+
   test('User is enrolled, and course not started', () => {
     const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
     const courseRun = generateCourseRun({

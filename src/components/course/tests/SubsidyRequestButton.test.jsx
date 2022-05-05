@@ -88,7 +88,7 @@ describe('<SubsidyRequestButton />', () => {
     expect(screen.queryByText('Request enrollment')).not.toBeInTheDocument();
   });
 
-  it("should not render button if course is applicable to any not in the enterprise's catalogs", () => {
+  it('should not render button if course is not applicable to catalogs for configured subsidy request type', () => {
     render(
       <SubsidyRequestButtonWrapper
         courseState={{
