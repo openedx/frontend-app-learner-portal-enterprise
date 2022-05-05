@@ -55,7 +55,7 @@ describe('<CourseContextProvider>', () => {
     expect(screen.getByText('Count: 0'));
   });
 
-  test('has no subsidy request catalogs applicable to course', () => {
+  test('has 1 catalog for configured subsidy type applicable to course', () => {
     const testCatalogUUID = 'test-catalog-uuid';
     const courseState = {
       ...baseInitialCourseState,
