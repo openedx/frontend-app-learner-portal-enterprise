@@ -23,17 +23,20 @@ useLocation.mockImplementation(() => ({
 jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
 jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
 
+const baseSubsidyRequestsState = {
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+  catalogsForSubsidyRequests: new Set(),
+};
+
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialSubsidyRequestsState = {
-    requestsBySubsidyType: {
-      [SUBSIDY_TYPE.LICENSE]: [],
-      [SUBSIDY_TYPE.COUPON]: [],
-    },
-  },
+  initialSubsidyRequestsState = baseSubsidyRequestsState,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>

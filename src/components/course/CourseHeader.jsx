@@ -25,9 +25,9 @@ import LicenseRequestedAlert from './LicenseRequestedAlert';
 import SubsidyRequestButton from './SubsidyRequestButton';
 
 export default function CourseHeader() {
+  const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, catalog } = state;
-  const { enterpriseConfig } = useContext(AppContext);
   const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 

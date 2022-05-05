@@ -86,6 +86,7 @@ const defaultSubsidyRequestState = {
     [SUBSIDY_TYPE.LICENSE]: [],
     [SUBSIDY_TYPE.COUPON]: [],
   },
+  catalogsForSubsidyRequests: new Set(),
 };
 
 const mockWindowConfig = {

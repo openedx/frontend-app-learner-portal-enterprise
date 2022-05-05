@@ -10,6 +10,7 @@ import CourseRecommendations from '../CourseRecommendations';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn(),
 }));
 
 jest.mock('react-truncate', () => ({

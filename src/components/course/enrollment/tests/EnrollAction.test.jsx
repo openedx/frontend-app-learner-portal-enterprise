@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { ENROLL_MODAL_TEXT_NO_OFFERS, createUseVoucherText } from '../../EnrollModal';
@@ -18,6 +17,7 @@ import EnrollAction from '../EnrollAction';
 import { enrollButtonTypes } from '../constants';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 
 /**
  * These tests verify that the correct enroll component is rendered.
@@ -64,14 +64,19 @@ const renderEnrollAction = ({
       offersCount: 0,
     },
   },
+  initialSubsidyRequestsState = {
+    catalogsForSubsidyRequests: new Set(),
+  },
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <CourseContextProvider initialState={courseInitState}>
-          {enrollAction}
-        </CourseContextProvider>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <CourseContextProvider initialState={courseInitState}>
+            {enrollAction}
+          </CourseContextProvider>
+        </SubsidyRequestsContext.Provider>
       </UserSubsidyContext.Provider>
     </AppContext.Provider>,
   );

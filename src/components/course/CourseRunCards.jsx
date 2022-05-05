@@ -7,7 +7,10 @@ import { CourseContext } from './CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
 
 const CourseRunCards = () => {
-  const { state: courseData } = useContext(CourseContext);
+  const {
+    state: courseData,
+    subsidyRequestCatalogsApplicableToCourse,
+  } = useContext(CourseContext);
   const {
     availableCourseRuns,
     userEntitlements,
@@ -27,6 +30,7 @@ const CourseRunCards = () => {
           courseRun={courseRun}
           catalogList={catalogList}
           userEntitlements={userEntitlements}
+          subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
         />
       ))}
     </CardGrid>

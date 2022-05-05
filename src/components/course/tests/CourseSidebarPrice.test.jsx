@@ -37,7 +37,11 @@ const BASE_COURSE_STATE = {
   course: {},
   userEnrollments: [],
   userEntitlements: [],
-  catalog: [],
+  catalog: {
+    containsContentItems: true,
+    catalogList: ['test-catalog-uuid'],
+  },
+  courseRecommendations: {},
 };
 
 const courseStateWithLicenseSubsidy = {
@@ -80,12 +84,13 @@ const defaultSubsidyRequestsState = {
     [SUBSIDY_TYPE.LICENSE]: [],
     [SUBSIDY_TYPE.COUPON]: [],
   },
+  catalogsForSubsidyRequests: new Set(),
 };
 
 /* eslint-disable react/prop-types */
 const SidebarWithContext = ({
-  initialAppState = appStateWithOrigPriceHidden,
-  subsidyRequestsState = defaultSubsidyRequestsState,
+  initialAppState,
+  subsidyRequestsState,
   initialCourseState,
 }) => (
   <AppContext.Provider value={initialAppState}>
@@ -99,10 +104,14 @@ const SidebarWithContext = ({
 /* eslint-enable react/prop-types */
 
 SidebarWithContext.propTypes = {
-  initialAppState: PropTypes.shape({}).isRequired,
   initialCourseState: PropTypes.shape({}).isRequired,
-  userSubsidyState: PropTypes.shape({}).isRequired,
-  subsidyRequestsState: PropTypes.shape({}).isRequired,
+  initialAppState: PropTypes.shape({}),
+  subsidyRequestsState: PropTypes.shape({}),
+};
+
+SidebarWithContext.defaultProps = {
+  initialAppState: appStateWithOrigPriceHidden,
+  subsidyRequestsState: defaultSubsidyRequestsState,
 };
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';

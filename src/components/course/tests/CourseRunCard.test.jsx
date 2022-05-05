@@ -54,6 +54,8 @@ const selfPacedCourseWithoutLicenseSubsidy = {
   catalog: { catalogList: [] },
 };
 
+const baseSubsidyRequestCatalogsApplicableToCourse = new Set();
+
 const generateCourseRun = ({
   availability = COURSE_AVAILABILITY_MAP.STARTING_SOON,
   pacingType = COURSE_PACING_MAP.SELF_PACED,
@@ -90,24 +92,27 @@ const renderCard = ({
       subsidyRequestsEnabled: true,
     },
     isLoading: false,
+    catalogsForSubsidyRequests: new Set(),
   },
+  subsidyRequestCatalogsApplicableToCourse = baseSubsidyRequestCatalogsApplicableToCourse,
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <CourseContextProvider initialState={courseInitState}>
-          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <CourseContextProvider initialState={courseInitState}>
             <CourseRunCard
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
               courseRun={courseRun}
               courseKey={COURSE_ID}
+              subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
             />
-          </SubsidyRequestsContext.Provider>
-        </CourseContextProvider>
-      </UserSubsidyContext.Provider>
+          </CourseContextProvider>
+        </UserSubsidyContext.Provider>
+      </SubsidyRequestsContext.Provider>
     </AppContext.Provider>,
   );
 };
@@ -205,6 +210,7 @@ describe('<CourseRunCard/>', () => {
     renderCard({
       courseRun,
       initialUserSubsidyState: noUserSubsidyState,
+      subsidyRequestCatalogsApplicableToCourse: new Set(['test-catalog-uuid']),
     });
     const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();

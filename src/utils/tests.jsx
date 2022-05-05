@@ -68,6 +68,8 @@ export const initialCourseState = ({
     queryId: undefined,
     objectId: undefined,
   },
+  courseRecommendations: {},
+  subsidyRequestCatalogsApplicableToCourse: new Set(),
 });
 
 export const A_100_PERCENT_OFFER = {

@@ -2,7 +2,11 @@ import React, { useContext, createContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
-import { useCatalogsForSubsidyRequests, useSubsidyRequestConfiguration, useSubsidyRequests } from './data/hooks';
+import {
+  useCatalogsForSubsidyRequests,
+  useSubsidyRequestConfiguration,
+  useSubsidyRequests,
+} from './data/hooks';
 import { features } from '../../config';
 import { LoadingSpinner } from '../loading-spinner';
 import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from './constants';
