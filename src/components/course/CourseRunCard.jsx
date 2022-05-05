@@ -37,6 +37,7 @@ const CourseRunCard = ({
   courseRun,
   userEnrollments,
   courseKey,
+  subsidyRequestCatalogsApplicableToCourse,
 }) => {
   const {
     availability,
@@ -97,6 +98,7 @@ const CourseRunCard = ({
       subsidyRequestConfiguration,
     },
     userHasSubsidyRequestForCourse,
+    subsidyRequestCatalogsApplicableToCourse,
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
@@ -207,16 +209,15 @@ const CourseRunCard = ({
           <div className="h4 mb-0">{heading}</div>
           <div className="small">{subHeading}</div>
         </div>
-        {!courseRunArchived
-          && (
-            <EnrollAction
-              enrollLabel={buttonLabel}
-              enrollmentType={enrollmentType}
-              enrollmentUrl={enrollmentUrl}
-              userEnrollment={userEnrollment}
-              subscriptionLicense={subscriptionLicense}
-            />
-          )}
+        {!courseRunArchived && (
+          <EnrollAction
+            enrollLabel={buttonLabel}
+            enrollmentType={enrollmentType}
+            enrollmentUrl={enrollmentUrl}
+            userEnrollment={userEnrollment}
+            subscriptionLicense={subscriptionLicense}
+          />
+        )}
       </Card.Body>
     </Card>
   );
@@ -242,6 +243,7 @@ CourseRunCard.propTypes = {
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   catalogList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
 };
 
 export default CourseRunCard;

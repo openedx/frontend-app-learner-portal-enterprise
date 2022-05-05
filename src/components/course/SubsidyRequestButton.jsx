@@ -34,17 +34,15 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     refreshSubsidyRequests,
   } = useContext(SubsidyRequestsContext);
 
-  const { state } = useContext(CourseContext);
+  const { state, subsidyRequestCatalogsApplicableToCourse } = useContext(CourseContext);
 
-  const { course, catalog, userEnrollments } = state;
+  const { course, userEnrollments } = state;
   const {
     key: courseKey,
     courseRunKeys,
   } = course;
 
   const { userSubsidyApplicableToCourse } = state;
-
-  const isCourseInCatalog = catalog.containsContentItems;
 
   /**
    * Check every course run to see if user is enrolled in any of them
@@ -73,8 +71,12 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
    *    - user not already enrolled in crouse
    *    - user has no subsidy for course
    */
-  const showSubsidyRequestButton = subsidyRequestConfiguration?.subsidyRequestsEnabled
-    && (userHasSubsidyRequest || (isCourseInCatalog && !isUserEnrolled && !userSubsidyApplicableToCourse));
+  const hasSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
+  const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
+    userHasSubsidyRequest || (
+      subsidyRequestCatalogsApplicableToCourse.size > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
+    )
+  );
 
   if (!showSubsidyRequestButton) {
     return null;

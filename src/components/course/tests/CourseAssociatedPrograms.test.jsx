@@ -1,16 +1,36 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-// eslint-disable-next-line react/prop-types
-const CourseAssociatedProgramsWithCourseContext = ({ initialState = {} }) => (
-  <CourseContextProvider initialState={initialState}>
-    <CourseAssociatedPrograms />
-  </CourseContextProvider>
+const baseSubsidyRequestContextValue = {
+  catalogsForSubsidyRequests: new Set(),
+};
+
+const CourseAssociatedProgramsWithCourseContext = ({
+  initialState,
+  subsidyRequestContextValue,
+}) => (
+  <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
+    <CourseContextProvider initialState={initialState}>
+      <CourseAssociatedPrograms />
+    </CourseContextProvider>
+  </SubsidyRequestsContext.Provider>
 );
+
+CourseAssociatedProgramsWithCourseContext.propTypes = {
+  initialState: PropTypes.shape(),
+  subsidyRequestContextValue: PropTypes.shape(),
+};
+
+CourseAssociatedProgramsWithCourseContext.defaultProps = {
+  initialState: {},
+  subsidyRequestContextValue: baseSubsidyRequestContextValue,
+};
 
 describe('<CourseAssociatedPrograms />', () => {
   const initialState = {
@@ -28,6 +48,7 @@ describe('<CourseAssociatedPrograms />', () => {
     userEnrollments: [],
     userEntitlements: [],
     catalog: {},
+    courseRecommendations: {},
   };
 
   test('renders programs with title', () => {

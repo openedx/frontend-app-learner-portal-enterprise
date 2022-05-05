@@ -9,23 +9,27 @@ const CourseRecommendations = () => {
 
   return (
     <div className="mt-1">
-      { allRecommendations?.length > 0 && (
+      {allRecommendations?.length > 0 && (
         <div className="mb-3">
-          <h3 className="mb-3"> Courses you may like: </h3>
+          <h3 className="mb-3">Courses you may like:</h3>
           <div className="course-recommendations">
-            { allRecommendations.map(
-              recommendation => <CourseRecommendationCard course={recommendation} />,
-            )}
+            {allRecommendations.map(recommendation => (
+              <CourseRecommendationCard key={recommendation.key} course={recommendation} />
+            ))}
           </div>
         </div>
       )}
-      { samePartnerRecommendations?.length > 0 && (
+      {samePartnerRecommendations?.length > 0 && (
         <div className="mb-3">
-          <h3 className="mb-3"> More from { course.owners[0].name }: </h3>
+          <h3 className="mb-3">More from { course.owners[0].name }:</h3>
           <div className="partner-recommendations">
-            { samePartnerRecommendations.map(
-              recommendation => <CourseRecommendationCard course={recommendation} isPartnerRecommendation />,
-            )}
+            {samePartnerRecommendations.map(recommendation => (
+              <CourseRecommendationCard
+                key={recommendation.key}
+                course={recommendation}
+                isPartnerRecommendation
+              />
+            ))}
           </div>
         </div>
       )}

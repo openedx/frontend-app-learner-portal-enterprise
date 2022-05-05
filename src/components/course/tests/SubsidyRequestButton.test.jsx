@@ -36,18 +36,21 @@ const initialSubsidyRequestsState = {
     [SUBSIDY_TYPE.COUPON]: [],
   },
   refreshSubsidyRequests: mockRefreshSubsidyRequests,
+  catalogsForSubsidyRequests: new Set(),
 };
 
+const TEST_CATALOG_UUID = 'test-catalog-uuid';
 const initialCourseState = {
   state: {
     course: {
       key: mockCourseKey,
       courseRunKeys: [mockCourseRunKey],
     },
-    catalog: { containsContentItems: true },
+    catalog: { containsContentItems: true, catalogList: [TEST_CATALOG_UUID] },
     userEnrollments: [],
     userSubsidyApplicableToCourse: undefined,
   },
+  subsidyRequestCatalogsApplicableToCourse: new Set([TEST_CATALOG_UUID]),
 };
 
 const SubsidyRequestButtonWrapper = ({
@@ -85,14 +88,12 @@ describe('<SubsidyRequestButton />', () => {
     expect(screen.queryByText('Request enrollment')).not.toBeInTheDocument();
   });
 
-  it("should not render button if course is not in the enterprise's catalogs", () => {
+  it('should not render button if course is not applicable to catalogs for configured subsidy request type', () => {
     render(
       <SubsidyRequestButtonWrapper
         courseState={{
-          state: {
-            ...initialCourseState.state,
-            catalog: { containsContentItems: false },
-          },
+          ...initialCourseState,
+          subsidyRequestCatalogsApplicableToCourse: new Set(),
         }}
       />,
     );

@@ -54,6 +54,8 @@ const selfPacedCourseWithoutLicenseSubsidy = {
   catalog: { catalogList: [] },
 };
 
+const baseSubsidyRequestCatalogsApplicableToCourse = new Set();
+
 const generateCourseRun = ({
   availability = COURSE_AVAILABILITY_MAP.STARTING_SOON,
   pacingType = COURSE_PACING_MAP.SELF_PACED,
@@ -90,24 +92,27 @@ const renderCard = ({
       subsidyRequestsEnabled: true,
     },
     isLoading: false,
+    catalogsForSubsidyRequests: new Set(),
   },
+  subsidyRequestCatalogsApplicableToCourse = baseSubsidyRequestCatalogsApplicableToCourse,
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <CourseContextProvider initialState={courseInitState}>
-          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <CourseContextProvider initialState={courseInitState}>
             <CourseRunCard
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
               courseRun={courseRun}
               courseKey={COURSE_ID}
+              subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
             />
-          </SubsidyRequestsContext.Provider>
-        </CourseContextProvider>
-      </UserSubsidyContext.Provider>
+          </CourseContextProvider>
+        </UserSubsidyContext.Provider>
+      </SubsidyRequestsContext.Provider>
     </AppContext.Provider>,
   );
 };
@@ -191,8 +196,8 @@ describe('<CourseRunCard/>', () => {
 
   test('User must request enrollment', () => {
     // With Browse/Request feature flag on and mock-enabled for the customer,
-    // the user should only see a Request Enrollment button if they
-    // have no license or offers.
+    // the user should only see a Request Enrollment button if they have no assigned subsidies
+    // and there is an applicable catalog for the configured subsidy request type.
     config.features.FEATURE_BROWSE_AND_REQUEST = true;
     const courseRun = generateCourseRun({});
     const noUserSubsidyState = {
@@ -205,11 +210,38 @@ describe('<CourseRunCard/>', () => {
     renderCard({
       courseRun,
       initialUserSubsidyState: noUserSubsidyState,
+      subsidyRequestCatalogsApplicableToCourse: new Set(['test-catalog-uuid']),
     });
     const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
     expect(screen.getByText('Be the first to enroll!')).toBeTruthy();
     expect(screen.getByText(enrollButtonTypes.HIDE_BUTTON)).toBeTruthy();
+  });
+
+  test('User must request enrollment, but course is not applicable to catalogs for configured subsidy type', () => {
+    // With Browse/Request feature flag on and mock-enabled for the customer,
+    // the user should NOT see a Request Enrollment button if they have no assigned
+    // subsidies and there is no applicable catalog for the configured subsidy type.
+    // Instead, the CTA should bring the user through the ecommerce basket flow.
+    config.features.FEATURE_BROWSE_AND_REQUEST = true;
+    subsidyRequestsHooks.useCourseEnrollmentUrl.mockReturnValueOnce('https://enrollment.url');
+    const courseRun = generateCourseRun({});
+    const noUserSubsidyState = {
+      subscriptionLicense: null,
+      offers: {
+        offers: [],
+        offersCount: 0,
+      },
+    };
+    renderCard({
+      courseRun,
+      initialUserSubsidyState: noUserSubsidyState,
+      subsidyRequestCatalogsApplicableToCourse: new Set(),
+    });
+    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    expect(screen.getByText(`Starts ${startDate}`)).toBeTruthy();
+    expect(screen.getByText('Be the first to enroll!')).toBeTruthy();
+    expect(screen.getByText(enrollButtonTypes.TO_ECOM_BASKET)).toBeTruthy();
   });
 
   test('User is enrolled, and course not started', () => {

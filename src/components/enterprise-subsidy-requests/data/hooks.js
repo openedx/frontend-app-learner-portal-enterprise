@@ -1,13 +1,17 @@
 import {
-  useState, useEffect, useContext, useMemo, useCallback,
+  useState, useEffect, useCallback,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
-import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
-import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
+
+import {
+  fetchSubsidyRequestConfiguration,
+  fetchLicenseRequests,
+  fetchCouponCodeRequests,
+} from './service';
 import { fetchCouponsOverview } from '../../enterprise-user-subsidy/offers/data/service';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 
 export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
@@ -152,47 +156,4 @@ export const useCatalogsForSubsidyRequests = ({
     catalogs,
     isLoading,
   };
-};
-
-/**
- * Returns `true` if user has a subsidy request for the given course.
- *
- * Returns `false` if:
- *  - Subsidy request has not been configured
- *  - No requests are found under the configured `SUBSIDY_TYPE`
- *
- * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
- * to only return true if courseKey is in one of the requests
- *
- * @param {string} [courseKey] - optional filter for specific course
- * @returns {boolean}
- */
-export const useUserHasSubsidyRequestForCourse = (courseKey) => {
-  const {
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
-
-  return useMemo(() => {
-    if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
-      return false;
-    }
-    switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE: {
-        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
-      }
-      case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-          request => (!courseKey || request.courseId === courseKey),
-        );
-        return !!foundCouponRequest;
-      }
-      default:
-        return false;
-    }
-  }, [
-    courseKey,
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  ]);
 };
