@@ -1,12 +1,16 @@
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Button, breakpoints, MediaQuery } from '@edx/paragon';
+import {
+  Button, breakpoints, MediaQuery,
+} from '@edx/paragon';
 
 import { CourseEnrollments } from './course-enrollments';
+import DashboardPopularCourses from './DashboardPopularCourses';
 
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
+import { isExperimentVariant } from '../../../utils/optimizely';
 
 const DashboardMainContent = () => {
   const {
@@ -51,6 +55,10 @@ const DashboardMainContent = () => {
               Find a course
             </Button>
           </>
+        )}
+
+        {isExperimentVariant(process.env.EXPERIMENT_1_ID, process.env.EXPERIMENT_1_VARIANT_1) && (
+          <DashboardPopularCourses />
         )}
       </CourseEnrollments>
 

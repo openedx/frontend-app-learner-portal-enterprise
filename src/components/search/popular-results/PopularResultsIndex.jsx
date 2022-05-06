@@ -10,7 +10,7 @@ import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getContentTypeFromTitle } from '../../utils/search';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-const PopularResultsIndex = ({ title }) => {
+const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
@@ -30,19 +30,24 @@ const PopularResultsIndex = ({ title }) => {
   const defaultFilter = `content_type:${contentType} AND ${filters}`;
   const searchConfig = {
     query: '',
-    hitsPerPage: NUM_RESULTS_TO_DISPLAY,
+    hitsPerPage: numberResultsToDisplay,
     filters: defaultFilter,
   };
   return (
     <Index indexName={config.ALGOLIA_INDEX_NAME} indexId={`popular-${title}`}>
       <Configure {...searchConfig} />
-      <PopularResults title={title} />
+      <PopularResults title={title} numberResultsToDisplay={numberResultsToDisplay} />
     </Index>
   );
 };
 
 PopularResultsIndex.propTypes = {
   title: PropTypes.string.isRequired,
+  numberResultsToDisplay: PropTypes.number,
+};
+
+PopularResultsIndex.defaultProps = {
+  numberResultsToDisplay: NUM_RESULTS_TO_DISPLAY,
 };
 
 export default PopularResultsIndex;

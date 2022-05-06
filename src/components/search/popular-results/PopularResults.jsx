@@ -15,6 +15,7 @@ const PopularResults = ({
   isSearchStalled,
   error,
   title,
+  numberResultsToDisplay,
 }) => {
   const nbHits = useNbHitsFromSearchResults(searchResults);
 
@@ -27,7 +28,7 @@ const PopularResults = ({
       </h2>
       {isSearchStalled && (
         <div className="row">
-          {[...Array(NUM_RESULTS_TO_DISPLAY).keys()].map(resultNum => (
+          {[...Array(numberResultsToDisplay).keys()].map(resultNum => (
             <div key={resultNum} className="skeleton-course-card">
               {getSkeletonCardFromTitle(title)}
             </div>
@@ -54,12 +55,14 @@ PopularResults.propTypes = {
   isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),
   title: PropTypes.string.isRequired,
+  numberResultsToDisplay: PropTypes.number,
 };
 
 PopularResults.defaultProps = {
   searchResults: undefined,
   isSearchStalled: false,
   error: undefined,
+  numberResultsToDisplay: NUM_RESULTS_TO_DISPLAY,
 };
 
 export default connectStateResults(PopularResults);
