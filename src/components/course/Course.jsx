@@ -36,7 +36,9 @@ export default function Course() {
   // the URL query parameters and then remove it to keep the URLs clean.
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
-  const [courseData, courseRecommendations, fetchError] = useAllCourseData({
+  const {
+    courseData, courseRecommendations, fetchError, isLoading,
+  } = useAllCourseData({
     courseKey,
     enterpriseConfig,
     courseRunKey,
@@ -44,7 +46,7 @@ export default function Course() {
 
   const initialState = useMemo(
     () => {
-      if (!courseData || !courseRecommendations) {
+      if (isLoading || !courseData || !courseRecommendations) {
         return undefined;
       }
       const {
@@ -79,7 +81,7 @@ export default function Course() {
     return <ErrorPage message={fetchError.message} />;
   }
 
-  if (!initialState) {
+  if (isLoading || !initialState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />
