@@ -171,12 +171,10 @@ const CourseRunCard = ({
       : 'Be the first to enroll!';
 
     let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${moment(start).format(DATE_FORMAT)}`;
+
     if (isCourseSelfPaced(pacingType)) {
-      if (isCourseStarted && hasTimeToComplete(courseRun)) {
-        // Course is self paced and has time to complete
-        tempHeading = `Starts ${moment().format(DATE_FORMAT)}`;
-      } else {
-        tempHeading = 'Course started';
+      if (isCourseStarted) {
+        tempHeading = hasTimeToComplete(courseRun) ? `Starts ${moment().format(DATE_FORMAT)}` : 'Course started';
       }
     }
     return [
