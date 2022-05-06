@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
+import Truncate from 'react-truncate';
 import { getProgramIcon } from '../course/data/utils';
 
 const ProgramListingCard = ({ program }) => {
@@ -58,23 +59,27 @@ const ProgramListingCard = ({ program }) => {
           />
         </div>
       )}
-      <Card.Body>
-        <div className="font-weight-light d-flex justify-content-between">
-          <div>
-            {program.authoringOrganizations?.length > 0 && program.authoringOrganizations.map(org => org.key).join(' ')}
+      <Card.Body className="program-card-body">
+        <div>
+          <div className="font-weight-light d-flex justify-content-between">
+            <div>
+              {program.authoringOrganizations?.length > 0 && program.authoringOrganizations.map(org => org.key).join(' ')}
+            </div>
+            <div className="program-type">
+              <img
+                src={getProgramIcon(program.type)}
+                alt="Program Type Logo"
+                className="program-type-icon mr-2"
+              />
+              {program.type}
+            </div>
           </div>
-          <div className="program-type">
-            <img
-              src={getProgramIcon(program.type)}
-              alt="Program Type Logo"
-              className="program-type-icon mr-2"
-            />
-            {program.type}
-          </div>
+          <h3 className="program-title">
+            <Truncate lines={2} trimWhitespace>
+              {program.title}
+            </Truncate>
+          </h3>
         </div>
-        <h3 className="program-title">
-          {program.title}
-        </h3>
         <div className="program-progress mt-4">
           <div className="progress-item">
             <div className="remaining-courses">
