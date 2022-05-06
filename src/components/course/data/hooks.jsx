@@ -35,6 +35,7 @@ import { pushEnrollmentClickEvent } from '../../../utils/optimizely';
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
 
 export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [courseData, setCourseData] = useState();
   const [courseRecommendations, setCourseRecommendations] = useState();
   const [fetchError, setFetchError] = useState();
@@ -45,33 +46,42 @@ export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) 
 
   useEffect(() => {
     const fetchData = async () => {
-      if (courseKey && enterpriseConfig) {
-        const courseService = new CourseService({
-          enterpriseUuid: enterpriseConfig.uuid,
-          courseKey,
-          courseRunKey,
-        });
-        try {
-          const data = await courseService.fetchAllCourseData({ offers });
-          setCourseData(data);
-        } catch (error) {
-          logError(error);
-          setFetchError(error);
-        }
-
-        try {
-          const data = await courseService.fetchAllCourseRecommendations();
-          setCourseRecommendations(data);
-        } catch (error) {
-          logError(error);
-          setCourseRecommendations([]);
-        }
+      if (!courseKey || !enterpriseConfig) {
+        return;
       }
-      return undefined;
+      setIsLoading(true);
+      const courseService = new CourseService({
+        enterpriseUuid: enterpriseConfig.uuid,
+        courseKey,
+        courseRunKey,
+      });
+
+      try {
+        const data = await courseService.fetchAllCourseData({ offers });
+        setCourseData(data);
+      } catch (error) {
+        logError(error);
+        setFetchError(error);
+      }
+
+      try {
+        const data = await courseService.fetchAllCourseRecommendations();
+        setCourseRecommendations(data);
+      } catch (error) {
+        logError(error);
+        setCourseRecommendations([]);
+      }
+      setIsLoading(false);
     };
     fetchData();
   }, [courseKey, enterpriseConfig]);
-  return [camelCaseObject(courseData), camelCaseObject(courseRecommendations), fetchError];
+
+  return {
+    courseData: camelCaseObject(courseData),
+    courseRecommendations: camelCaseObject(courseRecommendations),
+    fetchError,
+    isLoading,
+  };
 }
 
 export function useCourseSubjects(course) {
