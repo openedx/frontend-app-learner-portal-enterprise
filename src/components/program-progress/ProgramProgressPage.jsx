@@ -65,7 +65,7 @@ const ProgramProgressPage = () => {
       <SubsidyRequestsContextProvider>
         <CourseEnrollmentsContextProvider>
           <ProgramProgressContextProvider initialState={initialState}>
-            <Container fluid={false}>
+            <Container fluid={false} size="lg">
               <ProgramProgressHeader />
               <Row>
                 <article className="col-8">

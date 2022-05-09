@@ -1,8 +1,14 @@
 .program-listing-card{
   width: 100%;
-  max-width: 500px;
+  max-width: 450px;
   cursor: pointer;
 
+  .program-card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-bottom: 0px;
+  }
   .program-progress{
   display: flex;
   width: 100%;
@@ -24,7 +30,7 @@
 
   .program-banner-image{
     height :165px;
-    object-fit: contain;
+    object-fit: cover;
     background: white;
   }
 
