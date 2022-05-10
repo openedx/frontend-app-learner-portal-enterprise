@@ -1,7 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
 
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { CourseContextProvider } from '../CourseContextProvider';
 import EnrollModal, { modalText } from '../EnrollModal';
 
@@ -13,14 +15,36 @@ const baseCourseInitialState = {
     queryId: undefined,
     objectId: undefined,
   },
+  catalog: { catalogList: [] },
 };
 
-// eslint-disable-next-line react/prop-types
-const EnrollModalWrapper = ({ courseState = baseCourseInitialState, modalProps }) => (
-  <CourseContextProvider initialState={courseState}>
-    <EnrollModal {...modalProps} />
-  </CourseContextProvider>
+const baseSubsidyRequestContextValue = {
+  catalogsForSubsidyRequests: new Set(),
+};
+
+const EnrollModalWrapper = ({
+  courseState = baseCourseInitialState,
+  subsidyRequestContextValue = baseSubsidyRequestContextValue,
+  modalProps,
+}) => (
+  <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
+    <CourseContextProvider initialState={courseState}>
+      <EnrollModal {...modalProps} />
+    </CourseContextProvider>
+  </SubsidyRequestsContext.Provider>
 );
+
+EnrollModalWrapper.propTypes = {
+  courseState: PropTypes.shape(),
+  subsidyRequestContextValue: PropTypes.shape(),
+  modalProps: PropTypes.shape(),
+};
+
+EnrollModalWrapper.defaultProps = {
+  courseState: baseCourseInitialState,
+  subsidyRequestContextValue: baseSubsidyRequestContextValue,
+  modalProps: {},
+};
 
 describe('<EnrollModal />', () => {
   const defaultProps = {

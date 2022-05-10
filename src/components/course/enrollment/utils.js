@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { enrollButtonTypes } from './constants';
+import { features } from '../../../config';
 import { hasLicenseSubsidy } from '../data/utils';
 
 const {
@@ -9,6 +10,7 @@ const {
   TO_ECOM_BASKET,
   TO_VOUCHER_REDEEM,
   VIEW_ON_DASHBOARD,
+  HIDE_BUTTON,
 } = enrollButtonTypes;
 
 /**
@@ -16,25 +18,47 @@ const {
  */
 export function determineEnrollmentType({
   subsidyData: {
-    subscriptionLicense, userSubsidyApplicableToCourse, enrollmentUrl, courseHasOffer,
+    subscriptionLicense,
+    userSubsidyApplicableToCourse,
+    enrollmentUrl,
+    courseHasOffer,
+    subsidyRequestConfiguration,
   } = {},
   isUserEnrolled,
   isEnrollable,
   isCourseStarted,
+  userHasSubsidyRequestForCourse,
+  subsidyRequestCatalogsApplicableToCourse,
 }) {
   const isSubscriptionValid = subscriptionLicense?.uuid;
   if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
+
+  if (userHasSubsidyRequestForCourse) { return HIDE_BUTTON; }
+
+  if (
+    features.FEATURE_BROWSE_AND_REQUEST
+    && subsidyRequestConfiguration?.subsidyRequestsEnabled
+    && subsidyRequestCatalogsApplicableToCourse.size > 0
+    && !hasLicenseSubsidy(userSubsidyApplicableToCourse)
+    && !courseHasOffer
+  ) {
+    return HIDE_BUTTON;
+  }
+
   if (!isEnrollable) { return ENROLL_DISABLED; }
   if (!enrollmentUrl) { return ENROLL_DISABLED; }
+
   if (isSubscriptionValid && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
     return TO_DATASHARING_CONSENT;
   }
   if (isSubscriptionValid && !hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
     return TO_ECOM_BASKET;
   }
-  if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
+
   if (!isSubscriptionValid && courseHasOffer) { return TO_VOUCHER_REDEEM; }
+  if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
+
   return ENROLL_DISABLED;
 }

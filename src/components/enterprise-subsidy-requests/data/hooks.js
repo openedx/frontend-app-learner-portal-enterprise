@@ -1,12 +1,19 @@
 import {
-  useState, useEffect,
+  useState, useEffect, useCallback,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
-import { SUBSIDY_TYPE } from '../constants';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
-export function useSubsidyRequestConfiguration(enterpriseUUID) {
+import {
+  fetchSubsidyRequestConfiguration,
+  fetchLicenseRequests,
+  fetchCouponCodeRequests,
+} from './service';
+import { fetchCouponsOverview } from '../../enterprise-user-subsidy/offers/data/service';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
+
+export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,10 +40,9 @@ export function useSubsidyRequestConfiguration(enterpriseUUID) {
   }, [enterpriseUUID]);
 
   return { subsidyRequestConfiguration, isLoading };
-}
+};
 
 /**
- *
  * @param {{
  *    enterpriseCustomerUuid: string,
  *    subsidyRequestsEnabled: boolean,
@@ -44,46 +50,110 @@ export function useSubsidyRequestConfiguration(enterpriseUUID) {
  * }} subsidyRequestConfiguration The subsidy request configuration for the customer
  * @returns {Object} { couponCodeRequests, licenseRequests, isLoading }
  */
-export function useSubsidyRequests(subsidyRequestConfiguration) {
+export const useSubsidyRequests = (subsidyRequestConfiguration) => {
   const [licenseRequests, setLicenseRequests] = useState([]);
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchSubsidyRequests = async (subsidyType) => {
-      setIsLoading(true);
-      try {
-        if (subsidyType === SUBSIDY_TYPE.COUPON) {
-          const { data: { results } } = await fetchCouponCodeRequests(
-            subsidyRequestConfiguration.enterpriseCustomerUuid,
-          );
-          const requests = camelCaseObject(results);
-          setCouponCodeRequests(requests);
-        } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
-          const { data: { results } } = await fetchLicenseRequests(
-            subsidyRequestConfiguration.enterpriseCustomerUuid,
-          );
-          const requests = camelCaseObject(results);
-          setLicenseRequests(requests);
-        }
-      } catch (error) {
-        logError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchSubsidyRequests = async (subsidyType) => {
+    setIsLoading(true);
+    try {
+      const { email: userEmail } = getAuthenticatedUser();
+      const { enterpriseCustomerUuid: enterpriseUUID } = subsidyRequestConfiguration;
 
+      const options = {
+        enterpriseUUID,
+        userEmail,
+        state: SUBSIDY_REQUEST_STATE.REQUESTED,
+      };
+
+      if (subsidyType === SUBSIDY_TYPE.COUPON) {
+        const { data: { results } } = await fetchCouponCodeRequests(options);
+        const requests = camelCaseObject(results);
+        setCouponCodeRequests(requests);
+      } if (subsidyType === SUBSIDY_TYPE.LICENSE) {
+        const { data: { results } } = await fetchLicenseRequests(options);
+        const requests = camelCaseObject(results);
+        setLicenseRequests(requests);
+      }
+    } catch (error) {
+      logError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadSubsidyRequests = useCallback(() => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
       const { subsidyType } = subsidyRequestConfiguration;
       if (subsidyType) {
         fetchSubsidyRequests(subsidyType);
       }
     }
-  }, [subsidyRequestConfiguration?.subsidyRequestsEnabled]);
+  }, [subsidyRequestConfiguration]);
+
+  useEffect(() => {
+    loadSubsidyRequests();
+  }, [
+    subsidyRequestConfiguration?.subsidyRequestsEnabled,
+    subsidyRequestConfiguration?.subsidyType,
+  ]);
 
   return {
     couponCodeRequests,
     licenseRequests,
     isLoading,
+    refreshSubsidyRequests: loadSubsidyRequests,
   };
-}
+};
+
+export const useCatalogsForSubsidyRequests = ({
+  subsidyRequestConfiguration,
+  isLoadingSubsidyRequestConfiguration,
+  customerAgreementConfig,
+}) => {
+  const [catalogs, setCatalogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getCatalogs = async () => {
+      if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
+        try {
+          const response = await fetchCouponsOverview(
+            { enterpriseId: subsidyRequestConfiguration.enterpriseCustomerUuid },
+          );
+          const { results } = camelCaseObject(response.data);
+          const catalogsFromCoupons = results.map(coupon => coupon.enterpriseCatalogUuid);
+          setCatalogs(new Set(catalogsFromCoupons));
+        } catch (error) {
+          logError(error);
+        }
+      }
+
+      if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
+        const catalogsFromSubscriptions = customerAgreementConfig.subscriptions.map(
+          subscription => subscription.enterpriseCatalogUuid,
+        );
+        setCatalogs(new Set(catalogsFromSubscriptions));
+      }
+
+      setIsLoading(false);
+    };
+
+    if (!isLoadingSubsidyRequestConfiguration) {
+      if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
+        getCatalogs();
+        return;
+      }
+
+      if (isLoading) {
+        setIsLoading(false);
+      }
+    }
+  }, [isLoadingSubsidyRequestConfiguration, subsidyRequestConfiguration]);
+
+  return {
+    catalogs,
+    isLoading,
+  };
+};

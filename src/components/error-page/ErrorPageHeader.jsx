@@ -12,11 +12,14 @@ import { getConfig } from '@edx/frontend-platform/config';
 /**
  * React component for the invite page error case. Renders a minimal header
  * with just a logo that is not linked.
+ *
+ * This component also acts as a message page for the logout case, hence adding some checks for
+ * non existent variables.
  */
 const ErrorPageHeader = () => {
   const config = getConfig();
   const authenticatedUser = getAuthenticatedUser();
-  const { username, profileImage } = authenticatedUser;
+  const { username, profileImage } = authenticatedUser || { username: '', profileImage: '' };
 
   return (
     <header>
@@ -33,17 +36,20 @@ const ErrorPageHeader = () => {
             <a href={config.LEARNER_SUPPORT_URL} className="text-gray-700 mr-3">
               Help
             </a>
-            <Dropdown>
-              <Dropdown.Toggle showLabel as={AvatarButton} src={profileImage.imageUrlMedium}>
-                {username}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                style={{ maxWidth: 280 }}
-                alignRight
-              >
-                <Dropdown.Item href={`${config.LOGOUT_URL}?next=${global.location}`}>Sign out</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            {/* this section makes sense only if the user is logged in */}
+            {username && (
+              <Dropdown>
+                <Dropdown.Toggle showLabel as={AvatarButton} src={profileImage?.imageUrlMedium}>
+                  {username}
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  style={{ maxWidth: 280 }}
+                  alignRight
+                >
+                  <Dropdown.Item href={`${config.LOGOUT_URL}?next=${global.location}`}>Sign out</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
           </nav>
         </Container>
       </Navbar>

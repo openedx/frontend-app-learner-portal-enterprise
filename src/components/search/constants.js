@@ -5,10 +5,13 @@ import { features } from '../../config';
 export const NUM_RESULTS_PER_PAGE = 24;
 export const CONTENT_TYPE_COURSE = 'course';
 export const CONTENT_TYPE_PROGRAM = 'program';
+export const CONTENT_TYPE_PATHWAY = 'learnerpathway';
 export const NUM_RESULTS_PROGRAM = 4;
+export const NUM_RESULTS_PATHWAY = 4;
 export const NUM_RESULTS_COURSE = 20;
 export const COURSE_TITLE = 'Courses';
 export const PROGRAM_TITLE = 'Programs';
+export const PATHWAY_TITLE = 'Pathways';
 export const HEADER_TITLE = 'Search Courses and Programs';
 
 const OVERRIDE_FACET_FILTERS = [];

@@ -7,15 +7,15 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import { Container, Row } from '@edx/paragon';
 
-import SearchCourseCard from './SearchCourseCard';
-import SearchProgramCard from './SearchProgramCard';
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import {
-  CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM, PROGRAM_TITLE, NUM_RESULTS_PROGRAM, NUM_RESULTS_COURSE,
+  CONTENT_TYPE_PATHWAY,
+  PROGRAM_TITLE,
 } from './constants';
+import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 
 const SearchResults = ({
   searchResults,
@@ -29,7 +29,6 @@ const SearchResults = ({
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
   const linkText = `Show (${nbHits}) >`;
-  const NUMBER_RESULTS = title === PROGRAM_TITLE ? NUM_RESULTS_PROGRAM : NUM_RESULTS_COURSE;
 
   // To prevent from showing same error twice, we only render the StatusAlert when course results are zero */
   const showMessage = (type, heading) => {
@@ -43,11 +42,7 @@ const SearchResults = ({
   };
 
   const clickHandler = () => {
-    if (title === PROGRAM_TITLE) {
-      dispatch(setRefinementAction('content_type', [CONTENT_TYPE_PROGRAM]));
-    } else {
-      dispatch(setRefinementAction('content_type', [CONTENT_TYPE_COURSE]));
-    }
+    dispatch(setRefinementAction('content_type', [getContentTypeFromTitle(title)]));
   };
 
   const query = useMemo(
@@ -115,9 +110,9 @@ const SearchResults = ({
           <>
             <Skeleton className="lead mb-4" width={160} />
             <Row>
-              {[...Array(NUMBER_RESULTS).keys()].map(resultNum => (
+              {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => (
                 <div key={resultNum} className="skeleton-course-card">
-                  { title === PROGRAM_TITLE ? (<SearchProgramCard.Skeleton />) : (<SearchCourseCard.Skeleton />)}
+                  {getSkeletonCardFromTitle(title)}
                 </div>
               ))}
             </Row>
@@ -133,7 +128,7 @@ const SearchResults = ({
             )}
           </>
         )}
-        {!isSearchStalled && nbHits === 0 && (
+        {!isSearchStalled && nbHits === 0 && getContentTypeFromTitle(title) !== CONTENT_TYPE_PATHWAY && (
           <SearchNoResults title={title} />
         )}
         {!isSearchStalled && isDefinedAndNotNull(error) && showMessage(contentType, title) && (

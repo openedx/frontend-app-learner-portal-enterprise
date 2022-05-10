@@ -11,30 +11,31 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import classNames from 'classnames';
 
 import PathwayModal from './PathwayModal';
+import { MAX_VISIBLE_SKILLS_PATHWAY } from './constants';
 
-// This function is for filtering list of tags in a way that returning list
+// This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
-const filterTags = tags => {
-  // This is the maximum allowed length a tag can have.
-  const singleTagSizeLimit = 45;
+const filterSkillNames = skillNames => {
+  // This is the maximum allowed length a skillNames can have.
+  const singleSkillNameSizeLimit = 40;
   const offset = 5;
 
-  // this is the maximum cumulative length of all the tags. We need this to make sure there are maximum 2
-  // rows of tags in each pathway card.
-  let cumulativeTaglimit = 90;
-  const tagsToReturn = [];
-  for (let i = 0; i < tags.length; i++) {
-    const tag = tags[i];
+  // this is the maximum cumulative length of all the skillNames. We need this to make sure there are maximum 2
+  // rows of skillNames in each pathway card.
+  let cumulativeSkillLimit = 90;
+  const skillsToReturn = [];
+  for (let i = 0; i < skillNames.length; i++) {
+    const skillName = skillNames[i];
 
-    // Only include tags if tag length does not exceed tag-size-limit or the cumulative tag limit.
-    if (tag.length < singleTagSizeLimit && tag.length <= cumulativeTaglimit) {
-      tagsToReturn.push(tag);
+    // Only include skillNames if skillName length doesn't exceed skillName-size-limit or the cumulative skillName limit
+    if (skillName.length < singleSkillNameSizeLimit && skillName.length <= cumulativeSkillLimit) {
+      skillsToReturn.push(skillName);
 
-      cumulativeTaglimit -= (tag.length + offset);
+      cumulativeSkillLimit -= (skillName.length + offset);
     }
   }
 
-  return tagsToReturn;
+  return skillsToReturn;
 };
 
 const SearchPathwayCard = ({ hit, isLoading }) => {
@@ -43,12 +44,14 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
 
   const pathway = hit ? camelCaseObject(hit) : {};
 
+  const pathwayUuid = Object.keys(pathway).length ? pathway.aggregationKey.split(':').pop() : undefined;
+
   const linkToPathway = useMemo(
     () => {
       if (!Object.keys(pathway).length) {
         return '#';
       }
-      return `#pathway-${pathway.uuid}`;
+      return `#pathway-${pathwayUuid}`;
     },
     [isLoading, JSON.stringify(pathway)],
   );
@@ -60,7 +63,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
       aria-label={pathway.title}
     >
       <PathwayModal
-        learnerPathwayUuid={pathway.uuid}
+        learnerPathwayUuid={pathwayUuid}
         isOpen={isLearnerPathwayModalOpen}
         onClose={onClose}
       />
@@ -77,7 +80,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
               position: pathway.position,
               index: getConfig().ALGOLIA_INDEX_NAME,
               queryID: pathway.queryId,
-              pathwayUUID: pathway.uuid,
+              pathwayUUID: pathwayUuid,
             },
           );
         }}
@@ -116,17 +119,17 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
             {isLoading ? (
               <Skeleton duration={0} data-testid="content-type-loading" />
             ) : (
-              <div className="d-flex pathway-tags">
-                {pathway.tags && filterTags(pathway.tags).map(
-                  tag => (
+              <div className="d-flex pathway-skill-names">
+                {pathway.skillNames && filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(
+                  skillName => (
                     <Badge
                       variant="light"
-                      key={tag}
+                      key={skillName}
                       className={classNames(
                         'pathway-badge d-flex justify-content-center align-items-center mb-2',
                       )}
                     >
-                      <span className="badge-text"> {tag}</span>
+                      <span className="badge-text"> {skillName}</span>
                     </Badge>
                   ),
                 )}
@@ -146,10 +149,10 @@ const SkeletonPathwayCard = (props) => (
 
 SearchPathwayCard.propTypes = {
   hit: PropTypes.shape({
-    uuid: PropTypes.string,
-    cardImageUrl: PropTypes.string,
+    aggregation_key: PropTypes.string,
+    card_image_url: PropTypes.string,
     title: PropTypes.string,
-    tags: PropTypes.arrayOf(PropTypes.string),
+    skill_names: PropTypes.arrayOf(PropTypes.string),
   }),
   isLoading: PropTypes.bool,
 };

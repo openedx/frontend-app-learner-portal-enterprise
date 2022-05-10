@@ -1,40 +1,65 @@
-import React, {
-  useContext, createContext, useMemo,
-} from 'react';
+import React, { useContext, createContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
-import { useSubsidyRequestConfiguration, useSubsidyRequests } from './data/hooks';
+import {
+  useCatalogsForSubsidyRequests,
+  useSubsidyRequestConfiguration,
+  useSubsidyRequests,
+} from './data/hooks';
 import { features } from '../../config';
 import { LoadingSpinner } from '../loading-spinner';
-import { LOADING_SCREEN_READER_TEXT } from './constants';
+import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from './constants';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 export const SubsidyRequestsContext = createContext();
 
 const SubsidyRequestsContextProvider = ({ children }) => {
   const {
     enterpriseConfig: {
-      uuid,
+      uuid: enterpriseUUID,
     },
   } = useContext(AppContext);
 
-  const { subsidyRequestConfiguration, isLoading: isLoadingConfiguration } = useSubsidyRequestConfiguration(uuid);
+  const {
+    subsidyRequestConfiguration,
+    isLoading: isLoadingSubsidyRequestConfiguration,
+  } = useSubsidyRequestConfiguration(enterpriseUUID);
 
   const {
     couponCodeRequests,
     licenseRequests,
+    refreshSubsidyRequests,
     isLoading: isLoadingSubsidyRequests,
   } = useSubsidyRequests(subsidyRequestConfiguration);
-  const isLoading = isLoadingConfiguration || isLoadingSubsidyRequests;
+
+  const { customerAgreementConfig } = useContext(UserSubsidyContext);
+  const {
+    catalogs: catalogsForSubsidyRequests,
+    isLoading: isLoadingCatalogsForSubsidyRequests,
+  } = useCatalogsForSubsidyRequests({
+    subsidyRequestConfiguration,
+    isLoadingSubsidyRequestConfiguration,
+    customerAgreementConfig,
+  });
+
+  const isLoading = isLoadingSubsidyRequestConfiguration
+   || isLoadingSubsidyRequests || isLoadingCatalogsForSubsidyRequests;
+
+  const requestsBySubsidyType = useMemo(() => ({
+    [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+    [SUBSIDY_TYPE.COUPON]: couponCodeRequests,
+  }), [licenseRequests, couponCodeRequests]);
 
   const context = useMemo(() => ({
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
+    requestsBySubsidyType,
+    refreshSubsidyRequests,
+    catalogsForSubsidyRequests,
   }), [
     subsidyRequestConfiguration,
-    licenseRequests,
-    couponCodeRequests,
+    requestsBySubsidyType,
+    catalogsForSubsidyRequests,
   ]);
 
   if (isLoading) {
@@ -57,12 +82,15 @@ const SubsidyRequestsContextProviderWrapper = (props) => {
     return <SubsidyRequestsContextProvider {...props} />;
   }
 
-  const context = {
+  const context = useMemo(() => ({
     subsidyRequestConfiguration: null,
-    licenseRequests: [],
-    couponCodeRequests: [],
+    requestsBySubsidyType: {
+      [SUBSIDY_TYPE.LICENSE]: [],
+      [SUBSIDY_TYPE.COUPON]: [],
+    },
     isLoading: false,
-  };
+    catalogsForSubsidyRequests: [],
+  }), []);
 
   return (
     <SubsidyRequestsContext.Provider value={context}>

@@ -5,7 +5,6 @@ import BaseCourseCard from './BaseCourseCard';
 
 import { COURSE_STATUSES } from '../data/constants';
 
-// Partial implementation
 const RequestedCourseCard = (props) => (
   <BaseCourseCard
     type={COURSE_STATUSES.requested}
@@ -19,7 +18,7 @@ RequestedCourseCard.propTypes = {
   courseRunId: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
-  isRevoked: PropTypes.bool.isRequired,
+  isRevoked: PropTypes.bool,
   courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
 };
@@ -27,6 +26,7 @@ RequestedCourseCard.propTypes = {
 RequestedCourseCard.defaultProps = {
   linkToCertificate: null,
   endDate: null,
+  isRevoked: false,
 };
 
 export default RequestedCourseCard;

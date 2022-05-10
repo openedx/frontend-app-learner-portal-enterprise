@@ -16,7 +16,7 @@ import {
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
 
 /* eslint-disable react/prop-types */
 const DashboardSidebarWithContext = ({
@@ -24,8 +24,11 @@ const DashboardSidebarWithContext = ({
   initialUserSubsidyState = {},
   initialSubsidyRequestsState = {
     subsidyRequestConfiguration: {},
-    licenseRequests: [],
-    couponCodeRequests: [],
+    requestsBySubsidyType: {
+      [SUBSIDY_TYPE.LICENSE]: [],
+      [SUBSIDY_TYPE.COUPON]: [],
+    },
+
   },
   initialCourseEnrollmentsState = {
     courseEnrollmentsByStatus: {},
@@ -54,7 +57,10 @@ describe('<DashboardSidebar />', () => {
     },
   };
   const initialAppState = {
-    enterpriseConfig: { contactEmail: 'foo@foo.com' },
+    enterpriseConfig: {
+      contactEmail: 'foo@foo.com',
+      adminUsers: [{ email: 'admin@foo.com' }],
+    },
     name: 'Bears Inc.',
   };
   const userSubsidyStateWithSubscription = {
@@ -85,13 +91,14 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
         initialSubsidyRequestsState={{
-          isLoading: false,
-          couponCodeRequests: [
-            {
-              state: SUBSIDY_REQUEST_STATE.REQUESTED,
-            },
-          ],
-          licenseRequests: [],
+          requestsBySubsidyType: {
+            [SUBSIDY_TYPE.LICENSE]: [],
+            [SUBSIDY_TYPE.COUPON]: [
+              {
+                state: SUBSIDY_REQUEST_STATE.REQUESTED,
+              },
+            ],
+          },
         }}
       />,
     );
@@ -121,13 +128,14 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
         initialSubsidyRequestsState={{
-          isLoading: false,
-          couponCodeRequests: [],
-          licenseRequests: [
-            {
-              state: SUBSIDY_REQUEST_STATE.REQUESTED,
-            },
-          ],
+          requestsBySubsidyType: {
+            [SUBSIDY_TYPE.LICENSE]: [
+              {
+                state: SUBSIDY_REQUEST_STATE.REQUESTED,
+              },
+            ],
+            [SUBSIDY_TYPE.COUPON]: [],
+          },
         }}
       />,
     );
@@ -162,7 +170,7 @@ describe('<DashboardSidebar />', () => {
   test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
-        initialAppState={{ enterpriseConfig: { slug: 'sluggykins' } }}
+        initialAppState={{ enterpriseConfig: { slug: 'sluggykins', adminUsers: [] } }}
         initialUserSubsidyState={defaultUserSubsidyState}
       />,
     );
@@ -172,7 +180,7 @@ describe('<DashboardSidebar />', () => {
   test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
-        initialAppState={{ enterpriseConfig: { disableSearch: true } }}
+        initialAppState={{ enterpriseConfig: { disableSearch: true, adminUsers: [] } }}
         initialUserSubsidyState={userSubsidyStateWithSubscription}
       />,
     );

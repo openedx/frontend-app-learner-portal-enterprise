@@ -1,8 +1,11 @@
-import React, { createContext, useReducer } from 'react';
+import React, {
+  createContext, useReducer, useMemo, useContext,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
   SET_COURSE_RUN,
 } from './data/constants';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 export const CourseContext = createContext();
 
@@ -16,8 +19,23 @@ const reducer = (state, action) => {
 };
 
 export function CourseContextProvider({ children, initialState }) {
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
   const [state, dispatch] = useReducer(reducer, initialState);
-  const value = { state, dispatch };
+  const { catalog } = state;
+
+  const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
+    const catalogsContainingCourse = new Set(catalog.catalogList);
+    const subsidyRequestCatalogIntersection = new Set(
+      [...catalogsForSubsidyRequests].filter(el => catalogsContainingCourse.has(el)),
+    );
+    return subsidyRequestCatalogIntersection;
+  }, [catalog, catalogsForSubsidyRequests]);
+
+  const value = useMemo(() => ({
+    state,
+    dispatch,
+    subsidyRequestCatalogsApplicableToCourse,
+  }), [state, subsidyRequestCatalogsApplicableToCourse]);
 
   return (
     <CourseContext.Provider value={value}>
@@ -40,5 +58,6 @@ CourseContextProvider.propTypes = {
     userEntitlements: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
     userSubsidyApplicableToCourse: PropTypes.shape({}),
     catalog: PropTypes.shape({}).isRequired,
+    courseRecommendations: PropTypes.shape({}).isRequired,
   }).isRequired,
 };

@@ -9,7 +9,8 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
@@ -20,6 +21,7 @@ import {
   isCourseSelfPaced,
   findOfferForCourse,
   hasLicenseSubsidy,
+  getSubsidyToApplyForCourse,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -27,36 +29,101 @@ import {
   CURRENCY_USD,
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
+import { pushEnrollmentClickEvent } from '../../../utils/optimizely';
 
-export function useAllCourseData({ courseKey, enterpriseConfig, courseRunKey }) {
+// How long to delay an event, so that we allow enough time for any async analytics event call to resolve
+const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
+
+export function useAllCourseData({
+  courseKey,
+  enterpriseConfig,
+  courseRunKey,
+  subscriptionLicense,
+  offers,
+}) {
+  const [isLoading, setIsLoading] = useState(false);
   const [courseData, setCourseData] = useState();
+  const [courseRecommendations, setCourseRecommendations] = useState();
   const [fetchError, setFetchError] = useState();
 
   // todo: this could get refactored, but since we already fetch offers
   // we simply pass offers along to the `fetchAllCourseData` call to 'fetch' it back
-  const { offers: { offers } } = useContext(UserSubsidyContext);
-
   useEffect(() => {
     const fetchData = async () => {
-      if (courseKey && enterpriseConfig) {
-        const courseService = new CourseService({
-          enterpriseUuid: enterpriseConfig.uuid,
-          courseKey,
-          courseRunKey,
-        });
-        try {
-          const data = await courseService.fetchAllCourseData({ offers });
-          setCourseData(data);
-        } catch (error) {
-          logError(error);
-          setFetchError(error);
-        }
+      if (!courseKey || !enterpriseConfig) {
+        return;
       }
-      return undefined;
+      setIsLoading(true);
+
+      const courseService = new CourseService({
+        enterpriseUuid: enterpriseConfig.uuid,
+        courseKey,
+        courseRunKey,
+      });
+
+      try {
+        const data = await courseService.fetchAllCourseData();
+
+        const {
+          catalog: {
+            containsContentItems,
+            catalogList: catalogsWithCourse,
+          },
+        } = data;
+
+        let userSubsidyApplicableToCourse = null;
+
+        if (containsContentItems) {
+          let licenseForCourse = null;
+
+          if (subscriptionLicense) {
+            // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+            try {
+              const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
+              licenseForCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
+            } catch (error) {
+              const httpErrorStatus = error.customAttributes?.httpErrorStatus;
+              // 404 means the user's license is not applicable for the course, do nothing
+              if (httpErrorStatus !== 404) {
+                logError(error);
+                setFetchError(error);
+              }
+            }
+          }
+
+          userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
+            applicableSubscriptionLicense: licenseForCourse,
+            applicableOffer: findOfferForCourse(offers, catalogsWithCourse),
+          });
+        }
+
+        setCourseData({
+          ...data,
+          userSubsidyApplicableToCourse,
+        });
+      } catch (error) {
+        logError(error);
+        setFetchError(error);
+      }
+
+      try {
+        const data = await courseService.fetchAllCourseRecommendations();
+        setCourseRecommendations(data);
+      } catch (error) {
+        logError(error);
+        setCourseRecommendations([]);
+      }
+      setIsLoading(false);
     };
     fetchData();
   }, [courseKey, enterpriseConfig]);
-  return [camelCaseObject(courseData), fetchError];
+
+  return {
+    courseData: camelCaseObject(courseData),
+    courseRecommendations: camelCaseObject(courseRecommendations),
+    fetchError,
+    isLoading,
+  };
 }
 
 export function useCourseSubjects(course) {
@@ -380,14 +447,13 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
     },
   } = useContext(CourseContext);
   const { enterpriseConfig } = useContext(AppContext);
-  const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;
       if (!queryId || !objectId) {
         return;
       }
-      // if tracking is on a link with an external href destination, we must intentionally delay the default click
+      // If tracking is on a link with an external href destination, we must intentionally delay the default click
       // behavior to allow enough time for the async analytics event call to resolve.
       if (href) {
         e.preventDefault();
@@ -411,3 +477,77 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
 
   return handleClick;
 };
+
+/**
+ * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
+ *
+ * @returns Click handler function for clicks on enrollment buttons.
+ */
+export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
+  const {
+    state: {
+      activeCourseRun: { key: courseKey },
+    },
+  } = useContext(CourseContext);
+  const handleClick = useCallback(
+    (e) => {
+      // If tracking is on a link with an external href destination, we must intentionally delay the default click
+      // behavior to allow enough time for the async analytics event call to resolve.
+      if (href) {
+        e.preventDefault();
+        setTimeout(() => {
+          global.location.href = href;
+        }, CLICK_DELAY_MS);
+      }
+      pushEnrollmentClickEvent({
+        courseKey,
+      });
+    },
+    [courseKey],
+  );
+
+  return handleClick;
+};
+
+/**
+ * Returns `true` if user has made a subsidy request.
+ *
+ * Returns `false` if:
+ *  - Subsidy request has not been configured
+ *  - No requests are found under the configured `SUBSIDY_TYPE`
+ *
+ * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
+ * to only return true if courseKey is in one of the requests
+ *
+ * @param {string} [courseKey] - optional filter for specific course
+ * @returns {boolean}
+ */
+export function useUserHasSubsidyRequestForCourse(courseKey) {
+  const {
+    subsidyRequestConfiguration,
+    requestsBySubsidyType,
+  } = useContext(SubsidyRequestsContext);
+
+  return useMemo(() => {
+    if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
+      return false;
+    }
+    switch (subsidyRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE: {
+        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
+      }
+      case SUBSIDY_TYPE.COUPON: {
+        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
+          request => (!courseKey || request.courseId === courseKey),
+        );
+        return !!foundCouponRequest;
+      }
+      default:
+        return false;
+    }
+  }, [
+    courseKey,
+    subsidyRequestConfiguration,
+    requestsBySubsidyType,
+  ]);
+}

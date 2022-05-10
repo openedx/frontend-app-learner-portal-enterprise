@@ -4,14 +4,21 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { CourseContextProvider } from '../CourseContextProvider';
 import CreatedBy from '../CreatedBy';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 import { TEST_OWNER, TEST_STAFF } from './data/constants';
 
+const initialSubsidyRequestsState = {
+  catalogsForSubsidyRequests: new Set(),
+};
+
 // eslint-disable-next-line react/prop-types
 const CreatedByWithCourseContext = ({ initialState = {} }) => (
-  <CourseContextProvider initialState={initialState}>
-    <CreatedBy />
-  </CourseContextProvider>
+  <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+    <CourseContextProvider initialState={initialState}>
+      <CreatedBy />
+    </CourseContextProvider>
+  </SubsidyRequestsContext.Provider>
 );
 
 describe('<CreatedBy />', () => {
@@ -42,6 +49,7 @@ describe('<CreatedBy />', () => {
     userEnrollments: [],
     userEntitlements: [],
     catalog: {},
+    courseRecommendations: {},
   };
 
   test('renders partner info', () => {

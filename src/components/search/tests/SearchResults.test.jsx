@@ -9,13 +9,22 @@ import SearchProgramCard from '../SearchProgramCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import {
-  NUM_RESULTS_PROGRAM, NUM_RESULTS_COURSE, COURSE_TITLE, PROGRAM_TITLE, CONTENT_TYPE_COURSE, CONTENT_TYPE_PROGRAM,
+  NUM_RESULTS_PROGRAM,
+  NUM_RESULTS_COURSE,
+  COURSE_TITLE,
+  PROGRAM_TITLE,
+  CONTENT_TYPE_COURSE,
+  CONTENT_TYPE_PROGRAM,
+  PATHWAY_TITLE, CONTENT_TYPE_PATHWAY, NUM_RESULTS_PATHWAY,
 } from '../constants';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 
 import {
   renderWithRouter,
 } from '../../../utils/tests';
+import SearchPathwayCard from '../../pathway/SearchPathwayCard';
+import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
@@ -69,13 +78,20 @@ const initialUserSubsidyState = {
   offers: defaultOffersState,
 };
 
+const initialSubsidyRequestsState = {
+  subsidyRequestConfiguration: null,
+  catalogsForSubsidyRequests: [],
+};
+
 /* eslint-enable react/prop-types */
 const SearchResultsWithContext = (props) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SearchContext.Provider value={searchContext}>
-        <SearchResults {...props} />
-      </SearchContext.Provider>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <SearchContext.Provider value={searchContext}>
+          <SearchResults {...props} />
+        </SearchContext.Provider>
+      </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -162,6 +178,20 @@ describe('<SearchResults />', () => {
     expect(screen.getByText('HIT')).toBeInTheDocument();
   });
 
+  test('renders correct results for pathways', () => {
+    const propsForPathwayResults = {
+      ...propsForCourseResults,
+      hitComponent: SearchPathwayCard,
+      title: PATHWAY_TITLE,
+      contentType: CONTENT_TYPE_PATHWAY,
+    };
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForPathwayResults} />,
+    );
+    // Algolia Hits widget is mocked to return 'HIT'
+    expect(screen.getByText('HIT')).toBeInTheDocument();
+  });
+
   test('renders loading component for courses correctly when search is stalled', () => {
     const propsForLoadingCourses = { ...propsForCourseResults, isSearchStalled: true };
     renderWithRouter(
@@ -186,47 +216,80 @@ describe('<SearchResults />', () => {
     expect(elements.length).toEqual(NUM_RESULTS_PROGRAM);
   });
 
+  test('renders loading component for pathways correctly when search is stalled', () => {
+    const propsForLoadingPathway = {
+      ...propsForCourseResults,
+      isSearchStalled: true,
+      hitComponent: SearchPathwayCard,
+      title: PATHWAY_TITLE,
+      contentType: CONTENT_TYPE_PATHWAY,
+    };
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForLoadingPathway} />,
+    );
+    const elements = screen.queryAllByTestId('pathway-title-loading');
+    expect(elements.length).toEqual(NUM_RESULTS_PATHWAY);
+  });
+
   test('renders an alert in case of an error for courses', () => {
-    const errorMessageTitle = 'An error occured while finding courses that match your search.';
-    const errorMessageContent = 'Please try again later.';
+    const searchErrorMessage = getSearchErrorMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForError} />,
     );
-    expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of an error for programs', () => {
     const propsForErrorProgram = { ...propsForError, contentType: CONTENT_TYPE_PROGRAM, title: PROGRAM_TITLE };
-    const errorMessageTitle = 'An error occured while finding programs that match your search.';
-    const errorMessageContent = 'Please try again later.';
+    const searchErrorMessage = getSearchErrorMessage(PROGRAM_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForErrorProgram} />,
     );
-    expect(screen.getByText(new RegExp(errorMessageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(errorMessageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
+  });
+
+  test('renders an alert in case of an error for pathways', () => {
+    const propsForErrorPathway = { ...propsForError, contentType: CONTENT_TYPE_PATHWAY, title: PATHWAY_TITLE };
+    const searchErrorMessage = getSearchErrorMessage(PATHWAY_TITLE);
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForErrorPathway} />,
+    );
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(searchErrorMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of no results for courses', () => {
-    const messageTitle = 'No courses were found to match your search results.';
-    const messageContent = 'Check out some popular courses below.';
+    const noResultsMessage = getNoResultsMessage(COURSE_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResults} />,
     );
-    expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
   });
 
   test('renders an alert in case of no results for programs', () => {
     const propsForNoResultsProgram = {
       ...propsForNoResults, hitComponent: SearchProgramCard, title: PROGRAM_TITLE, contentType: CONTENT_TYPE_PROGRAM,
     };
-    const messageTitle = 'No programs were found to match your search results.';
-    const messageContent = 'Check out some popular programs below.';
+    const noResultsMessage = getNoResultsMessage(PROGRAM_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResultsProgram} />,
     );
-    expect(screen.getByText(new RegExp(messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(messageContent, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
+    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
+  });
+
+  test('does not render an alert in case of no results for pathways', () => {
+    const propsForNoResultsPathway = {
+      ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
+    };
+    const noResultsMessage = getNoResultsMessage(PATHWAY_TITLE);
+    renderWithRouter(
+      <SearchResultsWithContext {...propsForNoResultsPathway} />,
+    );
+    expect(screen.queryByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeNull();
+    expect(screen.queryByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeNull();
   });
 });

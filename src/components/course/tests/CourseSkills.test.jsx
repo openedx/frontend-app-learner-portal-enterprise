@@ -1,9 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '../../../utils/tests';
 
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseSkills, { MAX_VISIBLE_SKILLS } from '../CourseSkills';
 import { generateRandomSkills, generateRandomString } from './testUtils';
@@ -11,18 +13,43 @@ import { generateRandomSkills, generateRandomString } from './testUtils';
 import { SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR } from '../data/constants';
 import { shortenString } from '../data/utils';
 
-/* eslint-disable react/prop-types */
+const baseCourseState = {
+  activeCourseRun: {},
+  userEnrollments: [],
+  userEntitlements: [],
+  courseRecommendations: {},
+  catalog: { catalogList: [] },
+};
+
+const baseSubsidyRequestContextValue = {
+  catalogsForSubsidyRequests: new Set(),
+};
+
 const CourseSkillsWithContext = ({
-  initialAppState = {},
-  initialCourseState = {},
+  initialAppState,
+  initialCourseState,
+  initialSubsidyRequestContextValue,
 }) => (
   <AppContext.Provider value={initialAppState}>
-    <CourseContextProvider initialState={initialCourseState}>
-      <CourseSkills />
-    </CourseContextProvider>
+    <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
+      <CourseContextProvider initialState={initialCourseState}>
+        <CourseSkills />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
+
+CourseSkillsWithContext.propTypes = {
+  initialAppState: PropTypes.shape(),
+  initialCourseState: PropTypes.shape(),
+  initialSubsidyRequestContextValue: PropTypes.shape(),
+};
+
+CourseSkillsWithContext.defaultProps = {
+  initialAppState: {},
+  initialCourseState: {},
+  initialSubsidyRequestContextValue: baseSubsidyRequestContextValue,
+};
 
 describe('<CourseSkills />', () => {
   const initialAppState = {
@@ -31,6 +58,7 @@ describe('<CourseSkills />', () => {
     },
   };
   const initialCourseState = {
+    ...baseCourseState,
     course: {
       skills: generateRandomSkills(MAX_VISIBLE_SKILLS),
     },

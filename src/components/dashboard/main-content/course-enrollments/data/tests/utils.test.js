@@ -1,5 +1,7 @@
+import { camelCaseObject } from '@edx/frontend-platform';
+
 import { COURSE_STATUSES } from '../constants';
-import { transformCourseEnrollment, groupCourseEnrollmentsByStatus } from '../utils';
+import { transformCourseEnrollment, groupCourseEnrollmentsByStatus, transformSubsidyRequest } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 
 describe('transformCourseEnrollment', () => {
@@ -20,6 +22,42 @@ describe('transformCourseEnrollment', () => {
     };
 
     expect(transformCourseEnrollment(originalCourseEnrollment)).toEqual(transformedCourseEnrollment);
+  });
+});
+
+describe('transformSubsidyRequest', () => {
+  it('should transform a subsidy request', () => {
+    const slug = 'sluggy';
+    const subsidyRequest = {
+      uuid: 'uuid',
+      lms_user_id: 1,
+      email: 'edx@example.com',
+      course_id: 'edx+101',
+      course_title: 'edX 101',
+      course_partners: [{ name: 'edX' }, { name: 'Open edX' }],
+      enterprise_customer_uuid: 'enterprise-uuid',
+      state: 'requested',
+      reviewed_at: null,
+      reviewer_lms_user_id: null,
+      decline_reason: null,
+      created: '2016-03-03T18:55:59.671129Z',
+      modified: '2022-03-20T15:59:40.375739Z',
+      coupon_id: null,
+      coupon_code: null,
+    };
+    const subsidyRequestCamelCased = camelCaseObject(subsidyRequest);
+
+    const expectedTransformedSubsidyRequest = {
+      courseRunId: subsidyRequestCamelCased.courseId,
+      title: subsidyRequestCamelCased.courseTitle,
+      orgName: subsidyRequestCamelCased.coursePartners.map(partner => partner.name).join(', '),
+      courseRunStatus: COURSE_STATUSES.requested,
+      linkToCourse: `${slug}/course/${subsidyRequestCamelCased.courseId}`,
+      created: subsidyRequestCamelCased.created,
+      notifications: [],
+    };
+    const actualTransformedSubsidyRequest = transformSubsidyRequest({ subsidyRequest: subsidyRequestCamelCased, slug });
+    expect(actualTransformedSubsidyRequest).toEqual(expectedTransformedSubsidyRequest);
   });
 });
 

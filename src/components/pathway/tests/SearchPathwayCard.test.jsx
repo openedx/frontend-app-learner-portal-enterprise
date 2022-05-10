@@ -40,13 +40,13 @@ const SearchPathwayCardWithAppContext = (props) => (
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
 const TEST_TITLE = 'Test Title';
-const TEST_CARD_IMG_URL = 'http://fake.image';
+const TEST_CARD_IMAGE_URL = 'http://fake.image';
 
 const defaultProps = {
   hit: {
-    uuid: TEST_PATHWAY_UUID,
+    aggregation_key: `learner_pathway:${TEST_PATHWAY_UUID}`,
     title: TEST_TITLE,
-    card_image_url: TEST_CARD_IMG_URL,
+    card_image_url: TEST_CARD_IMAGE_URL,
   },
 };
 
@@ -65,7 +65,7 @@ describe('<SearchPathwayCard />', () => {
       'href',
       `/#pathway-${TEST_PATHWAY_UUID}`,
     );
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
 
     fireEvent.click(screen.getByText(TEST_TITLE));
     expect(screen.getByRole('dialog'));
@@ -79,13 +79,13 @@ describe('<SearchPathwayCard />', () => {
   });
 
   test('renders the tags correctly', () => {
-    const tag50CharactersLong = 'Tag 50 characters long.Tag 50 characters long.Tag 50 characters long.Tag 50 characters.';
-    const firstTag = 'Software Engineering';
-    const secondTag = 'Database Design Principles';
-    const thirdTag = 'Third final tag';
-    const fourthTag = 'Fourth tag that should not be displayed.';
-    defaultProps.hit.tags = [
-      tag50CharactersLong, firstTag, secondTag, thirdTag, fourthTag,
+    const skillName45CharactersLong = 'Tag 45 characters long.Tag 45 characters long.Tag 45 characters long.Tag 45 characters.';
+    const firstSkillName = 'Software Engineering';
+    const secondSkillName = 'Database Design Principles';
+    const thirdSkillName = 'Third final tag';
+    const fourthSkillName = 'Fourth tag that should not be displayed.';
+    defaultProps.hit.skillNames = [
+      skillName45CharactersLong, firstSkillName, secondSkillName, thirdSkillName, fourthSkillName,
     ];
     const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
 
@@ -95,11 +95,11 @@ describe('<SearchPathwayCard />', () => {
       'href',
       `/#pathway-${TEST_PATHWAY_UUID}`,
     );
-    expect(container.querySelector('.pathway-tags').getElementsByClassName('pathway-badge')).toHaveLength(3);
-    expect(container.querySelector('.pathway-tags').textContent).toContain(firstTag);
-    expect(container.querySelector('.pathway-tags').textContent).toContain(secondTag);
-    expect(container.querySelector('.pathway-tags').textContent).toContain(thirdTag);
-    expect(container.querySelector('.pathway-tags').textContent).not.toContain(fourthTag);
+    expect(container.querySelector('.pathway-skill-names').getElementsByClassName('pathway-badge')).toHaveLength(3);
+    expect(container.querySelector('.pathway-skill-names').textContent).toContain(firstSkillName);
+    expect(container.querySelector('.pathway-skill-names').textContent).toContain(secondSkillName);
+    expect(container.querySelector('.pathway-skill-names').textContent).toContain(thirdSkillName);
+    expect(container.querySelector('.pathway-skill-names').textContent).not.toContain(fourthSkillName);
   });
 
   test('renders the loading state', () => {

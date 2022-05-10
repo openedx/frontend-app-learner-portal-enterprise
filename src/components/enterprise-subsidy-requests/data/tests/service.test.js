@@ -7,6 +7,7 @@ import {
   fetchCouponCodeRequests,
   fetchLicenseRequests,
 } from '../service';
+import { SUBSIDY_REQUEST_STATE } from '../../constants';
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
@@ -14,8 +15,9 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 
 axiosMock.onAny().reply(200);
 axios.get = jest.fn();
-const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_API_BASE_URL}`;
+const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_BASE_URL}`;
 const mockEnterpriseUUID = 'test-enterprise-id';
+const mockEmail = 'edx@example.com';
 
 describe('fetchSubsidyRequestConfiguration', () => {
   it('fetches subsidy request configuration for the given enterprise', () => {
@@ -26,14 +28,36 @@ describe('fetchSubsidyRequestConfiguration', () => {
 
 describe('fetchLicenseRequests', () => {
   it('fetches license requests', () => {
-    fetchLicenseRequests(mockEnterpriseUUID);
-    expect(axios.get).toBeCalledWith(`${enterpriseAccessBaseUrl}/api/v1/license-requests/?enterprise_customer_uuid=${mockEnterpriseUUID}`);
+    fetchLicenseRequests({
+      enterpriseUUID: mockEnterpriseUUID,
+      userEmail: mockEmail,
+      state: SUBSIDY_REQUEST_STATE.DECLINED,
+    });
+    const queryParams = new URLSearchParams({
+      enterprise_customer_uuid: mockEnterpriseUUID,
+      user__email: mockEmail,
+      state: SUBSIDY_REQUEST_STATE.DECLINED,
+    });
+    expect(axios.get).toBeCalledWith(
+      `${enterpriseAccessBaseUrl}/api/v1/license-requests/?${queryParams.toString()}`,
+    );
   });
 });
 
 describe('fetchCouponCodeRequests', () => {
   it('fetches coupon code requests', () => {
-    fetchCouponCodeRequests(mockEnterpriseUUID);
-    expect(axios.get).toBeCalledWith(`${enterpriseAccessBaseUrl}/api/v1/coupon-code-requests/?enterprise_customer_uuid=${mockEnterpriseUUID}`);
+    fetchCouponCodeRequests({
+      enterpriseUUID: mockEnterpriseUUID,
+      userEmail: mockEmail,
+      state: SUBSIDY_REQUEST_STATE.REQUESTED,
+    });
+    const queryParams = new URLSearchParams({
+      enterprise_customer_uuid: mockEnterpriseUUID,
+      user__email: mockEmail,
+      state: SUBSIDY_REQUEST_STATE.REQUESTED,
+    });
+    expect(axios.get).toBeCalledWith(
+      `${enterpriseAccessBaseUrl}/api/v1/coupon-code-requests/?${queryParams.toString()}`,
+    );
   });
 });

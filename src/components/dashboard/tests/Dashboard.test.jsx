@@ -23,6 +23,8 @@ import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 
 const defaultOffersState = {
   offers: [],
@@ -37,6 +39,7 @@ const defaultAppState = {
     name: 'BearsRUs',
     uuid: 'BearsRUs',
     disableSearch: false,
+    adminUsers: [{ email: 'admin@foo.com' }],
   },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
@@ -77,6 +80,15 @@ const defaultCourseState = {
   },
 };
 
+const defaultSubsidyRequestState = {
+  subsidyRequestConfiguration: null,
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+  catalogsForSubsidyRequests: new Set(),
+};
+
 const mockWindowConfig = {
   type: 'screen',
   width: breakpoints.large.minWidth + 1,
@@ -95,14 +107,17 @@ const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialCourseState = defaultCourseState,
+  initialSubsidyRequestState = defaultSubsidyRequestState,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <CourseEnrollmentsContextProvider>
-        <CourseContextProvider initialState={initialCourseState}>
-          <Dashboard />
-        </CourseContextProvider>
-      </CourseEnrollmentsContextProvider>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <CourseEnrollmentsContextProvider>
+          <CourseContextProvider initialState={initialCourseState}>
+            <Dashboard />
+          </CourseContextProvider>
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -208,6 +223,7 @@ describe('<Dashboard />', () => {
         name: 'BearsRUs',
         uuid: 'BearsRUs',
         disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
       },
       config: {
         LMS_BASE_URL: process.env.LMS_BASE_URL,

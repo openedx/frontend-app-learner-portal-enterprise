@@ -1,12 +1,6 @@
 name: node_js CI
 
-on: 
-  push:
-    branches:
-    - 'master'
-  pull_request:
-    branches:
-    - '**'
+on: [pull_request]
 
 jobs:
   tests:

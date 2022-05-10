@@ -15,8 +15,21 @@
   }
 
   .card {
-    height: 270px;
+    height: 300px;
     box-shadow: $box-shadow;
+    overflow: hidden;
+  }
+
+  @media only screen and (min-width: 760px){
+    .card{
+      height: 320px;
+    }
+  }
+
+  @media only screen and (min-width: 1100px){
+    .card{
+      height: 300px;
+    }
   }
 
   .card-body {
@@ -65,7 +78,7 @@
     }
   }
 
-  .pathway-tags {
+  .pathway-skill-names {
     margin-top: 24px;
     width: 100%;
     flex-wrap: wrap;

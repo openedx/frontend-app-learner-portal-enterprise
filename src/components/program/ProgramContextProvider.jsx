@@ -14,6 +14,6 @@ export function ProgramContextProvider({ children, initialState }) {
 ProgramContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
   initialState: PropTypes.shape({
-    program: PropTypes.shape({}).isRequired,
+    programData: PropTypes.shape({}).isRequired,
   }).isRequired,
 };

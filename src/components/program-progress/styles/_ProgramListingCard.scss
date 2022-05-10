@@ -1,0 +1,100 @@
+.program-listing-card{
+  width: 100%;
+  max-width: 450px;
+  cursor: pointer;
+
+  .program-card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-bottom: 0px;
+  }
+  .program-progress{
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  border: none;
+  .progress-item{
+    display: flex;
+    div{
+      margin-right: .5rem;
+      border-radius: 50%;
+      height: 25px;
+      width: 25px;
+      text-align: center;
+      line-height: 1.3;
+      color: white;
+    }
+  }
+ }
+
+  .program-banner-image{
+    height :165px;
+    object-fit: cover;
+    background: white;
+  }
+
+  .program-type{
+    display: flex;
+    align-items: center;
+  }
+  .program-type-icon{
+    width: auto;
+    height: 17px;
+  }
+}
+.program-listing-card:hover{
+  box-shadow: 0 0.0625rem 0.125rem rgb(0 0 0 / 20%) !important;
+}
+
+.program-title{
+  color: #454545;
+}
+
+.remaining-courses{
+  background: gray !important;
+}
+
+.completed-courses{
+  background: #0D7D4D !important;
+}
+
+.in-progress-courses{
+  background: #04262B !important;
+}
+
+.no-programs-message{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  padding: 4% 10%;
+  justify-content: space-evenly;
+  border: 3px solid #e4e4e4;
+  background: #f8f8f8;
+}
+
+  .partner-logo-wrapper {
+    padding: 5px;
+    position: absolute;
+    top: 125px;
+    left: 20px;
+    background: #fff;
+    border-radius: 3px;
+
+    .partner-logo {
+      width: auto;
+      max-height: 45px;
+    }
+  }
+
+@media only screen and (max-width: 750px){
+  .program-progress{
+    display: flex;
+    flex-direction: column;
+  }
+  .progress-item{
+    margin-top: 5px;
+  }
+}
+

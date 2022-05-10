@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
+import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { useDefaultSearchFilters } from '../search/data/hooks';
@@ -102,7 +103,7 @@ const SkillsCourses = ({ index }) => {
         });
       }
     });
-    return coursesWithSkill;
+    return sortSkillsCoursesWithCourseCount(coursesWithSkill);
   }, [skillsWithSignificanceOrder]);
 
   return (
