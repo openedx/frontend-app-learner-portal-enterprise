@@ -13,7 +13,9 @@ import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 
-const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
+const SubsidiesSummary = ({
+  className, showSearchCoursesCta, totalCoursesNotStarted, courseEndDate, programProgressPage,
+}) => {
   const {
     enterpriseConfig: {
       slug,
@@ -54,12 +56,22 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
   }
 
   return (
-    <SidebarCard cardClassNames="border-primary border-brand-primary catalog-access-card mb-5">
+    <SidebarCard
+      cardBodyClassNames={
+        `${programProgressPage && 'border-remove'}`
+      }
+      cardClassNames={
+        `mb-5 ${programProgressPage ? 'col-8 border-remove'
+          : 'border-primary border-brand-primary catalog-access-card'}`
+      }
+    >
       <div className={className} data-testid="subsidies-summary">
         {hasActiveLicenseOrLicenseRequest && (
           <SubscriptionSummaryCard
             subscriptionPlan={subscriptionPlan}
             licenseRequest={licenseRequests[0]}
+            courseEndDate={courseEndDate}
+            programProgressPage={programProgressPage}
             className="mb-3"
           />
         )}
@@ -67,10 +79,12 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
           <OfferSummaryCard
             offersCount={offersCount}
             couponCodeRequestsCount={couponCodeRequests.length}
+            totalCoursesNotStarted={totalCoursesNotStarted}
+            programProgressPage={programProgressPage}
             className="mb-3"
           />
         )}
-        {!disableSearch && showSearchCoursesCta && (
+        {!programProgressPage && !disableSearch && showSearchCoursesCta && (
           <Button
             as={Link}
             to={`/${slug}/search`}
@@ -86,13 +100,19 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
 };
 
 SubsidiesSummary.propTypes = {
+  totalCoursesNotStarted: PropTypes.number,
+  courseEndDate: PropTypes.string,
   className: PropTypes.string,
   showSearchCoursesCta: PropTypes.bool,
+  programProgressPage: PropTypes.bool,
 };
 
 SubsidiesSummary.defaultProps = {
+  totalCoursesNotStarted: 0,
+  courseEndDate: undefined,
   className: undefined,
   showSearchCoursesCta: true,
+  programProgressPage: false,
 };
 
 export default SubsidiesSummary;

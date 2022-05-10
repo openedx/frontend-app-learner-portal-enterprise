@@ -1,0 +1,13 @@
+.add-between-space{
+    display: flex;
+    justifyContent: space-between;
+}
+
+.circle-color {
+    font-size:30px;
+    color:green
+}
+
+.courses > div:nth-of-type(even) {
+    background-color: rgb(251, 250, 249);
+}

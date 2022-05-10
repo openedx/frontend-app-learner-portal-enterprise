@@ -68,8 +68,14 @@ export const initialCourseState = ({
     queryId: undefined,
     objectId: undefined,
   },
+  courseRecommendations: {},
+  subsidyRequestCatalogsApplicableToCourse: new Set(),
 });
 
 export const A_100_PERCENT_OFFER = {
-  catalog: 'a-catalog', discountValue: 100, discountType: 'Percentage',
+  catalog: 'a-catalog',
+  discountValue: 100,
+  discountType: 'Percentage',
+  couponStartDate: moment().subtract(1, 'w').toISOString(),
+  couponEndDate: moment().add(8, 'w').toISOString(),
 };

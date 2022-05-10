@@ -7,8 +7,10 @@ import {
   Icon, MarketingModal, ModalDialog, Container, Row, Col, Collapsible, Button, Image,
 } from '@edx/paragon';
 import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
+import DOMPurify from 'dompurify';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
+import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
 
 const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).map((node, index) => {
   const nodePageLink = node.contentType === 'course' ? `/${slug}/course/${node.key}` : `/${slug}/program/${node.uuid}`;
@@ -30,7 +32,12 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
         <h3>
           {node.title}
         </h3>
-        {node.shortDescription}
+        {/* eslint-disable react/no-danger */}
+        <div dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(node.shortDescription,
+            { USE_PROFILES: { html: true } }),
+        }}
+        />
       </Col>
       <Col className="mt-md-2 mt-lg-0" md="auto">
         <Button
@@ -62,8 +69,9 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
       heroNode={isLoading ? <Skeleton height={120} data-testid="pathway-banner-loading" /> : (
         <ModalDialog.Hero>
           <ModalDialog.Hero.Background
+            className="pathway-bg-img"
             data-testid="modal-hero"
-            backgroundSrc={pathway.bannerImage}
+            backgroundSrc={pathway.bannerImage || defaultBannerImage}
           />
         </ModalDialog.Hero>
       )}
@@ -77,7 +85,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
         />
       ) : (
         <ModalDialog.Title as="h2" className="mb-4">
-          {pathway.name}
+          {pathway.title}
         </ModalDialog.Title>
       )}
 
@@ -132,9 +140,8 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
 
         {isLoading ? <Skeleton height={40} className="mb-4" data-testid="pathway-overview-loading" /> : (
           <Row className="mb-4">
-            <Col>
-              {pathway.overview}
-            </Col>
+            {/* eslint-disable react/no-danger */}
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(pathway.overview, { USE_PROFILES: { html: true } }) }} className="pl-3 pr-3" />
           </Row>
         )}
 

@@ -53,7 +53,7 @@ describe('<PathwayModal />', () => {
 
     renderWithRouter(<PathwayModalWithAppContext {...defaultProps} />);
 
-    expect(screen.getByText(TEST_PATHWAY_DATA.name)).toBeInTheDocument();
+    expect(screen.getByText(TEST_PATHWAY_DATA.title)).toBeInTheDocument();
     expect(screen.getByText(TEST_PATHWAY_DATA.overview)).toBeInTheDocument();
     expect(screen.getByTestId('modal-hero')).toHaveStyle(`background-image: url(${TEST_PATHWAY_DATA.banner_image})`);
 

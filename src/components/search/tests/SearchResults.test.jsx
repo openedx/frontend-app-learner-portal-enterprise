@@ -24,6 +24,7 @@ import {
 } from '../../../utils/tests';
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
 import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
@@ -77,13 +78,20 @@ const initialUserSubsidyState = {
   offers: defaultOffersState,
 };
 
+const initialSubsidyRequestsState = {
+  subsidyRequestConfiguration: null,
+  catalogsForSubsidyRequests: [],
+};
+
 /* eslint-enable react/prop-types */
 const SearchResultsWithContext = (props) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SearchContext.Provider value={searchContext}>
-        <SearchResults {...props} />
-      </SearchContext.Provider>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <SearchContext.Provider value={searchContext}>
+          <SearchResults {...props} />
+        </SearchContext.Provider>
+      </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -273,7 +281,7 @@ describe('<SearchResults />', () => {
     expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
   });
 
-  test('renders an alert in case of no results for pathways', () => {
+  test('does not render an alert in case of no results for pathways', () => {
     const propsForNoResultsPathway = {
       ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
     };
@@ -281,7 +289,7 @@ describe('<SearchResults />', () => {
     renderWithRouter(
       <SearchResultsWithContext {...propsForNoResultsPathway} />,
     );
-    expect(screen.getByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeTruthy();
-    expect(screen.getByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeTruthy();
+    expect(screen.queryByText(new RegExp(noResultsMessage.messageTitle, 'i'))).toBeNull();
+    expect(screen.queryByText(new RegExp(noResultsMessage.messageContent, 'i'))).toBeNull();
   });
 });

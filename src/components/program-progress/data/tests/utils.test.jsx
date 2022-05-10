@@ -19,4 +19,9 @@ describe('getProgramIcon', () => {
     const icon = getProgramIcon(PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE);
     expect(icon).toEqual(ProfCertProgramDetailsSvgIcon);
   });
+
+  it('returns empty string when program type is not from the PROGRAM_TYPE_MAP', () => {
+    const icon = getProgramIcon('test');
+    expect(icon).toEqual('');
+  });
 });

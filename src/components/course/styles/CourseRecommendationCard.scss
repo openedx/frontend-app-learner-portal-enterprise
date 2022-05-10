@@ -1,0 +1,60 @@
+.course-card-recommendation {
+  a {
+    color: $gray-700;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: $gray-700;
+      text-decoration: none;
+
+      .card {
+        box-shadow: $box-shadow-lg;
+      }
+    }
+  }
+
+  .card {
+    height: 250px;
+    width: 300px;
+    box-shadow: $box-shadow;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border: none;
+  }
+
+  .partner-logo-wrapper {
+    padding: 5px;
+    position: absolute;
+    top: 54px;
+    left: 20px;
+    background: $white;
+    border-radius: 3px;
+    box-shadow: $box-shadow-sm;
+
+    .partner-logo {
+      width: auto;
+      max-height: 45px;
+    }
+  }
+
+  .card-body {
+    .partner {
+      font-size: $font-size-sm;
+    }
+  }
+
+  .card-footer {
+    font-size: 0.75rem;
+
+    .badge-text {
+      font-family: $font-family-monospace;
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+  }
+}

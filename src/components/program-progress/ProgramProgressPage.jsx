@@ -11,8 +11,14 @@ import {
 } from './ProgramProgressContextProvider';
 import ProgramProgressHeader from './ProgramProgressHeader';
 import ProgramProgressSideBar from './ProgramProgressSidebar';
+import ProgramProgressCourses from './ProgramProgressCourses';
 
 import { useLearnerProgramProgressData } from './data/hooks';
+import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
+import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
+import { getLastEndingCourseDate } from './data/utils';
+
+import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
 
 const ProgramProgressPage = () => {
   const { programUUID } = useParams();
@@ -23,12 +29,24 @@ const ProgramProgressPage = () => {
       if (!program) {
         return undefined;
       }
-
       return program.data;
     },
     [program],
   );
+  const courseData = program?.data?.courseData;
+  const totalCoursesInProgram = courseData?.notStarted?.length
+    + courseData?.completed?.length
+    + courseData?.inProgress?.length;
+  const allCoursesCompleted = !courseData?.notStarted?.length
+    && !courseData?.inProgress?.length
+    && courseData?.completed?.length;
 
+  const coursesNotStarted = courseData?.notStarted;
+  const totalCoursesNotStarted = coursesNotStarted?.length;
+  let courseEndDate;
+  if (totalCoursesNotStarted) {
+    courseEndDate = getLastEndingCourseDate(coursesNotStarted);
+  }
   if (fetchError) {
     return <ErrorPage message={fetchError.message} />;
   }
@@ -40,27 +58,49 @@ const ProgramProgressPage = () => {
       </Container>
     );
   }
-
-  const PAGE_TITLE = `${initialState.programData.title}`;
-
+  const PROGRAM_TITLE = `${initialState.programData.title}`;
   return (
     <>
-      <Helmet title={PAGE_TITLE} />
-      <ProgramProgressContextProvider initialState={initialState}>
-        <ProgramProgressHeader />
-        <Container fluid={false} style={{ paddingLeft: 30, paddingRight: 30 }}>
-          <Row>
-            <article className="col-lg-8">
-              <div>Program Courses Will go Here</div>
-            </article>
-            <MediaQuery minWidth={breakpoints.large.minWidth}>
-              {matches => matches && (
-                <ProgramProgressSideBar />
-              )}
-            </MediaQuery>
-          </Row>
-        </Container>
-      </ProgramProgressContextProvider>
+      <Helmet title={PROGRAM_TITLE} />
+      <SubsidyRequestsContextProvider>
+        <CourseEnrollmentsContextProvider>
+          <ProgramProgressContextProvider initialState={initialState}>
+            <Container fluid={false} size="lg">
+              <ProgramProgressHeader />
+              <Row>
+                <article className="col-8">
+                  {allCoursesCompleted
+                    ? (
+                      <>
+                        <h3>Congratulations!</h3>
+                        <p>You have successfully completed all the requirements for the {PROGRAM_TITLE}.</p>
+                      </>
+                    )
+                    : (
+                      <>
+                        <h3> Your Program Journey</h3>
+                        <p>Track and plan your progress through the {totalCoursesInProgram} courses in this program.</p>
+                        <p>To complete the program, you must earn a verified certificate for each course.</p>
+                      </>
+                    )}
+                  <SubsidiesSummary
+                    totalCoursesNotStarted={totalCoursesNotStarted}
+                    courseEndDate={courseEndDate}
+                    programProgressPage
+                  />
+                  <ProgramProgressCourses courseData={courseData} />
+                </article>
+
+                <MediaQuery minWidth={breakpoints.large.minWidth}>
+                  {matches => matches && (
+                    <ProgramProgressSideBar />
+                  )}
+                </MediaQuery>
+              </Row>
+            </Container>
+          </ProgramProgressContextProvider>
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContextProvider>
     </>
   );
 };

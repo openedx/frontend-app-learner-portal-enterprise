@@ -24,12 +24,9 @@ import {
 import { formatStringAsNumber } from '../../utils/common';
 
 import { useSubsidyDataForCourse } from './enrollment/hooks';
-import { useCourseEnrollmentUrl } from './data/hooks';
+import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { determineEnrollmentType } from './enrollment/utils';
-import {
-  useSubsidyRequestConfiguration,
-  useUserHasSubsidyRequestForCourse,
-} from '../enterprise-subsidy-requests/data/hooks';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
@@ -40,6 +37,7 @@ const CourseRunCard = ({
   courseRun,
   userEnrollments,
   courseKey,
+  subsidyRequestCatalogsApplicableToCourse,
 }) => {
   const {
     availability,
@@ -64,7 +62,7 @@ const CourseRunCard = ({
     [userEnrollments, key],
   );
 
-  const { subsidyRequestConfiguration } = useSubsidyRequestConfiguration(enterpriseConfig.uuid);
+  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const isUserEnrolled = !!userEnrollment;
@@ -100,6 +98,7 @@ const CourseRunCard = ({
       subsidyRequestConfiguration,
     },
     userHasSubsidyRequestForCourse,
+    subsidyRequestCatalogsApplicableToCourse,
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
@@ -172,12 +171,10 @@ const CourseRunCard = ({
       : 'Be the first to enroll!';
 
     let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${moment(start).format(DATE_FORMAT)}`;
+
     if (isCourseSelfPaced(pacingType)) {
-      if (isCourseStarted && hasTimeToComplete(courseRun)) {
-        // Course is self paced and has time to complete
-        tempHeading = `Starts ${moment().format(DATE_FORMAT)}`;
-      } else {
-        tempHeading = 'Course started';
+      if (isCourseStarted) {
+        tempHeading = hasTimeToComplete(courseRun) ? `Starts ${moment().format(DATE_FORMAT)}` : 'Course started';
       }
     }
     return [
@@ -210,16 +207,15 @@ const CourseRunCard = ({
           <div className="h4 mb-0">{heading}</div>
           <div className="small">{subHeading}</div>
         </div>
-        {!courseRunArchived
-          && (
-            <EnrollAction
-              enrollLabel={buttonLabel}
-              enrollmentType={enrollmentType}
-              enrollmentUrl={enrollmentUrl}
-              userEnrollment={userEnrollment}
-              subscriptionLicense={subscriptionLicense}
-            />
-          )}
+        {!courseRunArchived && (
+          <EnrollAction
+            enrollLabel={buttonLabel}
+            enrollmentType={enrollmentType}
+            enrollmentUrl={enrollmentUrl}
+            userEnrollment={userEnrollment}
+            subscriptionLicense={subscriptionLicense}
+          />
+        )}
       </Card.Body>
     </Card>
   );
@@ -245,6 +241,7 @@ CourseRunCard.propTypes = {
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   catalogList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
 };
 
 export default CourseRunCard;

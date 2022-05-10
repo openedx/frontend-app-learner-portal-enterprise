@@ -11,12 +11,13 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import classNames from 'classnames';
 
 import PathwayModal from './PathwayModal';
+import { MAX_VISIBLE_SKILLS_PATHWAY } from './constants';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
 const filterSkillNames = skillNames => {
   // This is the maximum allowed length a skillNames can have.
-  const singleSkillNameSizeLimit = 45;
+  const singleSkillNameSizeLimit = 40;
   const offset = 5;
 
   // this is the maximum cumulative length of all the skillNames. We need this to make sure there are maximum 2
@@ -96,7 +97,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
           ) : (
             <Card.Img
               variant="top"
-              src={pathway.bannerImageUrl}
+              src={pathway.cardImageUrl}
               alt=""
             />
           )}
@@ -119,7 +120,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
               <Skeleton duration={0} data-testid="content-type-loading" />
             ) : (
               <div className="d-flex pathway-skill-names">
-                {pathway.skillNames && filterSkillNames(pathway.skillNames).map(
+                {pathway.skillNames && filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(
                   skillName => (
                     <Badge
                       variant="light"
@@ -149,7 +150,7 @@ const SkeletonPathwayCard = (props) => (
 SearchPathwayCard.propTypes = {
   hit: PropTypes.shape({
     aggregation_key: PropTypes.string,
-    banner_image_url: PropTypes.string,
+    card_image_url: PropTypes.string,
     title: PropTypes.string,
     skill_names: PropTypes.arrayOf(PropTypes.string),
   }),

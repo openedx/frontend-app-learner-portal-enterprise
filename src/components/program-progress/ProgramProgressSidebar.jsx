@@ -32,9 +32,9 @@ const ProgramProgressSideBar = () => {
     [programData],
   );
   return (
-    <div className="program-sidebar col-lg-4">
+    <div className="program-sidebar offset-1 col-3">
       {!programCertificate && <ProgramProgressCircle /> }
-      {programCertificate && (
+      {programCertificate && programCertificate.img && (
         <div>
           <h2 className="progress-heading certificate-heading"> {`Your ${programData.type} Certificate`}</h2>
           <a href={programCertificate.url} className="program-cert-link">

@@ -17,6 +17,8 @@ import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
+import CourseRecommendations from './CourseRecommendations';
+import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 export default function Course() {
   const { courseKey } = useParams();
@@ -30,20 +32,25 @@ export default function Course() {
     },
     [search],
   );
+  const { subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
 
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
-  const [courseData, fetchError] = useAllCourseData({
+  const {
+    courseData, courseRecommendations, fetchError, isLoading,
+  } = useAllCourseData({
     courseKey,
     enterpriseConfig,
     courseRunKey,
+    subscriptionLicense,
+    offers,
   });
 
   const initialState = useMemo(
     () => {
-      if (!courseData) {
+      if (isLoading || !courseData || !courseRecommendations) {
         return undefined;
       }
       const {
@@ -54,6 +61,8 @@ export default function Course() {
         catalog,
       } = courseData;
 
+      const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
+
       return {
         course: courseDetails,
         activeCourseRun: getActiveCourseRun(courseDetails),
@@ -63,16 +72,20 @@ export default function Course() {
         userSubsidyApplicableToCourse,
         catalog,
         algoliaSearchParams,
+        courseRecommendations: {
+          allRecommendations: allRecommendations?.slice(0, 3),
+          samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
+        },
       };
     },
-    [courseData, algoliaSearchParams],
+    [courseData, courseRecommendations, algoliaSearchParams],
   );
 
   if (fetchError) {
     return <ErrorPage message={fetchError.message} />;
   }
 
-  if (!initialState) {
+  if (isLoading || !initialState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />
@@ -105,6 +118,7 @@ export default function Course() {
                   </Sidebar>
                 )}
               </MediaQuery>
+              <CourseRecommendations />
             </Row>
           </Container>
         </CourseContextProvider>

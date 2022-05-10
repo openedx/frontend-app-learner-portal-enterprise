@@ -28,6 +28,7 @@ export function determineEnrollmentType({
   isEnrollable,
   isCourseStarted,
   userHasSubsidyRequestForCourse,
+  subsidyRequestCatalogsApplicableToCourse,
 }) {
   const isSubscriptionValid = subscriptionLicense?.uuid;
   if (isUserEnrolled) {
@@ -36,10 +37,13 @@ export function determineEnrollmentType({
 
   if (userHasSubsidyRequestForCourse) { return HIDE_BUTTON; }
 
-  if (features.FEATURE_BROWSE_AND_REQUEST
-      && subsidyRequestConfiguration?.subsidyRequestsEnabled
-      && !hasLicenseSubsidy(userSubsidyApplicableToCourse)
-      && !courseHasOffer) {
+  if (
+    features.FEATURE_BROWSE_AND_REQUEST
+    && subsidyRequestConfiguration?.subsidyRequestsEnabled
+    && subsidyRequestCatalogsApplicableToCourse.size > 0
+    && !hasLicenseSubsidy(userSubsidyApplicableToCourse)
+    && !courseHasOffer
+  ) {
     return HIDE_BUTTON;
   }
 
@@ -55,5 +59,6 @@ export function determineEnrollmentType({
 
   if (!isSubscriptionValid && courseHasOffer) { return TO_VOUCHER_REDEEM; }
   if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
+
   return ENROLL_DISABLED;
 }

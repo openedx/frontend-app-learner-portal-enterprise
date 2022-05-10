@@ -43,6 +43,8 @@ const transformedLicenseRequest = {
   courseRunId: 'edx+101',
   title: 'requested course',
   courseRunStatus: COURSE_STATUSES.requested,
+  linkToCourse: 'https://edx.org',
+  notifications: [],
 };
 
 hooks.useCourseEnrollments.mockReturnValue({

@@ -39,6 +39,7 @@ const defaultAppState = {
     name: 'BearsRUs',
     uuid: 'BearsRUs',
     disableSearch: false,
+    adminUsers: [{ email: 'admin@foo.com' }],
   },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
@@ -85,6 +86,7 @@ const defaultSubsidyRequestState = {
     [SUBSIDY_TYPE.LICENSE]: [],
     [SUBSIDY_TYPE.COUPON]: [],
   },
+  catalogsForSubsidyRequests: new Set(),
 };
 
 const mockWindowConfig = {
@@ -221,6 +223,7 @@ describe('<Dashboard />', () => {
         name: 'BearsRUs',
         uuid: 'BearsRUs',
         disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
       },
       config: {
         LMS_BASE_URL: process.env.LMS_BASE_URL,

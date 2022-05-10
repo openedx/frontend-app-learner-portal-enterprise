@@ -1,14 +1,19 @@
 import {
-  useState, useEffect, useContext, useMemo,
+  useState, useEffect, useCallback,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
-import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
-import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
 
-export function useSubsidyRequestConfiguration(enterpriseUUID) {
+import {
+  fetchSubsidyRequestConfiguration,
+  fetchLicenseRequests,
+  fetchCouponCodeRequests,
+} from './service';
+import { fetchCouponsOverview } from '../../enterprise-user-subsidy/offers/data/service';
+import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
+
+export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,10 +40,9 @@ export function useSubsidyRequestConfiguration(enterpriseUUID) {
   }, [enterpriseUUID]);
 
   return { subsidyRequestConfiguration, isLoading };
-}
+};
 
 /**
- *
  * @param {{
  *    enterpriseCustomerUuid: string,
  *    subsidyRequestsEnabled: boolean,
@@ -46,7 +50,7 @@ export function useSubsidyRequestConfiguration(enterpriseUUID) {
  * }} subsidyRequestConfiguration The subsidy request configuration for the customer
  * @returns {Object} { couponCodeRequests, licenseRequests, isLoading }
  */
-export function useSubsidyRequests(subsidyRequestConfiguration) {
+export const useSubsidyRequests = (subsidyRequestConfiguration) => {
   const [licenseRequests, setLicenseRequests] = useState([]);
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -79,14 +83,14 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
     }
   };
 
-  const loadSubsidyRequests = () => {
+  const loadSubsidyRequests = useCallback(() => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
       const { subsidyType } = subsidyRequestConfiguration;
       if (subsidyType) {
         fetchSubsidyRequests(subsidyType);
       }
     }
-  };
+  }, [subsidyRequestConfiguration]);
 
   useEffect(() => {
     loadSubsidyRequests();
@@ -101,47 +105,55 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
     isLoading,
     refreshSubsidyRequests: loadSubsidyRequests,
   };
-}
+};
 
-/**
- * Returns `true` if user has made a subsidy request.
- *
- * Returns `false` if:
- *  - Subsidy request has not been configured
- *  - No requests are found under the configured `SUBSIDY_TYPE`
- *
- * If the `SUBSIDY_TYPE` is `COUPON`, optional parameter courseKey can be passed
- * to only return true if courseKey is in one of the requests
- *
- * @param {string} [courseKey] - optional filter for specific course
- * @returns {boolean}
- */
-export function useUserHasSubsidyRequestForCourse(courseKey) {
-  const {
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
+export const useCatalogsForSubsidyRequests = ({
+  subsidyRequestConfiguration,
+  isLoadingSubsidyRequestConfiguration,
+  customerAgreementConfig,
+}) => {
+  const [catalogs, setCatalogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  return useMemo(() => {
-    if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
-      return false;
-    }
-    switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE: {
-        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
+  useEffect(() => {
+    const getCatalogs = async () => {
+      if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
+        try {
+          const response = await fetchCouponsOverview(
+            { enterpriseId: subsidyRequestConfiguration.enterpriseCustomerUuid },
+          );
+          const { results } = camelCaseObject(response.data);
+          const catalogsFromCoupons = results.map(coupon => coupon.enterpriseCatalogUuid);
+          setCatalogs(new Set(catalogsFromCoupons));
+        } catch (error) {
+          logError(error);
+        }
       }
-      case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-          request => (!courseKey || request.courseId === courseKey),
+
+      if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
+        const catalogsFromSubscriptions = customerAgreementConfig.subscriptions.map(
+          subscription => subscription.enterpriseCatalogUuid,
         );
-        return !!foundCouponRequest;
+        setCatalogs(new Set(catalogsFromSubscriptions));
       }
-      default:
-        return false;
+
+      setIsLoading(false);
+    };
+
+    if (!isLoadingSubsidyRequestConfiguration) {
+      if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
+        getCatalogs();
+        return;
+      }
+
+      if (isLoading) {
+        setIsLoading(false);
+      }
     }
-  }, [
-    courseKey,
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  ]);
-}
+  }, [isLoadingSubsidyRequestConfiguration, subsidyRequestConfiguration]);
+
+  return {
+    catalogs,
+    isLoading,
+  };
+};

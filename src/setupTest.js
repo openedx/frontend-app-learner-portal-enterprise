@@ -18,3 +18,9 @@ global.window.matchMedia = matchMediaMock.create();
 
 jest.mock('@edx/frontend-platform/logging');
 jest.mock('@edx/frontend-platform/analytics');
+
+// Upgrading to Node16 shows unhandledPromiseRejection warnings as errors so adding a handler
+process.on('unhandledRejection', (reason, p) => {
+  // eslint-disable-next-line no-console
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason.stack);
+});
