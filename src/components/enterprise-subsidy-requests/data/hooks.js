@@ -5,7 +5,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
-import { SubsidyRequestsContext } from '../SubsidyRequestsContextProvider';
+import SubsidyRequestsContext from '../SubsidyRequestsContext';
 
 export function useSubsidyRequestConfiguration(enterpriseUUID) {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();

@@ -6,7 +6,7 @@ import {
   useSubsidyRequests,
   useUserHasSubsidyRequestForCourse,
 } from '../hooks';
-import { SubsidyRequestsContext } from '../../SubsidyRequestsContextProvider';
+import SubsidyRequestsContext from '../../SubsidyRequestsContext';
 import * as service from '../service';
 /* eslint react/prop-types: 0 */
 
