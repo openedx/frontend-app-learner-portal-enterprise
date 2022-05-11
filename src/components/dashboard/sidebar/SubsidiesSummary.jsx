@@ -14,7 +14,7 @@ import { CourseEnrollmentsContext } from '../main-content/course-enrollments/Cou
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 
 const SubsidiesSummary = ({
-  className, showSearchCoursesCta, totalCoursesNotStarted, courseEndDate, programProgressPage,
+  className, showSearchCoursesCta, totalCoursesEligibleForCertificate, courseEndDate, programProgressPage,
 }) => {
   const {
     enterpriseConfig: {
@@ -79,7 +79,7 @@ const SubsidiesSummary = ({
           <OfferSummaryCard
             offersCount={offersCount}
             couponCodeRequestsCount={couponCodeRequests.length}
-            totalCoursesNotStarted={totalCoursesNotStarted}
+            totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
             programProgressPage={programProgressPage}
             className="mb-3"
           />
@@ -100,7 +100,7 @@ const SubsidiesSummary = ({
 };
 
 SubsidiesSummary.propTypes = {
-  totalCoursesNotStarted: PropTypes.number,
+  totalCoursesEligibleForCertificate: PropTypes.number,
   courseEndDate: PropTypes.string,
   className: PropTypes.string,
   showSearchCoursesCta: PropTypes.bool,
@@ -108,7 +108,7 @@ SubsidiesSummary.propTypes = {
 };
 
 SubsidiesSummary.defaultProps = {
-  totalCoursesNotStarted: 0,
+  totalCoursesEligibleForCertificate: 0,
   courseEndDate: undefined,
   className: undefined,
   showSearchCoursesCta: true,
