@@ -5,6 +5,9 @@ import { screen, render } from '@testing-library/react';
 
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { CourseContextProvider } from '../CourseContextProvider';
+import {
+  CourseEnrollmentsContext,
+} from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import EnrollModal, { modalText } from '../EnrollModal';
 
 const baseCourseInitialState = {
@@ -22,27 +25,36 @@ const baseSubsidyRequestContextValue = {
   catalogsForSubsidyRequests: new Set(),
 };
 
+const baseCourseEnrollmentsContextValue = {
+  courseEnrollmentsByStatus: new Set(),
+};
+
 const EnrollModalWrapper = ({
   courseState = baseCourseInitialState,
   subsidyRequestContextValue = baseSubsidyRequestContextValue,
+  courseEnrollmentsContextValue = baseCourseEnrollmentsContextValue,
   modalProps,
 }) => (
   <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-    <CourseContextProvider initialState={courseState}>
-      <EnrollModal {...modalProps} />
-    </CourseContextProvider>
+    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
+      <CourseContextProvider initialState={courseState}>
+        <EnrollModal {...modalProps} />
+      </CourseContextProvider>
+    </CourseEnrollmentsContext.Provider>
   </SubsidyRequestsContext.Provider>
 );
 
 EnrollModalWrapper.propTypes = {
   courseState: PropTypes.shape(),
   subsidyRequestContextValue: PropTypes.shape(),
+  courseEnrollmentsContextValue: PropTypes.shape(),
   modalProps: PropTypes.shape(),
 };
 
 EnrollModalWrapper.defaultProps = {
   courseState: baseCourseInitialState,
   subsidyRequestContextValue: baseSubsidyRequestContextValue,
+  courseEnrollmentsContextValue: baseCourseEnrollmentsContextValue,
   modalProps: {},
 };
 

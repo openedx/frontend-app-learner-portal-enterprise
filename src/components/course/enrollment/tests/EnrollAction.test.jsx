@@ -18,6 +18,9 @@ import { enrollButtonTypes } from '../constants';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import {
+  CourseEnrollmentsContext,
+} from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 /**
  * These tests verify that the correct enroll component is rendered.
@@ -67,15 +70,20 @@ const renderEnrollAction = ({
   initialSubsidyRequestsState = {
     catalogsForSubsidyRequests: new Set(),
   },
+  initialCourseEnrollmentsRequestState = {
+    courseEnrollmentsByStatus: new Set(),
+  },
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <CourseContextProvider initialState={courseInitState}>
-            {enrollAction}
-          </CourseContextProvider>
+          <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsRequestState}>
+            <CourseContextProvider initialState={courseInitState}>
+              {enrollAction}
+            </CourseContextProvider>
+          </CourseEnrollmentsContext.Provider>
         </SubsidyRequestsContext.Provider>
       </UserSubsidyContext.Provider>
     </AppContext.Provider>,
