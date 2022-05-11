@@ -94,7 +94,6 @@ describe('<ProgramListingCard />', () => {
     expect(screen.getByText(dummyProgramData.authoringOrganizations[0].key)).toBeInTheDocument();
     const logoImageNode = getByAltText(dummyProgramData.authoringOrganizations[0].key);
     expect(logoImageNode).toHaveAttribute('src', dummyProgramData.authoringOrganizations[0].logoImageUrl);
-    expect(screen.getByTestId('program-banner-image')).toHaveAttribute('src', dummyProgramData.bannerImage.large.url);
     expect(screen.getByText(dummyProgramData.progress.inProgress)).toBeInTheDocument();
     expect(screen.getByText('In progress')).toBeInTheDocument();
     expect(screen.getByText(dummyProgramData.progress.completed)).toBeInTheDocument();

@@ -1,4 +1,6 @@
-import { breakpoints, Card } from '@edx/paragon';
+import {
+  breakpoints, Bubble, Card, Stack,
+} from '@edx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
@@ -43,64 +45,73 @@ const ProgramListingCard = ({ program }) => {
     return imageURL;
   };
 
+  let authoringOrganization;
+  if (program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImageUrl) {
+    authoringOrganization = {
+      src: program.authoringOrganizations[0].logoImageUrl,
+      alt: program.authoringOrganizations[0].key,
+    };
+  }
+
   return (
-    <Card className="mb-4 program-listing-card mr-5" onClick={handleCardClick}>
-      <Card.Img
+    <Card
+      className="mb-4 program-listing-card mr-5"
+      isClickable
+      onClick={handleCardClick}
+    >
+      <Card.ImageCap
         src={getBannerImageURL()}
+        logoSrc={authoringOrganization?.src}
+        logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"
         className="program-banner-image"
       />
-      {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImageUrl) && (
-        <div className="partner-logo-wrapper shadow-sm">
-          <img
-            src={program.authoringOrganizations[0].logoImageUrl}
-            className="partner-logo"
-            alt={program.authoringOrganizations[0].key}
-          />
-        </div>
-      )}
-      <Card.Body className="program-card-body">
-        <div>
-          <div className="font-weight-light d-flex justify-content-between">
+
+      <Card.Header
+        title={(
+          <Truncate lines={2} trimWhitespace>
+            {program.title}
+          </Truncate>
+        )}
+        subtitle={(
+          <div>
             <div>
-              {program.authoringOrganizations?.length > 0 && program.authoringOrganizations.map(org => org.key).join(' ')}
+              {program.authoringOrganizations?.length > 0
+               && program.authoringOrganizations.map(org => org.key).join(' ')}
             </div>
-            <div className="program-type">
-              <img
-                src={getProgramIcon(program.type)}
-                alt="Program Type Logo"
-                className="program-type-icon mr-2"
-              />
-              {program.type}
+
+            <div className="font-weight-light d-flex justify-content-between">
+              <div className="program-type">
+                <img
+                  src={getProgramIcon(program.type)}
+                  alt="Program Type Logo"
+                  className="program-type-icon mr-2"
+                />
+                {program.type}
+              </div>
             </div>
           </div>
-          <h3 className="program-title">
-            <Truncate lines={2} trimWhitespace>
-              {program.title}
-            </Truncate>
-          </h3>
-        </div>
-        <div className="program-progress mt-4">
-          <div className="progress-item">
-            <div className="remaining-courses">
-              {program.progress.notStarted}
-            </div>
-            Remaining
-          </div>
-          <div className="progress-item">
-            <div className="in-progress-courses">
-              {program.progress.inProgress}
-            </div>
-            In progress
-          </div>
-          <div className="progress-item">
-            <div className="completed-courses">
-              {program.progress.completed}
-            </div>
-            Completed
-          </div>
-        </div>
-      </Card.Body>
+        )}
+      />
+
+      <Card.Section className="py-3">
+        <Stack direction="horizontal" gap={2}>
+          <Bubble className="remaining-courses">
+            {program.progress.notStarted}
+          </Bubble>
+          <div>Remaining</div>
+
+          <Bubble className="in-progress-courses">
+            {program.progress.inProgress}
+          </Bubble>
+          <div>In progress</div>
+
+          <Bubble className="completed-courses">
+            {program.progress.completed}
+          </Bubble>
+          <div>Completed</div>
+        </Stack>
+      </Card.Section>
     </Card>
   );
 };

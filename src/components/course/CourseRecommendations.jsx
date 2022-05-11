@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { CardGrid } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
 import CourseRecommendationCard from './CourseRecommendationCard';
 
@@ -12,11 +13,11 @@ const CourseRecommendations = () => {
       {allRecommendations?.length > 0 && (
         <div className="mb-3">
           <h3 className="mb-3">Courses you may like:</h3>
-          <div className="course-recommendations">
+          <CardGrid>
             {allRecommendations.map(recommendation => (
               <CourseRecommendationCard key={recommendation.key} course={recommendation} />
             ))}
-          </div>
+          </CardGrid>
         </div>
       )}
       {samePartnerRecommendations?.length > 0 && (

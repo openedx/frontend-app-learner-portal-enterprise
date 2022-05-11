@@ -145,7 +145,7 @@ describe('<SkillsCourses />', () => {
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );
     expect(containerDOM.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
-    expect(containerDOM.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    expect(containerDOM.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
   test('renders an alert in case of no courses returned', async () => {

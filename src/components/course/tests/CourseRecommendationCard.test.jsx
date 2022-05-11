@@ -56,20 +56,15 @@ describe('<CourseRecommendationCard />', () => {
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(TEST_OWNER.name)).toBeInTheDocument();
 
-    expect(container.querySelector('.course-card-recommendation > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
-    );
     expect(container.querySelector('p.partner')).toHaveTextContent(TEST_OWNER.name);
-    expect(container.querySelector('.partner-logo')).toHaveAttribute('src', TEST_OWNER.logoImageUrl);
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
   test('sends segment event with correct data when clicked', async () => {
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} />,
     );
-    fireEvent.click(container.querySelector('.course-card-recommendation > a'));
+    fireEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_UUID,
       COURSE_REC_EVENT_NAME,
@@ -81,7 +76,7 @@ describe('<CourseRecommendationCard />', () => {
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} isPartnerRecommendation />,
     );
-    fireEvent.click(container.querySelector('.course-card-recommendation > a'));
+    fireEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_UUID,
       SAME_PART_EVENT_NAME,

@@ -157,10 +157,9 @@ describe('<SearchProgramCard />', () => {
     );
 
     expect(containerDOM.querySelector('p.partner')).toHaveTextContent(PROGRAM_AUTHOR_ORG.name);
-    expect(containerDOM.querySelector('.card-img-top')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
-    expect(containerDOM.querySelector('.partner-logo')).toHaveAttribute('src', PROGRAM_PARTNER_LOGO_IMG_URL);
+    expect(containerDOM.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
     expect(containerDOM.querySelector('span.badge-text')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
-    expect(containerDOM.querySelector('span.program-courses-count-text')).toHaveTextContent(PROGRAM_COURSES_COUNT_TEXT);
+    expect(screen.getByText(PROGRAM_COURSES_COUNT_TEXT)).toBeInTheDocument();
   });
 
   test('renders the correct data with skills', async () => {

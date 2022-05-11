@@ -34,7 +34,7 @@ const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMG_URL = 'http://fake.image';
 const TEST_PARTNER = {
   name: 'Partner Name',
-  logoImgUrl: TEST_IMAGE_URL,
+  logoImageUrl: TEST_IMAGE_URL,
 };
 
 const defaultProps = {
@@ -63,16 +63,15 @@ describe('<SearchCourseCard />', () => {
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );
     expect(container.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
   test('renders the loading state', () => {
-    renderWithRouter(<SearchCourseCardWithAppContext {...propsForLoading} />);
+    const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...propsForLoading} />);
 
     // assert <Skeleton /> loading components render to verify
     // course card is properly in a loading state.
-    expect(screen.getByTestId('card-img-loading'));
-    expect(screen.getByTestId('partner-logo-loading'));
+    expect(container.getElementsByClassName('pgn__card-image-cap').length).toBe(1);
     expect(screen.getByTestId('course-title-loading'));
     expect(screen.getByTestId('partner-name-loading'));
     expect(screen.getByTestId('content-type-loading'));

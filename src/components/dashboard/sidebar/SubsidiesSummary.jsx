@@ -57,7 +57,7 @@ const SubsidiesSummary = ({
 
   return (
     <SidebarCard
-      cardBodyClassNames={
+      cardSectionClassNames={
         `${programProgressPage && 'border-remove'}`
       }
       cardClassNames={

@@ -1,12 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import { isDefinedAndNotNull } from '../../utils/common';
+import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
@@ -14,6 +14,7 @@ export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partn
 const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
+  const history = useHistory();
   const linkToCourse = useMemo(
     () => {
       if (!Object.keys(course).length) {
@@ -38,61 +39,52 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
     [course],
   );
 
+  const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
+
   return (
-    <div
-      className="course-card-recommendation mb-4"
-      role="group"
-      aria-label={course.title}
+    <Card
+      isClickable
+      onClick={() => {
+        sendEnterpriseTrackEvent(
+          uuid,
+          eventName,
+          {
+            courseKey: course.key,
+          },
+        );
+        history.push(linkToCourse);
+      }}
     >
-      <Link
-        to={linkToCourse}
-        onClick={() => {
-          sendEnterpriseTrackEvent(
-            uuid,
-            eventName,
-            {
-              courseKey: course.key,
-            },
-          );
-        }}
-      >
-        <Card>
-          <Card.Img
-            variant="top"
-            src={course.cardImageUrl.src}
-            alt=""
-          />
-          {partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
-            <div className="partner-logo-wrapper">
-              <img
-                src={partnerDetails.primaryPartner.logoImageUrl}
-                className="partner-logo"
-                alt={partnerDetails.primaryPartner.name}
-              />
-            </div>
-          )}
-          <Card.Body>
-            <Card.Title as="h4" className="card-title mb-1">
-              <Truncate lines={3} trimWhitespace>
-                {course.title}
+      <Card.ImageCap
+        src={course.cardImageUrl.src}
+        logoSrc={primaryPartnerLogo.src}
+        logoAlt={primaryPartnerLogo.alt}
+      />
+
+      <Card.Header
+        title={(
+          <Truncate lines={3} trimWhitespace>
+            {course.title}
+          </Truncate>
+        )}
+        subtitle={
+          course.owners?.length > 0 && (
+            <p className="partner text-muted m-0">
+              <Truncate lines={1} trimWhitespace>
+                {course.owners.map(partner => partner.name).join(', ')}
               </Truncate>
-            </Card.Title>
-            <>
-              {course.owners?.length > 0 && (
-                <p className="partner text-muted m-0">
-                  <Truncate lines={1} trimWhitespace>
-                    {course.owners.map(partner => partner.name).join(', ')}
-                  </Truncate>
-                </p>
-              )}
-            </>
-          </Card.Body>
-          <Card.Footer className="bg-white border-0 pt-0 pb-2">
-            <span className="text-muted">Course</span>
-          </Card.Footer>
-        </Card>
-      </Link>
-    </div>
+            </p>
+          )
+        }
+      />
+
+      {/* Intentionally empty section so the footer is correctly spaced at the bottom of the card */}
+      <Card.Section />
+
+      <Card.Footer>
+        <small className="text-muted">Course</small>
+      </Card.Footer>
+    </Card>
   );
 };
 

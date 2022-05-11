@@ -41,15 +41,15 @@ const SelectJobCard = () => {
               aria-label={job.name}
               className="ml-2 mt-2"
             >
-              <Card className={`${selectedJob === job.name ? 'border border-dark' : null} h-100`}>
-                <Card.Body className="row">
-                  <div className="col-10">
-                    <Card.Title as="h4" className="card-title mb-2">
-                      <span>
-                        {job.name}
-                      </span>
-                    </Card.Title>
-                  </div>
+              <Card isClickable className={`${selectedJob === job.name ? 'border border-dark' : null} h-100`}>
+                <Card.Header
+                  title={(
+                    <span>
+                      {job.name}
+                    </span>
+                  )}
+                />
+                <Card.Section>
                   <div className="col-2"><Form.Radio value={job.name} /></div>
                   <div className="col-12">
                     {!hideLaborMarketData
@@ -69,7 +69,7 @@ const SelectJobCard = () => {
                         </div>
                       )}
                   </div>
-                </Card.Body>
+                </Card.Section>
               </Card>
             </div>
           ))}
