@@ -65,12 +65,10 @@ const CourseRecommendationsWithContext = () => (
 
 describe('<CourseRecommendations />', () => {
   test('renders the correct data', () => {
-    const { container } = renderWithRouter(
-      <CourseRecommendationsWithContext />,
-    );
+    renderWithRouter(<CourseRecommendationsWithContext />);
     expect(screen.getByText('Courses you may like:')).toBeInTheDocument();
     expect(screen.getByText(`More from ${TEST_OWNER.name}:`)).toBeInTheDocument();
-    expect(container.querySelector('.course-recommendations')).toBeInTheDocument();
-    expect(container.querySelector('.partner-recommendations')).toBeInTheDocument();
+    expect(screen.getAllByText(course.title).length).toBe(2);
+    expect(screen.getAllByAltText(TEST_OWNER.name).length).toBe(2);
   });
 });

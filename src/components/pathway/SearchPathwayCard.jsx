@@ -53,6 +53,67 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
     [isLoading, JSON.stringify(pathway)],
   );
 
+  const loadingCard = () => (
+    <Card
+      className={classNames({ 'skill-quiz-pathway-card': isSkillQuizResult })}
+    >
+      <Card.ImageCap
+        as={Skeleton}
+        duration={0}
+      />
+
+      <Card.Header
+        title={
+          <Skeleton count={2} data-testid="pathway-title-loading" />
+        }
+      />
+
+      <Card.Section>
+        <Skeleton duration={0} data-testid="content-type-loading" />
+      </Card.Section>
+
+    </Card>
+  );
+
+  const searchPathwayCard = () => (
+    <Card
+      isClickable
+    >
+      <Card.ImageCap
+        src={pathway?.cardImageUrl || ''}
+        alt=""
+      />
+
+      <Card.Header
+        title={(
+          <Truncate lines={3} trimWhitespace>
+            {pathway.title}
+          </Truncate>
+        )}
+      />
+
+      <Card.Section classNames="py-3">
+        <div className="flex-wrap pathway-skill-names">
+          {pathway.skillNames
+           && filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(
+             skillName => (
+               <>
+                 <Badge
+                   variant="light"
+                   key={skillName}
+                   classNames="pathway-badge justify-content-center align-items-center"
+                 >
+                   <span className="badge-text">{skillName}</span>
+                 </Badge>
+                 {'   '}
+               </>
+             ),
+           )}
+        </div>
+      </Card.Section>
+    </Card>
+  );
+
   return (
     <div
       className="search-pathway-card mb-4"
@@ -75,59 +136,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
           );
         }}
       >
-        <Card className={classNames({ 'skill-quiz-pathway-card': isSkillQuizResult })}>
-          {isLoading ? (
-            <Card.Img
-              as={Skeleton}
-              variant="top"
-              duration={0}
-              height={100}
-              data-testid="card-img-loading"
-            />
-          ) : (
-            <Card.Img
-              variant="top"
-              src={pathway.cardImageUrl}
-              alt=""
-            />
-          )}
-          {isLoading && (
-            <div className="partner-logo-wrapper">
-              <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
-            </div>
-          )}
-          <Card.Body>
-            <Card.Title as="h4" className="card-title mb-1">
-              {isLoading ? (
-                <Skeleton count={2} data-testid="pathway-title-loading" />
-              ) : (
-                <Truncate lines={3} trimWhitespace>
-                  {pathway.title}
-                </Truncate>
-              )}
-            </Card.Title>
-            {isLoading ? (
-              <Skeleton duration={0} data-testid="content-type-loading" />
-            ) : (
-              <div className="d-flex pathway-skill-names">
-                {pathway.skillNames && filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(
-                  skillName => (
-                    <Badge
-                      variant="light"
-                      key={skillName}
-                      className={classNames(
-                        'pathway-badge d-flex justify-content-center align-items-center mb-2',
-                      )}
-                    >
-                      <span className="badge-text"> {skillName}</span>
-                    </Badge>
-                  ),
-                )}
-              </div>
-            )}
-
-          </Card.Body>
-        </Card>
+        {isLoading ? loadingCard() : searchPathwayCard()}
       </Link>
     </div>
   );

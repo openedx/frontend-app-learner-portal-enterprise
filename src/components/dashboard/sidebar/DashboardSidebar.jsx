@@ -8,9 +8,9 @@ const DashboardSidebar = () => (
   <div className="mt-3 mt-lg-0">
     <SubsidiesSummary />
     <Card>
-      <Card.Body>
+      <Card.Section>
         <SupportInformation />
-      </Card.Body>
+      </Card.Section>
     </Card>
   </div>
 );

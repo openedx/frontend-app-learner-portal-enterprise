@@ -65,7 +65,7 @@ describe('<SearchPathwayCard />', () => {
       'href',
       `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
     );
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
 
     fireEvent.click(screen.getByText(TEST_TITLE));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe('<SearchPathwayCard />', () => {
       'href',
       `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
     );
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
 
     fireEvent.click(screen.getByText(TEST_TITLE));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
@@ -116,7 +116,6 @@ describe('<SearchPathwayCard />', () => {
       'href',
       `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
     );
-    expect(container.querySelector('.pathway-skill-names').getElementsByClassName('pathway-badge')).toHaveLength(3);
     expect(container.querySelector('.pathway-skill-names').textContent).toContain(firstSkillName);
     expect(container.querySelector('.pathway-skill-names').textContent).toContain(secondSkillName);
     expect(container.querySelector('.pathway-skill-names').textContent).toContain(thirdSkillName);
@@ -128,8 +127,6 @@ describe('<SearchPathwayCard />', () => {
 
     // assert <Skeleton /> loading components render to verify
     // course card is properly in a loading state.
-    expect(screen.queryByTestId('card-img-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('partner-logo-loading')).toBeInTheDocument();
     expect(screen.queryByTestId('pathway-title-loading')).toBeInTheDocument();
     expect(screen.queryByTestId('content-type-loading')).toBeInTheDocument();
   });
