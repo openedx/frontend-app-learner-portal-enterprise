@@ -12,6 +12,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { CourseContext } from '../CourseContextProvider';
+import {
+  CourseEnrollmentsContext,
+} from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
@@ -29,7 +32,7 @@ import {
   CURRENCY_USD,
   ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
-import { pushEnrollmentClickEvent } from '../../../utils/optimizely';
+import { pushEvent, EVENTS } from '../../../utils/optimizely';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -489,6 +492,12 @@ export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
       activeCourseRun: { key: courseKey },
     },
   } = useContext(CourseContext);
+  const {
+    courseEnrollmentsByStatus,
+  } = useContext(CourseEnrollmentsContext);
+
+  const enrollmentCountIsZero = Object.values(courseEnrollmentsByStatus).flat().length === 0;
+
   const handleClick = useCallback(
     (e) => {
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
@@ -499,9 +508,10 @@ export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
           global.location.href = href;
         }, CLICK_DELAY_MS);
       }
-      pushEnrollmentClickEvent({
-        courseKey,
-      });
+      pushEvent(EVENTS.ENROLLMENT_CLICK, { courseKey });
+      if (enrollmentCountIsZero) {
+        pushEvent(EVENTS.FIRST_ENROLLMENT_CLICK, { courseKey });
+      }
     },
     [courseKey],
   );

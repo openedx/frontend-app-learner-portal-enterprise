@@ -56,11 +56,11 @@ const DashboardMainContent = () => {
             </Button>
           </>
         )}
-
-        {isExperimentVariant(process.env.EXPERIMENT_1_ID, process.env.EXPERIMENT_1_VARIANT_1) && (
-          <DashboardPopularCourses />
-        )}
       </CourseEnrollments>
+
+      {isExperimentVariant(process.env.EXPERIMENT_1_ID, process.env.EXPERIMENT_1_VARIANT_1) && (
+        <DashboardPopularCourses />
+      )}
 
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
         {matches => (matches ? <SupportInformation className="mt-5" /> : null)}
