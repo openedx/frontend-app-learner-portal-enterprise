@@ -16,23 +16,20 @@ const CardLoadingSkeleton = () => (
           {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <Link to="#">
             <Card>
-              <Card.Img
+              <Card.ImageCap
                 as={Skeleton}
-                variant="top"
                 duration={0}
-                height={100}
-                data-testid="card-img-loading"
               />
-              <div className="partner-logo-wrapper">
-                <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
-              </div>
-              <Card.Body>
-                <Card.Title as="h4" className="card-title mb-2">
+
+              <Card.Header
+                title={
                   <Skeleton count={2} data-testid="course-title-loading" />
-                </Card.Title>
+                }
+              />
+              <Card.Section>
                 <Skeleton duration={0} data-testid="partner-name-loading" />
                 <Skeleton count={1} data-testid="skills-loading" />
-              </Card.Body>
+              </Card.Section>
             </Card>
           </Link>
         </div>

@@ -61,8 +61,7 @@ describe('<CourseRecommendationCard />', () => {
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );
     expect(container.querySelector('p.partner')).toHaveTextContent(TEST_OWNER.name);
-    expect(container.querySelector('.partner-logo')).toHaveAttribute('src', TEST_OWNER.logoImageUrl);
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
   test('sends segment event with correct data when clicked', async () => {

@@ -85,10 +85,9 @@ describe('<SearchProgramCard />', () => {
       `/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`,
     );
     expect(container.querySelector('p.partner')).toHaveTextContent(PROGRAM_AUTHOR_ORG.key);
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
-    expect(container.querySelector('.partner-logo')).toHaveAttribute('src', PROGRAM_PARTNER_LOGO_IMG_URL);
+    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
     expect(container.querySelector('span.badge-text')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
-    expect(container.querySelector('span.program-courses-count-text')).toHaveTextContent(PROGRAM_COURSES_COUNT_TEXT);
+    expect(screen.getByText(PROGRAM_COURSES_COUNT_TEXT)).toBeInTheDocument();
   });
 
   test('renders the correct program type', () => {
@@ -115,14 +114,12 @@ describe('<SearchProgramCard />', () => {
   });
 
   test('renders the loading state', () => {
-    renderWithRouter(<SearchProgramCardWithAppContext {...propsForLoading} />);
+    const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...propsForLoading} />);
 
     // assert <Skeleton /> loading components render to verify
     // program card is properly in a loading state.
-    expect(screen.queryByTestId('card-img-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('partner-logo-loading')).toBeInTheDocument();
+    expect(container.getElementsByClassName('pgn__card-image-cap').length).toBe(1);
     expect(screen.queryByTestId('program-title-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('partner-key-loading')).toBeInTheDocument();
     expect(screen.queryByTestId('program-type-loading')).toBeInTheDocument();
     expect(screen.queryByTestId('program-courses-count-loading')).toBeInTheDocument();
   });

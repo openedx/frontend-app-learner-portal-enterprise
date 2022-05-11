@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -18,7 +17,7 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { SkillsContext } from './SkillsContextProvider';
-import { isDefinedAndNotNull } from '../../utils/common';
+import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { shortenString } from '../course/data/utils';
 import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_MESSAGE } from './constants';
@@ -145,6 +144,116 @@ const SearchProgramCard = ({ index }) => {
     [JSON.stringify(programs)],
   );
 
+  const loadingCard = () => (
+    <Card>
+      <Card.ImageCap
+        as={Skeleton}
+        duration={0}
+      />
+
+      <Card.Header
+        title={
+          <Skeleton duration={0} data-testid="program-title-loading" />
+        }
+      />
+
+      <Card.Section>
+        <Skeleton duration={0} data-testid="program-type-loading" />
+      </Card.Section>
+
+      <Card.Section>
+        <Skeleton duration={0} data-testid="partner-key-loading" />
+      </Card.Section>
+
+      <Card.Section>
+        <Skeleton count={1} data-testid="skills-loading" />
+      </Card.Section>
+
+      <Card.Footer className="bg-white border-0 pt-0 pb-2">
+        <Skeleton duration={0} data-testid="program-courses-count-loading" />
+      </Card.Footer>
+    </Card>
+  );
+
+  const programCard = (program) => {
+    const getProgramCourseCount = () => {
+      const numCourses = program.courseKeys?.length || 0;
+      if (!numCourses) {
+        return undefined;
+      }
+      return `${numCourses} ${numCourses > 1 ? 'Courses' : 'Course'}`;
+    };
+    const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails[program.aggregationKey]);
+
+    return (
+      <Card isClickable>
+        <Card.ImageCap
+          src={program.cardImageUrl}
+          alt={program.title}
+          logoSrc={primaryPartnerLogo.src}
+          logoAlt={primaryPartnerLogo.alt}
+        />
+        <Card.Header
+          title={(
+            <Truncate lines={2} trimWhitespace>
+              {program.title}
+            </Truncate>
+          )}
+        />
+
+        <Card.Section>
+          <>
+            {program.authoringOrganizations?.length > 0 && (
+              <p className="partner text-muted m-0">
+                <Truncate lines={1} trimWhitespace>
+                  {program.authoringOrganizations.map(org => org.key).join(', ')}
+                </Truncate>
+              </p>
+            )}
+          </>
+        </Card.Section>
+
+        <Card.Section>
+          <>
+            { program.skillNames?.length > 0 && (
+              <div className="mb-2 d-inline">
+                {getCommonSkills(program, selectedJobSkills, MAX_VISIBLE_SKILLS_PROGRAM).map((skill) => (
+                  <Badge
+                    key={skill}
+                    className="skill-badge"
+                    variant="light"
+                  >
+                    { shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR) }
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </>
+        </Card.Section>
+
+        <Card.Section className="py-3">
+          <div className="d-flex">
+            <Badge
+              variant="light"
+              className="d-flex justify-content-center align-items-center text-primary-500"
+            >
+              <Icon src={Program} className="badge-icon" />
+              <div>
+                <span className="badge-text">
+                  <ProgramType type={program.type} />
+                </span>
+              </div>
+            </Badge>
+          </div>
+        </Card.Section>
+
+        <Card.Footer
+          textElement={getProgramCourseCount()}
+        />
+      </Card>
+    );
+  };
+
   return (
     <div>
       {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these programs </h3> : null}
@@ -160,111 +269,7 @@ const SearchProgramCard = ({ index }) => {
             <Link
               to={isLoading ? '#' : linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid)}
             >
-              <Card>
-                {isLoading ? (
-                  <Card.Img
-                    as={Skeleton}
-                    variant="top"
-                    duration={0}
-                    height={100}
-                    data-testid="card-img-loading"
-                  />
-                ) : (
-                  <Card.Img
-                    variant="top"
-                    src={program.cardImageUrl}
-                    alt=""
-                  />
-                )}
-                {isLoading && (
-                  <div className="partner-logo-wrapper">
-                    <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
-                  </div>
-                )}
-                {(!isLoading && partnerDetails[program.aggregationKey].primaryPartner
-                  && partnerDetails[program.aggregationKey].showPartnerLogo) && (
-                  <div className="partner-logo-wrapper">
-                    <img
-                      src={partnerDetails[program.aggregationKey].primaryPartner.logoImageUrl}
-                      className="partner-logo"
-                      alt={partnerDetails[program.aggregationKey].primaryPartner.name}
-                    />
-                  </div>
-                )}
-                <Card.Body>
-                  <Card.Title as="h4" className="card-title mb-1">
-                    {isLoading ? (
-                      <Skeleton count={2} data-testid="program-title-loading" />
-                    ) : (
-                      <Truncate lines={2} trimWhitespace>
-                        {program.title}
-                      </Truncate>
-                    )}
-                  </Card.Title>
-                  {isLoading ? (
-                    <Skeleton duration={0} data-testid="partner-key-loading" />
-                  ) : (
-                    <>
-                      {program.authoringOrganizations?.length > 0 && (
-                        <p className="partner text-muted m-0">
-                          <Truncate lines={1} trimWhitespace>
-                            {program.authoringOrganizations.map(org => org.key).join(', ')}
-                          </Truncate>
-                        </p>
-                      )}
-                    </>
-                  )}
-                  {isLoading ? (
-                    <Skeleton count={1} data-testid="skills-loading" />
-                  ) : (
-                    <>
-                      { program.skillNames?.length > 0 && (
-                        <div className="mb-2 d-inline">
-                          {getCommonSkills(program, selectedJobSkills, MAX_VISIBLE_SKILLS_PROGRAM).map((skill) => (
-                            <Badge
-                              key={skill}
-                              className="skill-badge"
-                              variant="light"
-                            >
-                              { shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR) }
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </Card.Body>
-                <Card.Footer className="bg-white border-0 pt-0 pb-2 pl-2.5">
-                  {isLoading ? (
-                    <Skeleton duration={0} data-testid="program-type-loading" />
-                  ) : (
-                    <div className="d-flex">
-                      <Badge
-                        variant="light"
-                        className={classNames(
-                          'program-badge d-flex justify-content-center align-items-center text-primary-500',
-                          { 'mb-2': program.courseKeys?.length > 1 },
-                          { 'mb-4': program.courseKeys?.length <= 1 },
-                        )}
-                      >
-                        <Icon src={Program} className="badge-icon" />
-                        <span className="badge-text">
-                          <ProgramType type={program.type} />
-                        </span>
-                      </Badge>
-                    </div>
-                  )}
-                  {isLoading ? (
-                    <Skeleton duration={0} data-testid="program-courses-count-loading" />
-                  ) : (
-                    <>
-                      {program.courseKeys?.length > 0 && (
-                        <span className="program-courses-count-text">{program.courseKeys.length} Courses</span>
-                      )}
-                    </>
-                  )}
-                </Card.Footer>
-              </Card>
+              {isLoading ? loadingCard() : programCard(program) }
             </Link>
           </div>
         ))}

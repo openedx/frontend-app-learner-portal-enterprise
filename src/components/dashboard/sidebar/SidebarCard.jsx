@@ -6,14 +6,15 @@ const SidebarCard = ({
   title,
   children,
   cardClassNames,
-  titleClassNames,
-  cardBodyClassNames,
+  cardSectionClassNames,
 }) => (
   <Card className={cardClassNames}>
-    <Card.Body className={cardBodyClassNames}>
-      {title && <Card.Title className={titleClassNames}>{title}</Card.Title>}
+    {title && <Card.Header title={title} />}
+    <Card.Section
+      className={cardSectionClassNames}
+    >
       {children}
-    </Card.Body>
+    </Card.Section>
   </Card>
 );
 
@@ -21,15 +22,13 @@ SidebarCard.propTypes = {
   title: PropTypes.node,
   children: PropTypes.node.isRequired,
   cardClassNames: PropTypes.string,
-  titleClassNames: PropTypes.string,
-  cardBodyClassNames: PropTypes.string,
+  cardSectionClassNames: PropTypes.string,
 };
 
 SidebarCard.defaultProps = {
   title: null,
   cardClassNames: 'shadow',
-  titleClassNames: undefined,
-  cardBodyClassNames: undefined,
+  cardSectionClassNames: undefined,
 };
 
 export default SidebarCard;

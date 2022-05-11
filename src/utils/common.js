@@ -73,3 +73,10 @@ export const formatStringAsNumber = (str, radix = 10) => {
   const num = parseInt(str, radix);
   return num.toLocaleString();
 };
+
+export const getPrimaryPartnerLogo = (partnerDetails) => (
+  partnerDetails.primaryPartner && partnerDetails.showPartnerLogo ? {
+    src: partnerDetails.primaryPartner.logoImageUrl,
+    alt: partnerDetails.primaryPartner.name,
+  } : undefined
+);

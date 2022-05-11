@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import { isDefinedAndNotNull } from '../../utils/common';
+import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
@@ -38,6 +38,8 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
     [course],
   );
 
+  const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
+
   return (
     <div
       className="course-card-recommendation mb-4"
@@ -56,27 +58,23 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
           );
         }}
       >
-        <Card>
-          <Card.Img
-            variant="top"
+        <Card isClickable>
+          <Card.ImageCap
             src={course.cardImageUrl.src}
-            alt=""
+            alt={course.title}
+            logoSrc={primaryPartnerLogo.src}
+            logoAlt={primaryPartnerLogo.alt}
           />
-          {partnerDetails.primaryPartner && partnerDetails.showPartnerLogo && (
-            <div className="partner-logo-wrapper">
-              <img
-                src={partnerDetails.primaryPartner.logoImageUrl}
-                className="partner-logo"
-                alt={partnerDetails.primaryPartner.name}
-              />
-            </div>
-          )}
-          <Card.Body>
-            <Card.Title as="h4" className="card-title mb-1">
+
+          <Card.Header
+            title={(
               <Truncate lines={3} trimWhitespace>
                 {course.title}
               </Truncate>
-            </Card.Title>
+            )}
+          />
+
+          <Card.Section>
             <>
               {course.owners?.length > 0 && (
                 <p className="partner text-muted m-0">
@@ -86,10 +84,13 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
                 </p>
               )}
             </>
-          </Card.Body>
-          <Card.Footer className="bg-white border-0 pt-0 pb-2">
-            <span className="text-muted">Course</span>
-          </Card.Footer>
+          </Card.Section>
+
+          <Card.Footer
+            textElement={
+              <span className="text-muted">Course</span>
+            }
+          />
         </Card>
       </Link>
     </div>

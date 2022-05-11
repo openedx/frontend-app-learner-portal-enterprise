@@ -58,7 +58,7 @@ const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMG_URL = 'http://fake.image';
 const TEST_PARTNER = {
   name: 'Partner Name',
-  logo_image_url: TEST_IMAGE_URL,
+  logoImageUrl: TEST_IMAGE_URL,
 };
 
 const courses = {
@@ -144,7 +144,7 @@ describe('<SearchCourseCard />', () => {
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );
     expect(containerDOM.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
-    expect(containerDOM.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    expect(containerDOM.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
   test('renders the correct data with skills', async () => {

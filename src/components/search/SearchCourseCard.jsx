@@ -9,7 +9,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import { isDefinedAndNotNull } from '../../utils/common';
+import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
 const SearchCourseCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
@@ -45,6 +45,74 @@ const SearchCourseCard = ({ hit, isLoading }) => {
     [JSON.stringify(course)],
   );
 
+  const loadingCard = () => (
+    <Card>
+      <Card.ImageCap
+        as={Skeleton}
+        duration={0}
+      />
+
+      <Card.Header
+        title={
+          <Skeleton duration={0} data-testid="course-title-loading" />
+        }
+      />
+
+      <Card.Section>
+        <Skeleton duration={0} data-testid="partner-name-loading" />
+      </Card.Section>
+
+      <Card.Footer className="bg-white border-0 pt-0 pb-2">
+        <Skeleton duration={0} data-testid="content-type-loading" />
+      </Card.Footer>
+
+    </Card>
+  );
+
+  const searchCourseCard = () => {
+    const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
+
+    return (
+      <Card
+        isClickable
+      >
+        <Card.ImageCap
+          src={course.cardImageUrl}
+          srcAlt={course.title}
+          logoSrc={primaryPartnerLogo?.src}
+          logoAlt={primaryPartnerLogo?.alt}
+        />
+
+        <Card.Header
+          title={(
+            <Truncate lines={3} trimWhitespace>
+              {course.title}
+            </Truncate>
+          )}
+        />
+
+        <Card.Section
+          className="py-3"
+        >
+          <>
+            {course.partners?.length > 0 && (
+              <p className="partner text-muted m-0">
+                <Truncate lines={1} trimWhitespace>
+                  {course.partners.map(partner => partner.name).join(', ')}
+                </Truncate>
+              </p>
+            )}
+          </>
+        </Card.Section>
+
+        <Card.Footer textElement={
+          <span className="text-muted">Course</span>
+        }
+        />
+      </Card>
+    );
+  };
+
   return (
     <div
       className="search-course-card mb-4"
@@ -67,68 +135,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           );
         }}
       >
-        <Card>
-          {isLoading ? (
-            <Card.Img
-              as={Skeleton}
-              variant="top"
-              duration={0}
-              height={100}
-              data-testid="card-img-loading"
-            />
-          ) : (
-            <Card.Img
-              variant="top"
-              src={course.cardImageUrl}
-              alt=""
-            />
-          )}
-          {isLoading && (
-            <div className="partner-logo-wrapper">
-              <Skeleton width={90} height={42} data-testid="partner-logo-loading" />
-            </div>
-          )}
-          {(!isLoading && partnerDetails.primaryPartner && partnerDetails.showPartnerLogo) && (
-            <div className="partner-logo-wrapper">
-              <img
-                src={partnerDetails.primaryPartner.logoImageUrl}
-                className="partner-logo"
-                alt={partnerDetails.primaryPartner.name}
-              />
-            </div>
-          )}
-          <Card.Body>
-            <Card.Title as="h4" className="card-title mb-1">
-              {isLoading ? (
-                <Skeleton count={2} data-testid="course-title-loading" />
-              ) : (
-                <Truncate lines={3} trimWhitespace>
-                  {course.title}
-                </Truncate>
-              )}
-            </Card.Title>
-            {isLoading ? (
-              <Skeleton duration={0} data-testid="partner-name-loading" />
-            ) : (
-              <>
-                {course.partners?.length > 0 && (
-                  <p className="partner text-muted m-0">
-                    <Truncate lines={1} trimWhitespace>
-                      {course.partners.map(partner => partner.name).join(', ')}
-                    </Truncate>
-                  </p>
-                )}
-              </>
-            )}
-          </Card.Body>
-          <Card.Footer className="bg-white border-0 pt-0 pb-2">
-            {isLoading ? (
-              <Skeleton duration={0} data-testid="content-type-loading" />
-            ) : (
-              <span className="text-muted">Course</span>
-            )}
-          </Card.Footer>
-        </Card>
+        {isLoading ? loadingCard() : searchCourseCard()}
       </Link>
     </div>
   );

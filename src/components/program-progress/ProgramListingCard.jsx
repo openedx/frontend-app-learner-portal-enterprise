@@ -43,23 +43,28 @@ const ProgramListingCard = ({ program }) => {
     return imageURL;
   };
 
+  const authoringOrganization = (
+    program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImageUrl
+  ) ? {
+      src: program.authoringOrganizations[0].logoImageUrl,
+      alt: program.authoringOrganizations[0].key,
+    } : undefined;
+
   return (
-    <Card className="mb-4 program-listing-card mr-5" onClick={handleCardClick}>
-      <Card.Img
+    <Card
+      className="mb-4 program-listing-card mr-5"
+      isClickable
+      onClick={handleCardClick}
+    >
+      <Card.ImageCap
         src={getBannerImageURL()}
+        logoSrc={authoringOrganization?.src}
+        logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"
         className="program-banner-image"
       />
-      {(program.authoringOrganizations?.length === 1 && program.authoringOrganizations[0].logoImageUrl) && (
-        <div className="partner-logo-wrapper shadow-sm">
-          <img
-            src={program.authoringOrganizations[0].logoImageUrl}
-            className="partner-logo"
-            alt={program.authoringOrganizations[0].key}
-          />
-        </div>
-      )}
-      <Card.Body className="program-card-body">
+
+      <Card.Section className="program-card-body">
         <div>
           <div className="font-weight-light d-flex justify-content-between">
             <div>
@@ -100,7 +105,7 @@ const ProgramListingCard = ({ program }) => {
             Completed
           </div>
         </div>
-      </Card.Body>
+      </Card.Section>
     </Card>
   );
 };
