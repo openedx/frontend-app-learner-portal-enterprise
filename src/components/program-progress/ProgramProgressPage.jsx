@@ -16,7 +16,11 @@ import ProgramProgressCourses from './ProgramProgressCourses';
 import { useLearnerProgramProgressData } from './data/hooks';
 import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
-import { getLastEndingCourseDate } from './data/utils';
+import {
+  getCoursesEnrolledInAuditMode,
+  getNotStartedEnrollableCourseRuns,
+  getLastEndingCourseDate,
+} from './data/utils';
 
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
 
@@ -43,9 +47,21 @@ const ProgramProgressPage = () => {
 
   const coursesNotStarted = courseData?.notStarted;
   const totalCoursesNotStarted = coursesNotStarted?.length;
+  let enrolledCourses = [];
+  if (courseData?.completed?.length) {
+    enrolledCourses = courseData.completed;
+  }
+  if (courseData?.inProgress?.length) {
+    enrolledCourses = [...enrolledCourses, ...courseData.inProgress];
+  }
+  const coursesEnrolledInAuditMode = getCoursesEnrolledInAuditMode(enrolledCourses);
+  const totalCoursesEligibleForCertificate = totalCoursesNotStarted + coursesEnrolledInAuditMode?.length;
   let courseEndDate;
-  if (totalCoursesNotStarted) {
-    courseEndDate = getLastEndingCourseDate(coursesNotStarted);
+  if (totalCoursesEligibleForCertificate) {
+    const notStartedEnrollableCourseRuns = getNotStartedEnrollableCourseRuns(coursesNotStarted);
+    const subsidyEligibleCourseRuns = [...notStartedEnrollableCourseRuns, ...coursesEnrolledInAuditMode];
+
+    courseEndDate = getLastEndingCourseDate(subsidyEligibleCourseRuns);
   }
   if (fetchError) {
     return <ErrorPage message={fetchError.message} />;
@@ -84,7 +100,7 @@ const ProgramProgressPage = () => {
                       </>
                     )}
                   <SubsidiesSummary
-                    totalCoursesNotStarted={totalCoursesNotStarted}
+                    totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
                     courseEndDate={courseEndDate}
                     programProgressPage
                   />

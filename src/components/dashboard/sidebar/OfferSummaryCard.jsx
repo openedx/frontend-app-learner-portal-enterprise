@@ -17,7 +17,7 @@ import {
 import CouponCodesWarningModal from '../../program-progress/CouponCodesWarningModal';
 
 const OfferSummaryCard = ({
-  offersCount, couponCodeRequestsCount, className, totalCoursesNotStarted, programProgressPage,
+  offersCount, couponCodeRequestsCount, className, totalCoursesEligibleForCertificate, programProgressPage,
 }) => {
   const [
     isCouponCodeWarningModalOpen,
@@ -61,7 +61,7 @@ const OfferSummaryCard = ({
             title={(
               <div className="d-flex align-items-start justify-content-between">
                 <h3>{OFFER_REMAINING_CODES}</h3>
-                {totalCoursesNotStarted > offersCount && (
+                {totalCoursesEligibleForCertificate > offersCount && (
                   <WarningFilled
                     className="ml-2"
                     onClick={() => { couponCodeWarningModalOpen(); }}
@@ -106,7 +106,7 @@ const OfferSummaryCard = ({
 
 OfferSummaryCard.propTypes = {
   offersCount: PropTypes.number,
-  totalCoursesNotStarted: PropTypes.number,
+  totalCoursesEligibleForCertificate: PropTypes.number,
   couponCodeRequestsCount: PropTypes.number,
   className: PropTypes.string,
   programProgressPage: PropTypes.bool,
@@ -114,7 +114,7 @@ OfferSummaryCard.propTypes = {
 
 OfferSummaryCard.defaultProps = {
   offersCount: 0,
-  totalCoursesNotStarted: 0,
+  totalCoursesEligibleForCertificate: 0,
   couponCodeRequestsCount: 0,
   className: undefined,
   programProgressPage: false,

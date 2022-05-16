@@ -37,16 +37,29 @@ export function getProgramCertImage(type) {
   }
 }
 
-export function getLastEndingCourseDate(courses) {
-  let courseRuns = [];
-  courseRuns = courses.map((course) => (
-    course?.courseRuns.map((cRun) => (cRun
+export function isCourseRunEnrollable(run) {
+  return run.isEnrollmentOpen
+    && !run.isEnrolled
+    && !run.isCourseEnded
+    && run.status === 'published';
+}
+
+export function getNotStartedEnrollableCourseRuns(courses) {
+  const courseRuns = [];
+  // eslint-disable-next-line no-unused-expressions
+  courses?.map((course) => (
+    course?.courseRuns.map((cRun) => (isCourseRunEnrollable(cRun) && (courseRuns.push({
+      end: cRun.end,
+    }))
     ))
   ));
   // combine all the course runs in the program which are not started by learner.
-  const concatenatedCourseRuns = [].concat(...courseRuns);
-  return concatenatedCourseRuns?.sort(
-    (a, b) => (moment(a.end) < moment(b.end) ? 1 : -1),
+  return [].concat(...courseRuns);
+}
+
+export function getLastEndingCourseDate(courses) {
+  return courses?.sort(
+    (a, b) => (a.end < b.end ? 1 : -1),
   )[0]?.end;
 }
 
@@ -73,13 +86,6 @@ export function getEnrolledCourseRunDetails(courses) {
     ))
   ));
   return enrolledCourseRunDetails;
-}
-
-export function isCourseRunEnrollable(run) {
-  return run.isEnrollmentOpen
-  && !run.isEnrolled
-  && !run.isCourseEnded
-  && run.status === 'published';
 }
 
 export function getNotStartedCourseDetails(courses) {
@@ -172,4 +178,24 @@ export function hasLicenseOrCoupon() {
   const hasOffersOrCouponCodeRequests = offersCount > 0 || couponCodeRequests.length > 0;
 
   return hasActiveLicenseOrLicenseRequest || hasOffersOrCouponCodeRequests;
+}
+
+export const courseUpgradationAvailable = (course) => course.upgradeUrl
+  && !course.expired
+  && getCertificatePriceString(course);
+
+// return the end date for the course runs, enrolled in Audit Mode and can be upgraded to professional certificate.
+export function getCoursesEnrolledInAuditMode(courses) {
+  const courseRuns = [];
+  // eslint-disable-next-line no-unused-expressions
+  courses?.map((course) => (
+    course?.courseRuns.map((cRun) => (cRun.isEnrolled
+      && !cRun.certificateUrl
+      && courseUpgradationAvailable(cRun)
+      && (courseRuns.push({
+        end: cRun?.end,
+      }))
+    ))
+  ));
+  return courseRuns;
 }

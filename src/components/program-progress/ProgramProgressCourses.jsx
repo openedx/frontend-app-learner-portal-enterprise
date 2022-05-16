@@ -8,6 +8,7 @@ import moment from 'moment';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
+  courseUpgradationAvailable,
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
@@ -33,10 +34,6 @@ const ProgramProgressCourses = ({ courseData }) => {
     coursesNotStarted = getNotStartedCourseDetails(courseData.notStarted);
   }
   const { courseWithMultipleCourseRun, courseWithSingleCourseRun } = coursesNotStarted;
-
-  const courseUpgradationAvailable = (course) => course.upgradeUrl
-    && !(course.expired === true)
-    && getCertificatePriceString(course);
 
   const getCertificatePrice = (course) => {
     const certificatePrice = getCertificatePriceString(course);
