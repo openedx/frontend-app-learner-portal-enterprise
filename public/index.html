@@ -13,7 +13,14 @@
     <% if (htmlWebpackPlugin.options.NODE_ENV !== 'production' && htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID) { %>
       <script src="https://cdn.optimizely.com/js/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"></script>
     <% } %>
-
+    
+    <!-- Append the `?module` param to load the module version of `web-vitals` -->
+    <script type="module">
+      import {getCLS, getFID, getLCP} from 'https://unpkg.com/web-vitals?module';
+      getCLS(console.log);
+      getFID(console.log);
+      getLCP(console.log);
+    </script>
   </head>
   <body>
     <div id="root"></div>

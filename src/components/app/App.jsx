@@ -1,34 +1,26 @@
 import React, { useEffect } from 'react';
-import { Switch } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import useHotjar from 'react-use-hotjar';
 import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-platform/react';
 
+import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
 import NotFoundPage from '../NotFoundPage';
 import NoticesProvider from '../notices-provider';
 import {
   EnterpriseCustomerRedirect,
   EnterprisePageRedirect,
 } from '../enterprise-redirects';
-import { DashboardPage } from '../dashboard';
-import { CoursePage } from '../course';
-import { ProgramPage } from '../program';
-import ProgramProgress from '../program-progress/ProgramProgress';
-import { SearchPage } from '../search';
-import { LicenseActivationPage } from '../license-activation';
-import { SkillsQuizPage } from '../skills-quiz';
 import { EnterpriseInvitePage } from '../enterprise-invite';
-import { ProgramListingPage } from '../program-progress';
-
-import { features } from '../../config';
+import { LicenseActivationPage } from '../license-activation';
 import { ToastsProvider, Toasts } from '../Toasts';
 
 export default function App() {
-  if (process.env.HOTJAR_APP_ID) {
-    const { initHotjar } = useHotjar();
-    useEffect(() => {
+  const { initHotjar } = useHotjar();
+  useEffect(() => {
+    if (process.env.HOTJAR_APP_ID) {
       initHotjar(process.env.HOTJAR_APP_ID, process.env.HOTJAR_VERSION, process.env.HOTJAR_DEBUG);
-    }, [initHotjar]);
-  }
+    }
+  }, [initHotjar]);
 
   return (
     <AppProvider>
@@ -39,20 +31,8 @@ export default function App() {
             <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
             <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
             <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
-            <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
-            <PageRoute
-              exact
-              path={['/:enterpriseSlug/search', '/:enterpriseSlug/search/:pathwayUUID']}
-              component={SearchPage}
-            />
-            <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
-            {features.ENABLE_PROGRAMS && (
-              <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
-            )}
-            <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgress} />
-            <PageRoute exact path="/:enterpriseSlug/programs" component={ProgramListingPage} />
             <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
-            <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
+            <Route path="/:enterpriseSlug" component={EnterpriseAppPageRoutes} />
             <PageRoute path="*" component={NotFoundPage} />
           </Switch>
         </ToastsProvider>
