@@ -35,7 +35,7 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   const { userId } = getAuthenticatedUser();
   sendEnterpriseTrackEvent(
     enterpriseUUID,
-    'edx.ui.enterprise.learner_portal.search.program.card.clicked',
+    'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',
     {
       userId,
       programUuid,

@@ -21,6 +21,7 @@ import SearchJobCard from './SearchJobCard';
 import SearchCurrentJobCard from './SearchCurrentJobCard';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
+import SearchPathways from './SearchPathways';
 import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 import SkillsCourses from './SkillsCourses';
@@ -283,6 +284,7 @@ const SkillsQuizStepper = () => {
                         <div>
                           <SearchCourseCard index={courseIndex} />
                           <SearchProgramCard index={courseIndex} />
+                          <SearchPathways index={courseIndex} />
                         </div>
                       )}
                   </div>
