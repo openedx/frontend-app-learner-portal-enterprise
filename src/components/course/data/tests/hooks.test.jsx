@@ -31,13 +31,15 @@ const mockOffersForCourse = [{
 }];
 
 const mockCourseRecommendataions = {
-  allRecommendations: [],
+  all_recommendations: ['edX+DemoX'],
+  same_partner_recommendations: ['edX+DemoX'],
 };
 
 const mockCourseService = {
   fetchAllCourseData: jest.fn(() => mockCourseData),
   fetchUserLicenseSubsidy: jest.fn(() => ({ data: mockLicenseForCourse })),
   fetchAllCourseRecommendations: jest.fn(() => mockCourseRecommendataions),
+  fetchFilteredRecommendations: jest.fn(() => mockCourseRecommendataions),
 };
 
 jest.mock('../service', () => ({
@@ -70,7 +72,7 @@ describe('useAllCourseData', () => {
     expect(mockCourseService.fetchAllCourseData).toHaveBeenCalled();
     expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalled();
 
-    expect(result.current.courseRecommendations).toEqual(mockCourseRecommendataions);
+    expect(result.current.courseRecommendations).toEqual(camelCaseObject(mockCourseRecommendataions));
   });
 
   it('returns license subsidy if there is an applicable license for the course', async () => {
