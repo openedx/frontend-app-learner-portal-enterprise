@@ -18,7 +18,7 @@ import * as hooks from '../main-content/course-enrollments/data/hooks';
 import {
   renderWithRouter,
 } from '../../../utils/tests';
-import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
+import DashboardPage, { LICENCE_ACTIVATION_MESSAGE } from '../DashboardPage';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -114,7 +114,7 @@ const DashboardWithContext = ({
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
         <CourseEnrollmentsContextProvider>
           <CourseContextProvider initialState={initialCourseState}>
-            <Dashboard />
+            <DashboardPage />
           </CourseContextProvider>
         </CourseEnrollmentsContextProvider>
       </SubsidyRequestsContext.Provider>

@@ -7,7 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from 'react-intl';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import ProgramListing from '../ProgramLisitng';
+import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
 import { NO_PROGRAMS_ERROR_MESSAGE } from '../data/constants';
 import { renderWithRouter } from '../../../utils/tests';
@@ -71,7 +71,7 @@ const ProgramListingWithContext = ({
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListing />
+        <ProgramListingPage />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>

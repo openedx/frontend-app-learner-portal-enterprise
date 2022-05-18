@@ -13,7 +13,6 @@
     <% if (htmlWebpackPlugin.options.NODE_ENV !== 'production' && htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID) { %>
       <script src="https://cdn.optimizely.com/js/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"></script>
     <% } %>
-
   </head>
   <body>
     <div id="root"></div>
