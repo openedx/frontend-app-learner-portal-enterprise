@@ -1,9 +1,10 @@
 import {
-  useState, useEffect, useReducer,
+  useState, useEffect, useReducer, useCallback,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { fetchOffers } from '../offers';
 import offersReducer, { initialOfferState } from '../offers/data/reducer';
 
@@ -12,6 +13,7 @@ import {
   fetchSubscriptionLicensesForUser,
   fetchCustomerAgreementData,
   requestAutoAppliedLicense,
+  activateLicense,
 } from './service';
 import { features } from '../../../config';
 
@@ -77,7 +79,8 @@ const requestAutoAppliedUserLicense = async (customerAgreementId) => {
  * @param {object} args.enterpriseConfig The enterprise customer config
  * @param {object} args.customerAgreementConfig The customer agreement config associated with the enterprise
  * @param {boolean} args.isLoadingCustomerAgreementConfig Whether the customer agreement is still resolving
- * @returns Array containing a user license, if applicable, and whether the license data is still resolving
+ * @returns Object containing a user license, if applicable, whether the license data is still resolving, and a callback
+ *          to activate the user license.
  */
 export function useSubscriptionLicense({
   enterpriseConfig,
@@ -134,7 +137,29 @@ export function useSubscriptionLicense({
     }
   }, [isLoadingCustomerAgreementConfig]);
 
-  return [license, isLoading];
+  const activateUserLicense = useCallback(async (autoActivated = false) => {
+    try {
+      await activateLicense(license.activationKey);
+
+      sendEnterpriseTrackEvent(
+        enterpriseId,
+        'edx.ui.enterprise.learner_portal.license-activation.license-activated',
+        {
+          autoActivated,
+        },
+      );
+
+      setLicense({
+        ...license,
+        status: LICENSE_STATUS.ACTIVATED,
+      });
+    } catch (error) {
+      logError(error);
+      throw error;
+    }
+  }, [license, sendEnterpriseTrackEvent]);
+
+  return { license, isLoading, activateUserLicense };
 }
 
 export function useOffers(enterpriseId) {
