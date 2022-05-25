@@ -15,13 +15,25 @@ export const useCourseEnrollments = (enterpriseUUID) => {
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
+    const fetchEnterpriseCourseEnrollments = async () => {
+      const response = await service.fetchEnterpriseCourseEnrollments(enterpriseUUID);
+      // TODO: fetch enrollment requests, transform them, and merge with actual course enrollments
+      const enrollments = camelCaseObject(response.data).map(transformCourseEnrollment);
+      const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
+      setCourseEnrollmentsByStatus(enrollmentsByStatus);
+    };
+
+    const fetchProgramEnrollments = async () => {
+      const response = await service.fetchEnterpriseProgramEnrollments(enterpriseUUID);
+      setProgramEnrollments(response.data);
+    };
+
     const fetchData = async () => {
       try {
-        const resp = await service.fetchEnterpriseCourseEnrollments(enterpriseUUID);
-        // TODO: fetch enrollment requests, transform them, and merge with actual course enrollments
-        const enrollments = camelCaseObject(resp.data).map(transformCourseEnrollment);
-        const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
-        setCourseEnrollmentsByStatus(enrollmentsByStatus);
+        await Promise.all([
+          fetchProgramEnrollments(),
+          fetchEnterpriseCourseEnrollments(),
+        ]);
       } catch (error) {
         logError(error);
         setFetchError(error);
@@ -31,22 +43,6 @@ export const useCourseEnrollments = (enterpriseUUID) => {
     };
 
     fetchData();
-  }, [enterpriseUUID]);
-
-  useEffect(() => {
-    const fetchProgramEnrollments = async () => {
-      try {
-        const response = await service.fetchEnterpriseProgramEnrollments(enterpriseUUID);
-        setProgramEnrollments(response.data);
-      } catch (error) {
-        logError(error);
-        setFetchError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProgramEnrollments();
   }, [enterpriseUUID]);
 
   const updateCourseEnrollmentStatus = useCallback(({

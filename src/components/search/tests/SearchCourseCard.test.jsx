@@ -41,7 +41,9 @@ const defaultProps = {
   hit: {
     key: TEST_COURSE_KEY,
     title: TEST_TITLE,
-    card_image_url: TEST_CARD_IMG_URL,
+    image: {
+      src: TEST_CARD_IMG_URL,
+    },
     partners: [TEST_PARTNER],
   },
 };
@@ -51,8 +53,7 @@ const propsForLoading = {
   isLoading: true,
 };
 
-// todo: [DP-100] fix test
-describe.skip('<SearchCourseCard />', () => {
+describe('<SearchCourseCard />', () => {
   test('renders the correct data', () => {
     const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
 

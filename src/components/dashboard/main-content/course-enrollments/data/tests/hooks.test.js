@@ -3,7 +3,7 @@ import { useCourseEnrollments } from '../hooks';
 import * as service from '../service';
 import { COURSE_STATUSES } from '../constants';
 import { transformCourseEnrollment } from '../utils';
-import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
+import { createRawCourseEnrollment, programEnrollmentFactory } from '../../tests/enrollment-testutils';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -12,18 +12,29 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 
 const mockRawCourseEnrollment = createRawCourseEnrollment();
 const mockTransformedMockCourseEnrollment = transformCourseEnrollment(mockRawCourseEnrollment);
+const mockProgramEnrollment = programEnrollmentFactory.create();
 
-// todo: [DP-100] fix test
-describe.skip('useCourseEnrollments', () => {
+describe('useCourseEnrollments', () => {
   it('should fetch and set course enrollments', async () => {
-    service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
+    service.fetchEnterpriseCourseEnrollments.mockResolvedValue({
+      data: [mockRawCourseEnrollment],
+    });
+    service.fetchEnterpriseProgramEnrollments.mockResolvedValue({
+      data: [mockProgramEnrollment],
+    });
 
     const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments('uuid'));
     await waitForNextUpdate();
+
     expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
+    expect(service.fetchEnterpriseProgramEnrollments).toHaveBeenCalled();
+
     expect(result.current.courseEnrollmentsByStatus).toEqual({
       inProgress: [mockTransformedMockCourseEnrollment], upcoming: [], completed: [], savedForLater: [], requested: [],
     });
+
+    expect(result.current.programEnrollments).toEqual(([mockProgramEnrollment]));
+
     expect(result.current.fetchError).toBeUndefined();
   });
 

@@ -18,6 +18,18 @@ import CourseEnrollmentsContextProvider from '../../main-content/course-enrollme
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
 
+jest.mock('../../main-content/course-enrollments/data/hooks', () => ({
+  useCourseEnrollments: jest.fn(() => ({
+    isLoading: false,
+    courseEnrollmentsByStatus: {
+      inProgress: [], upcoming: [], completed: [], savedForLater: [], requested: [],
+    },
+    fetchError: null,
+    updateCourseEnrollmentStatus: () => {},
+    programEnrollments: [],
+  })),
+}));
+
 /* eslint-disable react/prop-types */
 const DashboardSidebarWithContext = ({
   initialAppState = { fakeContext: 'foo' },

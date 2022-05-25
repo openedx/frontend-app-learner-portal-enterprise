@@ -11,7 +11,7 @@ const noExtraneousDependencies = (
 )
 
 // This module is only used in tests, so it's allowed to use dev dependencies
-noExtraneousDependencies[1].devDependencies.push("src/utils/tests.jsx");
+noExtraneousDependencies[1].devDependencies.push("src/utils/tests/*");
 
 config.rules['import/no-extraneous-dependencies'] = noExtraneousDependencies;
 

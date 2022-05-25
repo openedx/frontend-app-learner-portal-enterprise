@@ -9,8 +9,7 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-// todo: [DP-100] fix test
-describe.skip('<EnterpriseBanner />', () => {
+describe('<EnterpriseBanner />', () => {
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -20,12 +19,15 @@ describe.skip('<EnterpriseBanner />', () => {
       pathname: '/slug/search',
     }));
 
+    const name = 'Dojo Alpha';
+
     render(
       <AppContext.Provider
         value={{
           enterpriseConfig: {
             slug: 'slug',
             uuid: 'uuid',
+            name,
           },
         }}
       >
@@ -33,6 +35,6 @@ describe.skip('<EnterpriseBanner />', () => {
       </AppContext.Provider>,
     );
 
-    expect(screen.getByText('Recommend courses for me'));
+    expect(screen.getByText(name));
   });
 });

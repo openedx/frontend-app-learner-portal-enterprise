@@ -54,7 +54,7 @@ const PROGRAM_AUTHOR_ORG = {
 
 const defaultProps = {
   hit: {
-    aggregation_key: `program:${PROGRAM_UUID}`,
+    uuid: PROGRAM_UUID,
     authoring_organizations: [
       PROGRAM_AUTHOR_ORG,
     ],
@@ -73,8 +73,7 @@ const propsForLoading = {
   isLoading: true,
 };
 
-// todo: [DP-100] fix test
-describe.skip('<SearchProgramCard />', () => {
+describe('<SearchProgramCard />', () => {
   test('renders the correct data', () => {
     const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
 

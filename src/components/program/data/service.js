@@ -17,28 +17,29 @@ export default class ProgramService {
   }
 
   async fetchAllProgramData() {
-    const programDataRaw = await Promise.all([
+    const responses = await Promise.all([
       this.fetchProgramDetails(),
       this.fetchEnterpriseCatalogData(),
-    ])
-      .then((responses) => responses.map(res => res.data));
+    ]);
 
-    const programData = camelCaseObject(programDataRaw);
-    const programDetails = programData[0];
-    const catalogData = programData[1];
-    const programsUuids = catalogData.programs?.map((program) => program.uuid);
+    const [programDetails, catalogData] = responses.map(
+      ({ data }) => camelCaseObject(data),
+    );
 
-    programDetails.courses.forEach((course, index) => {
+    programDetails.courses = programDetails.courses.map((course) => {
       const availableCourseRuns = getAvailableCourseRuns(course);
-      programDetails.courses[index].activeCourseRun = availableCourseRuns ? availableCourseRuns[0] : undefined;
-      programDetails.courses[index].enterpriseHasCourse = true;
+      return {
+        ...course,
+        activeCourseRun: availableCourseRuns ? availableCourseRuns[0] : undefined,
+        enterpriseHasCourse: true,
+      };
     });
 
-    programDetails.catalogContainsProgram = programsUuids.includes(programDetails.uuid);
+    programDetails.catalogContainsProgram = Boolean(
+      catalogData.programs?.some(({ uuid }) => uuid === programDetails.uuid),
+    );
 
-    return {
-      programDetails,
-    };
+    return { programDetails };
   }
 
   fetchEnterpriseCatalogData() {

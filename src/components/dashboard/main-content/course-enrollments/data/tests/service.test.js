@@ -4,6 +4,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import {
   fetchEnterpriseCourseEnrollments,
+  fetchEnterpriseProgramEnrollments,
 } from '../service';
 
 jest.mock('@edx/frontend-platform/auth');
@@ -16,6 +17,14 @@ describe('course enrollments service', () => {
   it('fetches enterprise enrollments', () => {
     const url = 'http://localhost:18000/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?enterprise_id=test-enterprise-id&is_active=true';
     fetchEnterpriseCourseEnrollments('test-enterprise-id');
+    expect(axios.get).toBeCalledWith(url);
+  });
+});
+
+describe('program enrollment service', () => {
+  it('fetches program enrollments', () => {
+    const url = 'http://localhost:18000/api/program-enrollment/user-enrollments/?enterprise_uuid=test-enterprise-id';
+    fetchEnterpriseProgramEnrollments('test-enterprise-id');
     expect(axios.get).toBeCalledWith(url);
   });
 });

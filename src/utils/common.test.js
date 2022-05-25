@@ -6,7 +6,7 @@ import {
   hasTruthyValue,
   hasValidStartExpirationDates,
   fixedEncodeURIComponent,
-} from '../common';
+} from './common';
 
 function assertTestCaseEquals(testCase, expectedValue) {
   const result = createArrayFromValue(testCase);

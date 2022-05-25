@@ -10,6 +10,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import moment from 'moment';
 import {
+  courseEnrollmentFactory,
   createCourseEnrollmentWithStatus,
 } from './enrollment-testutils';
 import CourseEnrollments, { COURSE_SECTION_TITLES } from '../CourseEnrollments';
@@ -19,6 +20,7 @@ import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete
 import { COURSE_STATUSES } from '../data/constants';
 import CourseEnrollmentsContextProvider from '../CourseEnrollmentsContextProvider';
 import * as hooks from '../data/hooks';
+import { createManyMocks, factory } from '../../../../../utils/tests';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -38,6 +40,21 @@ const completedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.comp
 const savedForLaterCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.savedForLater);
 const requestedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.requested);
 
+const getCourseRunIds = (courses) => courses.map(({ courseRunId }) => courseRunId);
+
+const PROGRAM_ENROLLMENTS = [
+  {
+    program_title: 'program_title',
+    courses: getCourseRunIds([
+      inProgCourseRun,
+      upcomingCourseRun,
+      completedCourseRun,
+      savedForLaterCourseRun,
+      requestedCourseRun,
+    ]),
+  },
+];
+
 hooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
     inProgress: [inProgCourseRun],
@@ -46,6 +63,7 @@ hooks.useCourseEnrollments.mockReturnValue({
     savedForLater: [savedForLaterCourseRun],
     requested: [requestedCourseRun],
   },
+  programEnrollments: PROGRAM_ENROLLMENTS,
   updateCourseEnrollmentStatus: jest.fn(),
 });
 
@@ -57,8 +75,7 @@ const renderEnrollmentsComponent = () => render(
   </AppContext.Provider>,
 );
 
-// todo: [DP-100] fix test
-describe.skip('Course enrollments', () => {
+describe('Course enrollments', () => {
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
   });
@@ -69,7 +86,6 @@ describe.skip('Course enrollments', () => {
 
   it('renders course sections', () => {
     renderEnrollmentsComponent();
-    expect(screen.getByText(COURSE_SECTION_TITLES.current));
     expect(screen.getByText(COURSE_SECTION_TITLES.completed));
     expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater));
     expect(screen.getAllByText(inProgCourseRun.title).length).toBeGreaterThanOrEqual(1);
@@ -101,46 +117,76 @@ describe.skip('Course enrollments', () => {
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {
     renderEnrollmentsComponent();
-    const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
+    const programTitle = PROGRAM_ENROLLMENTS[0].program_title;
+    const currentCourses = screen.getByText(programTitle).closest('.course-section');
     expect(within(currentCourses).getByText(inProgCourseRun.title));
     expect(within(currentCourses).getByText(upcomingCourseRun.title));
     expect(within(currentCourses).getByText(requestedCourseRun.title));
   });
 
   it('renders courses enrollments within sections by created timestamp', async () => {
-    const now = moment();
+    const courseFactory = courseEnrollmentFactory.extend({
+      title: factory.index(i => `title ${i}`),
+      courseRunId: factory.index(i => `course-run-${i}`),
+      created: factory.datetime(moment(), {
+        increment: { seconds: 100 },
+      }),
+    });
+
+    const courses = createManyMocks(5, courseFactory);
+
+    const inProgressCourses = [courses[0], courses[3]];
+    const upcomingCourses = [courses[2], courses[1], courses[4]];
+
+    const setCoursesStatus = (coursesList, status) => coursesList.forEach(
+      course => {
+        // eslint-disable-next-line no-param-reassign
+        course.status = status;
+      },
+    );
+
+    setCoursesStatus(inProgressCourses, COURSE_STATUSES.inProgress);
+    setCoursesStatus(upcomingCourses, COURSE_STATUSES.upcoming);
+
+    const programCourses = [
+      [courses[0], courses[1], courses[2]],
+      [courses[3], courses[4]],
+    ];
+
+    const programEnrollmentFactory = factory.object({
+      program_title: factory.index(i => `Program ${i}`),
+    });
+
+    const programEnrollments = programCourses.map(courseList => (
+      programEnrollmentFactory.create({
+        courses: getCourseRunIds(courseList),
+      })
+    ));
+
     hooks.useCourseEnrollments.mockReturnValueOnce({
       courseEnrollmentsByStatus: {
-        inProgress: [{
-          ...inProgCourseRun,
-          title: 'second enrollment',
-          created: now.toISOString(),
-        }],
-        upcoming: [{
-          ...upcomingCourseRun,
-          courseRunId: 'third enrollment',
-          title: 'third enrollment',
-          created: now.add(1, 's').toISOString(),
-        },
-        {
-          ...upcomingCourseRun,
-          courseRunId: 'first enrollment',
-          title: 'first enrollment',
-          created: now.subtract(100, 's').toISOString(),
-        }],
+        inProgress: inProgressCourses,
+        upcoming: upcomingCourses,
         completed: [],
         savedForLater: [],
         requested: [],
       },
+      programEnrollments,
     });
 
     renderEnrollmentsComponent();
 
-    const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
-    const courseTitles = currentCourses.querySelectorAll('.course-title');
-    expect(courseTitles.length).toBe(3);
-    expect([...courseTitles].map(title => title.textContent)).toEqual(
-      ['first enrollment', 'second enrollment', 'third enrollment'],
-    );
+    const getCourseTitles = coursesList => coursesList.map(course => course.title);
+
+    programEnrollments.forEach((programEnrollment, i) => {
+      const courseTitles = screen
+        .getByText(programEnrollment.program_title)
+        .closest('.course-section')
+        .querySelectorAll('.course-title');
+
+      expect(courseTitles.length).toBe(programCourses[i].length);
+      expect([...courseTitles].map(title => title.textContent))
+        .toEqual(getCourseTitles(programCourses[i]));
+    });
   });
 });

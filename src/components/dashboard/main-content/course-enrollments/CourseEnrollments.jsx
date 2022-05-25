@@ -13,6 +13,10 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
 };
 
+const filterCourseRuns = (courseEnrollments, courses) => (
+  courseEnrollments.filter(({ courseRunId }) => courses.includes(courseRunId))
+);
+
 const CourseEnrollments = ({ children }) => {
   const {
     courseEnrollmentsByStatus,
@@ -69,31 +73,23 @@ const CourseEnrollments = ({ children }) => {
           gets displayed if the user does not have any course enrollments.
       */}
       {!hasCourseEnrollments && children}
-      <>
-        {
-          programEnrollments.map(
-            (programEnrollment) => {
-              const courses = currentCourseEnrollments.filter(
-                (x) => (programEnrollment.courses.includes(x.courseRunId)),
-              );
-              return (
-                <CourseSection
-                  title={programEnrollment.program_title}
-                  courseRuns={courses}
-                />
-              );
-            },
-          )
-        }
+      {programEnrollments.map((programEnrollment) => (
         <CourseSection
-          title={COURSE_SECTION_TITLES.completed}
-          courseRuns={completedCourseEnrollments}
+          title={programEnrollment.program_title}
+          courseRuns={filterCourseRuns(
+            currentCourseEnrollments,
+            programEnrollment.courses,
+          )}
         />
-        <CourseSection
-          title={COURSE_SECTION_TITLES.savedForLater}
-          courseRuns={savedForLaterCourseEnrollments}
-        />
-      </>
+      ))}
+      <CourseSection
+        title={COURSE_SECTION_TITLES.completed}
+        courseRuns={completedCourseEnrollments}
+      />
+      <CourseSection
+        title={COURSE_SECTION_TITLES.savedForLater}
+        courseRuns={savedForLaterCourseEnrollments}
+      />
     </>
   );
 };
