@@ -1,27 +1,38 @@
-import React, { useContext } from 'react';
-import { Redirect, useParams, useLocation } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Redirect, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Container } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
-import { useLicenseActivation } from './data/hooks';
 
 import { useRenderContactHelpText } from '../../utils/hooks';
+import LicenseActivationErrorAlert from './LicenseActivationErrorAlert';
+import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 export const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
 
-export default function LicenseActivation() {
-  const { activationKey } = useParams();
+const LicenseActivation = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
   const location = useLocation();
+  const fromLocation = location.state?.from;
+  const { activateUserLicense } = useContext(UserSubsidyContext);
+  const [activationSuccess, setActivationSuccess] = useState();
 
-  const [activationSuccess, activationError] = useLicenseActivation({
-    activationKey,
-    enterpriseUUID: enterpriseConfig.uuid,
-    autoActivated: !!location.state?.from,
-  });
+  useEffect(() => {
+    const activateLicense = async () => {
+      const autoActivated = !!fromLocation;
+      try {
+        await activateUserLicense(autoActivated);
+        setActivationSuccess(true);
+      } catch (error) {
+        setActivationSuccess(false);
+      }
+    };
+
+    activateLicense();
+  }, [activateUserLicense, fromLocation]);
 
   if (activationSuccess) {
     const redirectToPath = location.state?.from ?? `/${enterpriseConfig.slug}`;
@@ -37,18 +48,13 @@ export default function LicenseActivation() {
   }
 
   const PAGE_TITLE = `License Activation - ${enterpriseConfig.name}`;
-  if (activationError) {
+
+  if (activationSuccess === false) {
     return (
-      <>
-        <Helmet title={PAGE_TITLE} />
-        <Container size="lg" className="mt-3">
-          <Alert variant="danger">
-            We were unable to activate a license for this user. Please double-check that you have an
-            assigned license and verify the email to which it was sent. If you run into further issues,
-            please {renderContactHelpText(Alert.Link)} for assistance.
-          </Alert>
-        </Container>
-      </>
+      <LicenseActivationErrorAlert
+        title={`License Activation - ${enterpriseConfig.name}`}
+        contactHelpText={renderContactHelpText(Alert.Link)}
+      />
     );
   }
 
@@ -60,4 +66,6 @@ export default function LicenseActivation() {
       </Container>
     </>
   );
-}
+};
+
+export default LicenseActivation;

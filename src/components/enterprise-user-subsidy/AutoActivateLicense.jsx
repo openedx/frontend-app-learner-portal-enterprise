@@ -3,6 +3,7 @@ import { Redirect, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { UserSubsidyContext } from './UserSubsidy';
+import { LICENSE_STATUS } from './data/constants';
 
 /**
  * Redirects users to the license activation page if they have an assigned license.
@@ -12,7 +13,7 @@ const AutoActivateLicense = () => {
   const { subscriptionLicense } = useContext(UserSubsidyContext);
   const location = useLocation();
 
-  if (!subscriptionLicense?.activationKey || ['activated', 'revoked'].includes(subscriptionLicense?.status)) {
+  if (!subscriptionLicense?.activationKey || subscriptionLicense?.status !== LICENSE_STATUS.ASSIGNED) {
     return null;
   }
 

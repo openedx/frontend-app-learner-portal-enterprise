@@ -11,7 +11,6 @@ import {
   EnterprisePageRedirect,
 } from '../enterprise-redirects';
 import { EnterpriseInvitePage } from '../enterprise-invite';
-import { LicenseActivationPage } from '../license-activation';
 import { ToastsProvider, Toasts } from '../Toasts';
 
 export default function App() {
@@ -31,7 +30,6 @@ export default function App() {
             <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
             <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
             <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
-            <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
             <Route path="/:enterpriseSlug" component={EnterpriseAppPageRoutes} />
             <PageRoute path="*" component={NotFoundPage} />
           </Switch>

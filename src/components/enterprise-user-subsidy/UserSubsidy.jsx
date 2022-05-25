@@ -19,7 +19,11 @@ export const UserSubsidyContext = createContext();
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
-  const [subscriptionLicense, isLoadingLicense] = useSubscriptionLicense({
+  const {
+    license: subscriptionLicense,
+    isLoading: isLoadingLicense,
+    activateUserLicense,
+  } = useSubscriptionLicense({
     enterpriseConfig,
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
@@ -55,6 +59,7 @@ const UserSubsidy = ({ children }) => {
         offers,
         showExpirationNotifications,
         customerAgreementConfig,
+        activateUserLicense,
       };
     },
     [
