@@ -4,7 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
-import OfferSummaryCard from './OfferSummaryCard';
+import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -30,7 +30,7 @@ const SubsidiesSummary = ({
   const {
     subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,
-    offers: { offersCount },
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
 
   const {
@@ -49,9 +49,9 @@ const SubsidiesSummary = ({
   const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
-  const hasOffersOrCouponCodeRequests = offersCount > 0 || couponCodeRequests.length > 0;
+  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
 
-  if (!(hasActiveLicenseOrLicenseRequest || hasOffersOrCouponCodeRequests)) {
+  if (!(hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests)) {
     return null;
   }
 
@@ -75,9 +75,9 @@ const SubsidiesSummary = ({
             className="mb-3"
           />
         )}
-        {hasOffersOrCouponCodeRequests && (
-          <OfferSummaryCard
-            offersCount={offersCount}
+        {hasAssignedCodesOrCodeRequests && (
+          <CouponCodesSummaryCard
+            couponCodesCount={couponCodesCount}
             couponCodeRequestsCount={couponCodeRequests.length}
             totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
             programProgressPage={programProgressPage}

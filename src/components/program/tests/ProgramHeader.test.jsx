@@ -59,9 +59,9 @@ describe('<ProgramHeader />', () => {
     subscriptionLicense: {
       uuid: 'test-license-uuid',
     },
-    offers: {
-      offers: [],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
     },
   };
 

@@ -12,15 +12,15 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
 
   const { subsidyRequestConfiguration, catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
     subscriptionLicense,
-    offerCatalogs,
+    couponCodesCatalogs,
     subsidyRequestConfiguration,
     catalogsForSubsidyRequests: [...catalogsForSubsidyRequests],
   });

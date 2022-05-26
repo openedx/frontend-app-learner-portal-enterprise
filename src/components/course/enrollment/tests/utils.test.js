@@ -49,7 +49,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
       },
     })).toBe(TO_ECOM_BASKET);
   });
-  test('resolves invalid subscription, offer not available, to ecom basket page', () => {
+  test('resolves invalid subscription, code not available, to ecom basket page', () => {
     expect(determineEnrollmentType({
       isUserEnrolled: false,
       isEnrollable: true,
@@ -60,7 +60,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
       },
     })).toBe(TO_ECOM_BASKET);
   });
-  test('resolves invalid subscription, offer available, to voucher redeem page', () => {
+  test('resolves invalid subscription, code available, to voucher redeem page', () => {
     expect(determineEnrollmentType({
       isUserEnrolled: false,
       isEnrollable: true,
@@ -68,7 +68,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
         subscriptionLicense: null,
         userSubsidyApplicableToCourse: null,
         enrollmentUrl: 'http://test',
-        courseHasOffer: true,
+        hasCouponCodeForCourse: true,
       },
     })).toBe(TO_VOUCHER_REDEEM);
   });

@@ -9,7 +9,7 @@ import { LoadingSpinner } from '../loading-spinner';
 
 import {
   useSubscriptionLicense,
-  useOffers,
+  useCouponCodes,
   useCustomerAgreementData,
 } from './data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
@@ -28,7 +28,7 @@ const UserSubsidy = ({ children }) => {
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
   });
-  const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
+  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
 
@@ -42,10 +42,10 @@ const UserSubsidy = ({ children }) => {
 
   const isLoadingSubsidies = useMemo(
     () => {
-      const loadingStates = [isLoadingLicense, isLoadingOffers, isLoadingCustomerAgreementConfig];
+      const loadingStates = [isLoadingLicense, isLoadingCouponCodes, isLoadingCustomerAgreementConfig];
       return loadingStates.includes(true);
     },
-    [isLoadingLicense, isLoadingOffers, isLoadingCustomerAgreementConfig],
+    [isLoadingLicense, isLoadingCouponCodes, isLoadingCustomerAgreementConfig],
   );
 
   const contextValue = useMemo(
@@ -56,7 +56,7 @@ const UserSubsidy = ({ children }) => {
       return {
         subscriptionLicense,
         subscriptionPlan,
-        offers,
+        couponCodes,
         showExpirationNotifications,
         customerAgreementConfig,
         activateUserLicense,
@@ -66,7 +66,7 @@ const UserSubsidy = ({ children }) => {
       isLoadingSubsidies,
       subscriptionPlan,
       subscriptionLicense,
-      offers,
+      couponCodes,
       enterpriseConfig.uuid,
       customerAgreementConfig,
     ],

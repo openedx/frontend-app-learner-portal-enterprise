@@ -11,7 +11,7 @@ import {
   CONTACT_HELP_EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
   LICENSE_REQUESTED_NOTICE,
-  OFFER_SUMMARY_NOTICE,
+  COUPON_CODES_SUMMARY_NOTICE,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -50,10 +50,10 @@ describe('<DashboardSidebar />', () => {
   const defaultUserSubsidyState = {
     subscriptionPlan: undefined,
     subscriptionLicense: undefined,
-    offers: {
-      offers: [],
+    couponCodes: {
+      couponCodes: [],
       loading: false,
-      offersCount: 0,
+      couponCodesCount: 0,
     },
   };
   const initialAppState = {
@@ -73,19 +73,19 @@ describe('<DashboardSidebar />', () => {
       status: LICENSE_STATUS.ACTIVATED,
     },
   };
-  test('Offer summary card is displayed when offers are available', () => {
+  test('Coupon codes summary card is displayed when coupon codes are available', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
-          offers: { ...defaultUserSubsidyState.offers, offersCount: 2 },
+          couponCodes: { ...defaultUserSubsidyState.couponCodes, couponCodesCount: 2 },
         }}
       />,
     );
-    expect(screen.getByText(OFFER_SUMMARY_NOTICE));
+    expect(screen.getByText(COUPON_CODES_SUMMARY_NOTICE));
   });
-  test('Offer summary card is displayed when there are pending coupon code requests', () => {
+  test('Coupon codes summary card is displayed when there are pending coupon code requests', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
         initialAppState={initialAppState}
@@ -102,16 +102,16 @@ describe('<DashboardSidebar />', () => {
         }}
       />,
     );
-    expect(screen.getByText(OFFER_SUMMARY_NOTICE));
+    expect(screen.getByText(COUPON_CODES_SUMMARY_NOTICE));
   });
-  test('Offer summary card is not displayed when there are no offers or pending coupon code requests', () => {
+  test('Coupon codes summary card is not displayed when there are no coupon codes or pending coupon code requests', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={defaultUserSubsidyState}
       />,
     );
-    expect(screen.queryByText(OFFER_SUMMARY_NOTICE)).toBeFalsy();
+    expect(screen.queryByText(COUPON_CODES_SUMMARY_NOTICE)).toBeFalsy();
   });
   test('Subscription summary card is displayed when subscription is available', () => {
     renderWithRouter(
@@ -167,7 +167,7 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('Find a course button is not rendered when user has no offer or license subsidy', () => {
+  test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
         initialAppState={{ enterpriseConfig: { slug: 'sluggykins', adminUsers: [] } }}

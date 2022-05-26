@@ -1,14 +1,14 @@
-// OfferSummaryCard title
-export const OFFER_SUMMARY_TITLE = 'Enrollment Codes';
-export const OFFER_SUMMARY_NOTICE = 'Use codes to enroll in courses from your catalog.';
-// OfferSummaryCard title on ProgramProgressPage
-export const OFFER_REMAINING_CODES = 'Remaining Codes';
-export const OFFER_SUMMARY_DETAIL = 'Codes remaining, contact your administrator for additional codes.';
-// OfferSummaryCard badge labels
-export const OFFERS_AVAILABLE_BADGE_LABEL = 'Available';
+// CouponCodesSummaryCard title
+export const COUPON_CODES_SUMMARY_TITLE = 'Enrollment Codes';
+export const COUPON_CODES_SUMMARY_NOTICE = 'Use codes to enroll in courses from your catalog.';
+// CouponCodesSummaryCard title on ProgramProgressPage
+export const COUPON_CODES_SUMMARY_REMAINING_CODES = 'Remaining Codes';
+export const COUPON_CODES_SUMMARY_DETAIL = 'Codes remaining, contact your administrator for additional codes.';
+// CouponCodesSummaryCard badge labels
+export const COUPON_CODES_AVAILABLE_BADGE_LABEL = 'Available';
 export const COUPON_CODES_REQUESTED_BADGE_LABEL = 'Requested';
-// OfferSummaryCard badge variants
-export const OFFERS_AVAILABLE_BADGE_VARIANT = 'success';
+// CouponCodesSummaryCard badge variants
+export const COUPON_CODES_AVAILABLE_BADGE_VARIANT = 'success';
 export const COUPON_CODES_REQUESTED_BADGE_VARIANT = 'warning';
 // SubscriptionSummaryCard title
 export const SUBSCRIPTION_SUMMARY_CARD_TITLE = 'Subscription Status';

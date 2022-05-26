@@ -3,7 +3,7 @@ import { useMemo, useContext } from 'react';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from '../CourseContextProvider';
 import {
-  findOfferForCourse, hasCourseStarted, findUserEnrollmentForCourseRun,
+  findCouponCodeForCourse, hasCourseStarted, findUserEnrollmentForCourseRun,
 } from '../data/utils';
 
 /**
@@ -49,27 +49,27 @@ export function useEnrollData() {
  * Extract subsidy information from CourseContext and UserSubsidyContext.
  * Before calling this, ensure the following data is in CourseContext and UserSubsidyContext:
  *   CourseContext `state` should have `userSubsidyApplicableToCourse` and `catalog`
- *   UserSubsidyContext `value` should have `subscriptionLicense` and `offers`
+ *   UserSubsidyContext `value` should have `subscriptionLicense` and `couponCodes`
  *
  * @returns {object} with fields:
  * {
  *    subscriptionLicense,
  *    userSubsidyApplicableToCourse,
- *    offersCount,
- *    offers,
- *     courseHasOffer,
+ *    couponCodes,
+ *    couponCodesCount,
+ *    hasCouponCodeForCourse,
  * }
  */
 export function useSubsidyDataForCourse() {
   const { state: courseData } = useContext(CourseContext);
-  const { subscriptionLicense, offers: { offers, offersCount } } = useContext(UserSubsidyContext);
+  const { subscriptionLicense, couponCodes: { couponCodes, couponCodesCount } } = useContext(UserSubsidyContext);
 
   const { userSubsidyApplicableToCourse, catalog: { catalogList } } = courseData;
   return {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
-    offersCount,
-    offers,
-    courseHasOffer: !!findOfferForCourse(offers, catalogList),
+    couponCodes,
+    couponCodesCount,
+    hasCouponCodeForCourse: !!findCouponCodeForCourse(couponCodes, catalogList),
   };
 }

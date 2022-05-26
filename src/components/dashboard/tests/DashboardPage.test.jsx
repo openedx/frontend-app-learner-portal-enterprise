@@ -26,10 +26,10 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 
-const defaultOffersState = {
-  offers: [],
+const defaultCouponCodesState = {
+  couponCodes: [],
   loading: false,
-  offersCount: 0,
+  couponCodesCount: 0,
 };
 
 const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
@@ -48,7 +48,7 @@ const defaultAppState = {
 };
 
 const defaultUserSubsidyState = {
-  offers: defaultOffersState,
+  couponCodes: defaultCouponCodesState,
 };
 
 const defaultCourseState = {
@@ -338,7 +338,7 @@ describe('<Dashboard />', () => {
 
       const subscriptionPlanId = 'expiring-plan-60';
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultOffersState,
+        ...defaultCouponCodesState,
         subscriptionPlan: {
           uuid: subscriptionPlanId,
           daysUntilExpiration: 60,
@@ -362,7 +362,7 @@ describe('<Dashboard />', () => {
     it('should not show the modal if 60 >= daysUntilExpiration > 30 and the 60 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultOffersState,
+        ...defaultCouponCodesState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
         },
@@ -383,7 +383,7 @@ describe('<Dashboard />', () => {
 
       const subscriptionPlanId = 'expiring-plan-30';
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultOffersState,
+        ...defaultCouponCodesState,
         subscriptionPlan: {
           uuid: subscriptionPlanId,
           daysUntilExpiration: 30,
@@ -407,7 +407,7 @@ describe('<Dashboard />', () => {
     it('should not show the modal if 30 >= daysUntilExpiration > 0 and the 30 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultOffersState,
+        ...defaultCouponCodesState,
         subscriptionPlan: {
           daysUntilExpiration: 30,
         },

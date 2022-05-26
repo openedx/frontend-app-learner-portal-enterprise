@@ -8,7 +8,7 @@ import {
   useSubsidyRequests,
 } from '../hooks';
 import * as service from '../service';
-import * as offersService from '../../../enterprise-user-subsidy/offers/data/service';
+import * as couponsService from '../../../enterprise-user-subsidy/coupons/data/service';
 
 const mockEmail = 'edx@example.com';
 const mockEnterpriseUUID = 'enterprise-uuid';
@@ -18,7 +18,7 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: () => ({ email: mockEmail }),
 }));
-jest.mock('../../../enterprise-user-subsidy/offers/data/service');
+jest.mock('../../../enterprise-user-subsidy/coupons/data/service');
 
 describe('useSubsidyRequestConfiguration', () => {
   afterEach(() => jest.clearAllMocks());
@@ -200,7 +200,7 @@ describe('useCatalogsForSubsidyRequests', () => {
 
   it('fetches coupons overview and sets catalogs correctly if configured subsidy type is coupons', async () => {
     const mockCatalogUUIDs = ['uuid1', 'uuid2'];
-    offersService.fetchCouponsOverview.mockResolvedValue({
+    couponsService.fetchCouponsOverview.mockResolvedValue({
       data: {
         results: mockCatalogUUIDs.map(uuid => ({
           enterprise_catalog_uuid: uuid,
@@ -234,7 +234,7 @@ describe('useCatalogsForSubsidyRequests', () => {
     }));
 
     expect(result.current.isLoading).toBe(false);
-    expect(offersService.fetchCouponsOverview).not.toHaveBeenCalled();
+    expect(couponsService.fetchCouponsOverview).not.toHaveBeenCalled();
   });
 
   it('sets catalogs from subscription plans correctly if configured subsidy type is licenses', async () => {

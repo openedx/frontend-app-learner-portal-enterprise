@@ -41,15 +41,15 @@ const Search = () => {
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
   const { subsidyRequestConfiguration, catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
     subscriptionLicense,
-    offerCatalogs,
+    couponCodesCatalogs,
     subsidyRequestConfiguration,
     catalogsForSubsidyRequests: [...catalogsForSubsidyRequests],
   });

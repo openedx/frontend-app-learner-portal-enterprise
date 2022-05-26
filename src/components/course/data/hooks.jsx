@@ -22,7 +22,7 @@ import CourseService from './service';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
-  findOfferForCourse,
+  findCouponCodeForCourse,
   hasLicenseSubsidy,
   getSubsidyToApplyForCourse,
 } from './utils';
@@ -42,7 +42,7 @@ export function useAllCourseData({
   enterpriseConfig,
   courseRunKey,
   subscriptionLicense,
-  offers,
+  couponCodes,
   activeCatalogs,
 }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,8 +50,6 @@ export function useAllCourseData({
   const [courseRecommendations, setCourseRecommendations] = useState();
   const [fetchError, setFetchError] = useState();
 
-  // todo: this could get refactored, but since we already fetch offers
-  // we simply pass offers along to the `fetchAllCourseData` call to 'fetch' it back
   useEffect(() => {
     const fetchData = async () => {
       if (!courseKey || !enterpriseConfig) {
@@ -97,7 +95,7 @@ export function useAllCourseData({
 
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
-            applicableOffer: findOfferForCourse(offers, catalogsWithCourse),
+            applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
           });
         }
 
@@ -318,7 +316,7 @@ useCoursePriceForUserSubsidy.propTypes = {
  * @param {object} args.enterpriseConfig config for enterprise
  * @param {string} args.key course key
  * @param {object} args.location just an object with a 'search' field (usually from useLocation())
- * @param {Array.<object>} args.offers array of offer objects for course
+ * @param {Array.<object>} args.couponCodes array of coupon codes for course
  * @param {string} args.sku course SKU
  * @param {object} args.subscriptionLicense license for subscription | null
  * @param {object} args.userSubsidyApplicableToCourse subsidy for course if found | null
@@ -330,7 +328,7 @@ export const useCourseEnrollmentUrl = ({
   enterpriseConfig,
   key,
   location,
-  offers = [],
+  couponCodes = [],
   sku,
   subscriptionLicense,
   userSubsidyApplicableToCourse,
@@ -360,25 +358,25 @@ export const useCourseEnrollmentUrl = ({
         return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
       }
 
-      if (features.ENROLL_WITH_CODES && offers.length >= 0 && sku) {
+      if (features.ENROLL_WITH_CODES && couponCodes.length >= 0 && sku) {
         const queryParams = new URLSearchParams({
           ...baseEnrollmentOptions,
           sku,
           consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
         });
-        // get the index of the first offer that applies to a catalog that the course is in
-        const offerForCourse = findOfferForCourse(offers, catalogList);
-        if (offers.length === 0 || !offerForCourse) {
+        // get the index of the first coupon code that applies to a catalog that the course is in
+        const couponCodeForCourse = findCouponCodeForCourse(couponCodes, catalogList);
+        if (couponCodes.length === 0 || !couponCodeForCourse) {
           return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
         }
-        queryParams.set('code', offerForCourse.code);
+        queryParams.set('code', couponCodeForCourse.code);
         return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
       }
 
-      // No offer or product SKU is present, so the course cannot be enrolled in.
+      // No coupon code or product SKU is present, so the course cannot be enrolled in.
       return null;
     },
-    [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, offers, sku],
+    [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, couponCodes, sku],
   );
 
   return enrollmentUrl;
@@ -389,7 +387,7 @@ useCourseEnrollmentUrl.propTypes = {
   enterpriseConfig: PropTypes.shape({}).isRequired,
   key: PropTypes.string.isRequired,
   location: PropTypes.shape({}).isRequired,
-  offers: PropTypes.arrayOf(PropTypes.shape({})),
+  couponCodes: PropTypes.arrayOf(PropTypes.shape({})),
   sku: PropTypes.string.isRequired,
   subscriptionLicense: PropTypes.shape({}).isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,

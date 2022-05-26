@@ -9,7 +9,7 @@ export const useDefaultSearchFilters = ({
   enterpriseConfig,
   subscriptionPlan,
   subscriptionLicense,
-  offerCatalogs = [],
+  couponCodesCatalogs = [],
   subsidyRequestConfiguration,
   catalogsForSubsidyRequests = [],
 }) => {
@@ -27,15 +27,15 @@ export const useDefaultSearchFilters = ({
       return;
     }
 
-    // if the user has no subscriptions or offers, we default to showing all catalogs
-    if (!(subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) && offerCatalogs.length < 1) {
+    // if the user has no subscriptions or coupon codes, we default to showing all catalogs
+    if (!(subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) && couponCodesCatalogs.length < 1) {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
   }, [
     subsidyRequestConfiguration?.subsidyRequestsEnabled,
     catalogsForSubsidyRequests,
     subscriptionLicense?.status,
-    offerCatalogs.length,
+    couponCodesCatalogs.length,
   ]);
 
   const filters = useMemo(
@@ -48,7 +48,7 @@ export const useDefaultSearchFilters = ({
       // Scope to catalogs from coupons and/or the subscription plan associated with learner's license
       const catalogs = [];
       if (features.ENROLL_WITH_CODES) {
-        catalogs.push(...offerCatalogs);
+        catalogs.push(...couponCodesCatalogs);
       }
       if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
         catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
@@ -73,7 +73,7 @@ export const useDefaultSearchFilters = ({
     [
       enterpriseConfig,
       subscriptionPlan,
-      offerCatalogs,
+      couponCodesCatalogs,
       JSON.stringify(refinements),
       subscriptionLicense?.status,
       subsidyRequestConfiguration?.subsidyRequestsEnabled,

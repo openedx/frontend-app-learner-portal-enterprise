@@ -9,7 +9,7 @@ import { enrollLinkClass } from '../constants';
 import { EnrollButtonCta } from '../common';
 
 const ToVoucherRedeemPage = ({ enrollLabel, enrollmentUrl }) => {
-  const { courseHasOffer, offersCount } = useSubsidyDataForCourse();
+  const { hasCouponCodeForCourse, couponCodesCount } = useSubsidyDataForCourse();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -22,8 +22,8 @@ const ToVoucherRedeemPage = ({ enrollLabel, enrollmentUrl }) => {
       <EnrollModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        offersCount={offersCount}
-        courseHasOffer={courseHasOffer}
+        couponCodesCount={couponCodesCount}
+        hasCouponCodeForCourse={hasCouponCodeForCourse}
         enrollmentUrl={enrollmentUrl}
       />
     </>

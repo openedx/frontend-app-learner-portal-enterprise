@@ -34,14 +34,14 @@ describe('<SkillsQuizStepper />', () => {
       slug: 'test-enterprise-slug',
     },
   };
-  const defaultOffersState = {
-    offers: [],
+  const defaultCouponCodesState = {
+    couponCodes: [],
     loading: false,
-    offersCount: 0,
+    couponCodesCount: 0,
   };
 
   const initialUserSubsidyState = {
-    offers: defaultOffersState,
+    couponCodes: defaultCouponCodesState,
   };
   test('renders skills and jobs dropdown with a label', async () => {
     renderWithRouter(

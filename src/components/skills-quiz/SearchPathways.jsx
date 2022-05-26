@@ -14,13 +14,13 @@ import SearchPathwayCard from '../pathway/SearchPathwayCard';
 
 const SearchPathways = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
     subscriptionLicense,
-    offerCatalogs,
+    couponCodesCatalogs,
   });
 
   const { state } = useContext(SkillsContext);

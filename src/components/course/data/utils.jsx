@@ -5,7 +5,7 @@ import {
   COURSE_MODES_MAP,
   COURSE_PACING_MAP,
   LICENSE_SUBSIDY_TYPE,
-  OFFER_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -131,10 +131,10 @@ export function getAvailableCourseRuns(course) {
   );
 }
 
-export function findOfferForCourse(offers, catalogList = []) {
-  return offers.find((offer) => catalogList?.includes(offer.catalog) && hasValidStartExpirationDates({
-    startDate: offer.couponStartDate,
-    endDate: offer.couponEndDate,
+export function findCouponCodeForCourse(couponCodes, catalogList = []) {
+  return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
+    startDate: couponCode.couponStartDate,
+    endDate: couponCode.couponEndDate,
   }));
 }
 
@@ -188,8 +188,8 @@ export function hasLicenseSubsidy(subsidy) {
   return subsidy?.subsidyType === LICENSE_SUBSIDY_TYPE;
 }
 
-export function hasOfferSubsidy(subsidy) {
-  return subsidy?.subsidyType === OFFER_SUBSIDY_TYPE;
+export function hasCouponCodeSubsidy(subsidy) {
+  return subsidy?.subsidyType === COUPON_CODE_SUBSIDY_TYPE;
 }
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
@@ -200,7 +200,7 @@ export function shortenString(str, maxLength, suffix, separator = ' ') {
 
 export const getSubsidyToApplyForCourse = ({
   applicableSubscriptionLicense = undefined,
-  applicableOffer = undefined,
+  applicableCouponCode = undefined,
 }) => {
   if (applicableSubscriptionLicense) {
     return {
@@ -209,13 +209,13 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  if (applicableOffer) {
+  if (applicableCouponCode) {
     return {
-      discountType: applicableOffer.usageType,
-      discountValue: applicableOffer.benefitValue,
-      startDate: applicableOffer.couponStartDate,
-      endDate: applicableOffer.couponEndDate,
-      subsidyType: OFFER_SUBSIDY_TYPE,
+      discountType: applicableCouponCode.usageType,
+      discountValue: applicableCouponCode.benefitValue,
+      startDate: applicableCouponCode.couponStartDate,
+      endDate: applicableCouponCode.couponEndDate,
+      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
     };
   }
 

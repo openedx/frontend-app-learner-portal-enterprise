@@ -13,10 +13,10 @@ import {
   fetchCustomerAgreementData,
   requestAutoAppliedLicense,
 } from '../data/service';
-import { fetchOffers } from '../offers/data/service';
+import { fetchCouponCodeAssignments } from '../coupons/data/service';
 
 jest.mock('../data/service');
-jest.mock('../offers/data/service');
+jest.mock('../coupons/data/service');
 jest.mock('../../../config', () => ({
   features: {
     ENROLL_WITH_CODES: true,
@@ -83,15 +83,15 @@ const SubscriptionLicenseConsumer = () => {
   return <div>License status: {subscriptionLicense?.status || 'none'}</div>;
 };
 
-const OffersConsumer = () => {
-  const { offers } = useContext(UserSubsidyContext);
-  return <div>Offers count: {offers?.offersCount || 'none'}</div>;
+const CouponCodesConsumer = () => {
+  const { couponCodes } = useContext(UserSubsidyContext);
+  return <div>Coupon codes count: {couponCodes?.couponCodesCount || 'none'}</div>;
 };
 
 describe('UserSubsidy', () => {
   describe('without subsidy', () => {
     beforeEach(() => {
-      fetchOffers.mockResolvedValueOnce(mockEmptyListResponse);
+      fetchCouponCodeAssignments.mockResolvedValueOnce(mockEmptyListResponse);
       fetchSubscriptionLicensesForUser.mockResolvedValueOnce(mockEmptyListResponse);
       fetchCustomerAgreementData.mockResolvedValueOnce(mockEmptyListResponse);
     });
@@ -99,7 +99,7 @@ describe('UserSubsidy', () => {
     afterEach(() => {
       expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-      expect(fetchOffers).toHaveBeenCalledWith({
+      expect(fetchCouponCodeAssignments).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
         full_discount_only: 'True',
         is_active: 'True',
@@ -113,7 +113,7 @@ describe('UserSubsidy', () => {
       const Component = (
         <UserSubsidyWithAppContext>
           <SubscriptionLicenseConsumer />
-          <OffersConsumer />
+          <CouponCodesConsumer />
         </UserSubsidyWithAppContext>
       );
       renderWithRouter(Component, {
@@ -125,7 +125,7 @@ describe('UserSubsidy', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('License status: none')).toBeInTheDocument();
-        expect(screen.queryByText('Offers count: none')).toBeInTheDocument();
+        expect(screen.queryByText('Coupon codes count: none')).toBeInTheDocument();
       });
 
       // assert component is no longer loading
@@ -134,7 +134,7 @@ describe('UserSubsidy', () => {
   });
 
   describe('with subsidy', () => {
-    describe('existing activated license, no offers', () => {
+    describe('existing activated license, no coupon codes', () => {
       beforeEach(() => {
         fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
           data: {
@@ -146,13 +146,13 @@ describe('UserSubsidy', () => {
           },
         });
         fetchCustomerAgreementData.mockResolvedValueOnce(mockCustomerAgreementData);
-        fetchOffers.mockResolvedValueOnce(mockEmptyListResponse);
+        fetchCouponCodeAssignments.mockResolvedValueOnce(mockEmptyListResponse);
       });
 
       afterEach(() => {
         expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
         expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        expect(fetchOffers).toHaveBeenCalledWith({
+        expect(fetchCouponCodeAssignments).toHaveBeenCalledWith({
           enterprise_uuid: TEST_ENTERPRISE_UUID,
           full_discount_only: 'True',
           is_active: 'True',
@@ -162,11 +162,11 @@ describe('UserSubsidy', () => {
         jest.resetAllMocks();
       });
 
-      test('activated license status and no offers', async () => {
+      test('activated license status and no coupon codes', async () => {
         const Component = (
           <UserSubsidyWithAppContext>
             <SubscriptionLicenseConsumer />
-            <OffersConsumer />
+            <CouponCodesConsumer />
           </UserSubsidyWithAppContext>
         );
         renderWithRouter(Component, {
@@ -178,7 +178,7 @@ describe('UserSubsidy', () => {
 
         await waitFor(() => {
           expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
-          expect(screen.queryByText('Offers count: none')).toBeInTheDocument();
+          expect(screen.queryByText('Coupon codes count: none')).toBeInTheDocument();
         });
 
         // assert component is no longer loading
@@ -186,11 +186,11 @@ describe('UserSubsidy', () => {
       });
     });
 
-    describe('with auto-applied license, no offers', () => {
+    describe('with auto-applied license, no coupon codes', () => {
       beforeEach(() => {
         fetchSubscriptionLicensesForUser.mockResolvedValueOnce(mockEmptyListResponse);
         fetchCustomerAgreementData.mockResolvedValueOnce(mockCustomerAgreementData);
-        fetchOffers.mockResolvedValueOnce(mockEmptyListResponse);
+        fetchCouponCodeAssignments.mockResolvedValueOnce(mockEmptyListResponse);
         requestAutoAppliedLicense.mockResolvedValueOnce({
           data: {
             uuid: 'test-license-uuid',
@@ -216,7 +216,7 @@ describe('UserSubsidy', () => {
             }}
           >
             <SubscriptionLicenseConsumer />
-            <OffersConsumer />
+            <CouponCodesConsumer />
           </UserSubsidyWithAppContext>
         );
         renderWithRouter(Component, {
@@ -228,7 +228,7 @@ describe('UserSubsidy', () => {
 
         await waitFor(() => {
           expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
-          expect(screen.queryByText('Offers count: none')).toBeInTheDocument();
+          expect(screen.queryByText('Coupon codes count: none')).toBeInTheDocument();
         });
 
         // assert component is no longer loading
@@ -236,9 +236,9 @@ describe('UserSubsidy', () => {
       });
     });
 
-    describe('with offers, no license', () => {
+    describe('with coupon codes, no license', () => {
       beforeEach(() => {
-        fetchOffers.mockResolvedValueOnce({
+        fetchCouponCodeAssignments.mockResolvedValueOnce({
           data: {
             results: [{
               code: 'test-code',
@@ -254,7 +254,7 @@ describe('UserSubsidy', () => {
       afterEach(() => {
         expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
         expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        expect(fetchOffers).toHaveBeenCalledWith({
+        expect(fetchCouponCodeAssignments).toHaveBeenCalledWith({
           enterprise_uuid: TEST_ENTERPRISE_UUID,
           full_discount_only: 'True',
           is_active: 'True',
@@ -266,7 +266,7 @@ describe('UserSubsidy', () => {
         const Component = (
           <UserSubsidyWithAppContext>
             <SubscriptionLicenseConsumer />
-            <OffersConsumer />
+            <CouponCodesConsumer />
           </UserSubsidyWithAppContext>
         );
         renderWithRouter(Component, {
@@ -277,7 +277,7 @@ describe('UserSubsidy', () => {
         expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
         await waitFor(() => {
-          expect(screen.queryByText('Offers count: 1')).toBeInTheDocument();
+          expect(screen.queryByText('Coupon codes count: 1')).toBeInTheDocument();
           expect(screen.queryByText('License status: none')).toBeInTheDocument();
         });
 

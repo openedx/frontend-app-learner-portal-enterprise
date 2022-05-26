@@ -5,8 +5,8 @@ import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { fetchOffers } from '../offers';
-import offersReducer, { initialOfferState } from '../offers/data/reducer';
+import { fetchCouponCodeAssignments } from '../coupons';
+import couponCodesReducer, { initialCouponCodesState } from '../coupons/data/reducer';
 
 import { LICENSE_STATUS } from './constants';
 import {
@@ -162,13 +162,13 @@ export function useSubscriptionLicense({
   return { license, isLoading, activateUserLicense };
 }
 
-export function useOffers(enterpriseId) {
-  const [offerState, dispatch] = useReducer(offersReducer, initialOfferState);
+export function useCouponCodes(enterpriseId) {
+  const [state, dispatch] = useReducer(couponCodesReducer, initialCouponCodesState);
 
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
-        fetchOffers({
+        fetchCouponCodeAssignments({
           enterprise_uuid: enterpriseId,
           full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
           is_active: 'True',
@@ -179,7 +179,7 @@ export function useOffers(enterpriseId) {
     [enterpriseId],
   );
 
-  return [offerState, offerState.loading];
+  return [state, state.loading];
 }
 
 export function useCustomerAgreementData(enterpriseId) {

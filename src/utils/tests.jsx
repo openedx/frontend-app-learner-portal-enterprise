@@ -72,7 +72,7 @@ export const initialCourseState = ({
   subsidyRequestCatalogsApplicableToCourse: new Set(),
 });
 
-export const A_100_PERCENT_OFFER = {
+export const A_100_PERCENT_COUPON_CODE = {
   catalog: 'a-catalog',
   discountValue: 100,
   discountType: 'Percentage',

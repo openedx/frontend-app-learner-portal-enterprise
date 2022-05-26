@@ -26,9 +26,9 @@ describe('<EnrollModal />', () => {
     subscriptionLicense: {
       uuid: 'test-license-uuid',
     },
-    offers: {
-      offers: [],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
     },
   };
   const appState = {
@@ -193,9 +193,9 @@ describe('<EnrollModal />', () => {
       subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
     }) => (
       <UserSubsidyContext.Provider value={{
-        offers: {
-          offers: [],
-          offersCount: 0,
+        couponCodes: {
+          couponCodes: [],
+          couponCodesCount: 0,
         },
         subscriptionLicense: {},
         customerAgreementConfig: {
