@@ -19,6 +19,10 @@ const baseCourseInitialState = {
     objectId: undefined,
   },
   catalog: { catalogList: [] },
+  course: {},
+  userEnrollments: [],
+  userEntitlements: [],
+  courseRecommendations: {},
 };
 
 const baseSubsidyRequestContextValue = {
@@ -62,35 +66,35 @@ describe('<EnrollModal />', () => {
   const defaultProps = {
     enrollmentUrl: 'foo',
     isModalOpen: true,
-    offersCount: 1,
     setIsModalOpen: () => {},
-    courseHasOffer: true,
+    couponCodesCount: 1,
+    hasCouponCodeForCourse: true,
   };
-  it('displays the correct text when user has valid offers', () => {
+  it('displays the correct text when user has valid coupon codes', () => {
     render(<EnrollModalWrapper modalProps={defaultProps} />);
-    expect(screen.getByText(modalText.fullOffers.title)).toBeInTheDocument();
-    expect(screen.getByText(modalText.fullOffers.body(defaultProps.offersCount))).toBeInTheDocument();
-    expect(screen.getByText(modalText.fullOffers.button)).toBeInTheDocument();
+    expect(screen.getByText(modalText.hasCouponCodes.title)).toBeInTheDocument();
+    expect(screen.getByText(modalText.hasCouponCodes.body(defaultProps.couponCodesCount))).toBeInTheDocument();
+    expect(screen.getByText(modalText.hasCouponCodes.button)).toBeInTheDocument();
   });
-  it('displays the correct text when user has no offers', () => {
+  it('displays the correct text when user has no coupon codes', () => {
     const modalProps = {
       ...defaultProps,
-      offersCount: 0,
-      courseHasOffer: false,
+      couponCodesCount: 0,
+      hasCouponCodeForCourse: false,
     };
     render(<EnrollModalWrapper modalProps={modalProps} />);
-    expect(screen.getByText(modalText.noOffers.title)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noOffers.body)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noOffers.button)).toBeInTheDocument();
+    expect(screen.getByText(modalText.noCouponCodes.title)).toBeInTheDocument();
+    expect(screen.getByText(modalText.noCouponCodes.body)).toBeInTheDocument();
+    expect(screen.getByText(modalText.noCouponCodes.button)).toBeInTheDocument();
   });
-  it('displays the correct text when user does not have a valid offer', () => {
+  it('displays the correct text when user does not have a valid coupon code', () => {
     const modalProps = {
       ...defaultProps,
-      courseHasOffer: false,
+      hasCouponCodeForCourse: false,
     };
     render(<EnrollModalWrapper modalProps={modalProps} />);
-    expect(screen.getByText(modalText.noOffers.title)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noOffers.body)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noOffers.button)).toBeInTheDocument();
+    expect(screen.getByText(modalText.noCouponCodes.title)).toBeInTheDocument();
+    expect(screen.getByText(modalText.noCouponCodes.body)).toBeInTheDocument();
+    expect(screen.getByText(modalText.noCouponCodes.button)).toBeInTheDocument();
   });
 });

@@ -66,7 +66,7 @@ const CourseSidebarPrice = () => {
     return <span>${originalPriceDisplay} {currency}</span>;
   }
 
-  // Case 4: offer subsidy found
+  // Case 4: subsidy found
   const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
   return (
     <>

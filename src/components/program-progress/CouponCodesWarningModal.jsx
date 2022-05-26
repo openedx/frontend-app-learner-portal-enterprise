@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { COUPON_CODE_EXPIRING_MODAL_TITLE } from './data/constants';
 
-const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWarningModalClose, offersCount }) => {
+const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWarningModalClose, couponCodesCount }) => {
   const {
     enterpriseConfig: { contactEmail },
   } = useContext(AppContext);
@@ -35,7 +35,7 @@ const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWar
         If you plan to complete the program, please {renderContactText()} to have additionaly codes assigned to you.
       </p>
       <i>
-        Codes remaining: {offersCount}
+        Codes remaining: {couponCodesCount}
       </i>
     </>
   );
@@ -59,10 +59,10 @@ const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWar
 CouponCodesWarningModal.propTypes = {
   isCouponCodeWarningModalOpen: PropTypes.bool.isRequired,
   onCouponCodeWarningModalClose: PropTypes.func.isRequired,
-  offersCount: PropTypes.number,
+  couponCodesCount: PropTypes.number,
 };
 
 CouponCodesWarningModal.defaultProps = {
-  offersCount: 0,
+  couponCodesCount: 0,
 };
 export default CouponCodesWarningModal;

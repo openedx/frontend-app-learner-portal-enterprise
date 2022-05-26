@@ -33,9 +33,9 @@ const baseSubsidyRequestContextValue = {
 
 const baseUserSubsidyState = {
   subscriptionLicense,
-  offers: {
-    offers: [],
-    offersCount: 0,
+  couponCodes: {
+    couponCodes: [],
+    couponCodesCount: 0,
   },
 };
 
@@ -112,19 +112,19 @@ describe('useEnrollData', () => {
 });
 
 describe('useSubsidyDataForCourse', () => {
-  test('correctly extracts subsidy fields from UserSubsidyContext, absent offers', () => {
+  test('correctly extracts subsidy fields from UserSubsidyContext, absent coupon codes', () => {
     const expected = {
-      courseHasOffer: false,
-      offersCount: 0,
-      offers: [],
+      hasCouponCodeForCourse: false,
+      couponCodesCount: 0,
+      couponCodes: [],
       subscriptionLicense,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const { result } = renderHook(() => useSubsidyDataForCourse(), { wrapper: ContextWrapper });
     expect(result.current).toStrictEqual(expected);
   });
-  test('correctly extracts subsidy fields from UserSubsidyContext, with offers', () => {
-    const offers = [{
+  test('correctly extracts subsidy fields from UserSubsidyContext, with coupon codes', () => {
+    const couponCodes = [{
       catalog: 'catalog-1',
       discountValue: 10,
       couponStartDate: moment().subtract(1, 'w').toISOString(),
@@ -132,17 +132,17 @@ describe('useSubsidyDataForCourse', () => {
     }];
 
     const expected = {
-      courseHasOffer: true,
-      offersCount: 1,
+      hasCouponCodeForCourse: true,
+      couponCodesCount: 1,
       subscriptionLicense,
-      offers,
+      couponCodes,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const initialUserSubsidyState = {
       subscriptionLicense,
-      offers: {
-        offers,
-        offersCount: 1,
+      couponCodes: {
+        couponCodes,
+        couponCodesCount: 1,
       },
     };
 

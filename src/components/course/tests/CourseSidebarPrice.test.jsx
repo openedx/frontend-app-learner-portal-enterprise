@@ -9,7 +9,7 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import CourseSidebarPrice, { INCLUDED_IN_SUBSCRIPTION_MESSAGE, FREE_WHEN_APPROVED_MESSAGE } from '../CourseSidebarPrice';
 import {
   LICENSE_SUBSIDY_TYPE,
-  OFFER_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
 } from '../data/constants';
 
@@ -50,30 +50,30 @@ const courseStateWithLicenseSubsidy = {
 };
 
 // making discountType uppercase to help validate case-safe check in hooks logic
-const FULL_OFFER_SUBSIDY = {
+const FULL_COUPON_CODE_SUBSIDY = {
   discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
   discountValue: 100,
-  subsidyType: OFFER_SUBSIDY_TYPE,
+  subsidyType: COUPON_CODE_SUBSIDY_TYPE,
 };
 
-const PARTIAL_OFFER_SUBSIDY = {
-  ...FULL_OFFER_SUBSIDY,
+const PARTIAL_COUPON_CODE_SUBSIDY = {
+  ...FULL_COUPON_CODE_SUBSIDY,
   discountValue: 90,
 };
 
-const courseStateFullOfferSubsidy = {
+const courseStateFullCouponCodeSubsidy = {
   ...BASE_COURSE_STATE,
   catalog: { catalogList: ['bears'] },
-  userSubsidyApplicableToCourse: FULL_OFFER_SUBSIDY,
+  userSubsidyApplicableToCourse: FULL_COUPON_CODE_SUBSIDY,
 };
 
-const courseStatePartialOfferSubsidy = {
+const courseStatePartialCouponCodeSubsidy = {
   ...BASE_COURSE_STATE,
   catalog: { catalogList: ['bears'] },
-  userSubsidyApplicableToCourse: PARTIAL_OFFER_SUBSIDY,
+  userSubsidyApplicableToCourse: PARTIAL_COUPON_CODE_SUBSIDY,
 };
 
-const courseStateWithNoOffersNoLicenseSubsidy = {
+const courseStateWithNoCodesNoLicenseSubsidy = {
   ...BASE_COURSE_STATE,
   catalog: { catalogList: ['bears'] },
 };
@@ -121,7 +121,7 @@ describe('<CourseSidebarPrice/> ', () => {
     test('Display correct message when browse and request on and no subsidy', () => {
       render(
         <SidebarWithContext
-          initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
+          initialCourseState={courseStateWithNoCodesNoLicenseSubsidy}
           subsidyRequestsState={{
             ...defaultSubsidyRequestsState,
             subsidyRequestConfiguration: { subsidyRequestsEnabled: true },
@@ -138,7 +138,7 @@ describe('<CourseSidebarPrice/> ', () => {
 
   describe('Sidebar price display with hideCourseOriginalPrice ON, No subsidies', () => {
     test('no subsidies, shows original price, no messages', () => {
-      render(<SidebarWithContext initialCourseState={courseStateWithNoOffersNoLicenseSubsidy} />);
+      render(<SidebarWithContext initialCourseState={courseStateWithNoCodesNoLicenseSubsidy} />);
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
@@ -152,18 +152,18 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.getByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE));
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
     });
-    test('offer 100% subsidy, shows no price, correct message', () => {
+    test('coupon code 100% subsidy, shows no price, correct message', () => {
       render(<SidebarWithContext
-        initialCourseState={courseStateFullOfferSubsidy}
+        initialCourseState={courseStateFullCouponCodeSubsidy}
       />);
       expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
       expect(screen.getByText(SPONSORED_BY_TEXT));
     });
-    test('offer non-full subsidy, shows discounted price only, correct message', () => {
+    test('coupon code non-full subsidy, shows discounted price only, correct message', () => {
       render(<SidebarWithContext
-        initialCourseState={courseStatePartialOfferSubsidy}
+        initialCourseState={courseStatePartialCouponCodeSubsidy}
       />);
       expect(screen.getByText(/\$0.75 USD/));
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
@@ -176,7 +176,7 @@ describe('<CourseSidebarPrice/> ', () => {
     test('no subsidies, shows original price, no messages', () => {
       render(<SidebarWithContext
         initialAppState={appStateWithOrigPriceShowing}
-        initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
+        initialCourseState={courseStateWithNoCodesNoLicenseSubsidy}
       />);
       expect(screen.getByText(/\$7.50 USD/));
     });
@@ -187,17 +187,17 @@ describe('<CourseSidebarPrice/> ', () => {
       />);
       expect(screen.getByText(/\$7.50 USD/));
     });
-    test('offer 100% subsidy, shows orig price, correct message', () => {
+    test('coupon code 100% subsidy, shows orig price, correct message', () => {
       render(<SidebarWithContext
         initialAppState={appStateWithOrigPriceShowing}
-        initialCourseState={courseStateFullOfferSubsidy}
+        initialCourseState={courseStateFullCouponCodeSubsidy}
       />);
       expect(screen.getByText(/\$7.50 USD/));
     });
-    test('offer non-full subsidy, shows orig and discounted price only, correct message', () => {
+    test('coupon code non-full subsidy, shows orig and discounted price only, correct message', () => {
       render(<SidebarWithContext
         initialAppState={appStateWithOrigPriceShowing}
-        initialCourseState={courseStatePartialOfferSubsidy}
+        initialCourseState={courseStatePartialCouponCodeSubsidy}
       />);
       expect(screen.getByText(/\$7.50 USD/));
       expect(screen.getByText(/\$0.75 USD/));

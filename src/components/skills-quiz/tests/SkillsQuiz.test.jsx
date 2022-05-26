@@ -48,10 +48,10 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 }));
 
 describe('<SkillsQuiz />', () => {
-  const defaultOffersState = {
-    offers: [],
+  const defaultCouponCodesState = {
+    couponCodes: [],
     loading: false,
-    offersCount: 0,
+    couponCodesCount: 0,
   };
   const initialAppState = {
     enterpriseConfig: {
@@ -62,7 +62,7 @@ describe('<SkillsQuiz />', () => {
     },
   };
   const initialUserSubsidyState = {
-    offers: defaultOffersState,
+    couponCodes: defaultCouponCodesState,
   };
 
   afterAll(() => {

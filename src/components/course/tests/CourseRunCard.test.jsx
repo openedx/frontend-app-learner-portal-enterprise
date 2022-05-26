@@ -82,9 +82,9 @@ const renderCard = ({
   courseInitState = selfPacedCourseWithoutLicenseSubsidy,
   initialUserSubsidyState = {
     subscriptionLicense: null,
-    offers: {
-      offers: [{ discountValue: 90 }],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [{ discountValue: 90 }],
+      couponCodesCount: 0,
     },
   },
   initialSubsidyRequestsState = {
@@ -203,9 +203,9 @@ describe('<CourseRunCard/>', () => {
     const courseRun = generateCourseRun({});
     const noUserSubsidyState = {
       subscriptionLicense: null,
-      offers: {
-        offers: [],
-        offersCount: 0,
+      couponCodes: {
+        couponCodes: [],
+        couponCodesCount: 0,
       },
     };
     renderCard({
@@ -229,9 +229,9 @@ describe('<CourseRunCard/>', () => {
     const courseRun = generateCourseRun({});
     const noUserSubsidyState = {
       subscriptionLicense: null,
-      offers: {
-        offers: [],
-        offersCount: 0,
+      couponCodes: {
+        couponCodes: [],
+        couponCodesCount: 0,
       },
     };
     renderCard({

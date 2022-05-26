@@ -10,7 +10,7 @@ import {
   fetchLicenseRequests,
   fetchCouponCodeRequests,
 } from './service';
-import { fetchCouponsOverview } from '../../enterprise-user-subsidy/offers/data/service';
+import { fetchCouponsOverview } from '../../enterprise-user-subsidy/coupons/data/service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 
 export const useSubsidyRequestConfiguration = (enterpriseUUID) => {

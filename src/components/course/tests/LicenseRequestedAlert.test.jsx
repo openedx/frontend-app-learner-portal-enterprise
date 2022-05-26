@@ -28,9 +28,9 @@ const LicenseRequestedAlertWrapper = ({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
 }) => (
   <UserSubsidyContext.Provider value={{
-    offers: {
-      offers: [],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
     },
     subscriptionLicense: {},
     customerAgreementConfig: {

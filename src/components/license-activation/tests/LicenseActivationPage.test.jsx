@@ -38,9 +38,9 @@ const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/act
 const LicenseActivationPageWithContext = ({
   initialUserSubsidyState = {
     subscriptionLicense: undefined,
-    offers: {
-      offers: [],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
     },
   },
 }) => (

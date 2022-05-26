@@ -163,7 +163,7 @@ export function hasLicenseOrCoupon() {
   const {
     subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,
-    offers: { offersCount },
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
 
   const {
@@ -174,10 +174,9 @@ export function hasLicenseOrCoupon() {
 
   const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
+  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
 
-  const hasOffersOrCouponCodeRequests = offersCount > 0 || couponCodeRequests.length > 0;
-
-  return hasActiveLicenseOrLicenseRequest || hasOffersOrCouponCodeRequests;
+  return hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 }
 
 export const courseUpgradationAvailable = (course) => course.upgradeUrl

@@ -68,14 +68,14 @@ const initialAppState = {
   },
 };
 
-const defaultOffersState = {
-  offers: [],
+const defaultCouponCodesState = {
+  couponCodes: [],
   loading: false,
-  offersCount: 0,
+  couponCodesCount: 0,
 };
 
 const initialUserSubsidyState = {
-  offers: defaultOffersState,
+  couponCodes: defaultCouponCodesState,
 };
 
 const initialSubsidyRequestsState = {

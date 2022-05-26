@@ -11,7 +11,7 @@ export const SUBSIDY_DISCOUNT_TYPE_MAP = {
 };
 
 export const LICENSE_SUBSIDY_TYPE = 'license';
-export const OFFER_SUBSIDY_TYPE = 'offer';
+export const COUPON_CODE_SUBSIDY_TYPE = 'couponCode';
 
 export const PROMISE_FULFILLED = 'fulfilled';
 

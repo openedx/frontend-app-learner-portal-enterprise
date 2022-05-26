@@ -5,7 +5,7 @@ import { camelCaseObject } from '@edx/frontend-platform';
 import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse, useAllCourseData } from '../hooks';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
-import { LICENSE_SUBSIDY_TYPE, OFFER_SUBSIDY_TYPE } from '../constants';
+import { LICENSE_SUBSIDY_TYPE, COUPON_CODE_SUBSIDY_TYPE } from '../constants';
 
 jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
@@ -24,7 +24,7 @@ const mockLicenseForCourse = {
   expiration_date: moment().add(8, 'w').toISOString(),
 };
 
-const mockOffersForCourse = [{
+const mockCouponCodesForCourse = [{
   catalog: 'catalog-1',
   couponStartDate: moment().subtract(1, 'w').toISOString(),
   couponEndDate: moment().add(8, 'w').toISOString(),
@@ -55,7 +55,7 @@ describe('useAllCourseData', () => {
     },
     courseRunKey: 'courseRunKey',
     subscriptionLicense: null,
-    offers: [],
+    couponCodes: [],
   };
 
   afterEach(() => jest.clearAllMocks());
@@ -114,18 +114,18 @@ describe('useAllCourseData', () => {
   it('returns coupon subsidy if there is an applicable coupon for the course', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
       ...basicProps,
-      offers: mockOffersForCourse,
+      couponCodes: mockCouponCodesForCourse,
     }));
     await waitForNextUpdate();
 
     expect(result.current.courseData).toEqual({
       ...mockCourseData,
       userSubsidyApplicableToCourse: {
-        discountType: mockOffersForCourse[0].usageType,
-        discountValue: mockOffersForCourse[0].benefitValue,
-        startDate: mockOffersForCourse[0].couponStartDate,
-        endDate: mockOffersForCourse[0].couponEndDate,
-        subsidyType: OFFER_SUBSIDY_TYPE,
+        discountType: mockCouponCodesForCourse[0].usageType,
+        discountValue: mockCouponCodesForCourse[0].benefitValue,
+        startDate: mockCouponCodesForCourse[0].couponStartDate,
+        endDate: mockCouponCodesForCourse[0].couponEndDate,
+        subsidyType: COUPON_CODE_SUBSIDY_TYPE,
       },
     });
   });
@@ -134,7 +134,7 @@ describe('useAllCourseData', () => {
     const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
       ...basicProps,
       subscriptionLicense: mockLicenseForCourse,
-      offers: mockOffersForCourse,
+      couponCodes: mockCouponCodesForCourse,
     }));
     await waitForNextUpdate();
 
@@ -155,7 +155,7 @@ describe('useCourseEnrollmentUrl', () => {
       uuid: 'foo',
     },
     key: 'bar',
-    offers: [{
+    couponCodes: [{
       code: 'bearsRus',
       catalog: 'bears',
       couponStartDate: moment().subtract(1, 'w').toISOString(),
@@ -165,8 +165,8 @@ describe('useCourseEnrollmentUrl', () => {
     catalogList: ['bears'],
     location: { search: 'foo' },
   };
-  // just skip the offers here to ensure we process absence correctly
-  const noOffersEnrollmentInputs = {
+  // just skip the coupon codes here to ensure we process absence correctly
+  const noCouponCodesEnrollmentInputs = {
     enterpriseConfig: {
       uuid: 'foo',
     },
@@ -203,16 +203,16 @@ describe('useCourseEnrollmentUrl', () => {
     });
   });
 
-  describe('offers (codes)', () => {
-    test('with offer for course returns ecommerce url to redeem product with code', () => {
+  describe('coupon codes', () => {
+    test('with coupon codes for course returns ecommerce url to redeem product with code', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(noSubscriptionEnrollmentInputs));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(result.current).toContain(noSubscriptionEnrollmentInputs.offers[0].code);
+      expect(result.current).toContain(noSubscriptionEnrollmentInputs.couponCodes[0].code);
       expect(result.current).toContain(enrollmentInputs.key);
     });
 
-    test('with no offers for catalog returns ecommerce url to add product to basket', () => {
+    test('with no coupon codes for catalog returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noSubscriptionEnrollmentInputs,
         catalogList: ['foo'],
@@ -223,19 +223,19 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).not.toContain('code');
     });
 
-    test('with no assigned offers returns ecommerce url to add product to basket', () => {
+    test('with no coupon codes returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noSubscriptionEnrollmentInputs,
-        offers: [],
+        couponCodes: [],
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
       expect(result.current).toContain(enrollmentInputs.key);
       expect(result.current).not.toContain('code');
     });
-    test('with no offers passed, treats it as empty offers and does not fail', () => {
+    test('with no coupon codes passed, treats it as empty and does not fail', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
-        ...noOffersEnrollmentInputs,
+        ...noCouponCodesEnrollmentInputs,
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);

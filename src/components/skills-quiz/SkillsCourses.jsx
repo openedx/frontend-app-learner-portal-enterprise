@@ -46,14 +46,14 @@ const SkillsCourses = ({ index }) => {
   const { selectedJob } = state;
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
 
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
+  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
 
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
     subscriptionLicense,
-    offerCatalogs,
+    couponCodesCatalogs,
   });
   const skillsFacetFilter = useMemo(
     () => {

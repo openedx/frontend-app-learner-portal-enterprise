@@ -21,7 +21,7 @@ export function determineEnrollmentType({
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     enrollmentUrl,
-    courseHasOffer,
+    hasCouponCodeForCourse,
     subsidyRequestConfiguration,
   } = {},
   isUserEnrolled,
@@ -42,7 +42,7 @@ export function determineEnrollmentType({
     && subsidyRequestConfiguration?.subsidyRequestsEnabled
     && subsidyRequestCatalogsApplicableToCourse.size > 0
     && !hasLicenseSubsidy(userSubsidyApplicableToCourse)
-    && !courseHasOffer
+    && !hasCouponCodeForCourse
   ) {
     return HIDE_BUTTON;
   }
@@ -57,8 +57,8 @@ export function determineEnrollmentType({
     return TO_ECOM_BASKET;
   }
 
-  if (!isSubscriptionValid && courseHasOffer) { return TO_VOUCHER_REDEEM; }
-  if (!isSubscriptionValid && !courseHasOffer) { return TO_ECOM_BASKET; }
+  if (!isSubscriptionValid && hasCouponCodeForCourse) { return TO_VOUCHER_REDEEM; }
+  if (!isSubscriptionValid && !hasCouponCodeForCourse) { return TO_ECOM_BASKET; }
 
   return ENROLL_DISABLED;
 }

@@ -5,19 +5,19 @@ import { WarningFilled } from '@edx/paragon/icons';
 
 import SidebarCard from './SidebarCard';
 import {
-  OFFER_SUMMARY_TITLE,
-  OFFER_REMAINING_CODES,
-  OFFER_SUMMARY_NOTICE,
-  OFFER_SUMMARY_DETAIL,
-  OFFERS_AVAILABLE_BADGE_VARIANT,
-  OFFERS_AVAILABLE_BADGE_LABEL,
+  COUPON_CODES_SUMMARY_TITLE,
+  COUPON_CODES_SUMMARY_REMAINING_CODES,
+  COUPON_CODES_SUMMARY_NOTICE,
+  COUPON_CODES_SUMMARY_DETAIL,
+  COUPON_CODES_AVAILABLE_BADGE_VARIANT,
+  COUPON_CODES_AVAILABLE_BADGE_LABEL,
   COUPON_CODES_REQUESTED_BADGE_VARIANT,
   COUPON_CODES_REQUESTED_BADGE_LABEL,
 } from './data/constants';
 import CouponCodesWarningModal from '../../program-progress/CouponCodesWarningModal';
 
-const OfferSummaryCard = ({
-  offersCount, couponCodeRequestsCount, className, totalCoursesEligibleForCertificate, programProgressPage,
+const CouponCodesSummaryCard = ({
+  couponCodesCount, couponCodeRequestsCount, className, totalCoursesEligibleForCertificate, programProgressPage,
 }) => {
   const [
     isCouponCodeWarningModalOpen,
@@ -26,10 +26,10 @@ const OfferSummaryCard = ({
   ] = useToggle(false);
 
   const badgeVariantAndLabel = useMemo(() => {
-    if (offersCount > 0) {
+    if (couponCodesCount > 0) {
       return ({
-        variant: OFFERS_AVAILABLE_BADGE_VARIANT,
-        label: OFFERS_AVAILABLE_BADGE_LABEL,
+        variant: COUPON_CODES_AVAILABLE_BADGE_VARIANT,
+        label: COUPON_CODES_AVAILABLE_BADGE_LABEL,
       });
     }
 
@@ -41,9 +41,9 @@ const OfferSummaryCard = ({
     }
 
     return null;
-  }, [offersCount, couponCodeRequestsCount]);
+  }, [couponCodesCount, couponCodeRequestsCount]);
 
-  if (!(offersCount || couponCodeRequestsCount)) {
+  if (!(couponCodesCount || couponCodeRequestsCount)) {
     return null;
   }
 
@@ -54,14 +54,14 @@ const OfferSummaryCard = ({
           <CouponCodesWarningModal
             isCouponCodeWarningModalOpen={isCouponCodeWarningModalOpen}
             onCouponCodeWarningModalClose={onCouponCodeWarningModalClose}
-            offersCount={offersCount}
+            couponCodesCount={couponCodesCount}
           />
 
           <SidebarCard
             title={(
               <div className="d-flex align-items-start justify-content-between">
-                <h3>{OFFER_REMAINING_CODES}</h3>
-                {totalCoursesEligibleForCertificate > offersCount && (
+                <h3>{COUPON_CODES_SUMMARY_REMAINING_CODES}</h3>
+                {totalCoursesEligibleForCertificate > couponCodesCount && (
                   <WarningFilled
                     className="ml-2"
                     onClick={() => { couponCodeWarningModalOpen(); }}
@@ -72,7 +72,7 @@ const OfferSummaryCard = ({
             cardClassNames={className}
           >
             <p className="m-0">
-              <h3 className="float-left"> {offersCount > 0 ? offersCount : 0}</h3>{' '}<span className="ml-2">{OFFER_SUMMARY_DETAIL}</span>
+              <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}<span className="ml-2">{COUPON_CODES_SUMMARY_DETAIL}</span>
             </p>
           </SidebarCard>
         </>
@@ -81,7 +81,7 @@ const OfferSummaryCard = ({
           <SidebarCard
             title={(
               <div className="d-flex align-items-start justify-content-between">
-                {`${OFFER_SUMMARY_TITLE}${offersCount > 0 ? `: ${offersCount}` : ''}`}
+                {`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}
                 {badgeVariantAndLabel && (
                   <Badge
                     variant={badgeVariantAndLabel.variant}
@@ -96,7 +96,7 @@ const OfferSummaryCard = ({
             cardClassNames={className}
           >
             <p className="m-0">
-              {OFFER_SUMMARY_NOTICE}
+              {COUPON_CODES_SUMMARY_NOTICE}
             </p>
           </SidebarCard>
         )}
@@ -104,20 +104,20 @@ const OfferSummaryCard = ({
   );
 };
 
-OfferSummaryCard.propTypes = {
-  offersCount: PropTypes.number,
+CouponCodesSummaryCard.propTypes = {
+  couponCodesCount: PropTypes.number,
   totalCoursesEligibleForCertificate: PropTypes.number,
   couponCodeRequestsCount: PropTypes.number,
   className: PropTypes.string,
   programProgressPage: PropTypes.bool,
 };
 
-OfferSummaryCard.defaultProps = {
-  offersCount: 0,
+CouponCodesSummaryCard.defaultProps = {
+  couponCodesCount: 0,
   totalCoursesEligibleForCertificate: 0,
   couponCodeRequestsCount: 0,
   className: undefined,
   programProgressPage: false,
 };
 
-export default OfferSummaryCard;
+export default CouponCodesSummaryCard;

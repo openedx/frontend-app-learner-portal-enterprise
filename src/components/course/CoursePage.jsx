@@ -35,20 +35,20 @@ export default function CoursePage() {
     },
     [search],
   );
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
   const activeCatalogs = useMemo(
     () => {
       const catalogs = [];
-      const offerCatalogs = offers.map((offer) => offer.catalog);
+      const couponCodesCatalogs = couponCodes.map((offer) => offer.catalog);
       if (features.ENROLL_WITH_CODES) {
-        catalogs.push(...offerCatalogs);
+        catalogs.push(...couponCodesCatalogs);
       }
       if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
         catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
       }
       return catalogs;
     },
-    [subscriptionPlan, subscriptionLicense, offers],
+    [subscriptionPlan, subscriptionLicense, couponCodes],
   );
 
   // extract search queryId and objectId that led to this course page view from
@@ -62,7 +62,7 @@ export default function CoursePage() {
     enterpriseConfig,
     courseRunKey,
     subscriptionLicense,
-    offers,
+    couponCodes,
     activeCatalogs,
   });
 

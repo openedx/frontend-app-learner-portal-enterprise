@@ -3,12 +3,12 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { ENROLL_MODAL_TEXT_NO_OFFERS, createUseVoucherText } from '../../EnrollModal';
+import { ENROLL_MODAL_TEXT_NO_COUPON_CODES, createUseVoucherText } from '../../EnrollModal';
 import {
   renderWithRouter,
   initialAppState,
   initialCourseState,
-  A_100_PERCENT_OFFER,
+  A_100_PERCENT_COUPON_CODE,
 } from '../../../../utils/tests';
 
 import { createCourseInfoUrl } from '../../data/utils';
@@ -62,9 +62,9 @@ const renderEnrollAction = ({
   courseInitState = selfPacedCourseWithLicenseSubsidy,
   initialUserSubsidyState = {
     subscriptionLicense,
-    offers: {
-      offers: [],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
     },
   },
   initialSubsidyRequestsState = {
@@ -185,7 +185,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
       enrollAction,
       initialUserSubsidyState: {
         subscriptionLicense,
-        offers: { offers: [] },
+        couponCodes: { couponCodes: [] },
       },
     });
 
@@ -193,7 +193,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
-    const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_OFFERS);
+    const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_COUPON_CODES);
     expect(screen.getByText(regex)).toBeInTheDocument();
   });
   test('ecom basket link rendered when enrollmentType is TO_ECOM_BASKET', () => {
@@ -211,7 +211,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
       enrollAction,
       initialUserSubsidyState: {
         subscriptionLicense,
-        offers: { offers: [] },
+        couponCodes: { couponCodes: [] },
       },
     });
     const PAYMENT_TEXT = 'Continue to payment';
@@ -222,8 +222,8 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
   });
   test('enroll text with voucher count is rendered when enrollmentType is TO_VOUCHER_REDEEM', () => {
-    // offers must exist, subscriptionlicense must not, catalogs list must exist.
-    // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
+    // coupon code must exist, subscriptionlicense must not, catalogs list must exist.
+    // a catalog in the cataloglist must match the one in the code (see `findCouponCodeForCourse()`)
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_VOUCHER_REDEEM}
@@ -238,9 +238,9 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
       courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
       initialUserSubsidyState: {
         subscriptionLicense: null,
-        offers: {
-          offers: [A_100_PERCENT_OFFER],
-          offersCount: 1,
+        couponCodes: {
+          couponCodes: [A_100_PERCENT_COUPON_CODE],
+          couponCodesCount: 1,
         },
       },
     });
@@ -253,8 +253,8 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.getByText(regex)).toBeInTheDocument();
   });
   test('ecom basket link rendered in modal when enrollmentType is TO_VOUCHER_REDEEM', () => {
-    // offers must exist, subscriptionlicense must not, catalogs list must exist.
-    // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
+    // coupon code must exist, subscriptionlicense must not, catalogs list must exist.
+    // a catalog in the cataloglist must match the one in the code (see `findCouponCodeForCourse()`)
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_VOUCHER_REDEEM}
@@ -269,9 +269,9 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
       courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
       initialUserSubsidyState: {
         subscriptionLicense: null,
-        offers: {
-          offers: [A_100_PERCENT_OFFER],
-          offersCount: 1,
+        couponCodes: {
+          couponCodes: [A_100_PERCENT_COUPON_CODE],
+          couponCodesCount: 1,
         },
       },
     });

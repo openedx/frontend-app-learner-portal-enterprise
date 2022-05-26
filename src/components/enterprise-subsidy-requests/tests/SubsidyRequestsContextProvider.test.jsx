@@ -21,9 +21,9 @@ const SubsidyRequestsContextProviderWrapper = ({
     enterpriseConfig,
   },
   initialUserSubsidyState = {
-    offers: {
-      offers: [],
-      offersCount: 0,
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
     },
     customerAgreementConfig: {
       subscriptions: [],

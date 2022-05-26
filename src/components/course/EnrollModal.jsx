@@ -9,27 +9,27 @@ import {
   useTrackSearchConversionClickHandler,
 } from './data/hooks';
 
-export const ENROLL_MODAL_TEXT_NO_OFFERS = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
-export const createUseVoucherText = offersCount => `Enrolling in this course will use 1 of your ${offersCount} enrollment codes.`;
+export const ENROLL_MODAL_TEXT_NO_COUPON_CODES = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
+export const createUseVoucherText = couponCodesCount => `Enrolling in this course will use 1 of your ${couponCodesCount} enrollment codes.`;
 
 export const modalText = {
-  noOffers: {
-    body: ENROLL_MODAL_TEXT_NO_OFFERS,
+  noCouponCodes: {
+    body: ENROLL_MODAL_TEXT_NO_COUPON_CODES,
     button: 'Continue to payment',
     title: 'Payment required for course enrollment',
   },
-  fullOffers: {
-    body: (offersCount) => createUseVoucherText(offersCount),
+  hasCouponCodes: {
+    body: (couponCodesCount) => createUseVoucherText(couponCodesCount),
     button: 'Enroll in course',
     title: 'Use 1 enrollment code for this course?',
   },
 };
 
 const EnrollModal = ({
-  courseHasOffer,
   enrollmentUrl,
   isModalOpen,
-  offersCount,
+  couponCodesCount,
+  hasCouponCodeForCourse,
   setIsModalOpen,
 }) => {
   const analyticsHandler = useTrackSearchConversionClickHandler({
@@ -41,10 +41,10 @@ const EnrollModal = ({
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const { fullOffers, noOffers } = modalText;
-  const buttonText = courseHasOffer ? fullOffers.button : noOffers.button;
-  const enrollText = courseHasOffer ? fullOffers.body(offersCount) : noOffers.body;
-  const titleText = courseHasOffer ? fullOffers.title : noOffers.title;
+  const { hasCouponCodes, noCouponCodes } = modalText;
+  const buttonText = hasCouponCodeForCourse ? hasCouponCodes.button : noCouponCodes.button;
+  const enrollText = hasCouponCodeForCourse ? hasCouponCodes.body(couponCodesCount) : noCouponCodes.body;
+  const titleText = hasCouponCodeForCourse ? hasCouponCodes.title : noCouponCodes.title;
 
   return (
     <Modal
@@ -74,10 +74,10 @@ const EnrollModal = ({
 };
 
 EnrollModal.propTypes = {
-  courseHasOffer: PropTypes.bool.isRequired,
+  hasCouponCodeForCourse: PropTypes.bool.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
   isModalOpen: PropTypes.bool.isRequired,
-  offersCount: PropTypes.number.isRequired,
+  couponCodesCount: PropTypes.number.isRequired,
   setIsModalOpen: PropTypes.func.isRequired,
 };
 
