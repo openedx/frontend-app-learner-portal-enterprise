@@ -11,6 +11,7 @@ import DashboardPopularCourses from './DashboardPopularCourses';
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import { isExperimentVariant } from '../../../utils/optimizely';
+import ProgramListingCard from '../../program-progress/ProgramListingCard';
 
 const DashboardMainContent = () => {
   const {
@@ -24,8 +25,31 @@ const DashboardMainContent = () => {
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser?.name]);
 
+  const program = {
+    uuid: "428c51ae-242d-4af9-80b9-c21a8777267b",
+    title: "My test program",
+    type: "fun!",
+    progress: {
+      inProgress: 2,
+      completed: 1,
+      notStarted: 10,
+    },
+    bannerImage: {
+      large: {url: "https://www.edx.org/images/logos/edx-logo-elm.svg", height: 0, width: 0},
+      medium: {url: "https://www.edx.org/images/logos/edx-logo-elm.svg", height: 0, width: 0},
+      small: {url: "https://www.edx.org/images/logos/edx-logo-elm.svg", height: 0, width: 0},
+      xSmall: {url: "https://www.edx.org/images/logos/edx-logo-elm.svg", height: 0, width: 0},
+    },
+    authoringOrganizations: [{
+      key: "edX",
+      name: "edX",
+      logoImageUrl: "https://www.edx.org/images/logos/edx-logo-elm.svg",
+    }],
+  };
+
   return (
     <>
+      <ProgramListingCard program={program}/>
       <h2 className="h1 mb-4">
         {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
       </h2>
