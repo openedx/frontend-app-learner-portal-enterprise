@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AuthenticatedPage tests should render the expected HTML 1`] = `
+Array [
+  <header>
+    <nav
+      className="border-bottom navbar navbar-expand-lg navbar-light bg-white"
+      role="navigation"
+    >
+      <div
+        className="container-fluid"
+      >
+        <nav
+          className="navbar"
+        >
+          <img
+            alt="edX logo"
+            src="icon/mock/path"
+            width={50}
+          />
+        </nav>
+        <nav
+          aria-label="Secondary"
+          className="nav secondary-menu-container align-items-center ml-auto"
+        >
+          <a
+            className="text-gray-700 mr-3"
+          >
+            Help
+          </a>
+          
+        </nav>
+      </div>
+    </nav>
+  </header>,
+  <main
+    className="error-page-container"
+    id="content"
+  >
+    <div
+      className="container-fluid"
+    >
+      <div
+        className="col-lg-10 col-12 offset-lg-1"
+      >
+        <h1
+          className="error-page-title h2"
+        >
+          You are now logged out.
+        </h1>
+        <div
+          className="error-page-message"
+        >
+          Please log back in 
+           
+          <a
+            className="pgn__hyperlink default-link standalone-link"
+            href="http://localhost:8734/test-enterprise-slug"
+            onClick={[Function]}
+            target="_self"
+          >
+            here.
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>,
+]
+`;

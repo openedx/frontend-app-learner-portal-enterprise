@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<LoginRefresh /> should render the expected HTML 1`] = `
+<div
+  className="py-5 container-mw-lg container-fluid"
+>
+  <div
+    className="loading-spinner d-flex justify-content-center align-items-center"
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+    >
+      <span
+        className="sr-only"
+      >
+        loading user details
+      </span>
+    </div>
+  </div>
+</div>
+`;

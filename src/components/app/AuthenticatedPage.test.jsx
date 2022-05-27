@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom/extend-expect';
 
 import AuthenticatedPage from './AuthenticatedPage';
@@ -22,5 +23,17 @@ describe('AuthenticatedPage tests', () => {
       </AuthenticatedPage>,
     );
     expect(screen.getByText('You are now logged out.')).toBeInTheDocument();
+  });
+
+  test('should render the expected HTML', async () => {
+    await renderer.act(async () => {
+      const tree = await renderer.create(
+        <AuthenticatedPage>
+          <div>Your Child, I am but I won&apos;t be rendered!</div>
+        </AuthenticatedPage>,
+      );
+
+      expect(tree.toJSON()).toMatchSnapshot();
+    });
   });
 });
