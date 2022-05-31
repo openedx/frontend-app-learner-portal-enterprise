@@ -49,6 +49,7 @@ const defaultAppState = {
 
 const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
+  enterpriseOffers: [],
 };
 
 const defaultCourseState = {
@@ -338,7 +339,7 @@ describe('<Dashboard />', () => {
 
       const subscriptionPlanId = 'expiring-plan-60';
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultCouponCodesState,
+        ...defaultUserSubsidyState,
         subscriptionPlan: {
           uuid: subscriptionPlanId,
           daysUntilExpiration: 60,
@@ -362,7 +363,7 @@ describe('<Dashboard />', () => {
     it('should not show the modal if 60 >= daysUntilExpiration > 30 and the 60 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultCouponCodesState,
+        ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 60,
         },
@@ -383,7 +384,7 @@ describe('<Dashboard />', () => {
 
       const subscriptionPlanId = 'expiring-plan-30';
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultCouponCodesState,
+        ...defaultUserSubsidyState,
         subscriptionPlan: {
           uuid: subscriptionPlanId,
           daysUntilExpiration: 30,
@@ -407,7 +408,7 @@ describe('<Dashboard />', () => {
     it('should not show the modal if 30 >= daysUntilExpiration > 0 and the 30 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
       const expiringSubscriptionUserSubsidyState = {
-        ...defaultCouponCodesState,
+        ...defaultUserSubsidyState,
         subscriptionPlan: {
           daysUntilExpiration: 30,
         },

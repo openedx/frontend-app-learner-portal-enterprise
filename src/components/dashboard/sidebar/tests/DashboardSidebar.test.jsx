@@ -12,6 +12,7 @@ import {
   NEED_HELP_BLOCK_TITLE,
   LICENSE_REQUESTED_NOTICE,
   COUPON_CODES_SUMMARY_NOTICE,
+  ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -55,6 +56,7 @@ describe('<DashboardSidebar />', () => {
       loading: false,
       couponCodesCount: 0,
     },
+    enterpriseOffers: [],
   };
   const initialAppState = {
     enterpriseConfig: {
@@ -166,6 +168,52 @@ describe('<DashboardSidebar />', () => {
       />,
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
+  });
+  test('Enterprise offers summary card is displayed when enterprise has active offers and no subscriptions or coupons', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          customerAgreementConfig: undefined,
+          enterpriseOffers: [{
+            uuid: 'enterprise-offer-id',
+          }],
+          canEnrollWithEnterpriseOffers: true,
+        }}
+      />,
+    );
+    expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).toBeInTheDocument();
+  });
+  test('Enterprise offers summary card is not displayed when enterprise has no active offers and no subscriptions or coupons', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          customerAgreementConfig: undefined,
+          enterpriseOffers: [],
+          canEnrollWithEnterpriseOffers: true,
+        }}
+      />,
+    );
+    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).not.toBeInTheDocument();
+  });
+  test('Enterprise offers summary card is not displayed when enterprise has active offers and but has subscriptions or coupons', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          customerAgreementConfig: undefined,
+          enterpriseOffers: [{
+            uuid: 'enterprise-offer-id',
+          }],
+          canEnrollWithEnterpriseOffers: false,
+        }}
+      />,
+    );
+    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).not.toBeInTheDocument();
   });
   test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {
     renderWithRouter(
