@@ -59,21 +59,45 @@ export default class CourseService {
     };
   }
 
-  async fetchAllCourseRecommendations() {
-    const response = await this.fetchCourseRecommendations();
-    // TODO: Filter recommendations on catalogs basis ENT-5735
-    /*
-    const allRecommendations = response.data.all_recommendations.map(rec=>rec.key);
-    const samePartRecommendations = response.data.same_partner_recommendations.map(rec=>rec.key);
+  async fetchAllCourseRecommendations(activeCatalogs) {
+    const resp = await this.fetchCourseRecommendations()
+      .then(async (response) => {
+        const {
+          all_recommendations: allRecommendations,
+          same_partner_recommendations: samePartnerRecommendations,
+        } = response.data;
 
-    if (allRecommendations.length>0) {
-      const filteredAllRecommendations = await this.fetchFilteredRecommendations(allRecommendations);
-    }
-    if (samePartRecommendations.length>0) {
-      const filteredSamePartRecommendations = await this.fetchFilteredRecommendations(samePartRecommendations);
-    }
-    */
-    return response.data;
+        // handle no recommendations case
+        if (allRecommendations.length < 1 && samePartnerRecommendations.length < 1) {
+          return response.data;
+        }
+        const allRecommendationsKeys = allRecommendations?.map((rec) => rec.key);
+        const samePartnerRecommendationsKeys = samePartnerRecommendations?.map((rec) => rec.key);
+
+        const options = {
+          content_keys: allRecommendationsKeys.concat(samePartnerRecommendationsKeys),
+          catalog_uuids: activeCatalogs,
+        };
+
+        const filteredRecommendations = await this.fetchFilteredRecommendations(options);
+        const { filtered_content_keys: filteredContentKeys } = filteredRecommendations.data;
+
+        const recommendations = {
+          all_recommendations: allRecommendations.filter(
+            (rec) => filteredContentKeys.includes(rec.key),
+          ),
+          same_partner_recommendations: samePartnerRecommendations.filter(
+            (rec) => filteredContentKeys.includes(rec.key),
+          ),
+        };
+        return recommendations;
+      });
+    return resp;
+  }
+
+  fetchFilteredRecommendations(options) {
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/filter_content_items/`;
+    return this.cachedAuthenticatedHttpClient.post(url, options);
   }
 
   fetchCourseDetails() {
