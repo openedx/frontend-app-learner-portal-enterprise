@@ -185,20 +185,6 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).toBeInTheDocument();
   });
-  test('Enterprise offers summary card is not displayed when enterprise has no active offers and no subscriptions or coupons', () => {
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{
-          ...defaultUserSubsidyState,
-          customerAgreementConfig: undefined,
-          enterpriseOffers: [],
-          canEnrollWithEnterpriseOffers: true,
-        }}
-      />,
-    );
-    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).not.toBeInTheDocument();
-  });
   test('Enterprise offers summary card is not displayed when enterprise has active offers and but has subscriptions or coupons', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
