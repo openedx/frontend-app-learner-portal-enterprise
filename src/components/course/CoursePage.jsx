@@ -20,8 +20,6 @@ import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
-import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
-import { features } from '../../config';
 
 export default function CoursePage() {
   const { courseKey } = useParams();
@@ -35,21 +33,7 @@ export default function CoursePage() {
     },
     [search],
   );
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
-  const activeCatalogs = useMemo(
-    () => {
-      const catalogs = [];
-      const offerCatalogs = offers.map((offer) => offer.catalog);
-      if (features.ENROLL_WITH_CODES) {
-        catalogs.push(...offerCatalogs);
-      }
-      if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
-        catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
-      }
-      return catalogs;
-    },
-    [subscriptionPlan, subscriptionLicense, offers],
-  );
+  const { subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
 
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.
@@ -63,7 +47,6 @@ export default function CoursePage() {
     courseRunKey,
     subscriptionLicense,
     offers,
-    activeCatalogs,
   });
 
   const initialState = useMemo(

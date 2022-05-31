@@ -43,7 +43,6 @@ export function useAllCourseData({
   courseRunKey,
   subscriptionLicense,
   offers,
-  activeCatalogs,
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [courseData, setCourseData] = useState();
@@ -111,7 +110,7 @@ export function useAllCourseData({
       }
 
       try {
-        const data = await courseService.fetchAllCourseRecommendations(activeCatalogs);
+        const data = await courseService.fetchAllCourseRecommendations();
         setCourseRecommendations(data);
       } catch (error) {
         logError(error);
