@@ -12,6 +12,7 @@ import {
   useCouponCodes,
   useCustomerAgreementData,
 } from './data/hooks';
+import { useEnterpriseOffers } from './enterprise-offers/data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
 
 export const UserSubsidyContext = createContext();
@@ -31,6 +32,15 @@ const UserSubsidy = ({ children }) => {
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
+  const {
+    enterpriseOffers,
+    isLoading: isLoadingEnterpriseOffers,
+    canEnrollWithEnterpriseOffers,
+  } = useEnterpriseOffers({
+    enterpriseId: enterpriseConfig.uuid,
+    customerAgreementConfig,
+    isLoadingCustomerAgreementConfig,
+  });
 
   useEffect(
     () => {
@@ -42,10 +52,15 @@ const UserSubsidy = ({ children }) => {
 
   const isLoadingSubsidies = useMemo(
     () => {
-      const loadingStates = [isLoadingLicense, isLoadingCouponCodes, isLoadingCustomerAgreementConfig];
+      const loadingStates = [
+        isLoadingLicense,
+        isLoadingCouponCodes,
+        isLoadingCustomerAgreementConfig,
+        isLoadingEnterpriseOffers,
+      ];
       return loadingStates.includes(true);
     },
-    [isLoadingLicense, isLoadingCouponCodes, isLoadingCustomerAgreementConfig],
+    [isLoadingLicense, isLoadingCouponCodes, isLoadingCustomerAgreementConfig, isLoadingEnterpriseOffers],
   );
 
   const contextValue = useMemo(
@@ -57,6 +72,8 @@ const UserSubsidy = ({ children }) => {
         subscriptionLicense,
         subscriptionPlan,
         couponCodes,
+        enterpriseOffers,
+        canEnrollWithEnterpriseOffers,
         showExpirationNotifications,
         customerAgreementConfig,
         activateUserLicense,
@@ -67,6 +84,8 @@ const UserSubsidy = ({ children }) => {
       subscriptionPlan,
       subscriptionLicense,
       couponCodes,
+      enterpriseOffers,
+      canEnrollWithEnterpriseOffers,
       enterpriseConfig.uuid,
       customerAgreementConfig,
     ],
