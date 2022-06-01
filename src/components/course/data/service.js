@@ -84,7 +84,7 @@ export default class CourseService {
 
         const recommendations = {
           all_recommendations: allRecommendations.filter(
-            (rec) => filteredContentKeys.includes(rec.key),
+            (rec) => !samePartnerRecommendationsKeys.includes(rec.key) && filteredContentKeys.includes(rec.key),
           ),
           same_partner_recommendations: samePartnerRecommendations.filter(
             (rec) => filteredContentKeys.includes(rec.key),
