@@ -17,4 +17,4 @@ process.env.BASE_URL = 'http://localhost:8734';
 global.window.matchMedia = matchMediaMock.create();
 
 jest.mock('@edx/frontend-platform/logging');
-jest.mock('@edx/frontend-platform/analytics');
+// jest.mock('@edx/frontend-platform/analytics');

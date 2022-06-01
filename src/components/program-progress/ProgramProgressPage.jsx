@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
@@ -14,18 +14,9 @@ import { useLearnerProgramProgressData } from './data/hooks';
 
 const ProgramProgressPage = () => {
   const { programUUID } = useParams();
-  const [program, fetchError] = useLearnerProgramProgressData(programUUID);
+  const [programRequest, fetchError] = useLearnerProgramProgressData(programUUID);
 
-  const initialState = useMemo(
-    () => {
-      if (!program) {
-        return undefined;
-      }
-
-      return program.data;
-    },
-    [program],
-  );
+  const initialState = programRequest ? programRequest.data : undefined;
 
   if (fetchError) {
     return <ErrorPage message={fetchError.message} />;

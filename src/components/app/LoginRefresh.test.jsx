@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { render, act } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import renderer from 'react-test-renderer';
 import LoginRefresh from './LoginRefresh';
 import * as utils from '../../utils/common';
 
@@ -24,6 +25,10 @@ const LoginRefreshWithContext = ({ roles = [] }) => (
 ); /* eslint-enable react/prop-types */
 
 describe('<LoginRefresh />', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('should call loginRefresh if the user has no roles', async () => {
     await act(async () => render(
       <LoginRefreshWithContext />,
@@ -36,7 +41,18 @@ describe('<LoginRefresh />', () => {
     await act(async () => render(
       <LoginRefreshWithContext roles={['role-1']} />,
     ));
+
+    expect(utils.loginRefresh).not.toHaveBeenCalled();
   });
 
-  expect(utils.loginRefresh).not.toHaveBeenCalled();
+  it('should render the expected HTML', async () => {
+    let tree;
+    await renderer.act(async () => {
+      tree = await renderer.create(
+        <LoginRefreshWithContext />,
+      );
+    });
+
+    expect(tree.toJSON()).toMatchSnapshot();
+  });
 });

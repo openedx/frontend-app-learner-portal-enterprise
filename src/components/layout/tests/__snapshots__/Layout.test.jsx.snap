@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Layout should render the expected HTML 1`] = `
+<div>
+  <div
+    className="position-absolute"
+  >
+    <a
+      className="skip-nav-link sr-only sr-only-focusable btn btn-primary mt-3 ml-2"
+      href="/#content"
+      onClick={[Function]}
+    >
+      Skip to main content
+    </a>
+  </div>
+  <main
+    id="content"
+  >
+    <div>
+      Content
+    </div>
+  </main>
+  <footer>
+    SiteFooter
+  </footer>
+</div>
+`;

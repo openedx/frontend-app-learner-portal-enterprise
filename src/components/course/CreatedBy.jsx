@@ -11,7 +11,7 @@ export default function CreatedBy() {
   const { course, activeCourseRun } = state;
   const [partners] = useCoursePartners(course);
 
-  if (!partners.length && !activeCourseRun?.staff.length) {
+  if (!partners.length && !activeCourseRun?.staff?.length) {
     return null;
   }
 

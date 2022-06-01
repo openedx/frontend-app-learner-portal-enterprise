@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProgramProgressPage should render the expected HTML 1`] = `
+<div>
+  <div
+    className="col-4 offset-4"
+  >
+    Program Progress Header Will Go Here
+  </div>
+  <div
+    className="py-5 container-mw-lg container-fluid"
+  >
+    <div
+      className="row"
+    >
+      <article
+        className="col-xs-12 col-lg-12"
+      >
+        <div>
+          Program Courses Will go Here
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
+`;
