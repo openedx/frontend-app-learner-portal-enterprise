@@ -34,8 +34,9 @@ const UserSubsidy = ({ children }) => {
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
   const {
     enterpriseOffers,
-    isLoading: isLoadingEnterpriseOffers,
     canEnrollWithEnterpriseOffers,
+    hasLowEnterpriseOffersBalance,
+    isLoading: isLoadingEnterpriseOffers,
   } = useEnterpriseOffers({
     enterpriseId: enterpriseConfig.uuid,
     customerAgreementConfig,
@@ -74,6 +75,7 @@ const UserSubsidy = ({ children }) => {
         couponCodes,
         enterpriseOffers,
         canEnrollWithEnterpriseOffers,
+        hasLowEnterpriseOffersBalance,
         showExpirationNotifications,
         customerAgreementConfig,
         activateUserLicense,
