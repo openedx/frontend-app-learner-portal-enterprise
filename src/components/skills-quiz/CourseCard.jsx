@@ -65,6 +65,7 @@ const CourseCard = ({
         />
 
         <Card.Header
+          className="h-100"
           title={(
             <Truncate
               lines={course.skillNames?.length < 5 ? 3 : 2}
@@ -124,7 +125,10 @@ const CourseCard = ({
       key={course.title}
     >
       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <Link to={isLoading ? '#' : linkToCourse(course, slug, uuid)}>
+      <Link
+        to={isLoading ? '#' : linkToCourse(course, slug, uuid)}
+        className="h-100"
+      >
         {isLoading ? loadingCard() : courseCard()}
       </Link>
     </div>

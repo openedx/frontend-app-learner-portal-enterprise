@@ -99,11 +99,22 @@ const SearchProgramCard = ({ hit, isLoading }) => {
     };
     const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
 
+    /*
+      AED 2022-06-01: We can't yet use a CardGrid or CardDeck to contain these
+      cards/hits (and thus take advantage of the Grid or Deck forcing
+      the cards to be equal heights),
+      so we set height to 100% for the card, image/header sub-components,
+      and the Link and div in which the card is wrapped.
+      This will cause the card to fill up the static height we've allocated
+      to search result items in ``_SearchResults.scss``.
+    */
     return (
       <Card
         isClickable
+        className="h-100"
       >
         <Card.ImageCap
+          className="h-100"
           src={program.cardImageUrl}
           alt=""
           logoSrc={primaryPartnerLogo?.src}
@@ -111,6 +122,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
         />
 
         <Card.Header
+          className="h-100"
           title={(
             <Truncate lines={2} trimWhitespace>
               {program.title}
@@ -153,12 +165,13 @@ const SearchProgramCard = ({ hit, isLoading }) => {
   const { userId } = getAuthenticatedUser();
   return (
     <div
-      className="search-program-card mb-4"
+      className="search-program-card mb-4 h-100"
       role="group"
       aria-label={program.title}
     >
       <Link
         to={linkToProgram}
+        className="h-100"
         onClick={() => {
           sendEnterpriseTrackEvent(
             uuid,

@@ -17,7 +17,7 @@ const JobCardComponent = ({ jobs, isLoading }) => {
           role="group"
           aria-label={job.name}
         >
-          <Card isClickable className="h-100">
+          <Card className="h-100">
             <Card.Header
               title={
                 isLoading ? (

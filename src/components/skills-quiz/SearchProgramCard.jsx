@@ -65,6 +65,7 @@ const SearchProgramCard = ({ index }) => {
     subscriptionLicense,
     couponCodesCatalogs,
   });
+
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
   const [programs, setPrograms] = useState([]);
@@ -190,8 +191,8 @@ const SearchProgramCard = ({ index }) => {
         <Card.ImageCap
           src={program.cardImageUrl}
           srcAlt=""
-          logoSrc={primaryPartnerLogo.src}
-          logoAlt={primaryPartnerLogo.alt}
+          logoSrc={primaryPartnerLogo?.src}
+          logoAlt={primaryPartnerLogo?.alt}
         />
         <Card.Header
           title={(
@@ -210,7 +211,7 @@ const SearchProgramCard = ({ index }) => {
           }
         />
 
-        <Card.Section className="py-3">
+        <Card.Section className="py-1">
           <>
             {program.skillNames?.length > 0 && (
               <div className="mb-2 d-inline">
@@ -228,7 +229,7 @@ const SearchProgramCard = ({ index }) => {
           </>
         </Card.Section>
 
-        <Card.Section className="py-3">
+        <Card.Section className="py-1">
           <div className="d-flex">
             <Badge
               variant="light"

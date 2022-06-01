@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card, Form } from '@edx/paragon';
+import { SelectableBox } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { formatStringAsNumber } from '../../utils/common';
@@ -22,59 +22,46 @@ const SelectJobCard = () => {
     jobSelected = selectedJob;
     jobsCard = interestedJobs;
   }
+
   return (
     <div>
       <h3>Your jobs and skills</h3>
-      <Form.Group>
-        <Form.RadioSet
-          name="selected-job"
-          onChange={(e) => dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: e.target.value })}
-          defaultValue={jobSelected}
-          isInline
-          className="row"
-        >
-
-          {jobsCard?.map(job => (
-            <div
-              key={job.name}
-              role="group"
-              aria-label={job.name}
-              className="ml-2 mt-2"
-            >
-              <Card isClickable className={`${selectedJob === job.name ? 'border border-dark' : null} h-100`}>
-                <Card.Header
-                  title={(
-                    <span>
-                      {job.name}
-                    </span>
-                  )}
-                />
-                <Card.Section>
-                  <div className="col-2"><Form.Radio value={job.name} /></div>
-                  <div className="col-12">
-                    {!hideLaborMarketData
-                      && (
-                        <div className="text-gray-700">
-                          <p className="m-0 medium-font">
-                            <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
-                            {job.job_postings?.length > 0 && job.job_postings[0].median_salary
-                              ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}` : NOT_AVAILABLE }
-                          </p>
-                          <p className="m-0 medium-font">
-                            <span style={{ fontWeight: 700 }}>Job Postings: </span>
-                            {job.job_postings?.length > 0 && job.job_postings[0].unique_postings
-                              ? formatStringAsNumber(job.job_postings[0].unique_postings)
-                              : NOT_AVAILABLE }
-                          </p>
-                        </div>
-                      )}
-                  </div>
-                </Card.Section>
-              </Card>
+      <SelectableBox.Set
+        name="selected-job"
+        type="radio"
+        onChange={(e) => dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: e.target.value })}
+        value={jobSelected}
+        columns={3}
+      >
+        {jobsCard?.map(job => (
+          <SelectableBox
+            key={job.name}
+            value={job.name}
+            type="radio"
+            aria-label={job.name}
+            inputHidden={false}
+          >
+            <div>
+              <h4>{job.name}</h4>
+              {!hideLaborMarketData && (
+                <div className="text-gray-700">
+                  <p className="m-0 medium-font">
+                    <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
+                    {job.job_postings?.length > 0 && job.job_postings[0].median_salary
+                      ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}` : NOT_AVAILABLE }
+                  </p>
+                  <p className="m-0 medium-font">
+                    <span style={{ fontWeight: 700 }}>Job Postings: </span>
+                    {job.job_postings?.length > 0 && job.job_postings[0].unique_postings
+                      ? formatStringAsNumber(job.job_postings[0].unique_postings)
+                      : NOT_AVAILABLE }
+                  </p>
+                </div>
+              )}
             </div>
-          ))}
-        </Form.RadioSet>
-      </Form.Group>
+          </SelectableBox>
+        ))}
+      </SelectableBox.Set>
     </div>
   );
 };
