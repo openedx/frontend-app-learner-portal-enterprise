@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
 import { subscribe } from '@edx/frontend-platform';
 import { AUTHENTICATED_USER_CHANGED, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
@@ -56,6 +57,8 @@ export default class SentryLoggingService {
     Sentry.init({
       dsn: SENTRY_DSN,
       environment: [SENTRY_PROJECT_PREFIX, SENTRY_ENVIRONMENT].filter(value => Boolean(value)).join('_'),
+      integrations: [new BrowserTracing()],
+      tracesSampleRate: 1.0,
     });
 
     subscribe(AUTHENTICATED_USER_CHANGED, () => {
