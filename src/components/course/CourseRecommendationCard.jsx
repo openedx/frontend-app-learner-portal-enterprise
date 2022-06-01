@@ -43,6 +43,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
 
   return (
     <Card
+      className="course-card-recommendation"
       isClickable
       onClick={() => {
         sendEnterpriseTrackEvent(
