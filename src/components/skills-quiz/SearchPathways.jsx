@@ -2,7 +2,6 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
-import { CardGrid } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -69,11 +68,11 @@ const SearchPathways = ({ index }) => {
   return (
     <div>
       {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these pathways </h3> : null}
-      <CardGrid className="skill-quiz-results">
+      <div className="skill-quiz-results">
         {(hitCount > 0) && pathways.map(pathway => (
           <SearchPathwayCard isLoading={isLoading} hit={pathway} isSkillQuizResult />
         ))}
-      </CardGrid>
+      </div>
     </div>
   );
 };

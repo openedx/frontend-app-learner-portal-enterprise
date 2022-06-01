@@ -23,7 +23,7 @@ const CourseRecommendations = () => {
       {samePartnerRecommendations?.length > 0 && (
         <div className="mb-3">
           <h3 className="mb-3">More from { course.owners[0].name }:</h3>
-          <div className="partner-recommendations">
+          <CardGrid>
             {samePartnerRecommendations.map(recommendation => (
               <CourseRecommendationCard
                 key={recommendation.key}
@@ -31,7 +31,7 @@ const CourseRecommendations = () => {
                 isPartnerRecommendation
               />
             ))}
-          </div>
+          </CardGrid>
         </div>
       )}
     </div>

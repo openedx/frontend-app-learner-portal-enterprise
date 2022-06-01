@@ -105,14 +105,19 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
     </Card>
   );
 
+  /*
+    Including both search-pathway-card and search-result-card
+    in the wrapper div is important so that pathway cards have a layout
+    that's identical to the program and course search result cards.
+  */
   return (
     <div
-      className="search-pathway-card mb-4 w-100 h-100"
+      className="search-pathway-card search-result-card mb-4 h-100"
       role="group"
       aria-label={pathway.title}
     >
       <Link
-        className="w-100 h-100"
+        className="h-100"
         to={linkToPathway}
         onClick={() => {
           sendEnterpriseTrackEvent(
