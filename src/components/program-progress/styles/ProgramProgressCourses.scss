@@ -1,6 +1,6 @@
 .add-between-space{
     display: flex;
-    justifyContent: space-between;
+    justify-content: space-between;
 }
 
 .circle-color {
@@ -10,4 +10,7 @@
 
 .courses > div:nth-of-type(even) {
     background-color: rgb(251, 250, 249);
+}
+.white-space-pre{
+    white-space: pre
 }
