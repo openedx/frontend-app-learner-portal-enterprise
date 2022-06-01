@@ -196,7 +196,9 @@ const CourseRunCard = ({
 
   return (
     <Card className="w-100">
-      <Card.Body className="d-flex flex-column align-items-center justify-content-between">
+      <Card.Section
+        className="d-flex flex-column align-items-center justify-content-between"
+      >
         <div className={classNames(
           'text-center',
           {
@@ -216,7 +218,7 @@ const CourseRunCard = ({
             subscriptionLicense={subscriptionLicense}
           />
         )}
-      </Card.Body>
+      </Card.Section>
     </Card>
   );
 };

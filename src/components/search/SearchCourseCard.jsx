@@ -69,14 +69,25 @@ const SearchCourseCard = ({ hit, isLoading }) => {
     </Card>
   );
 
+  /*
+    AED 2022-06-01: We can't yet use a CardGrid or CardDeck to contain these
+    cards/hits (and thus take advantage of the Grid or Deck forcing
+    the cards to be equal heights),
+    so we set height to 100% for the card, image/header sub-components,
+    and the Link and div in which the card is wrapped.
+    This will cause the card to fill up the static height we've allocated
+    to search result items in ``_SearchResults.scss``.
+  */
   const searchCourseCard = () => {
     const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
 
     return (
       <Card
         isClickable
+        className="h-100"
       >
         <Card.ImageCap
+          className="h-100"
           src={course.cardImageUrl}
           srcAlt=""
           logoSrc={primaryPartnerLogo?.src}
@@ -84,6 +95,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
         />
 
         <Card.Header
+          className="h-100"
           title={(
             <Truncate lines={3} trimWhitespace>
               {course.title}
@@ -115,11 +127,12 @@ const SearchCourseCard = ({ hit, isLoading }) => {
 
   return (
     <div
-      className="search-course-card mb-4"
+      className="search-course-card mb-4 h-100"
       role="group"
       aria-label={course.title}
     >
       <Link
+        className="h-100"
         to={linkToCourse}
         onClick={() => {
           sendEnterpriseTrackEvent(

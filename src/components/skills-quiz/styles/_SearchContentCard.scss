@@ -15,16 +15,16 @@
   }
 
   .card {
-    height: 340px;
+    height: 400px;
     width: 312px;
     padding: 10px;
     box-shadow: $box-shadow;
     overflow: hidden;
   }
 
-  .card-img-top {
+  .pgn__card-image-cap {
     width: 100%;
-    height: 100px;
+    height: 72px;
     object-fit: cover;
     border: none;
   }
@@ -91,4 +91,3 @@
 .skills-badge {
   margin-bottom: 30px;
 }
-

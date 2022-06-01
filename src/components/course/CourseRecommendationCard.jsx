@@ -57,8 +57,8 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
     >
       <Card.ImageCap
         src={course.cardImageUrl.src}
-        logoSrc={primaryPartnerLogo.src}
-        logoAlt={primaryPartnerLogo.alt}
+        logoSrc={primaryPartnerLogo?.src}
+        logoAlt={primaryPartnerLogo?.alt}
       />
 
       <Card.Header

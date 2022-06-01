@@ -57,20 +57,11 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
     <Card
       className={classNames({ 'skill-quiz-pathway-card': isSkillQuizResult })}
     >
-      <Card.ImageCap
-        as={Skeleton}
-        duration={0}
-      />
+      <Skeleton duration={0} />
 
-      <Card.Header
-        title={
-          <Skeleton count={2} data-testid="pathway-title-loading" />
-        }
-      />
+      <Skeleton count={2} data-testid="pathway-title-loading" />
 
-      <Card.Section>
-        <Skeleton duration={0} data-testid="content-type-loading" />
-      </Card.Section>
+      <Skeleton duration={0} data-testid="content-type-loading" />
 
     </Card>
   );
@@ -101,7 +92,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
                  <Badge
                    variant="light"
                    key={skillName}
-                   classNames="pathway-badge justify-content-center align-items-center"
+                   className="pathway-badge justify-content-center align-items-center"
                  >
                    <span className="badge-text">{skillName}</span>
                  </Badge>
@@ -116,11 +107,12 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
 
   return (
     <div
-      className="search-pathway-card mb-4"
+      className="search-pathway-card mb-4 w-100 h-100"
       role="group"
       aria-label={pathway.title}
     >
       <Link
+        className="w-100 h-100"
         to={linkToPathway}
         onClick={() => {
           sendEnterpriseTrackEvent(
