@@ -29,7 +29,7 @@ import SearchResults from './SearchResults';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { EnterpriseOffersLowBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
@@ -41,7 +41,12 @@ const Search = () => {
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const {
+    subscriptionPlan,
+    subscriptionLicense, couponCodes: { couponCodes },
+    canEnrollWithEnterpriseOffers,
+    hasLowEnterpriseOffersBalance,
+  } = useContext(UserSubsidyContext);
   const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
   const { subsidyRequestConfiguration, catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
@@ -106,6 +111,7 @@ const Search = () => {
             onClose();
           }}
         />
+        {canEnrollWithEnterpriseOffers && hasLowEnterpriseOffersBalance && <EnterpriseOffersLowBalanceAlert />}
 
         { (contentType === undefined || contentType.length === 0) && (
           <>

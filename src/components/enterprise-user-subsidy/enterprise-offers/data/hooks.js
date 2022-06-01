@@ -17,6 +17,8 @@ export function useEnterpriseOffers({
   const [isLoadingEnterpriseCoupons, setIsLoadingEnterpriseCoupons] = useState(true);
   const [enterpriseCoupons, setEnterpriseCoupons] = useState([]);
   const [canEnrollWithEnterpriseOffers, setCanEnrollWithEnterpriseOffers] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [hasLowEnterpriseOffersBalance, setHasLowEnterpriseOffersBalance] = useState(false);
 
   const isLoading = isLoadingOffers || isLoadingCustomerAgreementConfig || isLoadingEnterpriseCoupons;
 
@@ -24,6 +26,9 @@ export function useEnterpriseOffers({
     // Fetch enterprise offers here if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS is true
     setEnterpriseOffers([]);
     setIsLoadingOffers(false);
+
+    // Check if offers are low on balance
+    // hasLowEnterpriseOffersBalance(true)
   }, [enterpriseId]);
 
   // Fetch enterprise coupons to determine if the enterprise offers can be used to enroll
@@ -54,6 +59,7 @@ export function useEnterpriseOffers({
       return;
     }
 
+    // might also add enterpriseOffers.length === 1 depending on requirements
     if (enterpriseCoupons.length === 0
        && (customerAgreementConfig?.subscriptions?.length || 0) === 0) {
       setCanEnrollWithEnterpriseOffers(true);
@@ -66,5 +72,10 @@ export function useEnterpriseOffers({
     features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS,
   ]);
 
-  return { enterpriseOffers, canEnrollWithEnterpriseOffers, isLoading };
+  return {
+    enterpriseOffers,
+    canEnrollWithEnterpriseOffers,
+    hasLowEnterpriseOffersBalance,
+    isLoading,
+  };
 }
