@@ -4,11 +4,12 @@ import classNames from 'classnames';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
-import { numberWithPrecision, hasLicenseSubsidy } from './data/utils';
+import { numberWithPrecision } from './data/utils';
 import {
   useCoursePriceForUserSubsidy,
 } from './data/hooks';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { LICENSE_SUBSIDY_TYPE } from './data/constants';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
 export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
@@ -36,7 +37,7 @@ const CourseSidebarPrice = () => {
   );
 
   // Case 1: License subsidy found
-  if (hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
+  if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
     return (
       <>
         {showOrigPrice && (

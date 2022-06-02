@@ -1,14 +1,13 @@
 /* eslint-disable import/prefer-default-export */
 import { enrollButtonTypes } from './constants';
 import { features } from '../../../config';
-import { hasLicenseSubsidy } from '../data/utils';
+import { LICENSE_SUBSIDY_TYPE } from '../data/constants';
 
 const {
   ENROLL_DISABLED,
   TO_COURSEWARE_PAGE,
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
-  TO_VOUCHER_REDEEM,
   VIEW_ON_DASHBOARD,
   HIDE_BUTTON,
 } = enrollButtonTypes;
@@ -18,10 +17,8 @@ const {
  */
 export function determineEnrollmentType({
   subsidyData: {
-    subscriptionLicense,
     userSubsidyApplicableToCourse,
     enrollmentUrl,
-    hasCouponCodeForCourse,
     subsidyRequestConfiguration,
   } = {},
   isUserEnrolled,
@@ -30,35 +27,29 @@ export function determineEnrollmentType({
   userHasSubsidyRequestForCourse,
   subsidyRequestCatalogsApplicableToCourse,
 }) {
-  const isSubscriptionValid = subscriptionLicense?.uuid;
   if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
 
   if (userHasSubsidyRequestForCourse) { return HIDE_BUTTON; }
 
+  // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
   if (
     features.FEATURE_BROWSE_AND_REQUEST
     && subsidyRequestConfiguration?.subsidyRequestsEnabled
     && subsidyRequestCatalogsApplicableToCourse.size > 0
-    && !hasLicenseSubsidy(userSubsidyApplicableToCourse)
-    && !hasCouponCodeForCourse
+    && !userSubsidyApplicableToCourse
   ) {
     return HIDE_BUTTON;
   }
 
-  if (!isEnrollable) { return ENROLL_DISABLED; }
-  if (!enrollmentUrl) { return ENROLL_DISABLED; }
+  if (!(isEnrollable && enrollmentUrl)) { return ENROLL_DISABLED; }
 
-  if (isSubscriptionValid && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
+  if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
     return TO_DATASHARING_CONSENT;
   }
-  if (isSubscriptionValid && !hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
-    return TO_ECOM_BASKET;
-  }
 
-  if (!isSubscriptionValid && hasCouponCodeForCourse) { return TO_VOUCHER_REDEEM; }
-  if (!isSubscriptionValid && !hasCouponCodeForCourse) { return TO_ECOM_BASKET; }
-
-  return ENROLL_DISABLED;
+  // If the user has a coupon code or an enterprise offer, we will redirect them to the checkout page
+  // which takes care of redemption.
+  return TO_ECOM_BASKET;
 }
