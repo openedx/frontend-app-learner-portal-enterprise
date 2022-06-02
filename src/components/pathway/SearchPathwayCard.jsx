@@ -108,11 +108,18 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   /*
     Including both search-pathway-card and search-result-card
     in the wrapper div is important so that pathway cards have a layout
-    that's identical to the program and course search result cards.
+    that's identical to the program and course search result cards
+    in the skills quiz page.
   */
+  const wrapperClassNames = classNames(
+    {
+      'search-result-card': isSkillQuizResult,
+    },
+    'search-pathway-card mb-4 h-100',
+  );
   return (
     <div
-      className="search-pathway-card search-result-card mb-4 h-100"
+      className={wrapperClassNames}
       role="group"
       aria-label={pathway.title}
     >
