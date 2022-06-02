@@ -69,6 +69,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   const searchPathwayCard = () => (
     <Card
       isClickable
+      className="h-100"
     >
       <Card.ImageCap
         src={pathway?.cardImageUrl || ''}
