@@ -10,14 +10,18 @@
     }
   }
 
-  .pgn__card-section {
-    background-color: $primary;
-  }
+  .pgn__card {
+    .pgn__card-section {
+      background-color: $primary;
+      border-bottom-left-radius: inherit;
+      border-bottom-right-radius: inherit;
+    }
 
-  .pgn__card-header {
-    background-color: $primary;
-    .pgn__card-header-title {
-      color: white;
+    .pgn__card-header {
+      background-color: $primary;
+      .pgn__card-header-title {
+        color: white;
+      }
     }
   }
 }
