@@ -8,29 +8,37 @@ import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
 } from './data/hooks';
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from './data/constants';
 
-export const ENROLL_MODAL_TEXT_NO_COUPON_CODES = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
-export const createUseVoucherText = couponCodesCount => `Enrolling in this course will use 1 of your ${couponCodesCount} enrollment codes.`;
+export const ENROLL_MODAL_TEXT_HAS_NO_SUBSIDY = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
+export const createUseCouponCodeText = couponCodesCount => `Enrolling in this course will use 1 of your ${couponCodesCount} enrollment codes.`;
+export const createUseEnterpriseOfferText = courseRunPrice => `You are about to redeem $${courseRunPrice} from your learner credit. This action cannot be reversed.`;
 
-export const modalText = {
-  noCouponCodes: {
-    body: ENROLL_MODAL_TEXT_NO_COUPON_CODES,
+export const MODAL_TEXTS = {
+  HAS_NO_SUBSIDY: {
+    body: ENROLL_MODAL_TEXT_HAS_NO_SUBSIDY,
     button: 'Continue to payment',
     title: 'Payment required for course enrollment',
   },
-  hasCouponCodes: {
-    body: (couponCodesCount) => createUseVoucherText(couponCodesCount),
-    button: 'Enroll in course',
+  HAS_COUPON_CODE: {
+    body: (couponCodesCount) => createUseCouponCodeText(couponCodesCount),
+    button: 'Enroll',
     title: 'Use 1 enrollment code for this course?',
+  },
+  HAS_ENTERPRISE_OFFER: {
+    body: (courseRunPrice) => createUseEnterpriseOfferText(courseRunPrice),
+    button: 'Enroll',
+    title: 'Use learning credit for this course?',
   },
 };
 
 const EnrollModal = ({
-  enrollmentUrl,
   isModalOpen,
-  couponCodesCount,
-  hasCouponCodeForCourse,
   setIsModalOpen,
+  enrollmentUrl,
+  courseRunPrice,
+  userSubsidyApplicableToCourse,
+  couponCodesCount,
 }) => {
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
@@ -40,11 +48,41 @@ const EnrollModal = ({
     href: enrollmentUrl,
   });
 
-  const [submitting, setSubmitting] = useState(false);
-  const { hasCouponCodes, noCouponCodes } = modalText;
-  const buttonText = hasCouponCodeForCourse ? hasCouponCodes.button : noCouponCodes.button;
-  const enrollText = hasCouponCodeForCourse ? hasCouponCodes.body(couponCodesCount) : noCouponCodes.body;
-  const titleText = hasCouponCodeForCourse ? hasCouponCodes.title : noCouponCodes.title;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const getModalTexts = () => {
+    const { HAS_NO_SUBSIDY, HAS_COUPON_CODE, HAS_ENTERPRISE_OFFER } = MODAL_TEXTS;
+
+    if (userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
+      return {
+        buttonText: HAS_COUPON_CODE.button,
+        enrollText: HAS_COUPON_CODE.body(couponCodesCount),
+        titleText: HAS_COUPON_CODE.title,
+      };
+    }
+
+    if (userSubsidyApplicableToCourse?.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
+      return {
+        buttonText: HAS_ENTERPRISE_OFFER.button,
+        enrollText: HAS_ENTERPRISE_OFFER.body(courseRunPrice),
+        titleText: HAS_ENTERPRISE_OFFER.title,
+      };
+    }
+
+    return {
+      buttonText: HAS_NO_SUBSIDY.button,
+      enrollText: HAS_NO_SUBSIDY.body,
+      titleText: HAS_NO_SUBSIDY.title,
+    };
+  };
+
+  const handleEnroll = (e) => {
+    setIsLoading(true);
+    analyticsHandler(e);
+    optimizelyHandler(e);
+  };
+
+  const { titleText, enrollText, buttonText } = getModalTexts();
 
   return (
     <Modal
@@ -56,14 +94,10 @@ const EnrollModal = ({
         <a
           className="btn btn-primary btn-brand-primary"
           href={enrollmentUrl}
-          onClick={(e) => {
-            setSubmitting(true);
-            analyticsHandler(e);
-            optimizelyHandler(e);
-          }}
+          onClick={handleEnroll}
         >
           <>
-            {submitting && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
+            {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
             {buttonText}
           </>
         </a>,
@@ -74,11 +108,20 @@ const EnrollModal = ({
 };
 
 EnrollModal.propTypes = {
-  hasCouponCodeForCourse: PropTypes.bool.isRequired,
-  enrollmentUrl: PropTypes.string.isRequired,
   isModalOpen: PropTypes.bool.isRequired,
-  couponCodesCount: PropTypes.number.isRequired,
   setIsModalOpen: PropTypes.func.isRequired,
+  enrollmentUrl: PropTypes.string.isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape({
+    subsidyType: PropTypes.oneOf(
+      [COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE],
+    ),
+  }),
+  couponCodesCount: PropTypes.number.isRequired,
+  courseRunPrice: PropTypes.number.isRequired,
+};
+
+EnrollModal.defaultProps = {
+  userSubsidyApplicableToCourse: undefined,
 };
 
 export default EnrollModal;

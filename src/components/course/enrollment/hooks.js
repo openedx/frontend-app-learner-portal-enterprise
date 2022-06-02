@@ -2,9 +2,7 @@ import { useMemo, useContext } from 'react';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContext } from '../CourseContextProvider';
-import {
-  findCouponCodeForCourse, hasCourseStarted, findUserEnrollmentForCourseRun,
-} from '../data/utils';
+import { hasCourseStarted, findUserEnrollmentForCourseRun } from '../data/utils';
 
 /**
  * Enrollment data needed for enroll logic
@@ -64,12 +62,11 @@ export function useSubsidyDataForCourse() {
   const { state: courseData } = useContext(CourseContext);
   const { subscriptionLicense, couponCodes: { couponCodes, couponCodesCount } } = useContext(UserSubsidyContext);
 
-  const { userSubsidyApplicableToCourse, catalog: { catalogList } } = courseData;
+  const { userSubsidyApplicableToCourse } = courseData;
   return {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     couponCodes,
     couponCodesCount,
-    hasCouponCodeForCourse: !!findCouponCodeForCourse(couponCodes, catalogList),
   };
 }

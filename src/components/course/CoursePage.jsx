@@ -35,11 +35,17 @@ export default function CoursePage() {
     },
     [search],
   );
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const {
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    canEnrollWithEnterpriseOffers,
+  } = useContext(UserSubsidyContext);
   const activeCatalogs = useMemo(
     () => {
       const catalogs = [];
-      const couponCodesCatalogs = couponCodes.map((offer) => offer.catalog);
+      const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
       if (features.ENROLL_WITH_CODES) {
         catalogs.push(...couponCodesCatalogs);
       }
@@ -63,6 +69,8 @@ export default function CoursePage() {
     courseRunKey,
     subscriptionLicense,
     couponCodes,
+    enterpriseOffers,
+    canEnrollWithEnterpriseOffers,
     activeCatalogs,
   });
 

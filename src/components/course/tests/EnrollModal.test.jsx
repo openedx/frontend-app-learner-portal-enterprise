@@ -1,100 +1,75 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import '@testing-library/jest-dom/extend-expect';
-import { screen, render } from '@testing-library/react';
+import { screen, render, fireEvent } from '@testing-library/react';
 
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { CourseContextProvider } from '../CourseContextProvider';
-import {
-  CourseEnrollmentsContext,
-} from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import EnrollModal, { modalText } from '../EnrollModal';
+import EnrollModal, { MODAL_TEXTS } from '../EnrollModal';
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../data/constants';
+import * as hooks from '../data/hooks';
 
-const baseCourseInitialState = {
-  activeCourseRun: {
-    key: 'test-course-run-key',
-  },
-  algoliaSearchParams: {
-    queryId: undefined,
-    objectId: undefined,
-  },
-  catalog: { catalogList: [] },
-  course: {},
-  userEnrollments: [],
-  userEntitlements: [],
-  courseRecommendations: {},
-};
-
-const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: new Set(),
-};
-
-const baseCourseEnrollmentsContextValue = {
-  courseEnrollmentsByStatus: new Set(),
-};
-
-const EnrollModalWrapper = ({
-  courseState = baseCourseInitialState,
-  subsidyRequestContextValue = baseSubsidyRequestContextValue,
-  courseEnrollmentsContextValue = baseCourseEnrollmentsContextValue,
-  modalProps,
-}) => (
-  <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-      <CourseContextProvider initialState={courseState}>
-        <EnrollModal {...modalProps} />
-      </CourseContextProvider>
-    </CourseEnrollmentsContext.Provider>
-  </SubsidyRequestsContext.Provider>
-);
-
-EnrollModalWrapper.propTypes = {
-  courseState: PropTypes.shape(),
-  subsidyRequestContextValue: PropTypes.shape(),
-  courseEnrollmentsContextValue: PropTypes.shape(),
-  modalProps: PropTypes.shape(),
-};
-
-EnrollModalWrapper.defaultProps = {
-  courseState: baseCourseInitialState,
-  subsidyRequestContextValue: baseSubsidyRequestContextValue,
-  courseEnrollmentsContextValue: baseCourseEnrollmentsContextValue,
-  modalProps: {},
-};
+jest.mock('../data/hooks', () => ({
+  useTrackSearchConversionClickHandler: jest.fn(),
+  useOptimizelyEnrollmentClickHandler: jest.fn(),
+}));
 
 describe('<EnrollModal />', () => {
-  const defaultProps = {
-    enrollmentUrl: 'foo',
+  const basicProps = {
     isModalOpen: true,
-    setIsModalOpen: () => {},
-    couponCodesCount: 1,
-    hasCouponCodeForCourse: true,
+    setIsModalOpen: jest.fn(),
+    enrollmentUrl: 'https://example.com/enroll',
+    courseRunPrice: 100,
+    userSubsidyApplicableToCourse: undefined,
+    couponCodesCount: 0,
   };
-  it('displays the correct text when user has valid coupon codes', () => {
-    render(<EnrollModalWrapper modalProps={defaultProps} />);
-    expect(screen.getByText(modalText.hasCouponCodes.title)).toBeInTheDocument();
-    expect(screen.getByText(modalText.hasCouponCodes.body(defaultProps.couponCodesCount))).toBeInTheDocument();
-    expect(screen.getByText(modalText.hasCouponCodes.button)).toBeInTheDocument();
+  it('displays the correct texts when user has no applicable subsidy', () => {
+    render(
+      <EnrollModal {...basicProps} />,
+    );
+    expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.title)).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.body)).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button)).toBeInTheDocument();
   });
-  it('displays the correct text when user has no coupon codes', () => {
-    const modalProps = {
-      ...defaultProps,
-      couponCodesCount: 0,
-      hasCouponCodeForCourse: false,
+  it('displays the correct texts when user has a coupon code for the course', () => {
+    const props = {
+      ...basicProps,
+      userSubsidyApplicableToCourse: {
+        subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+      },
+      couponCodesCount: 5,
     };
-    render(<EnrollModalWrapper modalProps={modalProps} />);
-    expect(screen.getByText(modalText.noCouponCodes.title)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noCouponCodes.body)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noCouponCodes.button)).toBeInTheDocument();
+    render(
+      <EnrollModal {...props} />,
+    );
+    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.title)).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.body(props.couponCodesCount))).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button)).toBeInTheDocument();
   });
-  it('displays the correct text when user does not have a valid coupon code', () => {
-    const modalProps = {
-      ...defaultProps,
-      hasCouponCodeForCourse: false,
+  it('displays the correct texts when there is an enterprise offer', () => {
+    const props = {
+      ...basicProps,
+      userSubsidyApplicableToCourse: {
+        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      },
     };
-    render(<EnrollModalWrapper modalProps={modalProps} />);
-    expect(screen.getByText(modalText.noCouponCodes.title)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noCouponCodes.body)).toBeInTheDocument();
-    expect(screen.getByText(modalText.noCouponCodes.button)).toBeInTheDocument();
+    render(
+      <EnrollModal {...props} />,
+    );
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(props.courseRunPrice))).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button)).toBeInTheDocument();
+  });
+  it('calls analyticsHandler and optimizelyHandler when enrollmentUrl is clicked', () => {
+    const mockTrackSearchConversionClickHandler = jest.fn();
+    const mockOptimizelyEnrollmentClickHandler = jest.fn();
+    hooks.useTrackSearchConversionClickHandler.mockImplementation(() => mockTrackSearchConversionClickHandler);
+    hooks.useOptimizelyEnrollmentClickHandler.mockImplementation(() => mockOptimizelyEnrollmentClickHandler);
+
+    render(
+      <EnrollModal {...basicProps} />,
+    );
+    const enrollButton = screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button);
+    fireEvent.click(enrollButton);
+
+    expect(mockTrackSearchConversionClickHandler).toHaveBeenCalled();
+    expect(mockOptimizelyEnrollmentClickHandler).toHaveBeenCalled();
   });
 });

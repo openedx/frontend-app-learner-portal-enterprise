@@ -23,14 +23,16 @@ import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
   findCouponCodeForCourse,
-  hasLicenseSubsidy,
   getSubsidyToApplyForCourse,
+  findEnterpriseOfferForCourse,
 } from './utils';
 import {
   COURSE_PACING_MAP,
   SUBSIDY_DISCOUNT_TYPE_MAP,
   CURRENCY_USD,
   ENROLLMENT_FAILED_QUERY_PARAM,
+  LICENSE_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 
@@ -43,6 +45,8 @@ export function useAllCourseData({
   courseRunKey,
   subscriptionLicense,
   couponCodes,
+  enterpriseOffers,
+  canEnrollWithEnterpriseOffers,
   activeCatalogs,
 }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -93,9 +97,17 @@ export function useAllCourseData({
             }
           }
 
+          const { firstEnrollablePaidSeatPrice } = courseService.activeCourseRun || {};
+
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
             applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
+            applicableEnterpriseOffer: canEnrollWithEnterpriseOffers
+              ? findEnterpriseOfferForCourse({
+                enterpriseOffers,
+                catalogList: catalogsWithCourse,
+                coursePrice: firstEnrollablePaidSeatPrice,
+              }) : undefined,
           });
         }
 
@@ -324,7 +336,6 @@ useCoursePriceForUserSubsidy.propTypes = {
  * @returns {string} url for enrollment
  */
 export const useCourseEnrollmentUrl = ({
-  catalogList,
   enterpriseConfig,
   key,
   location,
@@ -344,8 +355,7 @@ export const useCourseEnrollmentUrl = ({
 
   const enrollmentUrl = useMemo(
     () => {
-      // Users must have a license and a valid subsidy from that license to enroll with it
-      if (subscriptionLicense && hasLicenseSubsidy(userSubsidyApplicableToCourse)) {
+      if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
         const queryParams = new URLSearchParams({
           ...baseEnrollmentOptions,
           license_uuid: subscriptionLicense.uuid,
@@ -358,23 +368,24 @@ export const useCourseEnrollmentUrl = ({
         return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
       }
 
-      if (features.ENROLL_WITH_CODES && couponCodes.length >= 0 && sku) {
-        const queryParams = new URLSearchParams({
-          ...baseEnrollmentOptions,
-          sku,
-          consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
-        });
-        // get the index of the first coupon code that applies to a catalog that the course is in
-        const couponCodeForCourse = findCouponCodeForCourse(couponCodes, catalogList);
-        if (couponCodes.length === 0 || !couponCodeForCourse) {
-          return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
-        }
-        queryParams.set('code', couponCodeForCourse.code);
+      if (!sku) {
+        // No product SKU is present, so the course cannot be enrolled in.
+        return null;
+      }
+
+      const queryParams = new URLSearchParams({
+        ...baseEnrollmentOptions,
+        sku,
+        consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
+      });
+
+      if (features.ENROLL_WITH_CODES && userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
+        queryParams.set('code', userSubsidyApplicableToCourse.code);
         return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
       }
 
-      // No coupon code or product SKU is present, so the course cannot be enrolled in.
-      return null;
+      // This enrollment url will automatically apply enterprise offers
+      return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
     },
     [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, couponCodes, sku],
   );

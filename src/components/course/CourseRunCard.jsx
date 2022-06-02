@@ -32,7 +32,6 @@ const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
 
 const CourseRunCard = ({
-  catalogList,
   userEntitlements,
   courseRun,
   userEnrollments,
@@ -79,7 +78,6 @@ const CourseRunCard = ({
     [seats],
   );
   const enrollmentUrl = useCourseEnrollmentUrl({
-    catalogList,
     enterpriseConfig,
     key,
     couponCodes,
@@ -216,6 +214,7 @@ const CourseRunCard = ({
             enrollmentUrl={enrollmentUrl}
             userEnrollment={userEnrollment}
             subscriptionLicense={subscriptionLicense}
+            courseRunPrice={courseRun.firstEnrollablePaidSeatPrice}
           />
         )}
       </Card.Section>
@@ -234,6 +233,7 @@ CourseRunCard.propTypes = {
     start: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
     seats: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+    firstEnrollablePaidSeatPrice: PropTypes.number.isRequired,
   }).isRequired,
   userEnrollments: PropTypes.arrayOf(PropTypes.shape({
     isEnrollmentActive: PropTypes.bool.isRequired,
@@ -242,7 +242,6 @@ CourseRunCard.propTypes = {
     mode: PropTypes.string.isRequired,
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  catalogList: PropTypes.arrayOf(PropTypes.string).isRequired,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
 };
 

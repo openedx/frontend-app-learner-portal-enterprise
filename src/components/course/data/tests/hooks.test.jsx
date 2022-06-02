@@ -150,19 +150,19 @@ describe('useAllCourseData', () => {
 });
 
 describe('useCourseEnrollmentUrl', () => {
-  const noSubscriptionEnrollmentInputs = {
+  const mockCouponCode = {
+    code: 'bearsRus',
+    catalog: 'bears',
+    couponStartDate: moment().subtract(1, 'w').toISOString(),
+    couponEndDate: moment().add(8, 'w').toISOString(),
+  };
+  const noLicenseEnrollmentInputs = {
     enterpriseConfig: {
       uuid: 'foo',
     },
     key: 'bar',
-    couponCodes: [{
-      code: 'bearsRus',
-      catalog: 'bears',
-      couponStartDate: moment().subtract(1, 'w').toISOString(),
-      couponEndDate: moment().add(8, 'w').toISOString(),
-    }],
+    couponCodes: [mockCouponCode],
     sku: 'xkcd',
-    catalogList: ['bears'],
     location: { search: 'foo' },
   };
   // just skip the coupon codes here to ensure we process absence correctly
@@ -175,8 +175,8 @@ describe('useCourseEnrollmentUrl', () => {
     catalogList: ['bears'],
     location: { search: 'foo' },
   };
-  const enrollmentInputs = {
-    ...noSubscriptionEnrollmentInputs,
+  const withLicenseRnrollmentInputs = {
+    ...noLicenseEnrollmentInputs,
     subscriptionLicense: {
       uuid: 'yes',
     },
@@ -187,50 +187,46 @@ describe('useCourseEnrollmentUrl', () => {
 
   describe('subscription license', () => {
     test('returns an lms url to DSC for enrollment with a license', () => {
-      const { result } = renderHook(() => useCourseEnrollmentUrl(enrollmentInputs));
+      const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseRnrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);
-      expect(result.current).toContain(enrollmentInputs.enterpriseConfig.uuid);
-      expect(result.current).toContain(enrollmentInputs.key);
-      expect(result.current).toContain(enrollmentInputs.subscriptionLicense.uuid);
+      expect(result.current).toContain(withLicenseRnrollmentInputs.enterpriseConfig.uuid);
+      expect(result.current).toContain(withLicenseRnrollmentInputs.key);
+      expect(result.current).toContain(withLicenseRnrollmentInputs.subscriptionLicense.uuid);
     });
 
     test('does not use the license uuid for enrollment if there is no valid license subsidy (even with a license uuid)', () => {
-      const noSubsidyEnrollmentInputs = { ...enrollmentInputs };
+      const noSubsidyEnrollmentInputs = { ...withLicenseRnrollmentInputs };
       delete noSubsidyEnrollmentInputs.userSubsidyApplicableToCourse;
 
       const { result } = renderHook(() => useCourseEnrollmentUrl(noSubsidyEnrollmentInputs));
-      expect(result.current).not.toContain(enrollmentInputs.subscriptionLicense.uuid);
+      expect(result.current).not.toContain(withLicenseRnrollmentInputs.subscriptionLicense.uuid);
     });
   });
 
   describe('coupon codes', () => {
     test('with coupon codes for course returns ecommerce url to redeem product with code', () => {
-      const { result } = renderHook(() => useCourseEnrollmentUrl(noSubscriptionEnrollmentInputs));
-      expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(result.current).toContain(noSubscriptionEnrollmentInputs.couponCodes[0].code);
-      expect(result.current).toContain(enrollmentInputs.key);
-    });
-
-    test('with no coupon codes for catalog returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
-        ...noSubscriptionEnrollmentInputs,
-        catalogList: ['foo'],
+        ...noLicenseEnrollmentInputs,
+        userSubsidyApplicableToCourse: {
+          code: mockCouponCode.code,
+          subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+        },
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(result.current).toContain(enrollmentInputs.key);
-      expect(result.current).not.toContain('code');
+      expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.couponCodes[0].code);
+      expect(result.current).toContain(withLicenseRnrollmentInputs.key);
     });
 
     test('with no coupon codes returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
-        ...noSubscriptionEnrollmentInputs,
+        ...noLicenseEnrollmentInputs,
         couponCodes: [],
+
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(result.current).toContain(enrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
+      expect(result.current).toContain(withLicenseRnrollmentInputs.key);
       expect(result.current).not.toContain('code');
     });
     test('with no coupon codes passed, treats it as empty and does not fail', () => {
@@ -238,14 +234,14 @@ describe('useCourseEnrollmentUrl', () => {
         ...noCouponCodesEnrollmentInputs,
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noSubscriptionEnrollmentInputs.sku);
-      expect(result.current).toContain(enrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
+      expect(result.current).toContain(withLicenseRnrollmentInputs.key);
       expect(result.current).not.toContain('code');
     });
 
     test('with missing product sku returns null', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
-        ...noSubscriptionEnrollmentInputs,
+        ...noLicenseEnrollmentInputs,
         sku: undefined,
       }));
       expect(result.current).toBeNull();

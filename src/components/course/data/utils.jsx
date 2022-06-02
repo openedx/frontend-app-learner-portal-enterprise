@@ -6,6 +6,8 @@ import {
   COURSE_PACING_MAP,
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -138,6 +140,17 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   }));
 }
 
+export function findEnterpriseOfferForCourse({
+  enterpriseOffers, catalogList = [], coursePrice,
+}) {
+  if (!coursePrice) {
+    return undefined;
+  }
+
+  return enterpriseOffers.find((enterpriseOffer) => catalogList?.includes(enterpriseOffer.enterpriseCatalogUuid)
+    && enterpriseOffer.remainingBalance >= coursePrice);
+}
+
 const getBestCourseMode = (courseModes) => {
   const {
     VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT, HONOR,
@@ -184,14 +197,6 @@ export function shouldUpgradeUserEnrollment({
   return false;
 }
 
-export function hasLicenseSubsidy(subsidy) {
-  return subsidy?.subsidyType === LICENSE_SUBSIDY_TYPE;
-}
-
-export function hasCouponCodeSubsidy(subsidy) {
-  return subsidy?.subsidyType === COUPON_CODE_SUBSIDY_TYPE;
-}
-
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
 export function shortenString(str, maxLength, suffix, separator = ' ') {
   if (str.length <= maxLength) { return str; }
@@ -201,6 +206,7 @@ export function shortenString(str, maxLength, suffix, separator = ' ') {
 export const getSubsidyToApplyForCourse = ({
   applicableSubscriptionLicense = undefined,
   applicableCouponCode = undefined,
+  applicableEnterpriseOffer = undefined,
 }) => {
   if (applicableSubscriptionLicense) {
     return {
@@ -215,7 +221,20 @@ export const getSubsidyToApplyForCourse = ({
       discountValue: applicableCouponCode.benefitValue,
       startDate: applicableCouponCode.couponStartDate,
       endDate: applicableCouponCode.couponEndDate,
+      code: applicableCouponCode.code,
       subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+    };
+  }
+
+  if (applicableEnterpriseOffer) {
+    return {
+      // TODO: these values are stubbed for now
+      discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE,
+      discountValue: '',
+      startDate: '',
+      endDate: '',
+      code: '',
+      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
     };
   }
 

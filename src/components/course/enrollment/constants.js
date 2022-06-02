@@ -4,7 +4,6 @@ const enrollButtonTypesLocal = {
   VIEW_ON_DASHBOARD: 'view_on_dashboard',
   TO_DATASHARING_CONSENT: 'to_datasharing_consent',
   TO_ECOM_BASKET: 'to_ecom_basket',
-  TO_VOUCHER_REDEEM: 'to_voucher_redeem',
   HIDE_BUTTON: 'hide_button',
 };
 

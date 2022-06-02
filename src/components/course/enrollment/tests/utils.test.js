@@ -3,8 +3,11 @@ import { enrollButtonTypes } from '../constants';
 import { determineEnrollmentType } from '../utils';
 
 const {
-  TO_COURSEWARE_PAGE, VIEW_ON_DASHBOARD, ENROLL_DISABLED, TO_DATASHARING_CONSENT,
-  TO_ECOM_BASKET, TO_VOUCHER_REDEEM,
+  TO_COURSEWARE_PAGE,
+  VIEW_ON_DASHBOARD,
+  ENROLL_DISABLED,
+  TO_DATASHARING_CONSENT,
+  TO_ECOM_BASKET,
 } = enrollButtonTypes;
 describe('determineEnrollmentType correctly resolves enrollment type', () => {
   test('resolves user-enrolled, course-started to "to courseware page" type', () => {
@@ -60,7 +63,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
       },
     })).toBe(TO_ECOM_BASKET);
   });
-  test('resolves invalid subscription, code available, to voucher redeem page', () => {
+  test('resolves invalid subscription, code available, to ecom basket page', () => {
     expect(determineEnrollmentType({
       isUserEnrolled: false,
       isEnrollable: true,
@@ -70,6 +73,6 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
         enrollmentUrl: 'http://test',
         hasCouponCodeForCourse: true,
       },
-    })).toBe(TO_VOUCHER_REDEEM);
+    })).toBe(TO_ECOM_BASKET);
   });
 });

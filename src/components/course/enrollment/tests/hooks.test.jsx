@@ -114,7 +114,6 @@ describe('useEnrollData', () => {
 describe('useSubsidyDataForCourse', () => {
   test('correctly extracts subsidy fields from UserSubsidyContext, absent coupon codes', () => {
     const expected = {
-      hasCouponCodeForCourse: false,
       couponCodesCount: 0,
       couponCodes: [],
       subscriptionLicense,
@@ -132,7 +131,6 @@ describe('useSubsidyDataForCourse', () => {
     }];
 
     const expected = {
-      hasCouponCodeForCourse: true,
       couponCodesCount: 1,
       subscriptionLicense,
       couponCodes,

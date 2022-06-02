@@ -3,14 +3,11 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { ENROLL_MODAL_TEXT_NO_COUPON_CODES, createUseVoucherText } from '../../EnrollModal';
 import {
   renderWithRouter,
   initialAppState,
   initialCourseState,
-  A_100_PERCENT_COUPON_CODE,
 } from '../../../../utils/tests';
-
 import { createCourseInfoUrl } from '../../data/utils';
 import { COURSE_MODES_MAP } from '../../data/constants';
 import EnrollAction from '../EnrollAction';
@@ -21,6 +18,11 @@ import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   CourseEnrollmentsContext,
 } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+
+jest.mock('../components/ToEcomBasketPage', () => ({
+  __esModule: true,
+  default: () => '<ToEcomBasketPage />',
+}));
 
 /**
  * These tests verify that the correct enroll component is rendered.
@@ -35,7 +37,6 @@ const {
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
-  TO_VOUCHER_REDEEM,
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -100,6 +101,7 @@ describe('Scenarios where user is enrolled in course', () => {
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
         userEnrollment={verifiedTrackEnrollment}
         subscriptionLicense={subscriptionLicense}
+        courseRunPrice={100}
       />
     );
     renderEnrollAction({ enrollAction });
@@ -118,6 +120,7 @@ describe('Scenarios where user is enrolled in course', () => {
       <EnrollAction
         enrollmentType={VIEW_ON_DASHBOARD}
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        courseRunPrice={100}
       />
     );
     renderEnrollAction({ enrollAction });
@@ -135,6 +138,7 @@ describe('scenarios when use is not enrolled and is not eligible to', () => {
       <EnrollAction
         enrollmentType={ENROLL_DISABLED}
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
+        courseRunPrice={100}
       />
     );
     renderEnrollAction({ enrollAction });
@@ -146,13 +150,6 @@ describe('scenarios when use is not enrolled and is not eligible to', () => {
 });
 
 describe('scenarios user not yet enrolled, but eligible to enroll', () => {
-  const A_COURSE_WITH_NO_SUBSCRIPTIONS = {
-    ...selfPacedCourseWithLicenseSubsidy,
-    catalog: {
-      catalogList: ['a-catalog'],
-    },
-    userSubsidyApplicableToCourse: null,
-  };
   const enrollmentUrl = 'http://test';
   const enrollLabelText = 'disabled text!';
   test('datasharing consent link rendered when enrollmentType is TO_DATASHARING_CONSENT', () => {
@@ -161,6 +158,8 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         enrollmentType={TO_DATASHARING_CONSENT}
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
         enrollmentUrl={enrollmentUrl}
+        courseRunPrice={100}
+
       />
     );
     renderEnrollAction({ enrollAction });
@@ -170,118 +169,21 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${enrollmentUrl}`);
   });
-  test('no vouchers text is rendered when enrollmentType is TO_ECOM_BASKET', () => {
+  test('<ToEcomBasketPage /> is rendered if enrollmentType is TO_ECOM_BASKET', () => {
     const enrollAction = (
       <EnrollAction
         enrollmentType={TO_ECOM_BASKET}
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
         enrollmentUrl={enrollmentUrl}
-        subscriptionLicense={subscriptionLicense}
+        courseRunPrice={100}
       />
     );
     // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
     // which is then used by a hook to check if the user has a license
     renderEnrollAction({
       enrollAction,
-      initialUserSubsidyState: {
-        subscriptionLicense,
-        couponCodes: { couponCodes: [] },
-      },
     });
 
-    // ensure button is rendered with label text
-    expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
-    expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
-    expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
-    const regex = new RegExp().compile(ENROLL_MODAL_TEXT_NO_COUPON_CODES);
-    expect(screen.getByText(regex)).toBeInTheDocument();
-  });
-  test('ecom basket link rendered when enrollmentType is TO_ECOM_BASKET', () => {
-    const enrollAction = (
-      <EnrollAction
-        enrollmentType={TO_ECOM_BASKET}
-        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
-        enrollmentUrl={enrollmentUrl}
-        subscriptionLicense={subscriptionLicense}
-      />
-    );
-    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
-    // which is then used by a hook to check if the user has a license
-    renderEnrollAction({
-      enrollAction,
-      initialUserSubsidyState: {
-        subscriptionLicense,
-        couponCodes: { couponCodes: [] },
-      },
-    });
-    const PAYMENT_TEXT = 'Continue to payment';
-    // also check url is rendered in the modal correctly
-    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
-    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
-    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
-    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
-  });
-  test('enroll text with voucher count is rendered when enrollmentType is TO_VOUCHER_REDEEM', () => {
-    // coupon code must exist, subscriptionlicense must not, catalogs list must exist.
-    // a catalog in the cataloglist must match the one in the code (see `findCouponCodeForCourse()`)
-    const enrollAction = (
-      <EnrollAction
-        enrollmentType={TO_VOUCHER_REDEEM}
-        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
-        enrollmentUrl={enrollmentUrl}
-      />
-    );
-    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
-    // which is then used by a hook to check if the user has a license
-    renderEnrollAction({
-      enrollAction,
-      courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
-      initialUserSubsidyState: {
-        subscriptionLicense: null,
-        couponCodes: {
-          couponCodes: [A_100_PERCENT_COUPON_CODE],
-          couponCodesCount: 1,
-        },
-      },
-    });
-
-    // ensure button is rendered with label text indicating voucher count
-    expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
-    expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
-    expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
-    const regex = new RegExp().compile(createUseVoucherText(1));
-    expect(screen.getByText(regex)).toBeInTheDocument();
-  });
-  test('ecom basket link rendered in modal when enrollmentType is TO_VOUCHER_REDEEM', () => {
-    // coupon code must exist, subscriptionlicense must not, catalogs list must exist.
-    // a catalog in the cataloglist must match the one in the code (see `findCouponCodeForCourse()`)
-    const enrollAction = (
-      <EnrollAction
-        enrollmentType={TO_VOUCHER_REDEEM}
-        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
-        enrollmentUrl={enrollmentUrl}
-      />
-    );
-    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
-    // which is then used by a hook to check if the user has a license
-    renderEnrollAction({
-      enrollAction,
-      courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
-      initialUserSubsidyState: {
-        subscriptionLicense: null,
-        couponCodes: {
-          couponCodes: [A_100_PERCENT_COUPON_CODE],
-          couponCodesCount: 1,
-        },
-      },
-    });
-
-    // ensure button is rendered with label text indicating voucher count
-    const PAYMENT_TEXT = 'Enroll in course';
-    // also check url is rendered in the modal correctly
-    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
-    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
-    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
-    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
+    expect(screen.getByText('<ToEcomBasketPage />'));
   });
 });
