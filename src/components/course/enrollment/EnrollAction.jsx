@@ -5,7 +5,6 @@ import ToCoursewarePage from './components/ToCoursewarePage';
 import ViewOnDashboard from './components/ViewOnDashboard';
 import EnrollBtnDisabled from './components/DisabledEnroll';
 import ToDataSharingConsentPage from './components/ToDataSharingConsent';
-import ToVoucherRedeemPage from './components/ToVoucherRedeemPage';
 import ToEcomBasketPage from './components/ToEcomBasketPage';
 
 import { enrollButtonTypes } from './constants';
@@ -15,7 +14,6 @@ const {
   VIEW_ON_DASHBOARD,
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
-  TO_VOUCHER_REDEEM,
   TO_ECOM_BASKET,
   HIDE_BUTTON,
 } = enrollButtonTypes;
@@ -37,6 +35,7 @@ const EnrollAction = ({
   enrollLabel,
   userEnrollment,
   subscriptionLicense,
+  courseRunPrice,
 }) => {
   switch (enrollmentType) {
     case TO_COURSEWARE_PAGE: // scenario 1: already enrolled
@@ -59,19 +58,17 @@ const EnrollAction = ({
               enrollmentUrl={enrollmentUrl}
             />
           );
-      case TO_VOUCHER_REDEEM:
-          return <ToVoucherRedeemPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />;
       case TO_ECOM_BASKET:
-          return <ToEcomBasketPage enrollmentUrl={enrollmentUrl} enrollLabel={enrollLabel} />;
+          return (
+            <ToEcomBasketPage
+              enrollmentUrl={enrollmentUrl}
+              enrollLabel={enrollLabel}
+              courseRunPrice={courseRunPrice}
+            />
+          );
       case HIDE_BUTTON:
       default: return null;
   }
-};
-
-EnrollAction.defaultProps = {
-  enrollmentUrl: null,
-  userEnrollment: null,
-  subscriptionLicense: null,
 };
 
 EnrollAction.propTypes = {
@@ -80,6 +77,13 @@ EnrollAction.propTypes = {
   enrollmentUrl: PropTypes.string,
   userEnrollment: PropTypes.shape({}),
   subscriptionLicense: PropTypes.shape({}),
+  courseRunPrice: PropTypes.number.isRequired,
+};
+
+EnrollAction.defaultProps = {
+  enrollmentUrl: null,
+  userEnrollment: null,
+  subscriptionLicense: null,
 };
 
 export default EnrollAction;
