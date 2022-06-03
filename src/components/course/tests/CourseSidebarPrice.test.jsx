@@ -1,23 +1,25 @@
 import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import PropTypes from 'prop-types';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
-import CourseSidebarPrice, { INCLUDED_IN_SUBSCRIPTION_MESSAGE, FREE_WHEN_APPROVED_MESSAGE } from '../CourseSidebarPrice';
+import CourseSidebarPrice, { INCLUDED_IN_SUBSCRIPTION_MESSAGE, FREE_WHEN_APPROVED_MESSAGE, COVERED_BY_ENTERPRISE_OFFER_MESSAGE } from '../CourseSidebarPrice';
 import {
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../data/constants';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
     name: 'test-enterprise',
     slug: 'test-enterprise-slug',
     hideCourseOriginalPrice: true,
+    adminUsers: [],
   },
 };
 
@@ -87,32 +89,29 @@ const defaultSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
+const defaultUserSubsidyState = {
+  enterpriseOffers: [],
+  canEnrollWithEnterpriseOffers: false,
+};
+
 /* eslint-disable react/prop-types */
 const SidebarWithContext = ({
-  initialAppState,
-  subsidyRequestsState,
+  initialAppState = appStateWithOrigPriceHidden,
+  subsidyRequestsState = defaultSubsidyRequestsState,
   initialCourseState,
+  initialUserSubsidyState = defaultUserSubsidyState,
 }) => (
   <AppContext.Provider value={initialAppState}>
-    <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
-      <CourseContextProvider initialState={initialCourseState}>
-        <CourseSidebarPrice />
-      </CourseContextProvider>
-    </SubsidyRequestsContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
+        <CourseContextProvider initialState={initialCourseState}>
+          <CourseSidebarPrice />
+        </CourseContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
 /* eslint-enable react/prop-types */
-
-SidebarWithContext.propTypes = {
-  initialCourseState: PropTypes.shape({}).isRequired,
-  initialAppState: PropTypes.shape({}),
-  subsidyRequestsState: PropTypes.shape({}),
-};
-
-SidebarWithContext.defaultProps = {
-  initialAppState: appStateWithOrigPriceHidden,
-  subsidyRequestsState: defaultSubsidyRequestsState,
-};
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
 
@@ -133,6 +132,119 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.getByTestId('browse-and-request-pricing')).toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Enterprise offers', () => {
+    test('Display correct message when enterprise offer exists', () => {
+      const mockEnterpriseOffer = {
+        discountValue: 100,
+        discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
+        enterpriseCatalogUuid: 'bears',
+        remainingBalance: 100,
+      };
+      const mockEnterpriseOfferSubsidy = {
+        ...mockEnterpriseOffer,
+        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      };
+      render(
+        <SidebarWithContext
+          initialAppState={appStateWithOrigPriceShowing}
+          initialCourseState={{
+            ...BASE_COURSE_STATE,
+            userSubsidyApplicableToCourse: mockEnterpriseOfferSubsidy,
+          }}
+          initialUserSubsidyState={{
+            ...defaultUserSubsidyState,
+            enterpriseOffers: [mockEnterpriseOfferSubsidy],
+            canEnrollWithEnterpriseOffers: true,
+          }}
+        />,
+      );
+      expect(screen.getByText('Priced reduced from:')).toBeInTheDocument();
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+      expect(screen.getByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).toBeInTheDocument();
+    });
+
+    test('Display insufficient enterprise offer balance message', () => {
+      const mockEnterpriseOffer = {
+        discountValue: 100,
+        discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
+        enterpriseCatalogUuid: 'test-catalog-uuid',
+        remainingBalance: 0,
+      };
+      const mockEnterpriseOfferSubsidy = {
+        ...mockEnterpriseOffer,
+        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      };
+      render(
+        <SidebarWithContext
+          initialAppState={appStateWithOrigPriceShowing}
+          initialCourseState={{
+            ...BASE_COURSE_STATE,
+            userSubsidyApplicableToCourse: undefined,
+          }}
+          initialUserSubsidyState={{
+            ...defaultUserSubsidyState,
+            enterpriseOffers: [mockEnterpriseOfferSubsidy],
+            canEnrollWithEnterpriseOffers: true,
+          }}
+        />,
+      );
+      expect(screen.getByTestId('insufficient-offer-balance-text')).toBeInTheDocument();
+    });
+
+    describe('Does not display insufficient enterprise offer balance message', () => {
+      test('When canEnrollWithEnterpriseOffers = false', () => {
+        const mockEnterpriseOffer = {
+          discountValue: 100,
+          discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
+          enterpriseCatalogUuid: 'test-catalog-uuid',
+          remainingBalance: 0,
+        };
+        render(
+          <SidebarWithContext
+            initialAppState={appStateWithOrigPriceShowing}
+            initialCourseState={{
+              ...BASE_COURSE_STATE,
+              userSubsidyApplicableToCourse: undefined,
+            }}
+            initialUserSubsidyState={{
+              ...defaultUserSubsidyState,
+              enterpriseOffers: [mockEnterpriseOffer],
+              canEnrollWithEnterpriseOffers: false,
+            }}
+          />,
+        );
+        expect(screen.queryByTestId('insufficient-offer-balance-text')).not.toBeInTheDocument();
+        expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+      });
+
+      test('When there are no enterprise offers with the correct catalog with remaining balance < course price', () => {
+        const mockEnterpriseOffer = {
+          discountValue: 100,
+          discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
+          enterpriseCatalogUuid: 'wrong-catalog-uuid',
+          remainingBalance: 0,
+        };
+
+        render(
+          <SidebarWithContext
+            initialAppState={appStateWithOrigPriceShowing}
+            initialCourseState={{
+              ...BASE_COURSE_STATE,
+              userSubsidyApplicableToCourse: undefined,
+            }}
+            initialUserSubsidyState={{
+              ...defaultUserSubsidyState,
+              enterpriseOffers: [mockEnterpriseOffer],
+              canEnrollWithEnterpriseOffers: true,
+            }}
+          />,
+        );
+        expect(screen.queryByTestId('insufficient-offer-balance-text')).not.toBeInTheDocument();
+        expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+      });
     });
   });
 
