@@ -3,17 +3,16 @@ import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catalog-search';
 import {
-  useDefaultSearchFilters,
+  useDefaultSearchFilters, useSearchCatalogs,
 } from '../hooks';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
 
 const {
-  getCatalogString, SearchContext, SearchData, SHOW_ALL_NAME,
+  SearchContext, SHOW_ALL_NAME,
 } = frontendEnterpriseCatalogSearch;
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
-const TEST_SUBSCRIPTION_CATALOG_UUID = 'test-subscription-catalog-uuid';
 
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
@@ -29,187 +28,160 @@ jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
 }));
 
+describe('useSearchCatalogs', () => {
+  const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
+  const mockCouponCodeCatalog = 'test-coupon-code-catalog-uuid';
+  const mockEnterpriseOfferCatalog = 'test-enterprise-offer-catalog-uuid';
+
+  it('should include catalog from subscription', () => {
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: { enterpriseCatalogUuid: mockSubscriptionCatalog },
+      subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
+      couponCodes: [],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests: [],
+    }));
+    expect(result.current).toEqual([mockSubscriptionCatalog]);
+  });
+
+  it('should include catalogs from coupon codes if features.ENROLL_WITH_CODES = true', () => {
+    features.ENROLL_WITH_CODES = true;
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [{
+        catalog: mockCouponCodeCatalog,
+      }],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests: [],
+    }));
+    expect(result.current).toEqual([mockCouponCodeCatalog]);
+  });
+
+  it('should not include catalogs from coupon codes if features.ENROLL_WITH_CODES = false', () => {
+    features.ENROLL_WITH_CODES = false;
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [{
+        catalog: mockCouponCodeCatalog,
+      }],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests: [],
+    }));
+    expect(result.current).toEqual([]);
+  });
+
+  it('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true', () => {
+    features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true;
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [],
+      enterpriseOffers: [{
+        enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
+      }],
+      catalogsForSubsidyRequests: [],
+    }));
+    expect(result.current).toEqual([mockEnterpriseOfferCatalog]);
+  });
+
+  it('should not include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = false', () => {
+    features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = false;
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [],
+      enterpriseOffers: [{
+        enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
+      }],
+      catalogsForSubsidyRequests: [],
+    }));
+    expect(result.current).toEqual([]);
+  });
+
+  it('should include catalogs for browse and request if features.FEATURE_BROWSE_AND_REQUEST = true', () => {
+    features.FEATURE_BROWSE_AND_REQUEST = true;
+    const catalogsForSubsidyRequests = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests,
+    }));
+    expect(result.current).toEqual(catalogsForSubsidyRequests);
+  });
+
+  it('should not include catalogs for browse and request if features.FEATURE_BROWSE_AND_REQUEST = false', () => {
+    features.FEATURE_BROWSE_AND_REQUEST = false;
+    const catalogsForSubsidyRequests = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests,
+    }));
+    expect(result.current).toEqual([]);
+  });
+});
+
 const SearchWrapper = (value) => ({ children }) => (
   <SearchContext.Provider value={value}>{children}</SearchContext.Provider>);
 
-describe('useDefaultSearchFilters hook', () => {
-  const enterpriseConfig = { uuid: TEST_ENTERPRISE_UUID };
-  const subscriptionPlan = { enterpriseCatalogUuid: TEST_SUBSCRIPTION_CATALOG_UUID };
-  const validSubscriptionLicense = { status: LICENSE_STATUS.ACTIVATED };
-  const invalidSubscriptionLicense = { status: LICENSE_STATUS.ASSIGNED };
+describe('useDefaultSearchFilters', () => {
   const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
+  const enterpriseConfig = {
+    uuid: TEST_ENTERPRISE_UUID,
+  };
 
-  describe('no catalogs', () => {
-    test('no subscription: returns enterprise customer uuid as filter', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toBeDefined();
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
-    });
-
-    test('with valid subscription: returns subscription catalog uuid as filter', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig, subscriptionPlan, subscriptionLicense: validSubscriptionLicense,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toBeDefined();
-      expect(filters).toEqual(`enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`);
-    });
-
-    test('with invalid subscription: returns enterprise customer uuid as a filter', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: invalidSubscriptionLicense,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toBeDefined();
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
-    });
-    test('with valid subscription and showAllCatalogs: returns subscription and all enterprise catalogs', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: validSubscriptionLicense,
-      }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
-
-      const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
-    });
-  });
-  describe('with catalogs', () => {
-    const couponCodesCatalogs = ['catalog1', 'catalog2'];
-    test('with valid subscription: returns subscription and coupon codes', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: validSubscriptionLicense,
-        couponCodesCatalogs,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toBeDefined();
-      const expectedFilters = `${getCatalogString(couponCodesCatalogs)} OR enterprise_catalog_uuids:${TEST_SUBSCRIPTION_CATALOG_UUID}`;
-      expect(filters).toEqual(expectedFilters);
-    });
-    test('with invalid subscription: returns coupon codes catalogs', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: invalidSubscriptionLicense,
-        couponCodesCatalogs,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toBeDefined();
-      expect(filters)
-        .toEqual(getCatalogString(couponCodesCatalogs));
-    });
-    test('no subscription: returns only coupon codes', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan: null,
-        couponCodesCatalogs,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toBeDefined();
-      expect(filters).toEqual(getCatalogString(couponCodesCatalogs));
-    });
-    test('with showAllCatalogs: returns all enterprise catalgos', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan: null,
-        couponCodesCatalogs,
-      }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
-      const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
-    });
-    test('with valid subscription and show all: returns all enterprise catalogs', () => {
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: validSubscriptionLicense,
-        couponCodesCatalogs,
-      }), { wrapper: SearchWrapper({ ...refinementsShowAll }) });
-      const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
-    });
+  it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {
+    const mockDispatch = jest.fn();
+    const { result } = renderHook(() => useDefaultSearchFilters({
+      enterpriseConfig,
+      searchCatalogs: [],
+    }), { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) });
+    const { filters } = result.current;
+    expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    expect(mockDispatch).toHaveBeenCalled();
   });
 
-  describe('with subsidy requests enabled', () => {
-    features.FEATURE_BROWSE_AND_REQUEST = true;
+  it('should return default search filters if refinements[SHOW_ALL_NAME] = 1', () => {
+    const mockDispatch = jest.fn();
+    const { result } = renderHook(() => useDefaultSearchFilters({
+      enterpriseConfig,
+      searchCatalogs: [],
+    }), { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) });
+    const { filters } = result.current;
+    expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+  });
 
-    beforeEach(() => jest.clearAllMocks());
+  it('should return aggregated catalog string if searchCatalogs.length > 0', () => {
+    const mockDispatch = jest.fn();
+    const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
+    const { result } = renderHook(() => useDefaultSearchFilters({
+      enterpriseConfig,
+      searchCatalogs: mockSearchCatalogs,
+    }), { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) });
+    const { filters } = result.current;
+    expect(filters).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
+  });
 
-    test('sets SHOW_ALL_NAME refinement correctly', () => {
-      const setRefinementActionSpy = jest.spyOn(frontendEnterpriseCatalogSearch, 'setRefinementAction');
-      const subsidyRequestConfiguration = {
-        subsidyRequestsEnabled: true,
-      };
-      const catalogsForSubsidyRequests = ['catalog-1'];
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: invalidSubscriptionLicense,
-        couponCodesCatalogs: [],
-        subsidyRequestConfiguration,
-        catalogsForSubsidyRequests,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toEqual(getCatalogString(catalogsForSubsidyRequests));
-      expect(setRefinementActionSpy).not.toHaveBeenCalled();
-    });
-
-    test('returns catalogs for subsidy requests if there are no assigned subsidies', () => {
-      const subsidyRequestConfiguration = {
-        subsidyRequestsEnabled: true,
-      };
-      const catalogsForSubsidyRequests = ['catalog1', 'catalog2'];
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: invalidSubscriptionLicense,
-        couponCodesCatalogs: [],
-        subsidyRequestConfiguration,
-        catalogsForSubsidyRequests,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toEqual(getCatalogString(catalogsForSubsidyRequests));
-    });
-
-    test('returns catalogs for subsidy requests and catalogs from assigned subsidies', () => {
-      const subsidyRequestConfiguration = {
-        subsidyRequestsEnabled: true,
-      };
-      const couponCodesCatalogs = ['catalog1'];
-      const catalogsForSubsidyRequests = ['catalog2'];
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: invalidSubscriptionLicense,
-        couponCodesCatalogs,
-        subsidyRequestConfiguration,
-        catalogsForSubsidyRequests,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toEqual(getCatalogString([...couponCodesCatalogs, ...catalogsForSubsidyRequests]));
-    });
-
-    test('returns all enterprise catalogs if there are no catalogs for subsidy requests', () => {
-      const subsidyRequestConfiguration = {
-        subsidyRequestsEnabled: true,
-      };
-      const catalogsForSubsidyRequests = [];
-      const { result } = renderHook(() => useDefaultSearchFilters({
-        enterpriseConfig,
-        subscriptionPlan,
-        subscriptionLicense: invalidSubscriptionLicense,
-        couponCodesCatalogs: [],
-        subsidyRequestConfiguration,
-        catalogsForSubsidyRequests,
-      }), { wrapper: SearchData });
-      const { filters } = result.current;
-      expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
-    });
+  it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
+    const mockDispatch = jest.fn();
+    const mockSearchCatalogs = [];
+    const { result } = renderHook(() => useDefaultSearchFilters({
+      enterpriseConfig,
+      searchCatalogs: mockSearchCatalogs,
+    }), { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) });
+    const { filters } = result.current;
+    expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
   });
 });

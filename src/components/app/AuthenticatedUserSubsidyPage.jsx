@@ -6,13 +6,16 @@ import {
   AutoActivateLicense,
   UserSubsidy,
 } from '../enterprise-user-subsidy';
+import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 
 export default function AuthenticatedUserSubsidyPage({ children }) {
   return (
     <AuthenticatedPage>
       <UserSubsidy>
-        <AutoActivateLicense />
-        {children}
+        <SubsidyRequestsContextProvider>
+          <AutoActivateLicense />
+          {children}
+        </SubsidyRequestsContextProvider>
       </UserSubsidy>
     </AuthenticatedPage>
   );

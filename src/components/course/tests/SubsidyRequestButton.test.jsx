@@ -36,7 +36,7 @@ const initialSubsidyRequestsState = {
     [SUBSIDY_TYPE.COUPON]: [],
   },
   refreshSubsidyRequests: mockRefreshSubsidyRequests,
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 const TEST_CATALOG_UUID = 'test-catalog-uuid';

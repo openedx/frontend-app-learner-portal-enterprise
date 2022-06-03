@@ -8,7 +8,7 @@ import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 const CourseAssociatedProgramsWithCourseContext = ({

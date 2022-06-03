@@ -28,7 +28,7 @@ const LICENSE_UUID = 'test-license-uuid';
 const subscriptionLicense = { uuid: LICENSE_UUID };
 
 const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 const baseUserSubsidyState = {

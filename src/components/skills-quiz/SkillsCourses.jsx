@@ -17,12 +17,13 @@ import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { useDefaultSearchFilters } from '../search/data/hooks';
+import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import {
   NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS,
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const renderDialog = () => (
   <div className="lead d-flex align-items-center py-3">
@@ -46,15 +47,24 @@ const SkillsCourses = ({ index }) => {
   const { selectedJob } = state;
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
 
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
-  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
+  const {
+    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+  } = useContext(UserSubsidyContext);
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+
+  const searchCatalogs = useSearchCatalogs({
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  });
 
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodesCatalogs,
+    searchCatalogs,
   });
+
   const skillsFacetFilter = useMemo(
     () => {
       if (allSkills) {

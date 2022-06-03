@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen, act } from '@testing-library/react';
@@ -11,6 +12,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const userId = 'batman';
 
@@ -34,26 +36,6 @@ jest.mock('react-loading-skeleton', () => ({
   // eslint-disable-next-line react/prop-types
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
-
-/* eslint-disable react/prop-types */
-const SearchProgramCardWithContext = ({
-  initialAppState,
-  initialSkillsState,
-  initialUserSubsidyState,
-  searchContext,
-  index,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SearchContext.Provider value={searchContext}>
-        <SkillsContext.Provider value={initialSkillsState}>
-          <SearchProgramCard index={index} />
-        </SkillsContext.Provider>
-      </SearchContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
-/* eslint-enable react/prop-types */
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
@@ -90,19 +72,19 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(programs)),
 };
 
-const initialAppState = {
+const defaultAppState = {
   enterpriseConfig: {
     slug: TEST_ENTERPRISE_SLUG,
     uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
   },
 };
 
-const searchContext = {
+const defaultSearchContext = {
   refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
   dispatch: () => null,
 };
 
-const initialSkillsState = {
+const defaultSkillsState = {
   state: {
     goal: 'Goal',
     selectedJob: 'job-1',
@@ -128,9 +110,33 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
-const initialUserSubsidyState = {
+const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
 };
+
+const defaultSubsidyRequestState = {
+  catalogsForSubsidyRequests: [],
+};
+
+const SearchProgramCardWithContext = ({
+  initialAppState = defaultAppState,
+  initialSkillsState = defaultSkillsState,
+  initialUserSubsidyState = defaultUserSubsidyState,
+  initialSearchContext = defaultSearchContext,
+  index,
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+        <SearchContext.Provider value={initialSearchContext}>
+          <SkillsContext.Provider value={initialSkillsState}>
+            <SearchProgramCard index={index} />
+          </SkillsContext.Provider>
+        </SearchContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SearchProgramCard />', () => {
   test('renders the correct data', async () => {
@@ -138,11 +144,7 @@ describe('<SearchProgramCard />', () => {
     await act(async () => {
       const { container } = renderWithRouter(
         <SearchProgramCardWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={testIndex}
-          searchContext={searchContext}
         />,
       );
       containerDOM = container;
@@ -187,11 +189,7 @@ describe('<SearchProgramCard />', () => {
     await act(async () => {
       renderWithRouter(
         <SearchProgramCardWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={index}
-          searchContext={searchContext}
         />,
       );
     });
@@ -226,11 +224,7 @@ describe('<SearchProgramCard />', () => {
     await act(async () => {
       renderWithRouter(
         <SearchProgramCardWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={index}
-          searchContext={searchContext}
         />,
       );
     });
@@ -251,11 +245,7 @@ describe('<SearchProgramCard />', () => {
     await act(async () => {
       renderWithRouter(
         <SearchProgramCardWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={index}
-          searchContext={searchContext}
         />,
       );
     });

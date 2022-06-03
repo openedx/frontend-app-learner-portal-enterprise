@@ -16,7 +16,6 @@ import CourseSidebar from './CourseSidebar';
 import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
-import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
@@ -121,28 +120,26 @@ export default function CoursePage() {
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-      <SubsidyRequestsContextProvider>
-        <CourseEnrollmentsContextProvider>
-          <CourseContextProvider initialState={initialState}>
-            <CourseHeader />
-            <Container size="lg" className="py-5">
-              <Row>
-                <MainContent>
-                  <CourseMainContent />
-                </MainContent>
-                <MediaQuery minWidth={breakpoints.large.minWidth}>
-                  {matches => matches && (
-                    <Sidebar>
-                      <CourseSidebar />
-                    </Sidebar>
-                  )}
-                </MediaQuery>
-                <CourseRecommendations />
-              </Row>
-            </Container>
-          </CourseContextProvider>
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContextProvider>
+      <CourseEnrollmentsContextProvider>
+        <CourseContextProvider initialState={initialState}>
+          <CourseHeader />
+          <Container size="lg" className="py-5">
+            <Row>
+              <MainContent>
+                <CourseMainContent />
+              </MainContent>
+              <MediaQuery minWidth={breakpoints.large.minWidth}>
+                {matches => matches && (
+                  <Sidebar>
+                    <CourseSidebar />
+                  </Sidebar>
+                )}
+              </MediaQuery>
+              <CourseRecommendations />
+            </Row>
+          </Container>
+        </CourseContextProvider>
+      </CourseEnrollmentsContextProvider>
     </>
   );
 }

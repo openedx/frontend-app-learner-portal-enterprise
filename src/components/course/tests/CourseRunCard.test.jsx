@@ -92,7 +92,7 @@ const renderCard = ({
       subsidyRequestsEnabled: true,
     },
     isLoading: false,
-    catalogsForSubsidyRequests: new Set(),
+    catalogsForSubsidyRequests: [],
   },
   subsidyRequestCatalogsApplicableToCourse = baseSubsidyRequestCatalogsApplicableToCourse,
 }) => {

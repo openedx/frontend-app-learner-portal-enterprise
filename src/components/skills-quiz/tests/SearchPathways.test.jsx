@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen, act } from '@testing-library/react';
@@ -10,6 +11,7 @@ import SearchPathways from '../SearchPathways';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { SkillsContext } from '../SkillsContextProvider';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -32,26 +34,6 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
-/* eslint-disable react/prop-types */
-const SearchPathwaysWithContext = ({
-  initialAppState,
-  initialSkillsState,
-  initialUserSubsidyState,
-  searchContext,
-  index,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SearchContext.Provider value={searchContext}>
-        <SkillsContext.Provider value={initialSkillsState}>
-          <SearchPathways index={index} />
-        </SkillsContext.Provider>
-      </SearchContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
-/* eslint-enable react/prop-types */
-
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
 const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMAGE_URL = 'http://fake.image';
@@ -72,19 +54,19 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(pathways)),
 };
 
-const initialAppState = {
+const defaultAppState = {
   enterpriseConfig: {
     slug: TEST_ENTERPRISE_SLUG,
     uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
   },
 };
 
-const searchContext = {
+const defaultSearchContext = {
   refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
   dispatch: () => null,
 };
 
-const initialSkillsState = {
+const defaultSkillsState = {
   state: {
     goal: 'Goal',
     selectedJob: 'job-1',
@@ -110,9 +92,34 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
-const initialUserSubsidyState = {
+const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
 };
+
+const defaultSubsidyRequestState = {
+  catalogsForSubsidyRequests: [],
+};
+
+const SearchPathwaysWithContext = ({
+  initialAppState = defaultAppState,
+  initialSkillsState = defaultSkillsState,
+  initialUserSubsidyState = defaultUserSubsidyState,
+  initialSubsidyRequestState = defaultSubsidyRequestState,
+  initialSearchContext = defaultSearchContext,
+  index,
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <SearchContext.Provider value={initialSearchContext}>
+          <SkillsContext.Provider value={initialSkillsState}>
+            <SearchPathways index={index} />
+          </SkillsContext.Provider>
+        </SearchContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SearchPathways />', () => {
   test('renders the correct data', async () => {
@@ -120,11 +127,7 @@ describe('<SearchPathways />', () => {
     await act(async () => {
       const { container } = renderWithRouter(
         <SearchPathwaysWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={testIndex}
-          searchContext={searchContext}
         />,
       );
       containerDOM = container;
@@ -149,11 +152,7 @@ describe('<SearchPathways />', () => {
     await act(async () => {
       renderWithRouter(
         <SearchPathwaysWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={pathwayIndex}
-          searchContext={searchContext}
         />,
       );
     });
@@ -174,11 +173,7 @@ describe('<SearchPathways />', () => {
     await act(async () => {
       const { container } = renderWithRouter(
         <SearchPathwaysWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={pathwayIndex}
-          searchContext={searchContext}
         />,
       );
       containerDOM = container;

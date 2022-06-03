@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
@@ -11,19 +12,7 @@ import {
 } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-
-/* eslint-disable react/prop-types */
-const SkillsQuizWithContext = ({
-  initialAppState = {},
-  initialUserSubsidyState = {},
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SkillsQuiz />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
-/* eslint-enable react/prop-types */
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const mockLocation = {
   pathname: '/welcome',
@@ -47,24 +36,44 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-describe('<SkillsQuiz />', () => {
-  const defaultCouponCodesState = {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  };
-  const initialAppState = {
-    enterpriseConfig: {
-      name: 'BearsRUs',
-    },
-    config: {
-      LMS_BASE_URL: process.env.LMS_BASE_URL,
-    },
-  };
-  const initialUserSubsidyState = {
-    couponCodes: defaultCouponCodesState,
-  };
+const defaultCouponCodesState = {
+  couponCodes: [],
+  loading: false,
+  couponCodesCount: 0,
+};
 
+const defaultAppState = {
+  enterpriseConfig: {
+    name: 'BearsRUs',
+  },
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
+const defaultUserSubsidyState = {
+  couponCodes: defaultCouponCodesState,
+};
+
+const defaultSubsidyRequestState = {
+  catalogsForSubsidyRequests: [],
+};
+
+const SkillsQuizWithContext = ({
+  initialAppState = defaultAppState,
+  initialUserSubsidyState = defaultUserSubsidyState,
+  initialSubsidyRequestState = defaultSubsidyRequestState,
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <SkillsQuiz />
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
+
+describe('<SkillsQuiz />', () => {
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -73,7 +82,7 @@ describe('<SkillsQuiz />', () => {
     renderWithRouter(
       <SearchData>
         <SkillsContextProvider>
-          <SkillsQuizWithContext initialAppState={initialAppState} initialUserSubsidyState={initialUserSubsidyState} />
+          <SkillsQuizWithContext />
         </SkillsContextProvider>
       </SearchData>,
       { route: '/test/skills-quiz/' },

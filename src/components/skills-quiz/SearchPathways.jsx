@@ -8,19 +8,29 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { SkillsContext } from './SkillsContextProvider';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters } from '../search/data/hooks';
+import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const SearchPathways = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
-  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+  const {
+    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+  } = useContext(UserSubsidyContext);
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+
+  const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
     subscriptionLicense,
-    couponCodesCatalogs,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  });
+
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    searchCatalogs,
   });
 
   const { state } = useContext(SkillsContext);

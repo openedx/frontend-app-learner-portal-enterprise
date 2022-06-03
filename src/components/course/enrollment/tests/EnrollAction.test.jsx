@@ -68,10 +68,10 @@ const renderEnrollAction = ({
     },
   },
   initialSubsidyRequestsState = {
-    catalogsForSubsidyRequests: new Set(),
+    catalogsForSubsidyRequests: [],
   },
   initialCourseEnrollmentsRequestState = {
-    courseEnrollmentsByStatus: new Set(),
+    courseEnrollmentsByStatus: {},
   },
 }) => {
   // need to use router, to render component such as react-router's <Link>

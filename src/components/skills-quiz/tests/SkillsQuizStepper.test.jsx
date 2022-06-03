@@ -22,6 +22,7 @@ import {
 } from '../constants';
 
 import edxLogo from '../images/edx-logo.svg';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -41,27 +42,31 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   removeFromRefinementArray: jest.fn(),
 }));
 
+const defaultAppState = {
+  enterpriseConfig: {
+    name: 'BearsRUs',
+    slug: 'BearsRYou',
+  },
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
+const defaultCouponCodesState = {
+  couponCodes: [],
+  loading: false,
+  couponCodesCount: 0,
+};
+
+const defaultUserSubsidyState = {
+  couponCodes: defaultCouponCodesState,
+};
+
+const defaultSubsidyRequestState = {
+  catalogsForSubsidyRequests: [],
+};
+
 describe('<SkillsQuizStepper />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      name: 'BearsRUs',
-      slug: 'BearsRYou',
-    },
-    config: {
-      LMS_BASE_URL: process.env.LMS_BASE_URL,
-    },
-  };
-
-  const defaultCouponCodesState = {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  };
-
-  const initialUserSubsidyState = {
-    couponCodes: defaultCouponCodesState,
-  };
-
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -73,13 +78,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -103,13 +110,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     const { getByAltText } = renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -127,13 +136,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -148,13 +159,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -172,13 +185,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContext.Provider value={skillsQuizContextInitialState}>
-              <SkillsQuizStepper />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                <SkillsQuizStepper />
+              </SkillsContext.Provider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -197,13 +212,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContext.Provider value={skillsQuizContextInitialState}>
-              <SkillsQuizStepper />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                <SkillsQuizStepper />
+              </SkillsContext.Provider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -222,13 +239,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContext.Provider value={skillsQuizContextInitialState}>
-              <SkillsQuizStepper />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                <SkillsQuizStepper />
+              </SkillsContext.Provider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -246,13 +265,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -270,13 +291,15 @@ describe('<SkillsQuizStepper />', () => {
 
   it('checks all dropdowns are shown when we have goal and skills', async () => {
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchData>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchData>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchData>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchData>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=xyz' },
@@ -299,13 +322,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchContext.Provider value={{ ...searchContext }}>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchContext.Provider>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
@@ -327,13 +352,15 @@ describe('<SkillsQuizStepper />', () => {
       state: { goal: GOAL_DROPDOWN_DEFAULT_OPTION },
     };
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchData>
-            <SkillsContextProvider value={{ ...skillsQuizContextInitialState }}>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchData>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchData>
+              <SkillsContextProvider value={{ ...skillsQuizContextInitialState }}>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchData>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=xyz' },
@@ -351,13 +378,15 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchData>
-            <SkillsContext.Provider value={skillsQuizContextInitialState}>
-              <SkillsQuizStepper />
-            </SkillsContext.Provider>
-          </SearchData>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchData>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                <SkillsQuizStepper />
+              </SkillsContext.Provider>
+            </SearchData>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=xyz' },

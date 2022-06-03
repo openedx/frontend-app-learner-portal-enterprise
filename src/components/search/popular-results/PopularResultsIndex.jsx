@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Index, Configure } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/';
-import { useDefaultSearchFilters } from '../data/hooks';
+import { useDefaultSearchFilters, useSearchCatalogs } from '../data/hooks';
 import PopularResults from './PopularResults';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
@@ -12,19 +12,23 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
-  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
+  const {
+    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+  } = useContext(UserSubsidyContext);
 
-  const { subsidyRequestConfiguration, catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+  const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
     subscriptionLicense,
-    couponCodesCatalogs,
-    subsidyRequestConfiguration,
-    catalogsForSubsidyRequests: [...catalogsForSubsidyRequests],
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
   });
 
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    searchCatalogs,
+  });
   const config = getConfig();
   const contentType = getContentTypeFromTitle(title);
   const defaultFilter = `content_type:${contentType} AND ${filters}`;

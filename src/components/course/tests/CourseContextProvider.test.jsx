@@ -6,7 +6,7 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { CourseContextProvider, CourseContext } from '../CourseContextProvider';
 
 const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 const baseInitialCourseState = {
@@ -63,7 +63,7 @@ describe('<CourseContextProvider>', () => {
     };
     const subsidyRequestContextValue = {
       ...baseSubsidyRequestContextValue,
-      catalogsForSubsidyRequests: new Set([testCatalogUUID]),
+      catalogsForSubsidyRequests: [testCatalogUUID],
     };
     render(
       <CourseContextProviderWrapper

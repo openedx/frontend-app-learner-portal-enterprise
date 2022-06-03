@@ -16,6 +16,7 @@ import {
 
 import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -29,7 +30,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 
 const facetsToTest = [DESIRED_JOB_FACET, SKILLS_FACET, CURRENT_JOB_FACET];
 describe('<SkillsQuizStepper />', () => {
-  const initialAppState = {
+  const defaultAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
     },
@@ -40,18 +41,25 @@ describe('<SkillsQuizStepper />', () => {
     couponCodesCount: 0,
   };
 
-  const initialUserSubsidyState = {
+  const defaultUserSubsidyState = {
     couponCodes: defaultCouponCodesState,
   };
+
+  const defaultSubsidyRequestState = {
+    catalogsForSubsidyRequests: [],
+  };
+
   test('renders skills and jobs dropdown with a label', async () => {
     renderWithRouter(
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SearchData>
-            <SkillsContextProvider>
-              <SkillsQuizStepper />
-            </SkillsContextProvider>
-          </SearchData>
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchData>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchData>
+          </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=123' },
