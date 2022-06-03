@@ -69,7 +69,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   const searchPathwayCard = () => (
     <Card
       isClickable
-      className="h-100"
+      className={classNames({ 'h-100': !isSkillQuizResult })}
     >
       <Card.ImageCap
         src={pathway?.cardImageUrl || ''}
@@ -84,7 +84,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
         )}
       />
 
-      <Card.Section classNames="py-3">
+      <Card.Section className="py-1">
         <div className="flex-wrap pathway-skill-names">
           {pathway.skillNames
            && filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(
