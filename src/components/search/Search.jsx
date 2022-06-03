@@ -10,7 +10,7 @@ import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-se
 import { useToggle } from '@edx/paragon';
 
 import algoliasearch from 'algoliasearch/lite';
-import { useDefaultSearchFilters } from './data/hooks';
+import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE,
   CONTENT_TYPE_COURSE,
@@ -41,18 +41,25 @@ const Search = () => {
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
-  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
-  const { subsidyRequestConfiguration, catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+  const {
+    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+  } = useContext(UserSubsidyContext);
+
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+
+  const searchCatalogs = useSearchCatalogs({
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  });
 
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodesCatalogs,
-    subsidyRequestConfiguration,
-    catalogsForSubsidyRequests: [...catalogsForSubsidyRequests],
+    searchCatalogs,
   });
+
   useEffect(() => {
     if (pathwayUUID) {
       openLearnerPathwayModal();

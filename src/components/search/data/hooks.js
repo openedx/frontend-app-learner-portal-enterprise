@@ -1,41 +1,66 @@
-import { useContext, useMemo, useEffect } from 'react';
+import {
+  useContext, useMemo, useEffect,
+} from 'react';
 import {
   SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
 } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../../config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
-export const useDefaultSearchFilters = ({
-  enterpriseConfig,
+export const useSearchCatalogs = ({
   subscriptionPlan,
   subscriptionLicense,
-  couponCodesCatalogs = [],
-  subsidyRequestConfiguration,
-  catalogsForSubsidyRequests = [],
+  couponCodes,
+  enterpriseOffers,
+  catalogsForSubsidyRequests,
 }) => {
-  // default to showing all catalogs
+  const searchCatalogs = useMemo(() => {
+    const catalogs = [];
+
+    // Scope to catalogs from coupons, enterprise offers, or subscription plan associated with learner's license
+    if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+      catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
+    }
+    if (features.ENROLL_WITH_CODES) {
+      catalogs.push(...couponCodes.map((couponCode) => couponCode.catalog));
+    }
+    if (features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
+      catalogs.push(...enterpriseOffers.map((offer) => offer.enterpriseCatalogUuid));
+    }
+
+    // Scope to catalogs associated with assignable subsidies if browse and request is turned on
+    if (
+      features.FEATURE_BROWSE_AND_REQUEST
+      && catalogsForSubsidyRequests.length > 0
+    ) {
+      catalogs.push(...catalogsForSubsidyRequests);
+    }
+
+    return catalogs;
+  }, [
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  ]);
+
+  return searchCatalogs;
+};
+
+export const useDefaultSearchFilters = ({
+  enterpriseConfig,
+  searchCatalogs,
+}) => {
   const { refinements, dispatch } = useContext(SearchContext);
 
   useEffect(() => {
-    // don't default to showing all catalogs if browse and request is turned on
-    // and there are catalogs associated with assignable subsidies
-    if (
-      features.FEATURE_BROWSE_AND_REQUEST
-      && subsidyRequestConfiguration?.subsidyRequestsEnabled
-      && catalogsForSubsidyRequests.length > 0
-    ) {
-      return;
-    }
-
-    // if the user has no subscriptions or coupon codes, we default to showing all catalogs
-    if (!(subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) && couponCodesCatalogs.length < 1) {
+    // default to showing all catalogs if there are no confined search catalogs
+    if (searchCatalogs.length === 0) {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
   }, [
-    subsidyRequestConfiguration?.subsidyRequestsEnabled,
-    catalogsForSubsidyRequests,
-    subscriptionLicense?.status,
-    couponCodesCatalogs.length,
+    searchCatalogs,
   ]);
 
   const filters = useMemo(
@@ -45,26 +70,8 @@ export const useDefaultSearchFilters = ({
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
       }
 
-      // Scope to catalogs from coupons and/or the subscription plan associated with learner's license
-      const catalogs = [];
-      if (features.ENROLL_WITH_CODES) {
-        catalogs.push(...couponCodesCatalogs);
-      }
-      if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
-        catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
-      }
-
-      // Scope to catalogs associated with assignable subsidies if browse and request is turned on
-      if (
-        features.FEATURE_BROWSE_AND_REQUEST
-        && subsidyRequestConfiguration?.subsidyRequestsEnabled
-        && catalogsForSubsidyRequests.length > 0
-      ) {
-        catalogs.push(...catalogsForSubsidyRequests);
-      }
-
-      if (catalogs.length > 0) {
-        return getCatalogString(catalogs);
+      if (searchCatalogs.length > 0) {
+        return getCatalogString(searchCatalogs);
       }
 
       // If the learner is not confined to certain catalogs, scope to all of the enterprise's catalogs
@@ -72,12 +79,8 @@ export const useDefaultSearchFilters = ({
     },
     [
       enterpriseConfig,
-      subscriptionPlan,
-      couponCodesCatalogs,
       JSON.stringify(refinements),
-      subscriptionLicense?.status,
-      subsidyRequestConfiguration?.subsidyRequestsEnabled,
-      catalogsForSubsidyRequests,
+      searchCatalogs,
     ],
   );
 

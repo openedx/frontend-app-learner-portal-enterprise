@@ -26,7 +26,7 @@ import SelectJobCard from './SelectJobCard';
 import TagCloud from '../TagCloud';
 import SkillsCourses from './SkillsCourses';
 
-import { useDefaultSearchFilters } from '../search/data/hooks';
+import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import {
   DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2, STEP3, SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
@@ -38,6 +38,7 @@ import SelectedJobSkills from './SelectedJobSkills';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -64,13 +65,24 @@ const SkillsQuizStepper = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
-  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+  const {
     subscriptionPlan,
     subscriptionLicense,
-    couponCodesCatalogs,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+  } = useContext(UserSubsidyContext);
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+  const searchCatalogs = useSearchCatalogs({
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  });
+
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    searchCatalogs,
   });
   const history = useHistory();
 

@@ -124,7 +124,7 @@ export const useCatalogsForSubsidyRequests = ({
           );
           const { results } = camelCaseObject(response.data);
           const catalogsFromCoupons = results.map(coupon => coupon.enterpriseCatalogUuid);
-          setCatalogs(new Set(catalogsFromCoupons));
+          setCatalogs([...new Set(catalogsFromCoupons)]);
         } catch (error) {
           logError(error);
         }
@@ -134,7 +134,7 @@ export const useCatalogsForSubsidyRequests = ({
         const catalogsFromSubscriptions = customerAgreementConfig.subscriptions.map(
           subscription => subscription.enterpriseCatalogUuid,
         );
-        setCatalogs(new Set(catalogsFromSubscriptions));
+        setCatalogs([...new Set(catalogsFromSubscriptions)]);
       }
 
       setIsLoading(false);

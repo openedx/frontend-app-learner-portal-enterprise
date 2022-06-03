@@ -26,7 +26,7 @@ export function CourseContextProvider({ children, initialState }) {
   const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
     const catalogsContainingCourse = new Set(catalog.catalogList);
     const subsidyRequestCatalogIntersection = new Set(
-      [...catalogsForSubsidyRequests].filter(el => catalogsContainingCourse.has(el)),
+      catalogsForSubsidyRequests.filter(el => catalogsContainingCourse.has(el)),
     );
     return subsidyRequestCatalogIntersection;
   }, [catalog, catalogsForSubsidyRequests]);
