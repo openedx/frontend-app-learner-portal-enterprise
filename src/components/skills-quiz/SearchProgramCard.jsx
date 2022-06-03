@@ -23,9 +23,10 @@ import { shortenString } from '../course/data/utils';
 import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_MESSAGE } from './constants';
 import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters } from '../search/data/hooks';
+import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
@@ -57,13 +58,22 @@ const renderDialog = () => (
 const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
-  const { subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
-  const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+  const {
+    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+  } = useContext(UserSubsidyContext);
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+
+  const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
     subscriptionLicense,
-    couponCodesCatalogs,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  });
+
+  const { filters } = useDefaultSearchFilters({
+    enterpriseConfig,
+    searchCatalogs,
   });
 
   const { state } = useContext(SkillsContext);

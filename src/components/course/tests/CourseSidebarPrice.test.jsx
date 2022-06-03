@@ -84,7 +84,7 @@ const defaultSubsidyRequestsState = {
     [SUBSIDY_TYPE.LICENSE]: [],
     [SUBSIDY_TYPE.COUPON]: [],
   },
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 /* eslint-disable react/prop-types */

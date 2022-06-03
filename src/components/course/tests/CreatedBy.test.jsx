@@ -9,7 +9,7 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { TEST_OWNER, TEST_STAFF } from './data/constants';
 
 const initialSubsidyRequestsState = {
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 // eslint-disable-next-line react/prop-types

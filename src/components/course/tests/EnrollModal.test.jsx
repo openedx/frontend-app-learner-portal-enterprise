@@ -26,11 +26,11 @@ const baseCourseInitialState = {
 };
 
 const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 const baseCourseEnrollmentsContextValue = {
-  courseEnrollmentsByStatus: new Set(),
+  courseEnrollmentsByStatus: {},
 };
 
 const EnrollModalWrapper = ({

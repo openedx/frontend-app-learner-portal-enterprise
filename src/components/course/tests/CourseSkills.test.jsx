@@ -22,7 +22,7 @@ const baseCourseState = {
 };
 
 const baseSubsidyRequestContextValue = {
-  catalogsForSubsidyRequests: new Set(),
+  catalogsForSubsidyRequests: [],
 };
 
 const CourseSkillsWithContext = ({

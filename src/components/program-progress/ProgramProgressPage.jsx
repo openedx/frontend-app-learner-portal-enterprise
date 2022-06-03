@@ -14,7 +14,6 @@ import ProgramProgressSideBar from './ProgramProgressSidebar';
 import ProgramProgressCourses from './ProgramProgressCourses';
 
 import { useLearnerProgramProgressData } from './data/hooks';
-import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import {
   getCoursesEnrolledInAuditMode,
@@ -78,45 +77,43 @@ const ProgramProgressPage = () => {
   return (
     <>
       <Helmet title={PROGRAM_TITLE} />
-      <SubsidyRequestsContextProvider>
-        <CourseEnrollmentsContextProvider>
-          <ProgramProgressContextProvider initialState={initialState}>
-            <Container fluid={false} size="lg">
-              <ProgramProgressHeader />
-              <Row>
-                <article className="col-8">
-                  {allCoursesCompleted
-                    ? (
-                      <>
-                        <h3>Congratulations!</h3>
-                        <p>You have successfully completed all the requirements for the {PROGRAM_TITLE}.</p>
-                      </>
-                    )
-                    : (
-                      <>
-                        <h3> Your Program Journey</h3>
-                        <p>Track and plan your progress through the {totalCoursesInProgram} courses in this program.</p>
-                        <p>To complete the program, you must earn a verified certificate for each course.</p>
-                      </>
-                    )}
-                  <SubsidiesSummary
-                    totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
-                    courseEndDate={courseEndDate}
-                    programProgressPage
-                  />
-                  <ProgramProgressCourses courseData={courseData} />
-                </article>
-
-                <MediaQuery minWidth={breakpoints.large.minWidth}>
-                  {matches => matches && (
-                    <ProgramProgressSideBar />
+      <CourseEnrollmentsContextProvider>
+        <ProgramProgressContextProvider initialState={initialState}>
+          <Container fluid={false} size="lg">
+            <ProgramProgressHeader />
+            <Row>
+              <article className="col-8">
+                {allCoursesCompleted
+                  ? (
+                    <>
+                      <h3>Congratulations!</h3>
+                      <p>You have successfully completed all the requirements for the {PROGRAM_TITLE}.</p>
+                    </>
+                  )
+                  : (
+                    <>
+                      <h3> Your Program Journey</h3>
+                      <p>Track and plan your progress through the {totalCoursesInProgram} courses in this program.</p>
+                      <p>To complete the program, you must earn a verified certificate for each course.</p>
+                    </>
                   )}
-                </MediaQuery>
-              </Row>
-            </Container>
-          </ProgramProgressContextProvider>
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContextProvider>
+                <SubsidiesSummary
+                  totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
+                  courseEndDate={courseEndDate}
+                  programProgressPage
+                />
+                <ProgramProgressCourses courseData={courseData} />
+              </article>
+
+              <MediaQuery minWidth={breakpoints.large.minWidth}>
+                {matches => matches && (
+                  <ProgramProgressSideBar />
+                )}
+              </MediaQuery>
+            </Row>
+          </Container>
+        </ProgramProgressContextProvider>
+      </CourseEnrollmentsContextProvider>
     </>
   );
 };

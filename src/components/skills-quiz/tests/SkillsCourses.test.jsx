@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen, act } from '@testing-library/react';
@@ -11,6 +12,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
@@ -32,26 +34,6 @@ jest.mock('react-loading-skeleton', () => ({
   // eslint-disable-next-line react/prop-types
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
-
-/* eslint-disable react/prop-types */
-const SkillsCoursesWithContext = ({
-  initialAppState,
-  initialSkillsState,
-  initialUserSubsidyState,
-  searchContext,
-  index,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SearchContext.Provider value={searchContext}>
-        <SkillsContext.Provider value={initialSkillsState}>
-          <SkillsCourses index={index} />
-        </SkillsContext.Provider>
-      </SearchContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
-/* eslint-enable react/prop-types */
 
 const TEST_COURSE_KEY = 'test-course-key';
 const SKILLS_HEADING = 'Skills';
@@ -80,18 +62,18 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
 
-const initialAppState = {
+const defaultAppState = {
   enterpriseConfig: {
     slug: 'test-enterprise-slug',
   },
 };
 
-const searchContext = {
+const defaultSearchContext = {
   refinements: { skill_names: ['test-skill-3'] },
   dispatch: () => null,
 };
 
-const initialSkillsState = {
+const defaultSkillsState = {
   state: {
     goal: 'Goal',
     selectedJob: 'job-1',
@@ -117,9 +99,34 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
-const initialUserSubsidyState = {
+const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
 };
+
+const defaultSubsidyRequestState = {
+  catalogsForSubsidyRequests: [],
+};
+
+const SkillsCoursesWithContext = ({
+  initialAppState = defaultAppState,
+  initialSkillsState = defaultSkillsState,
+  initialUserSubsidyState = defaultUserSubsidyState,
+  initialSubsidyRequestState = defaultSubsidyRequestState,
+  searchContext = defaultSearchContext,
+  index,
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <SearchContext.Provider value={searchContext}>
+          <SkillsContext.Provider value={initialSkillsState}>
+            <SkillsCourses index={index} />
+          </SkillsContext.Provider>
+        </SearchContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SkillsCourses />', () => {
   test('renders the correct data', async () => {
@@ -127,11 +134,7 @@ describe('<SkillsCourses />', () => {
     await act(async () => {
       const { container } = renderWithRouter(
         <SkillsCoursesWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={testIndex}
-          searchContext={searchContext}
         />,
       );
       containerDOM = container;
@@ -160,11 +163,7 @@ describe('<SkillsCourses />', () => {
     await act(async () => {
       renderWithRouter(
         <SkillsCoursesWithContext
-          initialAppState={initialAppState}
-          initialSkillsState={initialSkillsState}
-          initialUserSubsidyState={initialUserSubsidyState}
           index={courseIndex}
-          searchContext={searchContext}
         />,
       );
     });

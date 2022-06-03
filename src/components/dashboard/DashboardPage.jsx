@@ -13,7 +13,6 @@ import { DashboardSidebar } from './sidebar';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
-import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -50,20 +49,18 @@ export default function DashboardPage() {
       </Container>
       <Container size="lg" className="py-5">
         <Row>
-          <SubsidyRequestsContextProvider>
-            <CourseEnrollmentsContextProvider>
-              <MainContent>
-                <DashboardMainContent />
-              </MainContent>
-              <MediaQuery minWidth={breakpoints.large.minWidth}>
-                {matches => (matches ? (
-                  <Sidebar data-testid="sidebar">
-                    <DashboardSidebar />
-                  </Sidebar>
-                ) : null)}
-              </MediaQuery>
-            </CourseEnrollmentsContextProvider>
-          </SubsidyRequestsContextProvider>
+          <CourseEnrollmentsContextProvider>
+            <MainContent>
+              <DashboardMainContent />
+            </MainContent>
+            <MediaQuery minWidth={breakpoints.large.minWidth}>
+              {matches => (matches ? (
+                <Sidebar data-testid="sidebar">
+                  <DashboardSidebar />
+                </Sidebar>
+              ) : null)}
+            </MediaQuery>
+          </CourseEnrollmentsContextProvider>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
           {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
         </Row>
