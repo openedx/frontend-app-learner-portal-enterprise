@@ -79,10 +79,12 @@ const SubscriptionSummaryCard = ({
     <>
       {programProgressPage ? (
         <>
-          <SubscriptionExpirationWarningModal
-            isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
-            onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
-          />
+          {subscriptionPlan && (
+            <SubscriptionExpirationWarningModal
+              isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
+              onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
+            />
+          )}
           <SidebarCard
             title={(
               <div className="d-flex align-items-start justify-content-between">

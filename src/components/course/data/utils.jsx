@@ -230,7 +230,7 @@ export const getSubsidyToApplyForCourse = ({
     return {
       // TODO: these values are stubbed for now
       discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE,
-      discountValue: '',
+      discountValue: 100,
       startDate: '',
       endDate: '',
       code: '',
