@@ -95,7 +95,7 @@ const SubscriptionSummaryCard = ({
                   >
                     {badgeVariantAndLabel.label}
                   </Badge>
-                  {courseEndDate > subscriptionPlan.expirationDate && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
+                  {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
                 </div>
               </div>
             )}
