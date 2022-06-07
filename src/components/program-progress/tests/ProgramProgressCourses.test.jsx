@@ -178,6 +178,7 @@ describe('<EnrollModal />', () => {
 
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[1].title)).toBeInTheDocument();
+    expect(screen.queryByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeNull();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
   });
 
