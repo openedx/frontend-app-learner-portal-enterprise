@@ -132,6 +132,56 @@ describe('<EnrollModal />', () => {
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
   });
+
+  it('displays the only one in progress course when enrolled in multiple runs', () => {
+    const courseDataCompletedCourse = {
+      completed: [],
+      notStarted: [],
+      inProgress: [
+        {
+          key: 'HarvardX+CS50x',
+          title: 'Introduction to Computer Science',
+          courseRuns: [
+            {
+              key: 'HarvardX/CS50x/2012',
+              title: 'Introduction to Computer Science1',
+              start: '2015-10-15T00:00:00Z',
+              isEnrolled: true,
+              isEnrollmentOpen: false,
+              isCourseEnded: false,
+              status: 'published',
+              end: null,
+              pacingType: 'instructor_paced',
+              uuid: '982c3c80-6bc5-41c4-aa11-bd6e90c3f55d',
+              certificate_url: null,
+            },
+            {
+              key: 'HarvardX/CS50x/2012',
+              title: 'Introduction to Computer Science2',
+              start: '2019-10-15T00:00:00Z',
+              isEnrolled: true,
+              isEnrollmentOpen: true,
+              end: null,
+              pacingType: 'instructor_paced',
+              uuid: '982c3c80-6bc5-41c4-aa11-bd6e90c3f55d',
+              certificate_url: 'url',
+            },
+          ],
+        },
+      ],
+    };
+    render(<ProgramProgressCoursesWithContext
+      initialAppState={appState}
+      initialUserSubsidyState={userSubsidyState}
+      courseData={courseDataCompletedCourse}
+    />);
+
+    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
+    expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[1].title)).toBeInTheDocument();
+    expect(screen.queryByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeNull();
+    expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
+  });
+
   it('displays the in progress course which can be upgrade to verified certificate with license', () => {
     const courseDataCompletedCourse = {
       completed: [],

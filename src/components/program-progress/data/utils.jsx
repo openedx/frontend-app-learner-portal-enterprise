@@ -70,9 +70,20 @@ export function isCourseRunEnded(run) {
 }
 
 export function getEnrolledCourseRunDetails(courses) {
-  const enrolledCourseRunDetails = [];
-  courses.map((course) => (
-    course?.courseRuns.map((cRun) => (cRun.isEnrolled && (enrolledCourseRunDetails.push({
+  /**
+   * returns the list of course runs for courses that are enrolled by user with only one run for each course.
+   * if there are multiple enrolled course_runs then the most recent is selected.
+   *
+   * @param {Array} courses in progress or completed array of courses
+   * @return {Array} array of course runs selected from course runs of each course
+   */
+  return courses?.map((course) => {
+    const filteredRuns = course.courseRuns.filter(cRUn => cRUn.isEnrolled).sort(
+      (a, b) => new Date(b.start) - new Date(a.start),
+    );
+    // there will be at least one course run for each in_progress and completed courses
+    const cRun = filteredRuns[0];
+    return {
       start: cRun.start ? cRun.start : cRun.advertisedStart,
       title: cRun.title,
       key: course?.key,
@@ -82,10 +93,8 @@ export function getEnrolledCourseRunDetails(courses) {
       expired: cRun?.expired,
       seats: cRun.seats ? cRun?.seats : [],
       isEnded: isCourseRunEnded(cRun),
-    }))
-    ))
-  ));
-  return enrolledCourseRunDetails;
+    };
+  });
 }
 
 export function getNotStartedCourseDetails(courses) {
