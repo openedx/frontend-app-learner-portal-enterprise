@@ -99,8 +99,8 @@ const renderCard = ({
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
           <CourseContextProvider initialState={courseInitState}>
             <CourseRunCard
               catalogList={['foo']}
@@ -111,8 +111,8 @@ const renderCard = ({
               subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
             />
           </CourseContextProvider>
-        </UserSubsidyContext.Provider>
-      </SubsidyRequestsContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>,
   );
 };

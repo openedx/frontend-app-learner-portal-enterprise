@@ -14,6 +14,7 @@ import {
 } from './data/hooks';
 import { useEnterpriseOffers } from './enterprise-offers/data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
+import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 
 export const UserSubsidyContext = createContext();
 
@@ -102,7 +103,9 @@ const UserSubsidy = ({ children }) => {
     <>
       {/* Render the children so the rest of the page shows */}
       <UserSubsidyContext.Provider value={contextValue}>
-        {children}
+        <SubsidyRequestsContextProvider>
+          {children}
+        </SubsidyRequestsContextProvider>
       </UserSubsidyContext.Provider>
     </>
   );
