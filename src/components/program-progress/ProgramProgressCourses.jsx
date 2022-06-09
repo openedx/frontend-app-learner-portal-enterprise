@@ -90,7 +90,7 @@ const ProgramProgressCourses = ({ courseData }) => {
       {coursesInProgress?.length > 0
       && (
         <div className="mb-5">
-          <h4>COURSES IN PROGRESS {coursesInProgress.length}</h4>
+          <h4 className="white-space-pre">COURSES IN PROGRESS    {coursesInProgress.length}</h4>
           <hr />
           <div className="courses">
             {coursesInProgress.map((course) => (
@@ -120,7 +120,7 @@ const ProgramProgressCourses = ({ courseData }) => {
       {courseData?.notStarted?.length > 0
       && (
         <div className="mb-5 courses">
-          <h4> REMAINING COURSES {courseData?.notStarted?.length}</h4>
+          <h4 className="white-space-pre"> REMAINING COURSES    {courseData?.notStarted?.length}</h4>
           <hr />
           {courseWithSingleCourseRun.map((course) => (
             (
@@ -199,7 +199,7 @@ const ProgramProgressCourses = ({ courseData }) => {
       {coursesCompleted?.length > 0
       && (
         <div className="mb-6 courses">
-          <h4> COURSES COMPLETED {coursesCompleted.length}</h4>
+          <h4 className="white-space-pre"> COURSES COMPLETED    {coursesCompleted.length}</h4>
           <hr />
           {coursesCompleted.map((course) => (
             (
