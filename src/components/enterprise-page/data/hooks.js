@@ -49,6 +49,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
             hideCourseOriginalPrice,
             hideLaborMarketData,
             identityProvider,
+            enableLearnerPortalOffers,
           } = config;
           setEnterpriseConfig({
             name,
@@ -69,6 +70,7 @@ export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
                 tertiary: tertiaryColor || defaultTertiaryColor,
               },
             },
+            enableLearnerPortalOffers,
           });
         } else {
           if (!config) {

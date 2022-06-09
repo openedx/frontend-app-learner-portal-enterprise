@@ -15,8 +15,8 @@ import ContactAdminMailto from '../contact-admin-mailto';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
 export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
-export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'The price of this course is covered with your organization\'s learner credit balance';
-export const INSUFFICIENT_ENTERPRISE_OFFER_BALANCE = 'Your organization doesn\'t have sufficient learner credit balance to cover this course.';
+export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'This course can be purchased with your organization\'s learner credit';
+export const INSUFFICIENT_ENTERPRISE_OFFER_BALANCE = 'Your organization doesn\'t have enough learner credit remaining. Contact your administrator to learn more.';
 
 const CourseSidebarPrice = () => {
   const { enterpriseConfig } = useContext(AppContext);

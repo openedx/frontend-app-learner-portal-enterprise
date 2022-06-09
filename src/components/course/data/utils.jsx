@@ -7,7 +7,6 @@ import {
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -224,12 +223,10 @@ export const getSubsidyToApplyForCourse = ({
 
   if (applicableEnterpriseOffer) {
     return {
-      // TODO: these values are stubbed for now
-      discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE,
-      discountValue: 100,
-      startDate: '',
-      endDate: '',
-      code: '',
+      discountType: applicableEnterpriseOffer.usageType.toLowerCase(),
+      discountValue: applicableEnterpriseOffer.discountValue,
+      startDate: applicableEnterpriseOffer.startDatetime,
+      endDate: applicableEnterpriseOffer.endDatetime,
       subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
     };
   }

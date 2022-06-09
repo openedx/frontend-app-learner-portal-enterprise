@@ -32,6 +32,7 @@ const UserSubsidy = ({ children }) => {
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
+
   const {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
@@ -39,6 +40,7 @@ const UserSubsidy = ({ children }) => {
     isLoading: isLoadingEnterpriseOffers,
   } = useEnterpriseOffers({
     enterpriseId: enterpriseConfig.uuid,
+    enableLearnerPortalOffers: enterpriseConfig.enableLearnerPortalOffers,
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
   });
