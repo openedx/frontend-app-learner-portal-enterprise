@@ -59,7 +59,7 @@ export default class CourseService {
     };
   }
 
-  async fetchAllCourseRecommendations(activeCatalogs) {
+  async fetchAllCourseRecommendations(activeCatalogs = []) {
     const resp = await this.fetchCourseRecommendations()
       .then(async (response) => {
         const {
