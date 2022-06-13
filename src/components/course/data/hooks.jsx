@@ -364,6 +364,7 @@ export const useCourseEnrollmentUrl = ({
           // We don't want any sidebar text we show the data consent page from this workflow since
           // the text on the sidebar is used when a learner is coming from their employer's system.
           left_sidebar_text_override: '',
+          source: 'enterprise-learner-portal',
         });
         return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
       }
