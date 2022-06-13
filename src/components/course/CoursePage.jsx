@@ -19,8 +19,8 @@ import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
-import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
-import { features } from '../../config';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useSearchCatalogs } from '../search/data/hooks';
 
 export default function CoursePage() {
   const { courseKey } = useParams();
@@ -41,20 +41,16 @@ export default function CoursePage() {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
   } = useContext(UserSubsidyContext);
-  const activeCatalogs = useMemo(
-    () => {
-      const catalogs = [];
-      const couponCodesCatalogs = couponCodes.map((couponCode) => couponCode.catalog);
-      if (features.ENROLL_WITH_CODES) {
-        catalogs.push(...couponCodesCatalogs);
-      }
-      if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
-        catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
-      }
-      return catalogs;
-    },
-    [subscriptionPlan, subscriptionLicense, couponCodes],
-  );
+
+  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+
+  const activeCatalogs = useSearchCatalogs({
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes,
+    enterpriseOffers,
+    catalogsForSubsidyRequests,
+  });
 
   // extract search queryId and objectId that led to this course page view from
   // the URL query parameters and then remove it to keep the URLs clean.
