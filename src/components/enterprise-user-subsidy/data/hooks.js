@@ -1,7 +1,6 @@
 import {
   useState, useEffect, useReducer,
 } from 'react';
-import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import { fetchOffers } from '../offers';
@@ -46,8 +45,7 @@ const fetchExistingUserLicense = async (enterpriseId) => {
     });
     const applicableLicense = Object.values(licensesByStatus).flat()[0];
     return applicableLicense;
-  } catch (error) {
-    logError(error);
+  } catch {
     return null;
   }
 };
@@ -63,8 +61,7 @@ const requestAutoAppliedUserLicense = async (customerAgreementId) => {
     const response = await requestAutoAppliedLicense(customerAgreementId);
     const license = camelCaseObject(response.data);
     return license;
-  } catch (error) {
-    logError(error);
+  } catch {
     return null;
   }
 };
@@ -170,8 +167,7 @@ export function useCustomerAgreementData(enterpriseId) {
           setCustomerAgreement(null);
         }
       })
-      .catch((error) => {
-        logError(new Error(error));
+      .catch(() => {
         setCustomerAgreement(null);
       })
       .finally(() => {
@@ -191,8 +187,7 @@ export function useCatalogData(enterpriseId) {
       try {
         const response = await fetchEnterpriseCatalogData(enterpriseId);
         setCatalogData(response.data);
-      } catch (error) {
-        logError(error);
+      } catch {
         setCatalogData([]);
       } finally {
         setIsLoading(false);

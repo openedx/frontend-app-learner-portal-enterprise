@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react-hooks';
-import * as logger from '@edx/frontend-platform/logging';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../constants';
 import {
   useSubsidyRequestConfiguration,
@@ -47,7 +46,6 @@ describe('useSubsidyRequestConfiguration', () => {
     const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration('uuid'));
     await waitForNextUpdate();
     expect(result.current.subsidyRequestConfiguration).toEqual(undefined);
-    expect(logger.logError).toHaveBeenCalledWith(error);
   });
 });
 

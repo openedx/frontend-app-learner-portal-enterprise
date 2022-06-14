@@ -55,6 +55,7 @@ const PROGRAM_AUTHOR_ORG = {
 const defaultProps = {
   hit: {
     uuid: PROGRAM_UUID,
+    aggregation_key: `program:${PROGRAM_UUID}`,
     authoring_organizations: [
       PROGRAM_AUTHOR_ORG,
     ],

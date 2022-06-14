@@ -12,9 +12,12 @@ process.env.LMS_BASE_URL = 'http://localhost:18000';
 process.env.MARKETING_SITE_BASE_URL = 'http://marketing.url';
 process.env.LOGOUT_URL = 'http://localhost:18000/logout';
 process.env.BASE_URL = 'http://localhost:8734';
+process.env.ENTERPRISE_ACCESS_BASE_URL = 'http://localhost:18270';
 
 // testing utility to mock window width, etc.
 global.window.matchMedia = matchMediaMock.create();
 
+// jest.mock('@edx/frontend-platform/logging');
+jest.mock('@edx/frontend-platform/analytics');
 jest.mock('@edx/frontend-platform/logging');
 // jest.mock('@edx/frontend-platform/analytics');

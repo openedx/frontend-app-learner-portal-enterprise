@@ -14,7 +14,7 @@ describe('<EnterpriseBanner />', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders recommend courses for me button if the user is on the search page', () => {
+  it('renders banner content', () => {
     useLocation.mockImplementation(() => ({
       pathname: '/slug/search',
     }));

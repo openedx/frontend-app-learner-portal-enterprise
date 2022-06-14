@@ -15,6 +15,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
       uuid,
     },
   } = useContext(AppContext);
+
   const {
     courseEnrollmentsByStatus,
     programEnrollments,

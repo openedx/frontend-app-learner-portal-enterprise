@@ -1,6 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import {
   fetchSubsidyRequestConfiguration,
@@ -11,10 +12,11 @@ import {
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
+const config = getConfig();
 
 axiosMock.onAny().reply(200);
 axios.get = jest.fn();
-const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_BASE_URL}`;
+const enterpriseAccessBaseUrl = `${config.ENTERPRISE_ACCESS_BASE_URL}`;
 const mockEnterpriseUUID = 'test-enterprise-id';
 
 describe('fetchSubsidyRequestConfiguration', () => {

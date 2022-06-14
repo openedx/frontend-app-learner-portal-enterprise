@@ -1,7 +1,6 @@
 import {
   useState, useEffect, useContext, useMemo,
 } from 'react';
-import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { fetchSubsidyRequestConfiguration, fetchLicenseRequests, fetchCouponCodeRequests } from './service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
@@ -22,8 +21,6 @@ export function useSubsidyRequestConfiguration(enterpriseUUID) {
         if (httpErrorStatus === 404) {
           // Customer configuration does not exist, subsidy requests are turned off.
           setSubsidyRequestConfiguration(null);
-        } else {
-          logError(error);
         }
       } finally {
         setIsLoading(false);
@@ -66,8 +63,6 @@ export function useSubsidyRequests(subsidyRequestConfiguration) {
         const requests = camelCaseObject(results);
         setLicenseRequests(requests);
       }
-    } catch (error) {
-      logError(error);
     } finally {
       setIsLoading(false);
     }

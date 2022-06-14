@@ -65,7 +65,6 @@ describe('<SearchCourseCard />', () => {
       `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
     );
     expect(container.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
-    expect(container.querySelector('.card-img-top')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 
   test('renders the loading state', () => {

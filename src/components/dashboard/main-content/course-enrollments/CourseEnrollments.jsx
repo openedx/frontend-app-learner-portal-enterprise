@@ -29,10 +29,16 @@ const CourseEnrollments = ({ children }) => {
   } = useContext(CourseEnrollmentsContext);
 
   const currentCourseEnrollments = useMemo(
-    () => sortedEnrollmentsByEnrollmentDate(
-      [...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
-        ...courseEnrollmentsByStatus.requested],
-    ), [courseEnrollmentsByStatus.inProgress, courseEnrollmentsByStatus.upcoming, courseEnrollmentsByStatus.requested],
+    () => sortedEnrollmentsByEnrollmentDate([
+      ...courseEnrollmentsByStatus.inProgress,
+      ...courseEnrollmentsByStatus.upcoming,
+      ...courseEnrollmentsByStatus.requested,
+    ]),
+    [
+      courseEnrollmentsByStatus.inProgress,
+      courseEnrollmentsByStatus.upcoming,
+      courseEnrollmentsByStatus.requested,
+    ],
   );
 
   const completedCourseEnrollments = useMemo(
@@ -41,14 +47,17 @@ const CourseEnrollments = ({ children }) => {
   );
 
   const savedForLaterCourseEnrollments = useMemo(
-    () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.savedForLater),
+    () => sortedEnrollmentsByEnrollmentDate(
+      courseEnrollmentsByStatus.savedForLater,
+    ),
     [courseEnrollmentsByStatus.savedForLater],
   );
 
   if (fetchCourseEnrollmentsError) {
     return (
       <CourseEnrollmentsAlert variant="danger">
-        An error occurred while retrieving your course enrollments. Please try again.
+        An error occurred while retrieving your course enrollments. Please try
+        again.
       </CourseEnrollmentsAlert>
     );
   }
@@ -58,12 +67,18 @@ const CourseEnrollments = ({ children }) => {
   return (
     <>
       {showMarkCourseCompleteSuccess && (
-        <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>
+        <CourseEnrollmentsAlert
+          variant="success"
+          onClose={() => setShowMarkCourseCompleteSuccess(false)}
+        >
           Your course was saved for later.
         </CourseEnrollmentsAlert>
       )}
       {showMoveToInProgressCourseSuccess && (
-        <CourseEnrollmentsAlert variant="success" onClose={() => setShowMoveToInProgressCourseSuccess(false)}>
+        <CourseEnrollmentsAlert
+          variant="success"
+          onClose={() => setShowMoveToInProgressCourseSuccess(false)}
+        >
           Your course was moved to In Progress.
         </CourseEnrollmentsAlert>
       )}
