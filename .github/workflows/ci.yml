@@ -23,7 +23,7 @@ jobs:
       run: npm run test
     - name: Build
       run: npm run build
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v3
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        fail_ci_if_error: true
