@@ -21,16 +21,15 @@ const ToCoursewarePage = ({
   const { config } = useContext(AppContext);
   const {
     state: {
-      activeCourseRun: { key: courseKey },
+      activeCourseRun: { key: courseKey, courseRunUrl },
     },
   } = useContext(CourseContext);
-  const courseInfoUrl = createCourseInfoUrl({ baseUrl: config.LMS_BASE_URL, courseKey });
   const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
     userEnrollment,
     subscriptionLicense,
     enrollmentUrl,
   });
-  const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl;
+  const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : courseRunUrl;
   const handleClick = useTrackSearchConversionClickHandler({
     href: landingUrl,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_courseware.clicked',
