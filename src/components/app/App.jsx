@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import useHotjar from 'react-use-hotjar';
+// import useHotjar from 'react-use-hotjar';
 import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-platform/react';
 
 import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
@@ -14,12 +14,12 @@ import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ToastsProvider, Toasts } from '../Toasts';
 
 export default function App() {
-  const { initHotjar } = useHotjar();
-  useEffect(() => {
-    if (process.env.HOTJAR_APP_ID) {
-      initHotjar(process.env.HOTJAR_APP_ID, process.env.HOTJAR_VERSION, process.env.HOTJAR_DEBUG);
-    }
-  }, [initHotjar]);
+  // const { initHotjar } = useHotjar();
+  // useEffect(() => {
+  //   if (process.env.HOTJAR_APP_ID) {
+  //     initHotjar(process.env.HOTJAR_APP_ID, process.env.HOTJAR_VERSION, process.env.HOTJAR_DEBUG);
+  //   }
+  // }, [initHotjar]);
 
   return (
     <AppProvider>
