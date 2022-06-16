@@ -89,7 +89,7 @@ export function getDefaultProgram(programs = []) {
 }
 
 export function createCourseInfoUrl({ baseUrl, courseKey }) {
-  return `${baseUrl}/courses/${courseKey}/info`;
+  return `${baseUrl}/courses/${courseKey}/home`;
 }
 
 export function formatProgramType(programType) {
