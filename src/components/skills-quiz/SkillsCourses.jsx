@@ -1,7 +1,7 @@
 import React, {
   useEffect, useState, useContext, useMemo,
 } from 'react';
-import { Badge, StatusAlert } from '@edx/paragon';
+import { Badge, Alert } from '@edx/paragon';
 import {
   SearchContext,
 } from '@edx/frontend-enterprise-catalog-search';
@@ -27,9 +27,6 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const renderDialog = () => (
   <div className="lead d-flex align-items-center py-3">
-    <div className="mr-3">
-      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-    </div>
     <p>
       { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS }
     </p>
@@ -153,13 +150,15 @@ const SkillsCourses = ({ index }) => {
       ))}
       <div>
         { hitCount === 0 && (
-          <StatusAlert
+          <Alert
             className="mt-4 mb-5"
-            alertType="info"
-            dialog={renderDialog()}
+            variant="info"
             dismissible={false}
-            open
-          />
+            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+            show
+          >
+            {renderDialog()}
+          </Alert>
         )}
       </div>
     </div>
