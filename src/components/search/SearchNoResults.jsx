@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { StatusAlert } from '@edx/paragon';
+import { Alert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,14 +12,8 @@ const SearchNoResults = ({ title }) => {
   const renderDialog = useCallback(
     () => (
       <div className="lead d-flex align-items-center py-3">
-        <div className="mr-3">
-          <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-        </div>
-        <div>
-          {noResultsMessage.messageTitle}
-          <br />
-          {noResultsMessage.messageContent}
-        </div>
+        <Alert.Heading>{noResultsMessage.messageTitle}</Alert.Heading>
+        {noResultsMessage.messageContent}
       </div>
     ),
     [],
@@ -27,13 +21,15 @@ const SearchNoResults = ({ title }) => {
 
   return (
     <>
-      <StatusAlert
+      <Alert
         className="mb-5"
-        alertType="info"
-        dialog={renderDialog()}
+        variant="info"
         dismissible={false}
-        open
-      />
+        icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+        show
+      >
+        {renderDialog()}
+      </Alert>
       <PopularResults title={title} />
     </>
   );
