@@ -9,7 +9,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, StatusAlert,
+  Badge, Card, Icon, Alert,
 } from '@edx/paragon';
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -46,9 +46,6 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
 
 const renderDialog = () => (
   <div className="lead d-flex align-items-center py-3">
-    <div className="mr-3">
-      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-    </div>
     <p>
       { NO_PROGRAMS_ALERT_MESSAGE }
     </p>
@@ -284,13 +281,15 @@ const SearchProgramCard = ({ index }) => {
       </div>
       <div>
         { hitCount === 0 && (
-          <StatusAlert
+          <Alert
             className="mt-4 mb-5"
-            alertType="info"
-            dialog={renderDialog()}
+            variant="info"
             dismissible={false}
-            open
-          />
+            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+            show
+          >
+            {renderDialog()}
+          </Alert>
         )}
       </div>
     </div>
