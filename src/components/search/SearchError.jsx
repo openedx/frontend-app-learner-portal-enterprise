@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { StatusAlert } from '@edx/paragon';
+import { Alert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { getSearchErrorMessage } from '../utils/search';
@@ -10,26 +10,24 @@ const SearchError = ({ title }) => {
   const renderDialog = useCallback(
     () => (
       <div className="lead d-flex align-items-center py-3">
-        <div className="mr-3">
-          <FontAwesomeIcon icon={faExclamationTriangle} size="2x" />
-        </div>
-        <div>
+        <Alert.Heading>
           {searchErrorMessage.messageTitle}
-          <br />
-          {searchErrorMessage.messageContent}
-        </div>
+        </Alert.Heading>
+        {searchErrorMessage.messageContent}
       </div>
     ),
     [],
   );
 
   return (
-    <StatusAlert
-      alertType="danger"
-      dialog={renderDialog()}
+    <Alert
+      variant="danger"
       dismissible={false}
+      icon={() => <FontAwesomeIcon icon={faExclamationTriangle} size="2x" />}
       open
-    />
+    >
+      {renderDialog()}
+    </Alert>
   );
 };
 
