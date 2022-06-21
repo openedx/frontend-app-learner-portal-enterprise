@@ -4,7 +4,7 @@ import React, {
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { StatusAlert } from '@edx/paragon';
+import { Alert } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -19,9 +19,6 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const renderDialog = () => (
   <div className="lead d-flex align-items-center py-3">
-    <div className="mr-3">
-      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-    </div>
     <p>
       { NO_COURSES_ALERT_MESSAGE }
     </p>
@@ -100,13 +97,15 @@ const SearchCourseCard = ({ index }) => {
       </div>
       <div>
         { hitCount === 0 && (
-          <StatusAlert
+          <Alert
             className="mt-4 mb-5"
-            alertType="info"
-            dialog={renderDialog()}
+            variant="info"
             dismissible={false}
-            open
-          />
+            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+            show
+          >
+            {renderDialog()}
+          </Alert>
         )}
       </div>
     </div>
