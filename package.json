@@ -9,6 +9,7 @@
     "@edx/frontend-enterprise-catalog-search": "3.0.3",
     "@edx/frontend-enterprise-logistration": "^2.0.0",
     "@edx/frontend-enterprise-utils": "^2.0.0",
+    "@edx/frontend-enterprise-hotjar": "1.2.0",
     "@edx/frontend-platform": "^1.15.6",
     "@edx/paragon": "^19.15.0",
     "@fortawesome/fontawesome-svg-core": "1.2.32",
@@ -47,7 +48,6 @@
     "react-scroll": "^1.8.4",
     "react-transition-group": "4.4.1",
     "react-truncate": "2.4.0",
-    "react-use-hotjar": "1.0.9",
     "redux": "4.0.5",
     "reselect": "4.0.0",
     "universal-cookie": "4.0.4"
