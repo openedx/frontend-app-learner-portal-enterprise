@@ -21,7 +21,7 @@ export default function App() {
         initializeHotjar({
           hotjarId: process.env.HOTJAR_APP_ID,
           hotjarVersion: process.env.HOTJAR_VERSION,
-          hotjarDebug: process.env.HOTJAR_DEBUG,
+          hotjarDebug: !!process.env.HOTJAR_DEBUG,
         });
       } catch (error) {
         logError(error);
