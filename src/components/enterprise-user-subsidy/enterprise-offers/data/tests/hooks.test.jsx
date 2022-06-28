@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { renderHook } from '@testing-library/react-hooks';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
@@ -99,7 +100,7 @@ describe('useEnterpriseOffers', () => {
     expect(isLoading).toEqual(false);
   });
 
-  it('returns canEnrollWithEnterpriseOffers = false if the enterprise has subs', async () => {
+  it('returns canEnrollWithEnterpriseOffers = false if the enterprise has an active sub', async () => {
     couponService.fetchCouponsOverview.mockResolvedValueOnce({
       data: {
         results: [],
@@ -109,7 +110,11 @@ describe('useEnterpriseOffers', () => {
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseOffers({
       ...defaultProps,
       customerAgreementConfig: {
-        subscriptions: [{ uuid: 'sub-uuid' }],
+        subscriptions: [{
+          uuid: 'sub-uuid',
+          startDate: moment().subtract(1, 'd').toISOString(),
+          expirationDate: moment().add(1, 'd').toISOString(),
+        }],
       },
     }));
 
@@ -126,7 +131,7 @@ describe('useEnterpriseOffers', () => {
     expect(isLoading).toEqual(false);
   });
 
-  it('returns canEnrollWithEnterpriseOffers = false if the enterprise has no coupons or subs, but has > 1 active enterprise offer', async () => {
+  it('returns canEnrollWithEnterpriseOffers = false if the enterprise has no active coupons or sub, but has > 1 active enterprise offer', async () => {
     couponService.fetchCouponsOverview.mockResolvedValueOnce({
       data: {
         results: [],
@@ -146,7 +151,7 @@ describe('useEnterpriseOffers', () => {
     expect(result.current.canEnrollWithEnterpriseOffers).toEqual(false);
   });
 
-  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has no coupons or subs, and has 1 active enterprise offer', async () => {
+  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has no active coupons or sub, and has 1 active enterprise offer', async () => {
     couponService.fetchCouponsOverview.mockResolvedValueOnce({
       data: {
         results: [],

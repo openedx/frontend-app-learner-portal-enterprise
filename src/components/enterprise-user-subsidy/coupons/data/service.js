@@ -13,6 +13,7 @@ const fetchCouponsOverview = ({ enterpriseId, options = {} }) => {
     page: 1,
     page_size: 50,
     filter: 'active',
+    is_current: true,
     ...options,
   });
   const config = getConfig();

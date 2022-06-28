@@ -6,6 +6,7 @@ export function fetchEnterpriseOffers(enterpriseId, options = {
   usage_type: ENTERPRISE_OFFER_USAGE_TYPE.PERCENTAGE,
   discount_value: 100,
   status: ENTERPRISE_OFFER_STATUS.OPEN,
+  is_current: true,
 }) {
   const queryParams = new URLSearchParams({
     ...options,
