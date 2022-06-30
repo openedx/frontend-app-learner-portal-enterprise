@@ -3,7 +3,7 @@ import {
   useEffect,
 } from 'react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logInfo, logError } from '@edx/frontend-platform/logging';
+import { logError } from '@edx/frontend-platform/logging';
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { features } from '../../../../config';
 import * as enterpriseOffersService from './service';
@@ -40,11 +40,6 @@ export function useEnterpriseOffers({
         setIsLoadingOffers(false);
       }
     };
-
-    logInfo(
-      `Learner portal is enabled for ${enterpriseId}: ${enableOffers},
-      feature flag enabled :${features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS}, customer flag enabled : ${enableLearnerPortalOffers}.`,
-    );
 
     if (enableOffers) {
       fetchEnterpriseOffers();
