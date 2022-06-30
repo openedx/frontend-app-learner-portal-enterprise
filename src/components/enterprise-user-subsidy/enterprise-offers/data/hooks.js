@@ -7,15 +7,15 @@ import { logError } from '@edx/frontend-platform/logging';
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { features } from '../../../../config';
 import * as enterpriseOffersService from './service';
-import { ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD } from './constants';
 import { hasValidStartExpirationDates } from '../../../../utils/common';
+import { transformEnterpriseOffer } from './utils';
 
-export function useEnterpriseOffers({
+export const useEnterpriseOffers = ({
   enterpriseId,
   enableLearnerPortalOffers,
   customerAgreementConfig,
   isLoadingCustomerAgreementConfig,
-}) {
+}) => {
   const [enterpriseOffers, setEnterpriseOffers] = useState([]);
   const [isLoadingOffers, setIsLoadingOffers] = useState(true);
   const [isLoadingEnterpriseCoupons, setIsLoadingEnterpriseCoupons] = useState(true);
@@ -33,7 +33,7 @@ export function useEnterpriseOffers({
       try {
         const response = await enterpriseOffersService.fetchEnterpriseOffers(enterpriseId);
         const { results } = camelCaseObject(response.data);
-        setEnterpriseOffers(results);
+        setEnterpriseOffers(results.map(offer => transformEnterpriseOffer(offer)));
       } catch (error) {
         logError(error);
       } finally {
@@ -93,7 +93,7 @@ export function useEnterpriseOffers({
     }
 
     setCanEnrollWithEnterpriseOffers(true);
-    setHasLowEnterpriseOffersBalance(enterpriseOffers[0].remainingBalance <= ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD);
+    setHasLowEnterpriseOffersBalance(enterpriseOffers[0].isLowOnBalance);
   }, [
     isLoading,
     enterpriseCoupons,
@@ -108,4 +108,4 @@ export function useEnterpriseOffers({
     hasLowEnterpriseOffersBalance,
     isLoading,
   };
-}
+};

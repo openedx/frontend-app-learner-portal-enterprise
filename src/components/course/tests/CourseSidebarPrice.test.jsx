@@ -13,6 +13,7 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../data/constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { ENTERPRISE_OFFER_TYPE } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -166,12 +167,16 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.getByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).toBeInTheDocument();
     });
 
-    test('Display insufficient enterprise offer balance message', () => {
+    test.each([
+      ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
+      ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
+    ])('Display insufficient enterprise offer balance message', (offerType) => {
       const mockEnterpriseOffer = {
         discountValue: 100,
         discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
         enterpriseCatalogUuid: 'test-catalog-uuid',
-        remainingBalance: 0,
+        remainingBalance: 1,
+        offerType,
       };
       const mockEnterpriseOfferSubsidy = {
         ...mockEnterpriseOffer,
@@ -195,12 +200,45 @@ describe('<CourseSidebarPrice/> ', () => {
     });
 
     describe('Does not display insufficient enterprise offer balance message', () => {
+      test.each([
+        ENTERPRISE_OFFER_TYPE.NO_LIMIT,
+        ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
+      ])('When offer has no bookings limit', (offerType) => {
+        const mockEnterpriseOffer = {
+          discountValue: 100,
+          discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
+          enterpriseCatalogUuid: 'test-catalog-uuid',
+          remainingBalance: null,
+          offerType,
+        };
+        const mockEnterpriseOfferSubsidy = {
+          ...mockEnterpriseOffer,
+          subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+        };
+        render(
+          <SidebarWithContext
+            initialAppState={appStateWithOrigPriceShowing}
+            initialCourseState={{
+              ...BASE_COURSE_STATE,
+              userSubsidyApplicableToCourse: undefined,
+            }}
+            initialUserSubsidyState={{
+              ...defaultUserSubsidyState,
+              enterpriseOffers: [mockEnterpriseOfferSubsidy],
+              canEnrollWithEnterpriseOffers: true,
+            }}
+          />,
+        );
+        expect(screen.queryByTestId('insufficient-offer-balance-text')).not.toBeInTheDocument();
+      });
+
       test('When canEnrollWithEnterpriseOffers = false', () => {
         const mockEnterpriseOffer = {
           discountValue: 100,
           discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
           enterpriseCatalogUuid: 'test-catalog-uuid',
           remainingBalance: 0,
+          offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
         };
         render(
           <SidebarWithContext
@@ -226,6 +264,7 @@ describe('<CourseSidebarPrice/> ', () => {
           discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
           enterpriseCatalogUuid: 'wrong-catalog-uuid',
           remainingBalance: 0,
+          offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
         };
 
         render(

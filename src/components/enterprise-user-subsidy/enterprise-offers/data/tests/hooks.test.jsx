@@ -6,6 +6,7 @@ import { useEnterpriseOffers } from '../hooks';
 import * as couponService from '../../../coupons/data/service';
 import * as enterpriseOffersService from '../service';
 import * as config from '../../../../../config';
+import { transformEnterpriseOffer } from '../utils';
 
 jest.mock('../../../coupons/data/service');
 jest.mock('../service');
@@ -46,7 +47,9 @@ describe('useEnterpriseOffers', () => {
     await waitForNextUpdate();
 
     expect(enterpriseOffersService.fetchEnterpriseOffers).toHaveBeenCalled();
-    expect(result.current.enterpriseOffers).toEqual(camelCaseObject(mockEnterpriseOffers));
+    expect(result.current.enterpriseOffers).toEqual(
+      camelCaseObject(mockEnterpriseOffers).map(offer => transformEnterpriseOffer(offer)),
+    );
   });
 
   it.each([{
