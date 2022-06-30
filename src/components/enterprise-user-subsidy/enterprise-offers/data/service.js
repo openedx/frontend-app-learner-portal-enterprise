@@ -7,6 +7,8 @@ export function fetchEnterpriseOffers(enterpriseId, options = {
   discount_value: 100,
   status: ENTERPRISE_OFFER_STATUS.OPEN,
   is_current: true,
+  max_user_applications__isnull: true, // We won't handle offers with per user limits for MVP
+  max_user_discount__isnull: true,
 }) {
   const queryParams = new URLSearchParams({
     ...options,

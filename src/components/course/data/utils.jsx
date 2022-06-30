@@ -17,6 +17,7 @@ import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
+import { ENTERPRISE_OFFER_TYPE } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -135,16 +136,34 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   }));
 }
 
-export function findEnterpriseOfferForCourse({
+export const findEnterpriseOfferForCourse = ({
   enterpriseOffers, catalogList = [], coursePrice,
-}) {
+}) => {
   if (!coursePrice) {
     return undefined;
   }
 
-  return enterpriseOffers.find((enterpriseOffer) => catalogList?.includes(enterpriseOffer.enterpriseCatalogUuid)
-    && enterpriseOffer.remainingBalance >= coursePrice);
-}
+  return enterpriseOffers.find((enterpriseOffer) => {
+    const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
+
+    let canCoverCourse = false;
+
+    switch (enterpriseOffer.offerType) {
+      case ENTERPRISE_OFFER_TYPE.NO_LIMIT:
+      case ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT:
+        canCoverCourse = true;
+        break;
+      case ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT:
+      case ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT:
+        canCoverCourse = enterpriseOffer.remainingBalance >= coursePrice;
+        break;
+      default:
+        break;
+    }
+
+    return isCourseInCatalog && canCoverCourse;
+  });
+};
 
 const getBestCourseMode = (courseModes) => {
   const {
@@ -227,6 +246,7 @@ export const getSubsidyToApplyForCourse = ({
       discountValue: applicableEnterpriseOffer.discountValue,
       startDate: applicableEnterpriseOffer.startDatetime,
       endDate: applicableEnterpriseOffer.endDatetime,
+      offerType: applicableEnterpriseOffer.offerType,
       subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
     };
   }

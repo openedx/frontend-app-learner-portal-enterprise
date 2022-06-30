@@ -9,10 +9,17 @@ import {
   useTrackSearchConversionClickHandler,
 } from './data/hooks';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from './data/constants';
+import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 export const ENROLL_MODAL_TEXT_HAS_NO_SUBSIDY = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
 export const createUseCouponCodeText = couponCodesCount => `Enrolling in this course will use 1 of your ${couponCodesCount} enrollment codes.`;
-export const createUseEnterpriseOfferText = courseRunPrice => `You are about to redeem $${courseRunPrice} from your learner credit. This action cannot be reversed.`;
+export const createUseEnterpriseOfferText = (offer, courseRunPrice) => {
+  if (offer.offerType === ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT) {
+    return 'You are about to redeem 1 learner credit. This action cannot be reversed.';
+  }
+
+  return `You are about to redeem $${courseRunPrice} from your learner credit. This action cannot be reversed.`;
+};
 
 export const MODAL_TEXTS = {
   HAS_NO_SUBSIDY: {
@@ -26,7 +33,7 @@ export const MODAL_TEXTS = {
     title: 'Use 1 enrollment code for this course?',
   },
   HAS_ENTERPRISE_OFFER: {
-    body: (courseRunPrice) => createUseEnterpriseOfferText(courseRunPrice),
+    body: (offer, courseRunPrice) => createUseEnterpriseOfferText(offer, courseRunPrice),
     button: 'Enroll',
     title: 'Use learner credit for this course?',
   },
@@ -64,7 +71,7 @@ const EnrollModal = ({
     if (userSubsidyApplicableToCourse?.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
       return {
         buttonText: HAS_ENTERPRISE_OFFER.button,
-        enrollText: HAS_ENTERPRISE_OFFER.body(courseRunPrice),
+        enrollText: HAS_ENTERPRISE_OFFER.body(userSubsidyApplicableToCourse, courseRunPrice),
         titleText: HAS_ENTERPRISE_OFFER.title,
       };
     }
@@ -114,6 +121,9 @@ EnrollModal.propTypes = {
   userSubsidyApplicableToCourse: PropTypes.shape({
     subsidyType: PropTypes.oneOf(
       [COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE],
+    ),
+    offerType: PropTypes.oneOf(
+      Object.values(ENTERPRISE_OFFER_TYPE),
     ),
   }),
   couponCodesCount: PropTypes.number.isRequired,

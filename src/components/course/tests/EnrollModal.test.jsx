@@ -20,6 +20,7 @@ describe('<EnrollModal />', () => {
     userSubsidyApplicableToCourse: undefined,
     couponCodesCount: 0,
   };
+
   it('displays the correct texts when user has no applicable subsidy', () => {
     render(
       <EnrollModal {...basicProps} />,
@@ -28,6 +29,7 @@ describe('<EnrollModal />', () => {
     expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.body)).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button)).toBeInTheDocument();
   });
+
   it('displays the correct texts when user has a coupon code for the course', () => {
     const props = {
       ...basicProps,
@@ -43,6 +45,7 @@ describe('<EnrollModal />', () => {
     expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.body(props.couponCodesCount))).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button)).toBeInTheDocument();
   });
+
   it('displays the correct texts when there is an enterprise offer', () => {
     const props = {
       ...basicProps,
@@ -54,9 +57,12 @@ describe('<EnrollModal />', () => {
       <EnrollModal {...props} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(props.courseRunPrice))).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(
+      props.userSubsidyApplicableToCourse, props.courseRunPrice,
+    ))).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button)).toBeInTheDocument();
   });
+
   it('calls analyticsHandler and optimizelyHandler when enrollmentUrl is clicked', () => {
     const mockTrackSearchConversionClickHandler = jest.fn();
     const mockOptimizelyEnrollmentClickHandler = jest.fn();

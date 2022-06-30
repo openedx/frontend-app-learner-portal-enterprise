@@ -23,6 +23,8 @@ describe('fetchEnterpriseOffers', () => {
       discount_value: 100,
       status: ENTERPRISE_OFFER_STATUS.OPEN,
       is_current: true,
+      max_user_applications__isnull: true,
+      max_user_discount__isnull: true,
     });
     const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/${TEST_ENTERPRISE_UUID}/enterprise-learner-offers/?${queryParams.toString()}`;
     fetchEnterpriseOffers(TEST_ENTERPRISE_UUID);
