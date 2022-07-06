@@ -377,7 +377,7 @@ export const useCourseEnrollmentUrl = ({
       const queryParams = new URLSearchParams({
         ...baseEnrollmentOptions,
         sku,
-        consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
+        consent_url_param_string: `failure_url=${encodeURIComponent(global.location.href)}?${baseQueryParams.toString()}&left_sidebar_text_override=`,
       });
 
       if (features.ENROLL_WITH_CODES && userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
