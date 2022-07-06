@@ -229,6 +229,7 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).toContain(withLicenseRnrollmentInputs.key);
       expect(result.current).not.toContain('code');
     });
+
     test('with no coupon codes passed, treats it as empty and does not fail', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noCouponCodesEnrollmentInputs,
@@ -245,6 +246,13 @@ describe('useCourseEnrollmentUrl', () => {
         sku: undefined,
       }));
       expect(result.current).toBeNull();
+    });
+
+    test('includes failure url in query params', () => {
+      const { result } = renderHook(() => useCourseEnrollmentUrl({
+        ...noCouponCodesEnrollmentInputs,
+      }));
+      expect(result.current.includes('failure_url'));
     });
   });
 });
