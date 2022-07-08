@@ -17,7 +17,7 @@ import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
-import { ENTERPRISE_OFFER_TYPE } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { offerHasBookingsLimit } from '../../enterprise-user-subsidy/enterprise-offers/data/utils';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -144,24 +144,28 @@ export const findEnterpriseOfferForCourse = ({
   }
 
   return enterpriseOffers.find((enterpriseOffer) => {
+    const {
+      remainingBalance,
+      remainingBalanceForUser,
+    } = enterpriseOffer;
+
     const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
 
-    let canCoverCourse = false;
-
-    switch (enterpriseOffer.offerType) {
-      case ENTERPRISE_OFFER_TYPE.NO_LIMIT:
-      case ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT:
-        canCoverCourse = true;
-        break;
-      case ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT:
-      case ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT:
-        canCoverCourse = enterpriseOffer.remainingBalance >= coursePrice;
-        break;
-      default:
-        break;
+    if (!isCourseInCatalog) {
+      return false;
     }
 
-    return isCourseInCatalog && canCoverCourse;
+    if (offerHasBookingsLimit(enterpriseOffer)) {
+      if (remainingBalance !== null && remainingBalance < coursePrice) {
+        return false;
+      }
+
+      if (remainingBalanceForUser !== null && remainingBalanceForUser < coursePrice) {
+        return false;
+      }
+    }
+
+    return true;
   });
 };
 

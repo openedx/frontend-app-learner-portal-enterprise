@@ -1,5 +1,5 @@
 export const ENTERPRISE_OFFER_TYPE = {
-  BOOKINGS_LIMIT: 'Bookings limit', // Offer has a global limit on the amount of spend
+  BOOKINGS_LIMIT: 'Bookings limit', // Offer has a global/user limit on the amount of spend
   ENROLLMENTS_LIMIT: 'Enrollments limit', // Offer has a global limit on number of enrollments
   BOOKINGS_AND_ENROLLMENTS_LIMIT: 'Bookings and enrollments limit', // Offer has a global limit on both the amount of spend and number of enrollments
   NO_LIMIT: 'No limit',
