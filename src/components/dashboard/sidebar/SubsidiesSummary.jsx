@@ -57,9 +57,8 @@ const SubsidiesSummary = ({
   const hasAssignedSubsidyOrRequests = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   // We will not allow enterprises to use enterprise offers together with license/coupon codes for now
-  const hasRedeemableEnterpriseOffers = enterpriseOffers.length > 0 && canEnrollWithEnterpriseOffers;
 
-  if (!(hasAssignedSubsidyOrRequests || hasRedeemableEnterpriseOffers)) {
+  if (!(hasAssignedSubsidyOrRequests || canEnrollWithEnterpriseOffers)) {
     return null;
   }
 
@@ -112,7 +111,14 @@ const SubsidiesSummary = ({
           </div>
         </SidebarCard>
       )}
-      {hasRedeemableEnterpriseOffers && <EnterpriseOffersSummaryCard className="mb-5" searchCoursesCta={searchCoursesCta} />}
+      {canEnrollWithEnterpriseOffers
+        && (
+          <EnterpriseOffersSummaryCard
+            className="mb-5"
+            offer={enterpriseOffers[0]}
+            searchCoursesCta={searchCoursesCta}
+          />
+        )}
     </>
   );
 };

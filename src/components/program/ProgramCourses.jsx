@@ -15,7 +15,7 @@ import { ProgramContext } from './ProgramContextProvider';
 
 import { PROGRAM_PACING_MAP } from './data/constants';
 
-const DATE_FORMAT = 'MMM D, YYYY';
+export const DATE_FORMAT = 'MMM D, YYYY';
 
 const getCourseRun = course => (
   // Get the latest course run.

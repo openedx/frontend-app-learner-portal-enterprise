@@ -200,16 +200,15 @@ describe('<CourseSidebarPrice/> ', () => {
     });
 
     describe('Does not display insufficient enterprise offer balance message', () => {
-      test.each([
-        ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-        ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
-      ])('When offer has no bookings limit', (offerType) => {
+      test('When offer has no bookings limit', () => {
         const mockEnterpriseOffer = {
           discountValue: 100,
           discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
           enterpriseCatalogUuid: 'test-catalog-uuid',
+          maxDiscount: null,
+          maxUserDiscount: null,
           remainingBalance: null,
-          offerType,
+          offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
         };
         const mockEnterpriseOfferSubsidy = {
           ...mockEnterpriseOffer,
@@ -237,6 +236,8 @@ describe('<CourseSidebarPrice/> ', () => {
           discountValue: 100,
           discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
           enterpriseCatalogUuid: 'test-catalog-uuid',
+          maxDiscount: 1000,
+          maxUserDiscount: null,
           remainingBalance: 0,
           offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
         };
@@ -264,6 +265,8 @@ describe('<CourseSidebarPrice/> ', () => {
           discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
           enterpriseCatalogUuid: 'wrong-catalog-uuid',
           remainingBalance: 0,
+          maxDiscount: 1000,
+          maxUserDiscount: null,
           offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
         };
 

@@ -1,69 +1,35 @@
 import { ENTERPRISE_OFFER_TYPE } from '../constants';
 import {
-  getOfferType, isOfferLowOnBalance, offerHasBookingsLimit, transformEnterpriseOffer,
+  getOfferType, isOfferLowOnBalance, offerHasBookingsLimit, offerHasEnrollmentsLimit, transformEnterpriseOffer,
 } from '../utils';
-
-describe('getOfferType', () => {
-  test.each([
-    {
-      offer: {
-        maxDiscount: 100,
-        maxGlobalApplications: 3,
-      },
-      expectedType: ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
-    },
-    {
-      offer: {
-        maxDiscount: 100,
-        maxGlobalApplications: null,
-      },
-      expectedType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-    },
-    {
-      offer: {
-        maxDiscount: null,
-        maxGlobalApplications: 3,
-      },
-      expectedType: ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
-    },
-    {
-      offer: {
-        maxDiscount: null,
-        maxGlobalApplications: null,
-      },
-      expectedType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-    },
-  ])('should get the correct offer type', ({ offer, expectedType }) => {
-    expect(getOfferType(offer)).toEqual(expectedType);
-  });
-});
 
 describe('offerHasBookingsLimit', () => {
   test.each([
     {
       offer: {
-        offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
+        maxDiscount: 300,
+        maxUserDiscount: null,
       },
       expectedResult: true,
     },
     {
       offer: {
-        offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-
+        maxDiscount: null,
+        maxUserDiscount: 300,
       },
       expectedResult: true,
     },
     {
       offer: {
-        offerType: ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
-
+        maxDiscount: 300,
+        maxUserDiscount: 300,
       },
-      expectedResult: false,
+      expectedResult: true,
     },
     {
       offer: {
-        offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-
+        maxDiscount: null,
+        maxUserDiscount: null,
       },
       expectedResult: false,
     },
@@ -71,6 +37,76 @@ describe('offerHasBookingsLimit', () => {
     offer, expectedResult,
   }) => {
     expect(offerHasBookingsLimit(offer)).toEqual(expectedResult);
+  });
+});
+
+describe('offerHasEnrollmentsLimit', () => {
+  test.each([
+    {
+      offer: {
+        maxGlobalApplications: 3,
+      },
+      expectedResult: true,
+    },
+    {
+      offer: {
+        maxGlobalApplications: null,
+      },
+      expectedResult: false,
+    },
+  ])('should return true if offer has enrollments limit', (
+    {
+      offer, expectedResult,
+    },
+  ) => {
+    expect(offerHasEnrollmentsLimit(offer)).toEqual(expectedResult);
+  });
+});
+
+describe('getOfferType', () => {
+  test.each([
+    {
+      offer: {
+        maxDiscount: 100,
+        maxGlobalApplications: 3,
+        maxUserDiscount: null,
+      },
+      expectedType: ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
+    },
+    {
+      offer: {
+        maxDiscount: 100,
+        maxGlobalApplications: null,
+        maxUserDiscount: null,
+      },
+      expectedType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
+    },
+    {
+      offer: {
+        maxDiscount: null,
+        maxGlobalApplications: null,
+        maxUserDiscount: 100,
+      },
+      expectedType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
+    },
+    {
+      offer: {
+        maxDiscount: null,
+        maxGlobalApplications: 3,
+        maxUserDiscount: null,
+      },
+      expectedType: ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
+    },
+    {
+      offer: {
+        maxDiscount: null,
+        maxGlobalApplications: null,
+        maxUserDiscount: null,
+      },
+      expectedType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
+    },
+  ])('should get the correct offer type', ({ offer, expectedType }) => {
+    expect(getOfferType(offer)).toEqual(expectedType);
   });
 });
 
@@ -100,10 +136,11 @@ describe('isOfferLowOnBalance', () => {
 
 describe('transformEnterpriseOffer', () => {
   const mockOffer = {
-    offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
     maxDiscount: null,
-    remainingBalance: null,
     maxGlobalApplications: null,
+    maxUserDiscount: null,
+    remainingBalance: null,
+    remainingBalanceForUser: null,
   };
 
   test.each([
@@ -111,16 +148,17 @@ describe('transformEnterpriseOffer', () => {
       offer: mockOffer,
       expectedResult: {
         ...mockOffer,
+        offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
         maxDiscount: Number.MAX_VALUE,
-        remainingBalance: Number.MAX_VALUE,
         maxGlobalApplications: Number.MAX_VALUE,
+        remainingBalance: Number.MAX_VALUE,
+        remainingBalanceForUser: Number.MAX_VALUE,
         isLowOnBalance: false,
       },
     },
     {
       offer: {
         ...mockOffer,
-        offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
         remainingBalance: 100,
         maxDiscount: 200,
       },
@@ -128,8 +166,9 @@ describe('transformEnterpriseOffer', () => {
         ...mockOffer,
         offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
         maxDiscount: 200,
-        remainingBalance: 100,
         maxGlobalApplications: null,
+        remainingBalance: 100,
+        remainingBalanceForUser: null,
         isLowOnBalance: true,
       },
     },
