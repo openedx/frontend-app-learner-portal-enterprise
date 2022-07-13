@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import colors from '../../../colors.scss';
-import { fetchEnterpriseCustomerConfigForSlug } from './service';
+import { fetchEnterpriseCustomerConfigForSlug, updateUserActiveEnterprise } from './service';
+import { loginRefresh } from '../../../utils/common';
 
 export const defaultPrimaryColor = colors?.primary;
 export const defaultSecondaryColor = colors?.info100;
@@ -17,11 +18,11 @@ const defaultBrandingConfig = {
 };
 
 /**
- * @param {string} [enterpriseSlug] enterprise slug.
+ * @param {string} [enterpriseSlug] enterprise slug
  * @param {boolean} [useCache] indicates whether cache should be used
  * @returns {object} EnterpriseConfig
  */
-export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
+export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => {
   const [enterpriseConfig, setEnterpriseConfig] = useState();
   const [fetchError, setFetchError] = useState();
 
@@ -88,4 +89,49 @@ export function useEnterpriseCustomerConfig(enterpriseSlug, useCache = true) {
   }, [enterpriseSlug]);
 
   return [enterpriseConfig, fetchError];
-}
+};
+
+/**
+ * @param {string} [enterpriseId] enterprise UUID
+ * @param {object} [user] user object containing JWT roles
+ *
+ * Sets the user's active enterprise and forces login_refresh to re-order the roles inside the user's JWT.
+ */
+export const useUpdateActiveEnterpriseForUser = ({
+  enterpriseId,
+  user,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const updateActiveEnterpriseAndRefreshJWT = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      await updateUserActiveEnterprise(enterpriseId);
+      await loginRefresh();
+    } catch (error) {
+      logError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [enterpriseId]);
+
+  useEffect(() => {
+    if (!(enterpriseId && user)) {
+      return;
+    }
+
+    const { roles } = user;
+    if (roles.length > 0) {
+      // The first item in roles corresponds to the currently active enterprise for the user
+      const currentActiveEnterpriseId = roles[0].split(':')[1];
+      if (currentActiveEnterpriseId !== '*' && currentActiveEnterpriseId !== enterpriseId) {
+        updateActiveEnterpriseAndRefreshJWT();
+      }
+    }
+  }, [enterpriseId, user, updateActiveEnterpriseAndRefreshJWT]);
+
+  return {
+    isLoading,
+  };
+};
