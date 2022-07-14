@@ -28,7 +28,6 @@ const EnterpriseOffersBalanceAlert = ({
     </MailtoLink>,
   ] : [];
 
-  console.log(alertVariant);
   return (
     <Container size="lg" className="pt-3">
       <Alert

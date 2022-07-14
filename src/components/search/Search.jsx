@@ -57,7 +57,7 @@ const Search = () => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
-    hasNoEnterpriseOffersBalance
+    hasNoEnterpriseOffersBalance,
   } = useContext(UserSubsidyContext);
 
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
@@ -98,7 +98,7 @@ const Search = () => {
   // set balance alert values to no-balance if eligible, else low-balance
   const balanceAlertAdminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
   const balanceAlertClassName = hasNoEnterpriseOffersBalance ? 'no-offers-balance-alert-with-cta' : 'low-offers-balance-alert-with-cta';
-  const balanceAlertVariant = hasNoEnterpriseOffersBalance ? 'warning' : 'danger';
+  const balanceAlertVariant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
   const balanceAlertIcon = WarningFilled;
   const balanceAlertHeading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
   const balanceAlertText = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
@@ -138,7 +138,7 @@ const Search = () => {
           }}
         />
 
-        {!canEnrollWithEnterpriseOffers && !shouldDisplayBalanceAlert && (
+        { canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert
             adminText={balanceAlertAdminText}
             alertClassName={balanceAlertClassName}
