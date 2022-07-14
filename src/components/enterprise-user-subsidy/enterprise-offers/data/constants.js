@@ -15,8 +15,15 @@ export const ENTERPRISE_OFFER_STATUS = {
   CONSUMED: 'Consumed',
 };
 
-export const ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD = 100; // dollar value amount threshold
+export const ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD = .1; // decimal value threshold
+export const ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD = 149; // dollar value amount threshold
+export const ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD = 99; // dollar value amount threshold
+export const ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD = 99; // dollar value amount threshold
 
 export const LOW_BALANCE_ALERT_HEADING = 'Some courses may not be covered by your organization\'s learner credit balance';
 export const LOW_BALANCE_ALERT_TEXT = 'Your organization is running low on learner credit. Some courses may no longer be covered. Please contact your administrator if you have questions.';
 export const LOW_BALANCE_CONTACT_ADMIN_TEXT = 'Contact administrator';
+
+export const NO_BALANCE_ALERT_HEADING = 'Courses are no longer covered by your organization\'s learner credit balance';
+export const NO_BALANCE_ALERT_TEXT = 'Your learner credit balance has run out, and will not cover the cost of courses. Please contact your administrator if you have questions.';
+export const NO_BALANCE_CONTACT_ADMIN_TEXT = 'Contact administrator';

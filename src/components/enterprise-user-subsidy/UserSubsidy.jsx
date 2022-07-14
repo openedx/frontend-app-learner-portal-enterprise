@@ -37,6 +37,7 @@ const UserSubsidy = ({ children }) => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance,
     isLoading: isLoadingEnterpriseOffers,
   } = useEnterpriseOffers({
     enterpriseId: enterpriseConfig.uuid,
@@ -78,6 +79,7 @@ const UserSubsidy = ({ children }) => {
         enterpriseOffers,
         canEnrollWithEnterpriseOffers,
         hasLowEnterpriseOffersBalance,
+        hasNoEnterpriseOffersBalance,
         showExpirationNotifications,
         customerAgreementConfig,
         activateUserLicense,

@@ -8,6 +8,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useToggle } from '@edx/paragon';
+import { WarningFilled } from '@edx/paragon/icons';
 
 import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
@@ -29,7 +30,15 @@ import SearchResults from './SearchResults';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { EnterpriseOffersLowBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
+import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
+import {
+  LOW_BALANCE_CONTACT_ADMIN_TEXT,
+  LOW_BALANCE_ALERT_HEADING,
+  LOW_BALANCE_ALERT_TEXT,
+  NO_BALANCE_CONTACT_ADMIN_TEXT,
+  NO_BALANCE_ALERT_HEADING,
+  NO_BALANCE_ALERT_TEXT,
+} from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
@@ -48,6 +57,7 @@ const Search = () => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance
   } = useContext(UserSubsidyContext);
 
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
@@ -85,6 +95,15 @@ const Search = () => {
   );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
 
+  // set balance alert values to no-balance if eligible, else low-balance
+  const balanceAlertAdminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
+  const balanceAlertClassName = hasNoEnterpriseOffersBalance ? 'no-offers-balance-alert-with-cta' : 'low-offers-balance-alert-with-cta';
+  const balanceAlertVariant = hasNoEnterpriseOffersBalance ? 'warning' : 'danger';
+  const balanceAlertIcon = WarningFilled;
+  const balanceAlertHeading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
+  const balanceAlertText = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
+  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance
+
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -118,7 +137,17 @@ const Search = () => {
             onClose();
           }}
         />
-        {canEnrollWithEnterpriseOffers && hasLowEnterpriseOffersBalance && <EnterpriseOffersLowBalanceAlert />}
+
+        {!canEnrollWithEnterpriseOffers && !shouldDisplayBalanceAlert && (
+          <EnterpriseOffersBalanceAlert
+            adminText={balanceAlertAdminText}
+            alertClassName={balanceAlertClassName}
+            alertVariant={balanceAlertVariant}
+            alertIcon={balanceAlertIcon}
+            alertHeading={balanceAlertHeading}
+            alertText={balanceAlertText}
+          />
+        )}
 
         { (contentType === undefined || contentType.length === 0) && (
           <>

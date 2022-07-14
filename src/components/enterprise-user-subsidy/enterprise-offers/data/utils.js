@@ -1,5 +1,11 @@
 /* eslint-disable import/prefer-default-export */
-import { ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD, ENTERPRISE_OFFER_TYPE } from './constants';
+import {
+  ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD,
+  ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD,
+  ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD,
+  ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD,
+  ENTERPRISE_OFFER_TYPE,
+} from './constants';
 
 export const offerHasBookingsLimit = offer => offer.maxDiscount !== null || offer.maxUserDiscount !== null;
 export const offerHasEnrollmentsLimit = offer => offer.maxGlobalApplications !== null;
@@ -25,7 +31,23 @@ export const getOfferType = (offer) => {
 
 export const isOfferLowOnBalance = (offer) => {
   if (offerHasBookingsLimit(offer)) {
-    return offer.remainingBalance <= ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD;
+    // Only calculate lowOfferDollarThreshold if maxDiscount is set (MAX_VALUE means it was not set in ecommerce)
+    let lowOfferDollarThreshold;
+    if (offer.maxDiscount === Number.MAX_VALUE) {
+      lowOfferDollarThreshold = -1;
+    } else {
+      lowOfferDollarThreshold = offer.maxDiscount * ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD;
+    }
+
+    return offer.remainingBalance <= lowOfferDollarThreshold || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD;
+  }
+
+  return false;
+};
+
+export const isOfferOutOfBalance = (offer) => {
+  if (offerHasBookingsLimit(offer)) {
+    return offer.remainingBalance <= ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD;
   }
 
   return false;
@@ -60,5 +82,6 @@ export const transformEnterpriseOffer = (offer) => {
   return {
     ...transformedOffer,
     isLowOnBalance: isOfferLowOnBalance(transformedOffer),
+    isOutOfBalance: isOfferOutOfBalance(transformedOffer),
   };
 };
