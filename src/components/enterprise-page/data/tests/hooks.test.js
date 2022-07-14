@@ -8,7 +8,11 @@ describe('useUpdateActiveEnterpriseForUser', () => {
   const mockEnterpriseId = 'enterprise-uuid';
   const mockCurrentActiveEnterpriseId = 'current-active-enterprise-uuid';
   const mockUser = {
-    roles: [`enterprise_learner:${mockCurrentActiveEnterpriseId}`],
+    roles: [
+      'enterprise_admin:random-enterprise-uuid',
+      `enterprise_learner:${mockCurrentActiveEnterpriseId}`,
+      `enterprise_learner:${mockEnterpriseId}`,
+    ],
   };
 
   afterEach(() => jest.clearAllMocks());
@@ -39,7 +43,6 @@ describe('useUpdateActiveEnterpriseForUser', () => {
       enterpriseId: mockEnterpriseId,
       user: {
         roles: [`enterprise_learner:${mockEnterpriseId}`],
-
       },
     },
   ])('should do nothing if missing enterpriseId or user, or active enterprise is the same as current enterprise', async (

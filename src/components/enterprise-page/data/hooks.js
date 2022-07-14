@@ -122,9 +122,11 @@ export const useUpdateActiveEnterpriseForUser = ({
     }
 
     const { roles } = user;
-    if (roles.length > 0) {
-      // The first item in roles corresponds to the currently active enterprise for the user
-      const currentActiveEnterpriseId = roles[0].split(':')[1];
+    // The first learner role corresponds to the currently active enterprise for the user
+    const activeLearnerRole = roles.find(role => role.split(':')[0] === 'enterprise_learner');
+
+    if (activeLearnerRole) {
+      const currentActiveEnterpriseId = activeLearnerRole.split(':')[1];
       if (currentActiveEnterpriseId !== '*' && currentActiveEnterpriseId !== enterpriseId) {
         updateActiveEnterpriseAndRefreshJWT();
       }
