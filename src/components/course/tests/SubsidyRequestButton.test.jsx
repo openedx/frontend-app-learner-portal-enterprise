@@ -12,7 +12,7 @@ import * as entepriseAccessService from '../../enterprise-subsidy-requests/data/
 
 jest.mock('../../enterprise-subsidy-requests/data/service');
 
-const mockEnterpriseUUID = 'uuid';
+const mockenterpriseId = 'uuid';
 const mockEnterpriseSlug = 'sluggy';
 const mockCourseKey = 'edx+101';
 const mockCourseRunKey = `${mockCourseKey}+v1`;
@@ -28,7 +28,7 @@ const initialToastsState = {
 const initialSubsidyRequestsState = {
   subsidyRequestConfiguration: {
     subsidyRequestsEnabled: true,
-    enterpriseCustomerUuid: mockEnterpriseUUID,
+    enterpriseCustomerUuid: mockenterpriseId,
     subsidyType: SUBSIDY_TYPE.COUPON,
   },
   requestsBySubsidyType: {
@@ -193,7 +193,7 @@ describe('<SubsidyRequestButton />', () => {
     await waitFor(() => {
       expect(
         expectedCalledFn,
-      ).toHaveBeenCalledWith(mockEnterpriseUUID, mockCourseKey);
+      ).toHaveBeenCalledWith(mockenterpriseId, mockCourseKey);
       expect(mockAddToast).toHaveBeenCalledWith('Request for course submitted');
       expect(mockRefreshSubsidyRequests).toHaveBeenCalled();
     });

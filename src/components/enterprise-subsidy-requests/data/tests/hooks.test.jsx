@@ -11,7 +11,7 @@ import * as service from '../service';
 import * as couponsService from '../../../enterprise-user-subsidy/coupons/data/service';
 
 const mockEmail = 'edx@example.com';
-const mockEnterpriseUUID = 'enterprise-uuid';
+const mockenterpriseId = 'enterprise-uuid';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -30,7 +30,7 @@ describe('useSubsidyRequestConfiguration', () => {
         subsidy_type: SUBSIDY_TYPE.COUPON,
       },
     });
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration(mockEnterpriseUUID));
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration(mockenterpriseId));
     await waitForNextUpdate();
     expect(result.current.subsidyRequestConfiguration).toEqual({
       subsidyRequestsEnabled: true,
@@ -44,7 +44,7 @@ describe('useSubsidyRequestConfiguration', () => {
       httpErrorStatus: 404,
     };
     service.fetchSubsidyRequestConfiguration.mockRejectedValue(error);
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration(mockEnterpriseUUID));
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration(mockenterpriseId));
     await waitForNextUpdate();
     expect(result.current.subsidyRequestConfiguration).toEqual(null);
   });
@@ -52,7 +52,7 @@ describe('useSubsidyRequestConfiguration', () => {
   it('handles any errors', async () => {
     const error = new Error('Something went wrong.');
     service.fetchSubsidyRequestConfiguration.mockRejectedValue(error);
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration(mockEnterpriseUUID));
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequestConfiguration(mockenterpriseId));
     await waitForNextUpdate();
     expect(result.current.subsidyRequestConfiguration).toEqual(undefined);
     expect(logger.logError).toHaveBeenCalledWith(error);
@@ -79,7 +79,7 @@ describe('useSubsidyRequests', () => {
         results: [
           {
             lms_user_id: 1,
-            enterprise_customer_uuid: mockEnterpriseUUID,
+            enterprise_customer_uuid: mockenterpriseId,
           },
         ],
       },
@@ -88,11 +88,11 @@ describe('useSubsidyRequests', () => {
     const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests({
       subsidyRequestsEnabled: true,
       subsidyType: SUBSIDY_TYPE.COUPON,
-      enterpriseCustomerUuid: mockEnterpriseUUID,
+      enterpriseCustomerUuid: mockenterpriseId,
     }));
     await waitForNextUpdate();
     expect(service.fetchCouponCodeRequests).toHaveBeenCalledWith({
-      enterpriseUUID: mockEnterpriseUUID,
+      enterpriseId: mockenterpriseId,
       userEmail: mockEmail,
       state: SUBSIDY_REQUEST_STATE.REQUESTED,
     });
@@ -102,7 +102,7 @@ describe('useSubsidyRequests', () => {
       [
         {
           lmsUserId: 1,
-          enterpriseCustomerUuid: mockEnterpriseUUID,
+          enterpriseCustomerUuid: mockenterpriseId,
         },
       ],
     );
@@ -114,7 +114,7 @@ describe('useSubsidyRequests', () => {
         results: [
           {
             lms_user_id: 1,
-            enterprise_customer_uuid: mockEnterpriseUUID,
+            enterprise_customer_uuid: mockenterpriseId,
           },
         ],
       },
@@ -123,12 +123,12 @@ describe('useSubsidyRequests', () => {
     const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests({
       subsidyRequestsEnabled: true,
       subsidyType: SUBSIDY_TYPE.COUPON,
-      enterpriseCustomerUuid: mockEnterpriseUUID,
+      enterpriseCustomerUuid: mockenterpriseId,
     }));
     await waitForNextUpdate();
 
     expect(service.fetchCouponCodeRequests).toHaveBeenCalledWith({
-      enterpriseUUID: mockEnterpriseUUID,
+      enterpriseId: mockenterpriseId,
       userEmail: mockEmail,
       state: SUBSIDY_REQUEST_STATE.REQUESTED,
     });
@@ -138,7 +138,7 @@ describe('useSubsidyRequests', () => {
       [
         {
           lmsUserId: 1,
-          enterpriseCustomerUuid: mockEnterpriseUUID,
+          enterpriseCustomerUuid: mockenterpriseId,
         },
       ],
     );
@@ -152,7 +152,7 @@ describe('useSubsidyRequests', () => {
         results: [
           {
             lms_user_id: 1,
-            enterprise_customer_uuid: mockEnterpriseUUID,
+            enterprise_customer_uuid: mockenterpriseId,
           },
         ],
       },
@@ -161,13 +161,13 @@ describe('useSubsidyRequests', () => {
     const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests({
       subsidyRequestsEnabled: true,
       subsidyType: SUBSIDY_TYPE.LICENSE,
-      enterpriseCustomerUuid: mockEnterpriseUUID,
+      enterpriseCustomerUuid: mockenterpriseId,
     }));
     await waitForNextUpdate();
 
     expect(service.fetchCouponCodeRequests).not.toHaveBeenCalled();
     expect(service.fetchLicenseRequests).toHaveBeenCalledWith({
-      enterpriseUUID: mockEnterpriseUUID,
+      enterpriseId: mockenterpriseId,
       userEmail: mockEmail,
       state: SUBSIDY_REQUEST_STATE.REQUESTED,
     });
@@ -176,7 +176,7 @@ describe('useSubsidyRequests', () => {
       [
         {
           lmsUserId: 1,
-          enterpriseCustomerUuid: mockEnterpriseUUID,
+          enterpriseCustomerUuid: mockenterpriseId,
         },
       ],
     );

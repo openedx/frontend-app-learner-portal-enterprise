@@ -16,25 +16,25 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 axiosMock.onAny().reply(200);
 axios.get = jest.fn();
 const enterpriseAccessBaseUrl = `${process.env.ENTERPRISE_ACCESS_BASE_URL}`;
-const mockEnterpriseUUID = 'test-enterprise-id';
+const mockenterpriseId = 'test-enterprise-id';
 const mockEmail = 'edx@example.com';
 
 describe('fetchSubsidyRequestConfiguration', () => {
   it('fetches subsidy request configuration for the given enterprise', () => {
-    fetchSubsidyRequestConfiguration(mockEnterpriseUUID);
-    expect(axios.get).toBeCalledWith(`${enterpriseAccessBaseUrl}/api/v1/customer-configurations/${mockEnterpriseUUID}/`);
+    fetchSubsidyRequestConfiguration(mockenterpriseId);
+    expect(axios.get).toBeCalledWith(`${enterpriseAccessBaseUrl}/api/v1/customer-configurations/${mockenterpriseId}/`);
   });
 });
 
 describe('fetchLicenseRequests', () => {
   it('fetches license requests', () => {
     fetchLicenseRequests({
-      enterpriseUUID: mockEnterpriseUUID,
+      enterpriseId: mockenterpriseId,
       userEmail: mockEmail,
       state: SUBSIDY_REQUEST_STATE.DECLINED,
     });
     const queryParams = new URLSearchParams({
-      enterprise_customer_uuid: mockEnterpriseUUID,
+      enterprise_customer_uuid: mockenterpriseId,
       user__email: mockEmail,
       state: SUBSIDY_REQUEST_STATE.DECLINED,
     });
@@ -47,12 +47,12 @@ describe('fetchLicenseRequests', () => {
 describe('fetchCouponCodeRequests', () => {
   it('fetches coupon code requests', () => {
     fetchCouponCodeRequests({
-      enterpriseUUID: mockEnterpriseUUID,
+      enterpriseId: mockenterpriseId,
       userEmail: mockEmail,
       state: SUBSIDY_REQUEST_STATE.REQUESTED,
     });
     const queryParams = new URLSearchParams({
-      enterprise_customer_uuid: mockEnterpriseUUID,
+      enterprise_customer_uuid: mockenterpriseId,
       user__email: mockEmail,
       state: SUBSIDY_REQUEST_STATE.REQUESTED,
     });

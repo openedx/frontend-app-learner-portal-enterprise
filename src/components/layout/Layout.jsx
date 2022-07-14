@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
@@ -8,6 +8,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SystemWideWarningBanner } from '../system-wide-banner';
 import { SiteHeader } from '../site-header';
 import { useStylesForCustomBrandColors } from './data/hooks';
+import { getIsMaintenanceAlertOpen } from './data/utils';
 
 import './styles/Layout.scss';
 
@@ -18,26 +19,7 @@ export default function Layout({ children }) {
   const { config, enterpriseConfig } = useContext(AppContext);
   const brandStyles = useStylesForCustomBrandColors(enterpriseConfig);
 
-  const isMaintenanceAlertOpen = useMemo(() => {
-    if (!config) {
-      return false;
-    }
-    const isEnabledWithMessage = (
-      config.IS_MAINTENANCE_ALERT_ENABLED && config.MAINTENANCE_ALERT_MESSAGE
-    );
-    if (!isEnabledWithMessage) {
-      return false;
-    }
-    const startTimestamp = config.MAINTENANCE_ALERT_START_TIMESTAMP;
-    if (startTimestamp) {
-      return new Date() > new Date(startTimestamp);
-    }
-    return true;
-  }, [
-    config?.IS_MAINTENANCE_ALERT_ENABLED,
-    config?.MAINTENANCE_ALERT_MESSAGE,
-    config?.MAINTENANCE_ALERT_START_TIMESTAMP,
-  ]);
+  const isMaintenanceAlertOpen = getIsMaintenanceAlertOpen(config);
 
   return (
     <IntlProvider locale="en">

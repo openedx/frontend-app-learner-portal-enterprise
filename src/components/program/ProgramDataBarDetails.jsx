@@ -1,5 +1,5 @@
 import React, {
-  useContext, useRef, useState, useEffect,
+  useCallback, useContext, useRef, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { ProgramContext } from './ProgramContextProvider';
@@ -31,7 +31,7 @@ const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
     return 1;
   };
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const windowPosition = window.scrollY; // how much window have been scrolled vertically
     const wrapperTop = getOffsetTop(); // the top position(pixel no) of data bar
     if (!sticky) {
@@ -48,7 +48,7 @@ const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
       setSticky(() => false);
       handleRelease();
     }
-  };
+  }, [componentTop, handleRelease, handleStick, sticky]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
@@ -56,7 +56,7 @@ const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [componentTop, sticky]);
+  }, [componentTop, sticky, handleScroll]);
 
   const partnerList = owners.map(owner => owner.key).join(',');
   return (

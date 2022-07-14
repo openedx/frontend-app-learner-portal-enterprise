@@ -119,7 +119,7 @@ const InProgressCourseCard = ({
             <Notification
               key={`notification-${notificationProps.url}-${notificationProps.date}`}
               courseRunId={courseRunId}
-              enterpriseUUID={enterpriseConfig.uuid}
+              enterpriseId={enterpriseConfig.uuid}
               {...notificationProps}
             />
           ))}

@@ -32,7 +32,7 @@ const CurrentJobDropdown = () => {
         </>
       );
     },
-    [JSON.stringify(refinements)],
+    [attribute, customAttribute, facetValueType, refinements, title, typeaheadOptions],
   );
 
   return (

@@ -11,7 +11,7 @@ const Notification = props => (
           <a
             href={props.url}
             onClick={() => sendEnterpriseTrackEvent(
-              props.enterpriseUUID,
+              props.enterpriseId,
               'edx.ui.enterprise.learner_portal.notification.clicked',
               { course_run_id: props.courseRunId, name: props.name },
             )}
@@ -35,7 +35,7 @@ Notification.propTypes = {
   date: PropTypes.string.isRequired,
   url: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
-  enterpriseUUID: PropTypes.string.isRequired,
+  enterpriseId: PropTypes.string.isRequired,
 };
 
 export default Notification;

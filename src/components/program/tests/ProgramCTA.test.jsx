@@ -11,7 +11,7 @@ import ProgramCTA from '../ProgramCTA';
 
 const userId = 'batman';
 const courseKey = 'edX+DemoX';
-const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
+const enterpriseId = '11111111-1111-1111-1111-111111111111';
 const programUuid = '00000000-0000-0000-0000-000000000000';
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -51,7 +51,7 @@ describe('<ProgramCTA />', () => {
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
-      uuid: enterpriseUuid,
+      uuid: enterpriseId,
     },
   };
   const initialProgramState = {
@@ -124,7 +124,7 @@ describe('<ProgramCTA />', () => {
     fireEvent.click(screen.getByText('View Course Details'));
     fireEvent.click(screen.getByText('Test Course 1 Title'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      enterpriseUuid,
+      enterpriseId,
       'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
       { courseKey, programUuid, userId },
     );

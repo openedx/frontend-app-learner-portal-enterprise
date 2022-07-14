@@ -62,6 +62,17 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
 
   const userHasSubsidyRequest = useUserHasSubsidyRequestForCourse(courseKey);
 
+  const requestSubsidy = useCallback(async (key) => {
+    switch (subsidyRequestConfiguration.subsidyType) {
+      case SUBSIDY_TYPE.LICENSE:
+        return postLicenseRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
+      case SUBSIDY_TYPE.COUPON:
+        return postCouponCodeRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
+      default:
+        throw new Error('Subsidy request configuration not set');
+    }
+  }, [subsidyRequestConfiguration]);
+
   /**
    * Show subsidy request button if:
    *  - subsidy requests is enabled
@@ -93,17 +104,6 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     }
     return 'request';
   };
-
-  const requestSubsidy = useCallback(async (key) => {
-    switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE:
-        return postLicenseRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
-      case SUBSIDY_TYPE.COUPON:
-        return postCouponCodeRequest(subsidyRequestConfiguration.enterpriseCustomerUuid, key);
-      default:
-        throw new Error('Subsidy request configuration not set');
-    }
-  }, [subsidyRequestConfiguration]);
 
   const handleRequestButtonClick = async () => {
     setLoadingRequest(true);

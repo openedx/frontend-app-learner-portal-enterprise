@@ -28,13 +28,13 @@ import { ProgramType } from '../search/SearchProgramCard';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
-const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
+const linkToProgram = (program, slug, enterpriseId, programUuid) => {
   if (!Object.keys(program).length) {
     return '#';
   }
   const { userId } = getAuthenticatedUser();
   sendEnterpriseTrackEvent(
-    enterpriseUUID,
+    enterpriseId,
     'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',
     {
       userId,
@@ -92,7 +92,7 @@ const SearchProgramCard = ({ index }) => {
       }
       return [];
     },
-    [selectedJob],
+    [selectedJobSkills],
   );
   useEffect(
     () => {
@@ -119,7 +119,7 @@ const SearchProgramCard = ({ index }) => {
         }
       }
     },
-    [selectedJob, skills],
+    [filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   const partnerDetails = useMemo(
@@ -136,7 +136,7 @@ const SearchProgramCard = ({ index }) => {
       });
       return partners;
     },
-    [JSON.stringify(programs)],
+    [programs],
   );
 
   const programUuids = useMemo(
@@ -152,7 +152,7 @@ const SearchProgramCard = ({ index }) => {
       });
       return programUUIDs;
     },
-    [JSON.stringify(programs)],
+    [programs],
   );
 
   const loadingCard = () => (

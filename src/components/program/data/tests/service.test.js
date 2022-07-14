@@ -73,7 +73,7 @@ describe('course enrollments service', () => {
     const CONTAINS_CONTENT_ITEMS_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${queryParams.toString()}`;
     axiosMock.onGet(CONTAINS_CONTENT_ITEMS_API_ENDPOINT).reply(200, { contains_content_items: true });
 
-    const programService = new ProgramService({ enterpriseUuid: ENTERPRISE_UUID, programUuid: PROGRAM_UUID });
+    const programService = new ProgramService({ enterpriseId: ENTERPRISE_UUID, programUuid: PROGRAM_UUID });
     const data = await programService.fetchAllProgramData();
     expect(axiosMock.history.get[0].url).toBe(PROGRAM_API_ENDPOINT);
     expect(axiosMock.history.get[1].url).toBe(CONTAINS_CONTENT_ITEMS_API_ENDPOINT);
@@ -104,7 +104,7 @@ describe('course enrollments service', () => {
     const CONTAINS_CONTENT_ITEMS_API_ENDPOINT_3 = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/contains_content_items/?${paramsWithCourse2Uuid.toString()}`;
     axiosMock.onGet(CONTAINS_CONTENT_ITEMS_API_ENDPOINT_3).reply(200, { contains_content_items: false });
 
-    const programService = new ProgramService({ enterpriseUuid: ENTERPRISE_UUID, programUuid: PROGRAM_UUID });
+    const programService = new ProgramService({ enterpriseId: ENTERPRISE_UUID, programUuid: PROGRAM_UUID });
     const data = await programService.fetchAllProgramData();
     const expectedResponse = camelCaseObject(PROGRAM_DATA);
     expectedResponse.courses[0].enterpriseHasCourse = true;

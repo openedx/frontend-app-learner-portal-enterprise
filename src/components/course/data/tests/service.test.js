@@ -38,7 +38,7 @@ describe('CourseService', () => {
 
   it('fetches course recommendations for the passed course key', async () => {
     const courseService = new CourseService({
-      enterpriseUuid: ENTERPRISE_UUID,
+      enterpriseId: ENTERPRISE_UUID,
       courseKey: COURSE_KEY,
       courseRunKey: COURSE_RUN_KEY,
     });
@@ -49,7 +49,7 @@ describe('CourseService', () => {
 
   it('fetches course recommendations for the passed course key and filters those recommendations', async () => {
     const courseService = new CourseService({
-      enterpriseUuid: ENTERPRISE_UUID,
+      enterpriseId: ENTERPRISE_UUID,
       courseKey: COURSE_KEY,
       courseRunKey: COURSE_RUN_KEY,
     });

@@ -30,7 +30,7 @@ const SkillsDropDown = () => {
         </>
       );
     },
-    [JSON.stringify(refinements)],
+    [attribute, facetValueType, refinements, title, typeaheadOptions],
   );
 
   return (

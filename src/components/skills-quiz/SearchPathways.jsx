@@ -49,7 +49,7 @@ const SearchPathways = ({ index }) => {
       }
       return [];
     },
-    [selectedJob],
+    [selectedJobSkills],
   );
   useEffect(
     () => {
@@ -72,7 +72,7 @@ const SearchPathways = ({ index }) => {
       }
       fetchPathways();
     },
-    [selectedJob, skills],
+    [filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   return (

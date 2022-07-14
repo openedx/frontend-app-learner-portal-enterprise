@@ -69,7 +69,7 @@ const Search = () => {
     if (pathwayUUID) {
       openLearnerPathwayModal();
     }
-  }, [pathwayUUID]);
+  }, [openLearnerPathwayModal, pathwayUUID]);
 
   const config = getConfig();
   const courseIndex = useMemo(
@@ -81,7 +81,7 @@ const Search = () => {
       const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
       return cIndex;
     },
-    [], // only initialized once
+    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY], // only initialized once
   );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
 

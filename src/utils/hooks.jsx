@@ -32,7 +32,7 @@ export const useAlgoliaSearch = (config) => {
       const index = client.initIndex(config.ALGOLIA_INDEX_NAME);
       return [client, index];
     },
-    [JSON.stringify(config)],
+    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
   );
   return [searchClient, searchIndex];
 };

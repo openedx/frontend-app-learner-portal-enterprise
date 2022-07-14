@@ -19,7 +19,7 @@ export function sortSkillsCoursesWithCourseCount(coursesWithSkill) {
     (a.value.length < b.value.length) ? 1 : -1));
 }
 
-export function linkToCourse(course, slug, enterpriseUUID) {
+export function linkToCourse(course, slug, enterpriseId) {
   if (!Object.keys(course).length) {
     return '#';
   }
@@ -30,7 +30,7 @@ export function linkToCourse(course, slug, enterpriseUUID) {
   }
   const { userId } = getAuthenticatedUser();
   sendEnterpriseTrackEvent(
-    enterpriseUUID,
+    enterpriseId,
     'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
     { userId, enterprise: slug, selectedCourse: course.key },
   );

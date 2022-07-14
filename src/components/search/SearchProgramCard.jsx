@@ -49,7 +49,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
 
       return `/${slug}/program/${programUuid}`;
     },
-    [isLoading, JSON.stringify(program)],
+    [program, programUuid, slug],
   );
 
   const partnerDetails = useMemo(
@@ -63,7 +63,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
         showPartnerLogo: program.authoringOrganizations?.length === 1,
       };
     },
-    [JSON.stringify(program)],
+    [program],
   );
 
   const loadingCard = () => (

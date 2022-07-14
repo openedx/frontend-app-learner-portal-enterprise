@@ -37,13 +37,14 @@ const EnterpriseInvitePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const history = useHistory();
   const authenticatedUser = getAuthenticatedUser();
+  const authenticatedUserId = authenticatedUser?.id;
   const config = getConfig();
 
   useEffect(() => {
     // Note: `authenticatedUser.id` is a property that is added once the user account has finished
     // resolving its async request. By using `id` instead of `userId`, we are ensuring the user data
     // is hydrated before showing error page that requires hydrated user data.
-    if (authenticatedUser?.id) {
+    if (authenticatedUserId) {
       const linkEnterpriseLearner = async () => {
         let redirectTo;
 
@@ -73,7 +74,7 @@ const EnterpriseInvitePage = () => {
       };
       linkEnterpriseLearner();
     }
-  }, [authenticatedUser?.id]);
+  }, [authenticatedUserId, enterpriseCustomerInviteKey, history]);
 
   return (
     <LoginRedirect>

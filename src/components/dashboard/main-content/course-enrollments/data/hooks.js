@@ -10,7 +10,7 @@ import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './uti
 import { COURSE_STATUSES } from './constants';
 
 export const useCourseEnrollments = ({
-  enterpriseUUID,
+  enterpriseId,
   requestedCourseEnrollments = [],
 }) => {
   const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
@@ -20,7 +20,7 @@ export const useCourseEnrollments = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await service.fetchEnterpriseCourseEnrollments(enterpriseUUID);
+        const resp = await service.fetchEnterpriseCourseEnrollments(enterpriseId);
         const enrollments = camelCaseObject(resp.data).map(transformCourseEnrollment);
         const enrollmentsByStatus = groupCourseEnrollmentsByStatus(enrollments);
         enrollmentsByStatus[COURSE_STATUSES.requested] = requestedCourseEnrollments;
@@ -34,7 +34,7 @@ export const useCourseEnrollments = ({
     };
 
     fetchData();
-  }, [enterpriseUUID]);
+  }, [enterpriseId, requestedCourseEnrollments]);
 
   const updateCourseEnrollmentStatus = useCallback(({
     courseRunId,

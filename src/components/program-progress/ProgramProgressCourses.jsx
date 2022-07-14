@@ -12,12 +12,14 @@ import {
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
-  hasLicenseOrCoupon,
 } from './data/utils';
 import { NotCurrentlyAvailable } from './data/constants';
+import { useHasLicenseOrCoupon } from './data/hooks';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { enterpriseConfig } = useContext(AppContext);
+  const hasLicenseOrCoupon = useHasLicenseOrCoupon();
+
   let coursesCompleted = [];
   let coursesInProgress = [];
   let coursesNotStarted = [];
@@ -37,13 +39,12 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const getCertificatePrice = (course) => {
     const certificatePrice = getCertificatePriceString(course);
-    if (hasLicenseOrCoupon()) {
+    if (hasLicenseOrCoupon) {
       return (
         <>
-          {certificatePrice
-          && (
+          {certificatePrice && (
             <del>
-              <span className="text-success-500 pr-1.5 pl-1.5"> {certificatePrice}</span>
+              <span className="text-success-500 pr-1.5 pl-1.5">{certificatePrice}</span>
             </del>
           )}
           {courseSponserdByEnterprise}
@@ -52,7 +53,7 @@ const ProgramProgressCourses = ({ courseData }) => {
     }
     return (
       <>
-        <span className="pl-2"> Needs verified certificate </span>
+        <span className="pl-2">Needs verified certificate</span>
         <span className="text-success-500 pl-2">{certificatePrice}</span>
       </>
     );
@@ -87,8 +88,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   return (
     <div className="col-10 p-0">
-      {coursesInProgress?.length > 0
-      && (
+      {coursesInProgress?.length > 0 && (
         <div className="mb-5">
           <h4 className="white-space-pre">COURSES IN PROGRESS    {coursesInProgress.length}</h4>
           <hr />
@@ -117,8 +117,7 @@ const ProgramProgressCourses = ({ courseData }) => {
           </div>
         </div>
       )}
-      {courseData?.notStarted?.length > 0
-      && (
+      {courseData?.notStarted?.length > 0 && (
         <div className="mb-5 courses">
           <h4 className="white-space-pre"> REMAINING COURSES    {courseData?.notStarted?.length}</h4>
           <hr />
@@ -196,8 +195,7 @@ const ProgramProgressCourses = ({ courseData }) => {
           ))}
         </div>
       )}
-      {coursesCompleted?.length > 0
-      && (
+      {coursesCompleted?.length > 0 && (
         <div className="mb-6 courses">
           <h4 className="white-space-pre"> COURSES COMPLETED    {coursesCompleted.length}</h4>
           <hr />

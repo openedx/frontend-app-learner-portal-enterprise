@@ -9,7 +9,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG } from './constants';
 
 const userId = 'batman';
-const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
+const enterpriseId = '11111111-1111-1111-1111-111111111111';
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
@@ -33,7 +33,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 const SearchProgramCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
+      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseId },
     }}
   >
     <SearchProgramCard {...props} />
@@ -129,7 +129,7 @@ describe('<SearchProgramCard />', () => {
 
     fireEvent.click(container.querySelector('.search-program-card > a'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      enterpriseUuid,
+      enterpriseId,
       'edx.ui.enterprise.learner_portal.search.program.card.clicked',
       { programUuid: PROGRAM_UUID, userId },
     );

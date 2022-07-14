@@ -17,14 +17,14 @@ export const SubsidyRequestsContext = createContext();
 const SubsidyRequestsContextProvider = ({ children }) => {
   const {
     enterpriseConfig: {
-      uuid: enterpriseUUID,
+      uuid: enterpriseId,
     },
   } = useContext(AppContext);
 
   const {
     subsidyRequestConfiguration,
     isLoading: isLoadingSubsidyRequestConfiguration,
-  } = useSubsidyRequestConfiguration(enterpriseUUID);
+  } = useSubsidyRequestConfiguration(enterpriseId);
 
   const {
     couponCodeRequests,
@@ -60,6 +60,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     subsidyRequestConfiguration,
     requestsBySubsidyType,
     catalogsForSubsidyRequests,
+    refreshSubsidyRequests,
   ]);
 
   if (isLoading) {
@@ -78,10 +79,6 @@ const SubsidyRequestsContextProvider = ({ children }) => {
 };
 
 const SubsidyRequestsContextProviderWrapper = (props) => {
-  if (features.FEATURE_BROWSE_AND_REQUEST) {
-    return <SubsidyRequestsContextProvider {...props} />;
-  }
-
   const context = useMemo(() => ({
     subsidyRequestConfiguration: null,
     requestsBySubsidyType: {
@@ -91,6 +88,10 @@ const SubsidyRequestsContextProviderWrapper = (props) => {
     isLoading: false,
     catalogsForSubsidyRequests: [],
   }), []);
+
+  if (features.FEATURE_BROWSE_AND_REQUEST) {
+    return <SubsidyRequestsContextProvider {...props} />;
+  }
 
   return (
     <SubsidyRequestsContext.Provider value={context}>

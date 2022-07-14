@@ -13,14 +13,14 @@ import {
 import { fetchCouponsOverview } from '../../enterprise-user-subsidy/coupons/data/service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 
-export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
+export const useSubsidyRequestConfiguration = (enterpriseId) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCustomerConfiguration = async () => {
       try {
-        const response = await fetchSubsidyRequestConfiguration(enterpriseUUID);
+        const response = await fetchSubsidyRequestConfiguration(enterpriseId);
         const config = camelCaseObject(response.data);
         setSubsidyRequestConfiguration(config);
       } catch (error) {
@@ -36,8 +36,8 @@ export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
       }
     };
 
-    fetchCustomerConfiguration(enterpriseUUID);
-  }, [enterpriseUUID]);
+    fetchCustomerConfiguration(enterpriseId);
+  }, [enterpriseId]);
 
   return { subsidyRequestConfiguration, isLoading };
 };
@@ -55,14 +55,14 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchSubsidyRequests = async (subsidyType) => {
+  const fetchSubsidyRequests = useCallback(async (subsidyType) => {
     setIsLoading(true);
     try {
       const { email: userEmail } = getAuthenticatedUser();
-      const { enterpriseCustomerUuid: enterpriseUUID } = subsidyRequestConfiguration;
+      const { enterpriseCustomerUuid: enterpriseId } = subsidyRequestConfiguration;
 
       const options = {
-        enterpriseUUID,
+        enterpriseId,
         userEmail,
         state: SUBSIDY_REQUEST_STATE.REQUESTED,
       };
@@ -81,7 +81,7 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [subsidyRequestConfiguration]);
 
   const loadSubsidyRequests = useCallback(() => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
@@ -90,13 +90,14 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
         fetchSubsidyRequests(subsidyType);
       }
     }
-  }, [subsidyRequestConfiguration]);
+  }, [subsidyRequestConfiguration, fetchSubsidyRequests]);
 
   useEffect(() => {
     loadSubsidyRequests();
   }, [
-    subsidyRequestConfiguration?.subsidyRequestsEnabled,
-    subsidyRequestConfiguration?.subsidyType,
+    subsidyRequestConfiguration,
+    subsidyRequestConfiguration,
+    loadSubsidyRequests,
   ]);
 
   return {
@@ -150,7 +151,12 @@ export const useCatalogsForSubsidyRequests = ({
         setIsLoading(false);
       }
     }
-  }, [isLoadingSubsidyRequestConfiguration, subsidyRequestConfiguration]);
+  }, [
+    customerAgreementConfig.subscriptions,
+    isLoading,
+    isLoadingSubsidyRequestConfiguration,
+    subsidyRequestConfiguration,
+  ]);
 
   return {
     catalogs,

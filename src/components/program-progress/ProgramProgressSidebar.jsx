@@ -11,6 +11,7 @@ const ProgramProgressSideBar = () => {
   const {
     programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
   } = useContext(ProgramProgressContext);
+
   const courseCertificates = useMemo(
     () => {
       if (certificateData) {
@@ -20,6 +21,7 @@ const ProgramProgressSideBar = () => {
     },
     [certificateData],
   );
+
   const programCertificate = useMemo(
     () => {
       const certificate = certificateData.find(cert => cert.type === 'program');
@@ -29,8 +31,9 @@ const ProgramProgressSideBar = () => {
 
       return certificate;
     },
-    [programData],
+    [certificateData, programData.type],
   );
+
   return (
     <div className="program-sidebar offset-1 col-3">
       {!programCertificate && <ProgramProgressCircle /> }

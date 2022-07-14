@@ -7,15 +7,15 @@ import { LoadingSpinner } from '../loading-spinner';
 
 import {
   useEnterpriseCustomerByUUID,
-  useSelectedEnterpriseUUIDByUserRoles,
+  useSelectedenterpriseIdByUserRoles,
 } from './data/hooks';
 
 const EnterprisePageRedirect = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { redirectPath } = useParams();
   const { roles } = authenticatedUser;
-  const selectedEnterpriseUUID = useSelectedEnterpriseUUIDByUserRoles(roles);
-  const [enterpriseCustomer, isLoading] = useEnterpriseCustomerByUUID(selectedEnterpriseUUID);
+  const selectedenterpriseId = useSelectedenterpriseIdByUserRoles(roles);
+  const [enterpriseCustomer, isLoading] = useEnterpriseCustomerByUUID(selectedenterpriseId);
 
   if (isLoading) {
     return (

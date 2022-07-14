@@ -70,7 +70,6 @@ const CourseRunCard = ({
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     hasCouponCodeForCourse,
-    couponCodes,
   } = useSubsidyDataForCourse();
 
   const sku = useMemo(
@@ -80,7 +79,6 @@ const CourseRunCard = ({
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
     key,
-    couponCodes,
     sku,
     subscriptionLicense,
     userSubsidyApplicableToCourse,
@@ -190,6 +188,8 @@ const CourseRunCard = ({
     isCourseStarted,
     enrollmentCount,
     start,
+    courseRun,
+    courseRunArchived,
   ]);
 
   return (

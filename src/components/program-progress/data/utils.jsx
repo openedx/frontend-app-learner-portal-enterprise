@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useContext } from 'react';
+
 import MicroMastersProgramDetailsSvgIcon from '../../../assets/icons/micromasters-program-details.svg';
 import ProfCertProgramDetailsSvgIcon from '../../../assets/icons/professional-certificate-program-details.svg';
 import XSeriesProgramDetailsSvgIcon from '../../../assets/icons/xseries-program-details.svg';
@@ -7,9 +7,6 @@ import progCertMicroMaster from '../images/program-certificate-micromasters.gif'
 import progCertProfessionalCert from '../images/program-certificate-professional-certificate.gif';
 import progCertXSeries from '../images/program-certificate-xseries.gif';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export function getProgramIcon(type) {
   switch (type) {
@@ -166,26 +163,6 @@ export function getCertificatePriceString(run) {
     }
   }
   return null;
-}
-
-export function hasLicenseOrCoupon() {
-  const {
-    subscriptionPlan,
-    subscriptionLicense: userSubscriptionLicense,
-    couponCodes: { couponCodesCount },
-  } = useContext(UserSubsidyContext);
-
-  const {
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-
-  const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-
-  return hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 }
 
 export const courseUpgradationAvailable = (course) => course.upgradeUrl

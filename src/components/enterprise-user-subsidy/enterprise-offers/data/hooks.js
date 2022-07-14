@@ -100,6 +100,7 @@ export const useEnterpriseOffers = ({
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
     enableOffers,
+    enterpriseOffers,
   ]);
 
   return {

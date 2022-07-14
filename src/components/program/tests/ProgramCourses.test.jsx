@@ -10,7 +10,7 @@ import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCourses, { DATE_FORMAT } from '../ProgramCourses';
 
 const programUuid = '00000000-0000-0000-0000-000000000000';
-const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
+const enterpriseId = '11111111-1111-1111-1111-111111111111';
 const userId = 'batman';
 const courseKey = 'edX+DemoX';
 
@@ -50,7 +50,7 @@ describe('<ProgramCourses />', () => {
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
-      uuid: enterpriseUuid,
+      uuid: enterpriseId,
     },
   };
   const initialProgramState = {
@@ -108,7 +108,7 @@ describe('<ProgramCourses />', () => {
     fireEvent.click(screen.getByText('Test Course Title'));
     fireEvent.click(screen.getByRole('link', { name: 'View the course' }));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      enterpriseUuid,
+      enterpriseId,
       'edx.ui.enterprise.learner_portal.program.course.clicked',
       { courseKey, programUuid, userId },
     );

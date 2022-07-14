@@ -6,24 +6,22 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { getLinkToCourse } from './data/utils';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
 
 const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const {
+    enterpriseConfig: {
+      slug: enterpriseSlug,
+      uuid: enterpriseId,
+    },
+  } = useContext(AppContext);
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
   const history = useHistory();
-  const linkToCourse = useMemo(
-    () => {
-      if (!Object.keys(course).length) {
-        return '#';
-      }
-      return `/${slug}/course/${course.key}`;
-    },
-    [course],
-  );
+  const linkToCourse = getLinkToCourse({ course, enterpriseSlug });
 
   const partnerDetails = useMemo(
     () => {
@@ -47,7 +45,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       isClickable
       onClick={() => {
         sendEnterpriseTrackEvent(
-          uuid,
+          enterpriseId,
           eventName,
           {
             courseKey: course.key,

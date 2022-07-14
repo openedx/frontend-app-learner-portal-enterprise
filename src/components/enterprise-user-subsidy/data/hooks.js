@@ -135,7 +135,14 @@ export function useSubscriptionLicense({
         setIsLoading(false);
       });
     }
-  }, [isLoadingCustomerAgreementConfig]);
+  }, [
+    customerAgreementConfig.subscriptionForAutoAppliedLicenses,
+    customerAgreementConfig.subscriptions,
+    customerAgreementConfig.uuid,
+    enterpriseId,
+    enterpriseIdentityProvider,
+    isLoadingCustomerAgreementConfig,
+  ]);
 
   const activateUserLicense = useCallback(async (autoActivated = false) => {
     try {
@@ -157,7 +164,7 @@ export function useSubscriptionLicense({
       logError(error);
       throw error;
     }
-  }, [license, sendEnterpriseTrackEvent]);
+  }, [enterpriseId, license]);
 
   return { license, isLoading, activateUserLicense };
 }

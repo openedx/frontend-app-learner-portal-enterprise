@@ -29,7 +29,7 @@ const SearchJobDropdown = () => {
         </>
       );
     },
-    [JSON.stringify(refinements)],
+    [attribute, refinements, title, typeaheadOptions],
   );
 
   return (

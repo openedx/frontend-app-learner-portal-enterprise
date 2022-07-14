@@ -9,7 +9,26 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
 
+const messages = defineMessages({
+  'enterprise.program.courses.allCoursesAvailable': {
+    id: 'enterprise.program.courses.allCoursesAvailable',
+    description: 'Describe all courses are available in the catalog',
+    defaultMessage: 'All courses included in your enterprise catalog',
+  },
+  'enterprise.program.courses.someCoursesAvailable': {
+    id: 'enterprise.program.courses.someCoursesAvailable',
+    description: 'Describe some courses are available in the catalog',
+    defaultMessage: '{courseCount} courses included in your enterprise catalog',
+  },
+  'enterprise.program.courses.noCourseAvailable': {
+    id: 'enterprise.program.courses.noCourseAvailable',
+    description: 'Describe no course is available in the catalog',
+    defaultMessage: 'These courses are not included in your enterprise catalog',
+  },
+});
+
 function ProgramCTA() {
+  const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
@@ -27,26 +46,6 @@ function ProgramCTA() {
   const subjectSlug = primarySubject?.slug ? primarySubject?.slug.toLowerCase() : '';
 
   const getAvailableCourses = () => {
-    const intl = useIntl();
-
-    const messages = defineMessages({
-      'enterprise.program.courses.allCoursesAvailable': {
-        id: 'enterprise.program.courses.allCoursesAvailable',
-        description: 'Describe all courses are available in the catalog',
-        defaultMessage: 'All courses included in your enterprise catalog',
-      },
-      'enterprise.program.courses.someCoursesAvailable': {
-        id: 'enterprise.program.courses.someCoursesAvailable',
-        description: 'Describe some courses are available in the catalog',
-        defaultMessage: '{courseCount} courses included in your enterprise catalog',
-      },
-      'enterprise.program.courses.noCourseAvailable': {
-        id: 'enterprise.program.courses.noCourseAvailable',
-        description: 'Describe no course is available in the catalog',
-        defaultMessage: 'These courses are not included in your enterprise catalog',
-      },
-    });
-
     if (availableCourseCount === 0) {
       return intl.formatMessage(
         messages['enterprise.program.courses.noCourseAvailable'],

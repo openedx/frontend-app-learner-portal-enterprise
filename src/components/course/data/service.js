@@ -10,7 +10,7 @@ export default class CourseService {
       activeCourseRun,
       courseKey,
       courseRunKey,
-      enterpriseUuid,
+      enterpriseId,
     } = options;
     this.config = getConfig();
 
@@ -21,7 +21,7 @@ export default class CourseService {
 
     this.courseKey = courseKey;
     this.courseRunKey = courseRunKey;
-    this.enterpriseUuid = enterpriseUuid;
+    this.enterpriseId = enterpriseId;
     this.activeCourseRun = activeCourseRun;
   }
 
@@ -96,7 +96,7 @@ export default class CourseService {
   }
 
   fetchFilteredRecommendations(options) {
-    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/filter_content_items/`;
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseId}/filter_content_items/`;
     return this.cachedAuthenticatedHttpClient.post(url, options);
   }
 
@@ -112,7 +112,7 @@ export default class CourseService {
 
   fetchUserEnrollments() {
     const queryParams = new URLSearchParams({
-      enterprise_id: this.enterpriseUuid,
+      enterprise_id: this.enterpriseId,
       is_active: true,
     });
     const config = getConfig();
@@ -132,13 +132,13 @@ export default class CourseService {
       course_run_ids: this.courseKey,
       get_catalogs_containing_specified_content_ids: true,
     });
-    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${queryParams.toString()}`;
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseId}/contains_content_items/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
   fetchUserLicenseSubsidy() {
     const queryParams = new URLSearchParams({
-      enterprise_customer_uuid: this.enterpriseUuid,
+      enterprise_customer_uuid: this.enterpriseId,
       course_key: this.activeCourseRun.key,
     });
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;

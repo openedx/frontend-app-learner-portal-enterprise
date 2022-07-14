@@ -52,7 +52,7 @@ const SearchResults = ({
       }
       return searchState?.query;
     },
-    [searchState, JSON.stringify(refinements)],
+    [refinements.q, searchState.query],
   );
 
   const page = useMemo(
@@ -62,7 +62,7 @@ const SearchResults = ({
       }
       return searchState?.page;
     },
-    [searchState, JSON.stringify(refinements)],
+    [refinements.page, searchState.page],
   );
 
   const resultsHeading = useMemo(
@@ -75,7 +75,7 @@ const SearchResults = ({
         </>
       );
     },
-    [nbHits, query],
+    [nbHits, query, title],
   );
 
   return (

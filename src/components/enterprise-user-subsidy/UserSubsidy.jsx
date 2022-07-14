@@ -85,13 +85,15 @@ const UserSubsidy = ({ children }) => {
     },
     [
       isLoadingSubsidies,
-      subscriptionPlan,
       subscriptionLicense,
+      subscriptionPlan,
       couponCodes,
       enterpriseOffers,
       canEnrollWithEnterpriseOffers,
-      enterpriseConfig.uuid,
+      hasLowEnterpriseOffersBalance,
+      showExpirationNotifications,
       customerAgreementConfig,
+      activateUserLicense,
     ],
   );
 
@@ -102,6 +104,7 @@ const UserSubsidy = ({ children }) => {
       </Container>
     );
   }
+
   return (
     <>
       {/* Render the children so the rest of the page shows */}

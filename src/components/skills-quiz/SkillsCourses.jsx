@@ -96,7 +96,7 @@ const SkillsCourses = ({ index }) => {
       }
       fetchCourses();
     },
-    [selectedJob, skills],
+    [filters, index, selectedJob, skills, skillsFacetFilter],
   );
   const skillsWithSignificanceOrder = useSelectedSkillsAndJobSkills(
     { getAllSkills: false, getAllSkillsWithSignificanceOrder: true },
@@ -114,7 +114,7 @@ const SkillsCourses = ({ index }) => {
       }
     });
     return sortSkillsCoursesWithCourseCount(coursesWithSkill);
-  }, [skillsWithSignificanceOrder]);
+  }, [courses, skillsWithSignificanceOrder]);
 
   return (
     <div className="mt-4" style={{ paddingLeft: '15%' }}>

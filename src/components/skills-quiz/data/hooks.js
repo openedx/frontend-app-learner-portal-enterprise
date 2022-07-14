@@ -35,7 +35,7 @@ export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSi
       }
       return skillsFromJob;
     },
-    [skills, interestedJobs, selectedJob, goal, currentJobRole, getAllSkills],
+    [selectedJob, goal, interestedJobs, currentJobRole, getAllSkillsWithSignificanceOrder],
   );
   // Top 3 Recommended courses are shown based on job-skills only
   // But on search page show courses based on job-skills and skills selected in skills dropdown as well

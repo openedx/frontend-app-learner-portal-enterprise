@@ -2,9 +2,9 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { loginRefresh } from '../../../utils/common';
 
-export function fetchSubscriptionLicensesForUser(enterpriseUUID) {
+export function fetchSubscriptionLicensesForUser(enterpriseId) {
   const queryParams = new URLSearchParams({
-    enterprise_customer_uuid: enterpriseUUID,
+    enterprise_customer_uuid: enterpriseId,
   });
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
@@ -25,9 +25,9 @@ export async function activateLicense(activationKey) {
   return getAuthenticatedHttpClient().post(url);
 }
 
-export function fetchCustomerAgreementData(enterpriseUUID) {
+export function fetchCustomerAgreementData(enterpriseId) {
   const queryParams = new URLSearchParams({
-    enterprise_customer_uuid: enterpriseUUID,
+    enterprise_customer_uuid: enterpriseId,
   });
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${queryParams.toString()}`;

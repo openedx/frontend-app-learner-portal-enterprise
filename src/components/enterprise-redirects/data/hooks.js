@@ -13,18 +13,18 @@ import { fetchEnterpriseCustomerByUUID } from './service';
  *  until the fetch promise has finished resolving.
  * @returns {bool} obj.isLoading A Boolean for whether the request is pending.
  */
-export const useEnterpriseCustomerByUUID = (enterpriseUUID) => {
+export const useEnterpriseCustomerByUUID = (enterpriseId) => {
   const [enterpriseCustomer, setEnterpriseCustomer] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(
     () => {
-      if (!enterpriseUUID) {
+      if (!enterpriseId) {
         setIsLoading(false);
         return;
       }
 
-      fetchEnterpriseCustomerByUUID(enterpriseUUID)
+      fetchEnterpriseCustomerByUUID(enterpriseId)
         .then((response) => {
           const data = camelCaseObject(response.data);
           const results = data?.results || [];
@@ -33,7 +33,7 @@ export const useEnterpriseCustomerByUUID = (enterpriseUUID) => {
         .catch((error) => {
           const errorMessage = (
             `EnterpriseCustomerRedirect could not fetch metadata for 
-            enterprise customer (${enterpriseUUID}): ${error.message}`
+            enterprise customer (${enterpriseId}): ${error.message}`
           );
           logError(errorMessage);
         })
@@ -41,7 +41,7 @@ export const useEnterpriseCustomerByUUID = (enterpriseUUID) => {
           setIsLoading(false);
         });
     },
-    [enterpriseUUID],
+    [enterpriseId],
   );
 
   return [enterpriseCustomer, isLoading];
@@ -54,8 +54,8 @@ export const useEnterpriseCustomerByUUID = (enterpriseUUID) => {
  *
  * @returns {string} The user's selected enterprise UUID for their session.
  */
-export const useSelectedEnterpriseUUIDByUserRoles = (userRoles) => {
-  const selectedEnterpriseUUID = useMemo(
+export const useSelectedenterpriseIdByUserRoles = (userRoles) => {
+  const selectedenterpriseId = useMemo(
     () => {
       const enterpriseLearnerRole = userRoles.find((role) => {
         const parts = role.split(':');
@@ -65,5 +65,5 @@ export const useSelectedEnterpriseUUIDByUserRoles = (userRoles) => {
     },
     [userRoles],
   );
-  return selectedEnterpriseUUID;
+  return selectedenterpriseId;
 };

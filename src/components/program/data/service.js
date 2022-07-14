@@ -5,14 +5,14 @@ import { getAvailableCourseRuns } from '../../course/data/utils';
 
 export default class ProgramService {
   constructor(options = {}) {
-    const { enterpriseUuid, programUuid } = options;
+    const { enterpriseId, programUuid } = options;
     this.config = getConfig();
 
     this.cachedAuthenticatedHttpClient = getAuthenticatedHttpClient({
       useCache: this.config.USE_API_CACHE,
     });
 
-    this.enterpriseUuid = enterpriseUuid;
+    this.enterpriseId = enterpriseId;
     this.programUuid = programUuid;
   }
 
@@ -75,7 +75,7 @@ export default class ProgramService {
     const responseKey = courseKey || programUuid;
     const options = courseKey ? { course_run_ids: courseKey } : { program_uuids: this.programUuid };
     const queryParams = new URLSearchParams(options);
-    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${queryParams.toString()}`;
+    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseId}/contains_content_items/?${queryParams.toString()}`;
     const response = await this.cachedAuthenticatedHttpClient.get(url);
     return { [responseKey]: response.data.contains_content_items };
   }

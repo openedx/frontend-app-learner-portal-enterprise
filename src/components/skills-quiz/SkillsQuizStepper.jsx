@@ -54,7 +54,12 @@ const SkillsQuizStepper = () => {
       const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
       return [client, cIndex, jIndex];
     },
-    [], // only initialized once
+    [
+      config.ALGOLIA_APP_ID,
+      config.ALGOLIA_INDEX_NAME,
+      config.ALGOLIA_INDEX_NAME_JOBS,
+      config.ALGOLIA_SEARCH_API_KEY,
+    ], // only initialized once
   );
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
@@ -143,7 +148,7 @@ const SkillsQuizStepper = () => {
       'edx.ui.enterprise.learner_portal.skills_quiz.started',
       { userId, enterprise: enterpriseConfig.slug },
     );
-  }, []);
+  }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
 
   useEffect(() => {
     if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
@@ -153,9 +158,9 @@ const SkillsQuizStepper = () => {
 
   // will be true if goal or skills changed not because of first render, if link shared and there are more than one
   // selected skills, or if skillsVisible variable is ever been true for once.
-  const skillsVisible = useMemo(() => (!isFirstRender || skillsVisible || (selectedSkills?.length > 0)),
-    [goal, selectedSkills]);
-  const jobsDropdownsVisible = useMemo(() => !isFirstRender, [skills]);
+  const skillsVisible = (!isFirstRender || (selectedSkills?.length > 0));
+
+  const jobsDropdownsVisible = !isFirstRender;
 
   return (
     <>

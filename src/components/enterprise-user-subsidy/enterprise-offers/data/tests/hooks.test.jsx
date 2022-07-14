@@ -11,9 +11,9 @@ import { transformEnterpriseOffer } from '../utils';
 jest.mock('../../../coupons/data/service');
 jest.mock('../service');
 
-const mockEnterpriseUUID = 'enterprise-uuid';
+const mockenterpriseId = 'enterprise-uuid';
 const defaultProps = {
-  enterpriseId: mockEnterpriseUUID,
+  enterpriseId: mockenterpriseId,
   enableLearnerPortalOffers: true,
   customerAgreementConfig: undefined,
   isLoadingCustomerAgreementConfig: false,
@@ -89,7 +89,7 @@ describe('useEnterpriseOffers', () => {
     await waitForNextUpdate();
 
     expect(couponService.fetchCouponsOverview).toHaveBeenCalledWith({
-      enterpriseId: mockEnterpriseUUID,
+      enterpriseId: mockenterpriseId,
     });
 
     const {

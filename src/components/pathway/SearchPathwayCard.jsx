@@ -50,7 +50,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
       }
       return `/${slug}/search/${pathwayUuid}`;
     },
-    [isLoading, JSON.stringify(pathway)],
+    [pathway, pathwayUuid, slug],
   );
 
   const loadingCard = () => (

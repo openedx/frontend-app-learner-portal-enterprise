@@ -26,7 +26,7 @@ const ProgramPage = () => {
   const { programUuid } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
 
-  const [programData, fetchError] = useAllProgramData({ enterpriseUuid: enterpriseConfig.uuid, programUuid });
+  const [programData, fetchError] = useAllProgramData({ enterpriseId: enterpriseConfig.uuid, programUuid });
 
   const initialState = useMemo(
     () => {

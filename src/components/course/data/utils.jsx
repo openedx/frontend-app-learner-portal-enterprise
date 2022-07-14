@@ -257,3 +257,19 @@ export const getSubsidyToApplyForCourse = ({
 
   return null;
 };
+
+/**
+ * Gets a link to the course route for the given course data.
+ *
+ * @param {object} args
+ * @param {object} args.course Object representing course metadata.
+ * @param {string} args.enterpriseSlug Enterprise UUID
+ *
+ * @returns Path to course route for the specified course.
+ */
+export const getLinkToCourse = ({ course, enterpriseSlug }) => {
+  if (!Object.keys(course).length) {
+    return '#';
+  }
+  return `/${enterpriseSlug}/course/${course.key}`;
+};

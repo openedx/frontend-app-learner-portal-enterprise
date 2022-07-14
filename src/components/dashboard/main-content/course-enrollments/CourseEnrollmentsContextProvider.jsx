@@ -14,7 +14,7 @@ export const CourseEnrollmentsContext = createContext();
 const CourseEnrollmentsContextProvider = ({ children }) => {
   const {
     enterpriseConfig: {
-      uuid: enterpriseUUID,
+      uuid: enterpriseId,
       slug,
     },
   } = useContext(AppContext);
@@ -38,7 +38,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     fetchCourseEnrollmentsError,
     updateCourseEnrollmentStatus,
   } = useCourseEnrollments({
-    enterpriseUUID,
+    enterpriseId,
     requestedCourseEnrollments,
   });
 
@@ -58,6 +58,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     fetchCourseEnrollmentsError,
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
+    updateCourseEnrollmentStatus,
   ]);
 
   if (isLoading) {

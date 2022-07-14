@@ -23,7 +23,7 @@ const renderDialog = () => (
       <FontAwesomeIcon icon={faSearchMinus} size="2x" />
     </div>
     <p>
-      { NO_COURSES_ALERT_MESSAGE }
+      {NO_COURSES_ALERT_MESSAGE}
     </p>
   </div>
 );
@@ -64,7 +64,7 @@ const SearchCourseCard = ({ index }) => {
       }
       return [];
     },
-    [selectedJob],
+    [selectedJobSkills],
   );
   useEffect(
     () => {
@@ -87,7 +87,7 @@ const SearchCourseCard = ({ index }) => {
       }
       fetchCourses();
     },
-    [selectedJob, skills],
+    [filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   return (
