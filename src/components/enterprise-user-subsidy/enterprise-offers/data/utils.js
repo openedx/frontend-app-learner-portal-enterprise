@@ -38,15 +38,17 @@ export const getOfferType = (offer) => {
 
 export const isOfferLowOnBalance = (offer) => {
   if (offerHasBookingsLimit(offer)) {
-    // Only calculate lowOfferDollarThreshold if maxDiscount is set (MAX_VALUE means it was not set in ecommerce)
-    let lowOfferDollarThreshold;
-    if (offer.maxDiscount === Number.MAX_VALUE) {
-      lowOfferDollarThreshold = -1;
-    } else {
-      lowOfferDollarThreshold = offer.maxDiscount * ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO;
-    }
+    // null is <= a positive integer. if maxUserDiscount is null, limit is not set, so we
+    // would want to return false for this part of the check even if remainingBalanceForUser null
+    const lowOfferUserDollarThreshold = offer.maxUserDiscount === null
+      ? -1 : ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS;
+    // same as above, that if maxDiscount is null, the limit is not set, so we
+    // would want to return false if remainingBalance is null, but need to apply
+    // the ratio to maxDiscount in this case
+    const lowOfferDollarThreshold = offer.maxDiscount === null
+      ? -1 : offer.maxDiscount * ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO;
 
-    return offer.remainingBalance <= lowOfferDollarThreshold || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS;
+    return offer.remainingBalance <= lowOfferDollarThreshold || offer.remainingBalanceForUser <= lowOfferUserDollarThreshold;
   }
 
   return false;
@@ -54,7 +56,12 @@ export const isOfferLowOnBalance = (offer) => {
 
 export const isOfferOutOfBalance = (offer) => {
   if (offerHasBookingsLimit(offer)) {
-    return offer.remainingBalance <= ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS;
+    const outOfOfferUserDollarThreshold = offer.maxUserDiscount === null
+      ? -1 : ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS;
+    const outOfOfferDollarThreshold = offer.maxDiscount === null
+      ? -1 : ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS;
+
+    return offer.remainingBalance <= outOfOfferDollarThreshold || offer.remainingBalanceForUser <= outOfOfferUserDollarThreshold;
   }
 
   return false;
