@@ -31,7 +31,7 @@ const EnterpriseOffersSummaryCard = ({ className, offer, searchCoursesCta }) => 
     }
     cardClassNames={className}
   >
-    {offer.remainingBalanceForUser
+    {offer.remainingBalanceForUser && offer.remainingBalanceForUser !== Number.MAX_VALUE
       ? (
         <p data-testid="offer-summary-text-detailed">
           Apply your <b>${offer.remainingBalanceForUser}</b>{' '}
