@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 import { Container, Alert, MailtoLink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-
 
 const EnterpriseOffersBalanceAlert = ({
   adminText,
@@ -31,7 +31,7 @@ const EnterpriseOffersBalanceAlert = ({
   return (
     <Container size="lg" className="pt-3">
       <Alert
-        className={classNames({ alertClassName: hasAdminEmails })}
+        className={classNames({ [`${alertClassName}`]: hasAdminEmails })}
         variant={alertVariant}
         icon={alertIcon}
         actions={actions}
@@ -43,6 +43,15 @@ const EnterpriseOffersBalanceAlert = ({
       </Alert>
     </Container>
   );
+};
+
+EnterpriseOffersBalanceAlert.propTypes = {
+  adminText: PropTypes.string.isRequired,
+  alertClassName: PropTypes.string.isRequired,
+  alertVariant: PropTypes.string.isRequired,
+  alertIcon: PropTypes.node.isRequired,
+  alertHeading: PropTypes.string.isRequired,
+  alertText: PropTypes.string.isRequired,
 };
 
 export default EnterpriseOffersBalanceAlert;

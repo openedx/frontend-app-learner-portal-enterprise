@@ -1,6 +1,11 @@
 import { ENTERPRISE_OFFER_TYPE } from '../constants';
 import {
-  getOfferType, isOfferLowOnBalance, isOfferOutOfBalance, offerHasBookingsLimit, offerHasEnrollmentsLimit, transformEnterpriseOffer,
+  getOfferType,
+  isOfferLowOnBalance,
+  isOfferOutOfBalance,
+  offerHasBookingsLimit,
+  offerHasEnrollmentsLimit,
+  transformEnterpriseOffer,
 } from '../utils';
 
 describe('offerHasBookingsLimit', () => {

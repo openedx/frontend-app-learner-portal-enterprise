@@ -18,8 +18,8 @@ const EnterpriseOffersBalanceAlertWrapper = ({
   >
     <EnterpriseOffersBalanceAlert
       adminText={LOW_BALANCE_CONTACT_ADMIN_TEXT}
-      alertClassName={"low-offers-balance-alert-with-cta"}
-      alertVariant={"warning"}
+      alertClassName="low-offers-balance-alert-with-cta"
+      alertVariant="warning"
       alertIcon={WarningFilled}
       alertHeading={LOW_BALANCE_ALERT_HEADING}
       alertText={LOW_BALANCE_ALERT_TEXT}
