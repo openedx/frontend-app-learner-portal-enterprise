@@ -31,6 +31,18 @@ describe('<EnterpriseOffersSummaryCard />', () => {
     expect(screen.getByTestId('offer-summary-text')).toBeInTheDocument();
   });
 
+  it('should render default summary text if remainingBalanceForUser is Number.MAX_VALUE', () => {
+    render(
+      <EnterpriseOffersSummaryCard
+        offer={{
+          remainingBalanceForUser: Number.MAX_VALUE,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('offer-summary-text')).toBeInTheDocument();
+  });
+
   it('should render detailed summary text if remainingBalanceForUser is not null', () => {
     const offer = {
       remainingBalanceForUser: 100,
