@@ -95,7 +95,7 @@ export const useEnterpriseOffers = ({
 
     setCanEnrollWithEnterpriseOffers(true);
     setHasLowEnterpriseOffersBalance(enterpriseOffers[0].isLowOnBalance);
-    setHasNoEnterpriseOffersBalance(enterpriseOffers[0].isOutOfBalance)
+    setHasNoEnterpriseOffersBalance(enterpriseOffers[0].isOutOfBalance);
   }, [
     isLoading,
     enterpriseCoupons,

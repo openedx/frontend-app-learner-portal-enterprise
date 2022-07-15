@@ -1,11 +1,18 @@
 /* eslint-disable import/prefer-default-export */
 import {
-  ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD,
-  ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD,
-  ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD,
-  ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD,
+  ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
+  ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
+  ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
+  ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
+  LOW_BALANCE_CONTACT_ADMIN_TEXT,
+  LOW_BALANCE_ALERT_HEADING,
+  LOW_BALANCE_ALERT_TEXT,
+  NO_BALANCE_CONTACT_ADMIN_TEXT,
+  NO_BALANCE_ALERT_HEADING,
+  NO_BALANCE_ALERT_TEXT,
 } from './constants';
+import { WarningFilled } from '@edx/paragon/icons';
 
 export const offerHasBookingsLimit = offer => offer.maxDiscount !== null || offer.maxUserDiscount !== null;
 export const offerHasEnrollmentsLimit = offer => offer.maxGlobalApplications !== null;
@@ -36,10 +43,10 @@ export const isOfferLowOnBalance = (offer) => {
     if (offer.maxDiscount === Number.MAX_VALUE) {
       lowOfferDollarThreshold = -1;
     } else {
-      lowOfferDollarThreshold = offer.maxDiscount * ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD;
+      lowOfferDollarThreshold = offer.maxDiscount * ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO;
     }
 
-    return offer.remainingBalance <= lowOfferDollarThreshold || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD;
+    return offer.remainingBalance <= lowOfferDollarThreshold || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS;
   }
 
   return false;
@@ -47,7 +54,7 @@ export const isOfferLowOnBalance = (offer) => {
 
 export const isOfferOutOfBalance = (offer) => {
   if (offerHasBookingsLimit(offer)) {
-    return offer.remainingBalance <= ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD;
+    return offer.remainingBalance <= ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS || offer.remainingBalanceForUser <= ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS;
   }
 
   return false;
@@ -83,5 +90,17 @@ export const transformEnterpriseOffer = (offer) => {
     ...transformedOffer,
     isLowOnBalance: isOfferLowOnBalance(transformedOffer),
     isOutOfBalance: isOfferOutOfBalance(transformedOffer),
+  };
+};
+
+export const generateBalanceAlertAttributes = ( hasNoEnterpriseOffersBalance ) => {
+  // set balance alert values to no-balance if eligible, else low-balance
+  return {
+    adminText: hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT,
+    className: hasNoEnterpriseOffersBalance ? 'no-offers-balance-alert-with-cta' : 'low-offers-balance-alert-with-cta',
+    variant : hasNoEnterpriseOffersBalance ? 'danger' : 'warning',
+    icon: WarningFilled,
+    heading: hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING,
+    text: hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT,
   };
 };

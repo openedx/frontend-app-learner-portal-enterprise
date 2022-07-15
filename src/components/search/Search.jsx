@@ -8,7 +8,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useToggle } from '@edx/paragon';
-import { WarningFilled } from '@edx/paragon/icons';
 
 import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
@@ -31,14 +30,7 @@ import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
-import {
-  LOW_BALANCE_CONTACT_ADMIN_TEXT,
-  LOW_BALANCE_ALERT_HEADING,
-  LOW_BALANCE_ALERT_TEXT,
-  NO_BALANCE_CONTACT_ADMIN_TEXT,
-  NO_BALANCE_ALERT_HEADING,
-  NO_BALANCE_ALERT_TEXT,
-} from '../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { generateBalanceAlertAttributes } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
@@ -94,15 +86,8 @@ const Search = () => {
     [], // only initialized once
   );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
-
-  // set balance alert values to no-balance if eligible, else low-balance
-  const balanceAlertAdminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
-  const balanceAlertClassName = hasNoEnterpriseOffersBalance ? 'no-offers-balance-alert-with-cta' : 'low-offers-balance-alert-with-cta';
-  const balanceAlertVariant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
-  const balanceAlertIcon = WarningFilled;
-  const balanceAlertHeading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
-  const balanceAlertText = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
-  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance
+  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
+  const balanceAlertAttributes = generateBalanceAlertAttributes(hasNoEnterpriseOffersBalance);
 
   return (
     <>
@@ -140,12 +125,12 @@ const Search = () => {
 
         { canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert
-            adminText={balanceAlertAdminText}
-            alertClassName={balanceAlertClassName}
-            alertVariant={balanceAlertVariant}
-            alertIcon={balanceAlertIcon}
-            alertHeading={balanceAlertHeading}
-            alertText={balanceAlertText}
+            adminText={balanceAlertAttributes.adminText}
+            alertClassName={balanceAlertAttributes.className}
+            alertVariant={balanceAlertAttributes.variant}
+            alertIcon={balanceAlertAttributes.icon}
+            alertHeading={balanceAlertAttributes.heading}
+            alertText={balanceAlertAttributes.text}
           />
         )}
 
