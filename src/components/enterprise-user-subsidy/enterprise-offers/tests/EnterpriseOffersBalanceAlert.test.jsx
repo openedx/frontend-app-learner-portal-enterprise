@@ -2,12 +2,9 @@
 import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import * as auth from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
-import { WarningFilled } from '@edx/paragon/icons';
 import EnterpriseOffersBalanceAlert from '../EnterpriseOffersBalanceAlert';
 import {
-  LOW_BALANCE_ALERT_HEADING,
   LOW_BALANCE_ALERT_TEXT,
   LOW_BALANCE_CONTACT_ADMIN_TEXT,
   NO_BALANCE_ALERT_TEXT,
@@ -26,7 +23,7 @@ const EnterpriseOffersBalanceAlertWrapper = ({
   enterpriseConfig = {
     adminUsers: [],
   },
-  hasNoEnterpriseOffersBalance
+  hasNoEnterpriseOffersBalance,
 }) => (
   <AppContext.Provider value={{
     enterpriseConfig,
@@ -51,8 +48,8 @@ describe('<EnterpriseOffersBalanceAlert />', () => {
     render(
       <EnterpriseOffersBalanceAlertWrapper
         enterpriseConfig={enterpriseConfig}
-        hasNoEnterpriseOffersBalance={true}
-      />
+        hasNoEnterpriseOffersBalance
+      />,
     );
     expect(screen.getByText(NO_BALANCE_ALERT_TEXT)).toBeInTheDocument();
   });
@@ -64,8 +61,7 @@ describe('<EnterpriseOffersBalanceAlert />', () => {
     render(<EnterpriseOffersBalanceAlertWrapper
       enterpriseConfig={enterpriseConfig}
       hasNoEnterpriseOffersBalance={false}
-      />
-    );
+    />);
     expect(screen.getByText(LOW_BALANCE_ALERT_TEXT)).toBeInTheDocument();
   });
 });
