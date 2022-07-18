@@ -124,14 +124,7 @@ const Search = () => {
         />
 
         { canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
-          <EnterpriseOffersBalanceAlert
-            adminText={balanceAlertAttributes.adminText}
-            alertClassName={balanceAlertAttributes.className}
-            alertVariant={balanceAlertAttributes.variant}
-            alertIcon={balanceAlertAttributes.icon}
-            alertHeading={balanceAlertAttributes.heading}
-            alertText={balanceAlertAttributes.text}
-          />
+          <EnterpriseOffersBalanceAlert {...generateBalanceAlertAttributes(hasNoEnterpriseOffersBalance)} />
         )}
 
         { (contentType === undefined || contentType.length === 0) && (

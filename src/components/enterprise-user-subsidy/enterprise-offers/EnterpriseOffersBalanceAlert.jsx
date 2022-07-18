@@ -7,11 +7,11 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 const EnterpriseOffersBalanceAlert = ({
   adminText,
-  alertClassName,
-  alertVariant,
-  alertIcon,
-  alertHeading,
-  alertText,
+  className,
+  variant,
+  icon,
+  heading,
+  text,
 }) => {
   const {
     enterpriseConfig: { adminUsers },
@@ -31,14 +31,14 @@ const EnterpriseOffersBalanceAlert = ({
   return (
     <Container size="lg" className="pt-3">
       <Alert
-        className={classNames({ [`${alertClassName}`]: hasAdminEmails })}
-        variant={alertVariant}
-        icon={alertIcon}
+        className={classNames({ [`${className}`]: hasAdminEmails })}
+        variant={variant}
+        icon={icon}
         actions={actions}
       >
-        <Alert.Heading>{alertHeading}</Alert.Heading>
+        <Alert.Heading>{heading}</Alert.Heading>
         <p>
-          {alertText}
+          {text}
         </p>
       </Alert>
     </Container>
@@ -47,11 +47,11 @@ const EnterpriseOffersBalanceAlert = ({
 
 EnterpriseOffersBalanceAlert.propTypes = {
   adminText: PropTypes.string.isRequired,
-  alertClassName: PropTypes.string.isRequired,
-  alertVariant: PropTypes.string.isRequired,
-  alertIcon: PropTypes.node.isRequired,
-  alertHeading: PropTypes.string.isRequired,
-  alertText: PropTypes.string.isRequired,
+  className: PropTypes.string.isRequired,
+  variant: PropTypes.string.isRequired,
+  icon: PropTypes.node.isRequired,
+  heading: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
 };
 
 export default EnterpriseOffersBalanceAlert;
