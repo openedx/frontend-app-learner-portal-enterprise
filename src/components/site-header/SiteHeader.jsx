@@ -43,10 +43,7 @@ export default function SiteHeader() {
     return (
       <>
         <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
-          Courses
-        </NavLink>
-        <NavLink to={`/${enterpriseConfig.slug}/programs`} className={mainMenuLinkClassName} exact>
-          Programs
+          Dashboard
         </NavLink>
         <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
           Find a Course

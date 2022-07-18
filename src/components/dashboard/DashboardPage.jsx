@@ -1,8 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
-  Container, Alert, Row, breakpoints, useToggle, MediaQuery,
+  Container, Alert, Row, breakpoints, useToggle, MediaQuery, Tabs, Tab,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -14,6 +14,7 @@ import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
+import { ProgramListingPage } from '../program-progress';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -32,11 +33,12 @@ export default function DashboardPage() {
     }
   }, [history, state]);
 
-  const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
-
-  return (
+  const {
+    authenticatedUser,
+  } = useContext(AppContext);
+  const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser?.name]);
+  const CoursesTabComponent = (
     <>
-      <Helmet title={PAGE_TITLE} />
       <Container size="lg">
         <Alert
           variant="success"
@@ -66,6 +68,27 @@ export default function DashboardPage() {
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
           {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
         </Row>
+      </Container>
+    </>
+  );
+  const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
+
+  return (
+    <>
+      <Helmet title={PAGE_TITLE} />
+
+      <Container size="lg">
+        <h2 className="h1 mb-4 mt-4">
+          {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
+        </h2>
+        <Tabs defaultActiveKey="courses">
+          <Tab eventKey="courses" title="Courses">
+            {CoursesTabComponent}
+          </Tab>
+          <Tab eventKey="programs" title="Programs">
+            <ProgramListingPage />
+          </Tab>
+        </Tabs>
       </Container>
     </>
   );

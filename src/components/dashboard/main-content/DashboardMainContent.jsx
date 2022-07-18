@@ -19,16 +19,10 @@ const DashboardMainContent = () => {
       slug,
       disableSearch,
     },
-    authenticatedUser,
   } = useContext(AppContext);
-
-  const userFirstName = authenticatedUser?.name?.split(' ').shift();
 
   return (
     <>
-      <h2 className="h1 mb-4">
-        {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
-      </h2>
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
         {matches => (matches ? (
           <SubsidiesSummary />
