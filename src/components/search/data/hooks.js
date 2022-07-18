@@ -29,12 +29,7 @@ export const useSearchCatalogs = ({
     }
 
     // Scope to catalogs associated with assignable subsidies if browse and request is turned on
-    if (
-      features.FEATURE_BROWSE_AND_REQUEST
-      && catalogsForSubsidyRequests.length > 0
-    ) {
-      catalogs.push(...catalogsForSubsidyRequests);
-    }
+    catalogs.push(...catalogsForSubsidyRequests);
 
     return catalogs;
   }, [

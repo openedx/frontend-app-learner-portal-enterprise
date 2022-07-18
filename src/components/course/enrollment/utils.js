@@ -1,6 +1,5 @@
 /* eslint-disable import/prefer-default-export */
 import { enrollButtonTypes } from './constants';
-import { features } from '../../../config';
 import { LICENSE_SUBSIDY_TYPE } from '../data/constants';
 
 const {
@@ -35,8 +34,7 @@ export function determineEnrollmentType({
 
   // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
   if (
-    features.FEATURE_BROWSE_AND_REQUEST
-    && subsidyRequestConfiguration?.subsidyRequestsEnabled
+    subsidyRequestConfiguration?.subsidyRequestsEnabled
     && subsidyRequestCatalogsApplicableToCourse.size > 0
     && !userSubsidyApplicableToCourse
   ) {
