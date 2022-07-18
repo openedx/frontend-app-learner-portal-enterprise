@@ -104,8 +104,7 @@ describe('useSearchCatalogs', () => {
     expect(result.current).toEqual([]);
   });
 
-  it('should include catalogs for browse and request if features.FEATURE_BROWSE_AND_REQUEST = true', () => {
-    features.FEATURE_BROWSE_AND_REQUEST = true;
+  it('should include catalogs for browse and request', () => {
     const catalogsForSubsidyRequests = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
 
     const { result } = renderHook(() => useSearchCatalogs({
@@ -116,20 +115,6 @@ describe('useSearchCatalogs', () => {
       catalogsForSubsidyRequests,
     }));
     expect(result.current).toEqual(catalogsForSubsidyRequests);
-  });
-
-  it('should not include catalogs for browse and request if features.FEATURE_BROWSE_AND_REQUEST = false', () => {
-    features.FEATURE_BROWSE_AND_REQUEST = false;
-    const catalogsForSubsidyRequests = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
-
-    const { result } = renderHook(() => useSearchCatalogs({
-      subscriptionPlan: undefined,
-      subscriptionLicense: undefined,
-      couponCodes: [],
-      enterpriseOffers: [],
-      catalogsForSubsidyRequests,
-    }));
-    expect(result.current).toEqual([]);
   });
 });
 
