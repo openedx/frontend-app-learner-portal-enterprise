@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 
 import { Container, Alert, MailtoLink } from '@edx/paragon';
 import { WarningFilled } from '@edx/paragon/icons';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   LOW_BALANCE_CONTACT_ADMIN_TEXT,
@@ -12,11 +14,12 @@ import {
   NO_BALANCE_CONTACT_ADMIN_TEXT,
   NO_BALANCE_ALERT_HEADING,
   NO_BALANCE_ALERT_TEXT,
+  OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const {
-    enterpriseConfig: { adminUsers },
+    enterpriseConfig: { uuid: enterpriseCustomerUUID, adminUsers },
   } = useContext(AppContext);
 
   const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
@@ -30,10 +33,20 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const adminEmails = adminUsers.map(user => user.email);
   const hasAdminEmails = adminEmails.length > 0;
 
+  const { userId } = getAuthenticatedUser();
   const actions = hasAdminEmails ? [
     <MailtoLink
       to={adminEmails}
       target="_blank"
+      onClick={() => {
+        sendEnterpriseTrackEvent(
+          enterpriseCustomerUUID,
+          OFFER_BALANCE_CLICK_EVENT,
+          {
+            userId,
+          },
+        );
+      }}
     >{adminText}
     </MailtoLink>,
   ] : [];

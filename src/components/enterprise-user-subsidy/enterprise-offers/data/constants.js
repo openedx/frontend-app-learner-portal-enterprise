@@ -27,3 +27,5 @@ export const LOW_BALANCE_CONTACT_ADMIN_TEXT = 'Contact administrator';
 export const NO_BALANCE_ALERT_HEADING = 'Courses are no longer covered by your organization\'s learner credit balance';
 export const NO_BALANCE_ALERT_TEXT = 'Your learner credit balance has run out, and will not cover the cost of courses. Please contact your administrator if you have questions.';
 export const NO_BALANCE_CONTACT_ADMIN_TEXT = 'Contact administrator';
+
+export const OFFER_BALANCE_CLICK_EVENT = 'edx.ui.enterprise.learner_portal.offer_balance_alert.clicked';
