@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,6 +10,8 @@ import {
 } from './data/hooks';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from './data/constants';
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { CourseContext } from './CourseContextProvider';
+import { CourseEnrollmentsContext } from '../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 export const ENROLL_MODAL_TEXT_HAS_NO_SUBSIDY = 'Your organization has not provided you with access to courses, but you may still enroll in this course after payment.';
 export const createUseCouponCodeText = couponCodesCount => `Enrolling in this course will use 1 of your ${couponCodesCount} enrollment codes.`;
@@ -47,12 +49,23 @@ const EnrollModal = ({
   userSubsidyApplicableToCourse,
   couponCodesCount,
 }) => {
+  const {
+    state: {
+      activeCourseRun: { key: courseRunKey },
+    },
+  } = useContext(CourseContext);
+  const {
+    courseEnrollmentsByStatus,
+  } = useContext(CourseEnrollmentsContext);
+
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_ecommerce_basket.clicked',
   });
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
     href: enrollmentUrl,
+    courseRunKey,
+    courseEnrollmentsByStatus,
   });
 
   const [isLoading, setIsLoading] = useState(false);

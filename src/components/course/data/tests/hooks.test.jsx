@@ -160,28 +160,27 @@ describe('useCourseEnrollmentUrl', () => {
     enterpriseConfig: {
       uuid: 'foo',
     },
-    key: 'bar',
+    courseRunKey: 'bar',
     couponCodes: [mockCouponCode],
     sku: 'xkcd',
     location: { search: 'foo' },
+
   };
   // just skip the coupon codes here to ensure we process absence correctly
   const noCouponCodesEnrollmentInputs = {
     enterpriseConfig: {
       uuid: 'foo',
     },
-    key: 'bar',
+    courseRunKey: 'bar',
     sku: 'xkcd',
     catalogList: ['bears'],
     location: { search: 'foo' },
   };
   const withLicenseEnrollmentInputs = {
     ...noLicenseEnrollmentInputs,
-    subscriptionLicense: {
-      uuid: 'yes',
-    },
     userSubsidyApplicableToCourse: {
       subsidyType: LICENSE_SUBSIDY_TYPE,
+      subsidyId: 'license-uuid',
     },
   };
 
@@ -191,7 +190,7 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).toContain(process.env.LMS_BASE_URL);
       expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseConfig.uuid);
       expect(result.current).toContain(withLicenseEnrollmentInputs.key);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.subscriptionLicense.uuid);
+      expect(result.current).toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
     });
 
     test('does not use the license uuid for enrollment if there is no valid license subsidy (even with a license uuid)', () => {
@@ -199,7 +198,7 @@ describe('useCourseEnrollmentUrl', () => {
       delete noSubsidyEnrollmentInputs.userSubsidyApplicableToCourse;
 
       const { result } = renderHook(() => useCourseEnrollmentUrl(noSubsidyEnrollmentInputs));
-      expect(result.current).not.toContain(withLicenseEnrollmentInputs.subscriptionLicense.uuid);
+      expect(result.current).not.toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
     });
   });
 

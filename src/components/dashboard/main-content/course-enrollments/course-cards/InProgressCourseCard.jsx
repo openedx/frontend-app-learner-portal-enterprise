@@ -11,8 +11,9 @@ import ContinueLearningButton from './ContinueLearningButton';
 import Notification from './Notification';
 
 import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
+import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 
-const InProgressCourseCard = ({
+export const InProgressCourseCard = ({
   linkToCourse,
   courseRunId,
   title,
@@ -20,6 +21,11 @@ const InProgressCourseCard = ({
   courseRunStatus,
   ...rest
 }) => {
+  const {
+    isLoading: isLoadingUpgradeUrl,
+    upgradeUrl,
+  } = useContext(UpgradeableCourseEnrollmentContext);
+
   const {
     updateCourseEnrollmentStatus,
     setShowMarkCourseCompleteSuccess,
@@ -29,7 +35,7 @@ const InProgressCourseCard = ({
 
   const renderButtons = () => (
     <ContinueLearningButton
-      linkToCourse={linkToCourse}
+      linkToCourse={upgradeUrl ?? linkToCourse}
       title={title}
       courseRunId={courseRunId}
     />
@@ -134,8 +140,9 @@ const InProgressCourseCard = ({
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
       title={title}
-      linkToCourse={linkToCourse}
+      linkToCourse={upgradeUrl ?? linkToCourse}
       courseRunId={courseRunId}
+      isLoading={isLoadingUpgradeUrl}
       {...rest}
     >
       {renderNotifications()}

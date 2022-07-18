@@ -50,6 +50,8 @@ export default function DashboardPage() {
       <Container size="lg" className="py-5">
         <Row>
           <CourseEnrollmentsContextProvider>
+            {/* TODO: figure out how we want to present upgrade errors, i.e. pass through to LMS */}
+            {/* <CourseEnrollmentFailedAlert /> */}
             <MainContent>
               <DashboardMainContent />
             </MainContent>

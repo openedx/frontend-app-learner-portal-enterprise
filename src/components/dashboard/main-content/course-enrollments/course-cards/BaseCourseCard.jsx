@@ -9,9 +9,10 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MoreVert } from '@edx/paragon/icons';
+import Skeleton from 'react-loading-skeleton';
 
 import { EmailSettingsModal } from './email-settings';
-import { COURSE_STATUSES } from '../data/constants';
+import { COURSE_STATUSES, COURSE_PACING } from '../../../../../constants';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -298,51 +299,60 @@ class BaseCourseCard extends Component {
       title,
       linkToCourse,
       hasViewCertificateLink,
+      isLoading,
     } = this.props;
     const dropdownMenuItems = this.getDropdownMenuItems();
     return (
       <div className="dashboard-course-card py-4 border-bottom">
-        <div className="d-flex">
-          <div className="flex-grow-1 mr-4 mb-3">
-            {this.renderMicroMastersTitle()}
-            <div className="d-flex align-items-start justify-content-between mb-1">
-              <h4 className="course-title mb-0 mr-2">
-                <a className="h3" href={linkToCourse}>{title}</a>
-              </h4>
-              {
-                BADGE_PROPS_BY_COURSE_STATUS[type] && (
-                  <Badge
-                    className="mt-1"
-                    {...BADGE_PROPS_BY_COURSE_STATUS[type]}
-                  />
-                )
-              }
-            </div>
-            {this.renderOrganizationName()}
-          </div>
-          {this.renderSettingsDropdown(dropdownMenuItems)}
-        </div>
-        {this.renderButtons()}
-        {this.renderChildren()}
-        <div className="course-misc-text row">
-          <div className="col text-gray">
-            <small className="mb-0">
-              {this.getCourseMiscText()}
-            </small>
-            {this.renderAdditionalInfo()}
-            {hasViewCertificateLink && this.renderViewCertificateText()}
-          </div>
-        </div>
-        {this.renderEmailSettingsModal()}
+        {isLoading ? (
+          <>
+            <div className="sr-only">Loading...</div>
+            <Skeleton height={50} />
+          </>
+        )
+          : (
+            <>
+              <div className="d-flex">
+                <div className="flex-grow-1 mr-4 mb-3">
+                  {this.renderMicroMastersTitle()}
+                  <div className="d-flex align-items-start justify-content-between mb-1">
+                    <h4 className="course-title mb-0 mr-2">
+                      <a className="h3" href={linkToCourse}>{title}</a>
+                    </h4>
+                    {
+                      BADGE_PROPS_BY_COURSE_STATUS[type] && (
+                        <Badge
+                          className="mt-1"
+                          {...BADGE_PROPS_BY_COURSE_STATUS[type]}
+                        />
+                      )
+                    }
+                  </div>
+                  {this.renderOrganizationName()}
+                </div>
+                {this.renderSettingsDropdown(dropdownMenuItems)}
+              </div>
+              {this.renderButtons()}
+              {this.renderChildren()}
+              <div className="course-misc-text row">
+                <div className="col text-gray">
+                  <small className="mb-0">
+                    {this.getCourseMiscText()}
+                  </small>
+                  {this.renderAdditionalInfo()}
+                  {hasViewCertificateLink && this.renderViewCertificateText()}
+                </div>
+              </div>
+              {this.renderEmailSettingsModal()}
+            </>
+          )}
       </div>
     );
   }
 }
 
 BaseCourseCard.propTypes = {
-  type: PropTypes.oneOf([
-    'in_progress', 'upcoming', 'completed', 'saved_for_later', 'requested',
-  ]).isRequired,
+  type: PropTypes.oneOf(Object.values(COURSE_STATUSES)).isRequired,
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
@@ -354,7 +364,7 @@ BaseCourseCard.propTypes = {
   hasEmailsEnabled: PropTypes.bool,
   microMastersTitle: PropTypes.string,
   orgName: PropTypes.string,
-  pacing: PropTypes.oneOf(['instructor', 'self']),
+  pacing: PropTypes.oneOf(Object.values(COURSE_PACING)),
   linkToCertificate: PropTypes.string,
   dropdownMenuItems: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string,
@@ -362,6 +372,7 @@ BaseCourseCard.propTypes = {
     onClick: PropTypes.func,
     children: PropTypes.element,
   })),
+  isLoading: PropTypes.bool,
 };
 
 BaseCourseCard.contextType = AppContext;
@@ -378,6 +389,7 @@ BaseCourseCard.defaultProps = {
   linkToCertificate: null,
   hasViewCertificateLink: true,
   dropdownMenuItems: null,
+  isLoading: false,
 };
 
 export default BaseCourseCard;
