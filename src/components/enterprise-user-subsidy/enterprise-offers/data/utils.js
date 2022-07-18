@@ -1,17 +1,10 @@
 /* eslint-disable import/prefer-default-export */
-import { WarningFilled } from '@edx/paragon/icons';
 import {
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
-  LOW_BALANCE_CONTACT_ADMIN_TEXT,
-  LOW_BALANCE_ALERT_HEADING,
-  LOW_BALANCE_ALERT_TEXT,
-  NO_BALANCE_CONTACT_ADMIN_TEXT,
-  NO_BALANCE_ALERT_HEADING,
-  NO_BALANCE_ALERT_TEXT,
 } from './constants';
 
 export const offerHasBookingsLimit = offer => offer.maxDiscount !== null || offer.maxUserDiscount !== null;
@@ -101,12 +94,3 @@ export const transformEnterpriseOffer = (offer) => {
     isOutOfBalance: isOfferOutOfBalance(transformedOffer),
   };
 };
-
-export const generateBalanceAlertAttributes = (hasNoEnterpriseOffersBalance) => ({
-  adminText: hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT,
-  className: hasNoEnterpriseOffersBalance ? 'no-offers-balance-alert-with-cta' : 'low-offers-balance-alert-with-cta',
-  variant: hasNoEnterpriseOffersBalance ? 'danger' : 'warning',
-  icon: WarningFilled,
-  heading: hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING,
-  text: hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT,
-});

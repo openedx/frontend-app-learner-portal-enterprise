@@ -30,7 +30,6 @@ import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
-import { generateBalanceAlertAttributes } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
@@ -87,7 +86,6 @@ const Search = () => {
   );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
-  const balanceAlertAttributes = generateBalanceAlertAttributes(hasNoEnterpriseOffersBalance);
 
   return (
     <>
@@ -124,7 +122,7 @@ const Search = () => {
         />
 
         { canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
-          <EnterpriseOffersBalanceAlert {...generateBalanceAlertAttributes(hasNoEnterpriseOffersBalance)} />
+          <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
 
         { (contentType === undefined || contentType.length === 0) && (
