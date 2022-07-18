@@ -91,6 +91,12 @@ describe('useCourseEnrollments', () => {
     const enterpriseId = 'uuid';
     const subscriptionLicense = { uuid: 'license-uuid' };
     const location = { search: '' };
+    const args = {
+      courseRunKey,
+      enterpriseId,
+      subscriptionLicense,
+      location,
+    };
 
     afterEach(() => jest.clearAllMocks());
 
@@ -104,12 +110,7 @@ describe('useCourseEnrollments', () => {
         },
       });
 
-      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData({
-        courseRunKey,
-        enterpriseId,
-        subscriptionLicense,
-        location,
-      }));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(args));
 
       expect(result.current.isLoading).toEqual(true);
 
@@ -118,12 +119,7 @@ describe('useCourseEnrollments', () => {
       expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
       expect(mockCourseService.fetchUserLicenseSubsidy).toHaveBeenCalledWith(courseRunKey);
 
-      expect(result.current.upgradeUrl).toEqual(createEnrollWithLicenseUrl({
-        courseRunKey,
-        enterpriseId,
-        licenseUUID: subscriptionLicense.uuid,
-        location,
-      }));
+      expect(result.current.upgradeUrl).toEqual(createEnrollWithLicenseUrl(courseRunKey));
       expect(result.current.isLoading).toEqual(false);
     });
 
@@ -132,12 +128,7 @@ describe('useCourseEnrollments', () => {
         { data: { contains_content_items: false } },
       );
 
-      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData({
-        courseRunKey,
-        enterpriseId,
-        subscriptionLicense,
-        location,
-      }));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(args));
 
       expect(result.current.isLoading).toEqual(true);
 
@@ -158,12 +149,7 @@ describe('useCourseEnrollments', () => {
         data: undefined,
       });
 
-      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData({
-        courseRunKey,
-        enterpriseId,
-        subscriptionLicense,
-        location,
-      }));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(args));
 
       expect(result.current.isLoading).toEqual(true);
 
@@ -180,12 +166,7 @@ describe('useCourseEnrollments', () => {
       const error = Error('Uh oh');
       mockCourseService.fetchEnterpriseCustomerContainsContent.mockRejectedValueOnce(error);
 
-      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData({
-        courseRunKey,
-        enterpriseId,
-        subscriptionLicense,
-        location,
-      }));
+      const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(args));
 
       expect(result.current.isLoading).toEqual(true);
 
