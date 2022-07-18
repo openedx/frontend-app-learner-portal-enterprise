@@ -24,7 +24,9 @@ describe('<EnterpriseOffersSummaryCard />', () => {
   it('should render default summary text if remainingBalanceForUser is null', () => {
     render(
       <EnterpriseOffersSummaryCard
-        offer={{}}
+        offer={{
+          remainingBalanceForUser: Number.MAX_VALUE,
+        }}
       />,
     );
 

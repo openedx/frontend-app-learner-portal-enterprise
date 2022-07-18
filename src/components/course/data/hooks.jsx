@@ -12,9 +12,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { CourseContext } from '../CourseContextProvider';
-import {
-  CourseEnrollmentsContext,
-} from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
@@ -88,12 +85,8 @@ export function useAllCourseData({
               const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
               licenseForCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
             } catch (error) {
-              const httpErrorStatus = error.customAttributes?.httpErrorStatus;
-              // 404 means the user's license is not applicable for the course, do nothing
-              if (httpErrorStatus !== 404) {
-                logError(error);
-                setFetchError(error);
-              }
+              logError(error);
+              setFetchError(error);
             }
           }
 
@@ -335,9 +328,8 @@ useCoursePriceForUserSubsidy.propTypes = {
  * @param {object} args Arguments.
  * @param {Array.<object>} args.catalogList list of catalogs
  * @param {object} args.enterpriseConfig config for enterprise
- * @param {string} args.key course key
- * @param {object} args.location just an object with a 'search' field (usually from useLocation())
- * @param {Array.<object>} args.couponCodes array of coupon codes for course
+ * @param {string} args.courseRunKey id of the course run
+ * @param {object} args.location location object from useLocation()
  * @param {string} args.sku course SKU
  * @param {object} args.subscriptionLicense license for subscription | null
  * @param {object} args.userSubsidyApplicableToCourse subsidy for course if found | null
@@ -346,19 +338,18 @@ useCoursePriceForUserSubsidy.propTypes = {
  */
 export const useCourseEnrollmentUrl = ({
   enterpriseConfig,
-  key,
+  courseRunKey,
   location,
   sku,
-  subscriptionLicense,
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
   const baseQueryParams = new URLSearchParams(location.search);
   baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
   const baseEnrollmentOptions = {
-    next: `${config.LMS_BASE_URL}/courses/${key}/course`,
+    next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
     // Redirect back to the same page with a failure query param
-    failure_url: `${global.location.href}?${baseQueryParams.toString()}`,
+    failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
   };
 
   const enrollmentUrl = useMemo(
@@ -366,8 +357,8 @@ export const useCourseEnrollmentUrl = ({
       if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
         const queryParams = new URLSearchParams({
           ...baseEnrollmentOptions,
-          license_uuid: subscriptionLicense.uuid,
-          course_id: key,
+          license_uuid: userSubsidyApplicableToCourse.subsidyId,
+          course_id: courseRunKey,
           enterprise_customer_uuid: enterpriseConfig.uuid,
           // We don't want any sidebar text we show the data consent page from this workflow since
           // the text on the sidebar is used when a learner is coming from their employer's system.
@@ -398,29 +389,16 @@ export const useCourseEnrollmentUrl = ({
     },
     [
       userSubsidyApplicableToCourse,
-      sku,
-      baseEnrollmentOptions,
+      sku, baseEnrollmentOptions,
       baseQueryParams,
       config.ECOMMERCE_BASE_URL,
       config.LMS_BASE_URL,
-      subscriptionLicense,
-      key,
-      enterpriseConfig,
+      courseRunKey,
+      enterpriseConfig.uuid,
     ],
   );
 
   return enrollmentUrl;
-};
-
-useCourseEnrollmentUrl.propTypes = {
-  catalogList: PropTypes.shape({}).isRequired,
-  enterpriseConfig: PropTypes.shape({}).isRequired,
-  key: PropTypes.string.isRequired,
-  location: PropTypes.shape({}).isRequired,
-  couponCodes: PropTypes.arrayOf(PropTypes.shape({})),
-  sku: PropTypes.string.isRequired,
-  subscriptionLicense: PropTypes.shape({}).isRequired,
-  userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,
 };
 
 /**
@@ -515,16 +493,7 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
  *
  * @returns Click handler function for clicks on enrollment buttons.
  */
-export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
-  const {
-    state: {
-      activeCourseRun: { key: courseKey },
-    },
-  } = useContext(CourseContext);
-  const {
-    courseEnrollmentsByStatus,
-  } = useContext(CourseEnrollmentsContext);
-
+export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, courseEnrollmentsByStatus }) => {
   const enrollmentCountIsZero = Object.values(courseEnrollmentsByStatus).flat().length === 0;
 
   const handleClick = useCallback(
@@ -537,12 +506,12 @@ export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
           global.location.href = href;
         }, CLICK_DELAY_MS);
       }
-      pushEvent(EVENTS.ENROLLMENT_CLICK, { courseKey });
+      pushEvent(EVENTS.ENROLLMENT_CLICK, { courseKey: courseRunKey });
       if (enrollmentCountIsZero) {
-        pushEvent(EVENTS.FIRST_ENROLLMENT_CLICK, { courseKey });
+        pushEvent(EVENTS.FIRST_ENROLLMENT_CLICK, { courseKey: courseRunKey });
       }
     },
-    [courseKey, enrollmentCountIsZero, href],
+    [courseRunKey, enrollmentCountIsZero, href],
   );
 
   return handleClick;

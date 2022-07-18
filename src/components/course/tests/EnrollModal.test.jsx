@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render, fireEvent } from '@testing-library/react';
@@ -5,11 +6,33 @@ import { screen, render, fireEvent } from '@testing-library/react';
 import EnrollModal, { MODAL_TEXTS } from '../EnrollModal';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../data/constants';
 import * as hooks from '../data/hooks';
+import { CourseContext } from '../CourseContextProvider';
+import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 jest.mock('../data/hooks', () => ({
   useTrackSearchConversionClickHandler: jest.fn(),
   useOptimizelyEnrollmentClickHandler: jest.fn(),
 }));
+
+const EnrollModalWrapper = ({
+  courseContextValue = {
+    state: {
+      activeCourseRun: {
+        key: 'course-key',
+      },
+    },
+  },
+  CourseEnrollmentsContextVAlue = {
+    courseEnrollmentsByStatus: {},
+  },
+  ...rest
+}) => (
+  <CourseContext.Provider value={courseContextValue}>
+    <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextVAlue}>
+      <EnrollModal {...rest} />
+    </CourseEnrollmentsContext.Provider>
+  </CourseContext.Provider>
+);
 
 describe('<EnrollModal />', () => {
   const basicProps = {
@@ -23,7 +46,7 @@ describe('<EnrollModal />', () => {
 
   it('displays the correct texts when user has no applicable subsidy', () => {
     render(
-      <EnrollModal {...basicProps} />,
+      <EnrollModalWrapper {...basicProps} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.title)).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.body)).toBeInTheDocument();
@@ -39,7 +62,7 @@ describe('<EnrollModal />', () => {
       couponCodesCount: 5,
     };
     render(
-      <EnrollModal {...props} />,
+      <EnrollModalWrapper {...props} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.title)).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.body(props.couponCodesCount))).toBeInTheDocument();
@@ -54,7 +77,7 @@ describe('<EnrollModal />', () => {
       },
     };
     render(
-      <EnrollModal {...props} />,
+      <EnrollModalWrapper {...props} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(
@@ -70,7 +93,7 @@ describe('<EnrollModal />', () => {
     hooks.useOptimizelyEnrollmentClickHandler.mockImplementation(() => mockOptimizelyEnrollmentClickHandler);
 
     render(
-      <EnrollModal {...basicProps} />,
+      <EnrollModalWrapper {...basicProps} />,
     );
     const enrollButton = screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button);
     fireEvent.click(enrollButton);

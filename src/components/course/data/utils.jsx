@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { getConfig } from '@edx/frontend-platform';
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -7,6 +8,7 @@ import {
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  ENROLLMENT_FAILED_QUERY_PARAM,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -173,8 +175,8 @@ const getBestCourseMode = (courseModes) => {
   const {
     VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT, HONOR,
   } = COURSE_MODES_MAP;
-  /** Returns the 'highest' course mode available.
-    *  Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor'] */
+  // Returns the 'highest' course mode available.
+  // Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor']
   if (courseModes.includes(VERIFIED)) {
     return VERIFIED;
   }
@@ -209,10 +211,7 @@ export function shouldUpgradeUserEnrollment({
   enrollmentUrl,
 }) {
   const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
-  if (isAuditEnrollment && subscriptionLicense && enrollmentUrl) {
-    return true;
-  }
-  return false;
+  return !!(isAuditEnrollment && subscriptionLicense && enrollmentUrl);
 }
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
@@ -256,4 +255,29 @@ export const getSubsidyToApplyForCourse = ({
   }
 
   return null;
+};
+
+export const createEnrollWithLicenseUrl = ({
+  courseRunKey,
+  enterpriseId,
+  licenseUUID,
+  location,
+}) => {
+  const config = getConfig();
+  const baseQueryParams = new URLSearchParams(location.search);
+  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+
+  const queryParams = new URLSearchParams({
+    next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
+    // Redirect back to the same page with a failure query param
+    failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
+    license_uuid: licenseUUID,
+    course_id: courseRunKey,
+    enterprise_customer_uuid: enterpriseId,
+    // We don't want any sidebar text we show the data consent page from this workflow since
+    // the text on the sidebar is used when a learner is coming from their employer's system.
+    left_sidebar_text_override: '',
+    source: 'enterprise-learner-portal',
+  });
+  return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
 };
