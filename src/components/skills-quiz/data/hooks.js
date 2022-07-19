@@ -4,13 +4,14 @@ import { SkillsContext } from '../SkillsContextProvider';
 import { checkValidGoalAndJobSelected } from '../../utils/skills-quiz';
 import { sortSkillsWithSignificance } from './utils';
 
-export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSignificanceOrder = false }) => {
+// eslint-disable-next-line import/prefer-default-export
+export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSignificanceOrder }) => {
   const { state } = useContext(SkillsContext);
   const {
     selectedJob, interestedJobs, goal, currentJobRole,
   } = state;
-  const { refinements } = useContext(SearchContext);
-  const { skill_names: skills } = refinements;
+  const { refinements: { skill_names: skills } } = useContext(SearchContext);
+
   const skillsFromSelectedJob = useMemo(
     () => {
       let skillsFromJob = [];
@@ -35,25 +36,43 @@ export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSi
       }
       return skillsFromJob;
     },
-    [skills, interestedJobs, selectedJob, goal, currentJobRole, getAllSkills],
+    [selectedJob, goal, interestedJobs, currentJobRole, getAllSkillsWithSignificanceOrder],
   );
-  // Top 3 Recommended courses are shown based on job-skills only
-  // But on search page show courses based on job-skills and skills selected in skills dropdown as well
-  if (getAllSkills) {
-    return skills ? skills.concat(skillsFromSelectedJob) : skillsFromSelectedJob;
-  }
-  if (getAllSkillsWithSignificanceOrder) {
+
+  const allSkillsWithoutSignificanceOrder = useMemo(() => {
+    if (skills) {
+      return skills.concat(skillsFromSelectedJob);
+    }
+    return skillsFromSelectedJob;
+  }, [skills, skillsFromSelectedJob]);
+
+  const allSkillsWithSignificantOrder = useMemo(() => {
     const allSkills = [];
     skillsFromSelectedJob.forEach((skill) => allSkills.push({
       key: skill.name,
       value: skill.significance,
     }));
-    // eslint-disable-next-line no-unused-expressions
-    skills?.forEach((skill) => allSkills.push({
-      key: skill,
-      value: undefined,
-    }));
+
+    if (skills) {
+      skills.forEach((skill) => {
+        allSkills.push({
+          key: skill,
+          value: undefined,
+        });
+      });
+    }
     return allSkills;
+  }, [skills, skillsFromSelectedJob]);
+
+  // Top 3 Recommended courses are shown based on job-skills only
+  // But on search page show courses based on job-skills and skills selected in skills dropdown as well
+  if (getAllSkills) {
+    return allSkillsWithoutSignificanceOrder;
   }
+
+  if (getAllSkillsWithSignificanceOrder) {
+    return allSkillsWithSignificantOrder;
+  }
+
   return skillsFromSelectedJob;
 };

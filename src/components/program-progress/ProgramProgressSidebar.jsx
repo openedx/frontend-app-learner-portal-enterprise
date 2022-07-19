@@ -29,7 +29,7 @@ const ProgramProgressSideBar = () => {
 
       return certificate;
     },
-    [programData],
+    [certificateData, programData],
   );
   return (
     <div className="program-sidebar offset-1 col-3">

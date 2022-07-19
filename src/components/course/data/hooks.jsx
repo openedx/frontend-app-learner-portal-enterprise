@@ -130,7 +130,16 @@ export function useAllCourseData({
       setIsLoading(false);
     };
     fetchData();
-  }, [courseKey, enterpriseConfig]);
+  }, [
+    activeCatalogs,
+    canEnrollWithEnterpriseOffers,
+    couponCodes,
+    courseKey,
+    courseRunKey,
+    enterpriseConfig,
+    enterpriseOffers,
+    subscriptionLicense,
+  ]);
 
   return {
     courseData: camelCaseObject(courseData),
@@ -156,7 +165,7 @@ export function useCourseSubjects(course) {
         setPrimarySubject(newSubject);
       }
     }
-  }, [course]);
+  }, [config.MARKETING_SITE_BASE_URL, course]);
 
   return { subjects, primarySubject };
 }
@@ -339,7 +348,6 @@ export const useCourseEnrollmentUrl = ({
   enterpriseConfig,
   key,
   location,
-  couponCodes = [],
   sku,
   subscriptionLicense,
   userSubsidyApplicableToCourse,
@@ -388,7 +396,17 @@ export const useCourseEnrollmentUrl = ({
       // This enrollment url will automatically apply enterprise offers
       return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
     },
-    [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, couponCodes, sku],
+    [
+      userSubsidyApplicableToCourse,
+      sku,
+      baseEnrollmentOptions,
+      baseQueryParams,
+      config.ECOMMERCE_BASE_URL,
+      config.LMS_BASE_URL,
+      subscriptionLicense,
+      key,
+      enterpriseConfig,
+    ],
   );
 
   return enrollmentUrl;
@@ -435,7 +453,7 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
         });
       }
     },
-    [queryParams],
+    [history, queryParams],
   );
 
   return algoliaSearchParams;
@@ -486,7 +504,7 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
         },
       );
     },
-    [href, algoliaSearchParams, courseKey, eventName],
+    [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey],
   );
 
   return handleClick;
@@ -524,7 +542,7 @@ export const useOptimizelyEnrollmentClickHandler = ({ href }) => {
         pushEvent(EVENTS.FIRST_ENROLLMENT_CLICK, { courseKey });
       }
     },
-    [courseKey],
+    [courseKey, enrollmentCountIsZero, href],
   );
 
   return handleClick;

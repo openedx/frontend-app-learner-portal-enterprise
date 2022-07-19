@@ -2,6 +2,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from './constants';
 
+// eslint-disable-next-line import/prefer-default-export
 export function fetchEnterpriseOffers(enterpriseId, options = {
   usage_type: ENTERPRISE_OFFER_USAGE_TYPE.PERCENTAGE,
   discount_value: 100,

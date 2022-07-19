@@ -24,7 +24,7 @@ const CourseCard = ({
       primaryPartner: course.partners.length > 0 ? course.partners[0] : undefined,
       showPartnerLogo: course.partners.length === 1,
     };
-  }, [JSON.stringify(course)]);
+  }, [course]);
 
   const loadingCard = () => (
     <Card>

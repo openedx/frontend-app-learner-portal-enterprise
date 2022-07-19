@@ -3,6 +3,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import LearnerPathwayService from './service';
 
+// eslint-disable-next-line import/prefer-default-export
 export function useLearnerPathwayData({ learnerPathwayUuid }) {
   const [learnerPathwayData, setLearnerPathwayData] = useState({});
   const [fetchError, setFetchError] = useState();

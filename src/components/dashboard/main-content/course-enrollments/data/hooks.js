@@ -9,9 +9,10 @@ import * as service from './service';
 import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './utils';
 import { COURSE_STATUSES } from './constants';
 
+// eslint-disable-next-line import/prefer-default-export
 export const useCourseEnrollments = ({
   enterpriseUUID,
-  requestedCourseEnrollments = [],
+  requestedCourseEnrollments,
 }) => {
   const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +35,7 @@ export const useCourseEnrollments = ({
     };
 
     fetchData();
-  }, [enterpriseUUID]);
+  }, [enterpriseUUID, requestedCourseEnrollments]);
 
   const updateCourseEnrollmentStatus = useCallback(({
     courseRunId,

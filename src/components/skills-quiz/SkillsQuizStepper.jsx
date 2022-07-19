@@ -10,7 +10,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext, removeFromRefinementArray, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent, useIsFirstRender } from '@edx/frontend-enterprise-utils';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import GoalDropdown from './GoalDropdown';
@@ -29,7 +29,12 @@ import SkillsCourses from './SkillsCourses';
 import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2, STEP3, SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
+  STEP1,
+  STEP2,
+  STEP3,
+  SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
+  GOAL_DROPDOWN_DEFAULT_OPTION,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -43,7 +48,6 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 const SkillsQuizStepper = () => {
   const config = getConfig();
   const { userId } = getAuthenticatedUser();
-  const isFirstRender = useIsFirstRender();
   const [searchClient, courseIndex, jobIndex] = useMemo(
     () => {
       const client = algoliasearch(
@@ -54,14 +58,16 @@ const SkillsQuizStepper = () => {
       const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
       return [client, cIndex, jIndex];
     },
-    [], // only initialized once
+    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_INDEX_NAME_JOBS, config.ALGOLIA_SEARCH_API_KEY],
   );
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
   const handleIsStudentCheckedChange = e => setIsStudentChecked(e.target.checked);
 
-  const { state, dispatch: skillsDispatch } = useContext(SkillsContext);
-  const { selectedJob, goal } = state;
+  const {
+    state: { selectedJob, goal },
+    dispatch: skillsDispatch,
+  } = useContext(SkillsContext);
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
@@ -143,9 +149,15 @@ const SkillsQuizStepper = () => {
       'edx.ui.enterprise.learner_portal.skills_quiz.started',
       { userId, enterprise: enterpriseConfig.slug },
     );
-  }, []);
+  }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
+
+  const [skillsVisible, setSkillsVisible] = useState(false);
 
   useEffect(() => {
+    if (goal !== GOAL_DROPDOWN_DEFAULT_OPTION) {
+      setSkillsVisible(true);
+    }
+
     if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
       setIsStudentChecked(false);
     }
@@ -153,9 +165,15 @@ const SkillsQuizStepper = () => {
 
   // will be true if goal or skills changed not because of first render, if link shared and there are more than one
   // selected skills, or if skillsVisible variable is ever been true for once.
-  const skillsVisible = useMemo(() => (!isFirstRender || skillsVisible || (selectedSkills?.length > 0)),
-    [goal, selectedSkills]);
-  const jobsDropdownsVisible = useMemo(() => !isFirstRender, [skills]);
+  const [jobsDropdownsVisible, setJobsDropdownsVisible] = useState(false);
+
+  useEffect(() => {
+    if (skillsVisible && selectedSkills.length) {
+      setJobsDropdownsVisible(true);
+    } else {
+      setJobsDropdownsVisible(false);
+    }
+  }, [skillsVisible, selectedSkills]);
 
   return (
     <>
@@ -214,7 +232,7 @@ const SkillsQuizStepper = () => {
                     }
 
                     <div className="col col-8 p-0">
-                      { skillsVisible && (
+                      {skillsVisible && (
                         <TagCloud
                           tags={selectedSkills}
                           onRemove={

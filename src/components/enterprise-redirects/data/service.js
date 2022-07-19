@@ -1,6 +1,7 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
+// eslint-disable-next-line import/prefer-default-export
 export function fetchEnterpriseCustomerByUUID(enterpriseUUID) {
   const config = getConfig();
 

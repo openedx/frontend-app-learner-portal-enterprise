@@ -73,7 +73,7 @@ const EnterpriseInvitePage = () => {
       };
       linkEnterpriseLearner();
     }
-  }, [authenticatedUser?.id]);
+  }, [authenticatedUser, enterpriseCustomerInviteKey, history]);
 
   return (
     <LoginRedirect>

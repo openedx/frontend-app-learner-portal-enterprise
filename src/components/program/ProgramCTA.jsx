@@ -10,6 +10,7 @@ import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
 
 function ProgramCTA() {
+  const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
@@ -27,8 +28,6 @@ function ProgramCTA() {
   const subjectSlug = primarySubject?.slug ? primarySubject?.slug.toLowerCase() : '';
 
   const getAvailableCourses = () => {
-    const intl = useIntl();
-
     const messages = defineMessages({
       'enterprise.program.courses.allCoursesAvailable': {
         id: 'enterprise.program.courses.allCoursesAvailable',

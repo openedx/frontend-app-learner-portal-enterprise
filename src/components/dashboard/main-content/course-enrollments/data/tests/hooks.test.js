@@ -16,10 +16,11 @@ const mockTransformedMockCourseEnrollment = transformCourseEnrollment(mockRawCou
 describe('useCourseEnrollments', () => {
   it('should fetch and set course enrollments', async () => {
     service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments({
+    const args = {
       enterpriseUUID: 'uuid',
-    }));
+      requestedCourseEnrollments: [],
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(args));
     await waitForNextUpdate();
     expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
     expect(result.current.courseEnrollmentsByStatus).toEqual({
@@ -31,10 +32,11 @@ describe('useCourseEnrollments', () => {
   it('should set fetchError if an error occurs', async () => {
     const error = Error('something went wrong');
     service.fetchEnterpriseCourseEnrollments.mockRejectedValue(error);
-
-    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments({
+    const args = {
       enterpriseUUID: 'uuid',
-    }));
+      requestedCourseEnrollments: [],
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(args));
     await waitForNextUpdate();
     expect(result.current.fetchError).toBe(error);
   });
@@ -42,9 +44,11 @@ describe('useCourseEnrollments', () => {
   describe('updateCourseEnrollmentStatus', () => {
     it('should move a course enrollment to the correct status group', async () => {
       service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
-      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments({
+      const args = {
         enterpriseUUID: 'uuid',
-      }));
+        requestedCourseEnrollments: [],
+      };
+      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(args));
       await waitForNextUpdate();
 
       act(() => result.current.updateCourseEnrollmentStatus({

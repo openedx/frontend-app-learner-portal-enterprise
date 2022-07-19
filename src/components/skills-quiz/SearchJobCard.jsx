@@ -41,7 +41,7 @@ const SearchJobCard = ({ index }) => {
         setIsLoading(false);
       }
     },
-    [jobs],
+    [dispatch, index, jobs, jobsToFetch],
   );
 
   return (

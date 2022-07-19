@@ -12,12 +12,15 @@ import {
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
-  hasLicenseOrCoupon,
 } from './data/utils';
+import { useHasLicenseOrCoupon } from './data/hooks';
 import { NotCurrentlyAvailable } from './data/constants';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { enterpriseConfig } = useContext(AppContext);
+
+  const hasLicenseOrCoupon = useHasLicenseOrCoupon();
+
   let coursesCompleted = [];
   let coursesInProgress = [];
   let coursesNotStarted = [];
@@ -37,7 +40,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const getCertificatePrice = (course) => {
     const certificatePrice = getCertificatePriceString(course);
-    if (hasLicenseOrCoupon()) {
+    if (hasLicenseOrCoupon) {
       return (
         <>
           {certificatePrice

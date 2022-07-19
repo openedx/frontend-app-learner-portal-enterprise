@@ -2,6 +2,7 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import moment from 'moment';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
 
 // eslint-disable import/prefer-default-export
