@@ -119,7 +119,12 @@ describe('useCourseEnrollments', () => {
       expect(mockCourseService.fetchEnterpriseCustomerContainsContent).toHaveBeenCalledWith([courseRunKey]);
       expect(mockCourseService.fetchUserLicenseSubsidy).toHaveBeenCalledWith(courseRunKey);
 
-      expect(result.current.upgradeUrl).toEqual(createEnrollWithLicenseUrl(courseRunKey));
+      expect(result.current.upgradeUrl).toEqual(createEnrollWithLicenseUrl({
+        courseRunKey,
+        enterpriseId,
+        licenseUUID: subscriptionLicense.uuid,
+        location,
+      }));
       expect(result.current.isLoading).toEqual(false);
     });
 

@@ -11,6 +11,7 @@ import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../data/constants';
 import { TEST_OWNER } from './data/constants';
+import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -23,7 +24,7 @@ useLocation.mockImplementation(() => ({
 jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
 jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
 
-const baseSubsidyRequestsState = {
+const defaultSubsidyRequestsState = {
   requestsBySubsidyType: {
     [SUBSIDY_TYPE.LICENSE]: [],
     [SUBSIDY_TYPE.COUPON]: [],
@@ -31,19 +32,32 @@ const baseSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
+const defaultCourseEnrollmentsState = {
+  courseEnrollmentsByStatus: {
+    inProgress: [],
+    upcoming: [],
+    completed: [],
+    savedForLater: [],
+    requested: [],
+  },
+};
+
 /* eslint-disable react/prop-types */
-const CourseHeaderWithContext = ({
+const CourseHeaderWrapper = ({
   initialAppState = {},
+  initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialSubsidyRequestsState = baseSubsidyRequestsState,
+  initialSubsidyRequestsState = defaultSubsidyRequestsState,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseContextProvider initialState={initialCourseState}>
-          <CourseHeader />
-        </CourseContextProvider>
+        <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+          <CourseContextProvider initialState={initialCourseState}>
+            <CourseHeader />
+          </CourseContextProvider>
+        </CourseEnrollmentsContext.Provider>
       </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
@@ -98,7 +112,7 @@ describe('<CourseHeader />', () => {
 
   test('renders breadcrumb', () => {
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -110,7 +124,7 @@ describe('<CourseHeader />', () => {
 
   test('does not render breadcrumb when search is disabled for customer', () => {
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={{ enterpriseConfig: { disableSearch: true } }}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -122,7 +136,7 @@ describe('<CourseHeader />', () => {
 
   test('renders course title and short description', () => {
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -136,7 +150,7 @@ describe('<CourseHeader />', () => {
 
   test('renders course run cards button', () => {
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -147,7 +161,7 @@ describe('<CourseHeader />', () => {
 
   test('renders course image', () => {
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -159,7 +173,7 @@ describe('<CourseHeader />', () => {
 
   test('renders partners', () => {
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={initialAppState}
         initialCourseState={initialCourseState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -180,7 +194,7 @@ describe('<CourseHeader />', () => {
     };
 
     render(
-      <CourseHeaderWithContext
+      <CourseHeaderWrapper
         initialAppState={initialAppState}
         initialCourseState={courseStateWithNoCatalog}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -205,7 +219,7 @@ describe('<CourseHeader />', () => {
       }));
 
       render(
-        <CourseHeaderWithContext
+        <CourseHeaderWrapper
           initialAppState={initialAppState}
           initialCourseState={initialCourseState}
           initialUserSubsidyState={initialUserSubsidyState}
@@ -232,7 +246,7 @@ describe('<CourseHeader />', () => {
       }));
 
       render(
-        <CourseHeaderWithContext
+        <CourseHeaderWrapper
           initialAppState={initialAppState}
           initialCourseState={initialCourseState}
           initialUserSubsidyState={initialUserSubsidyState}
@@ -258,7 +272,7 @@ describe('<CourseHeader />', () => {
       const micromasters = 'MicroMasters';
 
       render(
-        <CourseHeaderWithContext
+        <CourseHeaderWrapper
           initialAppState={initialAppState}
           initialCourseState={courseStateWithProgramType(micromasters)}
           initialUserSubsidyState={initialUserSubsidyState}
@@ -273,7 +287,7 @@ describe('<CourseHeader />', () => {
       const profCert = 'Professional Certificate';
 
       render(
-        <CourseHeaderWithContext
+        <CourseHeaderWrapper
           initialAppState={initialAppState}
           initialCourseState={courseStateWithProgramType(profCert)}
           initialUserSubsidyState={initialUserSubsidyState}

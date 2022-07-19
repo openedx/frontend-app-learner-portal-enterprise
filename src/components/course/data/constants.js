@@ -38,6 +38,7 @@ export const COURSE_MODES_MAP = {
 
 export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';
 export const ENROLLMENT_FAILURE_REASON_QUERY_PARAM = 'failure_reason';
+export const ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM = 'course_run_key';
 
 export const LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME = 'license-requested-alert-dismissed';
 export const LICENSE_REQUESTED_ALERT_HEADING = 'Course requested';
