@@ -9,6 +9,7 @@ import {
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   ENROLLMENT_FAILED_QUERY_PARAM,
+  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
 } from './constants';
 
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -266,6 +267,7 @@ export const createEnrollWithLicenseUrl = ({
   const config = getConfig();
   const baseQueryParams = new URLSearchParams(location.search);
   baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+  baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
 
   const queryParams = new URLSearchParams({
     next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,

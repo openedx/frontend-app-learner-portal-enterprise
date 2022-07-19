@@ -13,6 +13,7 @@ import { DashboardSidebar } from './sidebar';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
+import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -50,8 +51,7 @@ export default function DashboardPage() {
       <Container size="lg" className="py-5">
         <Row>
           <CourseEnrollmentsContextProvider>
-            {/* TODO: figure out how we want to present upgrade errors, i.e. pass through to LMS */}
-            {/* <CourseEnrollmentFailedAlert /> */}
+            <CourseEnrollmentFailedAlert className="mt-0 mb-3" enrollmentSource={ENROLLMENT_SOURCE.DASHBOARD} />
             <MainContent>
               <DashboardMainContent />
             </MainContent>

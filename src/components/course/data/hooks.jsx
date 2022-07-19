@@ -30,6 +30,7 @@ import {
   ENROLLMENT_FAILED_QUERY_PARAM,
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
+  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 
@@ -345,7 +346,10 @@ export const useCourseEnrollmentUrl = ({
 }) => {
   const config = getConfig();
   const baseQueryParams = new URLSearchParams(location.search);
+
   baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+  baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
+
   const baseEnrollmentOptions = {
     next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
     // Redirect back to the same page with a failure query param

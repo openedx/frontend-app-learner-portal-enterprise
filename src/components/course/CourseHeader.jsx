@@ -10,7 +10,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import CourseSkills from './CourseSkills';
-import CourseEnrollmentFailedAlert from './CourseEnrollmentFailedAlert';
+import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from './CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
 
 import {
@@ -39,7 +39,7 @@ export default function CourseHeader() {
   return (
     <div className="course-header">
       <LicenseRequestedAlert catalogList={catalog.catalogList} />
-      <CourseEnrollmentFailedAlert />
+      <CourseEnrollmentFailedAlert enrollmentSource={ENROLLMENT_SOURCE.COURSE_PAGE} />
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
