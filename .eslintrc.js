@@ -10,5 +10,6 @@ config.ignorePatterns = ['module.config.js'];
 //  - TypeError: Cannot read property 'range' of null
 config.rules['indent'] = ['error', 2, { 'ignoredNodes': ['TemplateLiteral', 'SwitchCase'] }];
 config.rules['template-curly-spacing'] = 'off';
+config.rules['import/prefer-default-export'] = 'off';
 
 module.exports = config;

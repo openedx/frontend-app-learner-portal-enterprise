@@ -9,7 +9,6 @@ import {
   FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS,
 } from './constants';
 
-// eslint-disable-next-line import/prefer-default-export
 export const features = {
   ENABLE_AUTO_APPLIED_LICENSES: (
     process.env.FEATURE_ENABLE_AUTO_APPLIED_LICENSES || hasFeatureFlagEnabled(FEATURE_ENABLE_AUTO_APPLIED_LICENSES)

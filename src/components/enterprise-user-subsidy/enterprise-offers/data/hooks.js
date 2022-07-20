@@ -10,7 +10,6 @@ import * as enterpriseOffersService from './service';
 import { hasValidStartExpirationDates } from '../../../../utils/common';
 import { transformEnterpriseOffer } from './utils';
 
-// eslint-disable-next-line import/prefer-default-export
 export const useEnterpriseOffers = ({
   enterpriseId,
   enableLearnerPortalOffers,

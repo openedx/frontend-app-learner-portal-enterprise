@@ -5,7 +5,6 @@ import moment from 'moment';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
 
-// eslint-disable import/prefer-default-export
 export function renderWithRouter(
   ui,
   {
