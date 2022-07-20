@@ -4,6 +4,7 @@ import { SkillsContext } from '../SkillsContextProvider';
 import { checkValidGoalAndJobSelected } from '../../utils/skills-quiz';
 import { sortSkillsWithSignificance } from './utils';
 
+// eslint-disable-next-line import/prefer-default-export
 export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSignificanceOrder }) => {
   const { state } = useContext(SkillsContext);
   const {
@@ -53,7 +54,7 @@ export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSi
     }));
 
     if (skills) {
-      allSkills.push([...skills.map((skill) => ({ key: skill, value: undefined }))]);
+      allSkills.push(...skills.map((skill) => ({ key: skill, value: undefined })));
     }
     return allSkills;
   }, [skills, skillsFromSelectedJob]);

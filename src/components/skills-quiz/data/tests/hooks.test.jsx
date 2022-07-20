@@ -44,9 +44,13 @@ const initialSkillsState = {
 
 describe('useSelectedSkillsAndJobSkills hook', () => {
   test('with getAllSkills true, returns learner selected skills and job-skills', () => {
-    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+    const args = {
       getAllSkills: true,
-    }), { wrapper: SearchWrapper(searchContext, initialSkillsState) });
+    };
+    const { result } = renderHook(
+      () => useSelectedSkillsAndJobSkills(args),
+      { wrapper: SearchWrapper(searchContext, initialSkillsState) },
+    );
 
     const skillsArray = result.current;
     const expected = skills.concat(SELECTED_JOB_SKILL_NAME);
@@ -54,9 +58,13 @@ describe('useSelectedSkillsAndJobSkills hook', () => {
   });
 
   test('with getAllSkills false, returns job-skills only', () => {
-    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+    const args = {
       getAllSkills: false,
-    }), { wrapper: SearchWrapper(searchContext, initialSkillsState) });
+    };
+    const { result } = renderHook(
+      () => useSelectedSkillsAndJobSkills(args),
+      { wrapper: SearchWrapper(searchContext, initialSkillsState) },
+    );
 
     const skillsArray = result.current;
     const expected = [SELECTED_JOB_SKILL_NAME];
@@ -79,9 +87,13 @@ describe('useSelectedSkillsAndJobSkills hook', () => {
         ],
       },
     };
-    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+    const args = {
       getAllSkills: false,
-    }), { wrapper: SearchWrapper(searchContext, skillsContextWithCurrentRole) });
+    };
+    const { result } = renderHook(
+      () => useSelectedSkillsAndJobSkills(args),
+      { wrapper: SearchWrapper(searchContext, skillsContextWithCurrentRole) },
+    );
     const skillsArray = result.current;
     const expected = [CURRENT_JOB_SKILL_NAME];
     expect(skillsArray).toEqual(expected);
@@ -118,10 +130,14 @@ describe('useSelectedSkillsAndJobSkills hook', () => {
         ],
       },
     };
-    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+    const args = {
       getAllSkills: false,
       getAllSkillsWithSignificanceOrder: true,
-    }), { wrapper: SearchWrapper(searchContext, skillsContextWithSignificanceOrder) });
+    };
+    const { result } = renderHook(
+      () => useSelectedSkillsAndJobSkills(args),
+      { wrapper: SearchWrapper(searchContext, skillsContextWithSignificanceOrder) },
+    );
 
     const skillsArray = result.current;
     const expected = [
@@ -166,10 +182,14 @@ describe('useSelectedSkillsAndJobSkills hook', () => {
         ],
       },
     };
-    const { result } = renderHook(() => useSelectedSkillsAndJobSkills({
+    const args = {
       getAllSkills: false,
       getAllSkillsWithSignificanceOrder: true,
-    }), { wrapper: SearchWrapper(searchContext, skillsContextWithSignificanceOrder) });
+    };
+    const { result } = renderHook(
+      () => useSelectedSkillsAndJobSkills(args),
+      { wrapper: SearchWrapper(searchContext, skillsContextWithSignificanceOrder) },
+    );
 
     const skillsArray = result.current;
     const expected = [
