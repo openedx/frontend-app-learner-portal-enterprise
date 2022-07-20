@@ -1,5 +1,11 @@
 /* eslint-disable import/prefer-default-export */
-import { ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD, ENTERPRISE_OFFER_TYPE } from './constants';
+import {
+  ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
+  ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
+  ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
+  ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
+  ENTERPRISE_OFFER_TYPE,
+} from './constants';
 
 export const offerHasBookingsLimit = offer => offer.maxDiscount !== null || offer.maxUserDiscount !== null;
 export const offerHasEnrollmentsLimit = offer => offer.maxGlobalApplications !== null;
@@ -25,7 +31,32 @@ export const getOfferType = (offer) => {
 
 export const isOfferLowOnBalance = (offer) => {
   if (offerHasBookingsLimit(offer)) {
-    return offer.remainingBalance <= ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD;
+    // null is <= a positive integer. if maxUserDiscount is null, limit is not set, so we
+    // would want to return false for this part of the check even if remainingBalanceForUser null
+    const lowOfferUserDollarThreshold = offer.maxUserDiscount === null
+      ? -1 : ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS;
+    // same as above, that if maxDiscount is null, the limit is not set, so we
+    // would want to return false if remainingBalance is null, but need to apply
+    // the ratio to maxDiscount in this case
+    const lowOfferDollarThreshold = offer.maxDiscount === null
+      ? -1 : offer.maxDiscount * ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO;
+
+    return offer.remainingBalance <= lowOfferDollarThreshold
+      || offer.remainingBalanceForUser <= lowOfferUserDollarThreshold;
+  }
+
+  return false;
+};
+
+export const isOfferOutOfBalance = (offer) => {
+  if (offerHasBookingsLimit(offer)) {
+    const outOfOfferUserDollarThreshold = offer.maxUserDiscount === null
+      ? -1 : ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS;
+    const outOfOfferDollarThreshold = offer.maxDiscount === null
+      ? -1 : ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS;
+
+    return offer.remainingBalance <= outOfOfferDollarThreshold
+      || offer.remainingBalanceForUser <= outOfOfferUserDollarThreshold;
   }
 
   return false;
@@ -60,5 +91,6 @@ export const transformEnterpriseOffer = (offer) => {
   return {
     ...transformedOffer,
     isLowOnBalance: isOfferLowOnBalance(transformedOffer),
+    isOutOfBalance: isOfferOutOfBalance(transformedOffer),
   };
 };

@@ -29,7 +29,7 @@ import SearchResults from './SearchResults';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { EnterpriseOffersLowBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
+import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
@@ -48,6 +48,7 @@ const Search = () => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance,
   } = useContext(UserSubsidyContext);
 
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
@@ -84,6 +85,7 @@ const Search = () => {
     [], // only initialized once
   );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
+  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
   return (
     <>
@@ -118,7 +120,10 @@ const Search = () => {
             onClose();
           }}
         />
-        {canEnrollWithEnterpriseOffers && hasLowEnterpriseOffersBalance && <EnterpriseOffersLowBalanceAlert />}
+
+        {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
+          <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
+        )}
 
         { (contentType === undefined || contentType.length === 0) && (
           <>

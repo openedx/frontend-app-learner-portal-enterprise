@@ -174,7 +174,7 @@ describe('useEnterpriseOffers', () => {
     expect(result.current.canEnrollWithEnterpriseOffers).toEqual(true);
   });
 
-  it('returns hasLowEnterpriseOffersBalance = true if the enterprise offer has remainingBalance <= 200', async () => {
+  it('returns hasLowEnterpriseOffersBalance = true if the enterprise offer has remainingBalance <= 10%', async () => {
     couponService.fetchCouponsOverview.mockResolvedValueOnce({
       data: {
         results: [],
@@ -187,6 +187,7 @@ describe('useEnterpriseOffers', () => {
           {
             ...mockEnterpriseOffers[0],
             remaining_balance: 100,
+            max_discount: 1000,
           },
         ],
       },
@@ -197,5 +198,33 @@ describe('useEnterpriseOffers', () => {
     await waitForNextUpdate();
 
     expect(result.current.hasLowEnterpriseOffersBalance).toEqual(true);
+    expect(result.current.hasNoEnterpriseOffersBalance).toEqual(false);
+  });
+
+  it('returns hasNoEnterpriseOffersBalance = true if the enterprise offer has remainingBalance <= 99', async () => {
+    couponService.fetchCouponsOverview.mockResolvedValueOnce({
+      data: {
+        results: [],
+      },
+    });
+
+    enterpriseOffersService.fetchEnterpriseOffers.mockResolvedValueOnce({
+      data: {
+        results: [
+          {
+            ...mockEnterpriseOffers[0],
+            remaining_balance: 99,
+            max_discount: 1000,
+          },
+        ],
+      },
+    });
+
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseOffers(defaultProps));
+
+    await waitForNextUpdate();
+
+    expect(result.current.hasLowEnterpriseOffersBalance).toEqual(true);
+    expect(result.current.hasNoEnterpriseOffersBalance).toEqual(true);
   });
 });

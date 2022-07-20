@@ -22,6 +22,7 @@ export const useEnterpriseOffers = ({
   const [enterpriseCoupons, setEnterpriseCoupons] = useState([]);
   const [canEnrollWithEnterpriseOffers, setCanEnrollWithEnterpriseOffers] = useState(false);
   const [hasLowEnterpriseOffersBalance, setHasLowEnterpriseOffersBalance] = useState(false);
+  const [hasNoEnterpriseOffersBalance, setHasNoEnterpriseOffersBalance] = useState(false);
 
   const enableOffers = features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS && enableLearnerPortalOffers;
 
@@ -94,6 +95,7 @@ export const useEnterpriseOffers = ({
 
     setCanEnrollWithEnterpriseOffers(true);
     setHasLowEnterpriseOffersBalance(enterpriseOffers[0].isLowOnBalance);
+    setHasNoEnterpriseOffersBalance(enterpriseOffers[0].isOutOfBalance);
   }, [
     isLoading,
     enterpriseCoupons,
@@ -106,6 +108,7 @@ export const useEnterpriseOffers = ({
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance,
     isLoading,
   };
 };
