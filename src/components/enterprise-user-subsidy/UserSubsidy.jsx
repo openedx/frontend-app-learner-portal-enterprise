@@ -93,6 +93,7 @@ const UserSubsidy = ({ children }) => {
       enterpriseOffers,
       canEnrollWithEnterpriseOffers,
       hasLowEnterpriseOffersBalance,
+      hasNoEnterpriseOffersBalance,
       showExpirationNotifications,
       customerAgreementConfig,
       activateUserLicense,
