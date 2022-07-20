@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { Container, Alert, MailtoLink } from '@edx/paragon';
 import { WarningFilled } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   LOW_BALANCE_CONTACT_ADMIN_TEXT,
@@ -23,7 +22,6 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   } = useContext(AppContext);
 
   const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
-  const className = 'balance-alert-with-cta'
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
   const icon = WarningFilled;
   const heading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
