@@ -32,7 +32,6 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const adminEmails = adminUsers.map(user => user.email);
   const hasAdminEmails = adminEmails.length > 0;
 
-  const { userId } = getAuthenticatedUser();
   const actions = hasAdminEmails ? [
     <MailtoLink
       to={adminEmails}

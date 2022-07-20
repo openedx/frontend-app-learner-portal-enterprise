@@ -10,15 +10,6 @@ import {
   NO_BALANCE_ALERT_TEXT,
 } from '../data/constants';
 
-const mockUser = {
-  userId: 1337,
-};
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ mockUser }),
-}));
-
 const EnterpriseOffersBalanceAlertWrapper = ({
   enterpriseConfig = {
     adminUsers: [],
