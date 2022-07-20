@@ -23,8 +23,7 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   } = useContext(AppContext);
 
   const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
-  const className = hasNoEnterpriseOffersBalance
-    ? 'no-offers-balance-alert-with-cta' : 'low-offers-balance-alert-with-cta';
+  const className = 'balance-alert-with-cta'
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
   const icon = WarningFilled;
   const heading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
@@ -54,7 +53,7 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   return (
     <Container size="lg" className="pt-3">
       <Alert
-        className={classNames({ [`${className}`]: hasAdminEmails })}
+        className={classNames({ 'balance-alert-with-cta': hasAdminEmails })}
         variant={variant}
         icon={icon}
         actions={actions}

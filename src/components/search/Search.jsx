@@ -121,7 +121,7 @@ const Search = () => {
           }}
         />
 
-        { canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
+        {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
 
