@@ -58,6 +58,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
   }), [
     subsidyRequestConfiguration,
     requestsBySubsidyType,
+    refreshSubsidyRequests,
     catalogsForSubsidyRequests,
   ]);
 

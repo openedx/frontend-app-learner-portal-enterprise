@@ -22,9 +22,10 @@ const SearchNoResults = ({ title }) => {
         </div>
       </div>
     ),
-    [],
+    [noResultsMessage.messageContent, noResultsMessage.messageTitle],
   );
 
+  // TODO: Design Debt. Replace with `Alert` from @edx/paragon.
   return (
     <>
       <StatusAlert

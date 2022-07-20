@@ -69,7 +69,7 @@ const SubscriptionSummaryCard = ({
     }
 
     return null;
-  }, [subscriptionPlan, licenseRequest]);
+  }, [subscriptionPlan, licenseRequest, programProgressPage]);
 
   if (!(subscriptionPlan || licenseRequest)) {
     return null;

@@ -1,6 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen, act, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { screen, act } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   SearchContext, removeFromRefinementArray, deleteRefinementAction, SearchData,
@@ -15,6 +16,7 @@ import { SkillsContextProvider, SkillsContext } from '../SkillsContextProvider';
 import {
   DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
   GOAL_DROPDOWN_DEFAULT_OPTION,
+  DROPDOWN_OPTION_CHANGE_CAREERS,
   SKILLS_FACET,
   CURRENT_JOB_FACET,
   DESIRED_JOB_FACET,
@@ -268,7 +270,7 @@ describe('<SkillsQuizStepper />', () => {
       <AppContext.Provider value={defaultAppState}>
         <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
+            <SearchContext.Provider value={searchContext}>
               <SkillsContextProvider>
                 <SkillsQuizStepper />
               </SkillsContextProvider>
@@ -279,10 +281,8 @@ describe('<SkillsQuizStepper />', () => {
       { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    await act(async () => {
-      await screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION).click();
-      screen.queryByText(DROPDOWN_OPTION_GET_PROMOTED).click();
-    });
+    userEvent.click(await screen.findByText(GOAL_DROPDOWN_DEFAULT_OPTION));
+    userEvent.click(await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED));
 
     expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
     expect(screen.queryByText(CURRENT_JOB_FACET.title)).toBeNull();
@@ -349,14 +349,14 @@ describe('<SkillsQuizStepper />', () => {
 
   it('checks i am currently a student checkbox works correctly', async () => {
     const skillsQuizContextInitialState = {
-      state: { goal: GOAL_DROPDOWN_DEFAULT_OPTION },
+      state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
     };
     renderWithRouter(
       <AppContext.Provider value={defaultAppState}>
         <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
             <SearchData>
-              <SkillsContextProvider value={{ ...skillsQuizContextInitialState }}>
+              <SkillsContextProvider initialState={skillsQuizContextInitialState}>
                 <SkillsQuizStepper />
               </SkillsContextProvider>
             </SearchData>
@@ -365,10 +365,10 @@ describe('<SkillsQuizStepper />', () => {
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=xyz' },
     );
-    expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
+    expect(await screen.findByText(SKILLS_FACET.title)).toBeInTheDocument();
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();
-    fireEvent.click(isStudentCheckbox);
+    userEvent.click(isStudentCheckbox);
     expect(isStudentCheckbox).toBeChecked();
   });
 

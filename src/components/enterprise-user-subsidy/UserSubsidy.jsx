@@ -87,13 +87,16 @@ const UserSubsidy = ({ children }) => {
     },
     [
       isLoadingSubsidies,
-      subscriptionPlan,
       subscriptionLicense,
+      subscriptionPlan,
       couponCodes,
       enterpriseOffers,
       canEnrollWithEnterpriseOffers,
-      enterpriseConfig.uuid,
+      hasLowEnterpriseOffersBalance,
+      hasNoEnterpriseOffersBalance,
+      showExpirationNotifications,
       customerAgreementConfig,
+      activateUserLicense,
     ],
   );
 

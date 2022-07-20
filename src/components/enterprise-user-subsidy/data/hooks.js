@@ -1,5 +1,5 @@
 import {
-  useState, useEffect, useReducer, useCallback,
+  useState, useEffect, useReducer, useCallback, useMemo,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -91,9 +91,12 @@ export function useSubscriptionLicense({
   const [isLoading, setIsLoading] = useState(true);
 
   const {
-    uuid: enterpriseId,
-    identityProvider: enterpriseIdentityProvider,
-  } = enterpriseConfig;
+    enterpriseId,
+    enterpriseIdentityProvider,
+  } = useMemo(() => ({
+    enterpriseId: enterpriseConfig.uuid,
+    enterpriseIdentityProvider: enterpriseConfig.identityProvider,
+  }), [enterpriseConfig]);
 
   useEffect(() => {
     async function retrieveUserLicense() {
@@ -115,6 +118,7 @@ export function useSubscriptionLicense({
 
       return result;
     }
+
     if (!isLoadingCustomerAgreementConfig) {
       setIsLoading(true);
 
@@ -135,7 +139,12 @@ export function useSubscriptionLicense({
         setIsLoading(false);
       });
     }
-  }, [isLoadingCustomerAgreementConfig]);
+  }, [
+    customerAgreementConfig,
+    enterpriseId,
+    enterpriseIdentityProvider,
+    isLoadingCustomerAgreementConfig,
+  ]);
 
   const activateUserLicense = useCallback(async (autoActivated = false) => {
     try {
@@ -157,7 +166,7 @@ export function useSubscriptionLicense({
       logError(error);
       throw error;
     }
-  }, [license, sendEnterpriseTrackEvent]);
+  }, [enterpriseId, license]);
 
   return { license, isLoading, activateUserLicense };
 }

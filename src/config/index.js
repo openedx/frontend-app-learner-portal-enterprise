@@ -9,7 +9,7 @@ import {
   FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS,
 } from './constants';
 
-const features = {
+export const features = {
   ENABLE_AUTO_APPLIED_LICENSES: (
     process.env.FEATURE_ENABLE_AUTO_APPLIED_LICENSES || hasFeatureFlagEnabled(FEATURE_ENABLE_AUTO_APPLIED_LICENSES)
   ),
@@ -20,5 +20,3 @@ const features = {
   FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS: process.env.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS
     || hasFeatureFlagEnabled(FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS),
 };
-
-export { features };

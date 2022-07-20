@@ -19,7 +19,7 @@ const TEST_ACTIVATION_KEY = 'test-activation-key';
 
 const mockEnterpriseConfig = {
   uuid: TEST_ENTERPRISE_UUID,
-  enterpriseIdentityProvider: undefined,
+  identityProvider: undefined,
 };
 
 const mockLicense = {
@@ -33,20 +33,22 @@ const mockSubscriptionPlan = { uuid: TEST_SUBSCRIPTION_UUID, is_active: true, ti
 
 describe('useSubscriptionLicense', () => {
   it('does nothing if customer agreement is still loading', async () => {
-    renderHook(() => useSubscriptionLicense({
+    const args = {
       enterpriseConfig: mockEnterpriseConfig,
       customerAgreementConfig: undefined,
       isLoadingCustomerAgreementConfig: true,
-    }));
+    };
+    renderHook(() => useSubscriptionLicense(args));
     expect(fetchSubscriptionLicensesForUser).not.toHaveBeenCalled();
   });
 
   it('fetches user license if customer agreement is finished loading', async () => {
-    const { waitForNextUpdate } = renderHook(() => useSubscriptionLicense({
+    const args = {
       enterpriseConfig: mockEnterpriseConfig,
       customerAgreementConfig: undefined,
       isLoadingCustomerAgreementConfig: false,
-    }));
+    };
+    const { waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
     await waitForNextUpdate();
     expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
   });
@@ -58,13 +60,14 @@ describe('useSubscriptionLicense', () => {
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense({
+    const args = {
       enterpriseConfig: mockEnterpriseConfig,
       customerAgreementConfig: {
         subscriptions: [mockSubscriptionPlan],
       },
       isLoadingCustomerAgreementConfig: false,
-    }));
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
     await waitForNextUpdate();
 
     expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
@@ -85,13 +88,14 @@ describe('useSubscriptionLicense', () => {
     it('activates the user license and updates the license status', async () => {
       activateLicense.mockResolvedValueOnce(true);
 
-      const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense({
+      const args = {
         enterpriseConfig: mockEnterpriseConfig,
         customerAgreementConfig: {
           subscriptions: [mockSubscriptionPlan],
         },
         isLoadingCustomerAgreementConfig: false,
-      }));
+      };
+      const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
 
       await waitForNextUpdate();
 
@@ -109,13 +113,14 @@ describe('useSubscriptionLicense', () => {
       const mockError = new Error('something went swrong');
       activateLicense.mockRejectedValueOnce(mockError);
 
-      const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense({
+      const args = {
         enterpriseConfig: mockEnterpriseConfig,
         customerAgreementConfig: {
           subscriptions: [mockSubscriptionPlan],
         },
         isLoadingCustomerAgreementConfig: false,
-      }));
+      };
+      const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
 
       await waitForNextUpdate();
 

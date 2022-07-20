@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { enrollButtonTypes } from './constants';
 import { LICENSE_SUBSIDY_TYPE } from '../data/constants';
 

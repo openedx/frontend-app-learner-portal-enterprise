@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+
 import { getLearnerProgramProgressDetail, getLearnerProgramsList } from './service';
 
 export function useLearnerProgramProgressData(programUUID) {
