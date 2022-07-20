@@ -41,9 +41,6 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
         sendEnterpriseTrackEvent(
           enterpriseCustomerUUID,
           OFFER_BALANCE_CLICK_EVENT,
-          {
-            userId,
-          },
         );
       }}
     >{adminText}
