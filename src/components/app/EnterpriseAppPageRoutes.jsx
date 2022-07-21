@@ -6,7 +6,7 @@ import { CoursePage } from '../course';
 import { SearchPage } from '../search';
 import { SkillsQuizPage } from '../skills-quiz';
 import { ProgramPage } from '../program';
-import { ProgramListingPage, ProgramProgressPage } from '../program-progress';
+import { ProgramProgressPage } from '../program-progress';
 import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import { features } from '../../config';
 import { LicenseActivationPage } from '../license-activation';
@@ -25,7 +25,6 @@ const EnterpriseAppPageRoutes = () => (
         <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
       )}
       <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgressPage} />
-      <PageRoute exact path="/:enterpriseSlug/programs" component={ProgramListingPage} />
       <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
       <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
     </AuthenticatedUserSubsidyPage>

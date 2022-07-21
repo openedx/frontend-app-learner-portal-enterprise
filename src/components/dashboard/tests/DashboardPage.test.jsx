@@ -238,6 +238,24 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText('Find a course')).toBeFalsy();
   });
 
+  it('Renders all tabs for progress in dashboard page', () => {
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+    expect(screen.getByText('Courses')).toBeInTheDocument();
+    expect(screen.getByText('Programs')).toBeInTheDocument();
+  });
+
+  it('Selects courses tab from progress tabs by default', () => {
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+    const coursesTab = screen.getByText('Courses');
+    const programsTab = screen.getByText('Programs');
+    expect(coursesTab).toHaveAttribute('aria-selected', 'true');
+    expect(programsTab).toHaveAttribute('aria-selected', 'false');
+  });
+
   describe('SubscriptionExpirationModal', () => {
     it('should not render when > 60 days of access remain', () => {
       renderWithRouter(
