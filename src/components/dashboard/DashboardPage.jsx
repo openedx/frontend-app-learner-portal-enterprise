@@ -36,7 +36,7 @@ export default function DashboardPage() {
   const {
     authenticatedUser,
   } = useContext(AppContext);
-  const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser?.name]);
+  const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const CoursesTabComponent = (
     <>
       <Container size="lg">
