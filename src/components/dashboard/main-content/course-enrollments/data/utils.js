@@ -33,7 +33,7 @@ export const transformCourseEnrollment = (rawCourseEnrollment) => {
   // is not set in the API response, we should fallback on the normal course link.
   courseEnrollment.linkToCourse = courseEnrollment.resumeCourseRunUrl || courseEnrollment.courseRunUrl;
   courseEnrollment.linkToCertificate = courseEnrollment.certificateDownloadUrl;
-  courseEnrollment.hasEmailsEnabled = courseEnrollment.emailsEnabled || false;
+  courseEnrollment.hasEmailsEnabled = courseEnrollment.emailsEnabled;
   courseEnrollment.notifications = courseEnrollment.dueDates;
   courseEnrollment.canUnenroll = canUnenrollCourseEnrollment(courseEnrollment);
 
