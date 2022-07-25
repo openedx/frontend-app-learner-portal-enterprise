@@ -222,10 +222,24 @@ class BaseCourseCard extends Component {
 
   handleUnenrollModalOnClose = () => {
     this.resetModals();
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.closed',
+      { course_run_id: courseRunId },
+    );
   };
 
   handleUnenrollModalSuccess = () => {
     this.resetModals();
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.unenrolled',
+      { course_run_id: courseRunId },
+    );
   };
 
   renderSettingsDropdown = (menuItems) => {
