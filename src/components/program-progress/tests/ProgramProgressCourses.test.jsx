@@ -9,42 +9,54 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NotCurrentlyAvailable } from '../data/constants';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-describe('<EnrollModal />', () => {
-  const mockCatalogUUID = 'uuid';
-  const initialSubscriptions = [
-    {
-      enterpriseCatalogUuid: mockCatalogUUID,
-    },
-  ];
+const mockCatalogUUID = 'uuid';
+const initialSubscriptions = [
+  {
+    enterpriseCatalogUuid: mockCatalogUUID,
+  },
+];
 
-  const initialLicenseRequests = [
-    {
-      state: SUBSIDY_REQUEST_STATE.REQUESTED,
-    },
-  ];
-  const userSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
-  const appState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      name: 'test',
-    },
-  };
+const initialLicenseRequests = [
+  {
+    state: SUBSIDY_REQUEST_STATE.REQUESTED,
+  },
+];
+const userSubsidyState = {
+  subscriptionLicense: {
+    uuid: 'test-license-uuid',
+  },
+  couponCodes: {
+    couponCodes: [],
+    couponCodesCount: 0,
+  },
+};
+const appState = {
+  enterpriseConfig: {
+    slug: 'test-enterprise-slug',
+    name: 'test',
+  },
+};
+const subsidyRequestsState = {
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+};
+
+const ProgramProgressCoursesWithContext = ({
   // eslint-disable-next-line react/prop-types
-  const ProgramProgressCoursesWithContext = ({ initialAppState, initialUserSubsidyState, courseData }) => (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+  initialAppState, initialUserSubsidyState, courseData, initialSubsidyRequestsState,
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <ProgramProgressCourses courseData={courseData} />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
+
+describe('<ProgramProgressCourses />', () => {
   it('displays the completed course with enrolled course run', () => {
     const courseDataCompletedCourse = {
       inProgress: [],
@@ -81,6 +93,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.completed[0].key}`;
@@ -126,6 +139,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
@@ -173,6 +187,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
 
@@ -237,42 +252,32 @@ describe('<EnrollModal />', () => {
         },
       ],
     };
+    const customUserSubsidyState = {
+      couponCodes: {
+        couponCodes: [],
+        couponCodesCount: 0,
+      },
+      subscriptionLicense: {},
+      customerAgreementConfig: {
+        subscriptions: initialSubscriptions,
+      },
+    };
+    const customSubsidyRequestsState = {
+      subsidyRequestConfiguration: null,
+      requestsBySubsidyType: {
+        [SUBSIDY_TYPE.LICENSE]: initialLicenseRequests,
+        [SUBSIDY_TYPE.COUPON]: [],
+      },
+    };
 
-    const LicenseRequestedAlertWrapper = ({
-      // eslint-disable-next-line react/prop-types
-      subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
-    }) => (
-      <UserSubsidyContext.Provider value={{
-        couponCodes: {
-          couponCodes: [],
-          couponCodesCount: 0,
-        },
-        subscriptionLicense: {},
-        customerAgreementConfig: {
-          subscriptions,
-        },
-      }}
-      >
-        <SubsidyRequestsContext.Provider value={
-          {
-            subsidyRequestConfiguration: null,
-            requestsBySubsidyType: {
-              [SUBSIDY_TYPE.LICENSE]: licenseRequests,
-              [SUBSIDY_TYPE.COUPON]: [],
-            },
-          }
-        }
-        >
-          <ProgramProgressCoursesWithContext
-            initialAppState={appState}
-            initialUserSubsidyState={userSubsidyState}
-            courseData={courseDataCompletedCourse}
-          />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    );
-
-    render(<LicenseRequestedAlertWrapper />);
+    render((
+      <ProgramProgressCoursesWithContext
+        initialAppState={appState}
+        initialUserSubsidyState={customUserSubsidyState}
+        initialSubsidyRequestsState={customSubsidyRequestsState}
+        courseData={courseDataCompletedCourse}
+      />
+    ));
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Archived Course').closest('a')).toHaveAttribute('href', courseLink);
@@ -319,6 +324,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
@@ -355,6 +361,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
@@ -392,6 +399,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();
@@ -443,6 +451,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
     const courseLink1 = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
@@ -517,6 +526,7 @@ describe('<EnrollModal />', () => {
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
+      initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
     const courseLink1 = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;

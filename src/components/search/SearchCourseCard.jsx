@@ -28,7 +28,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
       }
       return `/${slug}/course/${course.key}?${queryParams.toString()}`;
     },
-    [isLoading, JSON.stringify(course)],
+    [course, slug],
   );
 
   const partnerDetails = useMemo(
@@ -42,7 +42,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
         showPartnerLogo: course.partners?.length === 1,
       };
     },
-    [JSON.stringify(course)],
+    [course],
   );
 
   const loadingCard = () => (

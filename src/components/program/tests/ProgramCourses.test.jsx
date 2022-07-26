@@ -2,11 +2,12 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import moment from 'moment';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
-import ProgramCourses from '../ProgramCourses';
+import ProgramCourses, { DATE_FORMAT } from '../ProgramCourses';
 
 const programUuid = '00000000-0000-0000-0000-000000000000';
 const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
@@ -154,12 +155,14 @@ describe('<ProgramCourses />', () => {
     );
 
     fireEvent.click(screen.getByText('Test Course Title'));
-    expect(screen.queryByText('Starts Feb 5, 2013')).toBeInTheDocument();
+    const courseRun = initialProgramState.program.courses[0].courseRuns[0];
+    expect(screen.queryByText(`Starts ${moment(courseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });
 
   test('does not renders start date when courses are self paced', () => {
     const newInitialProgramState = { ...initialProgramState };
-    newInitialProgramState.program.courses[0].courseRuns[0].pacingType = 'self_paced';
+    const courseRun = newInitialProgramState.program.courses[0].courseRuns[0];
+    courseRun.pacingType = 'self_paced';
     render(
       <ProgramCoursestWithContext
         initialAppState={initialAppState}
@@ -169,11 +172,12 @@ describe('<ProgramCourses />', () => {
     );
 
     fireEvent.click(screen.getByText('Test Course Title'));
-    expect(screen.queryByText('Starts Feb 5, 2013')).not.toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${moment(courseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
   });
 
   test('renders latest course run', () => {
     const newInitialProgramState = { ...initialProgramState };
+    const firstCourseRun = newInitialProgramState.program.courses[0].courseRuns[0];
     const secondCourseRun = {
       title: 'Test Course Run Title',
       start: '2014-02-05T05:00:00Z',
@@ -189,7 +193,7 @@ describe('<ProgramCourses />', () => {
       />,
     );
     fireEvent.click(screen.getByText('Test Course Title'));
-    expect(screen.queryByText('Starts Feb 5, 2013')).not.toBeInTheDocument();
-    expect(screen.queryByText('Starts Feb 5, 2014')).toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${moment(firstCourseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${moment(secondCourseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });
 });

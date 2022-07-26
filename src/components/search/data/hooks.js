@@ -29,12 +29,7 @@ export const useSearchCatalogs = ({
     }
 
     // Scope to catalogs associated with assignable subsidies if browse and request is turned on
-    if (
-      features.FEATURE_BROWSE_AND_REQUEST
-      && catalogsForSubsidyRequests.length > 0
-    ) {
-      catalogs.push(...catalogsForSubsidyRequests);
-    }
+    catalogs.push(...catalogsForSubsidyRequests);
 
     return catalogs;
   }, [
@@ -60,10 +55,7 @@ export const useDefaultSearchFilters = ({
     if (searchCatalogs.length === 0 && !showAllRefinement) {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
     }
-  }, [
-    searchCatalogs,
-    showAllRefinement,
-  ]);
+  }, [dispatch, searchCatalogs, showAllRefinement]);
 
   const filters = useMemo(
     () => {
@@ -79,11 +71,7 @@ export const useDefaultSearchFilters = ({
       // If the learner is not confined to certain catalogs, scope to all of the enterprise's catalogs
       return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
-    [
-      enterpriseConfig,
-      JSON.stringify(refinements),
-      searchCatalogs,
-    ],
+    [enterpriseConfig.uuid, searchCatalogs, showAllRefinement],
   );
 
   return { filters };

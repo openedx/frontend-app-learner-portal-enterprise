@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -19,16 +19,10 @@ const DashboardMainContent = () => {
       slug,
       disableSearch,
     },
-    authenticatedUser,
   } = useContext(AppContext);
-
-  const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser?.name]);
 
   return (
     <>
-      <h2 className="h1 mb-4">
-        {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
-      </h2>
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
         {matches => (matches ? (
           <SubsidiesSummary />

@@ -26,13 +26,11 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const SkillsCourses = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { state } = useContext(SkillsContext);
+  const { state: { selectedJob } } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
   const [hitCount, setHitCount] = useState(undefined);
-  const { refinements } = useContext(SearchContext);
-  const { skill_names: skills } = refinements;
-  const { selectedJob } = state;
+  const { refinements: { skill_names: skills } } = useContext(SearchContext);
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
 
   const {
@@ -84,11 +82,12 @@ const SkillsCourses = ({ index }) => {
       }
       fetchCourses();
     },
-    [selectedJob, skills],
+    [selectedJob, skills, index, filters, skillsFacetFilter],
   );
-  const skillsWithSignificanceOrder = useSelectedSkillsAndJobSkills(
-    { getAllSkills: false, getAllSkillsWithSignificanceOrder: true },
-  );
+  const skillsWithSignificanceOrder = useSelectedSkillsAndJobSkills({
+    getAllSkills: false,
+    getAllSkillsWithSignificanceOrder: true,
+  });
   const coursesWithSkills = useMemo(() => {
     const coursesWithSkill = [];
     skillsWithSignificanceOrder.forEach((skill) => {
@@ -102,7 +101,7 @@ const SkillsCourses = ({ index }) => {
       }
     });
     return sortSkillsCoursesWithCourseCount(coursesWithSkill);
-  }, [skillsWithSignificanceOrder]);
+  }, [courses, skillsWithSignificanceOrder]);
 
   return (
     <div className="mt-4" style={{ paddingLeft: '15%' }}>

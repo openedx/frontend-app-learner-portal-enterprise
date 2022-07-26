@@ -22,7 +22,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       }
       return `/${slug}/course/${course.key}`;
     },
-    [course],
+    [course, slug],
   );
 
   const partnerDetails = useMemo(

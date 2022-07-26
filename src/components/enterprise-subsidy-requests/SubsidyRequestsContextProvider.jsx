@@ -7,7 +7,6 @@ import {
   useSubsidyRequestConfiguration,
   useSubsidyRequests,
 } from './data/hooks';
-import { features } from '../../config';
 import { LoadingSpinner } from '../loading-spinner';
 import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from './constants';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -59,6 +58,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
   }), [
     subsidyRequestConfiguration,
     requestsBySubsidyType,
+    refreshSubsidyRequests,
     catalogsForSubsidyRequests,
   ]);
 
@@ -77,34 +77,8 @@ const SubsidyRequestsContextProvider = ({ children }) => {
   );
 };
 
-const SubsidyRequestsContextProviderWrapper = (props) => {
-  if (features.FEATURE_BROWSE_AND_REQUEST) {
-    return <SubsidyRequestsContextProvider {...props} />;
-  }
-
-  const context = useMemo(() => ({
-    subsidyRequestConfiguration: null,
-    requestsBySubsidyType: {
-      [SUBSIDY_TYPE.LICENSE]: [],
-      [SUBSIDY_TYPE.COUPON]: [],
-    },
-    isLoading: false,
-    catalogsForSubsidyRequests: [],
-  }), []);
-
-  return (
-    <SubsidyRequestsContext.Provider value={context}>
-      {props.children}
-    </SubsidyRequestsContext.Provider>
-  );
-};
-
 SubsidyRequestsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-SubsidyRequestsContextProviderWrapper.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export default SubsidyRequestsContextProviderWrapper;
+export default SubsidyRequestsContextProvider;

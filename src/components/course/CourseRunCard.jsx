@@ -7,6 +7,7 @@ import {
 } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
+import { useLocation } from 'react-router-dom';
 import EnrollAction from './enrollment/EnrollAction';
 import { enrollButtonTypes } from './enrollment/constants';
 import {
@@ -49,6 +50,8 @@ const CourseRunCard = ({
     isEnrollable,
   } = courseRun;
 
+  const location = useLocation();
+
   const { enterpriseConfig } = useContext(AppContext);
 
   const isCourseStarted = useMemo(
@@ -70,7 +73,6 @@ const CourseRunCard = ({
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     hasCouponCodeForCourse,
-    couponCodes,
   } = useSubsidyDataForCourse();
 
   const sku = useMemo(
@@ -80,11 +82,11 @@ const CourseRunCard = ({
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
     key,
-    couponCodes,
+    courseRunKey: key,
+    location,
     sku,
     subscriptionLicense,
     userSubsidyApplicableToCourse,
-    location: window.location,
   });
 
   const enrollmentType = determineEnrollmentType({
@@ -181,15 +183,17 @@ const CourseRunCard = ({
       DEFAULT_BUTTON_LABEL,
     ];
   }, [
-    isUserEnrolled,
+    courseRunArchived,
     isEnrollable,
-    availability,
+    isUserEnrolled,
     userEntitlements,
-    pacingType,
     courseUuid,
-    isCourseStarted,
     enrollmentCount,
+    isCourseStarted,
     start,
+    pacingType,
+    availability,
+    courseRun,
   ]);
 
   return (

@@ -12,7 +12,7 @@ import {
   NEED_HELP_BLOCK_TITLE,
   LICENSE_REQUESTED_NOTICE,
   COUPON_CODES_SUMMARY_NOTICE,
-  ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY,
+  ENTERPRISE_OFFER_SUMMARY_CARD_TITLE,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -183,7 +183,7 @@ describe('<DashboardSidebar />', () => {
         }}
       />,
     );
-    expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).toBeInTheDocument();
+    expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
   test('Enterprise offers summary card is not displayed when enterprise has active offers and but has subscriptions or coupons', () => {
     renderWithRouter(
@@ -199,7 +199,7 @@ describe('<DashboardSidebar />', () => {
         }}
       />,
     );
-    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY)).not.toBeInTheDocument();
+    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
   });
   test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {
     renderWithRouter(

@@ -12,7 +12,8 @@ import {
   RequestedCourseCard,
 } from './course-cards';
 
-import { COURSE_STATUSES } from './data/constants';
+import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
+import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
@@ -91,6 +92,23 @@ class CourseSection extends React.Component {
 
   renderCourseCards = () => this.props.courseRuns.map(courseRun => {
     const Component = CARD_COMPONENT_BY_COURSE_STATUS[courseRun.courseRunStatus];
+    const isAuditEnrollment = courseRun.mode === COURSE_MODES.AUDIT;
+
+    if (isAuditEnrollment && courseRun.courseRunStatus === COURSE_STATUSES.inProgress) {
+      // if the enrollment is in audit mode and is in progress, it can be upgraded
+      // and we want to wrap it in <UpgradeableCourseEnrollmentContextProvider />
+      return (
+        <UpgradeableCourseEnrollmentContextProvider
+          courseEnrollment={courseRun}
+          key={courseRun.courseRunId}
+        >
+          <Component
+            {...this.getCourseRunProps(courseRun)}
+          />
+        </UpgradeableCourseEnrollmentContextProvider>
+      );
+    }
+
     return (
       <Component
         {...this.getCourseRunProps(courseRun)}
@@ -132,6 +150,7 @@ CourseSection.propTypes = {
       date: PropTypes.string.isRequired,
     })).isRequired,
     microMastersTitle: PropTypes.string,
+    mode: PropTypes.oneOf(Object.values(COURSE_MODES)),
     startDate: PropTypes.string,
     endDate: PropTypes.string,
     linkToCertificate: PropTypes.string,

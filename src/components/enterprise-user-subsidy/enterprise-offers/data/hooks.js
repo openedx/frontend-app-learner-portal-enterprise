@@ -6,30 +6,48 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { features } from '../../../../config';
+import * as enterpriseOffersService from './service';
+import { hasValidStartExpirationDates } from '../../../../utils/common';
+import { transformEnterpriseOffer } from './utils';
 
-export function useEnterpriseOffers({
+export const useEnterpriseOffers = ({
   enterpriseId,
+  enableLearnerPortalOffers,
   customerAgreementConfig,
   isLoadingCustomerAgreementConfig,
-}) {
+}) => {
   const [enterpriseOffers, setEnterpriseOffers] = useState([]);
   const [isLoadingOffers, setIsLoadingOffers] = useState(true);
   const [isLoadingEnterpriseCoupons, setIsLoadingEnterpriseCoupons] = useState(true);
   const [enterpriseCoupons, setEnterpriseCoupons] = useState([]);
   const [canEnrollWithEnterpriseOffers, setCanEnrollWithEnterpriseOffers] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [hasLowEnterpriseOffersBalance, setHasLowEnterpriseOffersBalance] = useState(false);
+  const [hasNoEnterpriseOffersBalance, setHasNoEnterpriseOffersBalance] = useState(false);
+
+  const enableOffers = features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS && enableLearnerPortalOffers;
 
   const isLoading = isLoadingOffers || isLoadingCustomerAgreementConfig || isLoadingEnterpriseCoupons;
 
   useEffect(() => {
     // Fetch enterprise offers here if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS is true
-    setEnterpriseOffers([]);
-    setIsLoadingOffers(false);
+    const fetchEnterpriseOffers = async () => {
+      try {
+        const response = await enterpriseOffersService.fetchEnterpriseOffers(enterpriseId);
+        const { results } = camelCaseObject(response.data);
+        setEnterpriseOffers(results.map(offer => transformEnterpriseOffer(offer)));
+      } catch (error) {
+        logError(error);
+      } finally {
+        setIsLoadingOffers(false);
+      }
+    };
 
-    // Check if offers are low on balance
-    // hasLowEnterpriseOffersBalance(true)
-  }, [enterpriseId]);
+    if (enableOffers) {
+      fetchEnterpriseOffers();
+    } else {
+      setIsLoadingOffers(false);
+    }
+  }, [enterpriseId, enableOffers]);
 
   // Fetch enterprise coupons to determine if the enterprise offers can be used to enroll
   useEffect(() => {
@@ -47,35 +65,51 @@ export function useEnterpriseOffers({
       }
     };
 
-    if (features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
+    if (enableOffers) {
       fetchEnterpriseCoupons();
     } else {
       setIsLoadingEnterpriseCoupons(false);
     }
-  }, [enterpriseId]);
+  }, [enableOffers, enterpriseId]);
 
   useEffect(() => {
-    if (isLoading || !features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
+    if (!enableOffers || isLoading) {
       return;
     }
 
-    // might also add enterpriseOffers.length === 1 depending on requirements
-    if (enterpriseCoupons.length === 0
-       && (customerAgreementConfig?.subscriptions?.length || 0) === 0) {
-      setCanEnrollWithEnterpriseOffers(true);
+    const enterpriseHasActiveCoupons = enterpriseCoupons.length > 0;
+    const enterpriseHasActiveSubscription = !!(customerAgreementConfig?.subscriptions ?? []).find(({
+      startDate,
+      expirationDate,
+    }) => hasValidStartExpirationDates({
+      startDate,
+      expirationDate,
+    }));
+
+    // For MVP we will only support enterprises with one active offer
+    const enterpriseHasOneOffer = enterpriseOffers.length === 1;
+
+    if (enterpriseHasActiveCoupons || enterpriseHasActiveSubscription || !enterpriseHasOneOffer) {
+      return;
     }
+
+    setCanEnrollWithEnterpriseOffers(true);
+    setHasLowEnterpriseOffersBalance(enterpriseOffers[0].isLowOnBalance);
+    setHasNoEnterpriseOffersBalance(enterpriseOffers[0].isOutOfBalance);
   }, [
     isLoading,
     enterpriseCoupons,
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
-    features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS,
+    enableOffers,
+    enterpriseOffers,
   ]);
 
   return {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance,
     isLoading,
   };
-}
+};

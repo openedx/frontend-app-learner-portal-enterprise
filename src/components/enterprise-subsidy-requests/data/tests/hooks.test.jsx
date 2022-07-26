@@ -85,11 +85,12 @@ describe('useSubsidyRequests', () => {
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests({
+    const args = {
       subsidyRequestsEnabled: true,
       subsidyType: SUBSIDY_TYPE.COUPON,
       enterpriseCustomerUuid: mockEnterpriseUUID,
-    }));
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args));
     await waitForNextUpdate();
     expect(service.fetchCouponCodeRequests).toHaveBeenCalledWith({
       enterpriseUUID: mockEnterpriseUUID,
@@ -120,11 +121,12 @@ describe('useSubsidyRequests', () => {
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests({
+    const args = {
       subsidyRequestsEnabled: true,
       subsidyType: SUBSIDY_TYPE.COUPON,
       enterpriseCustomerUuid: mockEnterpriseUUID,
-    }));
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args));
     await waitForNextUpdate();
 
     expect(service.fetchCouponCodeRequests).toHaveBeenCalledWith({
@@ -158,11 +160,12 @@ describe('useSubsidyRequests', () => {
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests({
+    const args = {
       subsidyRequestsEnabled: true,
       subsidyType: SUBSIDY_TYPE.LICENSE,
       enterpriseCustomerUuid: mockEnterpriseUUID,
-    }));
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args));
     await waitForNextUpdate();
 
     expect(service.fetchCouponCodeRequests).not.toHaveBeenCalled();
@@ -189,11 +192,12 @@ describe('useCatalogsForSubsidyRequests', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('sets isLoading to false if there is no subsidy request configuration', () => {
-    const { result } = renderHook(() => useCatalogsForSubsidyRequests({
+    const args = {
       subsidyRequestConfiguration: null,
       isLoadingSubsidyRequestConfiguration: false,
       customerAgreementConfig: null,
-    }));
+    };
+    const { result } = renderHook(() => useCatalogsForSubsidyRequests(args));
 
     expect(result.current.isLoading).toBe(false);
   });
@@ -211,11 +215,12 @@ describe('useCatalogsForSubsidyRequests', () => {
       subsidyType: SUBSIDY_TYPE.COUPON,
       subsidyRequestsEnabled: true,
     };
-    const { result, waitForNextUpdate } = renderHook(() => useCatalogsForSubsidyRequests({
+    const args = {
       subsidyRequestConfiguration,
       isLoadingSubsidyRequestConfiguration: false,
       customerAgreementConfig: null,
-    }));
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useCatalogsForSubsidyRequests(args));
 
     await waitForNextUpdate();
 
@@ -224,14 +229,15 @@ describe('useCatalogsForSubsidyRequests', () => {
   });
 
   it('does nothing if subsidy requests are not enabled', async () => {
-    const { result } = renderHook(() => useCatalogsForSubsidyRequests({
+    const args = {
       subsidyRequestConfiguration: {
         subsidyType: SUBSIDY_TYPE.COUPON,
         subsidyRequestsEnabled: false,
       },
       isLoadingSubsidyRequestConfiguration: false,
       customerAgreementConfig: null,
-    }));
+    };
+    const { result } = renderHook(() => useCatalogsForSubsidyRequests(args));
 
     expect(result.current.isLoading).toBe(false);
     expect(couponsService.fetchCouponsOverview).not.toHaveBeenCalled();
@@ -243,7 +249,7 @@ describe('useCatalogsForSubsidyRequests', () => {
       subsidyType: SUBSIDY_TYPE.LICENSE,
       subsidyRequestsEnabled: true,
     };
-    const { result } = renderHook(() => useCatalogsForSubsidyRequests({
+    const args = {
       subsidyRequestConfiguration,
       isLoadingSubsidyRequestConfiguration: false,
       customerAgreementConfig: {
@@ -251,7 +257,8 @@ describe('useCatalogsForSubsidyRequests', () => {
           enterpriseCatalogUuid: uuid,
         })),
       },
-    }));
+    };
+    const { result } = renderHook(() => useCatalogsForSubsidyRequests(args));
 
     expect(result.current.isLoading).toBe(false);
     expect([...result.current.catalogs]).toEqual(mockCatalogUUIDs);

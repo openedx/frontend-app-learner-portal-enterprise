@@ -39,10 +39,23 @@ const filterSkillNames = skillNames => {
 
 const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
-  const pathway = hit ? camelCaseObject(hit) : {};
 
-  const pathwayUuid = Object.keys(pathway).length ? pathway.aggregationKey.split(':').pop() : undefined;
+  const pathway = useMemo(() => {
+    if (!hit) {
+      return {};
+    }
+    return camelCaseObject(hit);
+  }, [hit]);
+
+  const pathwayUuid = useMemo(() => {
+    if (!Object.keys(pathway).length) {
+      return undefined;
+    }
+    return pathway.aggregationKey.split(':').pop();
+  }, [pathway]);
+
   const eventName = isSkillQuizResult ? PATHWAY_SKILL_QUIZ_EVENT_NAME : PATHWAY_SEARCH_EVENT_NAME;
+
   const linkToPathway = useMemo(
     () => {
       if (!Object.keys(pathway).length) {
@@ -50,7 +63,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
       }
       return `/${slug}/search/${pathwayUuid}`;
     },
-    [isLoading, JSON.stringify(pathway)],
+    [pathway, pathwayUuid, slug],
   );
 
   const loadingCard = () => (

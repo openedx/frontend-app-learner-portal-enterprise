@@ -5,6 +5,7 @@ import {
   breakpoints, Container, Row, MediaQuery,
 } from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
@@ -116,6 +117,13 @@ export default function CoursePage() {
 
   // If there isn't an active course run we don't show the course at all
   if (!initialState.activeCourseRun) {
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
+      {
+        course_key: courseKey,
+      },
+    );
     return <NotFoundPage />;
   }
 

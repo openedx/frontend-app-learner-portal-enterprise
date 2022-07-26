@@ -8,10 +8,12 @@ import _cloneDeep from 'lodash.clonedeep';
 import * as service from './service';
 import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './utils';
 import { COURSE_STATUSES } from './constants';
+import CourseService from '../../../../course/data/service';
+import { createEnrollWithLicenseUrl } from '../../../../course/data/utils';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
-  requestedCourseEnrollments = [],
+  requestedCourseEnrollments,
 }) => {
   const [courseEnrollmentsByStatus, setCourseEnrollmentsByStatus] = useState(groupCourseEnrollmentsByStatus([]));
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +36,7 @@ export const useCourseEnrollments = ({
     };
 
     fetchData();
-  }, [enterpriseUUID]);
+  }, [enterpriseUUID, requestedCourseEnrollments]);
 
   const updateCourseEnrollmentStatus = useCallback(({
     courseRunId,
@@ -68,5 +70,80 @@ export const useCourseEnrollments = ({
     isLoading,
     fetchError,
     updateCourseEnrollmentStatus,
+  };
+};
+
+/**
+ * Return data for upgrading a course using the user's subsidies
+ * @param {object} args Arguments.
+ * @param {String} args.courseRunKey id of the course run
+ * @param {String} args.enterpriseId UUID of the enterprise
+ * @param {Object} args.subscriptionLicense the user's subscription license
+ * @param {Object} args.location location object from useLocation()
+ *
+ * @returns {Object} { isLoading, upgradeUrl }
+ */
+export const useCourseUpgradeData = ({
+  courseRunKey,
+  enterpriseId,
+  subscriptionLicense,
+  location,
+}) => {
+  const [upgradeUrl, setUpgradeUrl] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const courseService = new CourseService({
+      enterpriseUuid: enterpriseId,
+      courseKey: null,
+      courseRunKey,
+    });
+
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      try {
+        const containsContentResponse = await courseService.fetchEnterpriseCustomerContainsContent([courseRunKey]);
+        const { containsContentItems } = camelCaseObject(containsContentResponse.data);
+
+        // Don't do anything if the course is not part of the enterprise's catalog
+        if (containsContentItems) {
+          let licenseSubsidy;
+
+          if (subscriptionLicense) {
+            // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+            const fetchUserLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy(courseRunKey);
+            licenseSubsidy = camelCaseObject(fetchUserLicenseSubsidyResponse.data);
+          }
+
+          if (licenseSubsidy) {
+            const url = createEnrollWithLicenseUrl({
+              courseRunKey,
+              enterpriseId,
+              licenseUUID: subscriptionLicense.uuid,
+              location,
+            });
+
+            setUpgradeUrl(url);
+          }
+        }
+      } catch (error) {
+        logError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [
+    courseRunKey,
+    enterpriseId,
+    subscriptionLicense,
+    location,
+  ]);
+
+  return {
+    isLoading,
+    upgradeUrl,
   };
 };

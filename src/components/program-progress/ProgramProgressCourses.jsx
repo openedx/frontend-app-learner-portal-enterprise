@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-
 import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
@@ -7,6 +6,9 @@ import {
 import moment from 'moment';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
+
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import {
   courseUpgradationAvailable,
   getCertificatePriceString,
@@ -18,6 +20,21 @@ import { NotCurrentlyAvailable } from './data/constants';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { enterpriseConfig } = useContext(AppContext);
+  const {
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodesCount },
+  } = useContext(UserSubsidyContext);
+
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
+
+  const userHasLicenseOrCoupon = hasLicenseOrCoupon({
+    requestsBySubsidyType,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodesCount,
+  });
+
   let coursesCompleted = [];
   let coursesInProgress = [];
   let coursesNotStarted = [];
@@ -37,7 +54,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const getCertificatePrice = (course) => {
     const certificatePrice = getCertificatePriceString(course);
-    if (hasLicenseOrCoupon()) {
+    if (userHasLicenseOrCoupon) {
       return (
         <>
           {certificatePrice

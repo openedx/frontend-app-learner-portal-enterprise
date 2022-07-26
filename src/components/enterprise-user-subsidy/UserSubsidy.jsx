@@ -32,13 +32,16 @@ const UserSubsidy = ({ children }) => {
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
+
   const {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance,
     isLoading: isLoadingEnterpriseOffers,
   } = useEnterpriseOffers({
     enterpriseId: enterpriseConfig.uuid,
+    enableLearnerPortalOffers: enterpriseConfig.enableLearnerPortalOffers,
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
   });
@@ -76,6 +79,7 @@ const UserSubsidy = ({ children }) => {
         enterpriseOffers,
         canEnrollWithEnterpriseOffers,
         hasLowEnterpriseOffersBalance,
+        hasNoEnterpriseOffersBalance,
         showExpirationNotifications,
         customerAgreementConfig,
         activateUserLicense,
@@ -83,13 +87,16 @@ const UserSubsidy = ({ children }) => {
     },
     [
       isLoadingSubsidies,
-      subscriptionPlan,
       subscriptionLicense,
+      subscriptionPlan,
       couponCodes,
       enterpriseOffers,
       canEnrollWithEnterpriseOffers,
-      enterpriseConfig.uuid,
+      hasLowEnterpriseOffersBalance,
+      hasNoEnterpriseOffersBalance,
+      showExpirationNotifications,
       customerAgreementConfig,
+      activateUserLicense,
     ],
   );
 

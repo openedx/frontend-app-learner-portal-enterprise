@@ -80,7 +80,7 @@ const SearchProgramCard = ({ index }) => {
       }
       return [];
     },
-    [selectedJob],
+    [selectedJobSkills],
   );
   useEffect(
     () => {
@@ -107,7 +107,7 @@ const SearchProgramCard = ({ index }) => {
         }
       }
     },
-    [selectedJob, skills],
+    [filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   const partnerDetails = useMemo(
@@ -124,7 +124,7 @@ const SearchProgramCard = ({ index }) => {
       });
       return partners;
     },
-    [JSON.stringify(programs)],
+    [programs],
   );
 
   const programUuids = useMemo(
@@ -140,7 +140,7 @@ const SearchProgramCard = ({ index }) => {
       });
       return programUUIDs;
     },
-    [JSON.stringify(programs)],
+    [programs],
   );
 
   const loadingCard = () => (
@@ -149,25 +149,20 @@ const SearchProgramCard = ({ index }) => {
         as={Skeleton}
         duration={0}
       />
-
       <Card.Header
         title={
           <Skeleton duration={0} data-testid="program-title-loading" />
         }
       />
-
       <Card.Section>
         <Skeleton duration={0} data-testid="program-type-loading" />
       </Card.Section>
-
       <Card.Section>
         <Skeleton duration={0} data-testid="partner-key-loading" />
       </Card.Section>
-
       <Card.Section>
         <Skeleton count={1} data-testid="skills-loading" />
       </Card.Section>
-
       <Card.Footer className="bg-white border-0 pt-0 pb-2">
         <Skeleton duration={0} data-testid="program-courses-count-loading" />
       </Card.Footer>

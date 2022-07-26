@@ -55,7 +55,7 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchSubsidyRequests = async (subsidyType) => {
+  const fetchSubsidyRequests = useCallback(async (subsidyType) => {
     setIsLoading(true);
     try {
       const { email: userEmail } = getAuthenticatedUser();
@@ -81,7 +81,7 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [subsidyRequestConfiguration]);
 
   const loadSubsidyRequests = useCallback(() => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {
@@ -90,14 +90,11 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
         fetchSubsidyRequests(subsidyType);
       }
     }
-  }, [subsidyRequestConfiguration]);
+  }, [fetchSubsidyRequests, subsidyRequestConfiguration]);
 
   useEffect(() => {
     loadSubsidyRequests();
-  }, [
-    subsidyRequestConfiguration?.subsidyRequestsEnabled,
-    subsidyRequestConfiguration?.subsidyType,
-  ]);
+  }, [loadSubsidyRequests]);
 
   return {
     couponCodeRequests,
@@ -145,12 +142,13 @@ export const useCatalogsForSubsidyRequests = ({
         getCatalogs();
         return;
       }
-
-      if (isLoading) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
-  }, [isLoadingSubsidyRequestConfiguration, subsidyRequestConfiguration]);
+  }, [
+    customerAgreementConfig,
+    isLoadingSubsidyRequestConfiguration,
+    subsidyRequestConfiguration,
+  ]);
 
   return {
     catalogs,

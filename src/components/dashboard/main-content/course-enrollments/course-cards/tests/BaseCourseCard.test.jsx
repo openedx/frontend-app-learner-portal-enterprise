@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import Skeleton from 'react-loading-skeleton';
 import BaseCourseCard from '../BaseCourseCard';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -13,14 +14,15 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
-describe('<BaseCourseCard />', () => {
-  describe('email settings modal', () => {
-    let wrapper;
+const enterpriseConfig = {
+  name: 'test-enterprise-name',
+};
 
+describe('<BaseCourseCard />', () => {
+  let wrapper;
+
+  describe('email settings modal', () => {
     beforeEach(() => {
-      const enterpriseConfig = {
-        name: 'test-enterprise-name',
-      };
       wrapper = mount((
         <AppContext.Provider value={{ enterpriseConfig }}>
           <BaseCourseCard
@@ -42,5 +44,22 @@ describe('<BaseCourseCard />', () => {
       wrapper.find('EmailSettingsModal').find('.modal-footer .btn-link').first().simulate('click');
       expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeFalsy();
     });
+  });
+
+  it('should render Skeleton if isLoading = true', () => {
+    wrapper = mount((
+      <AppContext.Provider value={{ enterpriseConfig }}>
+        <BaseCourseCard
+          type="completed"
+          title="edX Demonstration Course"
+          linkToCourse="https://edx.org"
+          courseRunId="my+course+key"
+          hasEmailsEnabled
+          isLoading
+        />
+      </AppContext.Provider>
+    ));
+
+    expect(wrapper.find(Skeleton)).toBeTruthy();
   });
 });

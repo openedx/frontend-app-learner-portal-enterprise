@@ -52,7 +52,7 @@ const SearchCourseCard = ({ index }) => {
       }
       return [];
     },
-    [selectedJob],
+    [selectedJobSkills],
   );
   useEffect(
     () => {
@@ -75,7 +75,7 @@ const SearchCourseCard = ({ index }) => {
       }
       fetchCourses();
     },
-    [selectedJob, skills],
+    [filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   return (
