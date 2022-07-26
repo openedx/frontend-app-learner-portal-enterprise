@@ -5,8 +5,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { Alert } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { ZoomOut } from '@edx/paragon/icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
 
@@ -16,14 +15,6 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import CourseCard from './CourseCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-
-const renderDialog = () => (
-  <div className="lead d-flex align-items-center py-3">
-    <p>
-      { NO_COURSES_ALERT_MESSAGE }
-    </p>
-  </div>
-);
 
 const SearchCourseCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -101,10 +92,10 @@ const SearchCourseCard = ({ index }) => {
             className="mt-4 mb-5"
             variant="info"
             dismissible={false}
-            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+            icon={ZoomOut}
             show
           >
-            {renderDialog()}
+            { NO_COURSES_ALERT_MESSAGE }
           </Alert>
         )}
       </div>
