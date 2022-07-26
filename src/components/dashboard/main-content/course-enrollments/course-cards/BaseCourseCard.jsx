@@ -213,7 +213,7 @@ class BaseCourseCard extends Component {
         courseRunId={courseRunId}
         courseRunTitle={title}
         onClose={this.handleUnenrollModalOnClose}
-        onSuccess={this.handleUnenrollModalSuccess}
+        onSuccess={this.handleUnenrollModalOnSuccess}
         isOpen={modals.unenroll.open}
         enrollmentType={camelCase(type)}
       />
@@ -231,7 +231,7 @@ class BaseCourseCard extends Component {
     );
   };
 
-  handleUnenrollModalSuccess = () => {
+  handleUnenrollModalOnSuccess = () => {
     this.resetModals();
     const { courseRunId } = this.props;
     const { enterpriseConfig } = this.context;

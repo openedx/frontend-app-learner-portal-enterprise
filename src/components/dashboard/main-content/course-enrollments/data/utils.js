@@ -9,14 +9,14 @@ import { COURSE_STATUSES } from './constants';
  * @returns True if the enrollment can be unenrolled. False if not.
  */
 export const canUnenrollCourseEnrollment = (courseEnrollment) => {
-  const unenrollableCourseRunTypes = [
+  const unenrollableCourseRunTypes = new Set([
     COURSE_STATUSES.inProgress,
     COURSE_STATUSES.upcoming,
     COURSE_STATUSES.completed,
     COURSE_STATUSES.savedForLater,
-  ];
+  ]);
   return (
-    unenrollableCourseRunTypes.includes(courseEnrollment.courseRunStatus)
+    unenrollableCourseRunTypes.has(courseEnrollment.courseRunStatus)
     && !courseEnrollment.certificateDownloadUrl
   );
 };
