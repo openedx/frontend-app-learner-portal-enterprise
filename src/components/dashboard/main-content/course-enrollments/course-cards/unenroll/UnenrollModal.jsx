@@ -54,7 +54,12 @@ export default function UnenrollModal({
       onClose={handleClose}
       footerNode={(
         <ActionRow>
-          <Button variant="tertiary" onClick={handleClose}>Cancel</Button>
+          <Button
+            variant="tertiary"
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
           <StatefulButton
             variant="danger"
             labels={btnLabels}
@@ -67,13 +72,14 @@ export default function UnenrollModal({
       )}
     >
       <>
-        {error && (
-          <Alert variant="danger">
-            <p>
-              An error occurred while unenrolling from your course. Please try again.
-            </p>
-          </Alert>
-        )}
+        <Alert
+          variant="danger"
+          show={!!error}
+        >
+          <p data-testid="unenroll-error-text">
+            An error occurred while unenrolling from your course. Please try again.
+          </p>
+        </Alert>
         <p>
           Are you sure you want to unenroll from {courseRunTitle}?
         </p>

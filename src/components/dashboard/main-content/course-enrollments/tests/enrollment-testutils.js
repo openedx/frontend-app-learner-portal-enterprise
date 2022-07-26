@@ -21,7 +21,7 @@ const createCourseEnrollmentWithStatus = ({ status = COURSE_STATUSES.inProgress,
   });
 };
 
-const createRawCourseEnrollment = () => ({
+const createRawCourseEnrollment = (options) => ({
   courseRunId: 'course-v1:Best+course',
   displayName: 'Best course',
   micromastersTitle: 'Greatest Micromasters',
@@ -32,6 +32,7 @@ const createRawCourseEnrollment = () => ({
   completed: false,
   courseRunStatus: COURSE_STATUSES.inProgress,
   isRevoked: false,
+  ...options,
 });
 
 export {
