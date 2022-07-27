@@ -14,7 +14,8 @@ import {
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { ZoomOut } from '@edx/paragon/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { SkillsContext } from './SkillsContextProvider';
 import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
@@ -271,7 +272,7 @@ const SearchProgramCard = ({ index }) => {
             className="mt-4 mb-5"
             variant="info"
             dismissible={false}
-            icon={ZoomOut}
+            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
             show
           >
             { NO_PROGRAMS_ALERT_MESSAGE }

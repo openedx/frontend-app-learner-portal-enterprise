@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from '@edx/paragon';
-import { ZoomOut } from '@edx/paragon/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
 import { PopularResults } from './popular-results';
 import { getNoResultsMessage } from '../utils/search';
@@ -15,7 +16,7 @@ const SearchNoResults = ({ title }) => {
         className="mb-5"
         variant="info"
         dismissible={false}
-        icon={ZoomOut}
+        icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
         show
       >
         <Alert.Heading>{noResultsMessage.messageTitle}</Alert.Heading>
