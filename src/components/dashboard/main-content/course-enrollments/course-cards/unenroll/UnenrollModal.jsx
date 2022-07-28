@@ -58,10 +58,10 @@ export default function UnenrollModal({
             variant="tertiary"
             onClick={handleClose}
           >
-            Cancel
+            Keep learning
           </Button>
           <StatefulButton
-            variant="danger"
+            variant="primary"
             labels={btnLabels}
             state={btnState}
             onClick={handleUnenrollButtonClick}
