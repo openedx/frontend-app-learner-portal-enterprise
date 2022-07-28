@@ -35,7 +35,7 @@ Users will access a new page route through the Executive Education (2U) allocati
 
 The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send this data as its payload back to the ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the order history page.
 
-The content of the terms themselves will be retrieved from the `/terms` API endpoint in GEAG via a backend-for-frontend (BFF) endpoint.
+The content of the terms themselves will be retrieved from the `/terms` API endpoint in GEAG via a backend-for-frontend (BFF) endpoint. Similarly, should we need to display metadata about the Executive Education (2U) course itself (e.g., title, description, etc.), we will also source these data from a similar BFF endpoint to return product metadata in the UI.
 
 If the user does not accept the ToS, they should see appropriate messaging and provide a link to redirect back to their external LMS (i.e., where they came from). This URL will be provided by the ecommerce view that redirects the user to this new page route, including a redirect URL via a query parameter.
 
