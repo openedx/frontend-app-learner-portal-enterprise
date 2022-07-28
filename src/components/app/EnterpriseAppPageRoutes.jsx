@@ -12,8 +12,8 @@ import { features } from '../../config';
 import { LicenseActivationPage } from '../license-activation';
 import { PathwayProgressPage } from '../pathway-progress';
 
-const EnterpriseAppPageRoutes = () => (
-  <>
+function EnterpriseAppPageRoutes() {
+  return (
     <AuthenticatedUserSubsidyPage>
       <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
       <PageRoute
@@ -36,7 +36,7 @@ const EnterpriseAppPageRoutes = () => (
         <PageRoute exact path="/:enterpriseSlug/pathway/:pathwayUUID/progress" component={PathwayProgressPage} />
       )}
     </AuthenticatedUserSubsidyPage>
-  </>
-);
+  );
+}
 
 export default EnterpriseAppPageRoutes;
