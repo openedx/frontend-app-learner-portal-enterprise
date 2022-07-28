@@ -10,7 +10,7 @@ As part of our Product Line Integration work (PLI) to make 2U content (i.e., Exe
 
 The fulfillment of Executive Education (2U) courses is handled by the GetSmarter Enterprise API Gateway (GEAG), in which edX for Business is considered an external service provider to GetSmarter. 
 
-The GEAG `allocations` API denotes the following required information from the user:
+The GEAG `/allocations` API endpoint denotes the following required information from the user:
 
 * Reading and agreeing to the Terms of Service (ToS)
 * Collecting required user profile:
@@ -34,6 +34,8 @@ The information this new page will need to display for viewing and agreeing to t
 Users will access a new page route through the Executive Education (2U) allocation and fulfillment flow in order to view collect ToS and profile data from users, if applicable. 
 
 The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send this data as its payload back to the ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the order history page.
+
+The content of the terms themselves will be retrieved from the `/terms` API endpoint in GEAG via a backend-for-frontend (BFF) endpoint.
 
 If the user does not accept the ToS, they should see appropriate messaging and provide a link to redirect back to their external LMS (i.e., where they came from). This URL will be provided by the ecommerce view that redirects the user to this new page route, including a redirect URL via a query parameter.
 
