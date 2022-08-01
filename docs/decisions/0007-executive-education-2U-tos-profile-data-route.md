@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (07-28-2022)
+Accepted (08-01-2022)
 
 ## Context
 
@@ -33,9 +33,9 @@ The information this new page will need to display for viewing and agreeing to t
 
 Users will access a new page route through the Executive Education (2U) allocation and fulfillment flow in order to view collect ToS and profile data from users, if applicable. 
 
-The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send this data as its payload back to the ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the order history page.
+The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send these data as its payload back to an ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the ecommerce order history page.
 
-The content of the terms themselves will be retrieved from the `/terms` API endpoint in GEAG via a backend-for-frontend (BFF) endpoint. Similarly, should we need to display metadata about the Executive Education (2U) course itself (e.g., title, description, etc.), we will source these data from the `/courses` API endpoint in course-discovery to return product metadata in the UI.
+The content of the terms themselves will be retrieved from the `/terms` API endpoint in GEAG via a backend-for-frontend (BFF) endpoint defined in the ecommerce service. Similarly, should we need to display metadata about the Executive Education (2U) course itself (e.g., title, description, etc.), we will source these data from the `/courses` API endpoint in course-discovery to return product metadata in the UI based on a unique identifier for the course.
 
 If the user does not accept the ToS, they should see appropriate messaging and provide a link to redirect back to their external LMS (i.e., where they came from). This URL will be provided by the ecommerce view that redirects the user to this new page route, including a redirect URL via a query parameter.
 
@@ -48,6 +48,11 @@ The ecommerce view will provide the redirect URL and any failure reasons as quer
 In the event that the associated enterprise customer has the Executive Education (2U) configuration flag turned off, the new page route implemented via this ADR will return a 404 page instead. By doing so, we eliminate the need for a separate feature flag for the new page route.
 
 While on this page route, we will ensure the header does not include navigation links to the "Dashboard" or "Find a Course" page, as this user flow does not intend for these pages to be reachable, nor would they have the necessary data to provide a good user experience (i.e., Executive Education (2U) course enrollments won't appear on the "Dashboard" or appear in the search results).
+
+The new page route will require the following pieces of data provided by the ecommerce service, passed via query parameters:
+* **Unique course identifier** (`course_id`). Used to retrieve display information about the course to the user in the UI.
+* **External LMS redirect URL** (`redirect_url`). Used as a hyperlink to bring user back to their external LMS.
+* **Failure reason** (`failure_reason`). Used to determine which error message(s) should be displayed based on any API failures.
 
 ## Consequences
 
