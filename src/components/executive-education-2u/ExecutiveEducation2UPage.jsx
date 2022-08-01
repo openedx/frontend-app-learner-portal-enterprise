@@ -40,29 +40,33 @@ function ExecutiveEducation2UPage() {
     }
     const includedTabs = [];
     if (terms.studentTermsAndConditions) {
+      const key = 'studentTermsAndConditions';
       includedTabs.push(
-        <Tab eventKey="studentTermsAndConditions" title="Student Terms and Conditions" className="py-4">
+        <Tab eventKey={key} key={key} title="Student Terms and Conditions" className="py-4">
           <div dangerouslySetInnerHTML={{ __html: terms.studentTermsAndConditions }} />
         </Tab>,
       );
     }
     if (terms.websiteTermsOfUse) {
+      const key = 'websiteTermsOfUse';
       includedTabs.push(
-        <Tab eventKey="websiteTermsOfUse" title="Website Terms of Use" className="py-4">
+        <Tab eventKey={key} key={key} title="Website Terms of Use" className="py-4">
           <div dangerouslySetInnerHTML={{ __html: terms.websiteTermsOfUse }} />
         </Tab>,
       );
     }
     if (terms.privacyPolicy) {
+      const key = 'privacyPolicy';
       includedTabs.push(
-        <Tab eventKey="privacyPolicy" title="Privacy Policy" className="py-4">
+        <Tab eventKey={key} key={key} title="Privacy Policy" className="py-4">
           <div dangerouslySetInnerHTML={{ __html: terms.privacyPolicy }} />
         </Tab>,
       );
     }
     if (terms.cookiePolicy) {
+      const key = 'cookiePolicy';
       includedTabs.push(
-        <Tab eventKey="cookiePolicy" title="Cookie Policy" className="py-4">
+        <Tab eventKey={key} key={key} title="Cookie Policy" className="py-4">
           <div dangerouslySetInnerHTML={{ __html: terms.cookiePolicy }} />
         </Tab>,
       );
@@ -82,7 +86,7 @@ function ExecutiveEducation2UPage() {
         <title>Executive Education (2U)</title>
       </Helmet>
       {isLoading && (
-        <p><Skeleton count={20} /></p>
+        <p data-testid="loading-skeleton-geag-terms"><Skeleton count={20} /></p>
       )}
       {tabs.length > 0 && (
         <Tabs defaultActiveKey="studentTermsAndConditions" id="geag-terms">
