@@ -52,7 +52,9 @@ While on this page route, we will ensure the header does not include navigation 
 The new page route will require the following pieces of data provided by the ecommerce service, passed via query parameters:
 * **Unique course identifier** (`course_id`). Used to retrieve display information about the course to the user in the UI.
 * **External LMS redirect URL** (`redirect_url`). Used as a hyperlink to bring user back to their external LMS.
-* **Failure reason** (`failure_reason`). Used to determine which error message(s) should be displayed based on any API failures.
+* **Failure reason** (`failure_reason`). Used to determine which error message(s), if any, should be displayed based on any API failures.
+
+* Don't have an offer for the Executive Education (2U)
 
 ## Consequences
 
