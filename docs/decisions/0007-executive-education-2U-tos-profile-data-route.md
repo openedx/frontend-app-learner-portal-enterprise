@@ -33,17 +33,27 @@ The information this new page will need to display for viewing and agreeing to t
 
 Users will access a new page route through the Executive Education (2U) allocation and fulfillment flow in order to view collect ToS and profile data from users, if applicable. 
 
-The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send these data as its payload back to an ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the ecommerce order history page.
+The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send these data as its payload back to an ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the ecommerce order history page. This user flow is depicted in the below screenshot.
+
+![External LMS Executive Education (2U) enrollment flow](../images/external_lms_customer_execed_enrollment_learner_credit.png "External LMS Executive Education (2U) enrollment flow")
 
 The content of the terms themselves will be retrieved from the `/terms` API endpoint in GEAG via a backend-for-frontend (BFF) endpoint defined in the ecommerce service. Similarly, should we need to display metadata about the Executive Education (2U) course itself (e.g., title, description, etc.), we will source these data from the `/courses` API endpoint in course-discovery to return product metadata in the UI based on a unique identifier for the course.
 
-If the user does not accept the ToS, they should see appropriate messaging and provide a link to redirect back to their external LMS (i.e., where they came from). This URL will be provided by the ecommerce view that redirects the user to this new page route, including a redirect URL via a query parameter.
+If the user does not accept the ToS, they should see appropriate messaging and provide a link to redirect back to their external LMS (i.e., where they came from). This URL will be provided by the ecommerce view that redirects the user to this new page route, including a redirect URL via a query parameter. This flow is depicted in the below screenshot.
 
 If the user opts to decline ToS, we will inform the user that they must accept the ToS in order to continue with their enrollment, and provide a link to bring the user back to their external LMS.
+
+![External LMS Executive Education (2U) decline terms flow](../images/external_lms_customer_execed_decline_terms_learner_credit.png "External LMS Executive Education (2U) decline terms flow")
 
 If the enterprise customer associated with the user does not have enough remaining balance on their offer, the user will be redirected to a route in the Learner Portal and see messaging that their organization no longer has enough remaining balance and to contact their organization's edX administrator. A link will be provided to bring the user back to their external LMS.
 
 The ecommerce view will provide the redirect URL and any failure reasons as query parameters to this new page route in the Learner Portal.
+
+![External LMS Executive Education (2U) no remaining balance flow](../images/externa_lms_customer_execed_no_balance_learner_credit.png "External LMS Executive Education (2U) no balance flow")
+
+When the user is already enrolled in the Executive Education (2U) course when clicking the `enrollment_url` provided by the enterprise-catalog service, they will bypass this new page route in favor of simply getting redirected to the GetSmarter content, if applicable, or otheriwse the ecommerce basket page with their order receipt. This user flow is shown in the below screenshot.
+
+![External LMS Executive Education (2U) user already enrolled flow](../images/external_lms_customer_execed_already_enrolled.png "External LMS Executive Education (2U) user already enrolled flow")
 
 In the event that the associated enterprise customer has the Executive Education (2U) configuration flag turned off, the new page route implemented via this ADR will return a 404 page instead. By doing so, we eliminate the need for a separate feature flag for the new page route.
 
@@ -54,13 +64,11 @@ The new page route will require the following pieces of data provided by the eco
 * **External LMS redirect URL** (`redirect_url`). Used as a hyperlink to bring user back to their external LMS.
 * **Failure reason** (`failure_reason`). Used to determine which error message(s), if any, should be displayed based on any API failures.
 
-* Don't have an offer for the Executive Education (2U)
-
 ## Consequences
 
 * User will need to provide their user profile data and agree to ToS for each new Exec Ed enrollemnt/allocation. We are opting to defer on storing/persisting these data until we see a more explicit use case for it (e.g., perhaps we look for average number of Exec Ed enrollments per learner greater >3 as validation for persisting these data).
 
 ## Alternatives Considered
 
-* Building the necessary UI to view and agree to the ToS in ecommerce via Django Templates. This approach was rejected in favor of implementing the UI in an MFE with modern React/Paragon.
+* Building the necessary UI to agree to the ToS and provide user profile data in ecommerce via Django Templates. This approach was rejected in favor of implementing the UI in an MFE with modern React/Paragon.
 * Creating a standalone MFE for this UI. By implementing this page in the Learner Portal, we can take advantage of the enterprise branding and existing available data in order to more quickly create this new page.
