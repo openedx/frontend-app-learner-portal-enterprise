@@ -60,7 +60,7 @@ In the event that the associated enterprise customer has the Executive Education
 While on this page route, we will ensure the header does not include navigation links to the "Dashboard" or "Find a Course" page, as this user flow does not intend for these pages to be reachable, nor would they have the necessary data to provide a good user experience (i.e., Executive Education (2U) course enrollments won't appear on the "Dashboard" or appear in the search results).
 
 The new page route will require the following pieces of data provided by the ecommerce service, passed via query parameters:
-* **Unique course identifier** (`course_id`). Used to retrieve display information about the course to the user in the UI.
+* **Unique course identifier** (`course_uuid`). Used to retrieve information from the course-discovery service about the course for display in the UI.
 * **External LMS redirect URL** (`redirect_url`). Used as a hyperlink to bring user back to their external LMS.
 * **Failure reason** (`failure_reason`). Used to determine which error message(s), if any, should be displayed based on any API failures.
 
