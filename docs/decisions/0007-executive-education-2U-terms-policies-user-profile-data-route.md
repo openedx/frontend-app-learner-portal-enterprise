@@ -1,4 +1,4 @@
-# 0007. Add page route for gathering consent for ToS and basic user profile data for Executive Education (2U) courses
+# 0007. Add page route for gathering consent for terms/policies and user profile data for Executive Education (2U) courses
 
 ## Status
 
@@ -33,7 +33,7 @@ The information this new page will need to display for viewing and agreeing to t
 
 Users will access a new page route through the Executive Education (2U) allocation and fulfillment flow in order to view collect agreements to the terms and policies in addition to user profile data, if applicable. 
 
-The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this ToS and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the ToS and provide the required information in a form, and ultimately send these data as its payload back to an ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the ecommerce order history page. This user flow is depicted in the below screenshot.
+The enterprise-catalog service will modify its `enrollment_url` for Executive Education (2U) courses to point to a URL in the ecommerce service. This ecommerce URL will determine if the user needs to be redirected to this terms/policies and user profile data collection page (i.e., if they are not yet enrolled), and if so, ecommerce will redirect the user to this new route in the Learner Portal. Users will view and agree to the terms/policies and provide the required information in a form, and ultimately send these data as its payload back to an ecommerce POST URL, which would then handle the GEAG fulfillment via the `/allocations` API endpoint and redirect to the ecommerce order history page. This user flow is depicted in the below screenshot.
 
 ![External LMS Executive Education (2U) enrollment flow](../images/external_lms_customer_execed_enrollment_learner_credit.png "External LMS Executive Education (2U) enrollment flow")
 
