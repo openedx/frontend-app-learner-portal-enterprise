@@ -200,7 +200,7 @@ class BaseCourseCard extends Component {
 
   renderUnenrollModal = () => {
     const {
-      canUnenroll, courseRunId, title, type,
+      canUnenroll, courseRunId, type,
     } = this.props;
     const { modals } = this.state;
 
@@ -234,7 +234,6 @@ class BaseCourseCard extends Component {
     this.resetModals();
     const { courseRunId } = this.props;
     const { enterpriseConfig } = this.context;
-    setShowUnenrollSuccessToast(true);
     sendEnterpriseTrackEvent(
       enterpriseConfig.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.unenrolled',
