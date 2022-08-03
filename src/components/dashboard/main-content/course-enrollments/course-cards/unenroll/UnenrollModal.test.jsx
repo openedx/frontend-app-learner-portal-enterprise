@@ -7,6 +7,7 @@ import { unenrollFromCourse } from './data';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 
 import UnenrollModal from './UnenrollModal';
+import { ToastsContext } from '../../../../../Toasts';
 
 jest.mock('./data', () => ({
   unenrollFromCourse: jest.fn(),
@@ -31,14 +32,18 @@ const baseUnenrollModalProps = {
   onSuccess: mockOnSuccess,
 };
 
+const mockAddToast = jest.fn();
+
 const UnenrollModalWrapper = ({
   // eslint-disable-next-line react/prop-types
   courseEnrollmentsContextValue = defaultCourseEnrollmentsContextValue,
   ...props
 }) => (
-  <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-    <UnenrollModal {...props} />
-  </CourseEnrollmentsContext.Provider>
+  <ToastsContext.Provider value={{ addToast: mockAddToast }}>
+    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
+      <UnenrollModal {...props} />
+    </CourseEnrollmentsContext.Provider>
+  </ToastsContext.Provider>
 );
 
 describe('<UnenrollModal />', () => {
@@ -61,8 +66,8 @@ describe('<UnenrollModal />', () => {
     };
     render(<UnenrollModalWrapper {...props} />);
 
-    expect(screen.getByText('Confirm unenrollment')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    expect(screen.getByText('Unenroll from course?')).toBeInTheDocument();
+    expect(screen.getByText('Keep learning')).toBeInTheDocument();
     expect(screen.getByText('Unenroll')).toBeInTheDocument();
   });
 
@@ -72,7 +77,7 @@ describe('<UnenrollModal />', () => {
       isOpen: true,
     };
     render(<UnenrollModalWrapper {...props} />);
-    userEvent.click(screen.getByText('Cancel'));
+    userEvent.click(screen.getByText('Keep learning'));
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 

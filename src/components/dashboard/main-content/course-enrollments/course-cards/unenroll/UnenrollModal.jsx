@@ -6,6 +6,7 @@ import {
 import { logError } from '@edx/frontend-platform/logging';
 
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
+import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
 
 const btnLabels = {
@@ -15,13 +16,13 @@ const btnLabels = {
 
 export default function UnenrollModal({
   courseRunId,
-  courseRunTitle,
   enrollmentType,
   isOpen,
   onClose,
   onSuccess,
 }) {
   const { removeCourseEnrollment } = useContext(CourseEnrollmentsContext);
+  const { addToast } = useContext(ToastsContext);
 
   const [btnState, setBtnState] = useState('default');
   const [error, setError] = useState(null);
@@ -39,6 +40,7 @@ export default function UnenrollModal({
         courseId: courseRunId,
       });
       removeCourseEnrollment({ courseRunId, enrollmentType });
+      addToast('You have been unenrolled from the course.');
       onSuccess();
     } catch (err) {
       logError(err);
@@ -49,7 +51,7 @@ export default function UnenrollModal({
 
   return (
     <AlertModal
-      title="Confirm unenrollment"
+      title="Unenroll from course?"
       isOpen={isOpen}
       onClose={handleClose}
       footerNode={(
@@ -81,7 +83,7 @@ export default function UnenrollModal({
           </p>
         </Alert>
         <p>
-          Are you sure you want to unenroll from {courseRunTitle}?
+          Progress that you&apos;ve made so far will not be saved.
         </p>
       </>
     </AlertModal>
@@ -90,7 +92,6 @@ export default function UnenrollModal({
 
 UnenrollModal.propTypes = {
   courseRunId: PropTypes.string.isRequired,
-  courseRunTitle: PropTypes.string.isRequired,
   enrollmentType: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

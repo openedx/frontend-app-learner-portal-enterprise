@@ -211,7 +211,6 @@ class BaseCourseCard extends Component {
     return (
       <UnenrollModal
         courseRunId={courseRunId}
-        courseRunTitle={title}
         onClose={this.handleUnenrollModalOnClose}
         onSuccess={this.handleUnenrollModalOnSuccess}
         isOpen={modals.unenroll.open}
@@ -235,6 +234,7 @@ class BaseCourseCard extends Component {
     this.resetModals();
     const { courseRunId } = this.props;
     const { enterpriseConfig } = this.context;
+    setShowUnenrollSuccessToast(true);
     sendEnterpriseTrackEvent(
       enterpriseConfig.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.unenrolled',
