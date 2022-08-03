@@ -1,5 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
+import camelCase from 'lodash.camelcase';
+
 import { useCourseEnrollments, useCourseUpgradeData } from '../hooks';
 import * as service from '../service';
 import { COURSE_STATUSES } from '../constants';
@@ -80,6 +82,35 @@ describe('useCourseEnrollments', () => {
             courseRunStatus: COURSE_STATUSES.savedForLater,
             savedForLater: true,
           }],
+          requested: [],
+        },
+      );
+    });
+  });
+
+  describe('removeCourseEnrollment', () => {
+    it('should remove a course enrollment', async () => {
+      service.fetchEnterpriseCourseEnrollments.mockResolvedValue({ data: [mockRawCourseEnrollment] });
+      const args = {
+        enterpriseUUID: 'uuid',
+        requestedCourseEnrollments: [],
+      };
+      const { result, waitForNextUpdate } = renderHook(() => useCourseEnrollments(args));
+      await waitForNextUpdate();
+
+      expect(result.current.courseEnrollmentsByStatus.inProgress).toHaveLength(1);
+
+      act(() => result.current.removeCourseEnrollment({
+        courseRunId: mockRawCourseEnrollment.courseRunId,
+        enrollmentType: camelCase(mockRawCourseEnrollment.courseRunStatus),
+      }));
+
+      expect(result.current.courseEnrollmentsByStatus).toEqual(
+        {
+          inProgress: [],
+          upcoming: [],
+          completed: [],
+          savedForLater: [],
           requested: [],
         },
       );

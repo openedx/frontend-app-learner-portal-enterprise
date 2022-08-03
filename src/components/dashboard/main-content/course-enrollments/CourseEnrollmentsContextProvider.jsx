@@ -42,6 +42,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     isLoading,
     fetchCourseEnrollmentsError,
     updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
   } = useCourseEnrollments({
     enterpriseUUID,
     requestedCourseEnrollments,
@@ -56,6 +57,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
     updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
     setShowMarkCourseCompleteSuccess,
     setShowMoveToInProgressCourseSuccess,
   }), [
@@ -64,6 +66,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
     updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
   ]);
 
   if (isLoading) {

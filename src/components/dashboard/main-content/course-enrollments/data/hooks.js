@@ -65,11 +65,23 @@ export const useCourseEnrollments = ({
     setCourseEnrollmentsByStatus(newCourseEnrollmentsByStatus);
   }, [courseEnrollmentsByStatus]);
 
+  const removeCourseEnrollment = useCallback(({ courseRunId, enrollmentType }) => {
+    const enrollmentIndex = courseEnrollmentsByStatus[enrollmentType].findIndex(
+      ce => ce.courseRunId === courseRunId,
+    );
+    if (enrollmentIndex > -1) {
+      const newCourseEnrollmentsByStatus = _cloneDeep(courseEnrollmentsByStatus);
+      newCourseEnrollmentsByStatus[enrollmentType].splice(enrollmentIndex, 1);
+      setCourseEnrollmentsByStatus(newCourseEnrollmentsByStatus);
+    }
+  }, [courseEnrollmentsByStatus]);
+
   return {
     courseEnrollmentsByStatus,
     isLoading,
     fetchError,
     updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
   };
 };
 

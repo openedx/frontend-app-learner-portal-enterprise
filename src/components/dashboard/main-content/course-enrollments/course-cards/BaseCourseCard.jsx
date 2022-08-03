@@ -4,6 +4,7 @@ import moment from 'moment';
 import {
   Dropdown, Badge, IconButton, Icon,
 } from '@edx/paragon';
+import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -12,6 +13,7 @@ import { MoreVert } from '@edx/paragon/icons';
 import Skeleton from 'react-loading-skeleton';
 
 import { EmailSettingsModal } from './email-settings';
+import { UnenrollModal } from './unenroll';
 import { COURSE_STATUSES, COURSE_PACING } from '../../../../../constants';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
@@ -38,16 +40,24 @@ class BaseCourseCard extends Component {
           open: false,
           options: {},
         },
+        unenroll: {
+          open: false,
+          options: {},
+        },
       },
       hasEmailsEnabled: this.props.hasEmailsEnabled,
     };
   }
 
   getDropdownMenuItems = () => {
-    const { hasEmailsEnabled, title, dropdownMenuItems } = this.props;
-    let combinedMenuItems = [];
+    const {
+      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll,
+    } = this.props;
+    const firstMenuItems = [];
+    const lastMenuItems = [];
+
     if (hasEmailsEnabled !== null) {
-      combinedMenuItems.push({
+      firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
         onClick: this.handleEmailSettingsButtonClick,
@@ -59,10 +69,23 @@ class BaseCourseCard extends Component {
         ),
       });
     }
-    if (dropdownMenuItems) {
-      combinedMenuItems = [...combinedMenuItems, ...dropdownMenuItems];
+    if (canUnenroll) {
+      lastMenuItems.push({
+        key: 'unenroll',
+        type: 'button',
+        onClick: this.handleUnenrollButtonClick,
+        children: (
+          <div role="menuitem">
+            Unenroll
+            <span className="sr-only">from {title}</span>
+          </div>
+        ),
+      });
     }
-    return combinedMenuItems;
+    if (dropdownMenuItems) {
+      return [...firstMenuItems, ...dropdownMenuItems, ...lastMenuItems];
+    }
+    return [...firstMenuItems, ...lastMenuItems];
   };
 
   getDateMessage = () => {
@@ -158,6 +181,64 @@ class BaseCourseCard extends Component {
 
   resetModals = () => {
     this.setModalState({ key: 'emailSettings' });
+    this.setModalState({ key: 'unenroll' });
+  };
+
+  handleUnenrollButtonClick = () => {
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    this.setModalState({
+      key: 'unenroll',
+      open: true,
+    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.opened',
+      { course_run_id: courseRunId },
+    );
+  };
+
+  renderUnenrollModal = () => {
+    const {
+      canUnenroll, courseRunId, type,
+    } = this.props;
+    const { modals } = this.state;
+
+    if (!canUnenroll) {
+      return null;
+    }
+
+    return (
+      <UnenrollModal
+        courseRunId={courseRunId}
+        onClose={this.handleUnenrollModalOnClose}
+        onSuccess={this.handleUnenrollModalOnSuccess}
+        isOpen={modals.unenroll.open}
+        enrollmentType={camelCase(type)}
+      />
+    );
+  };
+
+  handleUnenrollModalOnClose = () => {
+    this.resetModals();
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.closed',
+      { course_run_id: courseRunId },
+    );
+  };
+
+  handleUnenrollModalOnSuccess = () => {
+    this.resetModals();
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.unenrolled',
+      { course_run_id: courseRunId },
+    );
   };
 
   renderSettingsDropdown = (menuItems) => {
@@ -344,6 +425,7 @@ class BaseCourseCard extends Component {
                 </div>
               </div>
               {this.renderEmailSettingsModal()}
+              {this.renderUnenrollModal()}
             </>
           )}
       </div>
@@ -362,6 +444,7 @@ BaseCourseCard.propTypes = {
   startDate: PropTypes.string,
   endDate: PropTypes.string,
   hasEmailsEnabled: PropTypes.bool,
+  canUnenroll: PropTypes.bool,
   microMastersTitle: PropTypes.string,
   orgName: PropTypes.string,
   pacing: PropTypes.oneOf(Object.values(COURSE_PACING)),
@@ -382,6 +465,7 @@ BaseCourseCard.defaultProps = {
   startDate: null,
   endDate: null,
   hasEmailsEnabled: null,
+  canUnenroll: null,
   microMastersTitle: null,
   orgName: null,
   pacing: null,
