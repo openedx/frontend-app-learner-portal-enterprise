@@ -99,6 +99,8 @@ describe('<UnenrollModal />', () => {
         }),
       );
       expect(mockOnSuccess).toHaveBeenCalledTimes(1);
+      expect(mockAddToast).toHaveBeenCalledTimes(1);
+      expect(mockAddToast).toHaveBeenCalledWith('You have been unenrolled from the course.');
     });
   });
 });
