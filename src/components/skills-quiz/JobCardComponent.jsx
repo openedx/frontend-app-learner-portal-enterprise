@@ -9,6 +9,7 @@ import { NOT_AVAILABLE } from './constants';
 function JobCardComponent({ jobs, isLoading }) {
   const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
   return (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {jobs?.map(job => (
         <div
@@ -34,23 +35,21 @@ function JobCardComponent({ jobs, isLoading }) {
               {isLoading ? (
                 <Skeleton duration={0} data-testid="job-content-loading" />
               ) : (
-                <>
-                  {!hideLaborMarketData
-                   && (
-                     <div className="text-gray-700">
-                       <p className="m-0 medium-font">
-                         <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
-                         {job.job_postings?.length > 0 ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}`
-                           : NOT_AVAILABLE }
-                       </p>
-                       <p className="m-0 medium-font">
-                         <span style={{ fontWeight: 700 }}>Job Postings: </span>
-                         {job.job_postings?.length > 0 ? formatStringAsNumber(job.job_postings[0].unique_postings)
-                           : NOT_AVAILABLE }
-                       </p>
-                     </div>
-                   )}
-                </>
+                !hideLaborMarketData
+                  && (
+                    <div className="text-gray-700">
+                      <p className="m-0 medium-font">
+                        <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
+                        {job.job_postings?.length > 0 ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}`
+                          : NOT_AVAILABLE }
+                      </p>
+                      <p className="m-0 medium-font">
+                        <span style={{ fontWeight: 700 }}>Job Postings: </span>
+                        {job.job_postings?.length > 0 ? formatStringAsNumber(job.job_postings[0].unique_postings)
+                          : NOT_AVAILABLE }
+                      </p>
+                    </div>
+                  )
               )}
             </Card.Section>
           </Card>

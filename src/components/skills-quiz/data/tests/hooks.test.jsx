@@ -6,6 +6,7 @@ import { useSelectedSkillsAndJobSkills } from '../hooks';
 import { SkillsContext } from '../../SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_GET_PROMOTED } from '../../constants';
 
+// eslint-disable-next-line react/prop-types
 const SearchWrapper = (searchContext, initialSkillsState) => function ({ children }) {
   return (
     <SearchContext.Provider value={searchContext}>

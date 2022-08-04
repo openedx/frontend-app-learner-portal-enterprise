@@ -88,30 +88,28 @@ function CourseCard({
         />
 
         <Card.Section className="py-1">
-          <>
-            {course.skillNames?.length > 0 && (
-              <div className="mb-2">
-                {getCommonSkills(
-                  course,
-                  allSkills,
-                  MAX_VISIBLE_SKILLS_COURSE,
-                )
-                  .map((skill) => (
-                    <Badge
-                      key={skill}
-                      className="skill-badge"
-                      variant="light"
-                    >
-                      {shortenString(
-                        skill,
-                        SKILL_NAME_CUTOFF_LIMIT,
-                        ELLIPSIS_STR,
-                      )}
-                    </Badge>
-                  ))}
-              </div>
-            )}
-          </>
+          {course.skillNames?.length > 0 && (
+            <div className="mb-2">
+              {getCommonSkills(
+                course,
+                allSkills,
+                MAX_VISIBLE_SKILLS_COURSE,
+              )
+                .map((skill) => (
+                  <Badge
+                    key={skill}
+                    className="skill-badge"
+                    variant="light"
+                  >
+                    {shortenString(
+                      skill,
+                      SKILL_NAME_CUTOFF_LIMIT,
+                      ELLIPSIS_STR,
+                    )}
+                  </Badge>
+                ))}
+            </div>
+          )}
         </Card.Section>
       </Card>
     );
@@ -141,7 +139,7 @@ CourseCard.propTypes = {
     cardImageUrl: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
     partners: PropTypes.shape.isRequired,
-    skillNames: PropTypes.array.isRequired,
+    skillNames: PropTypes.shape([]).isRequired,
   }).isRequired,
   allSkills: PropTypes.shape.isRequired,
   isLoading: PropTypes.bool.isRequired,

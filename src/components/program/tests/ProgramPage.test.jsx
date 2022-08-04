@@ -9,7 +9,7 @@ import ProgramPage from '../ProgramPage';
 import { useAllProgramData } from '../data/hooks';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
 
-const waitForAsync = () => new Promise(resolve => setImmediate(resolve));
+const waitForAsync = () => new Promise(resolve => { setImmediate(resolve); });
 
 const programData = {
   title: 'Test Program Title',

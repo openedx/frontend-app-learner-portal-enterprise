@@ -106,15 +106,13 @@ function SearchCourseCard({ hit, isLoading }) {
         <Card.Section
           className="py-3"
         >
-          <>
-            {course.partners?.length > 0 && (
-              <p className="partner text-muted m-0">
-                <Truncate lines={1} trimWhitespace>
-                  {course.partners.map(partner => partner.name).join(', ')}
-                </Truncate>
-              </p>
-            )}
-          </>
+          {course.partners?.length > 0 && (
+            <p className="partner text-muted m-0">
+              <Truncate lines={1} trimWhitespace>
+                {course.partners.map(partner => partner.name).join(', ')}
+              </Truncate>
+            </p>
+          )}
         </Card.Section>
 
         <Card.Footer textElement={

@@ -6,8 +6,8 @@ export default function coursesAndProgramsText(pathway) {
   let message;
 
   for (let i = 0; i < pathway.steps.length; i++) {
-    courseCount += pathway.steps[i].courses?.length;
-    programCount += pathway.steps[i].programs?.length;
+    courseCount += pathway.steps[i].courses ? pathway.steps[i].courses.length : 0;
+    programCount += pathway.steps[i].programs ? pathway.steps[i].programs.length : 0;
   }
 
   textCourse = courseCount === 1 ? 'course' : 'courses';

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-constructed-context-values */
 import React from 'react';
 import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
@@ -23,6 +24,7 @@ describe('<MarkCompleteModal />', () => {
   };
 
   it('handles confirm click with success', () => {
+    // eslint-disable-next-line no-import-assign
     service.markCourseAsCompleteRequest = jest.fn()
       .mockImplementation(() => Promise.resolve({
         data: {
@@ -46,6 +48,7 @@ describe('<MarkCompleteModal />', () => {
   });
 
   it('handles confirm click with error', async () => {
+    // eslint-disable-next-line no-import-assign
     service.markCourseAsCompleteRequest = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('test error')));
     const wrapper = mount((

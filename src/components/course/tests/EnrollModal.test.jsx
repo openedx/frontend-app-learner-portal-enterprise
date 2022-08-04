@@ -82,7 +82,9 @@ describe('<EnrollModal />', () => {
       <EnrollModalWrapper {...props} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(props.userSubsidyApplicableToCourse, props.courseRunPrice))).toBeInTheDocument();
+    expect(screen.getByText(
+      MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(props.userSubsidyApplicableToCourse, props.courseRunPrice),
+    )).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button)).toBeInTheDocument();
   });
 

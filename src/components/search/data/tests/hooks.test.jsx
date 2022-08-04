@@ -118,6 +118,7 @@ describe('useSearchCatalogs', () => {
   });
 });
 
+// eslint-disable-next-line react/prop-types
 const SearchWrapper = (value) => function ({ children }) {
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
 };

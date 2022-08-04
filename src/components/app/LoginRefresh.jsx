@@ -5,6 +5,7 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 import { loginRefresh } from '../../utils/common';
 
+// eslint-disable-next-line react/prop-types
 export default function LoginRefresh({ children }) {
   const { authenticatedUser } = useContext(AppContext);
   const { roles } = authenticatedUser;

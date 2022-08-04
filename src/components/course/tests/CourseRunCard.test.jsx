@@ -28,6 +28,7 @@ const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
 jest.mock('../../../config');
+// eslint-disable-next-line react/prop-types
 jest.mock('../enrollment/EnrollAction', () => function ({ enrollLabel, enrollmentType }) {
   return (
     <>

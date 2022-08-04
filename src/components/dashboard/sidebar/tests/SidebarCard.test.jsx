@@ -8,7 +8,7 @@ import SidebarCard from '../SidebarCard';
 describe('<SidebarCard />', () => {
   const childrenText = 'Some text goes here';
   const defaultProps = {
-    children: <>{childrenText}</>,
+    children: childrenText,
     buttonLink: 'http://bears.party',
   };
   it('renders the card children', () => {

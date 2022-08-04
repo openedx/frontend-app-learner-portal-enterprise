@@ -76,75 +76,73 @@ function SubscriptionSummaryCard({
   }
 
   return (
-    <>
-      {programProgressPage ? (
-        <>
-          {subscriptionPlan && (
-            <SubscriptionExpirationWarningModal
-              isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
-              onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
-            />
-          )}
-          <SidebarCard
-            title={(
-              <div className="d-flex align-items-start justify-content-between">
-                <h3>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</h3>
-                <div>
-                  <Badge
-                    variant={badgeVariantAndLabel.variant}
-                    className="ml-2"
-                    data-testid="subscription-status-badge"
-                  >
-                    {badgeVariantAndLabel.label}
-                  </Badge>
-                  {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
-                </div>
-              </div>
-            )}
-            cardClassNames={className}
-          >
-            {
-              subscriptionPlan ? (
-                <>
-                  {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
-                    ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-                  {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
-                </>
-              ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
-            }
-          </SidebarCard>
-        </>
-      )
-        : (
-          <SidebarCard
-            title={(
-              <div className="d-flex align-items-start justify-content-between">
-                <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
-                <div>
-                  <Badge
-                    variant={badgeVariantAndLabel.variant}
-                    className="ml-2"
-                    data-testid="subscription-status-badge"
-                  >
-                    {badgeVariantAndLabel.label}
-                  </Badge>
-                </div>
-              </div>
-            )}
-            cardClassNames={className}
-          >
-            {
-              subscriptionPlan ? (
-                <>
-                  {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
-                    ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-                  {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
-                </>
-              ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
-            }
-          </SidebarCard>
+    programProgressPage ? (
+      <>
+        {subscriptionPlan && (
+          <SubscriptionExpirationWarningModal
+            isSubscriptionExpiringWarningModalOpen={isSubscriptionExpiringWarningModalOpen}
+            onSubscriptionExpiringWarningModalClose={onSubscriptionExpiringWarningModalClose}
+          />
         )}
-    </>
+        <SidebarCard
+          title={(
+            <div className="d-flex align-items-start justify-content-between">
+              <h3>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</h3>
+              <div>
+                <Badge
+                  variant={badgeVariantAndLabel.variant}
+                  className="ml-2"
+                  data-testid="subscription-status-badge"
+                >
+                  {badgeVariantAndLabel.label}
+                </Badge>
+                {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
+              </div>
+            </div>
+          )}
+          cardClassNames={className}
+        >
+          {
+            subscriptionPlan ? (
+              <>
+                {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
+                  ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
+                {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
+              </>
+            ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
+          }
+        </SidebarCard>
+      </>
+    )
+      : (
+        <SidebarCard
+          title={(
+            <div className="d-flex align-items-start justify-content-between">
+              <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
+              <div>
+                <Badge
+                  variant={badgeVariantAndLabel.variant}
+                  className="ml-2"
+                  data-testid="subscription-status-badge"
+                >
+                  {badgeVariantAndLabel.label}
+                </Badge>
+              </div>
+            </div>
+          )}
+          cardClassNames={className}
+        >
+          {
+            subscriptionPlan ? (
+              <>
+                {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
+                  ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
+                {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
+              </>
+            ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
+          }
+        </SidebarCard>
+      )
   );
 }
 
