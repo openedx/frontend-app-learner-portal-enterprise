@@ -37,9 +37,10 @@ function ProgramProgressPage() {
     [program],
   );
   const courseData = program?.data?.courseData;
-  const totalCoursesInProgram = courseData?.notStarted?.length
-    + courseData?.completed?.length
-    + courseData?.inProgress?.length;
+  const notStartedCourses = courseData?.notStarted?.length;
+  const completedCourses = courseData?.completed?.length;
+  const inProgressCourses = courseData?.inProgress?.length;
+  const totalCoursesInProgram = notStartedCourses + completedCourses + inProgressCourses;
   const allCoursesCompleted = !courseData?.notStarted?.length
     && !courseData?.inProgress?.length
     && courseData?.completed?.length;
@@ -54,7 +55,8 @@ function ProgramProgressPage() {
     enrolledCourses = [...enrolledCourses, ...courseData.inProgress];
   }
   const coursesEnrolledInAuditMode = getCoursesEnrolledInAuditMode(enrolledCourses);
-  const totalCoursesEligibleForCertificate = totalCoursesNotStarted + coursesEnrolledInAuditMode?.length;
+  const totalCoursesEligibleForCertificate = totalCoursesNotStarted
+    + coursesEnrolledInAuditMode ? coursesEnrolledInAuditMode.length : 0;
   let courseEndDate;
   if (totalCoursesEligibleForCertificate) {
     const notStartedEnrollableCourseRuns = getNotStartedEnrollableCourseRuns(coursesNotStarted);

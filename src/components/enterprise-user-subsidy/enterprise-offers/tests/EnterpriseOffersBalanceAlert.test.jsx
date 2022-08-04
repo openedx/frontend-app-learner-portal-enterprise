@@ -17,6 +17,7 @@ function EnterpriseOffersBalanceAlertWrapper({
   hasNoEnterpriseOffersBalance,
 }) {
   return (
+    // eslint-disable-next-line react/jsx-no-constructed-context-values
     <AppContext.Provider value={{
       enterpriseConfig,
     }}

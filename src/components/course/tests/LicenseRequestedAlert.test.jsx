@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
@@ -28,25 +28,27 @@ function LicenseRequestedAlertWrapper({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
 }) {
   return (
-    <UserSubsidyContext.Provider value={{
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-      subscriptionLicense: {},
-      customerAgreementConfig: {
-        subscriptions,
-      },
-    }}
+    <UserSubsidyContext.Provider value={
+      useMemo(() => ({
+        couponCodes: {
+          couponCodes: [],
+          couponCodesCount: 0,
+        },
+        subscriptionLicense: {},
+        customerAgreementConfig: {
+          subscriptions,
+        },
+      }), [subscriptions])
+    }
     >
       <SubsidyRequestsContext.Provider value={
-        {
+        useMemo(() => ({
           subsidyRequestConfiguration: null,
           requestsBySubsidyType: {
             [SUBSIDY_TYPE.LICENSE]: licenseRequests,
             [SUBSIDY_TYPE.COUPON]: [],
           },
-        }
+        }), [licenseRequests])
       }
       >
         <CourseContext.Provider>

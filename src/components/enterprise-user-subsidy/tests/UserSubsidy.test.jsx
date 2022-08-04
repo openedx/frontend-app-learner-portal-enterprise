@@ -63,6 +63,7 @@ function UserSubsidyWithAppContext({
 }) {
   return (
     <AppContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         enterpriseConfig: {
           slug: TEST_ENTERPRISE_SLUG,

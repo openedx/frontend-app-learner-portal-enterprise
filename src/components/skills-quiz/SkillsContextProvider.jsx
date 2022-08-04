@@ -21,6 +21,7 @@ const reducer = (state, action) => {
 
 export function SkillsContextProvider({ children, initialState = { goal: GOAL_DROPDOWN_DEFAULT_OPTION } }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value = { state, dispatch };
 
   return (

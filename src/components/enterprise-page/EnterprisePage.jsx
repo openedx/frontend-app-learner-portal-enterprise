@@ -56,6 +56,7 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
 
   return (
     <AppContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         authenticatedUser: user,
         config,

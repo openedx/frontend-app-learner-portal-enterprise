@@ -40,6 +40,7 @@ function UnenrollModalWrapper({
   ...props
 }) {
   return (
+    // eslint-disable-next-line react/jsx-no-constructed-context-values
     <ToastsContext.Provider value={{ addToast: mockAddToast }}>
       <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
         <UnenrollModal {...props} />

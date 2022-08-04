@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -58,11 +58,13 @@ function MoveToInProgressModal({
 
   return (
     <MoveToInProgressModalContext.Provider
-      value={{
-        courseTitle,
-        courseLink,
-        confirmError,
-      }}
+      value={
+        useMemo(() => ({
+          courseTitle,
+          courseLink,
+          confirmError,
+        }), [confirmError, courseLink, courseTitle])
+      }
     >
       <Modal
         title="Move course to &quot;In Progress&quot;"

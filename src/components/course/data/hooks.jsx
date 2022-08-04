@@ -345,16 +345,17 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const baseQueryParams = new URLSearchParams(location.search);
 
   baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
   baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
 
-  const baseEnrollmentOptions = {
+  const baseEnrollmentOptions = useMemo(() => ({
     next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
     // Redirect back to the same page with a failure query param
     failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
-  };
+  }), [baseQueryParams, config.LMS_BASE_URL, courseRunKey, location.pathname]);
 
   const enrollmentUrl = useMemo(
     () => {

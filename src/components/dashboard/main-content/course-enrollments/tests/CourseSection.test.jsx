@@ -34,6 +34,7 @@ const TEST_ENTERPRISE_UUID = 'test-uuid';
 
 function CourseSectionWrapper(props) {
   return (
+    // eslint-disable-next-line react/jsx-no-constructed-context-values
     <AppContext.Provider value={{
       enterpriseConfig: {
         uuid: TEST_ENTERPRISE_UUID,
