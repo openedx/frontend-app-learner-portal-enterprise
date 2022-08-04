@@ -27,11 +27,9 @@ export default function SiteHeader() {
       return image;
     }
     return (
-      <>
-        <Link to={`/${enterpriseConfig.slug}`} data-testid="header-logo-link-id">
-          {image}
-        </Link>
-      </>
+      <Link to={`/${enterpriseConfig.slug}`} data-testid="header-logo-link-id">
+        {image}
+      </Link>
     );
   };
 

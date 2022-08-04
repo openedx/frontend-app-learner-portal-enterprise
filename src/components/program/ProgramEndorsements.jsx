@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { breakpoints, MediaQuery } from '@edx/paragon';
 import { ProgramContext } from './ProgramContextProvider';
 
-const ProgramEndorsements = () => {
+function ProgramEndorsements() {
   const { program: { corporateEndorsements } } = useContext(ProgramContext);
   const formatAuthorFullName = endorser => `${endorser.givenName} ${endorser.familyName}`;
   const title = endorser => (endorser.position ? endorser.position.title : '');
@@ -54,6 +54,6 @@ const ProgramEndorsements = () => {
         </div>
       </div>
     ) : null;
-};
+}
 
 export default ProgramEndorsements;

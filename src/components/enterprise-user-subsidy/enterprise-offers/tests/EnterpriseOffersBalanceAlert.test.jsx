@@ -10,21 +10,23 @@ import {
   NO_BALANCE_ALERT_TEXT,
 } from '../data/constants';
 
-const EnterpriseOffersBalanceAlertWrapper = ({
+function EnterpriseOffersBalanceAlertWrapper({
   enterpriseConfig = {
     adminUsers: [],
   },
   hasNoEnterpriseOffersBalance,
-}) => (
-  <AppContext.Provider value={{
-    enterpriseConfig,
-  }}
-  >
-    <EnterpriseOffersBalanceAlert
-      hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance}
-    />
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={{
+      enterpriseConfig,
+    }}
+    >
+      <EnterpriseOffersBalanceAlert
+        hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance}
+      />
+    </AppContext.Provider>
+  );
+}
 
 describe('<EnterpriseOffersBalanceAlert />', () => {
   it('should not render mailto link if there are no enterprise admins', () => {

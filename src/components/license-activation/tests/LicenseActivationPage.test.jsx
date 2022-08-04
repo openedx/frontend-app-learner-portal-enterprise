@@ -35,7 +35,7 @@ const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ACTIVATION_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
 
-const LicenseActivationPageWithContext = ({
+function LicenseActivationPageWithContext({
   initialUserSubsidyState = {
     subscriptionLicense: undefined,
     couponCodes: {
@@ -43,23 +43,25 @@ const LicenseActivationPageWithContext = ({
       couponCodesCount: 0,
     },
   },
-}) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: {
-        uuid: TEST_ENTERPRISE_UUID,
-        slug: TEST_ENTERPRISE_SLUG,
-        name: 'Test Enterprise',
-      },
-    }}
-  >
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
-        <LicenseActivationPage />
-      </Route>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: {
+          uuid: TEST_ENTERPRISE_UUID,
+          slug: TEST_ENTERPRISE_SLUG,
+          name: 'Test Enterprise',
+        },
+      }}
+    >
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
+          <LicenseActivationPage />
+        </Route>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 describe('<LicenseActivationPageWithAppContext />', () => {
   it.each(

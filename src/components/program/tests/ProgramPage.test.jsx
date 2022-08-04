@@ -39,18 +39,20 @@ jest.mock('../data/hooks', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-const ProgramWithContext = ({
+function ProgramWithContext({
   initialAppState = {},
   initialUserSubsidyState = {},
-}) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramPage />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
-);
+}) {
+  return (
+    <IntlProvider locale="en">
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <ProgramPage />
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 describe('<Program />', () => {

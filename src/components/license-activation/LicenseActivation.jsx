@@ -12,7 +12,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 
 export const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
 
-const LicenseActivation = () => {
+function LicenseActivation() {
   const { enterpriseConfig } = useContext(AppContext);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
   const location = useLocation();
@@ -66,6 +66,6 @@ const LicenseActivation = () => {
       </Container>
     </>
   );
-};
+}
 
 export default LicenseActivation;

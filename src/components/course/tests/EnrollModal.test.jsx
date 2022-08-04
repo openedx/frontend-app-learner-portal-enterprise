@@ -14,7 +14,7 @@ jest.mock('../data/hooks', () => ({
   useOptimizelyEnrollmentClickHandler: jest.fn(),
 }));
 
-const EnrollModalWrapper = ({
+function EnrollModalWrapper({
   courseContextValue = {
     state: {
       activeCourseRun: {
@@ -26,13 +26,15 @@ const EnrollModalWrapper = ({
     courseEnrollmentsByStatus: {},
   },
   ...rest
-}) => (
-  <CourseContext.Provider value={courseContextValue}>
-    <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextVAlue}>
-      <EnrollModal {...rest} />
-    </CourseEnrollmentsContext.Provider>
-  </CourseContext.Provider>
-);
+}) {
+  return (
+    <CourseContext.Provider value={courseContextValue}>
+      <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextVAlue}>
+        <EnrollModal {...rest} />
+      </CourseEnrollmentsContext.Provider>
+    </CourseContext.Provider>
+  );
+}
 
 describe('<EnrollModal />', () => {
   const basicProps = {
@@ -80,9 +82,7 @@ describe('<EnrollModal />', () => {
       <EnrollModalWrapper {...props} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(
-      props.userSubsidyApplicableToCourse, props.courseRunPrice,
-    ))).toBeInTheDocument();
+    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(props.userSubsidyApplicableToCourse, props.courseRunPrice))).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button)).toBeInTheDocument();
   });
 

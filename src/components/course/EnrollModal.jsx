@@ -41,14 +41,14 @@ export const MODAL_TEXTS = {
   },
 };
 
-const EnrollModal = ({
+function EnrollModal({
   isModalOpen,
   setIsModalOpen,
   enrollmentUrl,
   courseRunPrice,
   userSubsidyApplicableToCourse,
   couponCodesCount,
-}) => {
+}) {
   const {
     state: {
       activeCourseRun: { key: courseRunKey },
@@ -116,16 +116,14 @@ const EnrollModal = ({
           href={enrollmentUrl}
           onClick={handleEnroll}
         >
-          <>
-            {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
-            {buttonText}
-          </>
+          {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
+          {buttonText}
         </a>,
       ]}
       onClose={() => setIsModalOpen(false)}
     />
   );
-};
+}
 
 EnrollModal.propTypes = {
   isModalOpen: PropTypes.bool.isRequired,

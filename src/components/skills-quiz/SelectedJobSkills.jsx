@@ -3,7 +3,7 @@ import { Badge } from '@edx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 
-const SelectedJobSkills = () => {
+function SelectedJobSkills() {
   const { state } = useContext(SkillsContext);
   const {
     interestedJobs, selectedJob, goal, currentJobRole,
@@ -32,6 +32,6 @@ const SelectedJobSkills = () => {
       </div>
     </div>
   );
-};
+}
 
 export default SelectedJobSkills;

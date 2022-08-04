@@ -18,7 +18,7 @@ import {
 } from './data/utils';
 import { NotCurrentlyAvailable } from './data/constants';
 
-const ProgramProgressCourses = ({ courseData }) => {
+function ProgramProgressCourses({ courseData }) {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     subscriptionPlan,
@@ -244,7 +244,7 @@ const ProgramProgressCourses = ({ courseData }) => {
     </div>
 
   );
-};
+}
 ProgramProgressCourses.propTypes = {
   courseData: PropTypes.shape([]).isRequired,
 };

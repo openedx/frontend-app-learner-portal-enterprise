@@ -16,7 +16,7 @@ import {
   OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
 
-const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
+function EnterpriseOffersBalanceAlert({ hasNoEnterpriseOffersBalance }) {
   const {
     enterpriseConfig: { uuid: enterpriseCustomerUUID, adminUsers },
   } = useContext(AppContext);
@@ -59,7 +59,7 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
       </Alert>
     </Container>
   );
-};
+}
 
 EnterpriseOffersBalanceAlert.propTypes = {
   hasNoEnterpriseOffersBalance: PropTypes.bool.isRequired,

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 
-const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
+function NotFoundPage({ pageTitle, errorHeading, errorMessage }) {
   const { enterpriseConfig } = useContext(AppContext);
 
   let PAGE_TITLE = pageTitle;
@@ -22,7 +22,7 @@ const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
       </div>
     </Container>
   );
-};
+}
 
 NotFoundPage.defaultProps = {
   pageTitle: 'Page not found',

@@ -12,7 +12,7 @@ import { MainContent } from '../layout';
 import SkillsQuizStepper from './SkillsQuizStepper';
 import { SkillsContextProvider } from './SkillsContextProvider';
 
-const SkillsQuiz = () => {
+function SkillsQuiz() {
   const { enterpriseConfig } = useContext(AppContext);
   const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
 
@@ -33,6 +33,6 @@ const SkillsQuiz = () => {
       </Container>
     </>
   );
-};
+}
 
 export default SkillsQuiz;

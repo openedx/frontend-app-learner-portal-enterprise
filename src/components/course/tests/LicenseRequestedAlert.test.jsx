@@ -24,36 +24,38 @@ const initialLicenseRequests = [
 ];
 
 /* eslint-disable react/prop-types */
-const LicenseRequestedAlertWrapper = ({
+function LicenseRequestedAlertWrapper({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
-}) => (
-  <UserSubsidyContext.Provider value={{
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-    subscriptionLicense: {},
-    customerAgreementConfig: {
-      subscriptions,
-    },
-  }}
-  >
-    <SubsidyRequestsContext.Provider value={
-      {
-        subsidyRequestConfiguration: null,
-        requestsBySubsidyType: {
-          [SUBSIDY_TYPE.LICENSE]: licenseRequests,
-          [SUBSIDY_TYPE.COUPON]: [],
-        },
-      }
-    }
+}) {
+  return (
+    <UserSubsidyContext.Provider value={{
+      couponCodes: {
+        couponCodes: [],
+        couponCodesCount: 0,
+      },
+      subscriptionLicense: {},
+      customerAgreementConfig: {
+        subscriptions,
+      },
+    }}
     >
-      <CourseContext.Provider>
-        <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
-      </CourseContext.Provider>
-    </SubsidyRequestsContext.Provider>
-  </UserSubsidyContext.Provider>
-);
+      <SubsidyRequestsContext.Provider value={
+        {
+          subsidyRequestConfiguration: null,
+          requestsBySubsidyType: {
+            [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+            [SUBSIDY_TYPE.COUPON]: [],
+          },
+        }
+      }
+      >
+        <CourseContext.Provider>
+          <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
+        </CourseContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 describe('<LicenseRequestedAlert />', () => {
@@ -89,9 +91,7 @@ describe('<LicenseRequestedAlert />', () => {
     Cookies.mockReturnValue({ get: jest.fn(), set: mockSetCookies });
     const { getByText, queryByText } = render(<LicenseRequestedAlertWrapper />);
     fireEvent.click(getByText('Dismiss'));
-    expect(mockSetCookies).toHaveBeenCalledWith(
-      LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, true, { sameSite: 'strict' },
-    );
+    expect(mockSetCookies).toHaveBeenCalledWith(LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, true, { sameSite: 'strict' });
 
     await waitFor(() => {
       expect(queryByText(LICENSE_REQUESTED_ALERT_HEADING)).toBeNull();

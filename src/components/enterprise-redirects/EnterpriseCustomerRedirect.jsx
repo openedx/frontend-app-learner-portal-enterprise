@@ -10,7 +10,7 @@ import {
   useSelectedEnterpriseUUIDByUserRoles,
 } from './data/hooks';
 
-const EnterpriseCustomerRedirect = () => {
+function EnterpriseCustomerRedirect() {
   const { authenticatedUser } = useContext(AppContext);
   const { roles } = authenticatedUser;
   const selectedEnterpriseUUID = useSelectedEnterpriseUUIDByUserRoles(roles);
@@ -29,6 +29,6 @@ const EnterpriseCustomerRedirect = () => {
   }
 
   return <Redirect to={`/${enterpriseCustomer.slug}`} />;
-};
+}
 
 export default EnterpriseCustomerRedirect;

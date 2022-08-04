@@ -28,12 +28,14 @@ const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
 jest.mock('../../../config');
-jest.mock('../enrollment/EnrollAction', () => ({ enrollLabel, enrollmentType }) => (
-  <>
-    <span>{enrollLabel}</span>
-    <span>{enrollmentType}</span>
-  </>
-));
+jest.mock('../enrollment/EnrollAction', () => function ({ enrollLabel, enrollmentType }) {
+  return (
+    <>
+      <span>{enrollLabel}</span>
+      <span>{enrollmentType}</span>
+    </>
+  );
+});
 jest.mock('../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),

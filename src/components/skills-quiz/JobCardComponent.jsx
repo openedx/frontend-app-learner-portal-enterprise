@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { formatStringAsNumber } from '../../utils/common';
 import { NOT_AVAILABLE } from './constants';
 
-const JobCardComponent = ({ jobs, isLoading }) => {
+function JobCardComponent({ jobs, isLoading }) {
   const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
   return (
     <>
@@ -58,7 +58,7 @@ const JobCardComponent = ({ jobs, isLoading }) => {
       ))}
     </>
   );
-};
+}
 
 JobCardComponent.defaultProps = {
   jobs: undefined,

@@ -32,18 +32,20 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
 };
 const TEST_ENTERPRISE_UUID = 'test-uuid';
 
-const CourseSectionWrapper = (props) => (
-  <AppContext.Provider value={{
-    enterpriseConfig: {
-      uuid: TEST_ENTERPRISE_UUID,
-    },
-  }}
-  >
-    <CourseSection
-      {...props}
-    />
-  </AppContext.Provider>
-);
+function CourseSectionWrapper(props) {
+  return (
+    <AppContext.Provider value={{
+      enterpriseConfig: {
+        uuid: TEST_ENTERPRISE_UUID,
+      },
+    }}
+    >
+      <CourseSection
+        {...props}
+      />
+    </AppContext.Provider>
+  );
+}
 
 describe('<CourseSection />', () => {
   it('should handle collapsible toggle', () => {

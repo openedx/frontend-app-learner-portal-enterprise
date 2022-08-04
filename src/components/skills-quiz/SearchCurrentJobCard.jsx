@@ -8,20 +8,22 @@ import { SkillsContext } from './SkillsContextProvider';
 import JobCardComponent from './JobCardComponent';
 import { SET_KEY_VALUE } from './data/constants';
 
-const SearchCurrentJobCard = ({ index }) => {
+function SearchCurrentJobCard({ index }) {
   const { refinements } = useContext(SearchContext);
   const { current_job: currentJob } = refinements;
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, state } = useContext(SkillsContext);
   const { currentJobRole } = state;
-  const jobToFetch = useMemo(() => {
-    const jobsArray = [];
-    if (currentJob?.length > 0) {
-      jobsArray.push(`name:${currentJob[0]}`);
-    }
-    return jobsArray;
-  },
-  [currentJob]);
+  const jobToFetch = useMemo(
+    () => {
+      const jobsArray = [];
+      if (currentJob?.length > 0) {
+        jobsArray.push(`name:${currentJob[0]}`);
+      }
+      return jobsArray;
+    },
+    [currentJob],
+  );
 
   useEffect(
     () => {
@@ -49,7 +51,7 @@ const SearchCurrentJobCard = ({ index }) => {
       <JobCardComponent jobs={currentJobRole} isLoading={isLoading} />
     </div>
   );
-};
+}
 
 SearchCurrentJobCard.propTypes = {
   index: PropTypes.shape({

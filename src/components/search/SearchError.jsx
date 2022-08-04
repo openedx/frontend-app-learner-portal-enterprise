@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { getSearchErrorMessage } from '../utils/search';
 
-const SearchError = ({ title }) => {
+function SearchError({ title }) {
   const searchErrorMessage = getSearchErrorMessage(title);
   const renderDialog = useCallback(
     () => (
@@ -32,7 +32,7 @@ const SearchError = ({ title }) => {
       open
     />
   );
-};
+}
 
 SearchError.propTypes = {
   title: PropTypes.string.isRequired,

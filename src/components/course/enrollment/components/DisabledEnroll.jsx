@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 
 import { EnrollButtonCta } from '../common';
 
-const EnrollBtnDisabled = ({ enrollLabel }) => (
-  <EnrollButtonCta
-    enrollLabel={enrollLabel}
-    as="div"
-    className="btn btn-light btn-block disabled d-block"
-  />
-);
+function EnrollBtnDisabled({ enrollLabel }) {
+  return (
+    <EnrollButtonCta
+      enrollLabel={enrollLabel}
+      as="div"
+      className="btn btn-light btn-block disabled d-block"
+    />
+  );
+}
 
 EnrollBtnDisabled.propTypes = {
   enrollLabel: PropTypes.node.isRequired,

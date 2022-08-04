@@ -11,16 +11,18 @@ const baseSubsidyRequestContextValue = {
   catalogsForSubsidyRequests: [],
 };
 
-const CourseAssociatedProgramsWithCourseContext = ({
+function CourseAssociatedProgramsWithCourseContext({
   initialState,
   subsidyRequestContextValue,
-}) => (
-  <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-    <CourseContextProvider initialState={initialState}>
-      <CourseAssociatedPrograms />
-    </CourseContextProvider>
-  </SubsidyRequestsContext.Provider>
-);
+}) {
+  return (
+    <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
+      <CourseContextProvider initialState={initialState}>
+        <CourseAssociatedPrograms />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
+  );
+}
 
 CourseAssociatedProgramsWithCourseContext.propTypes = {
   initialState: PropTypes.shape(),

@@ -34,17 +34,19 @@ const baseUnenrollModalProps = {
 
 const mockAddToast = jest.fn();
 
-const UnenrollModalWrapper = ({
+function UnenrollModalWrapper({
   // eslint-disable-next-line react/prop-types
   courseEnrollmentsContextValue = defaultCourseEnrollmentsContextValue,
   ...props
-}) => (
-  <ToastsContext.Provider value={{ addToast: mockAddToast }}>
-    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-      <UnenrollModal {...props} />
-    </CourseEnrollmentsContext.Provider>
-  </ToastsContext.Provider>
-);
+}) {
+  return (
+    <ToastsContext.Provider value={{ addToast: mockAddToast }}>
+      <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
+        <UnenrollModal {...props} />
+      </CourseEnrollmentsContext.Provider>
+    </ToastsContext.Provider>
+  );
+}
 
 describe('<UnenrollModal />', () => {
   beforeEach(() => {

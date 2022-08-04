@@ -100,26 +100,28 @@ const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
 
-const SearchPathwaysWithContext = ({
+function SearchPathwaysWithContext({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
   initialSearchContext = defaultSearchContext,
   index,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <SearchContext.Provider value={initialSearchContext}>
-          <SkillsContext.Provider value={initialSkillsState}>
-            <SearchPathways index={index} />
-          </SkillsContext.Provider>
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+          <SearchContext.Provider value={initialSearchContext}>
+            <SkillsContext.Provider value={initialSkillsState}>
+              <SearchPathways index={index} />
+            </SkillsContext.Provider>
+          </SearchContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 describe('<SearchPathways />', () => {
   test('renders the correct data', async () => {

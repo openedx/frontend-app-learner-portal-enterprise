@@ -7,7 +7,7 @@ import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { PopularResults } from './popular-results';
 import { getNoResultsMessage } from '../utils/search';
 
-const SearchNoResults = ({ title }) => {
+function SearchNoResults({ title }) {
   const noResultsMessage = getNoResultsMessage(title);
   const renderDialog = useCallback(
     () => (
@@ -38,7 +38,7 @@ const SearchNoResults = ({ title }) => {
       <PopularResults title={title} />
     </>
   );
-};
+}
 
 SearchNoResults.propTypes = {
   title: PropTypes.string.isRequired,

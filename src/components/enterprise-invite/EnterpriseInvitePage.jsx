@@ -31,7 +31,7 @@ export const CTA_BUTTON_TEXT = 'Continue to edX.org';
  * If successful, the user is redirected to their enterprise customer's Learner Portal
  * slug. If an error occurred, an appropriate error page is shown and an error is logged.
  */
-const EnterpriseInvitePage = () => {
+function EnterpriseInvitePage() {
   const { enterpriseCustomerInviteKey } = useParams();
   const [inviteError, setInviteError] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +114,6 @@ const EnterpriseInvitePage = () => {
       )}
     </LoginRedirect>
   );
-};
+}
 
 export default EnterpriseInvitePage;

@@ -11,7 +11,7 @@ import { COURSE_TITLE, SEARCH_FACET_FILTERS } from '../../search/constants';
 
 import { NUM_POPULAR_COURSES_TO_DISPLAY } from './data/constants';
 
-const DashboardPopularCourses = () => {
+function DashboardPopularCourses() {
   const { algolia } = useContext(AppContext);
   const config = getConfig();
 
@@ -30,6 +30,6 @@ const DashboardPopularCourses = () => {
       </InstantSearch>
     </SearchData>
   );
-};
+}
 
 export default DashboardPopularCourses;

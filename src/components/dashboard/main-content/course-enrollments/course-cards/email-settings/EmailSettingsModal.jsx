@@ -41,7 +41,7 @@ class EmailSettingsModal extends Component {
     }
 
     return 'default';
-  }
+  };
 
   getDisabledStates = () => {
     const { isFormChanged } = this.state;
@@ -49,7 +49,7 @@ class EmailSettingsModal extends Component {
       return ['pending', 'complete'];
     }
     return ['pending', 'complete', 'default'];
-  }
+  };
 
   handleSaveButtonClick = () => {
     const { hasEmailsEnabled } = this.state;

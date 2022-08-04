@@ -21,8 +21,12 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
-jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
+jest.mock('../CourseRunCards', () => function () {
+  return <p>Cards</p>;
+});
+jest.mock('../SubsidyRequestButton', () => function () {
+  return <p>SubsidyRequestButton</p>;
+});
 
 const defaultSubsidyRequestsState = {
   requestsBySubsidyType: {
@@ -43,25 +47,27 @@ const defaultCourseEnrollmentsState = {
 };
 
 /* eslint-disable react/prop-types */
-const CourseHeaderWrapper = ({
+function CourseHeaderWrapper({
   initialAppState = {},
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
   initialCourseState = {},
   initialUserSubsidyState = {},
   initialSubsidyRequestsState = defaultSubsidyRequestsState,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-          <CourseContextProvider initialState={initialCourseState}>
-            <CourseHeader />
-          </CourseContextProvider>
-        </CourseEnrollmentsContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+            <CourseContextProvider initialState={initialCourseState}>
+              <CourseHeader />
+            </CourseContextProvider>
+          </CourseEnrollmentsContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 describe('<CourseHeader />', () => {

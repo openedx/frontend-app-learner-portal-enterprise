@@ -4,7 +4,7 @@ import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetLi
 
 import { SKILLS_FACET } from './constants';
 
-const SkillsDropDown = () => {
+function SkillsDropDown() {
   const { refinements } = useContext(SearchContext);
   const {
     title, attribute, typeaheadOptions, facetValueType,
@@ -23,6 +23,6 @@ const SkillsDropDown = () => {
       doRefinement={false}
     />
   );
-};
+}
 
 export default SkillsDropDown;

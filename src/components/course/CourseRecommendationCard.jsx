@@ -11,7 +11,7 @@ import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
 
-const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
+function CourseRecommendationCard({ course, isPartnerRecommendation }) {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
   const history = useHistory();
@@ -87,7 +87,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       </Card.Footer>
     </Card>
   );
-};
+}
 
 CourseRecommendationCard.propTypes = {
   course: PropTypes.shape({

@@ -11,8 +11,8 @@ import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import { features } from '../../config';
 import { LicenseActivationPage } from '../license-activation';
 
-const EnterpriseAppPageRoutes = () => (
-  <>
+function EnterpriseAppPageRoutes() {
+  return (
     <AuthenticatedUserSubsidyPage>
       <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
       <PageRoute
@@ -28,7 +28,7 @@ const EnterpriseAppPageRoutes = () => (
       <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
       <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
     </AuthenticatedUserSubsidyPage>
-  </>
-);
+  );
+}
 
 export default EnterpriseAppPageRoutes;

@@ -13,14 +13,14 @@ import Notification from './Notification';
 import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 
-export const InProgressCourseCard = ({
+export function InProgressCourseCard({
   linkToCourse,
   courseRunId,
   title,
   notifications,
   courseRunStatus,
   ...rest
-}) => {
+}) {
   const {
     isLoading: isLoadingUpgradeUrl,
     upgradeUrl,
@@ -156,7 +156,7 @@ export const InProgressCourseCard = ({
       />
     </BaseCourseCard>
   );
-};
+}
 
 InProgressCourseCard.propTypes = {
   linkToCourse: PropTypes.string.isRequired,

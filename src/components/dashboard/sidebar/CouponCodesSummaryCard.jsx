@@ -16,9 +16,9 @@ import {
 } from './data/constants';
 import CouponCodesWarningModal from '../../program-progress/CouponCodesWarningModal';
 
-const CouponCodesSummaryCard = ({
+function CouponCodesSummaryCard({
   couponCodesCount, couponCodeRequestsCount, className, totalCoursesEligibleForCertificate, programProgressPage,
-}) => {
+}) {
   const [
     isCouponCodeWarningModalOpen,
     couponCodeWarningModalOpen,
@@ -102,7 +102,7 @@ const CouponCodesSummaryCard = ({
         )}
     </>
   );
-};
+}
 
 CouponCodesSummaryCard.propTypes = {
   couponCodesCount: PropTypes.number,

@@ -24,7 +24,7 @@ const props = {
   className: 'mb-4 mt-1',
 };
 
-const SubsidyRequestButton = ({ enterpriseSlug }) => {
+function SubsidyRequestButton({ enterpriseSlug }) {
   const history = useHistory();
   const { addToast } = useContext(ToastsContext);
   const [loadingRequest, setLoadingRequest] = useState(false);
@@ -122,7 +122,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
   return (
     <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
   );
-};
+}
 
 SubsidyRequestButton.propTypes = {
   enterpriseSlug: PropTypes.string.isRequired,

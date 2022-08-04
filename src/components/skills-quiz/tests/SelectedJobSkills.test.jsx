@@ -7,18 +7,20 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectedJobSkills from '../SelectedJobSkills';
 
 /* eslint-disable react/prop-types */
-const SelectedJobSkillsWithContext = ({
+function SelectedJobSkillsWithContext({
   initialSelectedJobSkillsState = {},
   initialAppState,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <SearchContext.Provider>
-      <SkillsContextProvider initialState={initialSelectedJobSkillsState}>
-        <SelectedJobSkills />
-      </SkillsContextProvider>
-    </SearchContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <SearchContext.Provider>
+        <SkillsContextProvider initialState={initialSelectedJobSkillsState}>
+          <SelectedJobSkills />
+        </SkillsContextProvider>
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 const PROGRAMMING = 'Programming';

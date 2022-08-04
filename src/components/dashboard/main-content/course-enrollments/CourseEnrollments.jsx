@@ -13,7 +13,7 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
 };
 
-const CourseEnrollments = ({ children }) => {
+function CourseEnrollments({ children }) {
   const {
     courseEnrollmentsByStatus,
     fetchCourseEnrollmentsError,
@@ -23,18 +23,16 @@ const CourseEnrollments = ({ children }) => {
     setShowMoveToInProgressCourseSuccess,
   } = useContext(CourseEnrollmentsContext);
 
-  const currentCourseEnrollments = useMemo(
-    () => sortedEnrollmentsByEnrollmentDate(
-      [
-        ...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
-        ...courseEnrollmentsByStatus.requested,
-      ],
-    ), [
-      courseEnrollmentsByStatus.inProgress,
-      courseEnrollmentsByStatus.upcoming,
-      courseEnrollmentsByStatus.requested,
+  const currentCourseEnrollments = useMemo(() => sortedEnrollmentsByEnrollmentDate(
+    [
+      ...courseEnrollmentsByStatus.inProgress, ...courseEnrollmentsByStatus.upcoming,
+      ...courseEnrollmentsByStatus.requested,
     ],
-  );
+  ), [
+    courseEnrollmentsByStatus.inProgress,
+    courseEnrollmentsByStatus.upcoming,
+    courseEnrollmentsByStatus.requested,
+  ]);
 
   const completedCourseEnrollments = useMemo(
     () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.completed),
@@ -90,7 +88,7 @@ const CourseEnrollments = ({ children }) => {
       </>
     </>
   );
-};
+}
 
 CourseEnrollments.propTypes = {
   children: PropTypes.node,

@@ -12,7 +12,7 @@ import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import { isExperimentVariant } from '../../../utils/optimizely';
 
-const DashboardMainContent = () => {
+function DashboardMainContent() {
   const {
     enterpriseConfig: {
       name,
@@ -61,6 +61,6 @@ const DashboardMainContent = () => {
       </MediaQuery>
     </>
   );
-};
+}
 
 export default DashboardMainContent;

@@ -8,18 +8,20 @@ import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 
 /* eslint-disable react/prop-types */
-const SelectJobCardWithContext = ({
+function SelectJobCardWithContext({
   initialJobCardState = {},
   initialAppState,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <SearchContext.Provider>
-      <SkillsContextProvider initialState={initialJobCardState}>
-        <SelectJobCard />
-      </SkillsContextProvider>
-    </SearchContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <SearchContext.Provider>
+        <SkillsContextProvider initialState={initialJobCardState}>
+          <SelectJobCard />
+        </SkillsContextProvider>
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 const TEST_MEDIAN_SALARY = '100000';

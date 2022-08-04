@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import './styles/TagCloud.scss';
 
-const TagCloud = ({ tags, onRemove }) => (
-  <>
+function TagCloud({ tags, onRemove }) {
+  return (
     <div className="skills-tag">
       <ul className="item">
         {
@@ -19,9 +19,8 @@ const TagCloud = ({ tags, onRemove }) => (
         }
       </ul>
     </div>
-
-  </>
-);
+  );
+}
 
 TagCloud.propTypes = {
   onRemove: PropTypes.func.isRequired,

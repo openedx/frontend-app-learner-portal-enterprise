@@ -14,7 +14,7 @@ import { useRenderContactHelpText } from '../../utils/hooks';
 
 export const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
 
-const LicenseActivationPage = () => {
+function LicenseActivationPage() {
   const user = getAuthenticatedUser();
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense } = useContext(UserSubsidyContext);
@@ -55,6 +55,6 @@ const LicenseActivationPage = () => {
   }
 
   return <LicenseActivation />;
-};
+}
 
 export default LicenseActivationPage;

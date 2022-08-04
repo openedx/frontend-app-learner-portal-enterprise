@@ -104,24 +104,26 @@ let mockLocation = {
 };
 
 /* eslint-disable react/prop-types */
-const DashboardWithContext = ({
+function DashboardWithContext({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialCourseState = defaultCourseState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <CourseEnrollmentsContextProvider>
-          <CourseContextProvider initialState={initialCourseState}>
-            <DashboardPage />
-          </CourseContextProvider>
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+          <CourseEnrollmentsContextProvider>
+            <CourseContextProvider initialState={initialCourseState}>
+              <DashboardPage />
+            </CourseContextProvider>
+          </CourseEnrollmentsContextProvider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 jest.mock('react-router-dom', () => ({
@@ -373,9 +375,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal.querySelector('button'));
-      expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' },
-      );
+      expect(mockSetCookies).toHaveBeenCalledWith(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' });
     });
 
     it('should not show the modal if 60 >= daysUntilExpiration > 30 and the 60 day cookie has been set', () => {
@@ -418,9 +418,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal.querySelector('button'));
-      expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' },
-      );
+      expect(mockSetCookies).toHaveBeenCalledWith(`${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' });
     });
 
     it('should not show the modal if 30 >= daysUntilExpiration > 0 and the 30 day cookie has been set', () => {

@@ -84,17 +84,19 @@ const initialSubsidyRequestsState = {
 };
 
 /* eslint-enable react/prop-types */
-const SearchResultsWithContext = (props) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <SearchContext.Provider value={searchContext}>
-          <SearchResults {...props} />
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+function SearchResultsWithContext(props) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <SearchContext.Provider value={searchContext}>
+            <SearchResults {...props} />
+          </SearchContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 const TEST_COURSE_KEY = 'test-course-key';

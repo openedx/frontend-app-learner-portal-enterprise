@@ -19,20 +19,22 @@ jest.mock('react-loading-skeleton', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-const SearchJobCardWithContext = ({
+function SearchJobCardWithContext({
   index,
   initialAppState,
   initialSearchState,
   initialJobsState,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <SearchContext.Provider value={initialSearchState}>
-      <SkillsContextProvider initialState={initialJobsState}>
-        <SearchJobCard index={index} />
-      </SkillsContextProvider>
-    </SearchContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <SearchContext.Provider value={initialSearchState}>
+        <SkillsContextProvider initialState={initialJobsState}>
+          <SearchJobCard index={index} />
+        </SkillsContextProvider>
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
 const TEST_JOB_KEY = 'test-job-key';

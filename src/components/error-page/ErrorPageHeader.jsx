@@ -16,7 +16,7 @@ import { getConfig } from '@edx/frontend-platform/config';
  * This component also acts as a message page for the logout case, hence adding some checks for
  * non existent variables.
  */
-const ErrorPageHeader = () => {
+function ErrorPageHeader() {
   const config = getConfig();
   const authenticatedUser = getAuthenticatedUser();
   const { username, profileImage } = authenticatedUser || { username: '', profileImage: '' };
@@ -55,6 +55,6 @@ const ErrorPageHeader = () => {
       </Navbar>
     </header>
   );
-};
+}
 
 export default ErrorPageHeader;

@@ -14,9 +14,9 @@ import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 
-const SubsidiesSummary = ({
+function SubsidiesSummary({
   className, showSearchCoursesCta, totalCoursesEligibleForCertificate, courseEndDate, programProgressPage,
-}) => {
+}) {
   const {
     enterpriseConfig: {
       slug,
@@ -121,7 +121,7 @@ const SubsidiesSummary = ({
         )}
     </>
   );
-};
+}
 
 SubsidiesSummary.propTypes = {
   totalCoursesEligibleForCertificate: PropTypes.number,

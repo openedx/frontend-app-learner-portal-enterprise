@@ -11,9 +11,9 @@ import { ELLIPSIS_STR } from '../course/data/constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
 
-const CourseCard = ({
+function CourseCard({
   isLoading, course, allSkills,
-}) => {
+}) {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const partnerDetails = useMemo(() => {
@@ -133,7 +133,7 @@ const CourseCard = ({
       </Link>
     </div>
   );
-};
+}
 
 CourseCard.propTypes = {
   course: PropTypes.shape({

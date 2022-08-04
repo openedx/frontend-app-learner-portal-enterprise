@@ -107,26 +107,28 @@ const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
 
-const SkillsCoursesWithContext = ({
+function SkillsCoursesWithContext({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
   searchContext = defaultSearchContext,
   index,
-}) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <SearchContext.Provider value={searchContext}>
-          <SkillsContext.Provider value={initialSkillsState}>
-            <SkillsCourses index={index} />
-          </SkillsContext.Provider>
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+          <SearchContext.Provider value={searchContext}>
+            <SkillsContext.Provider value={initialSkillsState}>
+              <SkillsCourses index={index} />
+            </SkillsContext.Provider>
+          </SearchContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 describe('<SkillsCourses />', () => {
   test('renders the correct data', async () => {

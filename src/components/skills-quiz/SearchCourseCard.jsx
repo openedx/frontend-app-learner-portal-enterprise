@@ -28,7 +28,7 @@ const renderDialog = () => (
   </div>
 );
 
-const SearchCourseCard = ({ index }) => {
+function SearchCourseCard({ index }) {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
@@ -111,7 +111,7 @@ const SearchCourseCard = ({ index }) => {
       </div>
     </div>
   );
-};
+}
 
 SearchCourseCard.propTypes = {
   index: PropTypes.shape({

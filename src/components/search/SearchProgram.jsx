@@ -7,7 +7,7 @@ import { NUM_RESULTS_PROGRAM, CONTENT_TYPE_PROGRAM, PROGRAM_TITLE } from './cons
 import SearchResults from './SearchResults';
 import SearchProgramCard from './SearchProgramCard';
 
-const SearchProgram = ({ filter }) => {
+function SearchProgram({ filter }) {
   const defaultFilter = `content_type:${CONTENT_TYPE_PROGRAM} AND ${filter}`;
   const config = getConfig();
 
@@ -21,7 +21,7 @@ const SearchProgram = ({ filter }) => {
       <SearchResults hitComponent={SearchProgramCard} title={PROGRAM_TITLE} />
     </Index>
   );
-};
+}
 
 SearchProgram.propTypes = {
   filter: PropTypes.string.isRequired,

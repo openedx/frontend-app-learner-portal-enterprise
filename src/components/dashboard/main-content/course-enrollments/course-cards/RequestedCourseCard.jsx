@@ -5,13 +5,15 @@ import BaseCourseCard from './BaseCourseCard';
 
 import { COURSE_STATUSES } from '../data/constants';
 
-const RequestedCourseCard = (props) => (
-  <BaseCourseCard
-    type={COURSE_STATUSES.requested}
-    hasViewCertificateLink={false}
-    {...props}
-  />
-);
+function RequestedCourseCard(props) {
+  return (
+    <BaseCourseCard
+      type={COURSE_STATUSES.requested}
+      hasViewCertificateLink={false}
+      {...props}
+    />
+  );
+}
 
 RequestedCourseCard.propTypes = {
   linkToCourse: PropTypes.string.isRequired,

@@ -13,9 +13,9 @@ import { enrollLinkClass } from '../constants';
  * Renders a hyperlink to the course info url (or enrollment url)
  * Uses the passed in enroll label as the Label shown along with enroll link
  */
-const ToCoursewarePage = ({
+function ToCoursewarePage({
   enrollLabel, enrollmentUrl, userEnrollment, subscriptionLicense,
-}) => {
+}) {
   const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
     userEnrollment,
     subscriptionLicense,
@@ -36,7 +36,7 @@ const ToCoursewarePage = ({
       onClick={handleClick}
     />
   );
-};
+}
 
 ToCoursewarePage.propTypes = {
   enrollLabel: PropTypes.node.isRequired,

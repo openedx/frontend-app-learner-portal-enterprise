@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { ProgramContext } from './ProgramContextProvider';
 import { appendProgramToProgramType } from './data/utils';
 
-const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
+function ProgramDataBarDetails({ handleStick, handleRelease }) {
   const {
     program: {
       title, authoringOrganizations: owners, type,
@@ -66,7 +66,7 @@ const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
       <div className="institution">{partnerList}</div>
     </div>
   );
-};
+}
 
 ProgramDataBarDetails.propTypes = {
   handleStick: PropTypes.func.isRequired,

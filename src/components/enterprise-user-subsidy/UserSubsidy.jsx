@@ -17,7 +17,7 @@ import { LOADING_SCREEN_READER_TEXT } from './data/constants';
 
 export const UserSubsidyContext = createContext();
 
-const UserSubsidy = ({ children }) => {
+function UserSubsidy({ children }) {
   const { enterpriseConfig } = useContext(AppContext);
   const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
   const {
@@ -115,7 +115,7 @@ const UserSubsidy = ({ children }) => {
       </UserSubsidyContext.Provider>
     </>
   );
-};
+}
 
 UserSubsidy.propTypes = {
   children: PropTypes.node.isRequired,

@@ -9,19 +9,21 @@ import * as utils from '../../utils/common';
 jest.mock('../../utils/common');
 
 // eslint-disable-next-line react/prop-types
-const LoginRefreshWithContext = ({ roles = [] }) => (
-  <AppContext.Provider value={{
-    authenticatedUser: {
-      userId: 1,
-      roles,
-    },
-  }}
-  >
-    <LoginRefresh>
-      <div>Hello!</div>
-    </LoginRefresh>
-  </AppContext.Provider>
-); /* eslint-enable react/prop-types */
+function LoginRefreshWithContext({ roles = [] }) {
+  return (
+    <AppContext.Provider value={{
+      authenticatedUser: {
+        userId: 1,
+        roles,
+      },
+    }}
+    >
+      <LoginRefresh>
+        <div>Hello!</div>
+      </LoginRefresh>
+    </AppContext.Provider>
+  );
+} /* eslint-enable react/prop-types */
 
 describe('<LoginRefresh />', () => {
   it('should call loginRefresh if the user has no roles', async () => {

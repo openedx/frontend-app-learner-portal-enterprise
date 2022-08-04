@@ -19,7 +19,7 @@ export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
 export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'This course can be purchased with your organization\'s learner credit';
 export const INSUFFICIENT_ENTERPRISE_OFFER_BALANCE = 'Your organization doesn\'t have enough learner credit remaining.';
 
-const CourseSidebarPrice = () => {
+function CourseSidebarPrice() {
   const { enterpriseConfig } = useContext(AppContext);
   const { state: courseData } = useContext(CourseContext);
   const { activeCourseRun, userSubsidyApplicableToCourse } = courseData;
@@ -117,6 +117,6 @@ const CourseSidebarPrice = () => {
       <small>{discountedPriceMessage}</small>
     </>
   );
-};
+}
 
 export default CourseSidebarPrice;

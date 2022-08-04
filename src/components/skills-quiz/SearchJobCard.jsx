@@ -7,20 +7,22 @@ import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import JobCardComponent from './JobCardComponent';
 
-const SearchJobCard = ({ index }) => {
+function SearchJobCard({ index }) {
   const { refinements } = useContext(SearchContext);
   const { name: jobs } = refinements;
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, state } = useContext(SkillsContext);
   const { interestedJobs } = state;
-  const jobsToFetch = useMemo(() => {
-    const jobsArray = [];
-    if (jobs) {
-      jobs.forEach(job => jobsArray.push(`name:${job}`));
-    }
-    return jobsArray;
-  },
-  [jobs]);
+  const jobsToFetch = useMemo(
+    () => {
+      const jobsArray = [];
+      if (jobs) {
+        jobs.forEach(job => jobsArray.push(`name:${job}`));
+      }
+      return jobsArray;
+    },
+    [jobs],
+  );
 
   useEffect(
     () => {
@@ -49,7 +51,7 @@ const SearchJobCard = ({ index }) => {
       <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
     </div>
   );
-};
+}
 
 SearchJobCard.propTypes = {
   index: PropTypes.shape({

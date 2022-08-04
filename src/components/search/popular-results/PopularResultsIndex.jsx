@@ -10,7 +10,7 @@ import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getContentTypeFromTitle } from '../../utils/search';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
+function PopularResultsIndex({ title, numberResultsToDisplay }) {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
@@ -43,7 +43,7 @@ const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
       <PopularResults title={title} numberResultsToDisplay={numberResultsToDisplay} />
     </Index>
   );
-};
+}
 
 PopularResultsIndex.propTypes = {
   title: PropTypes.string.isRequired,

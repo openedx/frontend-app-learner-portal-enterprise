@@ -6,7 +6,7 @@ import {
 import { CourseContext } from './CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
 
-const CourseRunCards = () => {
+function CourseRunCards() {
   const {
     state: courseData,
     subsidyRequestCatalogsApplicableToCourse,
@@ -35,6 +35,6 @@ const CourseRunCards = () => {
       ))}
     </CardGrid>
   );
-};
+}
 
 export default CourseRunCards;

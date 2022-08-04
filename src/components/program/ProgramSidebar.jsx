@@ -13,7 +13,7 @@ import {
   getVerboseProgramPacing,
 } from './data/utils';
 
-const ProgramSidebar = () => {
+function ProgramSidebar() {
   const { program } = useContext(ProgramContext);
   const expertInstructionSecondaryContent = getExpertInstructionSecondaryContent(program);
   const programPacingType = getProgramPacing(program);
@@ -23,44 +23,42 @@ const ProgramSidebar = () => {
   const totalEstimatedEffortInHoursPerWeek = getTotalEstimatedEffortInHoursPerWeek(program);
 
   return (
-    <>
-      <ul className="pl-0 mb-5 program-details-sidebar">
-        <ProgramSidebarListItem
-          icon={faBook}
-          label="Expert instruction"
-          content={expertInstructionSecondaryContent}
-        />
+    <ul className="pl-0 mb-5 program-details-sidebar">
+      <ProgramSidebarListItem
+        icon={faBook}
+        label="Expert instruction"
+        content={expertInstructionSecondaryContent}
+      />
 
-        {
-          verboseProgramPacingType && programPacingTypeContent && (
-            <ProgramSidebarListItem
-              icon={faUser}
-              label={verboseProgramPacingType}
-              content={programPacingTypeContent}
-            />
-          )
-        }
-        {
-          programDuration && (
-            <ProgramSidebarListItem
-              icon={faClock}
-              label="Length"
-              content={programDuration}
-            />
-          )
-        }
-        {
-          totalEstimatedEffortInHoursPerWeek && (
-            <ProgramSidebarListItem
-              icon={faTachometerAlt}
-              label="Effort"
-              content={totalEstimatedEffortInHoursPerWeek}
-            />
-          )
-        }
-      </ul>
-    </>
+      {
+        verboseProgramPacingType && programPacingTypeContent && (
+          <ProgramSidebarListItem
+            icon={faUser}
+            label={verboseProgramPacingType}
+            content={programPacingTypeContent}
+          />
+        )
+      }
+      {
+        programDuration && (
+          <ProgramSidebarListItem
+            icon={faClock}
+            label="Length"
+            content={programDuration}
+          />
+        )
+      }
+      {
+        totalEstimatedEffortInHoursPerWeek && (
+          <ProgramSidebarListItem
+            icon={faTachometerAlt}
+            label="Effort"
+            content={totalEstimatedEffortInHoursPerWeek}
+          />
+        )
+      }
+    </ul>
   );
-};
+}
 
 export default ProgramSidebar;

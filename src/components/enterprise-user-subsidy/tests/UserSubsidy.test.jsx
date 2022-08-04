@@ -56,37 +56,39 @@ const mockEmptyListResponse = {
 };
 
 /* eslint-disable react/prop-types */
-const UserSubsidyWithAppContext = ({
+function UserSubsidyWithAppContext({
   enterpriseConfig = {},
   contextValue = {},
   children,
-}) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: {
-        slug: TEST_ENTERPRISE_SLUG,
-        uuid: TEST_ENTERPRISE_UUID,
-        ...enterpriseConfig,
-      },
-      ...contextValue,
-    }}
-  >
-    <UserSubsidy>
-      {children}
-    </UserSubsidy>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: {
+          slug: TEST_ENTERPRISE_SLUG,
+          uuid: TEST_ENTERPRISE_UUID,
+          ...enterpriseConfig,
+        },
+        ...contextValue,
+      }}
+    >
+      <UserSubsidy>
+        {children}
+      </UserSubsidy>
+    </AppContext.Provider>
+  );
+}
 /* eslint-enable react/prop-types */
 
-const SubscriptionLicenseConsumer = () => {
+function SubscriptionLicenseConsumer() {
   const { subscriptionLicense } = useContext(UserSubsidyContext);
   return <div>License status: {subscriptionLicense?.status || 'none'}</div>;
-};
+}
 
-const CouponCodesConsumer = () => {
+function CouponCodesConsumer() {
   const { couponCodes } = useContext(UserSubsidyContext);
   return <div>Coupon codes count: {couponCodes?.couponCodesCount || 'none'}</div>;
-};
+}
 
 describe('UserSubsidy', () => {
   describe('without subsidy', () => {

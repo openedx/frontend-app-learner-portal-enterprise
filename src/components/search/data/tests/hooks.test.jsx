@@ -118,8 +118,9 @@ describe('useSearchCatalogs', () => {
   });
 });
 
-const SearchWrapper = (value) => ({ children }) => (
-  <SearchContext.Provider value={value}>{children}</SearchContext.Provider>);
+const SearchWrapper = (value) => function ({ children }) {
+  return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
+};
 
 describe('useDefaultSearchFilters', () => {
   const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };

@@ -6,11 +6,13 @@ import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramInstructors from '../ProgramInstructors';
 
 // eslint-disable-next-line react/prop-types
-const ProgramInstructorsWithContext = ({ initialState = {} }) => (
-  <ProgramContextProvider initialState={initialState}>
-    <ProgramInstructors />
-  </ProgramContextProvider>
-);
+function ProgramInstructorsWithContext({ initialState = {} }) {
+  return (
+    <ProgramContextProvider initialState={initialState}>
+      <ProgramInstructors />
+    </ProgramContextProvider>
+  );
+}
 
 describe('<ProgramInstructors />', () => {
   const initialState = {

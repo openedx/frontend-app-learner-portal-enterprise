@@ -34,8 +34,10 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
         </h3>
         {/* eslint-disable react/no-danger */}
         <div dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(node.shortDescription,
-            { USE_PROFILES: { html: true } }),
+          __html: DOMPurify.sanitize(
+            node.shortDescription,
+            { USE_PROFILES: { html: true } },
+          ),
         }}
         />
       </Col>
@@ -52,7 +54,7 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
   );
 });
 
-const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
+function PathwayModal({ learnerPathwayUuid, isOpen, onClose }) {
   const { enterpriseConfig: { slug } } = useContext(AppContext);
   const pathwayUuid = isOpen ? learnerPathwayUuid : null;
   const [pathway, isLoading] = useLearnerPathwayData({ learnerPathwayUuid: pathwayUuid });
@@ -165,11 +167,11 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
 
     </MarketingModal>
   );
-};
+}
 
-const SkeletonPathwayModal = (props) => (
-  <PathwayModal {...props} isLoading />
-);
+function SkeletonPathwayModal(props) {
+  return <PathwayModal {...props} isLoading />;
+}
 
 PathwayModal.propTypes = {
   learnerPathwayUuid: PropTypes.string.isRequired,

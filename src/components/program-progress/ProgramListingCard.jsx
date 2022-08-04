@@ -10,7 +10,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import Truncate from 'react-truncate';
 import { getProgramIcon } from '../course/data/utils';
 
-const ProgramListingCard = ({ program }) => {
+function ProgramListingCard({ program }) {
   const { enterpriseConfig } = useContext(AppContext);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const history = useHistory();
@@ -114,7 +114,7 @@ const ProgramListingCard = ({ program }) => {
       </Card.Section>
     </Card>
   );
-};
+}
 
 ProgramListingCard.propTypes = {
   program: PropTypes.shape({

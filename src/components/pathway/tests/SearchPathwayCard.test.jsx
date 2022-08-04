@@ -28,15 +28,17 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-const SearchPathwayCardWithAppContext = (props) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
-    }}
-  >
-    <SearchPathwayCard {...props} />
-  </AppContext.Provider>
-);
+function SearchPathwayCardWithAppContext(props) {
+  return (
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
+      }}
+    >
+      <SearchPathwayCard {...props} />
+    </AppContext.Provider>
+  );
+}
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
 const TEST_TITLE = 'Test Title';

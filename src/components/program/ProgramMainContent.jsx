@@ -5,7 +5,7 @@ import { PreviewExpand } from '../preview-expand';
 import { ProgramContext } from './ProgramContextProvider';
 import BulletList from './BulletList';
 
-const ProgramMainContent = () => {
+function ProgramMainContent() {
   const { program } = useContext(ProgramContext);
   const { expectedLearningItems } = program;
   const { overview } = program;
@@ -42,6 +42,6 @@ const ProgramMainContent = () => {
       <ProgramInstructors />
     </div>
   );
-};
+}
 
 export default ProgramMainContent;

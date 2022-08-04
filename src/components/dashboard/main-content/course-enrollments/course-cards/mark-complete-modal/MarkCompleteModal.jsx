@@ -17,14 +17,14 @@ const initialState = {
   confirmSuccessful: false,
 };
 
-const MarkCompleteModal = ({
+function MarkCompleteModal({
   courseId,
   isOpen,
   courseTitle,
   courseLink,
   onSuccess,
   onClose,
-}) => {
+}) {
   const { enterpriseConfig: { uuid } } = useContext(AppContext);
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
@@ -95,7 +95,7 @@ const MarkCompleteModal = ({
       />
     </MarkCompleteModalContext.Provider>
   );
-};
+}
 
 MarkCompleteModal.propTypes = {
   courseId: PropTypes.string.isRequired,

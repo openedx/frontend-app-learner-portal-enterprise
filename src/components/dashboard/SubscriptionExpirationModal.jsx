@@ -18,7 +18,7 @@ export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
 export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 
-const SubscriptionExpirationModal = () => {
+function SubscriptionExpirationModal() {
   const {
     enterpriseConfig: { uuid: enterpriseId, adminUsers },
     config,
@@ -52,11 +52,9 @@ const SubscriptionExpirationModal = () => {
   const renderCertificateText = () => {
     const { username } = getAuthenticatedUser();
     return (
-      <>
-        <a href={`${config.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
-          download your completed certificates
-        </a>
-      </>
+      <a href={`${config.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
+        download your completed certificates
+      </a>
     );
   };
 
@@ -158,6 +156,6 @@ const SubscriptionExpirationModal = () => {
       open
     />
   );
-};
+}
 
 export default SubscriptionExpirationModal;

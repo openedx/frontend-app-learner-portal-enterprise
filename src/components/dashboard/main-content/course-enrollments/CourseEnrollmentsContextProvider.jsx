@@ -11,7 +11,7 @@ import { transformSubsidyRequest } from './data/utils';
 
 export const CourseEnrollmentsContext = createContext();
 
-const CourseEnrollmentsContextProvider = ({ children }) => {
+function CourseEnrollmentsContextProvider({ children }) {
   const {
     enterpriseConfig: {
       uuid: enterpriseUUID,
@@ -82,7 +82,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
       {children}
     </CourseEnrollmentsContext.Provider>
   );
-};
+}
 
 CourseEnrollmentsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,

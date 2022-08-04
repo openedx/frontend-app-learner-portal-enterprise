@@ -6,7 +6,7 @@ import { NUM_RESULTS_COURSE, CONTENT_TYPE_COURSE, COURSE_TITLE } from './constan
 import SearchResults from './SearchResults';
 import SearchCourseCard from './SearchCourseCard';
 
-const SearchCourse = ({ filter }) => {
+function SearchCourse({ filter }) {
   const defaultFilter = `content_type:${CONTENT_TYPE_COURSE} AND ${filter}`;
   const config = getConfig();
 
@@ -20,7 +20,7 @@ const SearchCourse = ({ filter }) => {
       <SearchResults hitComponent={SearchCourseCard} title={COURSE_TITLE} />
     </Index>
   );
-};
+}
 
 SearchCourse.propTypes = {
   filter: PropTypes.string.isRequired,

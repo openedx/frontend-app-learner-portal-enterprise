@@ -7,7 +7,7 @@ import { faChevronCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { ProgramContext } from './ProgramContextProvider';
 import ProgramDataBarDetails from './ProgramDataBarDetails';
 
-const ProgramDataBar = () => {
+function ProgramDataBar() {
   const [stickProgramDataBar, setStickProgramDataBar] = useState(false);
   const {
     program: { authoringOrganizations: owners, isProgramEligibleForOneClickPurchase },
@@ -54,5 +54,5 @@ const ProgramDataBar = () => {
       </div>
     </div>
   );
-};
+}
 export default ProgramDataBar;

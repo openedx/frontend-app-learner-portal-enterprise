@@ -13,7 +13,7 @@ import { CourseContext } from '../../CourseContextProvider';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 // Data sharing consent
-const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
+function ToDataSharingConsentPage({ enrollLabel, enrollmentUrl }) {
   const {
     state: {
       activeCourseRun: { key: courseRunKey },
@@ -45,7 +45,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
       }}
     />
   );
-};
+}
 
 ToDataSharingConsentPage.propTypes = {
   enrollLabel: PropTypes.node.isRequired,

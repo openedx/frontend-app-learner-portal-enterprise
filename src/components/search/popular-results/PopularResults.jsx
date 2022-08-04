@@ -10,13 +10,13 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getHitComponentFromTitle, getSkeletonCardFromTitle } from '../../utils/search';
 
-const PopularResults = ({
+function PopularResults({
   searchResults,
   isSearchStalled,
   error,
   title,
   numberResultsToDisplay,
-}) => {
+}) {
   const nbHits = useNbHitsFromSearchResults(searchResults);
 
   return (
@@ -48,7 +48,7 @@ const PopularResults = ({
       )}
     </>
   );
-};
+}
 
 PopularResults.propTypes = {
   searchResults: PropTypes.shape(),

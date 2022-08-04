@@ -2,21 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Card } from '@edx/paragon';
 
-const SidebarCard = ({
+function SidebarCard({
   title,
   children,
   cardClassNames,
   cardSectionClassNames,
-}) => (
-  <Card className={cardClassNames}>
-    {title && <Card.Header title={title} />}
-    <Card.Section
-      className={cardSectionClassNames}
-    >
-      {children}
-    </Card.Section>
-  </Card>
-);
+}) {
+  return (
+    <Card className={cardClassNames}>
+      {title && <Card.Header title={title} />}
+      <Card.Section
+        className={cardSectionClassNames}
+      >
+        {children}
+      </Card.Section>
+    </Card>
+  );
+}
 
 SidebarCard.propTypes = {
   title: PropTypes.node,

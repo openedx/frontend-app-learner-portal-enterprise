@@ -9,13 +9,15 @@ import {
 } from '../data/constants';
 
 /* eslint-disable react/prop-types */
-const ProgramProgressCircleWithContext = ({
+function ProgramProgressCircleWithContext({
   initialProgramProgressContext = {},
-}) => (
-  <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-    <ProgramProgressCircle />
-  </ProgramProgressContext.Provider>
-);
+}) {
+  return (
+    <ProgramProgressContext.Provider value={initialProgramProgressContext}>
+      <ProgramProgressCircle />
+    </ProgramProgressContext.Provider>
+  );
+}
 
 const testProgramData = {
   type: 'MicroMasters',

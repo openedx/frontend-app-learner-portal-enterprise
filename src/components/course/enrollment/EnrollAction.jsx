@@ -29,14 +29,14 @@ const {
  * @param {string} args.userEnrollment enrollment if applicable, or null.
  * @param {string} args.subscriptionLicense user license if applicable, or null.
  */
-const EnrollAction = ({
+function EnrollAction({
   enrollmentType,
   enrollmentUrl,
   enrollLabel,
   userEnrollment,
   subscriptionLicense,
   courseRunPrice,
-}) => {
+}) {
   switch (enrollmentType) {
     case TO_COURSEWARE_PAGE: // scenario 1: already enrolled
         return (
@@ -69,7 +69,7 @@ const EnrollAction = ({
       case HIDE_BUTTON:
       default: return null;
   }
-};
+}
 
 EnrollAction.propTypes = {
   enrollmentType: PropTypes.string.isRequired,

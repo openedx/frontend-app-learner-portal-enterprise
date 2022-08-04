@@ -21,27 +21,29 @@ const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ACTIVATION_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
 
-const LicenseActivationWithAppContext = ({
+function LicenseActivationWithAppContext({
   initialUserSubsidyState = {
     activateUserLicense: jest.fn(() => true),
   },
-}) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: {
-        uuid: TEST_ENTERPRISE_UUID,
-        slug: TEST_ENTERPRISE_SLUG,
-        name: 'Test Enterprise',
-      },
-    }}
-  >
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
-        <LicenseActivation />
-      </Route>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: {
+          uuid: TEST_ENTERPRISE_UUID,
+          slug: TEST_ENTERPRISE_SLUG,
+          name: 'Test Enterprise',
+        },
+      }}
+    >
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
+          <LicenseActivation />
+        </Route>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 describe('LicenseActivation', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -50,14 +52,12 @@ describe('LicenseActivation', () => {
     // For the initial state, there is no activation success or error
     const mockActivateUserLicense = jest.fn();
 
-    const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext initialUserSubsidyState={{
-        activateUserLicense: mockActivateUserLicense,
-      }}
-      />, {
-        route: TEST_ROUTE,
-      },
-    );
+    const { history } = renderWithRouter(<LicenseActivationWithAppContext initialUserSubsidyState={{
+      activateUserLicense: mockActivateUserLicense,
+    }}
+    />, {
+      route: TEST_ROUTE,
+    });
 
     await waitFor(() => {
       expect(mockActivateUserLicense).toHaveBeenCalledWith(false);
@@ -75,14 +75,12 @@ describe('LicenseActivation', () => {
       new Error("Couldn't activate license"),
     );
 
-    const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext initialUserSubsidyState={{
-        activateUserLicense: mockActivateUserLicense,
-      }}
-      />, {
-        route: TEST_ROUTE,
-      },
-    );
+    const { history } = renderWithRouter(<LicenseActivationWithAppContext initialUserSubsidyState={{
+      activateUserLicense: mockActivateUserLicense,
+    }}
+    />, {
+      route: TEST_ROUTE,
+    });
 
     expect(mockActivateUserLicense).toHaveBeenCalledWith(false);
 
@@ -105,14 +103,12 @@ describe('LicenseActivation', () => {
     }
 
     const mockActivateUserLicense = jest.fn();
-    const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext initialUserSubsidyState={{
-        activateUserLicense: mockActivateUserLicense,
-      }}
-      />, {
-        route: TEST_ROUTE,
-      },
-    );
+    const { history } = renderWithRouter(<LicenseActivationWithAppContext initialUserSubsidyState={{
+      activateUserLicense: mockActivateUserLicense,
+    }}
+    />, {
+      route: TEST_ROUTE,
+    });
 
     await waitFor(() => {
       expect(mockActivateUserLicense).toHaveBeenCalledWith(!!redirectedFrom);

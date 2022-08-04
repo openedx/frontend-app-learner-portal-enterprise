@@ -32,13 +32,13 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests/SubsidyRe
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
 
-const CourseRunCard = ({
+function CourseRunCard({
   userEntitlements,
   courseRun,
   userEnrollments,
   courseKey,
   subsidyRequestCatalogsApplicableToCourse,
-}) => {
+}) {
   const {
     availability,
     pacingType,
@@ -224,7 +224,7 @@ const CourseRunCard = ({
       </Card.Section>
     </Card>
   );
-};
+}
 
 CourseRunCard.propTypes = {
   courseKey: PropTypes.string.isRequired,

@@ -11,7 +11,7 @@ import { isCourseEnded } from '../../../../../utils/common';
 import { COURSE_STATUSES } from '../data/constants';
 import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
 
-const SavedForLaterCourseCard = (props) => {
+function SavedForLaterCourseCard(props) {
   const {
     title,
     linkToCourse,
@@ -122,7 +122,7 @@ const SavedForLaterCourseCard = (props) => {
       />
     </BaseCourseCard>
   );
-};
+}
 
 SavedForLaterCourseCard.propTypes = {
   linkToCourse: PropTypes.string.isRequired,

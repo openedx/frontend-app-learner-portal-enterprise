@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import ModalError from './ModalError';
 import MarkCompleteModalContext from './MarkCompleteModalContext';
 
-const ModalBody = () => {
+function ModalBody() {
   const {
     confirmError,
     courseLink,
@@ -26,6 +26,6 @@ const ModalBody = () => {
       </p>
     </>
   );
-};
+}
 
 export default ModalBody;

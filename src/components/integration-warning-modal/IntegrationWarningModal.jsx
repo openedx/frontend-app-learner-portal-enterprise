@@ -6,9 +6,9 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { MODAL_BUTTON_TEXT, MODAL_TITLE } from './data/constants';
 import ModalBody from './ModalBody';
 
-const IntegrationWarningModal = ({
+function IntegrationWarningModal({
   isOpen,
-}) => {
+}) {
   const config = getConfig();
   const cookies = new Cookies();
   const isWarningDismissed = () => {
@@ -45,7 +45,7 @@ const IntegrationWarningModal = ({
       />
     </div>
   );
-};
+}
 
 IntegrationWarningModal.propTypes = {
   isOpen: PropTypes.bool,
