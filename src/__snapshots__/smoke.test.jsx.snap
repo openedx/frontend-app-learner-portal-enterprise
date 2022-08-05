@@ -2,32 +2,22 @@
 
 exports[`[Smoke] Smoke test Dashboard renders 1`] = `
 <div
-  className="py-5 justify-content-center align-items-start text-center container-fluid"
+  className="mt-3 container-mw-lg container-fluid"
 >
   <div
-    className="row"
+    className="text-center py-5"
   >
-    <div
-      className="col"
+    <h1>
+      404
+    </h1>
+    <p
+      className="lead"
     >
-      <p
-        className="text-muted"
-      >
-        <span>
-          An unexpected error occurred. Please click the button below to refresh the page.
-        </span>
-      </p>
-      <button
-        className="btn btn-primary"
-        disabled={false}
-        onClick={[Function]}
-        type="button"
-      >
-        <span>
-          Try again
-        </span>
-      </button>
-    </div>
+      Oops, sorry we can't find that page!
+    </p>
+    <p>
+      Either something went wrong or the page doesn't exist anymore.
+    </p>
   </div>
 </div>
 `;

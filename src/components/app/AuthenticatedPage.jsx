@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
-import { useParams, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Hyperlink } from '@edx/paragon';
+import LoginRedirect from './LoginRedirect';
 import { EnterprisePage } from '../enterprise-page';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
@@ -16,7 +16,7 @@ import { ErrorPage } from '../error-page';
 export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const { enterpriseSlug } = useParams();
+  const enterpriseSlug = window.location.host.split('.')[0];
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
   const user = getAuthenticatedUser();

@@ -12,7 +12,6 @@ const DashboardMainContent = () => {
   const {
     enterpriseConfig: {
       name,
-      slug,
       disableSearch,
     },
     authenticatedUser,
@@ -45,7 +44,7 @@ const DashboardMainContent = () => {
             </p>
             <Button
               as={Link}
-              to={`/${slug}/search`}
+              to="/lms/search"
               className="btn-brand-primary d-block d-md-inline-block"
             >
               Find a course

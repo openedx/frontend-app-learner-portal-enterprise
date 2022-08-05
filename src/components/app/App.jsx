@@ -38,8 +38,8 @@ export default function App() {
             <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
             <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
             <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
-            <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
-            <PageRoute exact path="/:enterpriseSlug/search" component={SearchPage} />
+            <PageRoute exact path="/lms" component={DashboardPage} />
+            <PageRoute exact path="/lms/search" component={SearchPage} />
             <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
             {features.ENABLE_PROGRAMS && (
               <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />

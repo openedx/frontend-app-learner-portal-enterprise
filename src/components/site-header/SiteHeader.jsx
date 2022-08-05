@@ -42,10 +42,10 @@ export default function SiteHeader() {
     }
     return (
       <>
-        <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
+        <NavLink to="/lms" className={mainMenuLinkClassName} exact>
           Dashboard
         </NavLink>
-        <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
+        <NavLink to="/lms/search" className={mainMenuLinkClassName} exact>
           Find a Course
         </NavLink>
       </>

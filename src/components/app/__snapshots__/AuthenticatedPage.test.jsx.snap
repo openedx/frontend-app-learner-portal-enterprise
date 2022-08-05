@@ -55,7 +55,7 @@ Array [
            
           <a
             className="pgn__hyperlink default-link standalone-link"
-            href="http://localhost:8734/test-enterprise-slug"
+            href="http://localhost:8734/localhost"
             onClick={[Function]}
             target="_self"
           >

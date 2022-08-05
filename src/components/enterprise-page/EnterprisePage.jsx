@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -14,7 +13,7 @@ import { useAlgoliaSearch } from '../../utils/hooks';
 import { useEnterpriseCustomerConfig } from './data/hooks';
 
 export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
-  const { enterpriseSlug } = useParams();
+  const enterpriseSlug = window.location.host.split('.')[0];
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);

@@ -7,7 +7,7 @@ import SearchCourseCard from './SearchCourseCard';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import NotFoundPage from '../NotFoundPage';
+import CatalogNoResults from './CatalogNoResults';
 
 const Search = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -25,7 +25,7 @@ const Search = () => {
   };
 
   if (!catalogData.courses_metadata) {
-    return <NotFoundPage />;
+    return <CatalogNoResults />;
   }
 
   return (
