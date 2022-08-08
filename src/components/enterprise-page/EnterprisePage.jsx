@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -37,6 +37,23 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
     user,
   });
 
+  const contextValue = useMemo(() => ({
+    authenticatedUser: user,
+    config,
+    enterpriseConfig,
+    courseCards: {
+      'in-progress': {
+        settingsMenu: {
+          hasMarkComplete: true,
+        },
+      },
+    },
+    algolia: {
+      client: searchClient,
+      index: searchIndex,
+    },
+  }), [config, enterpriseConfig, searchClient, searchIndex, user]);
+
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!isDefined([enterpriseConfig, profileImage]) || isUpdatingActiveEnterprise) {
     return (
@@ -55,24 +72,7 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
   }
 
   return (
-    <AppContext.Provider
-      value={{
-        authenticatedUser: user,
-        config,
-        enterpriseConfig,
-        courseCards: {
-          'in-progress': {
-            settingsMenu: {
-              hasMarkComplete: true,
-            },
-          },
-        },
-        algolia: {
-          client: searchClient,
-          index: searchIndex,
-        },
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

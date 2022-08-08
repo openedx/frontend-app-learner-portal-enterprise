@@ -51,6 +51,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             hideLaborMarketData,
             identityProvider,
             enableLearnerPortalOffers,
+            enableExecutiveEducation2UFulfillment,
           } = config;
           setEnterpriseConfig({
             name,
@@ -72,6 +73,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
               },
             },
             enableLearnerPortalOffers,
+            enableExecutiveEducation2UFulfillment,
           });
         } else {
           if (!config) {
