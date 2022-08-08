@@ -45,7 +45,7 @@ If the user opts to decline terms and policies, we will inform the user that the
 
 ![External LMS Executive Education (2U) decline terms flow](../images/external_lms_customer_execed_decline_terms_learner_credit.png "External LMS Executive Education (2U) decline terms flow")
 
-If the enterprise customer associated with the user does not have enough remaining balance on their subsidy (e.g., Enterprise Offer), the user will be redirected to a route in the Learner Portal, seeing a message that their organization no longer has enough remaining balance. A link will be provided to bring the user back to their external LMS.
+If the enterprise customer associated with the user does not have enough remaining balance on their subsidy (e.g., Enterprise Offer), the user will be redirected to a route in the Learner Portal, seeing a message that their organization no longer has enough remaining balance to cover the cost of the course. A link will be provided to bring the user back to their external LMS.
 
 The ecommerce view will provide the redirect URL and any failure reasons as query parameters to this new page route in the Learner Portal.
 
