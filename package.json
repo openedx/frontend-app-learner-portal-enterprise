@@ -39,7 +39,7 @@
     "react-helmet": "5.2.1",
     "react-instantsearch-dom": "^6.8.2",
     "react-intl": "^5.21.1",
-    "react-loading-skeleton": "2.1.1",
+    "react-loading-skeleton": "2.2.0",
     "react-parallax": "^3.3.0",
     "react-redux": "7.2.2",
     "react-router": "4.3.1",
