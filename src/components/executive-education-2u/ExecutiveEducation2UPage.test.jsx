@@ -2,19 +2,26 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
 import ExecutiveEducation2UPage from './ExecutiveEducation2UPage';
-import { getExecutiveEducation2UTerms, GEAG_TERMS } from './data';
+import { getContentMetadata, useActiveQueryParams } from './data';
 
 jest.mock('./data');
 jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
   logError: jest.fn(),
 }));
-
+jest.mock('./UserEnrollmentForm', () => () => (
+  <div data-testid="user-enrollment-form-component" />
+));
+const enterpriseSlug = 'test-enterprise-slug';
 const initialAppContextValue = {
   enterpriseConfig: {
+    name: 'Test Enterprise',
+    slug: enterpriseSlug,
     enableExecutiveEducation2UFulfillment: true,
   },
 };
@@ -31,10 +38,11 @@ function ExecutiveEducation2UPageWrapper({
 
 describe('ExecutiveEducation2UPage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('shows 404 when `enableExecutiveEducation2UFulfillment` is false', () => {
+    useActiveQueryParams.mockImplementation(() => new URLSearchParams());
     const appContextValue = {
       ...initialAppContextValue,
       enterpriseConfig: {
@@ -42,47 +50,58 @@ describe('ExecutiveEducation2UPage', () => {
         enableExecutiveEducation2UFulfillment: false,
       },
     };
-    render(<ExecutiveEducation2UPageWrapper appContextValue={appContextValue} />);
+    renderWithRouter(<ExecutiveEducation2UPageWrapper appContextValue={appContextValue} />);
     expect(screen.getByText('404')).toBeInTheDocument();
 
-    expect(getExecutiveEducation2UTerms).not.toHaveBeenCalled();
+    expect(getContentMetadata).not.toHaveBeenCalled();
   });
 
-  it('renders page when `enableExecutiveEducation2UFulfillment` is true', async () => {
-    // mock service call
-    getExecutiveEducation2UTerms.mockResolvedValueOnce({
-      data: GEAG_TERMS,
-    });
+  it('does not render page when `enableExecutiveEducation2UFulfillment` is true and course_uuid is not provided', async () => {
+    const courseTitle = 'edX Demonstration Course';
+    getContentMetadata.mockResolvedValueOnce({ title: courseTitle });
+    const searchParams = new URLSearchParams();
+    useActiveQueryParams.mockImplementation(() => searchParams);
 
-    render(<ExecutiveEducation2UPageWrapper />);
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).toBeInTheDocument();
+  });
+
+  it('renders page when `enableExecutiveEducation2UFulfillment` is true and course_uuid is provided', async () => {
+    const courseTitle = 'edX Demonstration Course';
+    getContentMetadata.mockResolvedValueOnce({ title: courseTitle });
+    const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid' });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
 
     // initially in loading state
-    expect(screen.getByTestId('loading-skeleton-geag-terms')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.getByText('Student Terms and Conditions')).toBeInTheDocument();
-      expect(screen.getByText('Website Terms of Use')).toBeInTheDocument();
-      expect(screen.getByText('Privacy Policy')).toBeInTheDocument();
-      expect(screen.getByText('Cookie Policy')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('loading-skeleton-page-title')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-skeleton-text-blurb')).toBeInTheDocument();
 
     // no longer in loading state
-    expect(screen.queryByTestId('loading-skeleton-geag-terms')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading-skeleton-page-title')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('loading-skeleton-text-blurb')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByText(courseTitle, { exact: false })).toBeInTheDocument();
+    expect(screen.getByTestId('user-enrollment-form-component')).toBeInTheDocument();
   });
 
-  it('handles exception when fetching GEAG terms', async () => {
-    // mock service call
-    getExecutiveEducation2UTerms.mockRejectedValueOnce(new Error('oh noes'));
+  it('handles exception when fetching content metadata', async () => {
+    const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid' });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+    const mockError = new Error('oh noes');
+    getContentMetadata.mockImplementation(() => new Promise(() => { throw mockError; }));
 
-    render(<ExecutiveEducation2UPageWrapper />);
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
-
-    // initially in loading state
-    expect(screen.getByTestId('loading-skeleton-geag-terms')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-skeleton-text-blurb')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(logError).toHaveBeenCalled();
+      expect(logError).toHaveBeenCalledTimes(1);
+      expect(logError).toHaveBeenCalledWith(mockError);
     });
   });
 });
