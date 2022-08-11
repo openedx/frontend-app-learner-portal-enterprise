@@ -30,10 +30,10 @@ const EnterprisePageRedirect = () => {
   }
 
   if (!redirectPath) {
-    return <Redirect to={`/${enterpriseCustomer.slug}`} />;
+    return <Redirect to="/" />;
   }
 
-  return <Redirect to={`/${enterpriseCustomer.slug}/${redirectPath}`} />;
+  return <Redirect to={`/${redirectPath}`} />;
 };
 
 export default EnterprisePageRedirect;

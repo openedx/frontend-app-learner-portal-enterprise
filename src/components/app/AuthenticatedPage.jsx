@@ -16,7 +16,6 @@ import { ErrorPage } from '../error-page';
 export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const enterpriseSlug = window.location.host.split('.')[0];
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
   const user = getAuthenticatedUser();
@@ -37,7 +36,7 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
     return (
       <ErrorPage title="You are now logged out." showSiteFooter={false}>
         Please log back in {' '}
-        <Hyperlink destination={`${config.BASE_URL}/${enterpriseSlug}`}>
+        <Hyperlink destination={`${config.BASE_URL}/`}>
           here.
         </Hyperlink>
       </ErrorPage>

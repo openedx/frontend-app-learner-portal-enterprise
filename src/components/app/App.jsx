@@ -6,7 +6,6 @@ import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-pl
 import NotFoundPage from '../NotFoundPage';
 import NoticesProvider from '../notices-provider';
 import {
-  EnterpriseCustomerRedirect,
   EnterprisePageRedirect,
 } from '../enterprise-redirects';
 import { DashboardPage } from '../dashboard';
@@ -35,11 +34,10 @@ export default function App() {
         <ToastsProvider>
           <Toasts />
           <Switch>
-            <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
             <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
             <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
-            <PageRoute exact path="/lms" component={DashboardPage} />
-            <PageRoute exact path="/lms/search" component={SearchPage} />
+            <PageRoute exact path="/" component={DashboardPage} />
+            <PageRoute exact path="/search" component={SearchPage} />
             <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
             {features.ENABLE_PROGRAMS && (
               <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />

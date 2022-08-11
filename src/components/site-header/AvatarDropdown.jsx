@@ -15,7 +15,7 @@ const AvatarDropdown = ({ showLabel }) => {
   } = getConfig();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username, profileImage } = authenticatedUser;
-  const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
+  const enterpriseDashboardLink = '/';
 
   const idpPresent = isDefinedAndNotNull(enterpriseConfig.identityProvider);
   // we insert the logout=true in this case to avoid the redirect back to IDP

@@ -77,7 +77,7 @@ describe('<SiteHeader />', () => {
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js
-    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us');
+    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/');
   });
   test('renders logout-specific logout link in presence of IDP', () => {
     const appStateWithIDP = {
@@ -95,6 +95,6 @@ describe('<SiteHeader />', () => {
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js
-    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us%3Flogout=true');
+    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/%3Flogout=true');
   });
 });

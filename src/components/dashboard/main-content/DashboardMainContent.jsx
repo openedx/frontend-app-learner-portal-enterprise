@@ -44,7 +44,7 @@ const DashboardMainContent = () => {
             </p>
             <Button
               as={Link}
-              to="/lms/search"
+              to="/search"
               className="btn-brand-primary d-block d-md-inline-block"
             >
               Find a course

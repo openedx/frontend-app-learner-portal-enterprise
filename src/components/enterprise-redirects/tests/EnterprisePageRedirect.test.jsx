@@ -87,7 +87,7 @@ describe('<EnterprisePageRedirect />', () => {
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}/search`);
+    expect(history.location.pathname).toEqual('/search');
   });
 
   test('redirects to correct ``redirectPath`` from route params when user is linked to more than 1 Enterprise Customer', async () => {
@@ -119,6 +119,6 @@ describe('<EnterprisePageRedirect />', () => {
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}/course/edX+DemoX`);
+    expect(history.location.pathname).toEqual('/course/edX+DemoX');
   });
 });
