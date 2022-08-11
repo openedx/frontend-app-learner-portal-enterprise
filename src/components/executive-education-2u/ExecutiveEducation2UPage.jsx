@@ -1,98 +1,79 @@
-/* eslint-disable react/no-danger */
 import React, {
-  useContext, useEffect, useMemo, useState,
+  useContext, useEffect, useMemo,
 } from 'react';
-import { Container, Tabs, Tab } from '@edx/paragon';
+import { Container } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import { logError } from '@edx/frontend-platform/logging';
 
 import NotFoundPage from '../NotFoundPage';
-import { getExecutiveEducation2UTerms } from './data';
+import UserEnrollmentForm from './UserEnrollmentForm';
+import {
+  useActiveQueryParams,
+  useExecutiveEducation2UContentMetadata,
+} from './data';
 
 function ExecutiveEducation2UPage() {
   const { enterpriseConfig } = useContext(AppContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [terms, setTerms] = useState();
+  const activeQueryParams = useActiveQueryParams();
+
+  const isExecEd2UFulfillmentEnabled = useMemo(() => (
+    enterpriseConfig.enableExecutiveEducation2UFulfillment && activeQueryParams.has('course_uuid')
+  ), [enterpriseConfig, activeQueryParams]);
+
+  const {
+    isLoading: isLoadingContentMetadata,
+    contentMetadata,
+  } = useExecutiveEducation2UContentMetadata({
+    courseUUID: activeQueryParams.get('course_uuid'),
+    isExecEd2UFulfillmentEnabled,
+  });
 
   useEffect(() => {
-    const fetchTerms = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getExecutiveEducation2UTerms();
-        setTerms(camelCaseObject(response.data));
-      } catch (error) {
-        logError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    if (enterpriseConfig.enableExecutiveEducation2UFulfillment) {
-      fetchTerms();
+    if (!enterpriseConfig.enableExecutiveEducation2UFulfillment) {
+      logError(`Enterprise ${enterpriseConfig.uuid} does not have executive education (2U) fulfillment enabled.`);
     }
-  }, [enterpriseConfig.enableExecutiveEducation2UFulfillment]);
+    if (!activeQueryParams.has('course_uuid')) {
+      logError(`Enterprise ${enterpriseConfig.uuid} visited ExecutiveEducation2UPage without required course_uuid query parameter.`);
+    }
+  }, [activeQueryParams, enterpriseConfig]);
 
-  const tabs = useMemo(() => {
-    if (!terms) {
-      return [];
-    }
-    const includedTabs = [];
-    if (terms.studentTermsAndConditions) {
-      const key = 'studentTermsAndConditions';
-      includedTabs.push(
-        <Tab eventKey={key} key={key} title="Student Terms and Conditions" className="py-4">
-          <div dangerouslySetInnerHTML={{ __html: terms.studentTermsAndConditions }} />
-        </Tab>,
-      );
-    }
-    if (terms.websiteTermsOfUse) {
-      const key = 'websiteTermsOfUse';
-      includedTabs.push(
-        <Tab eventKey={key} key={key} title="Website Terms of Use" className="py-4">
-          <div dangerouslySetInnerHTML={{ __html: terms.websiteTermsOfUse }} />
-        </Tab>,
-      );
-    }
-    if (terms.privacyPolicy) {
-      const key = 'privacyPolicy';
-      includedTabs.push(
-        <Tab eventKey={key} key={key} title="Privacy Policy" className="py-4">
-          <div dangerouslySetInnerHTML={{ __html: terms.privacyPolicy }} />
-        </Tab>,
-      );
-    }
-    if (terms.cookiePolicy) {
-      const key = 'cookiePolicy';
-      includedTabs.push(
-        <Tab eventKey={key} key={key} title="Cookie Policy" className="py-4">
-          <div dangerouslySetInnerHTML={{ __html: terms.cookiePolicy }} />
-        </Tab>,
-      );
-    }
-    return includedTabs;
-  }, [terms]);
-
-  if (!enterpriseConfig.enableExecutiveEducation2UFulfillment) {
+  if (!isExecEd2UFulfillmentEnabled) {
     return (
       <NotFoundPage />
     );
   }
 
+  const isLoading = isLoadingContentMetadata;
+  const { name: enterpriseName } = enterpriseConfig;
+
+  const pageTitle = 'Share course enrollment information';
+
   return (
     <Container size="lg" className="py-5">
       <Helmet>
-        <title>Executive Education (2U)</title>
+        <title>{pageTitle}</title>
       </Helmet>
-      {isLoading && (
-        <p data-testid="loading-skeleton-geag-terms"><Skeleton count={20} /></p>
-      )}
-      {tabs.length > 0 && (
-        <Tabs defaultActiveKey="studentTermsAndConditions" id="geag-terms">
-          {tabs}
-        </Tabs>
-      )}
+      <h2>
+        {isLoading ? (
+          <Skeleton containerTestId="loading-skeleton-page-title" />
+        ) : (
+          <>{pageTitle}</>
+        )}
+      </h2>
+      <p>
+        {(isLoading || !contentMetadata) ? (
+          <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
+        ) : (
+          <>
+            {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
+            courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must{' '}
+            <strong>accept</strong> Terms of Service and <strong>provide course enrollment data</strong>.
+          </>
+        )}
+      </p>
+      {!isLoading && <UserEnrollmentForm className="mt-5" />}
     </Container>
   );
 }
