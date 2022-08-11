@@ -71,8 +71,8 @@ function ExecutiveEducation2UPage() {
         ) : (
           <>
             {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
-            courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you{' '}
-            <strong>must accept</strong> Terms of Service and <strong>provide additional data</strong>.
+            courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must{' '}
+            <strong>accept</strong> Terms of Service and <strong>provide course enrollment data</strong>.
           </>
         )}
       </p>
