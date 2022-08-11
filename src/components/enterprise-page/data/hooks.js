@@ -33,8 +33,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
         const config = results.pop();
         if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
-          const disableSearch = !config?.enableIntegratedCustomerLearnerPortalSearch;
-          // const disableSearch = !!(!config?.enableIntegratedCustomerLearnerPortalSearch && config?.identityProvider);
+          const disableSearch = !!(!config?.enableIntegratedCustomerLearnerPortalSearch && config?.identityProvider);
           const showIntegrationWarning = !!(!disableSearch && config?.identityProvider);
           const {
             logo,
