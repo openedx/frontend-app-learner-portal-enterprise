@@ -31,13 +31,10 @@ function ExecutiveEducation2UPage() {
   });
 
   useEffect(() => {
-    const isExecEd2UEnabled = enterpriseConfig.enableExecutiveEducation2UFulfillment;
-    const hasCourseUUIDQueryParam = activeQueryParams.has('course_uuid');
-
-    if (!isExecEd2UEnabled) {
+    if (!enterpriseConfig.enableExecutiveEducation2UFulfillment) {
       logError(`Enterprise ${enterpriseConfig.uuid} does not have executive education (2U) fulfillment enabled.`);
     }
-    if (!hasCourseUUIDQueryParam) {
+    if (!activeQueryParams.has('course_uuid')) {
       logError(`Enterprise ${enterpriseConfig.uuid} visited ExecutiveEducation2UPage without required course_uuid query parameter.`);
     }
   }, [activeQueryParams, enterpriseConfig]);
