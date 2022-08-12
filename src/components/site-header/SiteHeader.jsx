@@ -28,7 +28,7 @@ export default function SiteHeader() {
     }
     return (
       <>
-        <Link to={`/${enterpriseConfig.slug}`} data-testid="header-logo-link-id">
+        <Link to="/" data-testid="header-logo-link-id">
           {image}
         </Link>
       </>
