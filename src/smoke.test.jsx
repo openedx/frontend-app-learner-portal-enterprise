@@ -37,7 +37,6 @@ const mergeTestConfig = () => mergeConfig({
   USE_API_CACHE: process.env.USE_API_CACHE || null,
   ENTERPRISE_ACCESS_BASE_URL: process.env.ENTERPRISE_ACCESS_BASE_URL || null,
   ENTERPRISE_CATALOG_API_BASE_URL: process.env.ENTERPRISE_CATALOG_API_BASE_URL || null,
-  LICENSE_MANAGER_URL: process.env.LICENSE_MANAGER_URL || null,
   ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID || null,
   ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY || null,
   ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME || null,
@@ -70,7 +69,6 @@ const axiosMock = new AxiosMockAdapter(axios);
 const {
   ECOMMERCE_BASE_URL,
   LMS_BASE_URL,
-  LICENSE_MANAGER_URL,
 } = process.env;
 
 const ENTERPRISE_SLUG = 'test-enterprise-id';
@@ -168,47 +166,6 @@ const PROGRAM_ENROLLMENTS_REPLY = [{
 }];
 axiosMock.onGet(new RegExp(`${LMS_BASE_URL}/api/program-enrollment/user-enrollments/*`))
   .reply(200, PROGRAM_ENROLLMENTS_REPLY);
-
-const CUSTOMER_AGREEMENT_UUID = '40d6bc62-c8bd-479f-a1c0-19de7cc8863d';
-
-const SUBSCRIPTION_PLAN = {
-  uuid: SUBSCRIPTION_UUID,
-  is_active: true,
-  title: 'title',
-};
-
-const CUSTOMER_AGREEMENT_REPLY = {
-  count: 0,
-  next: null,
-  previous: null,
-  results: [
-    {
-      uuid: CUSTOMER_AGREEMENT_UUID,
-      disable_expiration_notifications: false,
-      subscription_for_auto_applied_licenses: SUBSCRIPTION_UUID,
-      subscriptions: [SUBSCRIPTION_PLAN],
-    },
-  ],
-};
-
-axiosMock.onGet(new RegExp(`${LICENSE_MANAGER_URL}/api/v1/customer-agreement/*`))
-  .reply(200, CUSTOMER_AGREEMENT_REPLY);
-
-const LICENSE_UUID = 'c493860a-f75a-4d6e-8b68-012788853f9f';
-
-const LICENSE = {
-  uuid: LICENSE_UUID,
-  status: 'activated',
-  subscription_plan_uuid: SUBSCRIPTION_UUID,
-};
-
-const LICENSE_REPLY = {
-  results: [LICENSE],
-};
-
-axiosMock.onGet(new RegExp(`${LICENSE_MANAGER_URL}/api/v1/learner-licenses/*`))
-  .reply(200, LICENSE_REPLY);
-
 const LOADING_DELAY = 100;
 
 const generateProfileImage = () => {

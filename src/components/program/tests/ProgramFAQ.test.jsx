@@ -51,9 +51,6 @@ describe('<ProgramFAQ />', () => {
     },
   };
   const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
     offers: {
       offers: [],
       offersCount: 0,

@@ -151,15 +151,6 @@ export default class CourseService {
     return userSubsidyApplicableToCourse;
   }
 
-  fetchUserLicenseSubsidy() {
-    const queryParams = new URLSearchParams({
-      enterprise_customer_uuid: this.enterpriseUuid,
-      course_key: this.activeCourseRun.key,
-    });
-    const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
-    return this.cachedAuthenticatedHttpClient.get(url);
-  }
-
   /**
    * @typedef {Object} Offer An offer for a course
    * @property {string} usageType

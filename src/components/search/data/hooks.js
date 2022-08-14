@@ -1,22 +1,14 @@
-import { useContext, useMemo, useEffect } from 'react';
+import { useContext, useMemo } from 'react';
 import {
-  SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
+  SearchContext, getCatalogString, SHOW_ALL_NAME,
 } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../../config';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export const useDefaultSearchFilters = ({
-  enterpriseConfig, subscriptionPlan, subscriptionLicense, offerCatalogs = [],
+  enterpriseConfig, subscriptionPlan, offerCatalogs = [],
 }) => {
   // default to showing all catalogs
-  const { refinements, dispatch } = useContext(SearchContext);
-
-  useEffect(() => {
-    // if the user has no subscriptions or offers, we default to showing all catalogs
-    if (!(subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) && offerCatalogs.length < 1) {
-      dispatch(setRefinementAction(SHOW_ALL_NAME, 1));
-    }
-  }, [subscriptionLicense?.status, offerCatalogs.length]);
+  const { refinements } = useContext(SearchContext);
 
   const filters = useMemo(
     () => {
@@ -31,7 +23,7 @@ export const useDefaultSearchFilters = ({
       if (features.ENROLL_WITH_CODES) {
         catalogs.push(...offerCatalogs);
       }
-      if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+      if (subscriptionPlan) {
         catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
       }
       if (catalogs.length > 0) {
@@ -46,7 +38,6 @@ export const useDefaultSearchFilters = ({
       subscriptionPlan,
       offerCatalogs,
       JSON.stringify(refinements),
-      subscriptionLicense?.status,
     ],
   );
 

@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import moment from 'moment';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -7,12 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import UserSubsidy, { UserSubsidyContext } from '../UserSubsidy';
 
 import { renderWithRouter } from '../../../utils/tests';
-import { LICENSE_STATUS, LOADING_SCREEN_READER_TEXT } from '../data/constants';
-import {
-  fetchSubscriptionLicensesForUser,
-  fetchCustomerAgreementData,
-  requestAutoAppliedLicense,
-} from '../data/service';
+import { LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { fetchOffers } from '../offers/data/service';
 
 jest.mock('../data/service');
@@ -24,29 +18,8 @@ jest.mock('../../../config', () => ({
   },
 }));
 
-const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
-const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
-
-const mockSubscriptionPlan = {
-  uuid: TEST_SUBSCRIPTION_UUID,
-  isActive: true,
-  startDate: moment().subtract(1, 'w').toISOString(),
-  expirationDate: moment().add(1, 'y').toISOString(),
-};
-
-const mockCustomerAgreementData = {
-  data: {
-    count: 1,
-    results: [{
-      uuid: 'test-customer-agreement-uuid',
-      disable_expiration_notifications: false,
-      subscription_for_auto_applied_licenses: 'test-subscription-uuid',
-      subscriptions: [mockSubscriptionPlan],
-    }],
-  },
-};
 
 const mockEmptyListResponse = {
   data: {
@@ -92,19 +65,14 @@ describe('UserSubsidy', () => {
   describe('without subsidy', () => {
     beforeEach(() => {
       fetchOffers.mockResolvedValueOnce(mockEmptyListResponse);
-      fetchSubscriptionLicensesForUser.mockResolvedValueOnce(mockEmptyListResponse);
-      fetchCustomerAgreementData.mockResolvedValueOnce(mockEmptyListResponse);
     });
 
     afterEach(() => {
-      expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-      expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
       expect(fetchOffers).toHaveBeenCalledWith({
         enterprise_uuid: TEST_ENTERPRISE_UUID,
         full_discount_only: 'True',
         is_active: 'True',
       });
-      expect(requestAutoAppliedLicense).not.toBeCalled();
 
       jest.resetAllMocks();
     });
@@ -136,28 +104,15 @@ describe('UserSubsidy', () => {
   describe('with subsidy', () => {
     describe('existing activated license, no offers', () => {
       beforeEach(() => {
-        fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
-          data: {
-            results: [{
-              uuid: TEST_LICENSE_UUID,
-              status: LICENSE_STATUS.ACTIVATED,
-              subscription_plan_uuid: mockSubscriptionPlan.uuid,
-            }],
-          },
-        });
-        fetchCustomerAgreementData.mockResolvedValueOnce(mockCustomerAgreementData);
         fetchOffers.mockResolvedValueOnce(mockEmptyListResponse);
       });
 
       afterEach(() => {
-        expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
         expect(fetchOffers).toHaveBeenCalledWith({
           enterprise_uuid: TEST_ENTERPRISE_UUID,
           full_discount_only: 'True',
           is_active: 'True',
         });
-        expect(requestAutoAppliedLicense).not.toHaveBeenCalled();
 
         jest.resetAllMocks();
       });
@@ -177,7 +132,6 @@ describe('UserSubsidy', () => {
         expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
         await waitFor(() => {
-          expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
           expect(screen.queryByText('Offers count: none')).toBeInTheDocument();
         });
 
@@ -188,23 +142,10 @@ describe('UserSubsidy', () => {
 
     describe('with auto-applied license, no offers', () => {
       beforeEach(() => {
-        fetchSubscriptionLicensesForUser.mockResolvedValueOnce(mockEmptyListResponse);
-        fetchCustomerAgreementData.mockResolvedValueOnce(mockCustomerAgreementData);
         fetchOffers.mockResolvedValueOnce(mockEmptyListResponse);
-        requestAutoAppliedLicense.mockResolvedValueOnce({
-          data: {
-            uuid: 'test-license-uuid',
-            status: 'activated',
-          },
-        });
       });
 
       afterEach(() => {
-        expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        const customerAgreementId = mockCustomerAgreementData.data.results[0].uuid;
-        expect(requestAutoAppliedLicense).toHaveBeenCalledWith(customerAgreementId);
-
         jest.resetAllMocks();
       });
 
@@ -227,7 +168,6 @@ describe('UserSubsidy', () => {
         expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
 
         await waitFor(() => {
-          expect(screen.queryByText(`License status: ${LICENSE_STATUS.ACTIVATED}`)).toBeInTheDocument();
           expect(screen.queryByText('Offers count: none')).toBeInTheDocument();
         });
 
@@ -247,19 +187,14 @@ describe('UserSubsidy', () => {
             }],
           },
         });
-        fetchSubscriptionLicensesForUser.mockResolvedValueOnce(mockEmptyListResponse);
-        fetchCustomerAgreementData.mockResolvedValueOnce(mockEmptyListResponse);
       });
 
       afterEach(() => {
-        expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
         expect(fetchOffers).toHaveBeenCalledWith({
           enterprise_uuid: TEST_ENTERPRISE_UUID,
           full_discount_only: 'True',
           is_active: 'True',
         });
-        expect(requestAutoAppliedLicense).not.toHaveBeenCalled();
       });
 
       test('has portal access and shows correct code redemptions', async () => {

@@ -5,9 +5,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
 import OfferSummaryCard from './OfferSummaryCard';
-import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -27,14 +25,11 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
   } = useContext(CourseEnrollmentsContext);
 
   const {
-    subscriptionPlan,
-    subscriptionLicense: userSubscriptionLicense,
     offers: { offersCount },
   } = useContext(UserSubsidyContext);
 
   const {
     couponCodeRequests,
-    licenseRequests,
   } = useContext(SubsidyRequestsContext);
 
   // if there are course enrollments, the cta button below will be the only one on the page
@@ -47,29 +42,15 @@ const SubsidiesSummary = ({ className, showSearchCoursesCta }) => {
     request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
   ), [couponCodeRequests.length]);
 
-  const pendingLicenseRequest = useMemo(() => licenseRequests.find(
-    request => request.state === SUBSIDY_REQUEST_STATE.REQUESTED,
-  ), [licenseRequests.length]);
-
-  const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || !!pendingLicenseRequest;
-
   const hasOffersOrCouponCodeRequests = offersCount > 0 || pendingCouponCodeRequests.length > 0;
 
-  if (!(hasActiveLicenseOrLicenseRequest || hasOffersOrCouponCodeRequests)) {
+  if (!(hasOffersOrCouponCodeRequests)) {
     return null;
   }
 
   return (
     <SidebarCard cardClassNames="border-primary border-brand-primary catalog-access-card mb-5">
       <div className={className} data-testid="subsidies-summary">
-        {hasActiveLicenseOrLicenseRequest && (
-          <SubscriptionSummaryCard
-            subscriptionPlan={subscriptionPlan}
-            licenseRequest={pendingLicenseRequest}
-            className="mb-3"
-          />
-        )}
         {hasOffersOrCouponCodeRequests && (
           <OfferSummaryCard
             offersCount={offersCount}

@@ -2,7 +2,6 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
@@ -22,7 +21,6 @@ import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 const defaultOffersState = {
   offers: [],
@@ -75,12 +73,6 @@ const defaultCourseState = {
   catalog: {
     containsContentItems: true,
   },
-};
-
-const mockWindowConfig = {
-  type: 'screen',
-  width: breakpoints.large.minWidth + 1,
-  height: 800,
 };
 
 let mockLocation = {
@@ -171,21 +163,6 @@ describe('<Dashboard />', () => {
       <DashboardWithContext />,
     );
     expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
-  });
-
-  it('renders subsidies summary on a small screen', () => {
-    window.matchMedia.setConfig({ ...mockWindowConfig, width: breakpoints.large.minWidth - 1 });
-    renderWithRouter(
-      <DashboardWithContext initialUserSubsidyState={{
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 60,
-        },
-        subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
-      }}
-      />,
-    );
-    expect(screen.getByTestId('subsidies-summary'));
   });
 
   it('renders "Find a course" when search is enabled for the customer', () => {

@@ -46,13 +46,12 @@ const SkillsCourses = ({ index }) => {
   const { selectedJob } = state;
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
 
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
 
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
-    subscriptionLicense,
     offerCatalogs,
   });
   const skillsFacetFilter = useMemo(

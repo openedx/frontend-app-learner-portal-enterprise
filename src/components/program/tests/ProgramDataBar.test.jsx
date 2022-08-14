@@ -45,9 +45,6 @@ const programState = {
   },
 };
 const userSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
   offers: {
     offers: [],
     offersCount: 0,

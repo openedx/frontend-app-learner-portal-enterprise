@@ -13,7 +13,6 @@ import { CoursePage } from '../course';
 import { ProgramPage } from '../program';
 import ProgramProgressPage from '../program-progress/ProgramProgressPage';
 import { SearchPage } from '../search';
-import { LicenseActivationPage } from '../license-activation';
 import { SkillsQuizPage } from '../skills-quiz';
 import { EnterpriseInvitePage } from '../enterprise-invite';
 
@@ -43,7 +42,6 @@ export default function App() {
               <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
             )}
             <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgressPage} />
-            <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
             <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
             <PageRoute path="*" component={NotFoundPage} />
           </Switch>

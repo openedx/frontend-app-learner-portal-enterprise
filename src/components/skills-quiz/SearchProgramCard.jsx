@@ -58,12 +58,11 @@ const renderDialog = () => (
 const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
-    subscriptionLicense,
     offerCatalogs,
   });
   const { state } = useContext(SkillsContext);

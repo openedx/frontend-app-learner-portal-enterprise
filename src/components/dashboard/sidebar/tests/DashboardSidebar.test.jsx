@@ -10,10 +10,8 @@ import {
   SUBSCRIPTION_SUMMARY_CARD_TITLE, CATALOG_ACCESS_CARD_BUTTON_TEXT,
   CONTACT_HELP_EMAIL_MESSAGE,
   NEED_HELP_BLOCK_TITLE,
-  LICENSE_REQUESTED_NOTICE,
   OFFER_SUMMARY_NOTICE,
 } from '../data/constants';
-import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
@@ -75,9 +73,6 @@ describe('<DashboardSidebar />', () => {
       daysUntilExpiration: 70,
       expirationDate: '2021-10-25',
     },
-    subscriptionLicense: {
-      status: LICENSE_STATUS.ACTIVATED,
-    },
   };
   test('Offer summary card is displayed when offers are available', () => {
     renderWithRouter(
@@ -117,34 +112,6 @@ describe('<DashboardSidebar />', () => {
       />,
     );
     expect(screen.queryByText(OFFER_SUMMARY_NOTICE)).toBeFalsy();
-  });
-  test('Subscription summary card is displayed when subscription is available', () => {
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={userSubsidyStateWithSubscription}
-      />,
-    );
-    expect(screen.getByText(SUBSCRIPTION_SUMMARY_CARD_TITLE));
-  });
-  test('Subscription summary card is displayed when there is a pending license request.', () => {
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={defaultUserSubsidyState}
-        initialSubsidyRequestsState={{
-          isLoading: false,
-          couponCodeRequests: [],
-          licenseRequests: [
-            {
-              state: SUBSIDY_REQUEST_STATE.REQUESTED,
-            },
-          ],
-        }}
-      />,
-    );
-    expect(screen.getByText(SUBSCRIPTION_SUMMARY_CARD_TITLE));
-    expect(screen.getByText(LICENSE_REQUESTED_NOTICE));
   });
   test('Subscription summary card is not displayed when enterprise subscription is not available and there is no pending license request', () => {
     renderWithRouter(

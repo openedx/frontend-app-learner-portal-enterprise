@@ -11,12 +11,11 @@ import { getContentTypeFromTitle } from '../../utils/search';
 
 const PopularResultsIndex = ({ title }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
-    subscriptionLicense,
     offerCatalogs,
   });
   const config = getConfig();

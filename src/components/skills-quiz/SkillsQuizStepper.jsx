@@ -63,12 +63,11 @@ const SkillsQuizStepper = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, subscriptionLicense, offers: { offers } } = useContext(UserSubsidyContext);
+  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
   const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     subscriptionPlan,
-    subscriptionLicense,
     offerCatalogs,
   });
   const history = useHistory();
