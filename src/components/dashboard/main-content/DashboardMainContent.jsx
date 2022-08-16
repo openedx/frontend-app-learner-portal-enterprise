@@ -6,7 +6,6 @@ import { Button, breakpoints, MediaQuery } from '@edx/paragon';
 import { CourseEnrollments } from './course-enrollments';
 
 import SupportInformation from '../sidebar/SupportInformation';
-import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 
 const DashboardMainContent = () => {
   const {
@@ -24,11 +23,6 @@ const DashboardMainContent = () => {
       <h2 className="h1 mb-4">
         {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
       </h2>
-      <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
-        {matches => (matches ? (
-          <SubsidiesSummary />
-        ) : null)}
-      </MediaQuery>
       <CourseEnrollments>
         {/* The children below will only be rendered if there are no course enrollments. */}
         {disableSearch ? (

@@ -12,12 +12,10 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
-import { features } from '../../../config';
 import CourseService from './service';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
-  findOfferForCourse,
   hasLicenseSubsidy,
 } from './utils';
 import {
@@ -243,19 +241,16 @@ useCoursePriceForUserSubsidy.propTypes = {
  * @param {string} args.key course key
  * @param {object} args.location just an object with a 'search' field (usually from useLocation())
  * @param {Array.<object>} args.offers array of offer objects for course
- * @param {string} args.sku course SKU
  * @param {object} args.subscriptionLicense license for subscription | null
  * @param {object} args.userSubsidyApplicableToCourse subsidy for course if found | null
  *
  * @returns {string} url for enrollment
  */
 export const useCourseEnrollmentUrl = ({
-  catalogList,
   enterpriseConfig,
   key,
   location,
   offers = [],
-  sku,
   subscriptionLicense,
   userSubsidyApplicableToCourse,
 }) => {
@@ -284,25 +279,10 @@ export const useCourseEnrollmentUrl = ({
         return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
       }
 
-      if (features.ENROLL_WITH_CODES && offers.length >= 0 && sku) {
-        const queryParams = new URLSearchParams({
-          ...baseEnrollmentOptions,
-          sku,
-          consent_url_param_string: encodeURI('left_sidebar_text_override='), // Deliberately doubly encoded since it will get parsed on the redirect.
-        });
-        // get the index of the first offer that applies to a catalog that the course is in
-        const offerForCourse = findOfferForCourse(offers, catalogList);
-        if (offers.length === 0 || !offerForCourse) {
-          return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
-        }
-        queryParams.set('code', offerForCourse.code);
-        return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
-      }
-
-      // No offer or product SKU is present, so the course cannot be enrolled in.
+      // No offer
       return null;
     },
-    [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, offers, sku],
+    [baseEnrollmentOptions, subscriptionLicense, enterpriseConfig, offers],
   );
 
   return enrollmentUrl;
@@ -314,7 +294,6 @@ useCourseEnrollmentUrl.propTypes = {
   key: PropTypes.string.isRequired,
   location: PropTypes.shape({}).isRequired,
   offers: PropTypes.arrayOf(PropTypes.shape({})),
-  sku: PropTypes.string.isRequired,
   subscriptionLicense: PropTypes.shape({}).isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({}).isRequired,
 };

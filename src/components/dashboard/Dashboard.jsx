@@ -9,16 +9,12 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { MainContent } from '../layout';
 import { DashboardMainContent } from './main-content';
-import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
-import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
 export default function Dashboard() {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
   const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
@@ -27,7 +23,10 @@ export default function Dashboard() {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
       delete updatedLocationState.activationSuccess;
-      history.replace({ ...history.location, state: updatedLocationState });
+      history.replace({
+        ...history.location,
+        state: updatedLocationState,
+      });
     }
   }, []);
 
@@ -48,15 +47,12 @@ export default function Dashboard() {
       </Container>
       <Container size="lg" className="py-5">
         <Row>
-          <SubsidyRequestsContextProvider>
-            <CourseEnrollmentsContextProvider>
-              <MainContent>
-                <DashboardMainContent />
-              </MainContent>
-            </CourseEnrollmentsContextProvider>
-          </SubsidyRequestsContextProvider>
+          <CourseEnrollmentsContextProvider>
+            <MainContent>
+              <DashboardMainContent />
+            </MainContent>
+          </CourseEnrollmentsContextProvider>
           <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
-          {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
         </Row>
       </Container>
     </>

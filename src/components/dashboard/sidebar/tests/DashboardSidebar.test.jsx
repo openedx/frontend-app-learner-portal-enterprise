@@ -13,17 +13,20 @@ import {
   OFFER_SUMMARY_NOTICE,
 } from '../data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
 
 jest.mock('../../main-content/course-enrollments/data/hooks', () => ({
   useCourseEnrollments: jest.fn(() => ({
     isLoading: false,
     courseEnrollmentsByStatus: {
-      inProgress: [], upcoming: [], completed: [], savedForLater: [], requested: [],
+      inProgress: [],
+      upcoming: [],
+      completed: [],
+      savedForLater: [],
+      requested: [],
     },
     fetchError: null,
-    updateCourseEnrollmentStatus: () => {},
+    updateCourseEnrollmentStatus: () => {
+    },
     programEnrollments: [],
   })),
 }));
@@ -32,22 +35,15 @@ jest.mock('../../main-content/course-enrollments/data/hooks', () => ({
 const DashboardSidebarWithContext = ({
   initialAppState = { fakeContext: 'foo' },
   initialUserSubsidyState = {},
-  initialSubsidyRequestsState = {
-    subsidyRequestConfiguration: {},
-    licenseRequests: [],
-    couponCodeRequests: [],
-  },
   initialCourseEnrollmentsState = {
     courseEnrollmentsByStatus: {},
   },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
-          <DashboardSidebar />
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
+      <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
+        <DashboardSidebar />
+      </CourseEnrollmentsContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -74,36 +70,6 @@ describe('<DashboardSidebar />', () => {
       expirationDate: '2021-10-25',
     },
   };
-  test('Offer summary card is displayed when offers are available', () => {
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{
-          ...defaultUserSubsidyState,
-          offers: { ...defaultUserSubsidyState.offers, offersCount: 2 },
-        }}
-      />,
-    );
-    expect(screen.getByText(OFFER_SUMMARY_NOTICE));
-  });
-  test('Offer summary card is displayed when there are pending coupon code requests', () => {
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={defaultUserSubsidyState}
-        initialSubsidyRequestsState={{
-          isLoading: false,
-          couponCodeRequests: [
-            {
-              state: SUBSIDY_REQUEST_STATE.REQUESTED,
-            },
-          ],
-          licenseRequests: [],
-        }}
-      />,
-    );
-    expect(screen.getByText(OFFER_SUMMARY_NOTICE));
-  });
   test('Offer summary card is not displayed when there are no offers or pending coupon code requests', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
@@ -111,7 +77,8 @@ describe('<DashboardSidebar />', () => {
         initialUserSubsidyState={defaultUserSubsidyState}
       />,
     );
-    expect(screen.queryByText(OFFER_SUMMARY_NOTICE)).toBeFalsy();
+    expect(screen.queryByText(OFFER_SUMMARY_NOTICE))
+      .toBeFalsy();
   });
   test('Subscription summary card is not displayed when enterprise subscription is not available and there is no pending license request', () => {
     renderWithRouter(
@@ -120,7 +87,8 @@ describe('<DashboardSidebar />', () => {
         initialUserSubsidyState={defaultUserSubsidyState}
       />,
     );
-    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
+    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE))
+      .toBeFalsy();
   });
   test('Subscription summary card is not displayed when enterprise subscription is available but user license is not available', () => {
     renderWithRouter(
@@ -136,7 +104,8 @@ describe('<DashboardSidebar />', () => {
         }}
       />,
     );
-    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
+    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE))
+      .toBeFalsy();
   });
   test('Find a course button is not rendered when user has no offer or license subsidy', () => {
     renderWithRouter(
@@ -146,7 +115,8 @@ describe('<DashboardSidebar />', () => {
       />,
     );
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
-    expect(catalogAccessButton).toBeFalsy();
+    expect(catalogAccessButton)
+      .toBeFalsy();
   });
   test('Find a course button is not rendered when user has subsidy but customer has search disabled', () => {
     renderWithRouter(
@@ -156,7 +126,8 @@ describe('<DashboardSidebar />', () => {
       />,
     );
     const catalogAccessButton = screen.queryByText(CATALOG_ACCESS_CARD_BUTTON_TEXT);
-    expect(catalogAccessButton).toBeFalsy();
+    expect(catalogAccessButton)
+      .toBeFalsy();
   });
   test('Need help sidebar block is always rendered', () => {
     renderWithRouter(
@@ -165,7 +136,9 @@ describe('<DashboardSidebar />', () => {
         initialUserSubsidyState={defaultUserSubsidyState}
       />,
     );
-    expect(screen.queryByText(NEED_HELP_BLOCK_TITLE)).toBeTruthy();
-    expect(screen.queryByText(CONTACT_HELP_EMAIL_MESSAGE)).toBeTruthy();
+    expect(screen.queryByText(NEED_HELP_BLOCK_TITLE))
+      .toBeTruthy();
+    expect(screen.queryByText(CONTACT_HELP_EMAIL_MESSAGE))
+      .toBeTruthy();
   });
 });

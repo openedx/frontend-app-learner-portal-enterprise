@@ -35,7 +35,6 @@ jest.unmock('@edx/frontend-platform/auth');
 
 const mergeTestConfig = () => mergeConfig({
   USE_API_CACHE: process.env.USE_API_CACHE || null,
-  ENTERPRISE_ACCESS_BASE_URL: process.env.ENTERPRISE_ACCESS_BASE_URL || null,
   ENTERPRISE_CATALOG_API_BASE_URL: process.env.ENTERPRISE_CATALOG_API_BASE_URL || null,
   ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID || null,
   ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY || null,
@@ -57,7 +56,6 @@ const mergeTestConfig = () => mergeConfig({
   CSRF_TOKEN_API_PATH: 'http://exaple-csrf-token-api.com',
   DISCOVERY_API_BASE_URL: 'http://exapmle-discovery-base-url.com',
   PUBLISHER_BASE_URL: 'http://example-publisher-url.com',
-  ECOMMERCE_BASE_URL: 'http://example-ecomerce.com',
   IGNORED_ERROR_REGEX: '',
   LANGUAGE_PREFERENCE_COOKIE_NAME: 'dojo-language',
   STUDIO_BASE_URL: process.env.STUDIO_BASE_URL || null,
@@ -67,7 +65,6 @@ const mergeTestConfig = () => mergeConfig({
 
 const axiosMock = new AxiosMockAdapter(axios);
 const {
-  ECOMMERCE_BASE_URL,
   LMS_BASE_URL,
 } = process.env;
 
@@ -127,18 +124,6 @@ const ENTERPRISE_CUSTOMER_REPLY = {
 };
 axiosMock.onGet(new RegExp(`${LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/*`))
   .reply(200, ENTERPRISE_CUSTOMER_REPLY);
-
-const OFFER_ASSIGNMENT_SUMMARY_REPLY = {
-  count: 0,
-  current_page: 1,
-  next: null,
-  num_pages: 1,
-  previous: null,
-  results: [],
-  start: 0,
-};
-axiosMock.onGet(new RegExp(`${ECOMMERCE_BASE_URL}/offer_assignment_summary/*`))
-  .reply(200, OFFER_ASSIGNMENT_SUMMARY_REPLY);
 
 const CATALOGS_REPLY = {
   enterprise_uuid: ENTERPRISE_UUID,

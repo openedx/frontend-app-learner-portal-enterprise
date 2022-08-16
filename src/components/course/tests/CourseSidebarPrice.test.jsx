@@ -5,8 +5,10 @@ import PropTypes from 'prop-types';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import CourseSidebarPrice, { INCLUDED_IN_SUBSCRIPTION_MESSAGE, FREE_WHEN_APPROVED_MESSAGE } from '../CourseSidebarPrice';
+import CourseSidebarPrice, {
+  INCLUDED_IN_SUBSCRIPTION_MESSAGE,
+
+} from '../CourseSidebarPrice';
 import {
   LICENSE_SUBSIDY_TYPE,
   OFFER_SUBSIDY_TYPE,
@@ -74,25 +76,15 @@ const courseStateWithNoOffersNoLicenseSubsidy = {
   catalog: { catalogList: ['bears'] },
 };
 
-const defaultSubsidyRequestsState = {
-  subsidyRequestConfiguration: null,
-  licenseRequests: [],
-  couponCodeRequests: [],
-  isLoading: false,
-};
-
 /* eslint-disable react/prop-types */
 const SidebarWithContext = ({
   initialAppState = appStateWithOrigPriceHidden,
-  subsidyRequestsState = defaultSubsidyRequestsState,
   initialCourseState,
 }) => (
   <AppContext.Provider value={initialAppState}>
-    <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
-      <CourseContextProvider initialState={initialCourseState}>
-        <CourseSidebarPrice />
-      </CourseContextProvider>
-    </SubsidyRequestsContext.Provider>
+    <CourseContextProvider initialState={initialCourseState}>
+      <CourseSidebarPrice />
+    </CourseContextProvider>
   </AppContext.Provider>
 );
 /* eslint-enable react/prop-types */
@@ -101,7 +93,6 @@ SidebarWithContext.propTypes = {
   initialAppState: PropTypes.shape({}).isRequired,
   initialCourseState: PropTypes.shape({}).isRequired,
   userSubsidyState: PropTypes.shape({}).isRequired,
-  subsidyRequestsState: PropTypes.shape({}).isRequired,
 };
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
@@ -112,43 +103,56 @@ describe('<CourseSidebarPrice/> ', () => {
       render(
         <SidebarWithContext
           initialCourseState={courseStateWithNoOffersNoLicenseSubsidy}
-          subsidyRequestsState={{
-            ...defaultSubsidyRequestsState,
-            subsidyRequestConfiguration: { subsidyRequestsEnabled: true },
-          }}
         />,
       );
       expect(screen.getByText(/\$7.50 USD/));
-      expect(screen.getByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' ')));
-      expect(screen.getByTestId('browse-and-request-pricing')).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
+      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE))
+        .not
+        .toBeInTheDocument();
+      expect(screen.queryByText(SPONSORED_BY_TEXT))
+        .not
+        .toBeInTheDocument();
     });
   });
 
   describe('Sidebar price display with hideCourseOriginalPrice ON, No subsidies', () => {
     test('no subsidies, shows original price, no messages', () => {
       render(<SidebarWithContext initialCourseState={courseStateWithNoOffersNoLicenseSubsidy} />);
-      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
+      expect(screen.getByText(/\$7.50 USD/))
+        .toBeInTheDocument();
+      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE))
+        .not
+        .toBeInTheDocument();
+      expect(screen.queryByText(SPONSORED_BY_TEXT))
+        .not
+        .toBeInTheDocument();
     });
   });
 
   describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
     test('subscription license subsidy, shows no price, correct message', () => {
       render(<SidebarWithContext initialCourseState={courseStateWithLicenseSubsidy} />);
-      expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/\$7.50 USD/))
+        .not
+        .toBeInTheDocument();
       expect(screen.getByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE));
-      expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
+      expect(screen.queryByText(SPONSORED_BY_TEXT))
+        .not
+        .toBeInTheDocument();
     });
     test('offer 100% subsidy, shows no price, correct message', () => {
       render(<SidebarWithContext
         initialCourseState={courseStateFullOfferSubsidy}
       />);
-      expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
-      expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText(/\$7.50 USD/))
+        .not
+        .toBeInTheDocument();
+      expect(screen.queryByText(/\$0.00 USD/))
+        .not
+        .toBeInTheDocument();
+      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE))
+        .not
+        .toBeInTheDocument();
       expect(screen.getByText(SPONSORED_BY_TEXT));
     });
     test('offer non-full subsidy, shows discounted price only, correct message', () => {
@@ -156,7 +160,9 @@ describe('<CourseSidebarPrice/> ', () => {
         initialCourseState={courseStatePartialOfferSubsidy}
       />);
       expect(screen.getByText(/\$0.75 USD/));
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE))
+        .not
+        .toBeInTheDocument();
       expect(screen.getByText(SPONSORED_BY_TEXT));
     });
   });

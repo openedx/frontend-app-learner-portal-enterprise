@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { ENROLL_MODAL_TEXT_NO_OFFERS, createUseVoucherText } from '../../EnrollModal';
+import { ENROLL_MODAL_TEXT_NO_OFFERS } from '../../EnrollModal';
 import {
   renderWithRouter,
   initialAppState,
@@ -236,39 +236,5 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('button')).toBeInTheDocument();
     expect(screen.getByText(enrollLabelText).closest('a')).not.toBeInTheDocument();
-    const regex = new RegExp().compile(createUseVoucherText(1));
-    expect(screen.getByText(regex)).toBeInTheDocument();
-  });
-  test('ecom basket link rendered in modal when enrollmentType is TO_VOUCHER_REDEEM', () => {
-    // offers must exist, subscriptionlicense must not, catalogs list must exist.
-    // a catalog in the cataloglist must match the one in the offer (see `findOffersForCourse()`)
-    const enrollAction = (
-      <EnrollAction
-        enrollmentType={TO_VOUCHER_REDEEM}
-        enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
-        enrollmentUrl={enrollmentUrl}
-      />
-    );
-    // this initialUserSubsidyState is passed as a value to the UserSubsidyContext.provider
-    // which is then used by a hook to check if the user has a license
-    renderEnrollAction({
-      enrollAction,
-      courseInitState: A_COURSE_WITH_NO_SUBSCRIPTIONS,
-      initialUserSubsidyState: {
-        subscriptionLicense: null,
-        offers: {
-          offers: [A_100_PERCENT_OFFER],
-          offersCount: 1,
-        },
-      },
-    });
-
-    // ensure button is rendered with label text indicating voucher count
-    const PAYMENT_TEXT = 'Enroll in course';
-    // also check url is rendered in the modal correctly
-    expect(screen.queryByText(PAYMENT_TEXT)).toBeInTheDocument();
-    expect(screen.getByText(PAYMENT_TEXT).closest('a')).toBeInTheDocument();
-    const enrollmentUrlRendered = screen.getByText(PAYMENT_TEXT).closest('a').href;
-    expect(enrollmentUrlRendered).toBe(`${ `${enrollmentUrl }/` }`); // don't see what adds the trailing slash
   });
 });

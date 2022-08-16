@@ -21,8 +21,6 @@ import {
   useCourseSubjects,
   useCoursePartners,
 } from './data/hooks';
-import LicenseRequestedAlert from './LicenseRequestedAlert';
-import SubsidyRequestButton from './SubsidyRequestButton';
 
 export default function CourseHeader() {
   const { state } = useContext(CourseContext);
@@ -38,7 +36,6 @@ export default function CourseHeader() {
 
   return (
     <div className="course-header">
-      <LicenseRequestedAlert catalogList={catalog.catalogList} />
       <CourseEnrollmentFailedAlert />
       <Container size="lg">
         <Row className="py-4">
@@ -85,7 +82,6 @@ export default function CourseHeader() {
                 dangerouslySetInnerHTML={{ __html: course.shortDescription }}
               />
             )}
-            <SubsidyRequestButton enterpriseSlug={enterpriseConfig.slug} />
             {course.skills?.length > 0 && <CourseSkills />}
             {catalog.containsContentItems ? (
               <>

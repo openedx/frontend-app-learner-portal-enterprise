@@ -6,7 +6,6 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../data/constants';
@@ -21,22 +20,18 @@ useLocation.mockImplementation(() => ({
 
 // Stub out the enroll button to avoid testing its implementation here
 jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
-jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
 
 /* eslint-disable react/prop-types */
 const CourseHeaderWithContext = ({
   initialAppState = {},
   initialCourseState = {},
   initialUserSubsidyState = {},
-  initialSubsidyRequestsState = { licenseRequests: [] },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseContextProvider initialState={initialCourseState}>
-          <CourseHeader />
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
+      <CourseContextProvider initialState={initialCourseState}>
+        <CourseHeader />
+      </CourseContextProvider>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -96,8 +91,10 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Find a Course')).toBeInTheDocument();
-    expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryByText('Find a Course'))
+      .toBeInTheDocument();
+    expect(screen.queryAllByText(initialCourseState.course.title)[0])
+      .toBeInTheDocument();
   });
 
   test('does not render breadcrumb when search is disabled for customer', () => {
@@ -108,8 +105,10 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Find a Course')).toBeFalsy();
-    expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryByText('Find a Course'))
+      .toBeFalsy();
+    expect(screen.queryAllByText(initialCourseState.course.title)[0])
+      .toBeInTheDocument();
   });
 
   test('renders course title and short description', () => {
@@ -121,9 +120,14 @@ describe('<CourseHeader />', () => {
       />,
     );
 
-    const { title, shortDescription } = initialCourseState.course;
-    expect(screen.queryAllByText(title)[1]).toBeInTheDocument();
-    expect(screen.queryByText(shortDescription)).toBeInTheDocument();
+    const {
+      title,
+      shortDescription,
+    } = initialCourseState.course;
+    expect(screen.queryAllByText(title)[1])
+      .toBeInTheDocument();
+    expect(screen.queryByText(shortDescription))
+      .toBeInTheDocument();
   });
 
   test('renders course run cards button', () => {
@@ -134,7 +138,8 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Cards')).toBeInTheDocument();
+    expect(screen.queryByText('Cards'))
+      .toBeInTheDocument();
   });
 
   test('renders course image', () => {
@@ -146,7 +151,8 @@ describe('<CourseHeader />', () => {
       />,
     );
 
-    expect(screen.queryByAltText('course preview')).toBeInTheDocument();
+    expect(screen.queryByAltText('course preview'))
+      .toBeInTheDocument();
   });
 
   test('renders partners', () => {
@@ -159,7 +165,8 @@ describe('<CourseHeader />', () => {
     );
 
     const partner = initialCourseState.course.owners[0];
-    expect(screen.queryByAltText(`${partner.name} logo`)).toBeInTheDocument();
+    expect(screen.queryByAltText(`${partner.name} logo`))
+      .toBeInTheDocument();
   });
 
   test('renders not in catalog messaging', () => {
@@ -180,9 +187,12 @@ describe('<CourseHeader />', () => {
     );
 
     const messaging = 'This course is not part of your company\'s curated course catalog.';
-    expect(screen.queryByText(messaging)).toBeInTheDocument();
+    expect(screen.queryByText(messaging))
+      .toBeInTheDocument();
 
-    expect(screen.queryByText('Cards')).not.toBeInTheDocument();
+    expect(screen.queryByText('Cards'))
+      .not
+      .toBeInTheDocument();
   });
 
   test.each`
@@ -191,7 +201,10 @@ describe('<CourseHeader />', () => {
     ${''}             | ${'dsc_denied'}
   `(
     'does not render alert when `enrollment_failed=$enrollmentFailed` or `failure_reason=$failureReason`',
-    ({ enrollmentFailed, failureReason }) => {
+    ({
+      enrollmentFailed,
+      failureReason,
+    }) => {
       useLocation.mockImplementation(() => ({
         search: `?enrollment_failed=${enrollmentFailed}&failure_reason=${failureReason}`,
       }));
@@ -203,7 +216,9 @@ describe('<CourseHeader />', () => {
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert'))
+        .not
+        .toBeInTheDocument();
     },
   );
 
@@ -214,7 +229,11 @@ describe('<CourseHeader />', () => {
     ${'true'}         | ${''}                           | ${'not enrolled'}
   `(
     'renders $failureReason alert with `enrollment_failed=$enrollmentFailed` and `failure_reason=$failureReason`',
-    ({ enrollmentFailed, failureReason, expectedMessage }) => {
+    ({
+      enrollmentFailed,
+      failureReason,
+      expectedMessage,
+    }) => {
       let mockedSearchString = `?enrollment_failed=${enrollmentFailed}`;
       if (failureReason) {
         mockedSearchString += `&failure_reason=${failureReason}`;
@@ -230,8 +249,10 @@ describe('<CourseHeader />', () => {
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
-      expect(screen.queryByRole('alert')).toBeInTheDocument();
-      expect(screen.queryByText(expectedMessage, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByRole('alert'))
+        .toBeInTheDocument();
+      expect(screen.queryByText(expectedMessage, { exact: false }))
+        .toBeInTheDocument();
     },
   );
 
@@ -258,7 +279,8 @@ describe('<CourseHeader />', () => {
       );
 
       const messaging = `This course is part of a ${micromasters}`;
-      expect(screen.queryByText(messaging, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByText(messaging, { exact: false }))
+        .toBeInTheDocument();
     });
 
     test('Professional Certificate', () => {
@@ -273,7 +295,8 @@ describe('<CourseHeader />', () => {
       );
 
       const messaging = `This course is part of a ${profCert}`;
-      expect(screen.queryByText(messaging, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByText(messaging, { exact: false }))
+        .toBeInTheDocument();
     });
   });
 });

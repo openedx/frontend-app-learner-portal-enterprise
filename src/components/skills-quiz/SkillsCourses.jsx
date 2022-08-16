@@ -16,7 +16,6 @@ import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import {
   NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS,
@@ -46,13 +45,8 @@ const SkillsCourses = ({ index }) => {
   const { selectedJob } = state;
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
 
-  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
-
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    offerCatalogs,
   });
   const skillsFacetFilter = useMemo(
     () => {

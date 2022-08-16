@@ -26,7 +26,6 @@ import TagCloud from '../TagCloud';
 import SkillsCourses from './SkillsCourses';
 
 import { useDefaultSearchFilters } from '../search/data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import {
   DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, STEP1, STEP2, STEP3, SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
 } from './constants';
@@ -63,12 +62,8 @@ const SkillsQuizStepper = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    offerCatalogs,
   });
   const history = useHistory();
 

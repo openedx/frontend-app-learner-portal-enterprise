@@ -74,10 +74,6 @@ describe('useSubsidyDataForCourse', () => {
 
   test('correctly extracts subsidy fields from UserSubsidyContext, absent offers', () => {
     const expected = {
-      courseHasOffer: false,
-      offersCount: 0,
-      offers: [],
-      subscriptionLicense,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const initialUserSubsidyState = {
@@ -99,10 +95,6 @@ describe('useSubsidyDataForCourse', () => {
   });
   test('correctly extracts subsidy fields from UserSubsidyContext, with offers', () => {
     const expected = {
-      courseHasOffer: true,
-      offersCount: 1,
-      subscriptionLicense,
-      offers: [{ catalog: 'catalog-1', discountValue: 10 }],
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
     };
     const initialUserSubsidyState = {

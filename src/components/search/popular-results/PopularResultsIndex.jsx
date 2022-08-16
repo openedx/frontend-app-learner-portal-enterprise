@@ -5,18 +5,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/';
 import { useDefaultSearchFilters } from '../data/hooks';
 import PopularResults from './PopularResults';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getContentTypeFromTitle } from '../../utils/search';
 
 const PopularResultsIndex = ({ title }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    offerCatalogs,
   });
   const config = getConfig();
   const contentType = getContentTypeFromTitle(title);

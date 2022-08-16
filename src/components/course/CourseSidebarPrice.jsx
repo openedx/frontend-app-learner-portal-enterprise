@@ -8,7 +8,6 @@ import { numberWithPrecision, hasLicenseSubsidy } from './data/utils';
 import {
   useCoursePriceForUserSubsidy,
 } from './data/hooks';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
 export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
@@ -17,7 +16,6 @@ const CourseSidebarPrice = () => {
   const { state: courseData } = useContext(CourseContext);
   const { activeCourseRun, userSubsidyApplicableToCourse } = courseData;
   const { enterpriseConfig } = useContext(AppContext);
-  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
     activeCourseRun, userSubsidyApplicableToCourse,
@@ -50,18 +48,7 @@ const CourseSidebarPrice = () => {
   }
 
   const hasDiscountedPrice = coursePrice.discounted < coursePrice.list;
-  // Case 2: No subsidies found but Browse and Request Enabled
-  if (!hasDiscountedPrice && subsidyRequestConfiguration?.subsidyRequestsEnabled
-  ) {
-    return (
-      <span style={{ whiteSpace: 'pre-wrap' }} data-testid="browse-and-request-pricing">
-        <s>${originalPriceDisplay} {currency}</s><br />
-        {FREE_WHEN_APPROVED_MESSAGE}
-      </span>
-    );
-  }
 
-  // Case 3: No subsidies found
   if (!hasDiscountedPrice) {
     return <span>${originalPriceDisplay} {currency}</span>;
   }

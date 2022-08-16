@@ -13,7 +13,6 @@ import { SkillsContext } from './SkillsContextProvider';
 import { NO_COURSES_ALERT_MESSAGE } from './constants';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { useDefaultSearchFilters } from '../search/data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import CourseCard from './CourseCard';
 
 const renderDialog = () => (
@@ -29,12 +28,8 @@ const renderDialog = () => (
 
 const SearchCourseCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    offerCatalogs,
   });
 
   const { state } = useContext(SkillsContext);

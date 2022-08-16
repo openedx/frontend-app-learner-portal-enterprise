@@ -8,7 +8,6 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 
 import {
-  useOffers,
   useCatalogData,
 } from './data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
@@ -17,36 +16,27 @@ export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const [offers, isLoadingOffers] = useOffers(enterpriseConfig.uuid);
   const [catalogData, isLoadingCatalogData] = useCatalogData(enterpriseConfig.uuid);
 
-  const isLoadingSubsidies = useMemo(
-    () => {
-      const loadingStates = [isLoadingOffers, isLoadingCatalogData];
-      return loadingStates.includes(true);
-    },
-    [isLoadingOffers, isLoadingCatalogData],
-  );
+  const isLoading = isLoadingCatalogData;
 
   const contextValue = useMemo(
     () => {
-      if (isLoadingSubsidies) {
+      if (isLoading) {
         return {};
       }
       return {
-        offers,
         catalogData,
       };
     },
     [
-      isLoadingSubsidies,
-      offers,
+      isLoading,
       enterpriseConfig.uuid,
       catalogData,
     ],
   );
 
-  if (isLoadingSubsidies) {
+  if (isLoading) {
     return (
       <Container className="py-5">
         <LoadingSpinner screenReaderText={LOADING_SCREEN_READER_TEXT} />

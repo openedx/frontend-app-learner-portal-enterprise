@@ -26,7 +26,6 @@ import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
@@ -58,12 +57,8 @@ const renderDialog = () => (
 const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
-  const { subscriptionPlan, offers: { offers } } = useContext(UserSubsidyContext);
-  const offerCatalogs = offers.map((offer) => offer.catalog);
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
-    subscriptionPlan,
-    offerCatalogs,
   });
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);
