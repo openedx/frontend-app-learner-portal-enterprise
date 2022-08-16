@@ -11,7 +11,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 // eslint-disable-next-line import/prefer-default-export
 export const getLoginUrl = (enterpriseSlug, enterpriseCustomerInviteKey) => {
   const loginUrl = new URL(`${getConfig().LMS_BASE_URL}/iam/login/`);
-  const queryParams = new URLSearchParams();
+  const queryParams = loginUrl.searchParams;
 
   queryParams.append('next', global.location);
 
