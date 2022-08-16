@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getLoginUrl } from '../utils/urls';
 
@@ -21,7 +22,11 @@ export default function LoginRedirect({
     return children;
   }
 
-  global.location.href = getLoginUrl();
+  const {
+    enterpriseCustomerInviteKey,
+  } = useParams();
+  const enterpriseSlug = window.location.host.split('.')[0];
+  global.location.href = getLoginUrl(enterpriseSlug, enterpriseCustomerInviteKey);
   return LoadingDisplay;
 }
 LoginRedirect.propTypes = {
