@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
+import { getLoginUrl } from '../utils/urls';
 
 /**
  * This wrapper component redirects the user to the enterprise proxy login view with additional query
@@ -26,7 +26,7 @@ export default function LoginRedirect({
     enterpriseCustomerInviteKey,
   } = useParams();
   const enterpriseSlug = window.location.host.split('.')[0];
-  global.location.href = getProxyLoginUrl(enterpriseSlug, enterpriseCustomerInviteKey);
+  global.location.href = getLoginUrl(enterpriseSlug, enterpriseCustomerInviteKey);
   return LoadingDisplay;
 }
 LoginRedirect.propTypes = {
