@@ -58,9 +58,7 @@ function ExecutiveEducation2UPage() {
       <h2>
         {isLoading ? (
           <Skeleton containerTestId="loading-skeleton-page-title" />
-        ) : (
-          <>{pageTitle}</>
-        )}
+        ) : (pageTitle)}
       </h2>
       <p>
         {(isLoading || !contentMetadata) ? (

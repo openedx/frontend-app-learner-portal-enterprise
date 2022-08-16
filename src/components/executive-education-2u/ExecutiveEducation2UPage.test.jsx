@@ -16,9 +16,9 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
   logError: jest.fn(),
 }));
-jest.mock('./UserEnrollmentForm', () => () => (
-  <div data-testid="user-enrollment-form-component" />
-));
+jest.mock('./UserEnrollmentForm', () => function () {
+  return <div data-testid="user-enrollment-form-component" />;
+});
 const enterpriseSlug = 'test-enterprise-slug';
 const initialAppContextValue = {
   enterpriseConfig: {
