@@ -97,4 +97,27 @@ describe('<SiteHeader />', () => {
     // note: the values of these come from the process.env vars in setupTest.js
     expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us%3Flogout=true');
   });
+
+  test.each([{
+    route: '/slug/executive-education-2u',
+  }, {
+    route: '/slug/random-path',
+  }])('renders getSmarter logo when on /executive-education-2u path', ({
+    route,
+  }) => {
+    renderWithRouter(
+      <SiteHeaderWithContext initialAppState={appState} />,
+      {
+        route,
+      },
+    );
+
+    const getSmarterLogo = screen.queryByTestId('getsmarter-logo-image-id');
+
+    if (route.includes('executive-education-2u')) {
+      expect(getSmarterLogo).toBeInTheDocument();
+    } else {
+      expect(getSmarterLogo).not.toBeInTheDocument();
+    }
+  });
 });
