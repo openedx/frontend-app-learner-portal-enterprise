@@ -21,3 +21,17 @@ export async function getExecutiveEducation2UContentMetadata(courseUUID, options
   const contentMetadata = camelCaseObject(res.data.results[0]);
   return contentMetadata;
 }
+
+export async function checkoutExecutiveEducation2U() {
+  const res = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        data: {
+          receipt_page_url: 'https://edx.org',
+        },
+      });
+    }, 1500);
+  });
+  const result = camelCaseObject(res.data);
+  return result;
+}
