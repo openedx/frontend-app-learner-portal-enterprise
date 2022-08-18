@@ -8,7 +8,7 @@ import {
   Form as FormikForm,
 } from 'formik';
 import { logError } from '@edx/frontend-platform/logging';
-
+import { getConfig } from '@edx/frontend-platform/config';
 import { checkoutExecutiveEducation2U } from './data';
 import FormSectionHeading from './FormSectionHeading';
 
@@ -19,6 +19,7 @@ export const formValidationMessages = {
 };
 
 function UserEnrollmentForm({ className }) {
+  const config = getConfig();
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
   const handleFormValidation = (values) => {
@@ -130,7 +131,7 @@ function UserEnrollmentForm({ className }) {
                   <span aria-hidden>
                     I agree to GetSmarter&apos;s{' '}
                     <Hyperlink
-                      destination="https://www.getsmarter.com/terms-and-conditions-for-students"
+                      destination={config.GETSMARTER_STUDENT_TC_URL}
                       target="_blank"
                     >
                       Terms and Conditions for Students
@@ -149,7 +150,7 @@ function UserEnrollmentForm({ className }) {
             <Col xs={12} lg={8}>
               <p className="small">
                 By providing these details you agree to the use of your data as described in our{' '}
-                <Hyperlink destination="https://www.getsmarter.com/privacy-policy" target="_blank">privacy policy</Hyperlink>. By
+                <Hyperlink destination={config.GETSMARTER_PRIVACY_POLICY_URL} target="_blank">privacy policy</Hyperlink>. By
                 using our services or registering for a course, you agree to be bound by these terms. If you do not
                 agree to be bound by these terms, or are not able to enter into a binding agreement then you may not
                 register for a course or use our services.
