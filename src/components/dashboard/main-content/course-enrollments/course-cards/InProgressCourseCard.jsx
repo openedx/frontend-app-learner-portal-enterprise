@@ -12,6 +12,7 @@ import Notification from './Notification';
 
 import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
+import UpgradeCourseButton from './UpgradeCourseButton';
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -23,8 +24,12 @@ export const InProgressCourseCard = ({
 }) => {
   const {
     isLoading: isLoadingUpgradeUrl,
-    upgradeUrl,
+    licenseUpgradeUrl,
+    couponUpgradeUrl,
   } = useContext(UpgradeableCourseEnrollmentContext);
+
+  // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
+  const shouldShowUpgradeButton = !!couponUpgradeUrl;
 
   const {
     updateCourseEnrollmentStatus,
@@ -34,11 +39,15 @@ export const InProgressCourseCard = ({
   const { courseCards, enterpriseConfig } = useContext(AppContext);
 
   const renderButtons = () => (
-    <ContinueLearningButton
-      linkToCourse={upgradeUrl ?? linkToCourse}
-      title={title}
-      courseRunId={courseRunId}
-    />
+    <>
+      <ContinueLearningButton
+        className={shouldShowUpgradeButton ? 'btn-primary' : undefined}
+        linkToCourse={licenseUpgradeUrl ?? linkToCourse}
+        title={title}
+        courseRunId={courseRunId}
+      />
+      {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} />}
+    </>
   );
 
   const filteredNotifications = notifications.filter((notification) => {
@@ -140,7 +149,7 @@ export const InProgressCourseCard = ({
       buttons={renderButtons()}
       dropdownMenuItems={getDropdownMenuItems()}
       title={title}
-      linkToCourse={upgradeUrl ?? linkToCourse}
+      linkToCourse={licenseUpgradeUrl ?? linkToCourse}
       courseRunId={courseRunId}
       isLoading={isLoadingUpgradeUrl}
       {...rest}
