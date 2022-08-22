@@ -10,11 +10,13 @@ import classNames from 'classnames';
  * Different components can be passed for a greater level of customization
  * for error pages.
  */
-const ErrorPageContent = ({ children, className }) => (
-  <Container size="lg" className={classNames('error-page-container', className)}>
-    {children}
-  </Container>
-);
+function ErrorPageContent({ children, className }) {
+  return (
+    <Container size="lg" className={classNames('error-page-container', className)}>
+      {children}
+    </Container>
+  );
+}
 
 ErrorPageContent.propTypes = {
   children: PropTypes.node.isRequired,

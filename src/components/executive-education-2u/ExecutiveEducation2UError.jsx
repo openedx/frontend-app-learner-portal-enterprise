@@ -6,7 +6,7 @@ import {
   ErrorPage,
 } from '../error-page';
 
-const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
+function ExecutiveEducation2UError({ failureReason, httpReferrer }) {
   const createExecutiveEducationFailureMessage = (failureCode) => {
     const failureCodeMessages = {
       no_offer_available: 'No offer is available to cover this course.',
@@ -37,7 +37,7 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
       </Row>
     </ErrorPage.Content>
   );
-};
+}
 
 ExecutiveEducation2UError.propTypes = {
   failureReason: PropTypes.string,
