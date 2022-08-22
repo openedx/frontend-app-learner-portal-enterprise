@@ -104,4 +104,46 @@ describe('ExecutiveEducation2UPage', () => {
     expect(screen.getByTestId('loading-skeleton-page-title')).toBeInTheDocument();
     expect(screen.getByTestId('loading-skeleton-text-blurb')).toBeInTheDocument();
   });
+
+  it('renders error page with failure_reason message and http_referrer when fetching content metadata fails', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid', failure_reason: 'no_offer_available', http_referrer: 'https://edx.org' });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.getByText('Return to your learning platform')).toBeInTheDocument();
+    expect(screen.getByText('No offer is available to cover this course.')).toBeInTheDocument();
+  });
+
+  it('renders error page with failure_reason message when fetching content metadata fails', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid', failure_reason: 'no_offer_with_enough_balance' });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
+    expect(screen.getByText('Your organization doesn’t have sufficient balance to cover this course.')).toBeInTheDocument();
+  });
+
+  it('renders error page with failure_reason message not predefined when fetching content metadata fails', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid', failure_reason: 'pikachu_i_choose_you' });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
+    expect(screen.getByText('An error has occured.')).toBeInTheDocument();
+  });
 });

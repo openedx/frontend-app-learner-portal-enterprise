@@ -1,18 +1,18 @@
 import React, {
   useContext, useEffect, useMemo,
 } from 'react';
-import { Container } from '@edx/paragon';
+import { Container, Row, Col } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import { logError } from '@edx/frontend-platform/logging';
-
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import {
   useActiveQueryParams,
   useExecutiveEducation2UContentMetadata,
 } from './data';
+import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 
 function ExecutiveEducation2UPage() {
   const { enterpriseConfig } = useContext(AppContext);
@@ -49,32 +49,50 @@ function ExecutiveEducation2UPage() {
   const { name: enterpriseName } = enterpriseConfig;
 
   const pageTitle = 'Share course enrollment information';
-
+  const queryParams = {
+    failureReason: activeQueryParams.get('failure_reason'),
+    httpReferrer: activeQueryParams.get('http_referrer'),
+  };
   return (
     <Container size="lg" className="py-5">
       <Helmet>
         <title>{pageTitle}</title>
       </Helmet>
-      <h2>
-        {isLoading ? (
-          <Skeleton containerTestId="loading-skeleton-page-title" />
-        ) : (
-          // eslint-disable-next-line react/jsx-no-useless-fragment
-          <>{pageTitle}</>
-        )}
-      </h2>
-      <p>
-        {(isLoading || !contentMetadata) ? (
-          <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
-        ) : (
-          <>
-            {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
-            courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must{' '}
-            <strong>accept</strong> Terms of Service and <strong>provide course enrollment data</strong>.
-          </>
-        )}
-      </p>
-      {!isLoading && <UserEnrollmentForm className="mt-5" />}
+      {queryParams.failureReason && (
+        <ExecutiveEducation2UError
+          failureReason={queryParams.failureReason}
+          httpReferrer={queryParams.httpReferrer}
+        />
+      )}
+      {!queryParams.failureReason && (
+        <>
+          <h2 className="mb-3">
+            {isLoading ? (
+              <Skeleton containerTestId="loading-skeleton-page-title" />
+            ) : (
+              <>{pageTitle}</>
+            )}
+          </h2>
+          <p>
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
+              </p>
+            ) : (
+              <Row className="mb-4">
+                <Col xs={12} lg={10}>
+                  <p>
+                    {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
+                    courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must (1) provide course
+                    enrollment data and (2) accept Terms and Conditions.
+                  </p>
+                </Col>
+              </Row>
+            )}
+          </p>
+          {!isLoading && <UserEnrollmentForm />}
+        </>
+      )}
     </Container>
   );
 }
