@@ -3,7 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
-
+import { Toasts, ToastsProvider } from '@edx/frontend-enterprise-toasts';
 import AuthenticatedPage from './AuthenticatedPage';
 import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
 import NotFoundPage from '../NotFoundPage';
@@ -14,7 +14,6 @@ import {
 } from '../enterprise-redirects';
 import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ExecutiveEducation2UPage } from '../executive-education-2u';
-import { ToastsProvider, Toasts } from '../Toasts';
 
 export default function App() {
   useEffect(() => {
