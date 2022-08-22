@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
@@ -217,19 +218,21 @@ function SearchProgramCard({ index }) {
         />
 
         <Card.Section className="py-1">
-          {program.skillNames?.length > 0 && (
-            <div className="mb-2 d-inline">
-              {getCommonSkills(program, selectedJobSkills, MAX_VISIBLE_SKILLS_PROGRAM).map((skill) => (
-                <Badge
-                  key={skill}
-                  className="skill-badge"
-                  variant="light"
-                >
-                  { shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR) }
-                </Badge>
-              ))}
-            </div>
-          )}
+          <>
+            {program.skillNames?.length > 0 && (
+              <div className="mb-2 d-inline">
+                {getCommonSkills(program, selectedJobSkills, MAX_VISIBLE_SKILLS_PROGRAM).map((skill) => (
+                  <Badge
+                    key={skill}
+                    className="skill-badge"
+                    variant="light"
+                  >
+                    { shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR) }
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </>
         </Card.Section>
 
         <Card.Section className="py-1">

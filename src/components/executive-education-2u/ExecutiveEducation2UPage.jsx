@@ -58,7 +58,10 @@ function ExecutiveEducation2UPage() {
       <h2>
         {isLoading ? (
           <Skeleton containerTestId="loading-skeleton-page-title" />
-        ) : (pageTitle)}
+        ) : (
+          // eslint-disable-next-line react/jsx-no-useless-fragment
+          <>{pageTitle}</>
+        )}
       </h2>
       <p>
         {(isLoading || !contentMetadata) ? (

@@ -67,28 +67,31 @@ function ProgramHeader() {
   }
 
   return (
-    subjectSlug
-      ? (
-        <Parallax
-          blur={0}
-          bgImage={backgroundImage}
-          bgImageAlt=""
-          strength={600}
-        >
-          <header className="program-header">
-            <div className="container mw-lg program-header-container">
-              <div className="header-breadcrumbs ml-2">
-                <Breadcrumb
-                  links={links}
-                  activeLabel={prependProgramOrganizationsToTitle()}
-                />
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    <>
+      {subjectSlug
+        ? (
+          <Parallax
+            blur={0}
+            bgImage={backgroundImage}
+            bgImageAlt=""
+            strength={600}
+          >
+            <header className="program-header">
+              <div className="container mw-lg program-header-container">
+                <div className="header-breadcrumbs ml-2">
+                  <Breadcrumb
+                    links={links}
+                    activeLabel={prependProgramOrganizationsToTitle()}
+                  />
+                </div>
+                <h1 className="display-3">{marketingHook}</h1>
               </div>
-              <h1 className="display-3">{marketingHook}</h1>
-            </div>
-          </header>
-        </Parallax>
-      )
-      : ''
+            </header>
+          </Parallax>
+        )
+        : ''}
+    </>
   );
 }
 

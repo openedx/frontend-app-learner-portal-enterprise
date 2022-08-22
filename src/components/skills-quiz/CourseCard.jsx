@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import React, { useContext, useMemo } from 'react';
 import { Badge, Card } from '@edx/paragon';
 import { Link } from 'react-router-dom';
@@ -88,28 +89,30 @@ function CourseCard({
         />
 
         <Card.Section className="py-1">
-          {course.skillNames?.length > 0 && (
-            <div className="mb-2">
-              {getCommonSkills(
-                course,
-                allSkills,
-                MAX_VISIBLE_SKILLS_COURSE,
-              )
-                .map((skill) => (
-                  <Badge
-                    key={skill}
-                    className="skill-badge"
-                    variant="light"
-                  >
-                    {shortenString(
-                      skill,
-                      SKILL_NAME_CUTOFF_LIMIT,
-                      ELLIPSIS_STR,
-                    )}
-                  </Badge>
-                ))}
-            </div>
-          )}
+          <>
+            {course.skillNames?.length > 0 && (
+              <div className="mb-2">
+                {getCommonSkills(
+                  course,
+                  allSkills,
+                  MAX_VISIBLE_SKILLS_COURSE,
+                )
+                  .map((skill) => (
+                    <Badge
+                      key={skill}
+                      className="skill-badge"
+                      variant="light"
+                    >
+                      {shortenString(
+                        skill,
+                        SKILL_NAME_CUTOFF_LIMIT,
+                        ELLIPSIS_STR,
+                      )}
+                    </Badge>
+                  ))}
+              </div>
+            )}
+          </>
         </Card.Section>
       </Card>
     );

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from '@edx/paragon';
@@ -116,8 +117,10 @@ function EnrollModal({
           href={enrollmentUrl}
           onClick={handleEnroll}
         >
-          {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
-          {buttonText}
+          <>
+            {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
+            {buttonText}
+          </>
         </a>,
       ]}
       onClose={() => setIsModalOpen(false)}
