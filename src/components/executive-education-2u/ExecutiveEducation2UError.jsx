@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { AppContext } from '@edx/frontend-platform/react';
 import { ArrowBack } from '@edx/paragon/icons';
 import { Button, Col, Row } from '@edx/paragon';
+import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
+
 import {
   ErrorPage,
 } from '../error-page';
 
 const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
+  const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
+
   const createExecutiveEducationFailureMessage = (failureCode) => {
     const failureCodeMessages = {
       no_offer_available: 'No offer is available to cover this course.',
@@ -29,7 +34,19 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
             Please contact your edX administrator to resolve the error and gain access to this content.
           </p>
           {httpReferrer && (
-            <Button href={httpReferrer} iconBefore={ArrowBack} variant="primary">
+            <Button
+              href={httpReferrer}
+              iconBefore={ArrowBack}
+              variant="primary"
+              onClick={async (e) => {
+                e.preventDefault();
+                await sendEnterpriseTrackEventWithDelay(
+                  enterpriseId,
+                  'edx.ui.enterprise.learner_portal.executive_education.return_to_lms.clicked',
+                );
+                global.location.href = httpReferrer;
+              }}
+            >
               Return to your learning platform
             </Button>
           )}

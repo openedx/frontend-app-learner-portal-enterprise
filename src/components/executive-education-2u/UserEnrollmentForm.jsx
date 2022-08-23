@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   StatefulButton, Form, Hyperlink, CheckboxControl, Row, Col, Alert,
@@ -7,8 +7,11 @@ import {
   Formik,
   Form as FormikForm,
 } from 'formik';
+import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
+import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
+
 import { checkoutExecutiveEducation2U } from './data';
 import FormSectionHeading from './FormSectionHeading';
 
@@ -24,6 +27,8 @@ function UserEnrollmentForm({
   productSKU,
   onCheckoutSuccess,
 }) {
+  const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
+
   const config = getConfig();
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
@@ -42,6 +47,15 @@ function UserEnrollmentForm({
     if (!values.studentTermsAndConditions) {
       errors.studentTermsAndConditions = formValidationMessages.studentTermsAndConditionsRequired;
     }
+
+    // Only track validation errors during the initial submit
+    if (!isFormSubmitted && errors) {
+      sendEnterpriseTrackEvent(
+        enterpriseId,
+        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.validation.failed',
+        { errors },
+      );
+    }
     return errors;
   };
 
@@ -55,6 +69,11 @@ function UserEnrollmentForm({
         },
         termsAcceptedAt: new Date(Date.now()).toISOString(),
       });
+
+      await sendEnterpriseTrackEventWithDelay(
+        enterpriseId,
+        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
+      );
       onCheckoutSuccess(result);
     } catch (error) {
       setFormSubmissionError(error);
@@ -182,6 +201,12 @@ function UserEnrollmentForm({
                     <Hyperlink
                       destination={config.GETSMARTER_STUDENT_TC_URL}
                       target="_blank"
+                      onClick={() => {
+                        sendEnterpriseTrackEvent(
+                          enterpriseId,
+                          'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
+                        );
+                      }}
                     >
                       Terms and Conditions for Students
                     </Hyperlink>
