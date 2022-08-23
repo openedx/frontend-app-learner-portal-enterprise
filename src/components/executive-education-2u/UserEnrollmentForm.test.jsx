@@ -3,32 +3,48 @@ import React from 'react';
 import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U } from './data';
 
 const termsLabelText = 'I agree to GetSmarter\'s Terms and Conditions for Students';
 
+const mockEnterpriseId = 'test-enterprise-id';
 const mockFirstName = 'John';
 const mockLastName = 'Doe';
 const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
 const mockOnCheckoutSuccess = jest.fn();
 
+jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
   checkoutExecutiveEducation2U: jest.fn(),
 }));
 
+const initialAppContextValue = {
+  enterpriseConfig: {
+    name: 'Test Enterprise',
+    uuid: 'test-enterprise-uuid',
+    enableExecutiveEducation2UFulfillment: true,
+  },
+};
+
 function UserEnrollmentFormWrapper({
+  appContextValue = initialAppContextValue,
+  enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
 }) {
   return (
-    <UserEnrollmentForm
-      productSKU={productSKU}
-      onCheckoutSuccess={onCheckoutSuccess}
-    />
+    <AppContext.Provider value={appContextValue}>
+      <UserEnrollmentForm
+        enterpriseId={enterpriseId}
+        productSKU={productSKU}
+        onCheckoutSuccess={onCheckoutSuccess}
+      />
+    </AppContext.Provider>
   );
 }
 
