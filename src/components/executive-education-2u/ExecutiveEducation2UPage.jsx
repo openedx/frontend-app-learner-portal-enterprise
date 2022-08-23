@@ -64,7 +64,7 @@ function ExecutiveEducation2UPage() {
       logError('Unable to redirect to receipt page due to missing receipt page URL.');
       return;
     }
-    global.location.href = response.receiptPageUrl;
+    global.location.assign(response.receiptPageUrl);
   };
 
   return (
