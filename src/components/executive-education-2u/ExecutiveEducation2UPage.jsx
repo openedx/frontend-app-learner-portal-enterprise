@@ -59,9 +59,12 @@ function ExecutiveEducation2UPage() {
     sku: activeQueryParams.get('sku'),
   };
 
-  const handleCheckoutSuccess = (res) => {
-    // TODO: redirect to receipt page from `res`
-    console.log('handleCheckoutSuccess', res);
+  const handleCheckoutSuccess = (response) => {
+    if (!response?.receiptPageUrl) {
+      logError('Unable to redirect to receipt page due to missing receipt page URL.');
+      return;
+    }
+    global.location.href = response.receiptPageUrl;
   };
 
   return (
