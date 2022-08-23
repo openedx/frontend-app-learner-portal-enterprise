@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Form, Hyperlink, CheckboxControl, Row, Col,
+  StatefulButton, Form, Hyperlink, CheckboxControl, Row, Col, Alert,
 } from '@edx/paragon';
 import {
   Formik,
@@ -15,12 +15,18 @@ import FormSectionHeading from './FormSectionHeading';
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
   lastNameRequired: 'Last name is required',
+  dateOfBirthRequired: 'Date of birth is required',
   studentTermsAndConditionsRequired: 'Please agree to Terms and Conditions for Students',
 };
 
-function UserEnrollmentForm({ className }) {
+function UserEnrollmentForm({
+  className,
+  productSKU,
+  onCheckoutSuccess,
+}) {
   const config = getConfig();
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [formSubmissionError, setFormSubmissionError] = useState();
 
   const handleFormValidation = (values) => {
     const errors = {};
@@ -30,6 +36,9 @@ function UserEnrollmentForm({ className }) {
     if (!values.lastName) {
       errors.lastName = formValidationMessages.lastNameRequired;
     }
+    if (!values.dateOfBirth) {
+      errors.dateOfBirth = formValidationMessages.dateOfBirthRequired;
+    }
     if (!values.studentTermsAndConditions) {
       errors.studentTermsAndConditions = formValidationMessages.studentTermsAndConditionsRequired;
     }
@@ -38,11 +47,17 @@ function UserEnrollmentForm({ className }) {
 
   const handleFormSubmit = async (values, { setSubmitting }) => {
     try {
-      await checkoutExecutiveEducation2U({
-        firstName: values.firstName,
-        lastName: values.lastName,
+      const result = await checkoutExecutiveEducation2U({
+        sku: productSKU,
+        userDetails: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        },
+        termsAcceptedAt: new Date(Date.now()).toISOString(),
       });
+      onCheckoutSuccess(result);
     } catch (error) {
+      setFormSubmissionError(error);
       logError(error);
     } finally {
       setSubmitting(false);
@@ -54,6 +69,7 @@ function UserEnrollmentForm({ className }) {
       initialValues={{
         firstName: '',
         lastName: '',
+        dateOfBirth: '',
         studentTermsAndConditions: false,
       }}
       validateOnChange={isFormSubmitted}
@@ -76,6 +92,17 @@ function UserEnrollmentForm({ className }) {
             setIsFormSubmitted(true);
           }}
         >
+          <Alert
+            variant="danger"
+            className="mb-4.5"
+            show={!!formSubmissionError}
+            onClose={() => setFormSubmissionError(undefined)}
+            dismissible
+          >
+            <p>
+              An error occurred while sharing your course enrollment information. Please try again.
+            </p>
+          </Alert>
           <FormSectionHeading>Personal information</FormSectionHeading>
           <Row className="mb-4">
             <Col xs={12} lg={3}>
@@ -111,6 +138,28 @@ function UserEnrollmentForm({ className }) {
                 {errors.lastName && isFormSubmitted && (
                   <Form.Control.Feedback type="invalid">
                     {errors.lastName}
+                  </Form.Control.Feedback>
+                )}
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row className="mb-4">
+            <Col xs={12} lg={3}>
+              <Form.Group
+                isInvalid={!!errors.dateOfBirth}
+              >
+                <Form.Control
+                  type="date"
+                  value={values.dateOfBirth}
+                  floatingLabel="Date of birth *"
+                  name="dateOfBirth"
+                  placeholder="mm/dd/yyyy"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+                {errors.dateOfBirth && isFormSubmitted && (
+                  <Form.Control.Feedback type="invalid">
+                    {errors.dateOfBirth}
                   </Form.Control.Feedback>
                 )}
               </Form.Group>
@@ -159,9 +208,15 @@ function UserEnrollmentForm({ className }) {
           </Row>
           <Row>
             <Col>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>
-                Submit enrollment information
-              </Button>
+              <StatefulButton
+                type="submit"
+                variant="primary"
+                labels={{
+                  default: 'Submit enrollment information',
+                  pending: 'Submitting enrollment information...',
+                }}
+                state={isSubmitting ? 'pending' : 'default'}
+              />
             </Col>
           </Row>
         </FormikForm>
@@ -172,6 +227,8 @@ function UserEnrollmentForm({ className }) {
 
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
+  productSKU: PropTypes.string.isRequired,
+  onCheckoutSuccess: PropTypes.func.isRequired,
 };
 
 UserEnrollmentForm.defaultProps = {
