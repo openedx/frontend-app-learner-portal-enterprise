@@ -24,7 +24,7 @@ export async function getExecutiveEducation2UContentMetadata(courseUUID, options
 
 export async function checkoutExecutiveEducation2U(options = {}) {
   const config = getConfig();
-  const url = `${config.ECOMMERCE_BASE_URL}/executive-education-2u/checkout`;
+  const url = `${config.ECOMMERCE_BASE_URL}/executive-education-2u/checkout/`;
   const payload = {
     ...snakeCaseObject(options),
   };
