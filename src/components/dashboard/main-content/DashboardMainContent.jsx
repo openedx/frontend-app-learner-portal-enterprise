@@ -6,11 +6,9 @@ import {
 } from '@edx/paragon';
 
 import { CourseEnrollments } from './course-enrollments';
-import DashboardPopularCourses from './DashboardPopularCourses';
 
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
-import { isExperimentVariant } from '../../../utils/optimizely';
 
 const DashboardMainContent = () => {
   const {
@@ -51,10 +49,6 @@ const DashboardMainContent = () => {
           </>
         )}
       </CourseEnrollments>
-
-      {isExperimentVariant(process.env.EXPERIMENT_1_ID, process.env.EXPERIMENT_1_VARIANT_1) && (
-        <DashboardPopularCourses />
-      )}
 
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
         {matches => (matches ? <SupportInformation className="mt-5" /> : null)}
