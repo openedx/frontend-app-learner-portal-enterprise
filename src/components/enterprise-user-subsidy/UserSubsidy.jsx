@@ -8,7 +8,7 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 
 import {
-  useCatalogData,
+  useCatalogData, useLearningPathData,
 } from './data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
 
@@ -17,8 +17,9 @@ export const UserSubsidyContext = createContext();
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const [catalogData, isLoadingCatalogData] = useCatalogData(enterpriseConfig.uuid);
+  const [learningPathData, isLoadingLearningPathdata] = useLearningPathData();
 
-  const isLoading = isLoadingCatalogData;
+  const isLoading = isLoadingCatalogData || isLoadingLearningPathdata;
 
   const contextValue = useMemo(
     () => {
@@ -27,12 +28,14 @@ const UserSubsidy = ({ children }) => {
       }
       return {
         catalogData,
+        learningPathData,
       };
     },
     [
       isLoading,
       enterpriseConfig.uuid,
       catalogData,
+      learningPathData,
     ],
   );
 

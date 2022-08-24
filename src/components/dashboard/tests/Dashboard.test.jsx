@@ -14,12 +14,6 @@ import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
-const defaultOffersState = {
-  offers: [],
-  loading: false,
-  offersCount: 0,
-};
-
 const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
 
 const defaultAppState = {
@@ -34,8 +28,17 @@ const defaultAppState = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
+const defaultLearningPathData = {
+  learning_path_name: 'My Learning Path',
+};
+
+const defaultCatalogData = {
+  courses_metadata: [],
+};
+
 const defaultUserSubsidyState = {
-  offers: defaultOffersState,
+  learningPathData: defaultLearningPathData,
+  catalogData: defaultCatalogData,
 };
 
 const defaultCourseState = {
@@ -138,5 +141,90 @@ describe('<Dashboard />', () => {
     };
     renderWithRouter(<DashboardWithContext initialAppState={appState} />);
     expect(screen.getByText('Welcome!'));
+  });
+
+  it('renders name of learning path if available', () => {
+    renderWithRouter(<DashboardWithContext />);
+    expect(screen.getByText('My Learning Path'));
+  });
+
+  it('shows empty state when no courses on learning path', () => {
+    const userSubsidyState = {
+      learningPathData: { ...defaultLearningPathData, courses: [], count: 0 },
+      catalogData: defaultCatalogData,
+    };
+    renderWithRouter(<DashboardWithContext initialUserSubsidyState={userSubsidyState} />);
+    expect(screen.getByText("You don't have a course in Learning path yet"));
+  });
+
+  it('shows 0 available courses on learning path with empty learning path', () => {
+    const userSubsidyState = {
+      learningPathData: { ...defaultLearningPathData, courses: [], count: 0 },
+      catalogData: defaultCatalogData,
+    };
+    renderWithRouter(<DashboardWithContext initialUserSubsidyState={userSubsidyState} />);
+    expect(screen.getByText('0 courses'));
+  });
+
+  it('shows 1 available course on learning path with 1 course', () => {
+    const userSubsidyState = {
+      learningPathData: {
+        ...defaultLearningPathData,
+        courses: [{
+          title: 'Course 1',
+          primaryLanguage: 'en',
+          hoursRequired: 42,
+        }],
+        count: 1,
+      },
+      catalogData: defaultCatalogData,
+    };
+    renderWithRouter(<DashboardWithContext initialUserSubsidyState={userSubsidyState} />);
+    expect(screen.getByText('1 course'));
+  });
+
+  it('shows course card on learning path with 1 course', () => {
+    const userSubsidyState = {
+      learningPathData: {
+        ...defaultLearningPathData,
+        courses: [{
+          title: 'How to train your dragon',
+          primaryLanguage: 'en',
+          hoursRequired: 42,
+        }],
+        count: 1,
+      },
+      catalogData: defaultCatalogData,
+    };
+    renderWithRouter(<DashboardWithContext initialUserSubsidyState={userSubsidyState} />);
+    expect(screen.getByText('How to train your dragon'));
+    expect(screen.getByText('en'));
+    expect(screen.getByText('42h'));
+  });
+
+  it('shows 2 cards in the course catalog', async () => {
+    const userSubsidyState = {
+      learningPathData: defaultLearningPathData,
+      catalogData: {
+        courses_metadata: [
+          {
+            title: 'How to train your dragon',
+            primaryLanguage: 'en',
+            hoursRequired: 42,
+          },
+          {
+            title: 'Large numbers in Python',
+            primaryLanguage: 'en',
+            hoursRequired: 13,
+          },
+        ],
+      },
+    };
+    renderWithRouter(<DashboardWithContext initialUserSubsidyState={userSubsidyState} />);
+    expect(screen.getByText('How to train your dragon'));
+    expect(screen.getByText('42h'));
+    expect(screen.getByText('Large numbers in Python'));
+    expect(screen.getByText('13h'));
+    expect((await screen.findAllByText('en')).length === 2);
   });
 });

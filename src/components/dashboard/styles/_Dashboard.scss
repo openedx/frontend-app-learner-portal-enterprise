@@ -8,6 +8,11 @@
     & + & {
       margin-top: 40px;
     }
+
+    hr {
+      border-top-color: $light-400;
+      margin-bottom: 24px;
+    }
   }
 
   &-panel-header-title {
