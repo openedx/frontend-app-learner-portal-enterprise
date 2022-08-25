@@ -1,6 +1,26 @@
 import moment from 'moment';
 import { COURSE_STATUSES } from './constants';
 
+/**
+ * Determines whether a course enrollment may be unenrolled based on its enrollment
+ * status (e.g., in progress, completed) and enrollment completion.
+ *
+ * @param {Object} courseEnrollment Data for an enterprise course enrollment.
+ * @returns True if the enrollment can be unenrolled. False if not.
+ */
+export const canUnenrollCourseEnrollment = (courseEnrollment) => {
+  const unenrollableCourseRunTypes = new Set([
+    COURSE_STATUSES.inProgress,
+    COURSE_STATUSES.upcoming,
+    COURSE_STATUSES.completed,
+    COURSE_STATUSES.savedForLater,
+  ]);
+  return (
+    unenrollableCourseRunTypes.has(courseEnrollment.courseRunStatus)
+    && !courseEnrollment.certificateDownloadUrl
+  );
+};
+
 export const transformCourseEnrollment = (rawCourseEnrollment) => {
   const courseEnrollment = { ...rawCourseEnrollment };
 
@@ -15,6 +35,7 @@ export const transformCourseEnrollment = (rawCourseEnrollment) => {
   courseEnrollment.linkToCertificate = courseEnrollment.certificateDownloadUrl;
   courseEnrollment.hasEmailsEnabled = courseEnrollment.emailsEnabled;
   courseEnrollment.notifications = courseEnrollment.dueDates;
+  courseEnrollment.canUnenroll = canUnenrollCourseEnrollment(courseEnrollment);
 
   // Delete renamed/unused fields
   delete courseEnrollment.displayName;

@@ -16,7 +16,7 @@ const ProgramListingCard = ({ program }) => {
   const history = useHistory();
 
   const handleCardClick = () => {
-    history.push(`/${enterpriseConfig.slug}/program-progress/${program.uuid}`);
+    history.push(`/${enterpriseConfig.slug}/program/${program.uuid}/progress`);
   };
 
   useEffect(() => {

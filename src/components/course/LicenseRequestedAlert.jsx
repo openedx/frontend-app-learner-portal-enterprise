@@ -34,7 +34,7 @@ const LicenseRequestedAlert = ({ catalogList }) => {
 
   const hasApplicableSubscription = useMemo(() => subscriptionCatalogUUIDs.find(
     uuid => catalogList.includes(uuid),
-  ), [subscriptionCatalogUUIDs]);
+  ), [catalogList, subscriptionCatalogUUIDs]);
 
   // Do not show the alert if there is no applicable subscription or no pending license request
   if (!(hasApplicableSubscription && hasPendingLicenseRequest && isAlertOpen)) {

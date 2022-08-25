@@ -4,7 +4,6 @@ import React from 'react';
 import { screen, render } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import SubsidyRequestsContextProvider from '../SubsidyRequestsContextProvider';
-import * as config from '../../../config';
 import * as hooks from '../data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from '../constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -56,18 +55,7 @@ describe('<SubsidyRequestsContextProvider />', () => {
     });
   });
 
-  it('should provide default context if feature is disabled', () => {
-    config.features.FEATURE_BROWSE_AND_REQUEST = false;
-    render(<SubsidyRequestsContextProviderWrapper />);
-
-    expect(hooks.useSubsidyRequestConfiguration).not.toHaveBeenCalled();
-    expect(hooks.useSubsidyRequests).not.toHaveBeenCalled();
-    expect(hooks.useCatalogsForSubsidyRequests).not.toHaveBeenCalled();
-  });
-
   it('should fetch subsidy requests information if feature is enabled', () => {
-    config.features.FEATURE_BROWSE_AND_REQUEST = true;
-
     render(<SubsidyRequestsContextProviderWrapper />);
 
     expect(hooks.useSubsidyRequestConfiguration).toHaveBeenCalled();
@@ -76,8 +64,6 @@ describe('<SubsidyRequestsContextProvider />', () => {
   });
 
   it('should render loading spinner if loading subsidy requests information', () => {
-    config.features.FEATURE_BROWSE_AND_REQUEST = true;
-
     hooks.useSubsidyRequestConfiguration.mockReturnValue({
       subsidyRequestConfiguration: {},
       isLoading: true,

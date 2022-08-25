@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { Container } from '@edx/paragon';
 import classNames from 'classnames';
 import { Link } from 'react-scroll';
@@ -12,6 +12,10 @@ const ProgramDataBar = () => {
   const {
     program: { authoringOrganizations: owners, isProgramEligibleForOneClickPurchase },
   } = useContext(ProgramContext);
+
+  const handleStick = useCallback(() => setStickProgramDataBar(true), []);
+  const handleRelease = useCallback(() => setStickProgramDataBar(false), []);
+
   return (
     <div
       className={classNames('data-bar', 'shadow', { stuck: stickProgramDataBar })}
@@ -27,26 +31,24 @@ const ProgramDataBar = () => {
               ))}
             </div>
             <ProgramDataBarDetails
-              handleStick={() => setStickProgramDataBar(true)}
-              handleRelease={() => setStickProgramDataBar(false)}
+              handleStick={handleStick}
+              handleRelease={handleRelease}
             />
-            {
-              isProgramEligibleForOneClickPurchase && (
-                <div className="cta-wrapper">
-                  <Link
-                    className="btn-of-interest"
-                    to="program-details-dropdown"
-                    smooth
-                    spy
-                    duration={750}
-                    offset={-600}
-                  >
-                    I&apos;m interested
-                    <FontAwesomeIcon icon={faChevronCircleDown} className="icon ml-2 align-self-center" />
-                  </Link>
-                </div>
-              )
-            }
+            {isProgramEligibleForOneClickPurchase && (
+              <div className="cta-wrapper">
+                <Link
+                  className="btn-of-interest"
+                  to="program-details-dropdown"
+                  smooth
+                  spy
+                  duration={750}
+                  offset={-600}
+                >
+                  I&apos;m interested
+                  <FontAwesomeIcon icon={faChevronCircleDown} className="icon ml-2 align-self-center" />
+                </Link>
+              </div>
+            )}
           </div>
         </Container>
       </div>

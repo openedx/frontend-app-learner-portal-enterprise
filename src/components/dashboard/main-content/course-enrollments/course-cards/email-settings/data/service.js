@@ -1,7 +1,7 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
-const updateEmailSettings = (courseRunId, hasEmailsEnabled) => {
+export const updateEmailSettings = (courseRunId, hasEmailsEnabled) => {
   const config = getConfig();
   const queryParams = new URLSearchParams({
     course_id: courseRunId,
@@ -23,5 +23,3 @@ const updateEmailSettings = (courseRunId, hasEmailsEnabled) => {
     },
   );
 };
-
-export { updateEmailSettings };

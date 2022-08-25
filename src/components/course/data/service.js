@@ -105,6 +105,11 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
+  fetchCourseRun(courseRunId = this.activeCourseRun) {
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/course_runs/${courseRunId}`;
+    return this.cachedAuthenticatedHttpClient.get(url);
+  }
+
   fetchCourseRecommendations() {
     const url = `${this.config.DISCOVERY_API_BASE_URL}/taxonomy/api/v1/course_recommendations/${this.courseKey}/`;
     return this.cachedAuthenticatedHttpClient.get(url);
@@ -125,23 +130,33 @@ export default class CourseService {
     return this.authenticatedHttpClient.get(url);
   }
 
-  fetchEnterpriseCustomerContainsContent() {
+  fetchEnterpriseCustomerContainsContent(courseRunIds = [this.courseKey]) {
     // This API call will *only* obtain the enterprise's catalogs whose
     // catalog queries return/contain the specified courseKey.
     const queryParams = new URLSearchParams({
-      course_run_ids: this.courseKey,
+      course_run_ids: courseRunIds,
       get_catalogs_containing_specified_content_ids: true,
     });
+
     const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
-  fetchUserLicenseSubsidy() {
+  fetchUserLicenseSubsidy(courseKey = this.activeCourseRun.key) {
     const queryParams = new URLSearchParams({
       enterprise_customer_uuid: this.enterpriseUuid,
-      course_key: this.activeCourseRun.key,
+      course_key: courseKey,
     });
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
-    return this.cachedAuthenticatedHttpClient.get(url);
+    return this.cachedAuthenticatedHttpClient.get(url).catch(error => {
+      const httpErrorStatus = error.customAttributes?.httpErrorStatus;
+      if (httpErrorStatus === 404) {
+        // 404 means the user's license is not applicable for the course, return undefined instead of throwing an error
+        return {
+          data: undefined,
+        };
+      }
+      throw error;
+    });
   }
 }

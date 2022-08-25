@@ -33,10 +33,10 @@ jest.mock('../data/hooks');
 const enterpriseConfig = {
   uuid: 'test-enterprise-uuid',
 };
-const inProgCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.inProgress);
-const upcomingCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.upcoming);
-const completedCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.completed);
-const savedForLaterCourseRun = createCourseEnrollmentWithStatus(COURSE_STATUSES.savedForLater);
+const inProgCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.inProgress });
+const upcomingCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.upcoming });
+const completedCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.completed });
+const savedForLaterCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.savedForLater });
 
 const transformedLicenseRequest = {
   created: '2017-02-05T05:00:00Z',

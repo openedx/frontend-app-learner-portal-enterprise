@@ -33,11 +33,7 @@ export default function Layout({ children }) {
       return new Date() > new Date(startTimestamp);
     }
     return true;
-  }, [
-    config?.IS_MAINTENANCE_ALERT_ENABLED,
-    config?.MAINTENANCE_ALERT_MESSAGE,
-    config?.MAINTENANCE_ALERT_START_TIMESTAMP,
-  ]);
+  }, [config]);
 
   return (
     <IntlProvider locale="en">

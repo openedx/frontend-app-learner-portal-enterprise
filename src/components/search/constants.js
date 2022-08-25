@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 import { SEARCH_FACET_FILTERS } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../config';
 

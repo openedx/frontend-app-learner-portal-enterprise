@@ -5,15 +5,15 @@ import {
   Row,
   Col,
 } from '@edx/paragon';
+import moment from 'moment';
 import {
   ENTERPRISE_OFFER_SUMMARY_CARD_TITLE,
   ENTERPRISE_OFFER_ACTIVE_BADGE_LABEL,
   ENTERPRISE_OFFER_ACTIVE_BADGE_VARIANT,
-  ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY,
 } from './data/constants';
 import SidebarCard from './SidebarCard';
 
-const EnterpriseOffersSummaryCard = ({ className, searchCoursesCta }) => (
+const EnterpriseOffersSummaryCard = ({ className, offer, searchCoursesCta }) => (
   <SidebarCard
     title={
       (
@@ -31,7 +31,26 @@ const EnterpriseOffersSummaryCard = ({ className, searchCoursesCta }) => (
     }
     cardClassNames={className}
   >
-    {ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY}
+    {offer.remainingBalanceForUser && offer.remainingBalanceForUser !== Number.MAX_VALUE
+      ? (
+        <p data-testid="offer-summary-text-detailed">
+          Apply your <b>${offer.remainingBalanceForUser}</b>{' '}
+          learner credit balance to enroll into courses with no out of pocket cost.
+        </p>
+      )
+      : (
+        <p data-testid="offer-summary-text">
+          Apply your organization&apos;s learner credit balance to enroll into courses with no out of pocket cost.
+        </p>
+      ) }
+
+    {offer.endDatetime
+      && (
+        <p data-testid="offer-summary-end-date-text">
+          Available until <b>{moment(offer.endDatetime).format('MMM D, YYYY')}</b>
+        </p>
+      )}
+
     {searchCoursesCta && (
       <Row className="mt-3 d-flex justify-content-end">
         <Col xl={7}>{searchCoursesCta}</Col>
@@ -41,6 +60,10 @@ const EnterpriseOffersSummaryCard = ({ className, searchCoursesCta }) => (
 );
 
 EnterpriseOffersSummaryCard.propTypes = {
+  offer: PropTypes.shape({
+    endDatetime: PropTypes.string,
+    remainingBalanceForUser: PropTypes.number,
+  }).isRequired,
   className: PropTypes.string,
   searchCoursesCta: PropTypes.node,
 };

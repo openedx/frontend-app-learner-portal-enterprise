@@ -38,18 +38,28 @@ export const ProgramType = ({ type }) => {
 
 const SearchProgramCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
-  const program = hit ? camelCaseObject(hit) : {};
-  const programUuid = Object.keys(program).length ? program.aggregationKey.split(':').pop() : undefined;
+  const program = useMemo(() => {
+    if (!hit) {
+      return {};
+    }
+    return camelCaseObject(hit);
+  }, [hit]);
+
+  const programUuid = useMemo(() => {
+    if (!Object.keys(program).length) {
+      return undefined;
+    }
+    return program.aggregationKey.split(':').pop();
+  }, [program]);
 
   const linkToProgram = useMemo(
     () => {
       if (!Object.keys(program).length) {
         return '#';
       }
-
       return `/${slug}/program/${programUuid}`;
     },
-    [isLoading, JSON.stringify(program)],
+    [program, programUuid, slug],
   );
 
   const partnerDetails = useMemo(
@@ -57,13 +67,12 @@ const SearchProgramCard = ({ hit, isLoading }) => {
       if (!Object.keys(program).length || !isDefinedAndNotNull(program.authoringOrganizations)) {
         return {};
       }
-
       return {
         primaryPartner: program.authoringOrganizations?.length > 0 ? program.authoringOrganizations[0] : undefined,
         showPartnerLogo: program.authoringOrganizations?.length === 1,
       };
     },
-    [JSON.stringify(program)],
+    [program],
   );
 
   const loadingCard = () => (
@@ -72,17 +81,14 @@ const SearchProgramCard = ({ hit, isLoading }) => {
         as={Skeleton}
         duration={0}
       />
-
       <Card.Header
         title={
           <Skeleton duration={0} data-testid="program-title-loading" />
         }
       />
-
       <Card.Section>
         <Skeleton duration={0} data-testid="program-type-loading" />
       </Card.Section>
-
       <Card.Footer className="bg-white border-0 pt-0 pb-2">
         <Skeleton duration={0} data-testid="program-courses-count-loading" />
       </Card.Footer>
@@ -120,7 +126,6 @@ const SearchProgramCard = ({ hit, isLoading }) => {
           logoSrc={primaryPartnerLogo?.src}
           logoAlt={primaryPartnerLogo?.alt}
         />
-
         <Card.Header
           className="h-100"
           title={(
@@ -138,7 +143,6 @@ const SearchProgramCard = ({ hit, isLoading }) => {
             )
           }
         />
-
         <Card.Section className="py-3">
           <div className="d-flex">
             <Badge
@@ -154,7 +158,6 @@ const SearchProgramCard = ({ hit, isLoading }) => {
             </Badge>
           </div>
         </Card.Section>
-
         <Card.Footer
           textElement={getProgramCourseCount()}
         />
@@ -163,6 +166,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
   };
 
   const { userId } = getAuthenticatedUser();
+
   return (
     <div
       className="search-program-card mb-4 h-100"

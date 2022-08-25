@@ -28,7 +28,7 @@ const fetchCouponCodesFailure = error => ({
   },
 });
 
-const fetchCouponCodeAssignments = (queryOptions, dispatch) => {
+export const fetchCouponCodeAssignments = (queryOptions, dispatch) => {
   dispatch(fetchCouponCodesRequest());
 
   return service.fetchCouponCodeAssignments(queryOptions)
@@ -39,6 +39,3 @@ const fetchCouponCodeAssignments = (queryOptions, dispatch) => {
       dispatch(fetchCouponCodesFailure(error));
     });
 };
-
-// eslint-disable-next-line import/prefer-default-export
-export { fetchCouponCodeAssignments };

@@ -26,17 +26,23 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
 
   const isSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
 
-  const requestedCourseEnrollments = isSubsidyRequestsEnabled
-    ? requestsBySubsidyType[subsidyRequestConfiguration.subsidyType].map(subsidyRequest => transformSubsidyRequest({
+  const requestedCourseEnrollments = useMemo(() => {
+    if (!isSubsidyRequestsEnabled) {
+      return [];
+    }
+    const requests = requestsBySubsidyType[subsidyRequestConfiguration.subsidyType];
+    return requests.map(subsidyRequest => transformSubsidyRequest({
       subsidyRequest,
       slug,
-    })) : [];
+    }));
+  }, [isSubsidyRequestsEnabled, requestsBySubsidyType, slug, subsidyRequestConfiguration]);
 
   const {
     courseEnrollmentsByStatus,
     isLoading,
     fetchCourseEnrollmentsError,
     updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
   } = useCourseEnrollments({
     enterpriseUUID,
     requestedCourseEnrollments,
@@ -51,6 +57,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
     updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
     setShowMarkCourseCompleteSuccess,
     setShowMoveToInProgressCourseSuccess,
   }), [
@@ -58,6 +65,8 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     fetchCourseEnrollmentsError,
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
+    updateCourseEnrollmentStatus,
+    removeCourseEnrollment,
   ]);
 
   if (isLoading) {

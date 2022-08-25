@@ -23,6 +23,7 @@ export function useAllProgramData({ enterpriseUuid, programUuid }) {
       return undefined;
     };
     fetchData();
-  }, [programUuid]);
+  }, [enterpriseUuid, programUuid]);
+
   return [camelCaseObject(programData), fetchError];
 }

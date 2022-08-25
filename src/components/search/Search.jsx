@@ -29,7 +29,7 @@ import SearchResults from './SearchResults';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { EnterpriseOffersLowBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
+import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
@@ -48,6 +48,7 @@ const Search = () => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
+    hasNoEnterpriseOffersBalance,
   } = useContext(UserSubsidyContext);
 
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
@@ -69,7 +70,7 @@ const Search = () => {
     if (pathwayUUID) {
       openLearnerPathwayModal();
     }
-  }, [pathwayUUID]);
+  }, [openLearnerPathwayModal, pathwayUUID]);
 
   const config = getConfig();
   const courseIndex = useMemo(
@@ -81,9 +82,10 @@ const Search = () => {
       const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
       return cIndex;
     },
-    [], // only initialized once
+    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
   );
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
+  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
   return (
     <>
@@ -118,7 +120,10 @@ const Search = () => {
             onClose();
           }}
         />
-        {canEnrollWithEnterpriseOffers && hasLowEnterpriseOffersBalance && <EnterpriseOffersLowBalanceAlert />}
+
+        {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
+          <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
+        )}
 
         { (contentType === undefined || contentType.length === 0) && (
           <>

@@ -1,7 +1,6 @@
 import React, {
   useContext,
 } from 'react';
-import { Helmet } from 'react-helmet';
 import {
   Row,
   Container,
@@ -40,7 +39,6 @@ const ProgramListingPage = () => {
 
   return (
     <>
-      <Helmet title={`Programs | ${enterpriseConfig.name}`} />
       <Container size="lg" className="py-5 w-100">
         <Row>
           {learnerProgramsData.length > 0 ? (

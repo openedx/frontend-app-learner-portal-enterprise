@@ -4,7 +4,7 @@ import { COURSE_STATUSES } from '../data/constants';
  * Generate an enrollment with given status.
  * Can be used as a baseline to override and generate new courseRuns.
  */
-const createCourseEnrollmentWithStatus = (status = COURSE_STATUSES.inProgress) => {
+const createCourseEnrollmentWithStatus = ({ status = COURSE_STATUSES.inProgress, mode = 'verified' }) => {
   const randomNumber = Math.random();
   return ({
     courseRunId: `$course-v1:edX+DemoX+Demo_Course-${randomNumber}`,
@@ -17,10 +17,11 @@ const createCourseEnrollmentWithStatus = (status = COURSE_STATUSES.inProgress) =
     endDate: '2018-08-18T05:00:00Z',
     hasEmailsEnabled: true,
     isRevoked: false,
+    mode,
   });
 };
 
-const createRawCourseEnrollment = () => ({
+const createRawCourseEnrollment = (options) => ({
   courseRunId: 'course-v1:Best+course',
   displayName: 'Best course',
   micromastersTitle: 'Greatest Micromasters',
@@ -31,6 +32,7 @@ const createRawCourseEnrollment = () => ({
   completed: false,
   courseRunStatus: COURSE_STATUSES.inProgress,
   isRevoked: false,
+  ...options,
 });
 
 export {

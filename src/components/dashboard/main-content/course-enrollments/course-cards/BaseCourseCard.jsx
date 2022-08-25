@@ -4,14 +4,17 @@ import moment from 'moment';
 import {
   Dropdown, Badge, IconButton, Icon,
 } from '@edx/paragon';
+import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MoreVert } from '@edx/paragon/icons';
+import Skeleton from 'react-loading-skeleton';
 
 import { EmailSettingsModal } from './email-settings';
-import { COURSE_STATUSES } from '../data/constants';
+import { UnenrollModal } from './unenroll';
+import { COURSE_STATUSES, COURSE_PACING } from '../../../../../constants';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -37,16 +40,24 @@ class BaseCourseCard extends Component {
           open: false,
           options: {},
         },
+        unenroll: {
+          open: false,
+          options: {},
+        },
       },
       hasEmailsEnabled: this.props.hasEmailsEnabled,
     };
   }
 
   getDropdownMenuItems = () => {
-    const { hasEmailsEnabled, title, dropdownMenuItems } = this.props;
-    let combinedMenuItems = [];
+    const {
+      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll,
+    } = this.props;
+    const firstMenuItems = [];
+    const lastMenuItems = [];
+
     if (hasEmailsEnabled !== null) {
-      combinedMenuItems.push({
+      firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
         onClick: this.handleEmailSettingsButtonClick,
@@ -58,10 +69,23 @@ class BaseCourseCard extends Component {
         ),
       });
     }
-    if (dropdownMenuItems) {
-      combinedMenuItems = [...combinedMenuItems, ...dropdownMenuItems];
+    if (canUnenroll) {
+      lastMenuItems.push({
+        key: 'unenroll',
+        type: 'button',
+        onClick: this.handleUnenrollButtonClick,
+        children: (
+          <div role="menuitem">
+            Unenroll
+            <span className="sr-only">from {title}</span>
+          </div>
+        ),
+      });
     }
-    return combinedMenuItems;
+    if (dropdownMenuItems) {
+      return [...firstMenuItems, ...dropdownMenuItems, ...lastMenuItems];
+    }
+    return [...firstMenuItems, ...lastMenuItems];
   };
 
   getDateMessage = () => {
@@ -157,6 +181,64 @@ class BaseCourseCard extends Component {
 
   resetModals = () => {
     this.setModalState({ key: 'emailSettings' });
+    this.setModalState({ key: 'unenroll' });
+  };
+
+  handleUnenrollButtonClick = () => {
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    this.setModalState({
+      key: 'unenroll',
+      open: true,
+    });
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.opened',
+      { course_run_id: courseRunId },
+    );
+  };
+
+  renderUnenrollModal = () => {
+    const {
+      canUnenroll, courseRunId, type,
+    } = this.props;
+    const { modals } = this.state;
+
+    if (!canUnenroll) {
+      return null;
+    }
+
+    return (
+      <UnenrollModal
+        courseRunId={courseRunId}
+        onClose={this.handleUnenrollModalOnClose}
+        onSuccess={this.handleUnenrollModalOnSuccess}
+        isOpen={modals.unenroll.open}
+        enrollmentType={camelCase(type)}
+      />
+    );
+  };
+
+  handleUnenrollModalOnClose = () => {
+    this.resetModals();
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.closed',
+      { course_run_id: courseRunId },
+    );
+  };
+
+  handleUnenrollModalOnSuccess = () => {
+    this.resetModals();
+    const { courseRunId } = this.props;
+    const { enterpriseConfig } = this.context;
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.dashboard.enrollments.course.unenroll_modal.unenrolled',
+      { course_run_id: courseRunId },
+    );
   };
 
   renderSettingsDropdown = (menuItems) => {
@@ -298,51 +380,61 @@ class BaseCourseCard extends Component {
       title,
       linkToCourse,
       hasViewCertificateLink,
+      isLoading,
     } = this.props;
     const dropdownMenuItems = this.getDropdownMenuItems();
     return (
       <div className="dashboard-course-card py-4 border-bottom">
-        <div className="d-flex">
-          <div className="flex-grow-1 mr-4 mb-3">
-            {this.renderMicroMastersTitle()}
-            <div className="d-flex align-items-start justify-content-between mb-1">
-              <h4 className="course-title mb-0 mr-2">
-                <a className="h3" href={linkToCourse}>{title}</a>
-              </h4>
-              {
-                BADGE_PROPS_BY_COURSE_STATUS[type] && (
-                  <Badge
-                    className="mt-1"
-                    {...BADGE_PROPS_BY_COURSE_STATUS[type]}
-                  />
-                )
-              }
-            </div>
-            {this.renderOrganizationName()}
-          </div>
-          {this.renderSettingsDropdown(dropdownMenuItems)}
-        </div>
-        {this.renderButtons()}
-        {this.renderChildren()}
-        <div className="course-misc-text row">
-          <div className="col text-gray">
-            <small className="mb-0">
-              {this.getCourseMiscText()}
-            </small>
-            {this.renderAdditionalInfo()}
-            {hasViewCertificateLink && this.renderViewCertificateText()}
-          </div>
-        </div>
-        {this.renderEmailSettingsModal()}
+        {isLoading ? (
+          <>
+            <div className="sr-only">Loading...</div>
+            <Skeleton height={50} />
+          </>
+        )
+          : (
+            <>
+              <div className="d-flex">
+                <div className="flex-grow-1 mr-4 mb-3">
+                  {this.renderMicroMastersTitle()}
+                  <div className="d-flex align-items-start justify-content-between mb-1">
+                    <h4 className="course-title mb-0 mr-2">
+                      <a className="h3" href={linkToCourse}>{title}</a>
+                    </h4>
+                    {
+                      BADGE_PROPS_BY_COURSE_STATUS[type] && (
+                        <Badge
+                          className="mt-1"
+                          {...BADGE_PROPS_BY_COURSE_STATUS[type]}
+                        />
+                      )
+                    }
+                  </div>
+                  {this.renderOrganizationName()}
+                </div>
+                {this.renderSettingsDropdown(dropdownMenuItems)}
+              </div>
+              {this.renderButtons()}
+              {this.renderChildren()}
+              <div className="course-misc-text row">
+                <div className="col text-gray">
+                  <small className="mb-0">
+                    {this.getCourseMiscText()}
+                  </small>
+                  {this.renderAdditionalInfo()}
+                  {hasViewCertificateLink && this.renderViewCertificateText()}
+                </div>
+              </div>
+              {this.renderEmailSettingsModal()}
+              {this.renderUnenrollModal()}
+            </>
+          )}
       </div>
     );
   }
 }
 
 BaseCourseCard.propTypes = {
-  type: PropTypes.oneOf([
-    'in_progress', 'upcoming', 'completed', 'saved_for_later', 'requested',
-  ]).isRequired,
+  type: PropTypes.oneOf(Object.values(COURSE_STATUSES)).isRequired,
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
@@ -352,9 +444,10 @@ BaseCourseCard.propTypes = {
   startDate: PropTypes.string,
   endDate: PropTypes.string,
   hasEmailsEnabled: PropTypes.bool,
+  canUnenroll: PropTypes.bool,
   microMastersTitle: PropTypes.string,
   orgName: PropTypes.string,
-  pacing: PropTypes.oneOf(['instructor', 'self']),
+  pacing: PropTypes.oneOf(Object.values(COURSE_PACING)),
   linkToCertificate: PropTypes.string,
   dropdownMenuItems: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string,
@@ -362,6 +455,7 @@ BaseCourseCard.propTypes = {
     onClick: PropTypes.func,
     children: PropTypes.element,
   })),
+  isLoading: PropTypes.bool,
 };
 
 BaseCourseCard.contextType = AppContext;
@@ -371,6 +465,7 @@ BaseCourseCard.defaultProps = {
   startDate: null,
   endDate: null,
   hasEmailsEnabled: null,
+  canUnenroll: null,
   microMastersTitle: null,
   orgName: null,
   pacing: null,
@@ -378,6 +473,7 @@ BaseCourseCard.defaultProps = {
   linkToCertificate: null,
   hasViewCertificateLink: true,
   dropdownMenuItems: null,
+  isLoading: false,
 };
 
 export default BaseCourseCard;

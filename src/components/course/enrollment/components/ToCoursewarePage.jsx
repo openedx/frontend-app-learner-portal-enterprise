@@ -1,12 +1,10 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Hyperlink } from '@edx/paragon';
 
-import { AppContext } from '@edx/frontend-platform/react';
-import { CourseContext } from '../../CourseContextProvider';
 import { EnrollButtonCta } from '../common';
-import { shouldUpgradeUserEnrollment, createCourseInfoUrl } from '../../data/utils';
+import { shouldUpgradeUserEnrollment } from '../../data/utils';
 import { useTrackSearchConversionClickHandler } from '../../data/hooks';
 
 import { enrollLinkClass } from '../constants';
@@ -18,19 +16,12 @@ import { enrollLinkClass } from '../constants';
 const ToCoursewarePage = ({
   enrollLabel, enrollmentUrl, userEnrollment, subscriptionLicense,
 }) => {
-  const { config } = useContext(AppContext);
-  const {
-    state: {
-      activeCourseRun: { key: courseKey },
-    },
-  } = useContext(CourseContext);
-  const courseInfoUrl = createCourseInfoUrl({ baseUrl: config.LMS_BASE_URL, courseKey });
   const shouldUseEnrollmentUrl = shouldUpgradeUserEnrollment({
     userEnrollment,
     subscriptionLicense,
     enrollmentUrl,
   });
-  const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : courseInfoUrl;
+  const landingUrl = shouldUseEnrollmentUrl ? enrollmentUrl : userEnrollment.courseRunUrl;
   const handleClick = useTrackSearchConversionClickHandler({
     href: landingUrl,
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_courseware.clicked',

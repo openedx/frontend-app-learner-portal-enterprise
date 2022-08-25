@@ -20,9 +20,10 @@ const SearchError = ({ title }) => {
         </div>
       </div>
     ),
-    [],
+    [searchErrorMessage.messageContent, searchErrorMessage.messageTitle],
   );
 
+  // TODO: Design Debt. Replace with `Alert` from @edx/paragon.
   return (
     <StatusAlert
       alertType="danger"

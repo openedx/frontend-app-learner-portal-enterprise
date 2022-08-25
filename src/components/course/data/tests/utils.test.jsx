@@ -1,5 +1,7 @@
 import moment from 'moment';
-import { findCouponCodeForCourse, findEnterpriseOfferForCourse } from '../utils';
+import { ENTERPRISE_OFFER_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
+import { findCouponCodeForCourse, findEnterpriseOfferForCourse, getSubsidyToApplyForCourse } from '../utils';
 
 describe('findCouponCodeForCourse', () => {
   const couponCodes = [{
@@ -23,15 +25,12 @@ describe('findEnterpriseOfferForCourse', () => {
   const enterpriseOffers = [
     {
       enterpriseCatalogUuid: 'cats',
-      remainingBalance: 99,
     },
     {
       enterpriseCatalogUuid: 'horses',
-      remainingBalance: 100,
     },
     {
       enterpriseCatalogUuid: 'cats',
-      remainingBalance: 100,
     },
   ];
 
@@ -49,10 +48,126 @@ describe('findEnterpriseOfferForCourse', () => {
     })).toBeUndefined();
   });
 
-  it('returns the enterprise offer with a valid catalog that has remaining balance >= course price', () => {
-    const catalogList = ['cats', 'bears'];
-    expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogList, coursePrice: 100,
-    })).toBe(enterpriseOffers[2]);
+  describe('offerType = (BOOKINGS_LIMIT || BOOKINGS_AND_ENROLLMENTS_LIMIT)', () => {
+    it.each([
+      ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
+      ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
+    ])('returns the enterprise offer with a valid catalog that has remaining balance >= course price', (
+      offerType,
+    ) => {
+      const catalogList = ['cats', 'bears'];
+      expect(findEnterpriseOfferForCourse({
+        enterpriseOffers: enterpriseOffers.map(offer => ({
+          ...offer, offerType, remainingBalance: 100,
+        })),
+        catalogList,
+        coursePrice: 100,
+      })).toStrictEqual({
+        ...enterpriseOffers[2],
+        offerType,
+        remainingBalance: 100,
+      });
+    });
+  });
+
+  describe('offerType = (NO_LIMIT || ENROLLMENTS_LIMIT)', () => {
+    it.each([
+      ENTERPRISE_OFFER_TYPE.NO_LIMIT,
+      ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
+    ])('returns the enterprise offer with a valid catalog', (
+      offerType,
+    ) => {
+      const catalogList = ['cats', 'bears'];
+      expect(findEnterpriseOfferForCourse({
+        enterpriseOffers: enterpriseOffers.map(offer => ({
+          ...offer, offerType, maxGlobalApplications: 100,
+        })),
+        catalogList,
+        coursePrice: 100,
+      })).toStrictEqual({
+        ...enterpriseOffers[2],
+        offerType,
+        maxGlobalApplications: 100,
+      });
+    });
+  });
+});
+
+describe('getSubsidyToApplyForCourse', () => {
+  const mockApplicableSubscriptionLicense = {
+    uuid: 'license-uuid',
+  };
+
+  const mockApplicableCouponCode = {
+    uuid: 'coupon-code-uuid',
+    usageType: 'percentage',
+    benefitValue: 100,
+    couponStartDate: '2023-08-11',
+    couponEndDate: '2024-08-11',
+    code: 'xyz',
+  };
+
+  const mockApplicableEnterpriseOffer = {
+    id: 1,
+    usageType: 'Percentage',
+    discountValue: 100,
+    startDatetime: '2023-08-11',
+    endDatetime: '2024-08-11',
+  };
+
+  it('returns applicableSubscriptionLicense', () => {
+    const subsidyToApply = getSubsidyToApplyForCourse({
+      applicableSubscriptionLicense: mockApplicableSubscriptionLicense,
+      applicableCouponCode: mockApplicableCouponCode,
+      applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+    });
+
+    expect(subsidyToApply).toEqual({
+      ...mockApplicableSubscriptionLicense,
+      subsidyType: LICENSE_SUBSIDY_TYPE,
+    });
+  });
+
+  it('returns applicableCouponCode if there is no applicableSubscriptionLicense', () => {
+    const subsidyToApply = getSubsidyToApplyForCourse({
+      applicableSubscriptionLicense: undefined,
+      applicableCouponCode: mockApplicableCouponCode,
+      applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+    });
+
+    expect(subsidyToApply).toEqual({
+      discountType: mockApplicableCouponCode.usageType,
+      discountValue: mockApplicableCouponCode.benefitValue,
+      startDate: mockApplicableCouponCode.couponStartDate,
+      endDate: mockApplicableCouponCode.couponEndDate,
+      code: mockApplicableCouponCode.code,
+      subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+    });
+  });
+
+  it('returns applicableEnterpriseOffer if there is no applicableSubscriptionLicense or applicableCouponCode', () => {
+    const subsidyToApply = getSubsidyToApplyForCourse({
+      applicableSubscriptionLicense: undefined,
+      applicableCouponCode: undefined,
+      applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+    });
+
+    expect(subsidyToApply).toEqual({
+      discountType: mockApplicableEnterpriseOffer.usageType.toLowerCase(),
+      discountValue: mockApplicableEnterpriseOffer.discountValue,
+      startDate: mockApplicableEnterpriseOffer.startDatetime,
+      endDate: mockApplicableEnterpriseOffer.endDatetime,
+      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+    });
+  });
+
+  it('returns null if there are no applicable subsidies', () => {
+    const subsidyToApply = getSubsidyToApplyForCourse({
+      applicableSubscriptionLicense: undefined,
+      applicableCouponCode: undefined,
+      applicableEnterpriseOffer: undefined,
+    });
+
+    expect(subsidyToApply).toBeNull();
   });
 });
