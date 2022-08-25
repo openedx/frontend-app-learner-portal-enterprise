@@ -66,6 +66,7 @@ function UserEnrollmentForm({
         userDetails: {
           firstName: values.firstName,
           lastName: values.lastName,
+          dateOfBirth: values.dateOfBirth,
         },
         termsAcceptedAt: new Date(Date.now()).toISOString(),
       });
