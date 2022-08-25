@@ -9,7 +9,7 @@ import * as hooks from '../main-content/course-enrollments/data/hooks';
 import {
   renderWithRouter,
 } from '../../../utils/tests';
-import Dashboard, { LICENCE_ACTIVATION_MESSAGE } from '../Dashboard';
+import Dashboard from '../Dashboard';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -67,7 +67,7 @@ const defaultCourseState = {
   },
 };
 
-let mockLocation = {
+const mockLocation = {
   pathname: '/welcome',
   hash: '',
   search: '',
@@ -138,48 +138,5 @@ describe('<Dashboard />', () => {
     };
     renderWithRouter(<DashboardWithContext initialAppState={appState} />);
     expect(screen.getByText('Welcome!'));
-  });
-
-  it('renders license activation alert on activation success', () => {
-    renderWithRouter(
-      <DashboardWithContext />,
-      { route: '/?activationSuccess=true' },
-    );
-    expect(screen.getByText(LICENCE_ACTIVATION_MESSAGE));
-  });
-
-  it('does not render license activation alert without activation success', () => {
-    // NOTE: This modifies the original mockLocation
-    mockLocation = { ...mockLocation, state: { activationSuccess: false } };
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
-    expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
-  });
-
-  it('renders "Find a course" when search is enabled for the customer', () => {
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
-    expect(screen.getByText('Find a course'));
-  });
-
-  it('does not render "Find a course" when search is disabled for the customer', () => {
-    const appState = {
-      enterpriseConfig: {
-        name: 'BearsRUs',
-        uuid: 'BearsRUs',
-        disableSearch: true,
-      },
-      config: {
-        LMS_BASE_URL: process.env.LMS_BASE_URL,
-      },
-    };
-    renderWithRouter(
-      <DashboardWithContext
-        initialAppState={appState}
-      />,
-    );
-    expect(screen.queryByText('Find a course')).toBeFalsy();
   });
 });

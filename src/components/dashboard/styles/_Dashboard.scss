@@ -1,0 +1,49 @@
+.dashboard {
+  &-panel {
+    @include pgn-box-shadow(2, "down");
+    padding: 32px;
+    border-radius: 4px;
+    background-color: $white;
+
+    & + & {
+      margin-top: 40px;
+    }
+  }
+
+  &-panel-header-title {
+    margin-bottom: 0;
+    @extend .h2;
+  }
+
+  &-panel-header-subtitle {
+    @extend .small;
+    color: $dark-300;
+    margin-bottom: 0;
+  }
+
+  &-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  &-empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &-empty-state-title {
+    color: $dark-200;
+    @extend .h4;
+  }
+
+  &-empty-state-text {
+    color: $dark-200;
+    @extend .small;
+  }
+}
