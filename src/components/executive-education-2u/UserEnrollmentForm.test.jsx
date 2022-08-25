@@ -123,6 +123,7 @@ describe('UserEnrollmentForm', () => {
           userDetails: {
             firstName: mockFirstName,
             lastName: mockLastName,
+            dateOfBirth: mockDateOfBirth,
           },
           termsAcceptedAt: new Date(mockTermsAcceptedAt).toISOString(),
         }),
