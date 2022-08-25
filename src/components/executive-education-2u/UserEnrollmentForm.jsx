@@ -31,6 +31,7 @@ function UserEnrollmentForm({
 
   const config = getConfig();
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [isEnrollmentSubmitted, setIsEnrollmentSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
 
   const handleFormValidation = (values) => {
@@ -75,6 +76,8 @@ function UserEnrollmentForm({
         enterpriseId,
         'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
       );
+
+      setIsEnrollmentSubmitted(true);
       onCheckoutSuccess(result);
     } catch (error) {
       setFormSubmissionError(error);
@@ -104,149 +107,159 @@ function UserEnrollmentForm({
         handleBlur,
         handleSubmit,
         isSubmitting,
-      }) => (
-        <FormikForm
-          className={className}
-          onSubmit={(e) => {
-            handleSubmit(e);
-            setIsFormSubmitted(true);
-          }}
-        >
-          <Alert
-            variant="danger"
-            className="mb-4.5"
-            show={!!formSubmissionError}
-            onClose={() => setFormSubmissionError(undefined)}
-            dismissible
+      }) => {
+        const getButtonState = () => {
+          if (isEnrollmentSubmitted) {
+            return 'complete';
+          }
+          return isSubmitting ? 'pending' : 'default';
+        };
+
+        return (
+          <FormikForm
+            className={className}
+            onSubmit={(e) => {
+              handleSubmit(e);
+              setIsFormSubmitted(true);
+            }}
           >
-            <p>
-              An error occurred while sharing your course enrollment information. Please try again.
-            </p>
-          </Alert>
-          <FormSectionHeading>Personal information</FormSectionHeading>
-          <Row className="mb-4">
-            <Col xs={12} lg={3}>
-              <Form.Group
-                isInvalid={!!errors.firstName}
-                className="mb-4.5 mb-lg-0"
-              >
-                <Form.Control
-                  value={values.firstName}
-                  floatingLabel="First name *"
-                  name="firstName"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-                {errors.firstName && isFormSubmitted && (
-                  <Form.Control.Feedback type="invalid">
-                    {errors.firstName}
-                  </Form.Control.Feedback>
-                )}
-              </Form.Group>
-            </Col>
-            <Col xs={12} lg={3}>
-              <Form.Group
-                isInvalid={!!errors.lastName}
-              >
-                <Form.Control
-                  value={values.lastName}
-                  floatingLabel="Last name *"
-                  name="lastName"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-                {errors.lastName && isFormSubmitted && (
-                  <Form.Control.Feedback type="invalid">
-                    {errors.lastName}
-                  </Form.Control.Feedback>
-                )}
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mb-4">
-            <Col xs={12} lg={3}>
-              <Form.Group
-                isInvalid={!!errors.dateOfBirth}
-              >
-                <Form.Control
-                  type="date"
-                  value={values.dateOfBirth}
-                  floatingLabel="Date of birth *"
-                  name="dateOfBirth"
-                  placeholder="mm/dd/yyyy"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-                {errors.dateOfBirth && isFormSubmitted && (
-                  <Form.Control.Feedback type="invalid">
-                    {errors.dateOfBirth}
-                  </Form.Control.Feedback>
-                )}
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Group>
-                <div className="d-flex align-items-center">
-                  <CheckboxControl
-                    className="flex-shrink-0"
-                    checked={values.studentTermsAndConditions}
-                    name="studentTermsAndConditions"
+            <Alert
+              variant="danger"
+              className="mb-4.5"
+              show={!!formSubmissionError}
+              onClose={() => setFormSubmissionError(undefined)}
+              dismissible
+            >
+              <p>
+                An error occurred while sharing your course enrollment information. Please try again.
+              </p>
+            </Alert>
+            <FormSectionHeading>Personal information</FormSectionHeading>
+            <Row className="mb-4">
+              <Col xs={12} lg={3}>
+                <Form.Group
+                  isInvalid={!!errors.firstName}
+                  className="mb-4.5 mb-lg-0"
+                >
+                  <Form.Control
+                    value={values.firstName}
+                    floatingLabel="First name *"
+                    name="firstName"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    aria-label="I agree to GetSmarter's Terms and Conditions for Students"
                   />
-                  <span aria-hidden>
-                    I agree to GetSmarter&apos;s{' '}
-                    <Hyperlink
-                      destination={config.GETSMARTER_STUDENT_TC_URL}
-                      target="_blank"
-                      onClick={() => {
-                        sendEnterpriseTrackEvent(
-                          enterpriseId,
-                          'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
-                        );
-                      }}
-                    >
-                      Terms and Conditions for Students
-                    </Hyperlink>
-                  </span>
-                </div>
-                {errors.studentTermsAndConditions && (
-                  <Form.Control.Feedback type="invalid">
-                    {errors.studentTermsAndConditions}
-                  </Form.Control.Feedback>
-                )}
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mb-4">
-            <Col xs={12} lg={8}>
-              <p className="small">
-                By providing these details you agree to the use of your data as described in our{' '}
-                <Hyperlink destination={config.GETSMARTER_PRIVACY_POLICY_URL} target="_blank">privacy policy</Hyperlink>. By
-                using our services or registering for a course, you agree to be bound by these terms. If you do not
-                agree to be bound by these terms, or are not able to enter into a binding agreement then you may not
-                register for a course or use our services.
-              </p>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <StatefulButton
-                type="submit"
-                variant="primary"
-                labels={{
-                  default: 'Submit enrollment information',
-                  pending: 'Submitting enrollment information...',
-                }}
-                state={isSubmitting ? 'pending' : 'default'}
-              />
-            </Col>
-          </Row>
-        </FormikForm>
-      )}
+                  {errors.firstName && isFormSubmitted && (
+                    <Form.Control.Feedback type="invalid">
+                      {errors.firstName}
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
+              </Col>
+              <Col xs={12} lg={3}>
+                <Form.Group
+                  isInvalid={!!errors.lastName}
+                >
+                  <Form.Control
+                    value={values.lastName}
+                    floatingLabel="Last name *"
+                    name="lastName"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
+                  {errors.lastName && isFormSubmitted && (
+                    <Form.Control.Feedback type="invalid">
+                      {errors.lastName}
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mb-4">
+              <Col xs={12} lg={3}>
+                <Form.Group
+                  isInvalid={!!errors.dateOfBirth}
+                >
+                  <Form.Control
+                    type="date"
+                    value={values.dateOfBirth}
+                    floatingLabel="Date of birth *"
+                    name="dateOfBirth"
+                    placeholder="mm/dd/yyyy"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
+                  {errors.dateOfBirth && isFormSubmitted && (
+                    <Form.Control.Feedback type="invalid">
+                      {errors.dateOfBirth}
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form.Group>
+                  <div className="d-flex align-items-center">
+                    <CheckboxControl
+                      className="flex-shrink-0"
+                      checked={values.studentTermsAndConditions}
+                      name="studentTermsAndConditions"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      aria-label="I agree to GetSmarter's Terms and Conditions for Students"
+                    />
+                    <span aria-hidden>
+                      I agree to GetSmarter&apos;s{' '}
+                      <Hyperlink
+                        destination={config.GETSMARTER_STUDENT_TC_URL}
+                        target="_blank"
+                        onClick={() => {
+                          sendEnterpriseTrackEvent(
+                            enterpriseId,
+                            'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
+                          );
+                        }}
+                      >
+                        Terms and Conditions for Students
+                      </Hyperlink>
+                    </span>
+                  </div>
+                  {errors.studentTermsAndConditions && (
+                    <Form.Control.Feedback type="invalid">
+                      {errors.studentTermsAndConditions}
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mb-4">
+              <Col xs={12} lg={8}>
+                <p className="small">
+                  By providing these details you agree to the use of your data as described in our{' '}
+                  <Hyperlink destination={config.GETSMARTER_PRIVACY_POLICY_URL} target="_blank">privacy policy</Hyperlink>. By
+                  using our services or registering for a course, you agree to be bound by these terms. If you do not
+                  agree to be bound by these terms, or are not able to enter into a binding agreement then you may not
+                  register for a course or use our services.
+                </p>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <StatefulButton
+                  type="submit"
+                  variant="primary"
+                  labels={{
+                    default: 'Submit enrollment information',
+                    pending: 'Submitting enrollment information...',
+                    complete: 'Enrollment information submitted',
+                  }}
+                  state={getButtonState()}
+                />
+              </Col>
+            </Row>
+          </FormikForm>
+        );
+      }}
     </Formik>
   );
 }

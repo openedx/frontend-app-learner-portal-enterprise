@@ -135,7 +135,9 @@ describe('UserEnrollmentForm', () => {
         receiptPageUrl: mockCheckoutResponse.receiptPageUrl,
       }),
     );
-    expect(screen.getByText('Submit enrollment information').closest('button')).toHaveAttribute('aria-disabled', 'false');
+
+    // disabled after submitting
+    expect(screen.getByText('Enrollment information submitted').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('handles network error with form submission', async () => {
