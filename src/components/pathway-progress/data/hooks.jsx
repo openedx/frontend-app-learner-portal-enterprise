@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getPathwayProgressDetails, getPathwayProgressList } from './service';
+import { getPathwayProgressDetails, getInProgressPathways } from './service';
 
 export function useLearnerPathwayProgressData(pathwayUUID) {
   const [pathwayProgressData, setPathwayProgressData] = useState();
@@ -24,16 +24,16 @@ export function useLearnerPathwayProgressData(pathwayUUID) {
   return [camelCaseObject(pathwayProgressData), fetchError];
 }
 
-export function usePathwayProgressListData(enterpriseUuid) {
-  const [pathwayProgressListData, setPathwayProgressListData] = useState();
+export function useInProgressPathwaysData(enterpriseUuid) {
+  const [pathwayProgressData, setPathwayProgressData] = useState();
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       if (enterpriseUuid) {
         try {
-          const { data } = await getPathwayProgressList(enterpriseUuid);
-          setPathwayProgressListData(data.results);
+          const { data } = await getInProgressPathways(enterpriseUuid);
+          setPathwayProgressData(data.results);
         } catch (error) {
           logError(error);
           setFetchError(error);
@@ -43,5 +43,5 @@ export function usePathwayProgressListData(enterpriseUuid) {
     };
     fetchData();
   }, [enterpriseUuid]);
-  return [camelCaseObject(pathwayProgressListData), fetchError];
+  return [camelCaseObject(pathwayProgressData), fetchError];
 }

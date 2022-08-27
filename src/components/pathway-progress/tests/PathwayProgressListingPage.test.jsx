@@ -9,7 +9,7 @@ import { IntlProvider } from 'react-intl';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import PathwayProgressListingPage from '../PathwayProgressListingPage';
-import { usePathwayProgressListData } from '../data/hooks';
+import { useInProgressPathwaysData } from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import { CONTENT_TYPE_PATHWAY } from '../../search/constants';
 import learnerPathwayData from '../data/__mocks__/PathwayProgressListData.json';
@@ -22,7 +22,7 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 }));
 
 jest.mock('../data/hooks', () => ({
-  usePathwayProgressListData: jest.fn(),
+  useInProgressPathwaysData: jest.fn(),
 }));
 
 /* eslint-disable react/prop-types */
@@ -58,7 +58,7 @@ describe('<PathwayProgressListingPage />', () => {
   };
 
   it('renders all pathway cards', async () => {
-    usePathwayProgressListData.mockImplementation(() => ([camelCaseObject(learnerPathwayData), null]));
+    useInProgressPathwaysData.mockImplementation(() => ([camelCaseObject(learnerPathwayData), null]));
 
     await act(async () => {
       render(
@@ -74,7 +74,7 @@ describe('<PathwayProgressListingPage />', () => {
   });
 
   it('renders pathway error.', async () => {
-    usePathwayProgressListData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
+    useInProgressPathwaysData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
 
     await act(async () => {
       render(
@@ -90,7 +90,7 @@ describe('<PathwayProgressListingPage />', () => {
   });
 
   it('renders no pathways message when data received is empty', async () => {
-    usePathwayProgressListData.mockImplementation(() => ([[], null]));
+    useInProgressPathwaysData.mockImplementation(() => ([[], null]));
 
     await act(async () => {
       renderWithRouter(
@@ -105,7 +105,7 @@ describe('<PathwayProgressListingPage />', () => {
   });
 
   it('redirects to correct url when clicked on explore pathways', async () => {
-    usePathwayProgressListData.mockImplementation(() => ([[], null]));
+    useInProgressPathwaysData.mockImplementation(() => ([[], null]));
 
     await act(async () => {
       const { history } = renderWithRouter(

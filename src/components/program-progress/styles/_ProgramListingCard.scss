@@ -1,4 +1,4 @@
-.program-listing-card{
+.progress-listing-card{
   width: 100%;
   max-width: 450px;
   cursor: pointer;
@@ -28,7 +28,7 @@
   }
  }
 
-  .program-banner-image{
+  .banner-image{
     height :165px;
     object-fit: cover;
     background: white;
@@ -43,7 +43,8 @@
     height: 17px;
   }
 }
-.program-listing-card:hover{
+
+.progress-listing-card:hover{
   box-shadow: 0 0.0625rem 0.125rem rgb(0 0 0 / 20%) !important;
 }
 
@@ -51,19 +52,7 @@
   color: #454545;
 }
 
-.remaining-courses{
-  background: gray !important;
-}
-
-.completed-courses{
-  background: #0D7D4D !important;
-}
-
-.in-progress-courses{
-  background: #04262B !important;
-}
-
-.no-programs-message{
+.no-content-message{
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,19 +63,19 @@
   background: #f8f8f8;
 }
 
-  .partner-logo-wrapper {
-    padding: 5px;
-    position: absolute;
-    top: 125px;
-    left: 20px;
-    background: #fff;
-    border-radius: 3px;
+.partner-logo-wrapper {
+  padding: 5px;
+  position: absolute;
+  top: 125px;
+  left: 20px;
+  background: #fff;
+  border-radius: 3px;
 
-    .partner-logo {
-      width: auto;
-      max-height: 45px;
-    }
+  .partner-logo {
+    width: auto;
+    max-height: 45px;
   }
+}
 
 @media only screen and (max-width: 750px){
   .program-progress{

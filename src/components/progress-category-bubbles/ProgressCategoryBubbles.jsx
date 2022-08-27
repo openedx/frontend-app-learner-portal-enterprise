@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bubble, Stack } from '@edx/paragon';
 import PropTypes from 'prop-types';
+import './styles/index.scss';
 
 const ProgressCategoryBubbles = ({ notStarted, inProgress, completed }) => (
   <Stack direction="horizontal" gap={2.5}>

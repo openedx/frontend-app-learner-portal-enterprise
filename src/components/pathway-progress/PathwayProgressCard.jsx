@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getProgressFromSteps } from './data/utils';
-import ProgressCategoryBubbles from '../program-progress/ProgressCategoryBubbles';
+import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
-const PathwayProgressListingCard = ({ pathway: { learnerPathwayProgress } }) => {
+const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
   const progress = getProgressFromSteps(learnerPathwayProgress.steps);
   const history = useHistory();
   const { enterpriseConfig: { slug } } = useContext(AppContext);
@@ -16,12 +16,13 @@ const PathwayProgressListingCard = ({ pathway: { learnerPathwayProgress } }) => 
   };
   return (
     <Card
-      className="mb-4 program-listing-card mr-5"
+      className="mb-4 progress-listing-card mr-5"
       isClickable
       onClick={redirectToProgressDetailPage}
     >
       <Card.ImageCap
         src={learnerPathwayProgress.cardImage}
+        className="banner-image"
         data-testid="pathway-card-image"
         srcAlt="dug"
       />
@@ -45,7 +46,7 @@ const PathwayProgressListingCard = ({ pathway: { learnerPathwayProgress } }) => 
   );
 };
 
-PathwayProgressListingCard.propTypes = {
+PathwayProgressCard.propTypes = {
   pathway: PropTypes.shape({
     learnerPathwayProgress: PropTypes.shape({
       steps: PropTypes.array.isRequired,
@@ -55,4 +56,4 @@ PathwayProgressListingCard.propTypes = {
     }),
   }).isRequired,
 };
-export default PathwayProgressListingCard;
+export default PathwayProgressCard;

@@ -6,9 +6,10 @@ export const getProgressFromSteps = (pathwaySteps) => {
   }));
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
-    if (step.status === 100) {
+    const status = Number(step.status);
+    if (status === 100) {
       progress.completed++;
-    } else if (step.status > 0) {
+    } else if (status > 0) {
       progress.inProgress++;
     } else if (step.nodes.some((node => node.status !== 'NOT_STARTED'))) {
       progress.inProgress++;

@@ -14,16 +14,16 @@ import { Search } from '@edx/paragon/icons';
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
 
-import { usePathwayProgressListData } from './data/hooks';
+import { useInProgressPathwaysData } from './data/hooks';
 import { NO_PATHWAYS_ERROR_MESSAGE } from './constants';
-import PathwayProgressListingCard from './PathwayProgressListingCard';
+import PathwayProgressCard from './PathwayProgressCard';
 
 import { CONTENT_TYPE_PATHWAY } from '../search/constants';
 
 const PathwayProgressListingPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const [pathwayProgressData, fetchError] = usePathwayProgressListData(enterpriseConfig.uuid);
+  const [pathwayProgressData, fetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
 
   if (fetchError) {
     return <ErrorPage message={fetchError.message} />;
@@ -41,15 +41,15 @@ const PathwayProgressListingPage = () => {
     <>
       <Container size="lg" className="py-5 w-100">
         <Row>
-          {pathwayProgressData.length > 0 ? (
+          {pathwayProgressData?.length > 0 ? (
             pathwayProgressData.map((pathway) => (
-              <PathwayProgressListingCard
+              <PathwayProgressCard
                 pathway={pathway}
                 key={pathway.learnerPathwayProgress.uuid}
               />
             ))
           ) : (
-            <div className="no-programs-message">
+            <div className="no-content-message">
               <h2>{NO_PATHWAYS_ERROR_MESSAGE}</h2>
               <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`}>
                 <Button variant="primary" iconBefore={Search} className="mt-2">Explore pathways</Button>

@@ -8,7 +8,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
-import PathwayProgressListingCard from '../PathwayProgressListingCard';
+import PathwayProgressCard from '../PathwayProgressCard';
 import LearnerPathwayProgressData from '../data/__mocks__/PathwayProgressListData.json';
 
 const mockedPush = jest.fn();
@@ -24,7 +24,7 @@ jest.mock('react-router-dom', () => ({
 const PathwayProgressListingCardWithContext = ({ initialAppState, initialUserSubsidyState, pathwayData }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <PathwayProgressListingCard pathway={pathwayData} />
+      <PathwayProgressCard pathway={pathwayData} />
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -46,7 +46,7 @@ const userSubsidyState = {
 };
 
 const pathwayData = camelCaseObject(LearnerPathwayProgressData[0]);
-describe('<PathwayProgressListingCard />', () => {
+describe('<PathwayProgressCard />', () => {
   it('renders all data related to pathway progress correctly', () => {
     const { getByAltText } = render(<PathwayProgressListingCardWithContext
       initialAppState={appState}

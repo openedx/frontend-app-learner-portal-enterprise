@@ -9,7 +9,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import Truncate from 'react-truncate';
 import { getProgramIcon } from '../course/data/utils';
-import ProgressCategoryBubbles from './ProgressCategoryBubbles';
+import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
 const ProgramListingCard = ({ program }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -56,7 +56,7 @@ const ProgramListingCard = ({ program }) => {
 
   return (
     <Card
-      className="mb-4 program-listing-card mr-5"
+      className="mb-4 progress-listing-card mr-5"
       isClickable
       onClick={handleCardClick}
     >
@@ -65,7 +65,7 @@ const ProgramListingCard = ({ program }) => {
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"
-        className="program-banner-image"
+        className="banner-image"
       />
 
       <Card.Header
