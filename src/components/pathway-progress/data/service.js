@@ -1,5 +1,8 @@
 // TODO: remove this once backend API is ready and integrated.
 // TODO: Ticket: https://2u-internal.atlassian.net/browse/ENT-6076
+import { getConfig } from '@edx/frontend-platform/config';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+
 const PATHWAY_PROGRESS_DATA = {
   data: {
     pathwayData: {
@@ -79,4 +82,12 @@ export function getPathwayProgressDetails(pathwayUUID) {
   return new Promise((resolve) => {
     resolve(PATHWAY_PROGRESS_DATA);
   });
+}
+
+// eslint-disable-next-line no-unused-vars
+export function getInProgressPathways(enterpriseUUID) {
+  // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
+  return getAuthenticatedHttpClient().get(url);
 }
