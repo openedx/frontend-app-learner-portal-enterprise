@@ -4,7 +4,7 @@ import {
   screen, render, fireEvent, waitFor,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { ToastsContext } from '../../Toasts/ToastsProvider';
+import { ToastsContext } from '@edx/frontend-enterprise-toasts';
 import { SubsidyRequestsContext, SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import { CourseContext } from '../CourseContextProvider';

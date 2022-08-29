@@ -11,7 +11,6 @@ import {
 
 const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
   const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
-
   const createExecutiveEducationFailureMessage = (failureCode) => {
     const failureCodeMessages = {
       no_offer_available: 'No offer is available to cover this course.',
