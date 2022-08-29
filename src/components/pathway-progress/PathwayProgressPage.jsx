@@ -40,7 +40,7 @@ export default function PathwayProgressPage() {
       </Container>
     );
   }
-  const PATHWAY_TITLE = `${initialState.pathwayData.title}`;
+  const PATHWAY_TITLE = `${initialState.learnerPathwayProgress.title}`;
 
   return (
     <>

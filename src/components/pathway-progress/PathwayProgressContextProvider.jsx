@@ -14,6 +14,6 @@ export function PathwayProgressContextProvider({ children, initialState }) {
 PathwayProgressContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
   initialState: PropTypes.shape({
-    pathwayData: PropTypes.shape({}).isRequired,
+    learnerPathwayProgress: PropTypes.shape({}).isRequired,
   }).isRequired,
 };
