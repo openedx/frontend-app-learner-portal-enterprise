@@ -18,7 +18,8 @@ import { LOADING_SCREEN_READER_TEXT } from './data/constants';
 export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
+
   const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
   const {
     license: subscriptionLicense,
@@ -28,6 +29,7 @@ const UserSubsidy = ({ children }) => {
     enterpriseConfig,
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
+    user: authenticatedUser,
   });
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();

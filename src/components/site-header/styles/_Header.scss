@@ -1,15 +1,32 @@
 @import './Menu.scss';
 
+$getsmarter-logo-bg: #082135;
+
 .site-header-mobile,
 .site-header-desktop {
   background: $white;
   position: relative;
   z-index: 1000;
+
+  .logo {
+    margin-right: 1rem;
+  }
+
   .dropdown-item a {
     text-decoration: none;
   }
+
   a.logo img {
       max-height: 50px;
+  }
+
+  .getsmarter-logo {
+    background-color: $getsmarter-logo-bg;
+    width: 70px;
+
+    @include media-breakpoint-up(md) {
+      width: 120px;
+    }
   }
 }
 
@@ -56,7 +73,6 @@
     top: -.05em;
     height: 1.75rem;
     padding: 1rem 0;
-    margin-right: 1rem;
     img {
       display: block;
       height: 100%;

@@ -15,6 +15,8 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
 import { ProgramListingPage } from '../program-progress';
+import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
+import { features } from '../../config';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -88,6 +90,12 @@ export default function DashboardPage() {
           <Tab eventKey="programs" title="Programs">
             <ProgramListingPage />
           </Tab>
+          {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
+            <Tab eventKey="pathways" title="Pathways">
+              <PathwayProgressListingPage />
+            </Tab>
+          )}
+
         </Tabs>
       </Container>
     </>
