@@ -3,11 +3,11 @@ import {
 } from 'react';
 
 import {
-  fetchEnterpriseCatalogData,
+  fetchEnterpriseCatalogData, fetchLearningPathData,
 } from './service';
 
 export function useCatalogData(enterpriseId) {
-  const [catalogData, setCatalogData] = useState([]);
+  const [catalogData, setCatalogData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export function useCatalogData(enterpriseId) {
         const response = await fetchEnterpriseCatalogData(enterpriseId);
         setCatalogData(response.data);
       } catch {
-        setCatalogData([]);
+        setCatalogData({});
       } finally {
         setIsLoading(false);
       }
@@ -26,4 +26,26 @@ export function useCatalogData(enterpriseId) {
   }, [enterpriseId]);
 
   return [catalogData, isLoading];
+}
+
+export function useLearningPathData() {
+  const [learningPathData, setLearningPathData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCatalogData = async () => {
+      try {
+        const response = await fetchLearningPathData();
+        setLearningPathData(response.data);
+      } catch {
+        setLearningPathData({});
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCatalogData();
+  }, []);
+
+  return [learningPathData, isLoading];
 }

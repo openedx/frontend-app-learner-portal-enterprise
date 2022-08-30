@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import emptyStateImage from '../../assets/images/empty-state.svg';
 import DashboardPanel from './DashboardPanel';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchCourseCard from '../search/SearchCourseCard';
 
 function EmptyState({ title, text }) {
@@ -46,6 +47,10 @@ export default function Dashboard() {
   } = useContext(AppContext);
   const { state } = useLocation();
   const history = useHistory();
+  const {
+    learningPathData: { learning_path_name: learningPathName, courses, count = 0 },
+    catalogData: { courses_metadata: catalogCourses },
+  } = useContext(UserSubsidyContext);
 
   useEffect(() => {
     if (state?.activationSuccess) {
@@ -59,9 +64,6 @@ export default function Dashboard() {
   }, []);
 
   const userFirstName = authenticatedUser?.name.split(' ').shift();
-  // TODO(DP-307): Connect the `courses` to the learning path API.
-  const courses = [];
-  const catalogCourses = [1, 2, 3, 4, 5, 6, 7];
 
   return (
     <>
@@ -73,32 +75,31 @@ export default function Dashboard() {
         </h2>
         <p className="mb-5 small">Today is a great day for education.</p>
         <DashboardPanel
-          title="My learning path"
-          subtitle="Software development"
+          title={learningPathName}
           headerAside={(
             <div>
               <div className="small text-dark-400">
                 Available for kick-off
               </div>
               <div className="h4">
-                {courses.length} {courses.length === 1 ? 'course' : 'courses'}
+                {count} {count === 1 ? 'course' : 'courses'}
               </div>
             </div>
           )}
         >
-          {courses.length === 0
+          {count === 0
             ? (
               <EmptyState
-                title="You don't have a course in Learning path yet."
-                text={<>Check out our <a href="/lms/search">complete course catalog</a> for courses that might interest you</>}
+                title="You don't have a course in Learning path yet"
+                text="Check out our complete course catalog for courses that might interest you"
               />
             )
             : (
               <Row>
-                {courses.map(card => (
-                  <Col xs={12} md={6} lg={4} key={card}>
+                {courses?.map(course => (
+                  <Col xs={12} md={6} lg={4} key={course.id}>
                     {/* TODO(DP-306): Replace with finalised card component from frontend-common. */}
-                    <SearchCourseCard />
+                    <SearchCourseCard hit={course} />
                   </Col>
                 ))}
               </Row>
@@ -106,13 +107,13 @@ export default function Dashboard() {
         </DashboardPanel>
         <DashboardPanel
           title="Course catalog"
-          subtitle="Let's find a useful course for you"
         >
+          <hr />
           <Row>
-            {catalogCourses.map(card => (
-              <Col xs={12} md={6} lg={4} key={card}>
+            {catalogCourses?.map(course => (
+              <Col xs={12} md={6} lg={4} key={course.id}>
                 {/* TODO(DP-306): Replace with finalised card component from frontend-common. */}
-                <SearchCourseCard />
+                <SearchCourseCard hit={course} />
               </Col>
             ))}
           </Row>
