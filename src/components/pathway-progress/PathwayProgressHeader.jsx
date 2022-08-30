@@ -6,7 +6,7 @@ import { PathwayProgressContext } from './PathwayProgressContextProvider';
 import SubscriptionStatusCard from './SubscriptionStatusCard';
 
 function PathwayProgressHeader() {
-  const { pathwayData } = useContext(PathwayProgressContext);
+  const { learnerPathwayProgress } = useContext(PathwayProgressContext);
   const { enterpriseSlug } = useParams();
   const links = [
     { label: 'Dashboard', url: `/${enterpriseSlug}` },
@@ -20,11 +20,11 @@ function PathwayProgressHeader() {
         <div className="header-breadcrumbs ml-2">
           <Breadcrumb
             links={links}
-            activeLabel={pathwayData.title}
+            activeLabel={learnerPathwayProgress.title}
           />
         </div>
         <div>
-          <h1 className="display-1">{pathwayData.title}</h1>
+          <h1 className="display-1">{learnerPathwayProgress.title}</h1>
           <br />
         </div>
         <section>

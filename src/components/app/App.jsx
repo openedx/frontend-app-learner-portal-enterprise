@@ -4,6 +4,7 @@ import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-pl
 import { logError } from '@edx/frontend-platform/logging';
 import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
 import { Toasts, ToastsProvider } from '@edx/frontend-enterprise-toasts';
+
 import AuthenticatedPage from './AuthenticatedPage';
 import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
 import NotFoundPage from '../NotFoundPage';

@@ -6,11 +6,11 @@ import { StatefulButton } from '@edx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 import { useHistory } from 'react-router-dom';
 
+import { ToastsContext } from '@edx/frontend-enterprise-toasts';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
 import { useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
-import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 
 const props = {

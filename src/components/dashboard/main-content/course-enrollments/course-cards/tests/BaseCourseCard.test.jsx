@@ -4,9 +4,9 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import Skeleton from 'react-loading-skeleton';
+import { ToastsContext } from '@edx/frontend-enterprise-toasts';
 import BaseCourseCard from '../BaseCourseCard';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
-import { ToastsContext } from '../../../../../Toasts';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),

@@ -5,8 +5,8 @@ import {
 } from '@edx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 
+import { ToastsContext } from '@edx/frontend-enterprise-toasts';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
-import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
 
 const btnLabels = {

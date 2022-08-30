@@ -2,12 +2,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
+import { ToastsContext } from '@edx/frontend-enterprise-toasts';
 import { COURSE_STATUSES } from '../../../../../../constants';
 import { unenrollFromCourse } from './data';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 
 import UnenrollModal from './UnenrollModal';
-import { ToastsContext } from '../../../../../Toasts';
 
 jest.mock('./data', () => ({
   unenrollFromCourse: jest.fn(),

@@ -4,7 +4,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { ArrowBack } from '@edx/paragon/icons';
 import { Button, Col, Row } from '@edx/paragon';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-
 import {
   ErrorPage,
 } from '../error-page';
