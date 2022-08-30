@@ -1,3 +1,5 @@
+import { NOT_STARTED } from '../constants';
+
 export const getProgressFromSteps = (pathwaySteps) => {
   const progress = { notStarted: 0, inProgress: 0, completed: 0 };
   const steps = pathwaySteps.map(step => ({
@@ -11,7 +13,7 @@ export const getProgressFromSteps = (pathwaySteps) => {
       progress.completed++;
     } else if (status > 0) {
       progress.inProgress++;
-    } else if (step.nodes.some((node => node.status !== 'NOT_STARTED'))) {
+    } else if (step.nodes.some((node => node.status !== NOT_STARTED))) {
       progress.inProgress++;
     } else {
       progress.notStarted++;
