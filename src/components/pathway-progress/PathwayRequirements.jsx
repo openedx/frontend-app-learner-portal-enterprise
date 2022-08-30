@@ -3,7 +3,8 @@ import { PathwayProgressContext } from './PathwayProgressContextProvider';
 import PathwayStep from './PathwayStep';
 
 export default function PathwayRequirements() {
-  const { pathwayData } = useContext(PathwayProgressContext);
+  const { learnerPathwayProgress } = useContext(PathwayProgressContext);
+  const getStepNodes = (step) => [...step.courses, ...step.programs];
 
   return (
     <div className="container mw-lg pathway-header-container">
@@ -11,8 +12,10 @@ export default function PathwayRequirements() {
       <section>
         <h2>Pathway Requirements:</h2>
         <div className="pathway-requirements">
-          {pathwayData.steps.map(
-            (step, index) => <PathwayStep index={index} minRequirements={step.minRequirement} nodes={step.nodes} />,
+          {learnerPathwayProgress.steps.map(
+            (step, index) => (
+              <PathwayStep index={index} minRequirements={step.minRequirement} nodes={getStepNodes(step)} />
+            ),
           )}
         </div>
       </section>

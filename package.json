@@ -30,6 +30,7 @@
     "history": "4.10.1",
     "iso-639-1": "2.1.4",
     "lodash.camelcase": "4.3.0",
+    "lodash.capitalize": "^4.2.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "moment": "2.29.1",
