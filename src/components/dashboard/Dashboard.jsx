@@ -4,11 +4,11 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Container, Row, Col } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
+import { CourseCard } from '@reustleco/dojo-frontend-common';
 
 import emptyStateImage from '../../assets/images/empty-state.svg';
 import DashboardPanel from './DashboardPanel';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import SearchCourseCard from '../search/SearchCourseCard';
 
 function EmptyState({ title, text }) {
   return (
@@ -96,10 +96,15 @@ export default function Dashboard() {
             )
             : (
               <Row>
-                {courses?.map(course => (
-                  <Col xs={12} md={6} lg={4} key={course.id}>
-                    {/* TODO(DP-306): Replace with finalised card component from frontend-common. */}
-                    <SearchCourseCard hit={course} />
+                {courses?.map((course) => (
+                  <Col xs={12} md={6} lg={4} key={course.id} className="mb-4">
+                    <CourseCard
+                      title={course.title}
+                      hours={course.hours_required}
+                      languages={[course.primary_language]}
+                      skills={[course.difficulty_level]}
+                      bgKey={course.id % 10}
+                    />
                   </Col>
                 ))}
               </Row>
@@ -110,10 +115,15 @@ export default function Dashboard() {
         >
           <hr />
           <Row>
-            {catalogCourses?.map(course => (
-              <Col xs={12} md={6} lg={4} key={course.id}>
-                {/* TODO(DP-306): Replace with finalised card component from frontend-common. */}
-                <SearchCourseCard hit={course} />
+            {catalogCourses?.map((course) => (
+              <Col xs={12} md={6} lg={4} key={course.id} className="mb-4">
+                <CourseCard
+                  title={course.title}
+                  hours={course.hours_required}
+                  languages={[course.primary_language]}
+                  skills={[course.difficulty_level]}
+                  bgKey={course.id % 10}
+                />
               </Col>
             ))}
           </Row>

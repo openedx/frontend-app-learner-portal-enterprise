@@ -172,8 +172,8 @@ describe('<Dashboard />', () => {
         ...defaultLearningPathData,
         courses: [{
           title: 'Course 1',
-          primaryLanguage: 'en',
-          hoursRequired: 42,
+          primary_language: 'en',
+          hours_required: 42,
         }],
         count: 1,
       },
@@ -189,8 +189,8 @@ describe('<Dashboard />', () => {
         ...defaultLearningPathData,
         courses: [{
           title: 'How to train your dragon',
-          primaryLanguage: 'en',
-          hoursRequired: 42,
+          primary_language: 'en',
+          hours_required: 42,
         }],
         count: 1,
       },
@@ -209,13 +209,13 @@ describe('<Dashboard />', () => {
         courses_metadata: [
           {
             title: 'How to train your dragon',
-            primaryLanguage: 'en',
-            hoursRequired: 42,
+            primary_language: 'en',
+            hours_required: 42,
           },
           {
             title: 'Large numbers in Python',
             primaryLanguage: 'en',
-            hoursRequired: 13,
+            hours_required: 13,
           },
         ],
       },
