@@ -6,7 +6,9 @@ import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card, useToggle } from '@edx/paragon';
+import {
+  Badge, Card, CardImg, useToggle,
+} from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import classNames from 'classnames';
 
@@ -86,7 +88,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
       >
         <Card>
           {isLoading ? (
-            <Card.Img
+            <CardImg
               as={Skeleton}
               variant="top"
               duration={0}
@@ -94,7 +96,7 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
               data-testid="card-img-loading"
             />
           ) : (
-            <Card.Img
+            <CardImg
               variant="top"
               src={pathway.bannerImageUrl}
               alt=""
@@ -106,15 +108,17 @@ const SearchPathwayCard = ({ hit, isLoading }) => {
             </div>
           )}
           <Card.Body>
-            <Card.Title as="h4" className="card-title mb-1">
-              {isLoading ? (
+            <Card.Header
+              as="h4"
+              className="card-title mb-1"
+              title={isLoading ? (
                 <Skeleton count={2} data-testid="pathway-title-loading" />
               ) : (
                 <Truncate lines={3} trimWhitespace>
                   {pathway.title}
                 </Truncate>
               )}
-            </Card.Title>
+            />
             {isLoading ? (
               <Skeleton duration={0} data-testid="content-type-loading" />
             ) : (

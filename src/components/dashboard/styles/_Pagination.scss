@@ -1,0 +1,51 @@
+.pagination {
+  .page-link.btn {
+    color: $gray-700;
+    background-color: $white;
+    border: 1px solid transparent;
+    padding: 8px 12px;
+    outline: none;
+  }
+
+  .page-link.btn-primary:not(:disabled):not(:disabled):hover,
+  .next.page-link.btn-primary:not(:disabled):not(:disabled):focus:hover,
+  .previous.page-link.btn-primary:not(:disabled):not(:disabled):focus:hover {
+    color: $gray-700;
+    background-color: $pagination-hover-bg;
+    border-color: transparent;
+  }
+
+  .page-link:focus {
+    box-shadow: none;
+  }
+
+  .next.page-link.btn-primary:not(:disabled):not(:disabled):focus,
+  .previous.page-link.btn-primary:not(:disabled):not(:disabled):focus {
+    background-color: transparent;
+    border-color: transparent;
+    color: $gray-700;
+  }
+
+  .page-link.btn-primary:not(:disabled):not(.disabled).focus::before,
+  .page-link.btn-primary:not(:disabled):not(.disabled):focus::before {
+    border: 0;
+  }
+
+  .page-item.disabled {
+    .page-link {
+      border-color: transparent;
+    }
+  }
+
+  .page-item.active {
+    .page-link {
+      background-color: $primary-500;
+      color: $white;
+    }
+
+    .page-link.btn-primary:not(:disabled):not(.disabled):hover {
+      background-color: $primary-500;
+      color: $white;
+    }
+  }
+}

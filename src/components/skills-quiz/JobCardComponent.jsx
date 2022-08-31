@@ -19,15 +19,18 @@ const JobCardComponent = ({ jobs, isLoading }) => {
         >
           <Card className="h-100">
             <Card.Body>
-              <Card.Title as="h4" className="card-title mb-3">
-                {isLoading ? (
+              <Card.Header
+                as="h4"
+                className="card-title mb-3"
+                title={isLoading ? (
                   <Skeleton count={1} data-testid="job-title-loading" />
                 ) : (
                   <span>
                     {job.name}
                   </span>
                 )}
-              </Card.Title>
+              />
+
               {isLoading ? (
                 <Skeleton duration={0} data-testid="job-content-loading" />
               ) : (

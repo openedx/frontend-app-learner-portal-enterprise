@@ -235,8 +235,7 @@ exports[`Course should render the expected HTML 1`] = `
               >
                 Shower Curtains
                 <span
-                  aria-label="in a new tab"
-                  className="d-inline-block align-middle ml-2"
+                  className="pgn__hyperlink__external-icon"
                   title="Opens in a new tab"
                 >
                   <span
@@ -263,6 +262,11 @@ exports[`Course should render the expected HTML 1`] = `
                         fill="currentColor"
                       />
                     </svg>
+                    <span
+                      className="sr-only"
+                    >
+                      in a new tab
+                    </span>
                   </span>
                 </span>
               </a>

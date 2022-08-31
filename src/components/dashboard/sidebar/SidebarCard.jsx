@@ -10,7 +10,7 @@ const SidebarCard = ({
 }) => (
   <Card className={cardClassNames}>
     <Card.Body>
-      {title && <Card.Title className={titleClassNames}>{title}</Card.Title>}
+      {title && <Card.Header title={title} className={titleClassNames} />}
       {children}
     </Card.Body>
   </Card>

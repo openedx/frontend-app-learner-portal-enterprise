@@ -10,7 +10,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, StatusAlert,
+  Badge, Card, CardImg, Icon, StatusAlert,
 } from '@edx/paragon';
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -156,7 +156,7 @@ const SearchProgramCard = ({ index }) => {
             >
               <Card>
                 {isLoading ? (
-                  <Card.Img
+                  <CardImg
                     as={Skeleton}
                     variant="top"
                     duration={0}
@@ -164,7 +164,7 @@ const SearchProgramCard = ({ index }) => {
                     data-testid="card-img-loading"
                   />
                 ) : (
-                  <Card.Img
+                  <CardImg
                     variant="top"
                     src={program.cardImageUrl}
                     alt=""
@@ -186,15 +186,17 @@ const SearchProgramCard = ({ index }) => {
                   </div>
                 )}
                 <Card.Body>
-                  <Card.Title as="h4" className="card-title mb-1">
-                    {isLoading ? (
+                  <Card.Header
+                    as="h4"
+                    className="card-title mb-1"
+                    title={isLoading ? (
                       <Skeleton count={2} data-testid="program-title-loading" />
                     ) : (
                       <Truncate lines={2} trimWhitespace>
                         {program.title}
                       </Truncate>
                     )}
-                  </Card.Title>
+                  />
                   {isLoading ? (
                     <Skeleton duration={0} data-testid="partner-key-loading" />
                   ) : (

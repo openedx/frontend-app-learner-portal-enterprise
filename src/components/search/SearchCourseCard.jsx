@@ -4,7 +4,7 @@ import Truncate from 'react-truncate';
 import Skeleton from 'react-loading-skeleton';
 // import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Card } from '@edx/paragon';
+import { Card, CardImg } from '@edx/paragon';
 
 import { VscGlobe } from 'react-icons/vsc';
 import { RiAlarmLine } from 'react-icons/ri';
@@ -22,7 +22,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
     >
       <Card>
         {isLoading ? (
-          <Card.Img
+          <CardImg
             as={Skeleton}
             variant="top"
             duration={0}
@@ -30,7 +30,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
             data-testid="card-img-loading"
           />
         ) : (
-          <Card.Img
+          <CardImg
             variant="top"
             src={course.cardImage}
             alt=""
@@ -42,15 +42,17 @@ const SearchCourseCard = ({ hit, isLoading }) => {
           </div>
         )}
         <Card.Body>
-          <Card.Title as="h4" className="card-title mb-1">
-            {isLoading ? (
+          <Card.Header
+            className="card-title mb-1"
+            title={isLoading ? (
               <Skeleton count={2} data-testid="course-title-loading" />
             ) : (
               <Truncate lines={3} trimWhitespace>
                 {course.title}
               </Truncate>
             )}
-          </Card.Title>
+          />
+
           {isLoading ? (
             <Skeleton duration={0} data-testid="course-info-loading" />
           ) : (

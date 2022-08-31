@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card, CardImg } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import Truncate from 'react-truncate';
@@ -40,7 +40,7 @@ const CourseCard = ({
       <Link to={isLoading ? '#' : linkToCourse(course, slug, uuid)}>
         <Card>
           {isLoading ? (
-            <Card.Img
+            <CardImg
               as={Skeleton}
               variant="top"
               duration={0}
@@ -48,7 +48,7 @@ const CourseCard = ({
               data-testid="card-img-loading"
             />
           ) : (
-            <Card.Img variant="top" src={course.cardImageUrl} alt="" />
+            <CardImg variant="top" src={course.cardImageUrl} alt="" />
           )}
           {isLoading && (
             <div className="partner-logo-wrapper">
@@ -71,8 +71,10 @@ const CourseCard = ({
             </div>
           )}
           <Card.Body>
-            <Card.Title as="h4" className="card-title mb-2">
-              {isLoading ? (
+            <Card.Header
+              as="h4"
+              className="card-title mb-2"
+              title={isLoading ? (
                 <Skeleton count={2} data-testid="course-title-loading" />
               ) : (
                 <Truncate
@@ -82,7 +84,8 @@ const CourseCard = ({
                   {course.title}
                 </Truncate>
               )}
-            </Card.Title>
+            />
+
             {isLoading ? (
               <Skeleton duration={0} data-testid="partner-name-loading" />
             ) : (
