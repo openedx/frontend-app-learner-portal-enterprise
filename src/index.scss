@@ -29,6 +29,7 @@ $fa-font-path: "~font-awesome/fonts";
 @import "./components/preview-expand/styles/PreviewExpand";
 @import "./components/error-page/styles/ErrorPage";
 @import "./components/pathway/styles";
+@import "./components/filter/styles/Filter";
 
 body {
   background-color: $light-200;

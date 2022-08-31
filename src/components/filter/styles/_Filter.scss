@@ -1,0 +1,29 @@
+.active-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  &__tag {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.5rem;
+    border: 1px solid $light-300;
+    border-radius: $border-radius;
+  }
+
+  &__icon {
+    margin-left: 0.25rem;
+    background: transparent;
+    border: 0;
+  }
+}
+
+.filter-group {
+
+  &__title {
+    margin-bottom: 1.5rem;
+  }
+
+  &__item {
+    margin: 0.75rem 0;
+  }
+}

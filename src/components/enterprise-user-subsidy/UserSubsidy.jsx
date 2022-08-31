@@ -1,5 +1,5 @@
 import React, {
-  createContext, useContext, useMemo,
+  createContext, useContext, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -10,25 +10,36 @@ import { LoadingSpinner } from '../loading-spinner';
 import {
   useCatalogData, useLearningPathData,
 } from './data/hooks';
-import { LOADING_SCREEN_READER_TEXT } from './data/constants';
+import { LOADING_SCREEN_READER_TEXT, filterInitial, filterOptions } from './data/constants';
 
 export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const [catalogData, isLoadingCatalogData] = useCatalogData(enterpriseConfig.uuid);
+  const [catalogFilter, setCatalogFilter] = useState(filterInitial);
+  const [catalogData, isLoadingCatalogData] = useCatalogData({
+    enterpriseId: enterpriseConfig.uuid,
+    filter: catalogFilter,
+  });
   const [learningPathData, isLoadingLearningPathdata] = useLearningPathData();
 
   const isLoading = isLoadingCatalogData || isLoadingLearningPathdata;
-
   const contextValue = useMemo(
     () => {
       if (isLoading) {
         return {};
       }
       return {
-        catalogData,
+        catalogData, // deprecated, please use catalog.data
         learningPathData,
+        catalog: {
+          data: catalogData,
+          filter: {
+            current: catalogFilter,
+            options: filterOptions,
+            set: setCatalogFilter,
+          },
+        },
       };
     },
     [
@@ -36,6 +47,7 @@ const UserSubsidy = ({ children }) => {
       enterpriseConfig.uuid,
       catalogData,
       learningPathData,
+      catalogFilter,
     ],
   );
 
