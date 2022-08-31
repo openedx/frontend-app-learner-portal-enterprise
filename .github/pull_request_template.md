@@ -1,8 +1,18 @@
-# For all changes
+https://woven-dojo.atlassian.net/browse/ABC-## 
 
-- [ ] Ensure adequate tests are in place (or reviewed existing tests cover changes)
+## Preview
 
-# Only if submitting a visual change
+_Add an image preview or a video/gif showing the implemented feature when applicable._
 
-- [ ] Ensure to attach screenshots
-- [ ] Ensure to have UX team confirm screenshots
+## Changes
+
+  -
+
+## PR checks
+
+* [ ] Did you add a preview image?
+* [ ] Have you included the task ID in the PR title? (Format: `[ABC-###] - PR title`)
+* [ ] Have you written new tests for your core changes, as applicable?
+* [ ] Does your submission pass them?
+* [ ] Have you lint your code locally prior to submission?
+* [ ] Have you added an explanation of what your changes do?
