@@ -66,8 +66,9 @@ function UserSubsidyWithAppContext({
   contextValue = {},
   authenticatedUser = TEST_USER,
   children,
-}) => (
+}) {
   <AppContext.Provider
+    // eslint-disable-next-line react/jsx-no-constructed-context-values
     value={{
       enterpriseConfig: {
         slug: TEST_ENTERPRISE_SLUG,
@@ -81,8 +82,9 @@ function UserSubsidyWithAppContext({
     <UserSubsidy>
       {children}
     </UserSubsidy>
-  </AppContext.Provider>
-);
+  </AppContext.Provider>;
+}
+
 /* eslint-enable react/prop-types */
 
 function SubscriptionLicenseConsumer() {

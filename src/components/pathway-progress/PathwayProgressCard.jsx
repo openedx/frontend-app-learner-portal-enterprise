@@ -7,7 +7,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getProgressFromSteps } from './data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
-const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
+function PathwayProgressCard({ pathway: { learnerPathwayProgress } }) {
   const progress = getProgressFromSteps(learnerPathwayProgress.steps);
   const history = useHistory();
   const { enterpriseConfig: { slug } } = useContext(AppContext);
@@ -44,12 +44,12 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
       </Card.Section>
     </Card>
   );
-};
+}
 
 PathwayProgressCard.propTypes = {
   pathway: PropTypes.shape({
     learnerPathwayProgress: PropTypes.shape({
-      steps: PropTypes.array.isRequired,
+      steps: PropTypes.shape([]).isRequired,
       title: PropTypes.string.isRequired,
       uuid: PropTypes.string.isRequired,
       cardImage: PropTypes.string,

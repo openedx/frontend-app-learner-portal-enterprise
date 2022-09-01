@@ -9,7 +9,7 @@ import {
   ErrorPage,
 } from '../error-page';
 
-const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
+function ExecutiveEducation2UError({ failureReason, httpReferrer }) {
   const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
 
   const createExecutiveEducationFailureMessage = (failureCode) => {

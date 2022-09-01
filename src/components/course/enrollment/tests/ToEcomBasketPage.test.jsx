@@ -20,7 +20,7 @@ jest.mock('../../EnrollModal', () => ({
 
 jest.mock('../hooks');
 
-const ToEcomBasketPageWrapper = ({
+function ToEcomBasketPageWrapper({
   courseContextValue = {
     state: {
       activeCourseRun: {
@@ -32,15 +32,17 @@ const ToEcomBasketPageWrapper = ({
     courseEnrollmentsByStatus: {},
   },
   ...rest
-}) => (
-  <CourseContext.Provider value={courseContextValue}>
-    <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextVAlue}>
-      <ToEcomBasketPage
-        {...rest}
-      />,
-    </CourseEnrollmentsContext.Provider>
-  </CourseContext.Provider>
-);
+}) {
+  return (
+    <CourseContext.Provider value={courseContextValue}>
+      <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextVAlue}>
+        <ToEcomBasketPage
+          {...rest}
+        />,
+      </CourseEnrollmentsContext.Provider>
+    </CourseContext.Provider>
+  );
+}
 
 describe('<ToEcomBasketPage />', () => {
   it('should render <EnrollButtonCta /> and <EnrollModal />', () => {

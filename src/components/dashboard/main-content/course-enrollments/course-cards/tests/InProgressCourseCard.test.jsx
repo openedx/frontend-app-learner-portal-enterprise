@@ -26,7 +26,7 @@ const basicProps = {
   notifications: [],
 };
 
-const InProgressCourseCardWrapper = ({
+function InProgressCourseCardWrapper({
   appContextValue =
   {
     enterpriseConfig: {
@@ -48,17 +48,19 @@ const InProgressCourseCardWrapper = ({
     couponUpgradeUrl: undefined,
   },
   ...rest
-}) => (
-  <AppContext.Provider value={appContextValue}>
-    <UserSubsidyContext.Provider value={userSubsidyContextValue}>
-      <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-        <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
-          <InProgressCourseCard {...rest} />
-        </UpgradeableCourseEnrollmentContext.Provider>
-      </CourseEnrollmentsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+}) {
+  return (
+    <AppContext.Provider value={appContextValue}>
+      <UserSubsidyContext.Provider value={userSubsidyContextValue}>
+        <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
+          <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
+            <InProgressCourseCard {...rest} />
+          </UpgradeableCourseEnrollmentContext.Provider>
+        </CourseEnrollmentsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 describe('<InProgressCourseCard />', () => {
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {

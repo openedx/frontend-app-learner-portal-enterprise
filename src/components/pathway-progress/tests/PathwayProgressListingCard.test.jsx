@@ -21,13 +21,15 @@ jest.mock('react-router-dom', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-const PathwayProgressListingCardWithContext = ({ initialAppState, initialUserSubsidyState, pathwayData }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <PathwayProgressCard pathway={pathwayData} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
+function PathwayProgressListingCardWithContext({ initialAppState, initialUserSubsidyState, pathwayData }) {
+  return (
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <PathwayProgressCard pathway={pathwayData} />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 const appState = {
   enterpriseConfig: {

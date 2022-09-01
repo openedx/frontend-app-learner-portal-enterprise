@@ -43,7 +43,7 @@ function EnrollModal({
   userSubsidyApplicableToCourse,
   couponCodesCount,
   onEnroll,
-}) => {
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const getModalTexts = () => {
@@ -93,6 +93,7 @@ function EnrollModal({
           href={enrollmentUrl}
           onClick={handleEnroll}
         >
+          { /* eslint-disable-next-line react/jsx-no-useless-fragment */ }
           <>
             {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
             {buttonText}

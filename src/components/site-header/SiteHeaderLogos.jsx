@@ -5,7 +5,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import GetSmarterLogo from '../../assets/icons/getsmarter-logo.svg';
 
-const SiteHeaderLogos = () => {
+function SiteHeaderLogos() {
   const { enterpriseConfig } = useContext(AppContext);
   const { pathname } = useLocation();
   const isInExecutiveEducationPath = pathname.includes('executive-education-2u');
@@ -42,6 +42,6 @@ const SiteHeaderLogos = () => {
       )}
     </>
   );
-};
+}
 
 export default SiteHeaderLogos;

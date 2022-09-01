@@ -26,18 +26,20 @@ jest.mock('../data/hooks', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-const PathwayProgressListingWithContext = ({
+function PathwayProgressListingWithContext({
   initialAppState = {},
   initialUserSubsidyState = {},
-}) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <PathwayProgressListingPage />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
-);
+}) {
+  return (
+    <IntlProvider locale="en">
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <PathwayProgressListingPage />
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
+  );
+}
 
 describe('<PathwayProgressListingPage />', () => {
   const initialAppState = {
