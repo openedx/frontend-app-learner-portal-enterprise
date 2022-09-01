@@ -62,7 +62,7 @@
     "@testing-library/user-event": "^13.5.0",
     "acorn": "^8.5.0",
     "axios-mock-adapter": "1.19.0",
-    "coveralls": "3.1.0",
+    "coveralls": "3.1.1",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.6",
     "match-media-mock": "0.1.1",
