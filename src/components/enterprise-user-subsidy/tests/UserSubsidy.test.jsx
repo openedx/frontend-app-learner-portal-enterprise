@@ -15,6 +15,7 @@ import {
 } from '../data/service';
 import { fetchCouponCodeAssignments } from '../coupons/data/service';
 
+jest.mock('@edx/frontend-platform/auth');
 jest.mock('../data/service');
 jest.mock('../coupons/data/service');
 jest.mock('../../../config', () => ({
@@ -28,6 +29,10 @@ const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
+const TEST_USER = {
+  username: 'test-username',
+  roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`],
+};
 
 const mockSubscriptionPlan = {
   uuid: TEST_SUBSCRIPTION_UUID,
@@ -59,26 +64,25 @@ const mockEmptyListResponse = {
 function UserSubsidyWithAppContext({
   enterpriseConfig = {},
   contextValue = {},
+  authenticatedUser = TEST_USER,
   children,
-}) {
-  return (
-    <AppContext.Provider
-      // eslint-disable-next-line react/jsx-no-constructed-context-values
-      value={{
-        enterpriseConfig: {
-          slug: TEST_ENTERPRISE_SLUG,
-          uuid: TEST_ENTERPRISE_UUID,
-          ...enterpriseConfig,
-        },
-        ...contextValue,
-      }}
-    >
-      <UserSubsidy>
-        {children}
-      </UserSubsidy>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider
+    value={{
+      enterpriseConfig: {
+        slug: TEST_ENTERPRISE_SLUG,
+        uuid: TEST_ENTERPRISE_UUID,
+        ...enterpriseConfig,
+      },
+      authenticatedUser,
+      ...contextValue,
+    }}
+  >
+    <UserSubsidy>
+      {children}
+    </UserSubsidy>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 function SubscriptionLicenseConsumer() {
@@ -203,11 +207,6 @@ describe('UserSubsidy', () => {
       });
 
       afterEach(() => {
-        expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-        const customerAgreementId = mockCustomerAgreementData.data.results[0].uuid;
-        expect(requestAutoAppliedLicense).toHaveBeenCalledWith(customerAgreementId);
-
         jest.resetAllMocks();
       });
 
@@ -236,6 +235,46 @@ describe('UserSubsidy', () => {
 
         // assert component is no longer loading
         expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
+
+        expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+        expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+        const customerAgreementId = mockCustomerAgreementData.data.results[0].uuid;
+        expect(requestAutoAppliedLicense).toHaveBeenCalledWith(customerAgreementId);
+      });
+
+      test('not enterprise learner', async () => {
+        const Component = (
+          <UserSubsidyWithAppContext
+            enterpriseConfig={{
+              identityProvider: 'test-provider',
+            }}
+            authenticatedUser={{
+              ...TEST_USER,
+              roles: [],
+            }}
+          >
+            <SubscriptionLicenseConsumer />
+            <CouponCodesConsumer />
+          </UserSubsidyWithAppContext>
+        );
+        renderWithRouter(Component, {
+          route: `/${TEST_ENTERPRISE_SLUG}`,
+        });
+
+        // assert component is initially loading
+        expect(screen.getByText(LOADING_SCREEN_READER_TEXT)).toBeInTheDocument();
+
+        await waitFor(() => {
+          expect(screen.queryByText('License status: none')).toBeInTheDocument();
+          expect(screen.queryByText('Coupon codes count: none')).toBeInTheDocument();
+        });
+
+        // assert component is no longer loading
+        expect(screen.queryByText(LOADING_SCREEN_READER_TEXT)).not.toBeInTheDocument();
+
+        expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+        expect(fetchCustomerAgreementData).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
+        expect(requestAutoAppliedLicense).not.toHaveBeenCalled();
       });
     });
 

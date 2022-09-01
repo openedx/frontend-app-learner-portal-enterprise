@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
+import classNames from 'classnames';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -14,7 +15,12 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
  *
  * @returns {Function} A functional React component for the continue learning button.
  */
-export default function ContinueLearningButton({ linkToCourse, title, courseRunId }) {
+export default function ContinueLearningButton({
+  className,
+  linkToCourse,
+  title,
+  courseRunId,
+}) {
   const { enterpriseConfig } = useContext(AppContext);
 
   const onClickHandler = () => {
@@ -28,17 +34,22 @@ export default function ContinueLearningButton({ linkToCourse, title, courseRunI
   };
   return (
     <a
-      className="btn btn-outline-primary btn-xs-block"
+      className={classNames('btn btn-xs-block', className)}
       href={linkToCourse}
       onClick={onClickHandler}
     >
-      Continue learning
+      Resume
       <span className="sr-only">for {title}</span>
     </a>
   );
 }
 
+ContinueLearningButton.defaultProps = {
+  className: 'btn-outline-primary',
+};
+
 ContinueLearningButton.propTypes = {
+  className: PropTypes.string,
   linkToCourse: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,

@@ -79,6 +79,7 @@ const requestAutoAppliedUserLicense = async (customerAgreementId) => {
  * @param {object} args.enterpriseConfig The enterprise customer config
  * @param {object} args.customerAgreementConfig The customer agreement config associated with the enterprise
  * @param {boolean} args.isLoadingCustomerAgreementConfig Whether the customer agreement is still resolving
+ * @param {object} args.user The authenticated user
  * @returns Object containing a user license, if applicable, whether the license data is still resolving, and a callback
  *          to activate the user license.
  */
@@ -86,6 +87,7 @@ export function useSubscriptionLicense({
   enterpriseConfig,
   customerAgreementConfig,
   isLoadingCustomerAgreementConfig,
+  user,
 }) {
   const [license, setLicense] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -109,9 +111,16 @@ export function useSubscriptionLicense({
         ];
         const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
 
+        // Only request an auto-applied license if ther user is a learner of the enterprise.
+        // This is mainly to prevent edx operators from accidently getting a license.
+        const isEnterpriseLearner = !!user.roles.find(userRole => {
+          const [role, enterprise] = userRole.split(':');
+          return role === 'enterprise_learner' && enterprise === enterpriseId;
+        });
+
         // Per the product requirements, we only want to attempt requesting an auto-applied license
         // when the enterprise customer has an SSO/LMS provider configured.
-        if (!result && enterpriseIdentityProvider && hasCustomerAgreementData) {
+        if (!result && enterpriseIdentityProvider && isEnterpriseLearner && hasCustomerAgreementData) {
           result = await requestAutoAppliedUserLicense(customerAgreementConfig.uuid);
         }
       }
@@ -139,12 +148,7 @@ export function useSubscriptionLicense({
         setIsLoading(false);
       });
     }
-  }, [
-    customerAgreementConfig,
-    enterpriseId,
-    enterpriseIdentityProvider,
-    isLoadingCustomerAgreementConfig,
-  ]);
+  }, [customerAgreementConfig, enterpriseId, enterpriseIdentityProvider, isLoadingCustomerAgreementConfig, user]);
 
   const activateUserLicense = useCallback(async (autoActivated = false) => {
     try {

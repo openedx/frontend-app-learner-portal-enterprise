@@ -1,11 +1,12 @@
 import React, {
   useContext, useEffect, useMemo,
 } from 'react';
-import { Container, Row, Col } from '@edx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
+import { Container, Row, Col } from '@edx/paragon';
+import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
+
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import {
@@ -18,9 +19,10 @@ function ExecutiveEducation2UPage() {
   const { enterpriseConfig } = useContext(AppContext);
   const activeQueryParams = useActiveQueryParams();
 
-  const isExecEd2UFulfillmentEnabled = useMemo(() => (
-    enterpriseConfig.enableExecutiveEducation2UFulfillment && activeQueryParams.has('course_uuid')
-  ), [enterpriseConfig, activeQueryParams]);
+  const isExecEd2UFulfillmentEnabled = useMemo(() => {
+    const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
+    return enterpriseConfig.enableExecutiveEducation2UFulfillment && hasRequiredQueryParams;
+  }, [enterpriseConfig, activeQueryParams]);
 
   const {
     isLoading: isLoadingContentMetadata,
@@ -37,6 +39,9 @@ function ExecutiveEducation2UPage() {
     if (!activeQueryParams.has('course_uuid')) {
       logError(`Enterprise ${enterpriseConfig.uuid} visited ExecutiveEducation2UPage without required course_uuid query parameter.`);
     }
+    if (!activeQueryParams.has('sku')) {
+      logError(`Enterprise ${enterpriseConfig.uuid} visited ExecutiveEducation2UPage without required sku query parameter.`);
+    }
   }, [activeQueryParams, enterpriseConfig]);
 
   if (!isExecEd2UFulfillmentEnabled) {
@@ -51,8 +56,18 @@ function ExecutiveEducation2UPage() {
   const pageTitle = 'Share course enrollment information';
   const queryParams = {
     failureReason: activeQueryParams.get('failure_reason'),
-    httpReferrer: activeQueryParams.get('http_referrer'),
+    httpReferrer: activeQueryParams.get('http_referer'),
+    sku: activeQueryParams.get('sku'),
   };
+
+  const handleCheckoutSuccess = (response) => {
+    if (!response?.receiptPageUrl) {
+      logError('Unable to redirect to receipt page due to missing receipt page URL.');
+      return;
+    }
+    global.location.assign(response.receiptPageUrl);
+  };
+
   return (
     <Container size="lg" className="py-5">
       <Helmet>
@@ -74,24 +89,27 @@ function ExecutiveEducation2UPage() {
               <>{pageTitle}</>
             )}
           </h2>
-          <p>
-            {(isLoading || !contentMetadata) ? (
-              <p>
-                <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
-              </p>
-            ) : (
-              <Row className="mb-4">
-                <Col xs={12} lg={10}>
-                  <p>
-                    {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
-                    courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must (1) provide course
-                    enrollment data and (2) accept Terms and Conditions.
-                  </p>
-                </Col>
-              </Row>
-            )}
-          </p>
-          {!isLoading && <UserEnrollmentForm />}
+          {(isLoading || !contentMetadata) ? (
+            <p>
+              <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
+            </p>
+          ) : (
+            <Row className="mb-4">
+              <Col xs={12} lg={10}>
+                <p>
+                  {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
+                  courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must (1) provide course
+                  enrollment data and (2) accept Terms and Conditions.
+                </p>
+              </Col>
+            </Row>
+          )}
+          {!isLoading && (
+            <UserEnrollmentForm
+              productSKU={queryParams.sku}
+              onCheckoutSuccess={handleCheckoutSuccess}
+            />
+          )}
         </>
       )}
     </Container>

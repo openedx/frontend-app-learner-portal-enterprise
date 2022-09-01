@@ -22,16 +22,13 @@ export async function getExecutiveEducation2UContentMetadata(courseUUID, options
   return contentMetadata;
 }
 
-export async function checkoutExecutiveEducation2U() {
-  const res = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          receipt_page_url: 'https://edx.org',
-        },
-      });
-    }, 1500);
-  });
+export async function checkoutExecutiveEducation2U(options = {}) {
+  const config = getConfig();
+  const url = `${config.ECOMMERCE_BASE_URL}/executive-education-2u/checkout/`;
+  const payload = {
+    ...snakeCaseObject(options),
+  };
+  const res = await getAuthenticatedHttpClient().post(url, payload);
   const result = camelCaseObject(res.data);
   return result;
 }

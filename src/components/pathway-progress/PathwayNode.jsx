@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Card } from '@edx/paragon';
+import { useParams } from 'react-router-dom';
+import capitalize from 'lodash.capitalize';
+
+import { CONTENT_TYPES, IN_PROGRESS } from './constants';
 
 function PathwayNode({ node }) {
+  const { enterpriseSlug } = useParams();
+
+  const linkToNode = useMemo(
+    // eslint-disable-next-line consistent-return
+    () => {
+      if (node.contentType === CONTENT_TYPES.COURSE) {
+        return `/${enterpriseSlug}/course/${node.key}`;
+      }
+      if (node.contentType === CONTENT_TYPES.PROGRAM) {
+        return `/${enterpriseSlug}/program/${node.uuid}`;
+      }
+      return '#';
+    },
+    [node, enterpriseSlug],
+  );
   return (
     <div className="pathway-node">
       <div className="row-cols-1 pathway-node-card">
@@ -10,18 +29,18 @@ function PathwayNode({ node }) {
           <Card.Section>
             <div className="row d-flex align-items-center">
               <div className="col-3">
-                <img src={node.imageUrl} alt={node.title} />
+                <img src={node.cardImageUrl} alt={node.title} />
               </div>
               <div className="col-7">
                 <h3 className="row">{node.title}</h3>
-                <p className="row">{node.description}</p>
+                <p className="row">{node.shortDescription}</p>
               </div>
               <div className="col-2">
                 {
-                  node.isInProgress ? (
-                    <button type="button" className="btn-primary"> Resume {node.type}</button>
+                  node.status === IN_PROGRESS ? (
+                    <a href={linkToNode} type="button" className="btn btn-primary"> Resume {capitalize(node.contentType)}</a>
                   ) : (
-                    <button type="button" className="btn-secondary"> View {node.type}</button>
+                    <a href={linkToNode} type="button" className="btn btn-secondary"> View {capitalize(node.contentType)}</a>
                   )
                 }
               </div>
@@ -38,11 +57,12 @@ export default PathwayNode;
 PathwayNode.propTypes = {
   node: PropTypes.shape({
     title: PropTypes.string,
-    description: PropTypes.string,
-    imageUrl: PropTypes.string,
-    destinationUrl: PropTypes.string,
+    key: PropTypes.string,
     uuid: PropTypes.string,
-    type: PropTypes.string,
-    isInProgress: PropTypes.bool,
+    shortDescription: PropTypes.string,
+    cardImageUrl: PropTypes.string,
+    destinationUrl: PropTypes.string,
+    contentType: PropTypes.string,
+    status: PropTypes.string,
   }).isRequired,
 };

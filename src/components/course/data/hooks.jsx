@@ -357,6 +357,7 @@ export const useCourseEnrollmentUrl = ({
     failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
   }), [baseQueryParams, config.LMS_BASE_URL, courseRunKey, location.pathname]);
 
+  // TODO: use the new helper functions (createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl) to generate url
   const enrollmentUrl = useMemo(
     () => {
       if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {

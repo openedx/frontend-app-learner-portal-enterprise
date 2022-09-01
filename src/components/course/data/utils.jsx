@@ -258,6 +258,14 @@ export const getSubsidyToApplyForCourse = ({
   return null;
 };
 
+export const createEnrollFailureUrl = ({ courseRunKey, location }) => {
+  const baseQueryParams = new URLSearchParams(location.search);
+  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+  baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
+
+  return `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`;
+};
+
 export const createEnrollWithLicenseUrl = ({
   courseRunKey,
   enterpriseId,
@@ -265,14 +273,10 @@ export const createEnrollWithLicenseUrl = ({
   location,
 }) => {
   const config = getConfig();
-  const baseQueryParams = new URLSearchParams(location.search);
-  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
-  baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
 
   const queryParams = new URLSearchParams({
     next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
-    // Redirect back to the same page with a failure query param
-    failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
+    failure_url: createEnrollFailureUrl({ courseRunKey, location }),
     license_uuid: licenseUUID,
     course_id: courseRunKey,
     enterprise_customer_uuid: enterpriseId,
@@ -282,4 +286,25 @@ export const createEnrollWithLicenseUrl = ({
     source: 'enterprise-learner-portal',
   });
   return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
+};
+
+export const createEnrollWithCouponCodeUrl = ({
+  courseRunKey,
+  sku,
+  code,
+  location,
+}) => {
+  const config = getConfig();
+  const failureUrl = createEnrollFailureUrl({ courseRunKey, location });
+
+  const queryParams = new URLSearchParams({
+    next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
+    failure_url: failureUrl,
+    sku,
+    code,
+    // Deliberately doubly encoded since it will get parsed on the redirect.
+    consent_url_param_string: `failure_url=${encodeURIComponent(failureUrl)}&left_sidebar_text_override=`,
+  });
+
+  return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
 };
