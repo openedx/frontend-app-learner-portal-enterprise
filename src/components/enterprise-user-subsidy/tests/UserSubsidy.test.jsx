@@ -67,24 +67,25 @@ function UserSubsidyWithAppContext({
   authenticatedUser = TEST_USER,
   children,
 }) {
-  <AppContext.Provider
-    // eslint-disable-next-line react/jsx-no-constructed-context-values
-    value={{
-      enterpriseConfig: {
-        slug: TEST_ENTERPRISE_SLUG,
-        uuid: TEST_ENTERPRISE_UUID,
-        ...enterpriseConfig,
-      },
-      authenticatedUser,
-      ...contextValue,
-    }}
-  >
-    <UserSubsidy>
-      {children}
-    </UserSubsidy>
-  </AppContext.Provider>;
+  return (
+    <AppContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
+      value={{
+        enterpriseConfig: {
+          slug: TEST_ENTERPRISE_SLUG,
+          uuid: TEST_ENTERPRISE_UUID,
+          ...enterpriseConfig,
+        },
+        authenticatedUser,
+        ...contextValue,
+      }}
+    >
+      <UserSubsidy>
+        {children}
+      </UserSubsidy>
+    </AppContext.Provider>
+  );
 }
-
 /* eslint-enable react/prop-types */
 
 function SubscriptionLicenseConsumer() {
