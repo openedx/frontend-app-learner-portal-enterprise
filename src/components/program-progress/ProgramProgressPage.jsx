@@ -37,9 +37,9 @@ function ProgramProgressPage() {
     [program],
   );
   const courseData = program?.data?.courseData;
-  const notStartedCourses = courseData?.notStarted?.length;
-  const completedCourses = courseData?.completed?.length;
-  const inProgressCourses = courseData?.inProgress?.length;
+  const notStartedCourses = courseData?.notStarted?.length || 0;
+  const completedCourses = courseData?.completed?.length || 0;
+  const inProgressCourses = courseData?.inProgress?.length || 0;
   const totalCoursesInProgram = notStartedCourses + completedCourses + inProgressCourses;
   const allCoursesCompleted = !courseData?.notStarted?.length
     && !courseData?.inProgress?.length

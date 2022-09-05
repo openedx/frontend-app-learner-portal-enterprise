@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   SET_KEY_VALUE,
@@ -21,8 +21,7 @@ const reducer = (state, action) => {
 
 export function SkillsContextProvider({ children, initialState = { goal: GOAL_DROPDOWN_DEFAULT_OPTION } }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  // eslint-disable-next-line react/jsx-no-constructed-context-values
-  const value = { state, dispatch };
+  const value = useMemo(() => ({ state, dispatch }), [state]);
 
   return (
     <SkillsContext.Provider value={value}>

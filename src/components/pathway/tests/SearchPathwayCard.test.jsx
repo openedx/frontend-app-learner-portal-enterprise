@@ -31,7 +31,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
 function SearchPathwayCardWithAppContext(props) {
   return (
     <AppContext.Provider
-      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
       }}

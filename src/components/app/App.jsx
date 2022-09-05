@@ -7,7 +7,7 @@ import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
 import AuthenticatedPage from './AuthenticatedPage';
 import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
 import NotFoundPage from '../NotFoundPage';
-import NoticesProvider from '../notices-provider';
+import { NoticesProvider } from '../notices-provider';
 import {
   EnterpriseCustomerRedirect,
   EnterprisePageRedirect,

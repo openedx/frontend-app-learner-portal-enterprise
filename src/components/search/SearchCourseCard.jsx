@@ -14,8 +14,7 @@ import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 function SearchCourseCard({ hit, isLoading }) {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const course = hit ? camelCaseObject(hit) : {};
+  const course = useMemo(() => (hit ? camelCaseObject(hit) : {}), [hit]);
 
   const linkToCourse = useMemo(
     () => {

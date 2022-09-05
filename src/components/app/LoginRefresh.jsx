@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import { loginRefresh } from '../../utils/common';
 
-// eslint-disable-next-line react/prop-types
-export default function LoginRefresh({ children }) {
+function LoginRefresh({ children }) {
   const { authenticatedUser } = useContext(AppContext);
   const { roles } = authenticatedUser;
 
@@ -34,3 +34,9 @@ export default function LoginRefresh({ children }) {
   }
   return children;
 }
+
+LoginRefresh.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+export default LoginRefresh;

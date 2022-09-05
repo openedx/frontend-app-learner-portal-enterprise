@@ -14,7 +14,7 @@ function SearchCurrentJobCard({ index }) {
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, state } = useContext(SkillsContext);
   const { currentJobRole } = state;
-  const jobToFetch = useMemo(
+  const jobsToFetch = useMemo(
     () => {
       const jobsArray = [];
       if (currentJob?.length > 0) {
@@ -35,7 +35,7 @@ function SearchCurrentJobCard({ index }) {
         setIsLoading(true);
         const { hits } = await index.search('', {
           facetFilters: [
-            jobToFetch,
+            jobsToFetch,
           ],
         });
         if (!fetch) { return; }
@@ -43,7 +43,7 @@ function SearchCurrentJobCard({ index }) {
         setIsLoading(false);
       }
     },
-    [currentJob, dispatch, index, jobToFetch],
+    [currentJob, dispatch, index, jobsToFetch],
   );
 
   return (

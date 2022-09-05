@@ -56,15 +56,15 @@ function MoveToInProgressModal({
     onClose();
   };
 
+  const contextValue = useMemo(() => ({
+    courseTitle,
+    courseLink,
+    confirmError,
+  }), [confirmError, courseLink, courseTitle]);
+
   return (
     <MoveToInProgressModalContext.Provider
-      value={
-        useMemo(() => ({
-          courseTitle,
-          courseLink,
-          confirmError,
-        }), [confirmError, courseLink, courseTitle])
-      }
+      value={contextValue}
     >
       <Modal
         title="Move course to &quot;In Progress&quot;"

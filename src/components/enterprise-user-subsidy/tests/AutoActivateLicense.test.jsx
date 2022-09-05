@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-constructed-context-values */
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';

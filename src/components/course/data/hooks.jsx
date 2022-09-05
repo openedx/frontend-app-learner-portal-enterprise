@@ -345,8 +345,10 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const baseQueryParams = new URLSearchParams(location.search);
+  const baseQueryParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search],
+  );
 
   baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
   baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);

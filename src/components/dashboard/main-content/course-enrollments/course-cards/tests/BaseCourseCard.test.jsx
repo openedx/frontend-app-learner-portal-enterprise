@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-constructed-context-values */
 import React from 'react';
 import { mount } from 'enzyme';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';

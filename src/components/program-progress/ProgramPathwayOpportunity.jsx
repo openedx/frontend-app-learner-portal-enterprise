@@ -7,7 +7,7 @@ function ProgramPathwayOpportunity({ pathways, title, pathwayClass }) {
     <div className={pathwayClass}>
       <h2 className="divider-heading"> { title } </h2>
       {pathways.map((pathway) => (
-        <div className="pathway-wrapper">
+        <div className="pathway-wrapper" key={pathway.uuid}>
           <div className="pathway-info">
             <h2 className="pathway-heading"> { pathway.name } </h2>
             { pathway.description && <p> {pathway.description}</p> }

@@ -3,7 +3,7 @@ import edxLogo from './images/edx-logo.svg';
 
 function SkillsQuizHeader() {
   return (
-    <div style={{ display: 'flex' }} className="ml-2">
+    <div className="d-flex ml-2">
       <img src={edxLogo} alt="edx-logo" height="110px" />
       <div
         className="ml-5 vertical-line"

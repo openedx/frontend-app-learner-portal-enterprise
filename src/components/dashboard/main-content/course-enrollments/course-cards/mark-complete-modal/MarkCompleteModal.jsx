@@ -65,15 +65,15 @@ function MarkCompleteModal({
     onClose();
   };
 
+  const contextValue = useMemo(() => ({
+    courseTitle,
+    courseLink,
+    confirmError,
+  }), [confirmError, courseLink, courseTitle]);
+
   return (
     <MarkCompleteModalContext.Provider
-      value={
-        useMemo(() => ({
-          courseTitle,
-          courseLink,
-          confirmError,
-        }), [confirmError, courseLink, courseTitle])
-      }
+      value={contextValue}
     >
       <Modal
         title="Save course for later"

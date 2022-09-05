@@ -27,11 +27,10 @@ function ToastsProvider({ children }) {
     });
   }, [toasts]);
 
+  const contextValue = useMemo(() => ({ toasts, addToast, removeToast }), [removeToast, toasts]);
+
   return (
-    <ToastsContext.Provider value={
-      useMemo(() => ({ toasts, addToast, removeToast }), [removeToast, toasts])
-    }
-    >
+    <ToastsContext.Provider value={contextValue}>
       {children}
     </ToastsContext.Provider>
   );

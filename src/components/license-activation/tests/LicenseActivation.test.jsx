@@ -28,7 +28,6 @@ function LicenseActivationWithAppContext({
 }) {
   return (
     <AppContext.Provider
-      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         enterpriseConfig: {
           uuid: TEST_ENTERPRISE_UUID,
