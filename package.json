@@ -92,6 +92,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/edx/frontend-app-learner-portal-enterprise.git"
+    "url": "https://github.com/openedx/frontend-app-learner-portal-enterprise.git"
   }
 }
