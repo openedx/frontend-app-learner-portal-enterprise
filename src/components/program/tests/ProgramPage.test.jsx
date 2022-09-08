@@ -3,7 +3,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from 'react-intl';
-
+import { initializeMockApp } from '@edx/frontend-platform';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramPage from '../ProgramPage';
 import { useAllProgramData } from '../data/hooks';
@@ -54,6 +54,9 @@ const ProgramWithContext = ({
 /* eslint-enable react/prop-types */
 
 describe('<Program />', () => {
+  beforeEach(() => {
+    initializeMockApp();
+  });
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
