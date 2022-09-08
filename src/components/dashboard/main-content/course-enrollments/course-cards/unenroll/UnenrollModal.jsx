@@ -1,12 +1,11 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  AlertModal, Alert, StatefulButton, Button, ActionRow,
+  AlertModal, Alert, StatefulButton, Button, ActionRow, Toast,
 } from '@edx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
-import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
 
 const btnLabels = {
@@ -22,7 +21,7 @@ export default function UnenrollModal({
   onSuccess,
 }) {
   const { removeCourseEnrollment } = useContext(CourseEnrollmentsContext);
-  const { addToast } = useContext(ToastsContext);
+  const [show, setShow] = useState(false);
 
   const [btnState, setBtnState] = useState('default');
   const [error, setError] = useState(null);
@@ -40,7 +39,7 @@ export default function UnenrollModal({
         courseId: courseRunId,
       });
       removeCourseEnrollment({ courseRunId, enrollmentType });
-      addToast('You have been unenrolled from the course.');
+      setShow(true);
       onSuccess();
     } catch (err) {
       logError(err);
@@ -50,43 +49,51 @@ export default function UnenrollModal({
   };
 
   return (
-    <AlertModal
-      title="Unenroll from course?"
-      isOpen={isOpen}
-      onClose={handleClose}
-      footerNode={(
-        <ActionRow>
-          <Button
-            variant="tertiary"
-            onClick={handleClose}
+    <>
+      <AlertModal
+        title="Unenroll from course?"
+        isOpen={isOpen}
+        onClose={handleClose}
+        footerNode={(
+          <ActionRow>
+            <Button
+              variant="tertiary"
+              onClick={handleClose}
+            >
+              Keep learning
+            </Button>
+            <StatefulButton
+              variant="primary"
+              labels={btnLabels}
+              state={btnState}
+              onClick={handleUnenrollButtonClick}
+            >
+              Unenroll
+            </StatefulButton>
+          </ActionRow>
+        )}
+      >
+        <>
+          <Alert
+            variant="danger"
+            show={!!error}
           >
-            Keep learning
-          </Button>
-          <StatefulButton
-            variant="primary"
-            labels={btnLabels}
-            state={btnState}
-            onClick={handleUnenrollButtonClick}
-          >
-            Unenroll
-          </StatefulButton>
-        </ActionRow>
-      )}
-    >
-      <>
-        <Alert
-          variant="danger"
-          show={!!error}
-        >
-          <p data-testid="unenroll-error-text">
-            An error occurred while unenrolling from your course. Please try again.
+            <p data-testid="unenroll-error-text">
+              An error occurred while unenrolling from your course. Please try again.
+            </p>
+          </Alert>
+          <p>
+            Progress that you&apos;ve made so far will not be saved.
           </p>
-        </Alert>
-        <p>
-          Progress that you&apos;ve made so far will not be saved.
-        </p>
-      </>
-    </AlertModal>
+        </>
+      </AlertModal>
+      <Toast
+        onClose={() => setShow(false)}
+        show={show}
+      >
+        You have been unenrolled from the course.
+      </Toast>
+    </>
   );
 }
 

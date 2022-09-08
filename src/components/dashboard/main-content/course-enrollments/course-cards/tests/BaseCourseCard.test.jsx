@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import Skeleton from 'react-loading-skeleton';
 import BaseCourseCard from '../BaseCourseCard';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
-import { ToastsContext } from '../../../../../Toasts';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -51,25 +50,21 @@ describe('<BaseCourseCard />', () => {
   });
 
   describe('unenroll modal', () => {
-    const mockAddToast = jest.fn();
-
     beforeEach(() => {
       jest.clearAllMocks();
 
       wrapper = mount((
         <AppContext.Provider value={{ enterpriseConfig }}>
-          <ToastsContext.Provider value={{ addToast: mockAddToast }}>
-            <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
-              <BaseCourseCard
-                type="in_progress"
-                title="edX Demonstration Course"
-                linkToCourse="https://edx.org"
-                courseRunId="my+course+key"
-                canUnenroll
-                hasEmailsEnabled
-              />
-            </CourseEnrollmentsContext.Provider>
-          </ToastsContext.Provider>
+          <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
+            <BaseCourseCard
+              type="in_progress"
+              title="edX Demonstration Course"
+              linkToCourse="https://edx.org"
+              courseRunId="my+course+key"
+              canUnenroll
+              hasEmailsEnabled
+            />
+          </CourseEnrollmentsContext.Provider>
         </AppContext.Provider>
       ));
       // open unenroll modal

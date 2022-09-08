@@ -5,7 +5,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from 'react-intl';
-
+import { initializeMockApp } from '@edx/frontend-platform';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
@@ -78,6 +78,10 @@ const ProgramListingWithContext = ({
 );
 
 describe('<ProgramListing />', () => {
+  beforeEach(() => {
+    initializeMockApp();
+  });
+
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',

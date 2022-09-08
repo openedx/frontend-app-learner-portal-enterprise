@@ -4,7 +4,6 @@ import {
   screen, render, fireEvent, waitFor,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { ToastsContext } from '../../Toasts/ToastsProvider';
 import { SubsidyRequestsContext, SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import { CourseContext } from '../CourseContextProvider';
@@ -17,13 +16,7 @@ const mockEnterpriseSlug = 'sluggy';
 const mockCourseKey = 'edx+101';
 const mockCourseRunKey = `${mockCourseKey}+v1`;
 
-const mockAddToast = jest.fn();
 const mockRefreshSubsidyRequests = jest.fn();
-const initialToastsState = {
-  toasts: [],
-  addToast: mockAddToast,
-  removeToast: jest.fn(),
-};
 
 const initialSubsidyRequestsState = {
   subsidyRequestConfiguration: {
@@ -57,13 +50,11 @@ const SubsidyRequestButtonWrapper = ({
   subsidyRequestsState = {},
   courseState = {},
 }) => (
-  <ToastsContext.Provider value={initialToastsState}>
-    <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
-      <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
-        <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
-      </CourseContext.Provider>
-    </SubsidyRequestsContext.Provider>
-  </ToastsContext.Provider>
+  <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
+    <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
+      <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
+    </CourseContext.Provider>
+  </SubsidyRequestsContext.Provider>
 );
 
 describe('<SubsidyRequestButton />', () => {
@@ -194,7 +185,7 @@ describe('<SubsidyRequestButton />', () => {
       expect(
         expectedCalledFn,
       ).toHaveBeenCalledWith(mockEnterpriseUUID, mockCourseKey);
-      expect(mockAddToast).toHaveBeenCalledWith('Request for course submitted');
+      expect(screen.getByText('Request for course submitted')).toBeInTheDocument();
       expect(mockRefreshSubsidyRequests).toHaveBeenCalled();
     });
   });
