@@ -10,3 +10,27 @@
     width: 100%;
   }
 }
+
+.pathway-requirements {
+  .collapsible {
+    border: none;
+    box-shadow: none !important;
+
+    .collapsible-trigger{
+      border: none;
+    }
+  }
+
+  .pathway-node {
+    box-shadow: 0 0.25rem 0.5rem rgb(0 0 0 / 30%);
+    border-radius: 1rem;
+
+    &:not(:first-child) {
+      margin-top: 10px;
+    }
+
+    .badge {
+      height: fit-content;
+    }
+  }
+}
