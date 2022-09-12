@@ -14,7 +14,6 @@ import {
 } from '../enterprise-redirects';
 import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ExecutiveEducation2UPage } from '../executive-education-2u';
-import { ToastsProvider, Toasts } from '../Toasts';
 
 export default function App() {
   useEffect(() => {
@@ -34,25 +33,22 @@ export default function App() {
   return (
     <AppProvider>
       <NoticesProvider>
-        <ToastsProvider>
-          <Toasts />
-          <Switch>
-            <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
-            <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
-            <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
-            <PageRoute
-              exact
-              path="/:enterpriseSlug/executive-education-2u"
-              render={(routeProps) => (
-                <AuthenticatedPage>
-                  <ExecutiveEducation2UPage {...routeProps} />
-                </AuthenticatedPage>
-              )}
-            />
-            <Route path="/:enterpriseSlug" component={EnterpriseAppPageRoutes} />
-            <PageRoute path="*" component={NotFoundPage} />
-          </Switch>
-        </ToastsProvider>
+        <Switch>
+          <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
+          <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
+          <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
+          <PageRoute
+            exact
+            path="/:enterpriseSlug/executive-education-2u"
+            render={(routeProps) => (
+              <AuthenticatedPage>
+                <ExecutiveEducation2UPage {...routeProps} />
+              </AuthenticatedPage>
+            )}
+          />
+          <Route path="/:enterpriseSlug" component={EnterpriseAppPageRoutes} />
+          <PageRoute path="*" component={NotFoundPage} />
+        </Switch>
       </NoticesProvider>
     </AppProvider>
   );
