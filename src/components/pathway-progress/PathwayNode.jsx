@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Card } from '@edx/paragon';
+import { Badge, Card } from '@edx/paragon';
 import { useParams } from 'react-router-dom';
 import capitalize from 'lodash.capitalize';
 
@@ -32,7 +32,10 @@ function PathwayNode({ node }) {
                 <img src={node.cardImageUrl} alt={node.title} />
               </div>
               <div className="col-7">
-                <h3 className="row">{node.title}</h3>
+                <div className="row">
+                  <h3>{node.title}</h3>&nbsp;
+                  {node.status === IN_PROGRESS && <Badge variant="success">In Progress</Badge>}
+                </div>
                 <p className="row">{node.shortDescription}</p>
               </div>
               <div className="col-2">
