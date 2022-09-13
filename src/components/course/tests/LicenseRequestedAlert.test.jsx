@@ -1,4 +1,5 @@
 import React from 'react';
+import { IntlProvider } from 'react-intl';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
@@ -49,7 +50,9 @@ const LicenseRequestedAlertWrapper = ({
     }
     >
       <CourseContext.Provider>
-        <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
+        <IntlProvider locale="en">
+          <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
+        </IntlProvider>
       </CourseContext.Provider>
     </SubsidyRequestsContext.Provider>
   </UserSubsidyContext.Provider>
