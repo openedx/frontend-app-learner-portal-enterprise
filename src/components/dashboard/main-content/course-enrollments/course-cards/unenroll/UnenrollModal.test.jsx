@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -37,7 +38,9 @@ const UnenrollModalWrapper = ({
   ...props
 }) => (
   <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-    <UnenrollModal {...props} />
+    <IntlProvider locale="en">
+      <UnenrollModal {...props} />
+    </IntlProvider>
   </CourseEnrollmentsContext.Provider>
 );
 
