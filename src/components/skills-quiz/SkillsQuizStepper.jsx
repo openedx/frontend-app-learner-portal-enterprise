@@ -44,6 +44,7 @@ import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -65,7 +66,7 @@ const SkillsQuizStepper = () => {
   const handleIsStudentCheckedChange = e => setIsStudentChecked(e.target.checked);
 
   const {
-    state: { selectedJob, goal },
+    state: { selectedJob, goal, currentJobRole, interestedJobs },
     dispatch: skillsDispatch,
   } = useContext(SkillsContext);
   const { refinements, dispatch } = useContext(SearchContext);
@@ -111,6 +112,7 @@ const SkillsQuizStepper = () => {
   );
 
   const flipToRecommendedCourses = () => {
+    saveSkillsGoalsAndJobsUserSelected(goal, skills, currentJobRole, interestedJobs);
     // show  courses if learner has selected skills or jobs.
     if (goalExceptImproveAndJobSelected) {
       // verify if selectedJob is still checked and within first 3 jobs else
