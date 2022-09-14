@@ -30,7 +30,3 @@ jobs:
       run: npm run test
     - name: Build
       run: npm run build
-    - name: Upload Coverage
-      uses: codecov/codecov-action@v3
-      with:
-        fail_ci_if_error: true
