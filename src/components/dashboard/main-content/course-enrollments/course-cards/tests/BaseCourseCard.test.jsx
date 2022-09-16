@@ -1,5 +1,4 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl';
 import { mount } from 'enzyme';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -29,15 +28,13 @@ describe('<BaseCourseCard />', () => {
 
       wrapper = mount((
         <AppContext.Provider value={{ enterpriseConfig }}>
-          <IntlProvider locale="en">
-            <BaseCourseCard
-              type="completed"
-              title="edX Demonstration Course"
-              linkToCourse="https://edx.org"
-              courseRunId="my+course+key"
-              hasEmailsEnabled
-            />
-          </IntlProvider>
+          <BaseCourseCard
+            type="completed"
+            title="edX Demonstration Course"
+            linkToCourse="https://edx.org"
+            courseRunId="my+course+key"
+            hasEmailsEnabled
+          />
         </AppContext.Provider>
       ));
       // open email settings modal
@@ -59,16 +56,14 @@ describe('<BaseCourseCard />', () => {
       wrapper = mount((
         <AppContext.Provider value={{ enterpriseConfig }}>
           <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
-            <IntlProvider locale="en">
-              <BaseCourseCard
-                type="in_progress"
-                title="edX Demonstration Course"
-                linkToCourse="https://edx.org"
-                courseRunId="my+course+key"
-                canUnenroll
-                hasEmailsEnabled
-              />
-            </IntlProvider>
+            <BaseCourseCard
+              type="in_progress"
+              title="edX Demonstration Course"
+              linkToCourse="https://edx.org"
+              courseRunId="my+course+key"
+              canUnenroll
+              hasEmailsEnabled
+            />
           </CourseEnrollmentsContext.Provider>
         </AppContext.Provider>
       ));
@@ -87,16 +82,14 @@ describe('<BaseCourseCard />', () => {
   it('should render Skeleton if isLoading = true', () => {
     wrapper = mount((
       <AppContext.Provider value={{ enterpriseConfig }}>
-        <IntlProvider locale="en">
-          <BaseCourseCard
-            type="completed"
-            title="edX Demonstration Course"
-            linkToCourse="https://edx.org"
-            courseRunId="my+course+key"
-            hasEmailsEnabled
-            isLoading
-          />
-        </IntlProvider>
+        <BaseCourseCard
+          type="completed"
+          title="edX Demonstration Course"
+          linkToCourse="https://edx.org"
+          courseRunId="my+course+key"
+          hasEmailsEnabled
+          isLoading
+        />
       </AppContext.Provider>
     ));
 

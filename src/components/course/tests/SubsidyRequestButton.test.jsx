@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { IntlProvider } from 'react-intl';
 import {
   screen, render, fireEvent, waitFor,
 } from '@testing-library/react';
@@ -53,9 +52,7 @@ const SubsidyRequestButtonWrapper = ({
 }) => (
   <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
     <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
-      <IntlProvider locale="en">
-        <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
-      </IntlProvider>
+      <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
     </CourseContext.Provider>
   </SubsidyRequestsContext.Provider>
 );

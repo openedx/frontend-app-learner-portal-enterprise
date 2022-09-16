@@ -24,19 +24,3 @@ process.on('unhandledRejection', (reason, p) => {
   // eslint-disable-next-line no-console
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason.stack);
 });
-
-class ResizeObserver {
-  observe() {
-    // do nothing
-  }
-
-  unobserve() {
-    // do nothing
-  }
-
-  disconnect() {
-    // do nothing
-  }
-}
-
-window.ResizeObserver = ResizeObserver;
