@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { IntlProvider } from 'react-intl';
 import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -40,13 +39,11 @@ function UserEnrollmentFormWrapper({
 }) {
   return (
     <AppContext.Provider value={appContextValue}>
-      <IntlProvider locale="en">
-        <UserEnrollmentForm
-          enterpriseId={enterpriseId}
-          productSKU={productSKU}
-          onCheckoutSuccess={onCheckoutSuccess}
-        />
-      </IntlProvider>
+      <UserEnrollmentForm
+        enterpriseId={enterpriseId}
+        productSKU={productSKU}
+        onCheckoutSuccess={onCheckoutSuccess}
+      />
     </AppContext.Provider>
   );
 }
