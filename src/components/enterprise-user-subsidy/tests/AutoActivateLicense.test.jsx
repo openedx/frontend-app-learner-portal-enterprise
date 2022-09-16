@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Route } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -13,10 +13,12 @@ const initialPathname = `/${TEST_ENTERPRISE_SLUG}`;
 
 // eslint-disable-next-line react/prop-types
 function AutoActivateLicenseWrapper({ subscriptionLicense }) {
+  const contextValue = useMemo(() => ({ enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG } }), []);
+  const subsidyContextValue = useMemo(() => ({ subscriptionLicense }), [subscriptionLicense]);
   return (
     <Route path={initialPathname} exact>
-      <AppContext.Provider value={{ enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG } }}>
-        <UserSubsidyContext.Provider value={{ subscriptionLicense }}>
+      <AppContext.Provider value={contextValue}>
+        <UserSubsidyContext.Provider value={subsidyContextValue}>
           <AutoActivateLicense />
         </UserSubsidyContext.Provider>
       </AppContext.Provider>

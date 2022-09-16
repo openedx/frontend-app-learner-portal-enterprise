@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -16,11 +16,11 @@ function EnterpriseOffersBalanceAlertWrapper({
   },
   hasNoEnterpriseOffersBalance,
 }) {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig,
+  }), [enterpriseConfig]);
   return (
-    <AppContext.Provider value={{
-      enterpriseConfig,
-    }}
-    >
+    <AppContext.Provider value={contextValue}>
       <EnterpriseOffersBalanceAlert
         hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance}
       />

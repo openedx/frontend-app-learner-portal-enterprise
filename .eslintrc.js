@@ -13,8 +13,5 @@ config.ignorePatterns = ['module.config.js'];
 config.rules.indent = ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchCase'] }];
 config.rules['template-curly-spacing'] = 'off';
 config.rules['import/prefer-default-export'] = 'off';
-config.overrides = [{
-  files: ['*.test.jsx'], rules: { 'react/jsx-no-constructed-context-values': 'off' },
-}];
 
 module.exports = config;

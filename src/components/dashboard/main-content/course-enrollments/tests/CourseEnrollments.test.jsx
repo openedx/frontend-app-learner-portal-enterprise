@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
   render, screen, fireEvent, act, waitFor,
@@ -58,15 +58,19 @@ hooks.useCourseEnrollments.mockReturnValue({
   updateCourseEnrollmentStatus: jest.fn(),
 });
 
-const renderEnrollmentsComponent = () => render(
-  <AppContext.Provider value={{ enterpriseConfig }}>
-    <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
-      <CourseEnrollmentsContextProvider>
-        <CourseEnrollments />
-      </CourseEnrollmentsContextProvider>
-    </SubsidyRequestsContext.Provider>
-  </AppContext.Provider>,
-);
+function RenderEnrollmentsComponent() {
+  const contextValue = useMemo(() => ({ enterpriseConfig }), []);
+  const requestsContextValue = useMemo(() => ({ isLoading: false }), []);
+  return (
+    <AppContext.Provider value={contextValue}>
+      <SubsidyRequestsContext.Provider value={requestsContextValue}>
+        <CourseEnrollmentsContextProvider>
+          <CourseEnrollments />
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </AppContext.Provider>
+  );
+}
 
 describe('Course enrollments', () => {
   beforeEach(() => {
@@ -78,7 +82,7 @@ describe('Course enrollments', () => {
   });
 
   it('renders course sections', () => {
-    renderEnrollmentsComponent();
+    render(<RenderEnrollmentsComponent />);
     expect(screen.getByText(COURSE_SECTION_TITLES.current));
     expect(screen.getByText(COURSE_SECTION_TITLES.completed));
     expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater));
@@ -86,7 +90,7 @@ describe('Course enrollments', () => {
   });
 
   it('generates course status update on move to in progress action', async () => {
-    const { getByText } = renderEnrollmentsComponent();
+    const { getByText } = render(<RenderEnrollmentsComponent />);
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
     });
@@ -100,7 +104,7 @@ describe('Course enrollments', () => {
   });
 
   it('generates course status update on move to saved for later action', async () => {
-    const { getByText } = renderEnrollmentsComponent();
+    const { getByText } = render(<RenderEnrollmentsComponent />);
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
     });
@@ -110,7 +114,7 @@ describe('Course enrollments', () => {
   });
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {
-    renderEnrollmentsComponent();
+    render(<RenderEnrollmentsComponent />);
     const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
     expect(within(currentCourses).getByText(inProgCourseRun.title));
     expect(within(currentCourses).getByText(upcomingCourseRun.title));
@@ -144,7 +148,7 @@ describe('Course enrollments', () => {
       },
     });
 
-    renderEnrollmentsComponent({
+    render(<RenderEnrollmentsComponent />, {
       isSubsidyRequestsEnabled: false,
     });
 

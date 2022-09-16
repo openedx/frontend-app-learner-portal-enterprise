@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -29,12 +29,11 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
 });
 
 function SearchPathwayCardWithAppContext(props) {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
+  }), []);
   return (
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       <SearchPathwayCard {...props} />
     </AppContext.Provider>
   );

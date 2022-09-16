@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -27,12 +27,11 @@ jest.mock('react-loading-skeleton', () => ({
 }));
 
 function PathwayModalWithAppContext(props) {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+  }), []);
   return (
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       <PathwayModal {...props} />
     </AppContext.Provider>
   );

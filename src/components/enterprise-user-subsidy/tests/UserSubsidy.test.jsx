@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import moment from 'moment';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -67,18 +67,17 @@ function UserSubsidyWithAppContext({
   authenticatedUser = TEST_USER,
   children,
 }) {
+  const appContextValue = useMemo(() => ({
+    enterpriseConfig: {
+      slug: TEST_ENTERPRISE_SLUG,
+      uuid: TEST_ENTERPRISE_UUID,
+      ...enterpriseConfig,
+    },
+    authenticatedUser,
+    ...contextValue,
+  }), [authenticatedUser, contextValue, enterpriseConfig]);
   return (
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: {
-          slug: TEST_ENTERPRISE_SLUG,
-          uuid: TEST_ENTERPRISE_UUID,
-          ...enterpriseConfig,
-        },
-        authenticatedUser,
-        ...contextValue,
-      }}
-    >
+    <AppContext.Provider value={appContextValue}>
       <UserSubsidy>
         {children}
       </UserSubsidy>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { render, act } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -10,14 +10,14 @@ jest.mock('../../utils/common');
 
 // eslint-disable-next-line react/prop-types
 function LoginRefreshWithContext({ roles = [] }) {
+  const contextValue = useMemo(() => ({
+    authenticatedUser: {
+      userId: 1,
+      roles,
+    },
+  }), [roles]);
   return (
-    <AppContext.Provider value={{
-      authenticatedUser: {
-        userId: 1,
-        roles,
-      },
-    }}
-    >
+    <AppContext.Provider value={contextValue}>
       <LoginRefresh>
         <div>Hello!</div>
       </LoginRefresh>

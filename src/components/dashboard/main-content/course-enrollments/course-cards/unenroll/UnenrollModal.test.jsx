@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+import { useMemo } from 'react';
 
 import { COURSE_STATUSES } from '../../../../../../constants';
 import { unenrollFromCourse } from './data';
@@ -39,8 +40,9 @@ function UnenrollModalWrapper({
   courseEnrollmentsContextValue = defaultCourseEnrollmentsContextValue,
   ...props
 }) {
+  const contextValue = useMemo(() => ({ addToast: mockAddToast }), []);
   return (
-    <ToastsContext.Provider value={{ addToast: mockAddToast }}>
+    <ToastsContext.Provider value={contextValue}>
       <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
         <UnenrollModal {...props} />
       </CourseEnrollmentsContext.Provider>

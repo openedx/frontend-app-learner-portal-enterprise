@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -8,6 +8,22 @@ import EnterpriseBanner from '../EnterpriseBanner';
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
+
+function BannerWrapper() {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig: {
+      slug: 'slug',
+      uuid: 'uuid',
+    },
+  }), []);
+  return (
+    <AppContext.Provider
+      value={contextValue}
+    >
+      <EnterpriseBanner />
+    </AppContext.Provider>
+  );
+}
 
 describe('<EnterpriseBanner />', () => {
   afterAll(() => {
@@ -19,18 +35,7 @@ describe('<EnterpriseBanner />', () => {
       pathname: '/slug/search',
     }));
 
-    render(
-      <AppContext.Provider
-        value={{
-          enterpriseConfig: {
-            slug: 'slug',
-            uuid: 'uuid',
-          },
-        }}
-      >
-        <EnterpriseBanner />
-      </AppContext.Provider>,
-    );
+    render(<BannerWrapper />);
 
     expect(screen.getByText('Recommend courses for me'));
   });

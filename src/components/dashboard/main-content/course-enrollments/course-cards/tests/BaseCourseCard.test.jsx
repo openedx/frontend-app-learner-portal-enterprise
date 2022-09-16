@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { mount } from 'enzyme';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -20,6 +21,51 @@ const enterpriseConfig = {
   name: 'test-enterprise-name',
 };
 
+function CourseCardWrapper({ isLoading }) {
+  const contextValue = useMemo(() => ({ enterpriseConfig }), []);
+  return (
+    <AppContext.Provider value={contextValue}>
+      <BaseCourseCard
+        type="completed"
+        title="edX Demonstration Course"
+        linkToCourse="https://edx.org"
+        courseRunId="my+course+key"
+        hasEmailsEnabled
+        isLoading={isLoading}
+      />
+    </AppContext.Provider>
+  );
+}
+CourseCardWrapper.defaultProps = {
+  isLoading: false,
+};
+
+CourseCardWrapper.propTypes = {
+  isLoading: PropTypes.bool,
+};
+
+function CourseEnrollmentWrapper() {
+  const contextValue = useMemo(() => ({ enterpriseConfig }), []);
+  const toastContextValue = useMemo(() => ({ addToast: jest.fn() }), []);
+  const enrollmentContextValue = useMemo(() => ({ removeCourseEnrollment: jest.fn() }), []);
+  return (
+    <AppContext.Provider value={contextValue}>
+      <ToastsContext.Provider value={toastContextValue}>
+        <CourseEnrollmentsContext.Provider value={enrollmentContextValue}>
+          <BaseCourseCard
+            type="in_progress"
+            title="edX Demonstration Course"
+            linkToCourse="https://edx.org"
+            courseRunId="my+course+key"
+            canUnenroll
+            hasEmailsEnabled
+          />
+        </CourseEnrollmentsContext.Provider>
+      </ToastsContext.Provider>
+    </AppContext.Provider>
+  );
+}
+
 describe('<BaseCourseCard />', () => {
   let wrapper;
 
@@ -27,17 +73,7 @@ describe('<BaseCourseCard />', () => {
     beforeEach(() => {
       jest.clearAllMocks();
 
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <BaseCourseCard
-            type="completed"
-            title="edX Demonstration Course"
-            linkToCourse="https://edx.org"
-            courseRunId="my+course+key"
-            hasEmailsEnabled
-          />
-        </AppContext.Provider>
-      ));
+      wrapper = mount(<CourseCardWrapper />);
       // open email settings modal
       wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
       wrapper.find('Dropdown').find('button.dropdown-item').simulate('click');
@@ -51,27 +87,10 @@ describe('<BaseCourseCard />', () => {
   });
 
   describe('unenroll modal', () => {
-    const mockAddToast = jest.fn();
-
     beforeEach(() => {
       jest.clearAllMocks();
 
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
-          <ToastsContext.Provider value={{ addToast: mockAddToast }}>
-            <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
-              <BaseCourseCard
-                type="in_progress"
-                title="edX Demonstration Course"
-                linkToCourse="https://edx.org"
-                courseRunId="my+course+key"
-                canUnenroll
-                hasEmailsEnabled
-              />
-            </CourseEnrollmentsContext.Provider>
-          </ToastsContext.Provider>
-        </AppContext.Provider>
-      ));
+      wrapper = mount(<CourseEnrollmentWrapper />);
       // open unenroll modal
       wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
       wrapper.find('Dropdown').find('button.dropdown-item').at(1).simulate('click');
@@ -85,18 +104,7 @@ describe('<BaseCourseCard />', () => {
   });
 
   it('should render Skeleton if isLoading = true', () => {
-    wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig }}>
-        <BaseCourseCard
-          type="completed"
-          title="edX Demonstration Course"
-          linkToCourse="https://edx.org"
-          courseRunId="my+course+key"
-          hasEmailsEnabled
-          isLoading
-        />
-      </AppContext.Provider>
-    ));
+    wrapper = mount(<CourseCardWrapper isLoading />);
 
     expect(wrapper.find(Skeleton)).toBeTruthy();
   });

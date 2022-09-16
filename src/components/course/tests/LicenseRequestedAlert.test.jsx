@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
@@ -27,28 +27,26 @@ const initialLicenseRequests = [
 function LicenseRequestedAlertWrapper({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
 }) {
+  const contextValue = useMemo(() => ({
+    couponCodes: {
+      couponCodes: [],
+      couponCodesCount: 0,
+    },
+    subscriptionLicense: {},
+    customerAgreementConfig: {
+      subscriptions,
+    },
+  }), [subscriptions]);
+  const requestContextValue = useMemo(() => ({
+    subsidyRequestConfiguration: null,
+    requestsBySubsidyType: {
+      [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+      [SUBSIDY_TYPE.COUPON]: [],
+    },
+  }), [licenseRequests]);
   return (
-    <UserSubsidyContext.Provider value={{
-      couponCodes: {
-        couponCodes: [],
-        couponCodesCount: 0,
-      },
-      subscriptionLicense: {},
-      customerAgreementConfig: {
-        subscriptions,
-      },
-    }}
-    >
-      <SubsidyRequestsContext.Provider value={
-        {
-          subsidyRequestConfiguration: null,
-          requestsBySubsidyType: {
-            [SUBSIDY_TYPE.LICENSE]: licenseRequests,
-            [SUBSIDY_TYPE.COUPON]: [],
-          },
-        }
-      }
-      >
+    <UserSubsidyContext.Provider value={contextValue}>
+      <SubsidyRequestsContext.Provider value={requestContextValue}>
         <CourseContext.Provider>
           <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
         </CourseContext.Provider>

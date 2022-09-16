@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -26,16 +26,15 @@ function LicenseActivationWithAppContext({
     activateUserLicense: jest.fn(() => true),
   },
 }) {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig: {
+      uuid: TEST_ENTERPRISE_UUID,
+      slug: TEST_ENTERPRISE_SLUG,
+      name: 'Test Enterprise',
+    },
+  }), []);
   return (
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: {
-          uuid: TEST_ENTERPRISE_UUID,
-          slug: TEST_ENTERPRISE_SLUG,
-          name: 'Test Enterprise',
-        },
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
           <LicenseActivation />

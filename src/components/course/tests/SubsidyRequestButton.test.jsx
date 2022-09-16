@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   screen, render, fireEvent, waitFor,
 } from '@testing-library/react';
@@ -57,10 +57,13 @@ function SubsidyRequestButtonWrapper({
   subsidyRequestsState = {},
   courseState = {},
 }) {
+  const requestContextValue = useMemo(() => (
+    { ...initialSubsidyRequestsState, ...subsidyRequestsState }), [subsidyRequestsState]);
+  const courseContextValue = useMemo(() => ({ ...initialCourseState, ...courseState }), [courseState]);
   return (
     <ToastsContext.Provider value={initialToastsState}>
-      <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
-        <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
+      <SubsidyRequestsContext.Provider value={requestContextValue}>
+        <CourseContext.Provider value={courseContextValue}>
           <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
         </CourseContext.Provider>
       </SubsidyRequestsContext.Provider>

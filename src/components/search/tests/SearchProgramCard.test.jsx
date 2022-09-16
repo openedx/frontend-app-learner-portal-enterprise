@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -31,12 +31,11 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 }));
 
 function SearchProgramCardWithAppContext(props) {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
+  }), []);
   return (
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       <SearchProgramCard {...props} />
     </AppContext.Provider>
   );

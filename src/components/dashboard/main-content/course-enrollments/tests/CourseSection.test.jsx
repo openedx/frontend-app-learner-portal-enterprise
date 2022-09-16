@@ -4,6 +4,7 @@ import {
   render, screen, fireEvent,
 } from '@testing-library/react';
 import * as frontendEnterpriseUtils from '@edx/frontend-enterprise-utils';
+import { useMemo } from 'react';
 
 import CourseSection from '../CourseSection';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
@@ -33,13 +34,13 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
 const TEST_ENTERPRISE_UUID = 'test-uuid';
 
 function CourseSectionWrapper(props) {
+  const contextValue = useMemo(() => ({
+    enterpriseConfig: {
+      uuid: TEST_ENTERPRISE_UUID,
+    },
+  }), []);
   return (
-    <AppContext.Provider value={{
-      enterpriseConfig: {
-        uuid: TEST_ENTERPRISE_UUID,
-      },
-    }}
-    >
+    <AppContext.Provider value={contextValue}>
       <CourseSection
         {...props}
       />
