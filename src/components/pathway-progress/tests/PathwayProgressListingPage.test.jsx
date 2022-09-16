@@ -5,7 +5,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from 'react-intl';
-import { initializeMockApp } from '@edx/frontend-platform';
+
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import PathwayProgressListingPage from '../PathwayProgressListingPage';
@@ -40,9 +40,6 @@ const PathwayProgressListingWithContext = ({
 );
 
 describe('<PathwayProgressListingPage />', () => {
-  beforeEach(() => {
-    initializeMockApp();
-  });
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',

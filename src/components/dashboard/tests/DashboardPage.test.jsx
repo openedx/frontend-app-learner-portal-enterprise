@@ -4,8 +4,6 @@ import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
-import { IntlProvider } from 'react-intl';
-import { initializeMockApp } from '@edx/frontend-platform';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
 import {
@@ -112,19 +110,17 @@ const DashboardWithContext = ({
   initialCourseState = defaultCourseState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
 }) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <CourseEnrollmentsContextProvider>
-            <CourseContextProvider initialState={initialCourseState}>
-              <DashboardPage />
-            </CourseContextProvider>
-          </CourseEnrollmentsContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <CourseEnrollmentsContextProvider>
+          <CourseContextProvider initialState={initialCourseState}>
+            <DashboardPage />
+          </CourseContextProvider>
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
 );
 /* eslint-enable react/prop-types */
 
@@ -154,9 +150,6 @@ hooks.useCourseEnrollments.mockReturnValue({
 console.error = jest.fn();
 
 describe('<Dashboard />', () => {
-  beforeEach(() => {
-    initializeMockApp();
-  });
   afterAll(() => {
     jest.restoreAllMocks();
   });
