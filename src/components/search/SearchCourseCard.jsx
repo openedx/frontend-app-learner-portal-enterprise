@@ -95,6 +95,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
         />
 
         <Card.Header
+          className="h-100"
           title={(
             <Truncate lines={3} trimWhitespace>
               {course.title}
