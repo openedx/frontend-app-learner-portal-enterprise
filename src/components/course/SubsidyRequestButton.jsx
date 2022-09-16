@@ -2,7 +2,7 @@ import React, {
   useContext, useMemo, useState, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import { StatefulButton, Toast } from '@edx/paragon';
+import { StatefulButton } from '@edx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 import { useHistory } from 'react-router-dom';
 
@@ -10,6 +10,7 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requ
 import { CourseContext } from './CourseContextProvider';
 import { useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
+import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
 
 const props = {
@@ -25,7 +26,7 @@ const props = {
 
 const SubsidyRequestButton = ({ enterpriseSlug }) => {
   const history = useHistory();
-  const [showToast, setShowToast] = useState(false);
+  const { addToast } = useContext(ToastsContext);
   const [loadingRequest, setLoadingRequest] = useState(false);
 
   const {
@@ -109,7 +110,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
     try {
       await requestSubsidy(courseKey);
       setLoadingRequest(false);
-      setShowToast(true);
+      addToast('Request for course submitted');
       refreshSubsidyRequests();
       history.push(`/${enterpriseSlug}`);
     } catch (error) {
@@ -119,15 +120,7 @@ const SubsidyRequestButton = ({ enterpriseSlug }) => {
   };
 
   return (
-    <>
-      <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
-      <Toast
-        onClose={() => setShowToast(false)}
-        show={showToast}
-      >
-        Request for course submitted
-      </Toast>
-    </>
+    <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
   );
 };
 
