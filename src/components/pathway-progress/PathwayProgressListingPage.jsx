@@ -52,7 +52,7 @@ const PathwayProgressListingPage = () => {
             <div className="no-content-message">
               <h2>{NO_PATHWAYS_ERROR_MESSAGE}</h2>
               <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`}>
-                <Button variant="primary" iconBefore={Search} className="mt-2">Explore pathways</Button>
+                <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore pathways</Button>
               </Link>
             </div>
           )}
