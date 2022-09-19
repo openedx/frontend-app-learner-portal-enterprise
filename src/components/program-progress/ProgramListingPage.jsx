@@ -47,7 +47,7 @@ const ProgramListingPage = () => {
             <div className="no-content-message">
               <h2>{NO_PROGRAMS_ERROR_MESSAGE}</h2>
               <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
-                <Button variant="primary" iconBefore={Search} className="mt-2">Explore programs</Button>
+                <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore programs</Button>
               </Link>
             </div>
           )}
