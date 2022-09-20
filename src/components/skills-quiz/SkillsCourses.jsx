@@ -10,8 +10,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import Skeleton from 'react-loading-skeleton';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { ZoomOut } from '@edx/paragon/icons';
 import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
@@ -145,7 +144,7 @@ const SkillsCourses = ({ index }) => {
             className="mt-4 mb-5"
             variant="info"
             dismissible={false}
-            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+            icon={ZoomOut}
             show
           >
             { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS }

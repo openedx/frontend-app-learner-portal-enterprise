@@ -5,8 +5,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { Alert } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { ZoomOut } from '@edx/paragon/icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
 
@@ -93,7 +92,7 @@ const SearchCourseCard = ({ index }) => {
             className="mt-4 mb-5"
             variant="info"
             dismissible={false}
-            icon={() => <FontAwesomeIcon icon={faSearchMinus} size="2x" />}
+            icon={ZoomOut}
             show
           >
             { NO_COURSES_ALERT_MESSAGE }
