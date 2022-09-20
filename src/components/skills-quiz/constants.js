@@ -1,7 +1,11 @@
 export const DROPDOWN_OPTION_CHANGE_CAREERS = 'I want to change careers';
+export const DROPDOWN_OPTION_CHANGE_CAREERS_LABEL = 'change_careers';
 export const DROPDOWN_OPTION_GET_PROMOTED = 'I want to get promoted';
+export const DROPDOWN_OPTION_GET_PROMOTED_LABEL = 'get_promoted';
 export const DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE = 'I want to improve at my current role';
+export const DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE_LABEL = 'improve_current_role';
 export const DROPDOWN_OPTION_OTHER = 'Other';
+export const DROPDOWN_OPTION_OTHER_LABEL = 'other';
 export const GOAL_DROPDOWN_DEFAULT_OPTION = 'Select a Goal';
 
 export const JOB_ATTRIBUTE_NAME = 'name';

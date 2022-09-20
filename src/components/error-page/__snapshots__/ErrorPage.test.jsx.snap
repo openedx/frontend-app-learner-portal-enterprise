@@ -34,25 +34,20 @@ Array [
     </nav>
   </header>,
   <main
-    className="error-page-container"
     id="content"
   >
     <div
-      className="container-fluid"
+      className="error-page-container container-mw-lg container-fluid"
     >
       <div
         className="col-lg-10 col-12 offset-lg-1"
       >
-        <h1
-          className="error-page-title h2"
+        <h2
+          className="text-danger mb-4"
         >
           Error occurred while processing your request
-        </h1>
-        <div
-          className="error-page-message"
-        >
-          Here goes the error message.
-        </div>
+        </h2>
+        Here goes the error message.
       </div>
     </div>
   </main>,
@@ -96,25 +91,20 @@ Array [
     </nav>
   </header>,
   <main
-    className="error-page-container"
     id="content"
   >
     <div
-      className="container-fluid"
+      className="error-page-container container-mw-lg container-fluid"
     >
       <div
         className="col-lg-10 col-12 offset-lg-1"
       >
-        <h1
-          className="error-page-title h2"
+        <h2
+          className="text-danger mb-4"
         >
           Error occurred while processing your request
-        </h1>
-        <div
-          className="error-page-message"
-        >
-          Here goes the error message.
-        </div>
+        </h2>
+        Here goes the error message.
       </div>
     </div>
   </main>,
@@ -158,30 +148,25 @@ Array [
     </nav>
   </header>,
   <main
-    className="error-page-container"
     id="content"
   >
     <div
-      className="container-fluid"
+      className="error-page-container container-mw-lg container-fluid"
     >
       <div
         className="col-lg-10 col-12 offset-lg-1"
       >
-        <h1
-          className="error-page-title h2"
+        <h2
+          className="text-danger mb-4"
         >
           Something went wrong
-        </h1>
-        <h2
-          className="error-page-subtitle h3"
+        </h2>
+        <h3
+          className="mb-4.5 text-gray-700"
         >
           More details here
-        </h2>
-        <div
-          className="error-page-message"
-        >
-          Here goes the error message.
-        </div>
+        </h3>
+        Here goes the error message.
       </div>
     </div>
   </main>,

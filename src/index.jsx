@@ -41,6 +41,8 @@ initialize({
         ENABLE_SKILLS_QUIZ: process.env.ENABLE_SKILLS_QUIZ || false,
         ENABLE_NOTICES: process.env.ENABLE_NOTICES || null,
         LEARNER_SUPPORT_URL: process.env.LEARNER_SUPPORT_URL || null,
+        GETSMARTER_STUDENT_TC_URL: process.env.GETSMARTER_STUDENT_TC_URL || null,
+        GETSMARTER_PRIVACY_POLICY_URL: process.env.GETSMARTER_PRIVACY_POLICY_URL || null,
       });
     },
   },

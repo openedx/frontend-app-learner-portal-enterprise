@@ -139,6 +139,6 @@ describe('<ProgramListingCard />', () => {
       programData={dummyProgramData}
     />);
     fireEvent.click(container.firstElementChild);
-    expect(mockedPush).toHaveBeenCalledWith('/test-enterprise-slug/program-progress/test-uuid');
+    expect(mockedPush).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
   });
 });

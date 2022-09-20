@@ -11,19 +11,32 @@ export const UpgradeableCourseEnrollmentContext = createContext({ isLoading: fal
 
 export const UpgradeableCourseEnrollmentContextProvider = ({ courseEnrollment, children }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionLicense } = useContext(UserSubsidyContext);
+  const { subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
   const location = useLocation();
 
-  const { isLoading, upgradeUrl } = useCourseUpgradeData({
+  // If a licenseUpgradeUrl exists, couponUpgradeUrl will always be undefined
+  // since we would always use the license to upgrade instead
+  const {
+    isLoading,
+    subsidyForCourse,
+    licenseUpgradeUrl,
+    couponUpgradeUrl,
+  } = useCourseUpgradeData({
     courseRunKey: courseEnrollment.courseRunId,
     enterpriseId: enterpriseConfig.uuid,
     subscriptionLicense,
+    couponCodes,
     location,
   });
 
   const context = useMemo(() => ({
-    isLoading, upgradeUrl,
-  }), [isLoading, upgradeUrl]);
+    isLoading, licenseUpgradeUrl, couponUpgradeUrl, subsidyForCourse,
+  }), [
+    isLoading,
+    subsidyForCourse,
+    licenseUpgradeUrl,
+    couponUpgradeUrl,
+  ]);
 
   return (
     <UpgradeableCourseEnrollmentContext.Provider value={context}>

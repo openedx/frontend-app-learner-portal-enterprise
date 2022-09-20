@@ -1,5 +1,5 @@
 import {
-  breakpoints, Bubble, Card, Stack,
+  breakpoints, Card,
 } from '@edx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
@@ -9,6 +9,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import Truncate from 'react-truncate';
 import { getProgramIcon } from '../course/data/utils';
+import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
 const ProgramListingCard = ({ program }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -16,7 +17,7 @@ const ProgramListingCard = ({ program }) => {
   const history = useHistory();
 
   const handleCardClick = () => {
-    history.push(`/${enterpriseConfig.slug}/program-progress/${program.uuid}`);
+    history.push(`/${enterpriseConfig.slug}/program/${program.uuid}/progress`);
   };
 
   useEffect(() => {
@@ -55,7 +56,7 @@ const ProgramListingCard = ({ program }) => {
 
   return (
     <Card
-      className="mb-4 program-listing-card mr-5"
+      className="mb-4 progress-listing-card mr-5"
       isClickable
       onClick={handleCardClick}
     >
@@ -64,7 +65,7 @@ const ProgramListingCard = ({ program }) => {
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"
-        className="program-banner-image"
+        className="banner-image"
       />
 
       <Card.Header
@@ -95,22 +96,11 @@ const ProgramListingCard = ({ program }) => {
       />
 
       <Card.Section className="py-3">
-        <Stack direction="horizontal" gap={2}>
-          <Bubble className="remaining-courses">
-            {program.progress.notStarted}
-          </Bubble>
-          <div>Remaining</div>
-
-          <Bubble className="in-progress-courses">
-            {program.progress.inProgress}
-          </Bubble>
-          <div>In progress</div>
-
-          <Bubble className="completed-courses">
-            {program.progress.completed}
-          </Bubble>
-          <div>Completed</div>
-        </Stack>
+        <ProgressCategoryBubbles
+          inProgress={program.progress.inProgress}
+          notStarted={program.progress.notStarted}
+          completed={program.progress.completed}
+        />
       </Card.Section>
     </Card>
   );
