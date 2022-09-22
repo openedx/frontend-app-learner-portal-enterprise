@@ -2,14 +2,24 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import moment from 'moment';
 import { camelCaseObject } from '@edx/frontend-platform';
-import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse, useAllCourseData } from '../hooks';
+import {
+  useCourseEnrollmentUrl,
+  useUserHasSubsidyRequestForCourse,
+  useAllCourseData,
+  useOptimizelyEnrollmentClickHandler,
+  useOptimizelyLicenseSubsidyEnrollmentClickHandler,
+} from '../hooks';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
 import { LICENSE_SUBSIDY_TYPE, COUPON_CODE_SUBSIDY_TYPE } from '../constants';
+import * as optimizelyUtils from '../../../../utils/optimizely';
 
 jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
 }));
+
+jest.useFakeTimers();
+jest.spyOn(global, 'setTimeout');
 
 const mockCourseData = {
   catalog: {
@@ -339,5 +349,40 @@ describe('useUserHasSubsidyRequestForCourse', () => {
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
     expect(result.current).toBe(false);
+  });
+});
+
+describe('useOptimizelyLicenseSubsidyEnrollmentClickHandler', () => {
+  const basicProps = {
+    courseRunKey: 'courseRunKey',
+    href: 'http://example.com',
+  };
+
+  afterEach(() => jest.clearAllMocks());
+
+  it('sends correct optimizely event', () => {
+    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
+    const { result } = renderHook(() => useOptimizelyLicenseSubsidyEnrollmentClickHandler(basicProps));
+    result.current({ preventDefault: jest.fn() });
+    expect(pushEventSpy).toHaveBeenCalledWith('enterprise_learner_portal_license_subsidy_enrollment_click', { courseKey: 'courseRunKey' });
+  });
+});
+
+describe('useOptimizelyEnrollmentClickHandler', () => {
+  const basicProps = {
+    courseRunKey: 'courseRunKey',
+    href: 'http://example.com',
+    courseEnrollmentsByStatus: {},
+  };
+
+  afterEach(() => jest.clearAllMocks());
+
+  it('sends correct optimizely event', () => {
+    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
+    const { result } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
+    result.current({ preventDefault: jest.fn() });
+    expect(pushEventSpy).toHaveBeenCalledTimes(2);
+    expect(pushEventSpy).toHaveBeenNthCalledWith(1, 'enterprise_learner_portal_enrollment_click', { courseKey: 'courseRunKey' });
+    expect(pushEventSpy).toHaveBeenNthCalledWith(2, 'enterprise_learner_portal_first_enrollment_click', { courseKey: 'courseRunKey' });
   });
 });
