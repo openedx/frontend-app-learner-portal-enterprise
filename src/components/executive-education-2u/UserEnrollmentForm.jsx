@@ -12,7 +12,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 
-import { checkoutExecutiveEducation2U } from './data';
+import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import FormSectionHeading from './FormSectionHeading';
 
 export const formValidationMessages = {
@@ -69,7 +69,7 @@ function UserEnrollmentForm({
           lastName: values.lastName,
           dateOfBirth: values.dateOfBirth,
         },
-        termsAcceptedAt: new Date(Date.now()).toISOString(),
+        termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
       });
 
       await sendEnterpriseTrackEventWithDelay(
