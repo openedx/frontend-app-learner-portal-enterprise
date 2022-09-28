@@ -13,7 +13,6 @@ import * as entepriseAccessService from '../../enterprise-subsidy-requests/data/
 jest.mock('../../enterprise-subsidy-requests/data/service');
 
 const mockEnterpriseUUID = 'uuid';
-const mockEnterpriseSlug = 'sluggy';
 const mockCourseKey = 'edx+101';
 const mockCourseRunKey = `${mockCourseKey}+v1`;
 
@@ -60,7 +59,7 @@ const SubsidyRequestButtonWrapper = ({
   <ToastsContext.Provider value={initialToastsState}>
     <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
       <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
-        <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
+        <SubsidyRequestButton />
       </CourseContext.Provider>
     </SubsidyRequestsContext.Provider>
   </ToastsContext.Provider>
@@ -158,7 +157,8 @@ describe('<SubsidyRequestButton />', () => {
         }}
       />,
     );
-    expect(screen.getByText('Awaiting approval'));
+    expect(screen.queryByText('Request enrollment')).not.toBeInTheDocument();
+    expect(screen.getByText('Awaiting approval')).toBeInTheDocument();
   });
 
   it.each(
