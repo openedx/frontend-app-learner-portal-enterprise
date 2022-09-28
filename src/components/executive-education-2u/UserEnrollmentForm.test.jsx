@@ -6,7 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
-import { checkoutExecutiveEducation2U } from './data';
+import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 
 const termsLabelText = 'I agree to GetSmarter\'s Terms and Conditions for Students';
 
@@ -102,7 +102,7 @@ describe('UserEnrollmentForm', () => {
       receiptPageUrl: 'https://edx.org',
     };
     checkoutExecutiveEducation2U.mockResolvedValueOnce(mockCheckoutResponse);
-    const mockTermsAcceptedAt = '2022-08-23';
+    const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
     render(<UserEnrollmentFormWrapper />);
@@ -125,7 +125,7 @@ describe('UserEnrollmentForm', () => {
             lastName: mockLastName,
             dateOfBirth: mockDateOfBirth,
           },
-          termsAcceptedAt: new Date(mockTermsAcceptedAt).toISOString(),
+          termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(mockTermsAcceptedAt).toISOString()),
         }),
       );
     });
