@@ -64,7 +64,10 @@
     "axios-mock-adapter": "1.19.0",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.6",
+    "jsdoc": "^3.6.11",
+    "jsdoc-template": "^1.2.0",
     "match-media-mock": "0.1.1",
+    "nodemon": "^2.0.20",
     "prettier": "2.2.1",
     "react-test-renderer": "16.14.0"
   },
@@ -82,7 +85,9 @@
     "start:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && fedx-scripts webpack-dev-server --progress",
     "test": "fedx-scripts jest --coverage --passWithNoTests --maxWorkers=50%",
     "test:watch": "npm run test -- --watch",
-    "install-theme": "npm install \"@edx/brand@${THEME}\" --no-save"
+    "install-theme": "npm install \"@edx/brand@${THEME}\" --no-save",
+    "docs": "jsdoc -c jsdoc.json",
+    "docs-watch": "nodemon -w src -w docs/template -w README.md -e js,jsx --exec npm run docs"
   },
   "repository": {
     "type": "git",

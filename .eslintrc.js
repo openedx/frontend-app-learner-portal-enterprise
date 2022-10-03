@@ -2,7 +2,7 @@ const { getBaseConfig } = require('@edx/frontend-build');
 const config = getBaseConfig('eslint');
 
 // Ignore linting on module.config.js
-config.ignorePatterns = ['module.config.js'];
+config.ignorePatterns = ['module.config.js', 'docs/**'];
 
 // Temporarily update the 'indent' and 'template-curly-spacing' rules
 // since they are causing eslint to fail for no apparent reason since

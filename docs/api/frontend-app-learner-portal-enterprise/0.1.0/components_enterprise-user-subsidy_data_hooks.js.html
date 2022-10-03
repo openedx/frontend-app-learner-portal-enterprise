@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>
+      components/enterprise-user-subsidy/data/hooks.js - Documentation
+  </title>
+
+  <link href="https://www.braintreepayments.com/images/favicon-ccda0b14.png" rel="icon" type="image/png">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+  <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+  <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+  
+
+  
+
+  <!-- start Mixpanel -->
+  <script type="text/javascript">(function(e,a){if(!a.__SV){var b=window;try{var c,l,i,j=b.location,g=j.hash;c=function(a,b){return(l=a.match(RegExp(b+"=([^&]*)")))?l[1]:null};g&&c(g,"state")&&(i=JSON.parse(decodeURIComponent(c(g,"state"))),"mpeditor"===i.action&&(b.sessionStorage.setItem("_mpcehash",g),history.replaceState(i.desiredHash||"",e.title,j.pathname+j.search)))}catch(m){}var k,h;window.mixpanel=a;a._i=[];a.init=function(b,c,f){function e(b,a){var c=a.split(".");2==c.length&&(b=b[c[0]],a=c[1]);b[a]=function(){b.push([a].concat(Array.prototype.slice.call(arguments,
+  0)))}}var d=a;"undefined"!==typeof f?d=a[f]=[]:f="mixpanel";d.people=d.people||[];d.toString=function(b){var a="mixpanel";"mixpanel"!==f&&(a+="."+f);b||(a+=" (stub)");return a};d.people.toString=function(){return d.toString(1)+".people (stub)"};k="disable time_event track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config reset people.set people.set_once people.increment people.append people.union people.track_charge people.clear_charges people.delete_user".split(" ");
+  for(h=0;h<k.length;h++)e(d,k[h]);a._i.push([b,c,f])};a.__SV=1.2;b=e.createElement("script");b.type="text/javascript";b.async=!0;b.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===e.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";c=e.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c)}})(document,window.mixpanel||[]);
+  mixpanel.init("1919205b2da72e4da3b9b6639b444d59");</script>
+  <!-- end Mixpanel -->
+</head>
+
+<body>
+  <svg style="display: none;">
+    <defs>
+      <symbol id="linkIcon" fill="#706d77" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+  <label for="nav-trigger" class="navicon-button x">
+    <div class="navicon"></div>
+  </label>
+
+  <label for="nav-trigger" class="overlay"></label>
+
+  <div class="top-nav-wrapper">
+    <ul>
+      <li >
+        <a href="index.html">
+          
+            <svg fill="#6D6D6D" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              <path d="M0 0h24v24H0z" fill="none"/>
+            </svg>
+          
+          
+        </a>
+      </li>
+
+      
+
+    </ul>
+  </div>
+
+  <nav>
+    <h3 class="reference-title">
+      frontend-app-learner-portal-enterprise
+    </h3>
+
+    
+
+    <h3 id="global-nav">Global</h3><ul><li><a href="global.html#AutoActivateLicense">AutoActivateLicense</a></li><li><a href="global.html#canUnenrollCourseEnrollment">canUnenrollCourseEnrollment</a></li><li><a href="global.html#ContinueLearningButton">ContinueLearningButton</a></li><li><a href="global.html#CourseEnrollmentFailedAlert">CourseEnrollmentFailedAlert</a></li><li><a href="global.html#createCourseEnrollmentWithStatus">createCourseEnrollmentWithStatus</a></li><li><a href="global.html#determineEnrollmentType">determineEnrollmentType</a></li><li><a href="global.html#EnrollAction">EnrollAction</a></li><li><a href="global.html#EnrollLabel">EnrollLabel</a></li><li><a href="global.html#EnterpriseInvitePage">EnterpriseInvitePage</a></li><li><a href="global.html#ErrorPage">ErrorPage</a></li><li><a href="global.html#ErrorPageContent">ErrorPageContent</a></li><li><a href="global.html#ErrorPageHeader">ErrorPageHeader</a></li><li><a href="global.html#ErrorPageSubtitle">ErrorPageSubtitle</a></li><li><a href="global.html#ErrorPageTitle">ErrorPageTitle</a></li><li><a href="global.html#fetchExistingUserLicense">fetchExistingUserLicense</a></li><li><a href="global.html#getExecutiveEducation2UContentMetadata">getExecutiveEducation2UContentMetadata</a></li><li><a href="global.html#initialAppState">initialAppState</a></li><li><a href="global.html#initialCourseState">initialCourseState</a></li><li><a href="global.html#LicenseRequestedAlert">LicenseRequestedAlert</a></li><li><a href="global.html#NoticesProvider">NoticesProvider</a></li><li><a href="global.html#requestAutoAppliedUserLicense">requestAutoAppliedUserLicense</a></li><li><a href="global.html#resetModalState">resetModalState</a></li><li><a href="global.html#ToCoursewarePage">ToCoursewarePage</a></li><li><a href="global.html#ToEcomBasketPage">ToEcomBasketPage</a></li><li><a href="global.html#transformSubsidyRequest">transformSubsidyRequest</a></li><li><a href="global.html#updateCourseCompleteStatusRequest">updateCourseCompleteStatusRequest</a></li><li><a href="global.html#UpgradeCourseButton">UpgradeCourseButton</a></li><li><a href="global.html#useCourseEnrollmentUrl">useCourseEnrollmentUrl</a></li><li><a href="global.html#useCoursePriceForUserSubsidy">useCoursePriceForUserSubsidy</a></li><li><a href="global.html#useCourseUpgradeData">useCourseUpgradeData</a></li><li><a href="global.html#useEnrollData">useEnrollData</a></li><li><a href="global.html#useEnterpriseCustomerByUUID">useEnterpriseCustomerByUUID</a></li><li><a href="global.html#useEnterpriseCustomerConfig">useEnterpriseCustomerConfig</a></li><li><a href="global.html#useExtractAndRemoveSearchParamsFromURL">useExtractAndRemoveSearchParamsFromURL</a></li><li><a href="global.html#useOptimizelyEnrollmentClickHandler">useOptimizelyEnrollmentClickHandler</a></li><li><a href="global.html#useSelectedEnterpriseUUIDByUserRoles">useSelectedEnterpriseUUIDByUserRoles</a></li><li><a href="global.html#useSubscriptionLicense">useSubscriptionLicense</a></li><li><a href="global.html#useSubsidyDataForCourse">useSubsidyDataForCourse</a></li><li><a href="global.html#useSubsidyRequests">useSubsidyRequests</a></li><li><a href="global.html#useTrackSearchConversionClickHandler">useTrackSearchConversionClickHandler</a></li><li><a href="global.html#useUpdateActiveEnterpriseForUser">useUpdateActiveEnterpriseForUser</a></li><li><a href="global.html#useUserHasSubsidyRequestForCourse">useUserHasSubsidyRequestForCourse</a></li></ul>
+  </nav>
+
+  <div id="main">
+    
+      <h1 class="page-title">
+        components/enterprise-user-subsidy/data/hooks.js
+      </h1>
+    
+
+    
+      
+
+<section>
+  <article>
+    <pre class="prettyprint source linenums"><code>import {
+  useState, useEffect, useReducer, useCallback, useMemo,
+} from 'react';
+import { logError } from '@edx/frontend-platform/logging';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { fetchCouponCodeAssignments } from '../coupons';
+import couponCodesReducer, { initialCouponCodesState } from '../coupons/data/reducer';
+
+import { LICENSE_STATUS } from './constants';
+import {
+  fetchSubscriptionLicensesForUser,
+  fetchCustomerAgreementData,
+  requestAutoAppliedLicense,
+  activateLicense,
+} from './service';
+import { features } from '../../../config';
+
+/**
+ * Attempts to fetch any existing licenses associated with the authenticated user and the
+ * specified enterprise customer. Priority is given to activated licenses, then assigned
+ * licenses.
+ *
+ * @param {string} enterpriseId The UUID of the enterprise customer
+ * @returns An object representing a user's subscription license or null if no license was found.
+ */
+const fetchExistingUserLicense = async (enterpriseId) => {
+  try {
+    const response = await fetchSubscriptionLicensesForUser(enterpriseId);
+    const { results } = camelCaseObject(response.data);
+    /**
+     * Ordering of these status keys (i.e., activated, assigned, revoked) is important as the first
+     * license found when iterating through each status key in this order will be selected as the
+     * applicable license for use by the rest of the application.
+     *
+     * Example: an activated license will be chosen as the applicable license because activated licenses
+     * come first in ``licensesByStatus`` even if the user also has a revoked license.
+     */
+    const licensesByStatus = {
+      [LICENSE_STATUS.ACTIVATED]: [],
+      [LICENSE_STATUS.ASSIGNED]: [],
+    };
+    results.forEach((item) => {
+      licensesByStatus[item.status].push(item);
+    });
+    const applicableLicense = Object.values(licensesByStatus).flat()[0];
+    return applicableLicense;
+  } catch (error) {
+    logError(error);
+    return null;
+  }
+};
+
+/**
+ * Attempts to auto-apply a license for the authenticated user and the specified customer agreement.
+ *
+ * @param {string} customerAgreementId The UUID of the customer agreement.
+ * @returns An object representing the auto-applied license or null if no license was auto-applied.
+ */
+const requestAutoAppliedUserLicense = async (customerAgreementId) => {
+  try {
+    const response = await requestAutoAppliedLicense(customerAgreementId);
+    const license = camelCaseObject(response.data);
+    return license;
+  } catch (error) {
+    logError(error);
+    return null;
+  }
+};
+
+/**
+ * Retrieves a license for the authenticated user, if applicable. First attempts to find any existing licenses
+ * for the user. If a license is found, the app uses it; otherwise, if the enterprise has an SSO/LMS identity
+ * provider configured and the customer agreement has a subscription plan suitable for auto-applied licenses,
+ * attempt to auto-apply a license for the user.
+ *
+ * @param {object} args
+ * @param {object} args.enterpriseConfig The enterprise customer config
+ * @param {object} args.customerAgreementConfig The customer agreement config associated with the enterprise
+ * @param {boolean} args.isLoadingCustomerAgreementConfig Whether the customer agreement is still resolving
+ * @param {object} args.user The authenticated user
+ * @returns Object containing a user license, if applicable, whether the license data is still resolving, and a callback
+ *          to activate the user license.
+ */
+export function useSubscriptionLicense({
+  enterpriseConfig,
+  customerAgreementConfig,
+  isLoadingCustomerAgreementConfig,
+  user,
+}) {
+  const [license, setLicense] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    enterpriseId,
+    enterpriseIdentityProvider,
+  } = useMemo(() => ({
+    enterpriseId: enterpriseConfig.uuid,
+    enterpriseIdentityProvider: enterpriseConfig.identityProvider,
+  }), [enterpriseConfig]);
+
+  useEffect(() => {
+    async function retrieveUserLicense() {
+      let result = await fetchExistingUserLicense(enterpriseId);
+
+      if (features.ENABLE_AUTO_APPLIED_LICENSES) {
+        const customerAgreementMetadata = [
+          customerAgreementConfig?.uuid,
+          customerAgreementConfig?.subscriptionForAutoAppliedLicenses,
+        ];
+        const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
+
+        // Only request an auto-applied license if ther user is a learner of the enterprise.
+        // This is mainly to prevent edx operators from accidently getting a license.
+        const isEnterpriseLearner = !!user.roles.find(userRole => {
+          const [role, enterprise] = userRole.split(':');
+          return role === 'enterprise_learner' &amp;&amp; enterprise === enterpriseId;
+        });
+
+        // Per the product requirements, we only want to attempt requesting an auto-applied license
+        // when the enterprise customer has an SSO/LMS provider configured.
+        if (!result &amp;&amp; enterpriseIdentityProvider &amp;&amp; isEnterpriseLearner &amp;&amp; hasCustomerAgreementData) {
+          result = await requestAutoAppliedUserLicense(customerAgreementConfig.uuid);
+        }
+      }
+
+      return result;
+    }
+
+    if (!isLoadingCustomerAgreementConfig) {
+      setIsLoading(true);
+
+      retrieveUserLicense().then((userLicense) => {
+        const subscriptionPlan = customerAgreementConfig?.subscriptions?.find(
+          subscription => subscription.uuid === userLicense?.subscriptionPlanUuid,
+        );
+
+        if (userLicense) {
+          setLicense({
+            ...userLicense,
+            subscriptionPlan,
+          });
+        } else {
+          setLicense(null);
+        }
+
+        setIsLoading(false);
+      });
+    }
+  }, [customerAgreementConfig, enterpriseId, enterpriseIdentityProvider, isLoadingCustomerAgreementConfig, user]);
+
+  const activateUserLicense = useCallback(async (autoActivated = false) => {
+    try {
+      await activateLicense(license.activationKey);
+
+      sendEnterpriseTrackEvent(
+        enterpriseId,
+        'edx.ui.enterprise.learner_portal.license-activation.license-activated',
+        {
+          autoActivated,
+        },
+      );
+
+      setLicense({
+        ...license,
+        status: LICENSE_STATUS.ACTIVATED,
+      });
+    } catch (error) {
+      logError(error);
+      throw error;
+    }
+  }, [enterpriseId, license]);
+
+  return { license, isLoading, activateUserLicense };
+}
+
+export function useCouponCodes(enterpriseId) {
+  const [state, dispatch] = useReducer(couponCodesReducer, initialCouponCodesState);
+
+  useEffect(
+    () => {
+      if (features.ENROLL_WITH_CODES) {
+        fetchCouponCodeAssignments({
+          enterprise_uuid: enterpriseId,
+          full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
+          is_active: 'True',
+        },
+        dispatch);
+      }
+    },
+    [enterpriseId],
+  );
+
+  return [state, state.loading];
+}
+
+export function useCustomerAgreementData(enterpriseId) {
+  const [customerAgreement, setCustomerAgreement] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCustomerAgreementData(enterpriseId)
+      .then((response) => {
+        const { results } = camelCaseObject(response.data);
+        // Note: customer agreements are unique, only 1 can exist per customer
+        if (results.length) {
+          setCustomerAgreement(results[0]);
+        } else {
+          setCustomerAgreement(null);
+        }
+      })
+      .catch((error) => {
+        logError(new Error(error));
+        setCustomerAgreement(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [enterpriseId]);
+
+  return [customerAgreement, isLoading];
+}
+</code></pre>
+  </article>
+</section>
+
+    
+
+
+  </div>
+
+  <br class="clear">
+
+  <footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a>
+  </footer>
+
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/pagelocation.js"></script>
+
+  
+
+</body>
+</html>

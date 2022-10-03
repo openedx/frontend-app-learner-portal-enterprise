@@ -117,7 +117,7 @@ const CourseRunCard = ({
    * ||buttonLabel||
    * ||___________||
    * |_____________|
-   * @returns {string []}
+   * @returns {string[]}
    */
   const [heading, subHeading, buttonLabel] = useMemo(() => {
     if (courseRunArchived) {
