@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { renderHook } from '@testing-library/react-hooks';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
@@ -7,10 +6,12 @@ import * as couponService from '../../../coupons/data/service';
 import * as enterpriseOffersService from '../service';
 import * as config from '../../../../../config';
 import { transformEnterpriseOffer } from '../utils';
+import * as subsidyService from '../../../data/service';
+import { LICENSE_STATUS } from '../../../data/constants';
 
 jest.mock('../../../coupons/data/service');
 jest.mock('../service');
-
+jest.mock('../../../data/service');
 const mockEnterpriseUUID = 'enterprise-uuid';
 const defaultProps = {
   enterpriseId: mockEnterpriseUUID,
@@ -28,13 +29,31 @@ const mockEnterpriseOffers = [{
   start_datetime: '2022-06-09T00:00:00Z',
   usage_type: 'Percentage',
 }];
+const mockCouponOverview = {
+  uuid: mockEnterpriseUUID,
+  usageType: 'percentage',
+  benefitValue: 100,
+  couponStartDate: '2023-08-11',
+  couponEndDate: '2024-08-11',
+  code: 'xyz',
+};
+
+const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
+const TEST_LICENSE_UUID = 'test-license-uuid';
+const TEST_ACTIVATION_KEY = 'test-activation-key';
+
+const mockLicense = {
+  uuid: TEST_LICENSE_UUID,
+  status: LICENSE_STATUS.ASSIGNED,
+  subscription_plan_uuid: TEST_SUBSCRIPTION_UUID,
+  activation_key: TEST_ACTIVATION_KEY,
+};
 
 describe('useEnterpriseOffers', () => {
   beforeEach(() => {
     config.features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true;
   });
-  afterEach(() => jest.clearAllMocks());
-
+  afterEach(() => jest.resetAllMocks());
   it('fetches and sets enterprise offers', async () => {
     enterpriseOffersService.fetchEnterpriseOffers.mockResolvedValueOnce({
       data: {
@@ -78,12 +97,18 @@ describe('useEnterpriseOffers', () => {
     },
   );
 
-  it('returns canEnrollWithEnterpriseOffers = false if the enterprise has coupons', async () => {
+  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has coupons', async () => {
     couponService.fetchCouponsOverview.mockResolvedValueOnce({
       data: {
-        results: [{ uuid: 'coupon-uuid' }],
+        results: mockCouponOverview,
       },
     });
+    enterpriseOffersService.fetchEnterpriseOffers.mockResolvedValueOnce({
+      data: {
+        results: mockEnterpriseOffers,
+      },
+    });
+
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseOffers(defaultProps));
 
     await waitForNextUpdate();
@@ -99,30 +124,25 @@ describe('useEnterpriseOffers', () => {
 
     expect(isLoading).toEqual(false);
 
-    expect(canEnrollWithEnterpriseOffers).toEqual(false);
+    expect(canEnrollWithEnterpriseOffers).toEqual(true);
     expect(isLoading).toEqual(false);
   });
 
-  it('returns canEnrollWithEnterpriseOffers = false if the enterprise has an active sub', async () => {
-    couponService.fetchCouponsOverview.mockResolvedValueOnce({
+  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has an active sub', async () => {
+    subsidyService.fetchSubscriptionLicensesForUser.mockResolvedValue({
       data: {
-        results: [],
+        results: [{ ...mockLicense, status: LICENSE_STATUS.ACTIVATED }],
+      },
+    });
+    enterpriseOffersService.fetchEnterpriseOffers.mockResolvedValueOnce({
+      data: {
+        results: mockEnterpriseOffers,
       },
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseOffers({
-      ...defaultProps,
-      customerAgreementConfig: {
-        subscriptions: [{
-          uuid: 'sub-uuid',
-          startDate: moment().subtract(1, 'd').toISOString(),
-          expirationDate: moment().add(1, 'd').toISOString(),
-        }],
-      },
-    }));
+    const { result, waitForNextUpdate } = renderHook(() => useEnterpriseOffers(defaultProps));
 
     await waitForNextUpdate();
-
     const {
       canEnrollWithEnterpriseOffers,
       isLoading,
@@ -130,17 +150,11 @@ describe('useEnterpriseOffers', () => {
 
     expect(isLoading).toEqual(false);
 
-    expect(canEnrollWithEnterpriseOffers).toEqual(false);
+    expect(canEnrollWithEnterpriseOffers).toEqual(true);
     expect(isLoading).toEqual(false);
   });
 
   it('returns canEnrollWithEnterpriseOffers = false if the enterprise has no active coupons or sub, but has > 1 active enterprise offer', async () => {
-    couponService.fetchCouponsOverview.mockResolvedValueOnce({
-      data: {
-        results: [],
-      },
-    });
-
     enterpriseOffersService.fetchEnterpriseOffers.mockResolvedValueOnce({
       data: {
         results: [mockEnterpriseOffers[0], { id: 2, ...mockEnterpriseOffers[1] }],

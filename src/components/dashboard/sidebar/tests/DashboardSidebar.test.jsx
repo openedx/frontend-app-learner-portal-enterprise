@@ -185,21 +185,42 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.getByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
   });
-  test('Enterprise offers summary card is not displayed when enterprise has active offers and but has subscriptions or coupons', () => {
+  test('Enterprise offers summary card is displayed when enterprise has active offers and has subscriptions', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...userSubsidyStateWithSubscription,
+          enterpriseOffers: [{
+            uuid: 'enterprise-offer-id',
+          }],
+          canEnrollWithEnterpriseOffers: true,
+        }}
+      />,
+    );
+
+    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
+    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeInTheDocument();
+    expect(screen.queryByText(COUPON_CODES_SUMMARY_NOTICE)).not.toBeInTheDocument();
+  });
+  test('Enterprise offers summary card is displayed when enterprise has active offers and has coupon codes', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
-          customerAgreementConfig: undefined,
+          couponCodes: { ...defaultUserSubsidyState.couponCodes, couponCodesCount: 2 },
           enterpriseOffers: [{
             uuid: 'enterprise-offer-id',
           }],
-          canEnrollWithEnterpriseOffers: false,
+          canEnrollWithEnterpriseOffers: true,
         }}
       />,
     );
-    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
+    // expect(screen.getByText('Pikachu')).toBeInTheDocument();
+    expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
+    expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
+    expect(screen.queryByText(COUPON_CODES_SUMMARY_NOTICE)).toBeInTheDocument();
   });
   test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {
     renderWithRouter(

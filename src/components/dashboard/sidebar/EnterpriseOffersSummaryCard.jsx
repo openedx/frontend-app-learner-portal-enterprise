@@ -35,7 +35,7 @@ const EnterpriseOffersSummaryCard = ({ className, offer, searchCoursesCta }) => 
       ? (
         <p data-testid="offer-summary-text-detailed">
           Apply your <b>${offer.remainingBalanceForUser}</b>{' '}
-          learner credit balance to enroll into courses with no out of pocket cost.
+          balance to enroll into courses.
         </p>
       )
       : (
@@ -53,7 +53,7 @@ const EnterpriseOffersSummaryCard = ({ className, offer, searchCoursesCta }) => 
 
     {searchCoursesCta && (
       <Row className="mt-3 d-flex justify-content-end">
-        <Col xl={7}>{searchCoursesCta}</Col>
+        <Col xl={12}>{searchCoursesCta}</Col>
       </Row>
     )}
   </SidebarCard>

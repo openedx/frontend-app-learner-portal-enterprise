@@ -48,7 +48,6 @@ const SubsidiesSummary = ({
 
   const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
   const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-
   const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
@@ -56,11 +55,8 @@ const SubsidiesSummary = ({
 
   const hasAssignedSubsidyOrRequests = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
-  // We will not allow enterprises to use enterprise offers together with license/coupon codes for now
-
-  if (!(hasAssignedSubsidyOrRequests || canEnrollWithEnterpriseOffers)) {
-    return null;
-  }
+  const hasAssignedMultipleSubsidies = canEnrollWithEnterpriseOffers
+   && (hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests);
 
   const searchCoursesCta = (
     !programProgressPage && !disableSearch && showSearchCoursesCta && (
@@ -74,10 +70,60 @@ const SubsidiesSummary = ({
       </Button>
     )
   );
-
+  /* eslint-disable */
+  /*
+| **Discrete Alias** 	|                                                                  **Discrete Value**                                                                 	| **Assigned Value (If applicable)** 	|
+|:------------------:	|:---------------------------------------------------------------------------------------------------------------------------------------------------:	|:----------------------------------:	|
+|        **A**       	|                                                           hasActiveLicenseOrLicenseRequest                                                          	|                                    	|
+|        **B**       	|                                                            hasAssignedCodesOrCodeRequests                                                           	|                                    	|
+|        **C**       	|                                                            canEnrollWithEnterpriseOffers                                                            	|                                    	|
+|        **D**       	|                                                                        A \| B                                                                       	| hasAssignedSubsidyOrRequests       	|
+|        **E**       	|                                                                     C & (A \| B)                                                                    	| hasAssignedMultipleSubsidies       	|
+|                    	|                                                                **Application Logic**                                                                	|                                    	|
+|    Lines 90-125    	| {E & (<SidebarCard /> {A & <SubscriptionSummaryCard />} {C & <EnterpriseOffersSummaryCard />} {B & <CouponCodesSummaryCard />} {searchCoursesCta})} 	|                                    	|
+|    Lines 126-159   	|                   {D & !E & (<SidebarCard /> {A & <SubscriptionSummaryCard />}{B & <CouponCodesSummaryCard />}{searchCoursesCta})}                  	|                                    	|
+|    Lines 161-168   	|                                                     {C & !E & (<EnterpriseOffersSummaryCard />)}                                                    	|                                    	|
+*/
+  /* eslint-enable */
   return (
     <>
-      {hasAssignedSubsidyOrRequests && (
+      {hasAssignedMultipleSubsidies && (
+        <SidebarCard
+          cardClassNames="mb-5"
+        >
+          <div className={className} data-testid="multiple-summary">
+            {hasActiveLicenseOrLicenseRequest
+            && (
+              <SubscriptionSummaryCard
+                subscriptionPlan={subscriptionPlan}
+                licenseRequest={licenseRequests[0]}
+                courseEndDate={courseEndDate}
+                programProgressPage={programProgressPage}
+                className="mb-1 border-remove"
+              />
+            )}
+            {canEnrollWithEnterpriseOffers
+            && (
+              <EnterpriseOffersSummaryCard
+                className="mb-1 border-remove"
+                offer={enterpriseOffers[0]}
+              />
+            )}
+            {hasAssignedCodesOrCodeRequests
+            && (
+              <CouponCodesSummaryCard
+                couponCodesCount={couponCodesCount}
+                couponCodeRequestsCount={couponCodeRequests.length}
+                totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
+                programProgressPage={programProgressPage}
+                className="mb-3"
+              />
+            )}
+            {searchCoursesCta}
+          </div>
+        </SidebarCard>
+      )}
+      {hasAssignedSubsidyOrRequests && !hasAssignedMultipleSubsidies && (
         // TODO: Design debt, don't have cards in a card
         <SidebarCard
           cardSectionClassNames={
@@ -85,7 +131,7 @@ const SubsidiesSummary = ({
           }
           cardClassNames={
             `mb-5 ${programProgressPage ? 'col-8 border-remove'
-              : 'border-primary border-brand-primary catalog-access-card'}`
+              : 'border-primary border-brand-primary'}`
           }
         >
           <div className={className} data-testid="subsidies-summary">
@@ -111,14 +157,15 @@ const SubsidiesSummary = ({
           </div>
         </SidebarCard>
       )}
+
       {canEnrollWithEnterpriseOffers
-        && (
-          <EnterpriseOffersSummaryCard
-            className="mb-5"
-            offer={enterpriseOffers[0]}
-            searchCoursesCta={searchCoursesCta}
-          />
-        )}
+        && !hasAssignedMultipleSubsidies && (
+        <EnterpriseOffersSummaryCard
+          className="mb-5"
+          offer={enterpriseOffers[0]}
+          searchCoursesCta={searchCoursesCta}
+        />
+      )}
     </>
   );
 };
