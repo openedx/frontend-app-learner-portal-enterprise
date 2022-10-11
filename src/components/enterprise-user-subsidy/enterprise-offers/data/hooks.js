@@ -7,7 +7,6 @@ import { logError } from '@edx/frontend-platform/logging';
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { features } from '../../../../config';
 import * as enterpriseOffersService from './service';
-import { hasValidStartExpirationDates } from '../../../../utils/common';
 import { transformEnterpriseOffer } from './utils';
 
 export const useEnterpriseOffers = ({
@@ -77,22 +76,12 @@ export const useEnterpriseOffers = ({
       return;
     }
 
-    const enterpriseHasActiveCoupons = enterpriseCoupons.length > 0;
-    const enterpriseHasActiveSubscription = !!(customerAgreementConfig?.subscriptions ?? []).find(({
-      startDate,
-      expirationDate,
-    }) => hasValidStartExpirationDates({
-      startDate,
-      expirationDate,
-    }));
-
     // For MVP we will only support enterprises with one active offer
     const enterpriseHasOneOffer = enterpriseOffers.length === 1;
 
-    if (enterpriseHasActiveCoupons || enterpriseHasActiveSubscription || !enterpriseHasOneOffer) {
+    if (!enterpriseHasOneOffer) {
       return;
     }
-
     setCanEnrollWithEnterpriseOffers(true);
     setHasLowEnterpriseOffersBalance(enterpriseOffers[0].isLowOnBalance);
     setHasNoEnterpriseOffersBalance(enterpriseOffers[0].isOutOfBalance);
