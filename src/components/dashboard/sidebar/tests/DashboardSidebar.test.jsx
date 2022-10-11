@@ -217,7 +217,6 @@ describe('<DashboardSidebar />', () => {
         }}
       />,
     );
-    // expect(screen.getByText('Pikachu')).toBeInTheDocument();
     expect(screen.queryByText(ENTERPRISE_OFFER_SUMMARY_CARD_TITLE)).toBeInTheDocument();
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(COUPON_CODES_SUMMARY_NOTICE)).toBeInTheDocument();

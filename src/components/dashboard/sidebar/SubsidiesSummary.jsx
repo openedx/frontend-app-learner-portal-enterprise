@@ -4,6 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
+import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import EnterpriseOffersSummaryCard from './EnterpriseOffersSummaryCard';
@@ -48,15 +49,18 @@ const SubsidiesSummary = ({
 
   const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
   const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
+
   const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
 
-  const hasAssignedSubsidyOrRequests = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
+  const hasAvailableSubsidyOrRequests = hasActiveLicenseOrLicenseRequest
+   || hasAssignedCodesOrCodeRequests || canEnrollWithEnterpriseOffers;
 
-  const hasAssignedMultipleSubsidies = canEnrollWithEnterpriseOffers
-   && (hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests);
+  if (!hasAvailableSubsidyOrRequests) {
+    return null;
+  }
 
   const searchCoursesCta = (
     !programProgressPage && !disableSearch && showSearchCoursesCta && (
@@ -70,102 +74,48 @@ const SubsidiesSummary = ({
       </Button>
     )
   );
-  /* eslint-disable */
-  /*
-| **Discrete Alias** 	|                                                                  **Discrete Value**                                                                 	| **Assigned Value (If applicable)** 	|
-|:------------------:	|:---------------------------------------------------------------------------------------------------------------------------------------------------:	|:----------------------------------:	|
-|        **A**       	|                                                           hasActiveLicenseOrLicenseRequest                                                          	|                                    	|
-|        **B**       	|                                                            hasAssignedCodesOrCodeRequests                                                           	|                                    	|
-|        **C**       	|                                                            canEnrollWithEnterpriseOffers                                                            	|                                    	|
-|        **D**       	|                                                                        A \| B                                                                       	| hasAssignedSubsidyOrRequests       	|
-|        **E**       	|                                                                     C & (A \| B)                                                                    	| hasAssignedMultipleSubsidies       	|
-|                    	|                                                                **Application Logic**                                                                	|                                    	|
-|    Lines 90-125    	| {E & (<SidebarCard /> {A & <SubscriptionSummaryCard />} {C & <EnterpriseOffersSummaryCard />} {B & <CouponCodesSummaryCard />} {searchCoursesCta})} 	|                                    	|
-|    Lines 126-159   	|                   {D & !E & (<SidebarCard /> {A & <SubscriptionSummaryCard />}{B & <CouponCodesSummaryCard />}{searchCoursesCta})}                  	|                                    	|
-|    Lines 161-168   	|                                                     {C & !E & (<EnterpriseOffersSummaryCard />)}                                                    	|                                    	|
-*/
-  /* eslint-enable */
-  return (
-    <>
-      {hasAssignedMultipleSubsidies && (
-        <SidebarCard
-          cardClassNames="mb-5"
-        >
-          <div className={className} data-testid="multiple-summary">
-            {hasActiveLicenseOrLicenseRequest
-            && (
-              <SubscriptionSummaryCard
-                subscriptionPlan={subscriptionPlan}
-                licenseRequest={licenseRequests[0]}
-                courseEndDate={courseEndDate}
-                programProgressPage={programProgressPage}
-                className="mb-1 border-remove"
-              />
-            )}
-            {canEnrollWithEnterpriseOffers
-            && (
-              <EnterpriseOffersSummaryCard
-                className="mb-1 border-remove"
-                offer={enterpriseOffers[0]}
-              />
-            )}
-            {hasAssignedCodesOrCodeRequests
-            && (
-              <CouponCodesSummaryCard
-                couponCodesCount={couponCodesCount}
-                couponCodeRequestsCount={couponCodeRequests.length}
-                totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
-                programProgressPage={programProgressPage}
-                className="mb-3"
-              />
-            )}
-            {searchCoursesCta}
-          </div>
-        </SidebarCard>
-      )}
-      {hasAssignedSubsidyOrRequests && !hasAssignedMultipleSubsidies && (
-        // TODO: Design debt, don't have cards in a card
-        <SidebarCard
-          cardSectionClassNames={
-            `${programProgressPage && 'border-remove'}`
-          }
-          cardClassNames={
-            `mb-5 ${programProgressPage ? 'col-8 border-remove'
-              : 'border-primary border-brand-primary'}`
-          }
-        >
-          <div className={className} data-testid="subsidies-summary">
-            {hasActiveLicenseOrLicenseRequest && (
-              <SubscriptionSummaryCard
-                subscriptionPlan={subscriptionPlan}
-                licenseRequest={licenseRequests[0]}
-                courseEndDate={courseEndDate}
-                programProgressPage={programProgressPage}
-                className="mb-3"
-              />
-            )}
-            {hasAssignedCodesOrCodeRequests && (
-              <CouponCodesSummaryCard
-                couponCodesCount={couponCodesCount}
-                couponCodeRequestsCount={couponCodeRequests.length}
-                totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
-                programProgressPage={programProgressPage}
-                className="mb-3"
-              />
-            )}
-            {searchCoursesCta}
-          </div>
-        </SidebarCard>
-      )}
 
-      {canEnrollWithEnterpriseOffers
-        && !hasAssignedMultipleSubsidies && (
-        <EnterpriseOffersSummaryCard
-          className="mb-5"
-          offer={enterpriseOffers[0]}
-          searchCoursesCta={searchCoursesCta}
-        />
-      )}
+  return (
+  // TODO: Design debt, don't have cards in a card
+    <>
+      <SidebarCard
+        cardSectionClassNames="border-remove"
+        cardClassNames={classNames('mb-5', { 'col-8 border-remove': programProgressPage })}
+      >
+        <div className={className} data-testid="subsidies-summary">
+          {hasActiveLicenseOrLicenseRequest && (
+            <SubscriptionSummaryCard
+              subscriptionPlan={subscriptionPlan}
+              licenseRequest={licenseRequests[0]}
+              courseEndDate={courseEndDate}
+              programProgressPage={programProgressPage}
+              className="mb-2 border-remove"
+            />
+          )}
+          {hasAssignedCodesOrCodeRequests && (
+            <CouponCodesSummaryCard
+              couponCodesCount={couponCodesCount}
+              couponCodeRequestsCount={couponCodeRequests.length}
+              totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
+              programProgressPage={programProgressPage}
+              className="mb-2 border-remove"
+            />
+          )}
+          {canEnrollWithEnterpriseOffers && (
+            <EnterpriseOffersSummaryCard
+              className="border-remove"
+              offer={enterpriseOffers[0]}
+            />
+          )}
+        </div>
+        {searchCoursesCta && (
+          <SidebarCard
+            cardClassNames="border-remove"
+          >
+            {searchCoursesCta}
+          </SidebarCard>
+        )}
+      </SidebarCard>
     </>
   );
 };

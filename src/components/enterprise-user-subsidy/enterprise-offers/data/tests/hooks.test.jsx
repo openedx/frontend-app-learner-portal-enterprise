@@ -97,7 +97,7 @@ describe('useEnterpriseOffers', () => {
     },
   );
 
-  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has coupons', async () => {
+  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has coupons and offers simultaneously', async () => {
     couponService.fetchCouponsOverview.mockResolvedValueOnce({
       data: {
         results: mockCouponOverview,
@@ -128,7 +128,7 @@ describe('useEnterpriseOffers', () => {
     expect(isLoading).toEqual(false);
   });
 
-  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has an active sub', async () => {
+  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has an active sub and offer simultaneously', async () => {
     subsidyService.fetchSubscriptionLicensesForUser.mockResolvedValue({
       data: {
         results: [{ ...mockLicense, status: LICENSE_STATUS.ACTIVATED }],
