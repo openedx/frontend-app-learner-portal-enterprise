@@ -24,3 +24,9 @@ export function postSkillsGoalsAndJobsUserSelected(goal, skillsId, interestedJob
     logError(new Error(error));
   });
 }
+
+export function fetchCourseEnrollments() {
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/api/enrollment/v1/enrollment`;
+  return getAuthenticatedHttpClient().get(url);
+}

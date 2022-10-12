@@ -54,7 +54,7 @@ const SearchCourseCard = ({ index }) => {
   const [hitCount, setHitCount] = useState(undefined);
   const { refinements } = useContext(SearchContext);
   const { skill_names: skills } = refinements;
-  const { selectedJob } = state;
+  const { selectedJob, enrolledCourseIds } = state;
   // Top 3 Recommended courses are determined based on job-skills only, coming either from Search Job or Current Job
   const selectedJobSkills = useSelectedSkillsAndJobSkills({ getAllSkills: false });
   const skillsFacetFilter = useMemo(
@@ -77,7 +77,13 @@ const SearchCourseCard = ({ index }) => {
           ],
         });
         if (nbHits > 0) {
-          setCourses(hits.length <= 3 ? camelCaseObject(hits) : camelCaseObject(hits.slice(0, 3)));
+          const hitsCamelCased = camelCaseObject(hits);
+          const hitsWithoutAlreadyEnrolledCourses = hitsCamelCased.filter(el => !enrolledCourseIds.find(
+            ele => el.advertisedCourseRun.key === ele,
+          ));
+
+          setCourses(hitsWithoutAlreadyEnrolledCourses.length <= 3 ? hitsWithoutAlreadyEnrolledCourses
+            : hitsWithoutAlreadyEnrolledCourses.slice(0, 3));
           setHitCount(nbHits);
           setIsLoading(false);
         } else {
@@ -87,7 +93,7 @@ const SearchCourseCard = ({ index }) => {
       }
       fetchCourses();
     },
-    [filters, index, selectedJob, skills, skillsFacetFilter],
+    [enrolledCourseIds, filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
   return (
