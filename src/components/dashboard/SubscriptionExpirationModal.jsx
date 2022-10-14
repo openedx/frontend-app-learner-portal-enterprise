@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
 import moment from 'moment';
-import { Modal, MailtoLink } from '@edx/paragon';
+import { MailtoLink, ModalDialog, ActionRow } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
@@ -103,15 +103,31 @@ const SubscriptionExpirationModal = () => {
   const subscriptionExpired = daysUntilExpiration <= SUBSCRIPTION_EXPIRED;
   if (subscriptionExpired) {
     return (
-      <Modal
-        dialogClassName={`${MODAL_DIALOG_CLASS_NAME} expired`}
-        renderHeaderCloseButton={false}
-        title={renderTitle()}
-        body={renderExpiredBody()}
-        closeText="OK"
-        onClose={() => {}}
-        open
-      />
+      <ModalDialog
+        title="Modal Dialog"
+        isOpen
+        onClose={() => { }}
+        className={`${MODAL_DIALOG_CLASS_NAME} expired`}
+        hasCloseButton={false}
+      >
+
+        <ModalDialog.Header>
+          <ModalDialog.Title>
+            {renderTitle()}
+          </ModalDialog.Title>
+        </ModalDialog.Header>
+
+        <ModalDialog.Body>
+          {renderExpiredBody()}
+        </ModalDialog.Body>
+        <ModalDialog.Footer>
+          <ActionRow>
+            <ModalDialog.CloseButton variant="link">
+              OK
+            </ModalDialog.CloseButton>
+          </ActionRow>
+        </ModalDialog.Footer>
+      </ModalDialog>
     );
   }
 
@@ -138,12 +154,9 @@ const SubscriptionExpirationModal = () => {
   }
 
   return (
-    <Modal
-      dialogClassName={MODAL_DIALOG_CLASS_NAME}
-      renderHeaderCloseButton={false}
-      title={renderTitle()}
-      body={renderBody()}
-      closeText="OK"
+    <ModalDialog
+      title="Modal Dialog"
+      isOpen
       // Mark that the user has seen this range's expiration modal when they close it
       onClose={() => {
         cookies.set(
@@ -155,8 +168,27 @@ const SubscriptionExpirationModal = () => {
           { sameSite: 'strict' },
         );
       }}
-      open
-    />
+      className={`${MODAL_DIALOG_CLASS_NAME} expired`}
+      hasCloseButton={false}
+    >
+
+      <ModalDialog.Header>
+        <ModalDialog.Title>
+          {renderTitle()}
+        </ModalDialog.Title>
+      </ModalDialog.Header>
+
+      <ModalDialog.Body>
+        {renderBody()}
+      </ModalDialog.Body>
+      <ModalDialog.Footer>
+        <ActionRow>
+          <ModalDialog.CloseButton variant="link">
+            OK
+          </ModalDialog.CloseButton>
+        </ActionRow>
+      </ModalDialog.Footer>
+    </ModalDialog>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, StatefulButton } from '@edx/paragon';
+import { ActionRow, ModalDialog, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform';
 
@@ -64,26 +64,44 @@ const MoveToInProgressModal = ({
         confirmError,
       }}
     >
-      <Modal
-        title="Move course to &quot;In Progress&quot;"
-        body={<ModalBody />}
-        buttons={[
-          <StatefulButton
-            labels={{
-              default: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
-              pending: MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL,
-            }}
-            disabledStates={['pending']}
-            className="confirm-move-to-in-progress-btn btn-primary btn-brand-primary"
-            state={confirmButtonState}
-            onClick={handleConfirmButtonClick}
-            key="confirm-move-to-in-progress-btn"
-          />,
-        ]}
-        open={isOpen && !confirmSuccessful}
+      <ModalDialog
+        title="Modal Dialog"
+        isOpen={isOpen && !confirmSuccessful}
         onClose={handleModalOnClose}
-        closeText="Cancel"
-      />
+        hasCloseButton
+      >
+
+        <ModalDialog.Header>
+          <ModalDialog.Title>
+            Move course to &quot;In Progress&quot;
+          </ModalDialog.Title>
+        </ModalDialog.Header>
+
+        <ModalDialog.Body>
+          <div className="p-1">
+            <ModalBody />
+          </div>
+        </ModalDialog.Body>
+        <ModalDialog.Footer>
+          <ActionRow role="dialog">
+            <ModalDialog.CloseButton variant="link">
+              Cancel
+            </ModalDialog.CloseButton>
+            <StatefulButton
+              labels={{
+
+                default: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL,
+                pending: MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL,
+              }}
+              disabledStates={['pending']}
+              className="confirm-move-to-in-progress-btn btn-primary btn-brand-primary"
+              state={confirmButtonState}
+              onClick={handleConfirmButtonClick}
+              key="confirm-move-to-in-progress-btn"
+            />,
+          </ActionRow>
+        </ModalDialog.Footer>
+      </ModalDialog>
     </MoveToInProgressModalContext.Provider>
   );
 };

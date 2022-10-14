@@ -25,6 +25,7 @@ describe('<EmailSettingsModal />', () => {
     // Setting the `hasEmailsEnabled` prop here simulates that behavior.
     wrapper.setProps({
       hasEmailsEnabled: true,
+      open: true,
     });
   });
 

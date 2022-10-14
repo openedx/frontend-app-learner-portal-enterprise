@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Input, Modal, Alert, StatefulButton,
+  Input, Alert, StatefulButton, ModalDialog, ActionRow,
 } from '@edx/paragon';
 import { Error } from '@edx/paragon/icons';
 
@@ -111,16 +111,28 @@ class EmailSettingsModal extends Component {
     const { open, courseRunId } = this.props;
 
     return (
-      <Modal
-        title="Email settings"
-        body={(
+      <ModalDialog
+        title="Modal Dialog"
+        className="modal-class"
+        isOpen={open}
+        onClose={this.handleOnClose}
+        hasCloseButton
+      >
+
+        <ModalDialog.Header>
+          <ModalDialog.Title>
+            Email settings
+          </ModalDialog.Title>
+        </ModalDialog.Header>
+
+        <ModalDialog.Body>
           <>
             {error && (
               <Alert variant="danger" icon={Error}>
                 An error occurred while saving your email settings. Please try again.
               </Alert>
             )}
-            <div className="form-check">
+            <div className="p-1 form-check">
               <Input
                 type="checkbox"
                 id={`email-settings-${courseRunId}`}
@@ -135,24 +147,27 @@ class EmailSettingsModal extends Component {
               </label>
             </div>
           </>
-        )}
-        onClose={this.handleOnClose}
-        buttons={[
-          <StatefulButton
-            labels={{
-              default: 'Save',
-              pending: 'Saving',
-              complete: 'Saved',
-            }}
-            disabledStates={this.getDisabledStates()}
-            className="save-email-settings-btn btn-primary btn-brand-primary"
-            state={this.getButtonState()}
-            onClick={this.handleSaveButtonClick}
-            key="save-email-settings-btn"
-          />,
-        ]}
-        open={open}
-      />
+        </ModalDialog.Body>
+        <ModalDialog.Footer>
+          <ActionRow>
+            <ModalDialog.CloseButton variant="link">
+              Close
+            </ModalDialog.CloseButton>
+            <StatefulButton
+              labels={{
+                default: 'Save',
+                pending: 'Saving',
+                complete: 'Saved',
+              }}
+              disabledStates={this.getDisabledStates()}
+              className="save-email-settings-btn btn-primary btn-brand-primary"
+              state={this.getButtonState()}
+              onClick={this.handleSaveButtonClick}
+              key="save-email-settings-btn"
+            />,
+          </ActionRow>
+        </ModalDialog.Footer>
+      </ModalDialog>
     );
   }
 }

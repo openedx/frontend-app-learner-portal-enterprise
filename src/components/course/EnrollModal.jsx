@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from '@edx/paragon';
+import { ActionRow, ModalDialog } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -82,25 +82,39 @@ const EnrollModal = ({
   const { titleText, enrollText, buttonText } = getModalTexts();
 
   return (
-    <Modal
-      open={isModalOpen}
-      closeText="Cancel"
-      title={titleText}
-      body={<div><p>{enrollText}</p></div>}
-      buttons={[
-        <a
-          className="btn btn-primary btn-brand-primary"
-          href={enrollmentUrl}
-          onClick={handleEnroll}
-        >
-          <>
-            {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
-            {buttonText}
-          </>
-        </a>,
-      ]}
+    <ModalDialog
+      isOpen={isModalOpen}
       onClose={() => setIsModalOpen(false)}
-    />
+      hasCloseButton
+    >
+
+      <ModalDialog.Header>
+        <ModalDialog.Title>
+          {titleText}
+        </ModalDialog.Title>
+      </ModalDialog.Header>
+
+      <ModalDialog.Body>
+        <div className="p-1"><p>{enrollText}</p></div>
+      </ModalDialog.Body>
+      <ModalDialog.Footer>
+        <ActionRow>
+          <ModalDialog.CloseButton variant="link">
+            Cancel
+          </ModalDialog.CloseButton>
+          <a
+            className="btn btn-primary btn-brand-primary"
+            href={enrollmentUrl}
+            onClick={handleEnroll}
+          >
+            <>
+              {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
+              {buttonText}
+            </>
+          </a>
+        </ActionRow>
+      </ModalDialog.Footer>
+    </ModalDialog>
   );
 };
 

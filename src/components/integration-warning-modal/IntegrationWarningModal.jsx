@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
-import { Modal, Button } from '@edx/paragon';
+import { Button, ModalDialog, ActionRow } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MODAL_BUTTON_TEXT, MODAL_TITLE } from './data/constants';
 import ModalBody from './ModalBody';
@@ -26,23 +26,36 @@ const IntegrationWarningModal = ({
   };
   return (
     <div>
-      <Modal
-        body={<ModalBody />}
-        open={dismissed}
+      <ModalDialog
+        title="Modal Dialog"
+        isOpen={dismissed}
         onClose={handleModalOnClose}
-        title={MODAL_TITLE}
-        closeText={MODAL_BUTTON_TEXT}
-        renderHeaderCloseButton={false}
-        renderDefaultCloseButton={false}
-        buttons={[
-          <Button
-            variant="primary"
-            onClick={handleButtonClick}
-          >
-            {MODAL_BUTTON_TEXT}
-          </Button>,
-        ]}
-      />
+        hasCloseButton={false}
+      >
+
+        <ModalDialog.Header>
+          <ModalDialog.Title>
+            {MODAL_TITLE}
+          </ModalDialog.Title>
+        </ModalDialog.Header>
+
+        <ModalDialog.Body>
+          <ModalBody />
+        </ModalDialog.Body>
+        <ModalDialog.Footer>
+          <ActionRow>
+            <ModalDialog.CloseButton variant="link">
+              Close
+            </ModalDialog.CloseButton>
+            <Button
+              variant="primary"
+              onClick={handleButtonClick}
+            >
+              {MODAL_BUTTON_TEXT}
+            </Button>
+          </ActionRow>
+        </ModalDialog.Footer>
+      </ModalDialog>
     </div>
   );
 };
