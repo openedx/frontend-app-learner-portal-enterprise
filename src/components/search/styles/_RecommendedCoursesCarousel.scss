@@ -1,0 +1,45 @@
+
+.recommendations-subheading {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  color: #000000;
+}
+
+.carousal-arrow-control {
+  border-radius: 50%;
+  background-color: #F2F0EF;
+}
+
+.no-slider::-webkit-scrollbar {
+    display: none;
+}
+
+.no-slider {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+@media only screen and (max-width: 992px) {
+  .recommended-course-card {
+    width: 17.188rem !important;
+  }
+
+  .skeleton-recommended-course-card {
+    width: 18.688rem !important;
+    max-width: 18.688rem !important;
+  }
+}
+
+@media only screen and (max-width: 320px) {
+  .recommended-course-card {
+    width: 14.375rem !important;
+  }
+
+  .skeleton-recommended-course-card {
+    width: 15.875rem !important;
+    max-width: 15.875rem !important;
+  }
+}

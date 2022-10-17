@@ -10,16 +10,18 @@ import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-se
 import { useToggle } from '@edx/paragon';
 
 import algoliasearch from 'algoliasearch/lite';
-import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
+import { useDefaultSearchFilters, useRecommendedCourses, useSearchCatalogs } from './data/hooks';
 import {
-  NUM_RESULTS_PER_PAGE,
   CONTENT_TYPE_COURSE,
+  CONTENT_TYPE_PATHWAY,
   CONTENT_TYPE_PROGRAM,
   COURSE_TITLE,
-  PROGRAM_TITLE,
   HEADER_TITLE,
-  CONTENT_TYPE_PATHWAY,
+  NUM_RESULTS_PER_PAGE,
   PATHWAY_TITLE,
+  PROGRAM_TITLE,
+  RECOMMENDED_COURSES_SUBTITLE,
+  RECOMMENDED_COURSES_TITLE,
 } from './constants';
 import SearchProgram from './SearchProgram';
 import SearchCourse from './SearchCourse';
@@ -34,6 +36,8 @@ import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import PathwayModal from '../pathway/PathwayModal';
+import RecommendationsCarousel from './RecommendationsCarousel';
+import RecommendedCourseCard from './RecommendedCourseCard';
 
 const Search = () => {
   const { pathwayUUID } = useParams();
@@ -65,6 +69,8 @@ const Search = () => {
     enterpriseConfig,
     searchCatalogs,
   });
+
+  const recommendedCourses = useRecommendedCourses();
 
   useEffect(() => {
     if (pathwayUUID) {
@@ -123,6 +129,15 @@ const Search = () => {
 
         {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
+        )}
+
+        {features.ENABLE_RECOMMENDATIONS_CAROUSEL && (
+          <RecommendationsCarousel
+            carouselItem={RecommendedCourseCard}
+            carouselData={recommendedCourses}
+            carouselTitle={RECOMMENDED_COURSES_TITLE}
+            carouselSubtitle={RECOMMENDED_COURSES_SUBTITLE}
+          />
         )}
 
         { (contentType === undefined || contentType.length === 0) && (

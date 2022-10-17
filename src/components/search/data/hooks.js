@@ -1,8 +1,9 @@
+import { useContext, useEffect, useMemo } from 'react';
 import {
-  useContext, useMemo, useEffect,
-} from 'react';
-import {
-  SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
+  getCatalogString,
+  SearchContext,
+  setRefinementAction,
+  SHOW_ALL_NAME,
 } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../../config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -76,3 +77,67 @@ export const useDefaultSearchFilters = ({
 
   return { filters };
 };
+
+// TODO: This hook will be fetching course recommendations data from backend.
+export const useRecommendedCourses = () => [
+  {
+    courseKey: 'HarvardX+CS50x',
+    title: 'CS50\'s Introduction to Computer Science',
+    cardImageUrl: 'https://prod-discovery.edx-cdn.org/media/course/image/da1b2400-322b-459b-97b0-0c557f05d017-3b9fb73b5d5d.small.jpg',
+    marketingUrl: 'course/HarvardX+CS50x',
+    partnerImageUrl: 'https://prod-discovery.edx-cdn.org/organization/logos/44022f13-20df-4666-9111-cede3e5dc5b6-2cc39992c67a.png',
+    partners: [
+      {
+        name: 'Harvard University',
+      },
+    ],
+  },
+  {
+    courseKey: 'HarvardX+CS50W',
+    title: 'CS50\'s Web Programming with Python and JavaScript',
+    cardImageUrl: 'https://prod-discovery.edx-cdn.org/media/course/image/8f8e5124-1dab-47e6-8fa6-3fbdc0738f0a-762af069070e.small.jpg',
+    marketingUrl: 'course/HarvardX+CS50W',
+    partnerImageUrl: 'https://prod-discovery.edx-cdn.org/organization/logos/44022f13-20df-4666-9111-cede3e5dc5b6-2cc39992c67a.png',
+    partners: [
+      {
+        name: 'Harvard University',
+      },
+    ],
+  },
+  {
+    courseKey: 'UQx+IELTSx',
+    title: 'IELTS Academic Test Preparation',
+    cardImageUrl: 'https://prod-discovery.edx-cdn.org/media/course/image/d61d7a1f-3333-4169-a786-92e2bf690c6f-fa8a6909baec.small.jpg',
+    marketingUrl: 'course/UQx+IELTSx',
+    partnerImageUrl: 'https://prod-discovery.edx-cdn.org/organization/logos/8554749f-b920-4d7f-8986-af6bb95290aa-f336c6a2ca11.png',
+    partners: [
+      {
+        name: 'The University of Queensland',
+      },
+    ],
+  },
+  {
+    courseKey: 'ETSx+TOEFLx',
+    title: 'TOEFL® Test Preparation: The Insider’s Guide',
+    cardImageUrl: 'https://prod-discovery.edx-cdn.org/media/course/image/ee4f4f12-e6ec-45ac-94df-b90b4b022903-aaf6257f767b.small.jpeg',
+    marketingUrl: 'course/ETSx+TOEFLx',
+    partnerImageUrl: 'https://prod-discovery.edx-cdn.org/organization/logos/9d9e1a30-c34d-4ad1-8c5a-d2410db8c123-8beea336c2a4.png',
+    partners: [
+      {
+        name: 'Educational Testing Service',
+      },
+    ],
+  },
+  {
+    courseKey: 'HarvardX+PH125.1x',
+    title: 'Data Science: R Basics',
+    cardImageUrl: 'https://prod-discovery.edx-cdn.org/media/course/image/91f52ef3-fa3f-4934-9d19-8d5a32635cd4-d99e27f09d19.small.jpg',
+    marketingUrl: 'course/HarvardX+PH125.1x',
+    partnerImageUrl: 'https://prod-discovery.edx-cdn.org/organization/logos/44022f13-20df-4666-9111-cede3e5dc5b6-2cc39992c67a.png',
+    partners: [
+      {
+        name: 'Harvard University',
+      },
+    ],
+  },
+];
