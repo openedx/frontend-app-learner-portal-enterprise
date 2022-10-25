@@ -13,8 +13,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
-import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logError } from '@edx/frontend-platform/logging';
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
@@ -47,7 +45,6 @@ import SkillsQuizHeader from './SkillsQuizHeader';
 import headerImage from './images/headerImage.png';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
-import { fetchCourseEnrollments } from './data/service';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
@@ -179,26 +176,6 @@ const SkillsQuizStepper = () => {
       setJobsDropdownsVisible(false);
     }
   }, [skillsVisible, selectedSkills]);
-
-  useEffect(() => {
-    const fetchLearnerCourseEnrollments = async () => {
-      try {
-        const response = await fetchCourseEnrollments();
-        const enrolledCourses = camelCaseObject(response.data);
-        const enrolledCourseIds = enrolledCourses.map((course) => course.courseDetails.courseId);
-        skillsDispatch({
-          type: SET_KEY_VALUE,
-          key: 'enrolledCourseIds',
-          value: enrolledCourseIds,
-        });
-      } catch (error) {
-        logError(error);
-      }
-    };
-
-    fetchLearnerCourseEnrollments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>
