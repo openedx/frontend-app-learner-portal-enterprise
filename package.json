@@ -39,7 +39,7 @@
     "react-dom": "16.14.0",
     "react-fullstory": "1.4.0",
     "react-helmet": "5.2.1",
-    "react-instantsearch-dom": "^6.8.2",
+    "react-instantsearch-dom": "6.38.0",
     "react-intl": "^5.21.1",
     "react-loading-skeleton": "^3.1.0",
     "react-parallax": "^3.3.0",
