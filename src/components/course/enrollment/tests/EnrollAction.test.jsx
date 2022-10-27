@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -154,6 +154,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
         enrollmentUrl={enrollmentUrl}
         courseRunPrice={100}
+        triggerLicenseSubsidyEvent
       />
     );
     renderEnrollAction({ enrollAction });
@@ -162,6 +163,9 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(screen.queryByText(enrollLabelText)).toBeInTheDocument();
     const actualUrl = screen.getByText(enrollLabelText).closest('a').href;
     expect(actualUrl).toContain(`${enrollmentUrl}`);
+
+    const enrollButton = screen.getByText(enrollLabelText);
+    fireEvent.click(enrollButton);
   });
   test('<ToEcomBasketPage /> is rendered if enrollmentType is TO_ECOM_BASKET', () => {
     const enrollAction = (

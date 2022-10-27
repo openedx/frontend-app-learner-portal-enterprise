@@ -1,7 +1,6 @@
 # frontend-app-learner-portal-enterprise
 
 ![Build Status](https://github.com/edx/frontend-app-learner-portal-enterprise/actions/workflows/ci.yml/badge.svg)
-![Coveralls](https://img.shields.io/coveralls/edx/frontend-app-learner-portal-enterprise.svg?branch=master)
 
 ## Overview
 The edX learning platform's frontend for enterprise learners.

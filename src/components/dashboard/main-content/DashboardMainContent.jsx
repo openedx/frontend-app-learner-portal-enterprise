@@ -9,6 +9,7 @@ import { CourseEnrollments } from './course-enrollments';
 
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
+import CourseRecommendations from './CourseRecommendations';
 
 function DashboardMainContent() {
   const {
@@ -46,6 +47,9 @@ function DashboardMainContent() {
             >
               Find a course
             </Button>
+
+            <br />
+            <CourseRecommendations />
           </>
         )}
       </CourseEnrollments>

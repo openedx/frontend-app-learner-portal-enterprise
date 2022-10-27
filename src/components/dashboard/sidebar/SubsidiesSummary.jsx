@@ -4,6 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
+import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import EnterpriseOffersSummaryCard from './EnterpriseOffersSummaryCard';
@@ -54,11 +55,10 @@ function SubsidiesSummary({
 
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
 
-  const hasAssignedSubsidyOrRequests = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
+  const hasAvailableSubsidyOrRequests = hasActiveLicenseOrLicenseRequest
+   || hasAssignedCodesOrCodeRequests || canEnrollWithEnterpriseOffers;
 
-  // We will not allow enterprises to use enterprise offers together with license/coupon codes for now
-
-  if (!(hasAssignedSubsidyOrRequests || canEnrollWithEnterpriseOffers)) {
+  if (!hasAvailableSubsidyOrRequests) {
     return null;
   }
 
@@ -76,49 +76,46 @@ function SubsidiesSummary({
   );
 
   return (
+  // TODO: Design debt, don't have cards in a card
     <>
-      {hasAssignedSubsidyOrRequests && (
-        // TODO: Design debt, don't have cards in a card
-        <SidebarCard
-          cardSectionClassNames={
-            `${programProgressPage && 'border-remove'}`
-          }
-          cardClassNames={
-            `mb-5 ${programProgressPage ? 'col-8 border-remove'
-              : 'border-primary border-brand-primary catalog-access-card'}`
-          }
-        >
-          <div className={className} data-testid="subsidies-summary">
-            {hasActiveLicenseOrLicenseRequest && (
-              <SubscriptionSummaryCard
-                subscriptionPlan={subscriptionPlan}
-                licenseRequest={licenseRequests[0]}
-                courseEndDate={courseEndDate}
-                programProgressPage={programProgressPage}
-                className="mb-3"
-              />
-            )}
-            {hasAssignedCodesOrCodeRequests && (
-              <CouponCodesSummaryCard
-                couponCodesCount={couponCodesCount}
-                couponCodeRequestsCount={couponCodeRequests.length}
-                totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
-                programProgressPage={programProgressPage}
-                className="mb-3"
-              />
-            )}
+      <SidebarCard
+        cardSectionClassNames="border-remove"
+        cardClassNames={classNames('mb-5', { 'col-8 border-remove': programProgressPage })}
+      >
+        <div className={className} data-testid="subsidies-summary">
+          {hasActiveLicenseOrLicenseRequest && (
+            <SubscriptionSummaryCard
+              subscriptionPlan={subscriptionPlan}
+              licenseRequest={licenseRequests[0]}
+              courseEndDate={courseEndDate}
+              programProgressPage={programProgressPage}
+              className="mb-2 border-remove"
+            />
+          )}
+          {hasAssignedCodesOrCodeRequests && (
+            <CouponCodesSummaryCard
+              couponCodesCount={couponCodesCount}
+              couponCodeRequestsCount={couponCodeRequests.length}
+              totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
+              programProgressPage={programProgressPage}
+              className="mb-2 border-remove"
+            />
+          )}
+          {canEnrollWithEnterpriseOffers && (
+            <EnterpriseOffersSummaryCard
+              className="border-remove"
+              offer={enterpriseOffers[0]}
+            />
+          )}
+        </div>
+        {searchCoursesCta && (
+          <SidebarCard
+            cardClassNames="border-remove"
+          >
             {searchCoursesCta}
-          </div>
-        </SidebarCard>
-      )}
-      {canEnrollWithEnterpriseOffers
-        && (
-          <EnterpriseOffersSummaryCard
-            className="mb-5"
-            offer={enterpriseOffers[0]}
-            searchCoursesCta={searchCoursesCta}
-          />
+          </SidebarCard>
         )}
+      </SidebarCard>
     </>
   );
 }

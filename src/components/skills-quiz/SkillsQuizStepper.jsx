@@ -13,6 +13,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { logError } from '@edx/frontend-platform/logging';
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
@@ -44,6 +46,8 @@ import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
+import { fetchCourseEnrollments } from './data/service';
 
 function SkillsQuizStepper() {
   const config = getConfig();
@@ -65,7 +69,7 @@ function SkillsQuizStepper() {
   const handleIsStudentCheckedChange = e => setIsStudentChecked(e.target.checked);
 
   const {
-    state: { selectedJob, goal },
+    state: { selectedJob, goal, currentJobRole, interestedJobs },
     dispatch: skillsDispatch,
   } = useContext(SkillsContext);
   const { refinements, dispatch } = useContext(SearchContext);
@@ -111,6 +115,7 @@ function SkillsQuizStepper() {
   );
 
   const flipToRecommendedCourses = () => {
+    saveSkillsGoalsAndJobsUserSelected(goal, skills, currentJobRole, interestedJobs);
     // show  courses if learner has selected skills or jobs.
     if (goalExceptImproveAndJobSelected) {
       // verify if selectedJob is still checked and within first 3 jobs else
@@ -174,6 +179,26 @@ function SkillsQuizStepper() {
       setJobsDropdownsVisible(false);
     }
   }, [skillsVisible, selectedSkills]);
+
+  useEffect(() => {
+    const fetchLearnerCourseEnrollments = async () => {
+      try {
+        const response = await fetchCourseEnrollments();
+        const enrolledCourses = camelCaseObject(response.data);
+        const enrolledCourseIds = enrolledCourses.map((course) => course.courseDetails.courseId);
+        skillsDispatch({
+          type: SET_KEY_VALUE,
+          key: 'enrolledCourseIds',
+          value: enrolledCourseIds,
+        });
+      } catch (error) {
+        logError(error);
+      }
+    };
+
+    fetchLearnerCourseEnrollments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Stepper activeKey={currentStep}>

@@ -36,7 +36,8 @@ function EnrollAction({
   userEnrollment,
   subscriptionLicense,
   courseRunPrice,
-}) {
+  triggerLicenseSubsidyEvent,
+}) => {
   switch (enrollmentType) {
     case TO_COURSEWARE_PAGE: // scenario 1: already enrolled
         return (
@@ -56,6 +57,7 @@ function EnrollAction({
             <ToDataSharingConsentPage
               enrollLabel={enrollLabel}
               enrollmentUrl={enrollmentUrl}
+              triggerLicenseSubsidyEvent={triggerLicenseSubsidyEvent}
             />
           );
       case TO_ECOM_BASKET:
@@ -78,12 +80,14 @@ EnrollAction.propTypes = {
   userEnrollment: PropTypes.shape({}),
   subscriptionLicense: PropTypes.shape({}),
   courseRunPrice: PropTypes.number.isRequired,
+  triggerLicenseSubsidyEvent: PropTypes.bool,
 };
 
 EnrollAction.defaultProps = {
   enrollmentUrl: null,
   userEnrollment: null,
   subscriptionLicense: null,
+  triggerLicenseSubsidyEvent: false,
 };
 
 export default EnrollAction;

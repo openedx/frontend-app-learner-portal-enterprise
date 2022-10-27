@@ -1,8 +1,4 @@
 .enterprise-banner {
-  h1 {
-    border-left-width: 15px;
-    border-left-style: solid;
-  }
   .banner-content{
     justify-content: space-between;
   }
@@ -10,4 +6,9 @@
     margin: 1%;
     height: max-content;
   }
+}
+
+.border-brand-tertiary {
+  border-bottom-width: 7px;
+  border-bottom-style: solid;
 }

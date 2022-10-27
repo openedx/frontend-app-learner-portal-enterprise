@@ -1,10 +1,8 @@
 import React, {
   useContext, useMemo, useState, useCallback,
 } from 'react';
-import PropTypes from 'prop-types';
 import { StatefulButton } from '@edx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
-import { useHistory } from 'react-router-dom';
 
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
@@ -24,8 +22,7 @@ const props = {
   className: 'mb-4 mt-1',
 };
 
-function SubsidyRequestButton({ enterpriseSlug }) {
-  const history = useHistory();
+const SubsidyRequestButton = () => {
   const { addToast } = useContext(ToastsContext);
   const [loadingRequest, setLoadingRequest] = useState(false);
 
@@ -112,7 +109,6 @@ function SubsidyRequestButton({ enterpriseSlug }) {
       setLoadingRequest(false);
       addToast('Request for course submitted');
       refreshSubsidyRequests();
-      history.push(`/${enterpriseSlug}`);
     } catch (error) {
       logError(error);
       setLoadingRequest(false);
@@ -123,9 +119,5 @@ function SubsidyRequestButton({ enterpriseSlug }) {
     <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
   );
 }
-
-SubsidyRequestButton.propTypes = {
-  enterpriseSlug: PropTypes.string.isRequired,
-};
 
 export default SubsidyRequestButton;

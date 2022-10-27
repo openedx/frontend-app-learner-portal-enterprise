@@ -13,7 +13,6 @@ import * as entepriseAccessService from '../../enterprise-subsidy-requests/data/
 jest.mock('../../enterprise-subsidy-requests/data/service');
 
 const mockEnterpriseUUID = 'uuid';
-const mockEnterpriseSlug = 'sluggy';
 const mockCourseKey = 'edx+101';
 const mockCourseRunKey = `${mockCourseKey}+v1`;
 
@@ -56,20 +55,15 @@ const initialCourseState = {
 function SubsidyRequestButtonWrapper({
   subsidyRequestsState = {},
   courseState = {},
-}) {
-  const requestContextValue = useMemo(() => (
-    { ...initialSubsidyRequestsState, ...subsidyRequestsState }), [subsidyRequestsState]);
-  const courseContextValue = useMemo(() => ({ ...initialCourseState, ...courseState }), [courseState]);
-  return (
-    <ToastsContext.Provider value={initialToastsState}>
-      <SubsidyRequestsContext.Provider value={requestContextValue}>
-        <CourseContext.Provider value={courseContextValue}>
-          <SubsidyRequestButton enterpriseSlug={mockEnterpriseSlug} />
-        </CourseContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </ToastsContext.Provider>
-  );
-}
+}) => (
+  <ToastsContext.Provider value={initialToastsState}>
+    <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
+      <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
+        <SubsidyRequestButton />
+      </CourseContext.Provider>
+    </SubsidyRequestsContext.Provider>
+  </ToastsContext.Provider>
+);
 
 describe('<SubsidyRequestButton />', () => {
   afterEach(() => jest.clearAllMocks());
@@ -163,7 +157,8 @@ describe('<SubsidyRequestButton />', () => {
         }}
       />,
     );
-    expect(screen.getByText('Awaiting approval'));
+    expect(screen.queryByText('Request enrollment')).not.toBeInTheDocument();
+    expect(screen.getByText('Awaiting approval')).toBeInTheDocument();
   });
 
   it.each(

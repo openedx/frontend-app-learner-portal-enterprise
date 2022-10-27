@@ -43,6 +43,8 @@ initialize({
         LEARNER_SUPPORT_URL: process.env.LEARNER_SUPPORT_URL || null,
         GETSMARTER_STUDENT_TC_URL: process.env.GETSMARTER_STUDENT_TC_URL || null,
         GETSMARTER_PRIVACY_POLICY_URL: process.env.GETSMARTER_PRIVACY_POLICY_URL || null,
+        EXPERIMENT_2_ID: process.env.EXPERIMENT_2_ID || null,
+        EXPERIMENT_2_VARIANT_1_ID: process.env.EXPERIMENT_2_VARIANT_1_ID || null,
       });
     },
   },

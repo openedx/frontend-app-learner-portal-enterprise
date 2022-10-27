@@ -18,7 +18,7 @@
                             "course_runs": [],
                             "title": "test course 2",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "NOT_STARTED"
                         }
@@ -54,7 +54,7 @@
                             "course_runs": [],
                             "title": "test course 3",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "IN_PROGRESS"
                         }
@@ -90,7 +90,7 @@
                             "course_runs": [],
                             "title": "test course 4",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "NOT_STARTED"
                         }
@@ -126,7 +126,7 @@
                             "course_runs": [],
                             "title": "test course 5",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "NOT_STARTED"
                         }
@@ -162,7 +162,7 @@
                             "course_runs": [],
                             "title": "test course 2",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "COMPLETED"
                         }
@@ -179,8 +179,8 @@
             "uuid": "29efa34c-60c6-4791-88c0-ab3b5fbd7503",
             "title": "test 2",
             "status": "active",
-            "banner_image": null,
-            "card_image": null,
+            "banner_image": "http://example.com/jpeg",
+            "card_image": "http://example.com/jpeg",
             "overview": "",
             "steps": [
                 {
@@ -218,7 +218,7 @@
                             "course_runs": [],
                             "title": "test course 2",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "NOT_STARTED"
                         }
@@ -258,7 +258,7 @@
                             ],
                             "title": "Demonstration Course",
                             "short_description": "Lorem ispum",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "IN_PROGRESS"
                         }
@@ -288,7 +288,7 @@
                             "course_runs": [],
                             "title": "test course 2",
                             "short_description": "",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "NOT_STARTED"
                         }
@@ -328,7 +328,7 @@
                             ],
                             "title": "Demonstration Course",
                             "short_description": "Lorem ipsum",
-                            "card_image_url": null,
+                            "card_image_url": "http://example.com/jpeg",
                             "content_type": "course",
                             "status": "IN_PROGRESS"
                         }

@@ -82,16 +82,18 @@ function CouponCodesSummaryCard({
           <SidebarCard
             title={(
               <div className="d-flex align-items-start justify-content-between">
-                {`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}
-                {badgeVariantAndLabel && (
-                  <Badge
-                    variant={badgeVariantAndLabel.variant}
-                    className="ml-2"
-                    data-testid="subscription-status-badge"
-                  >
-                    {badgeVariantAndLabel.label}
-                  </Badge>
-                )}
+                <div>{`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}</div>
+                <div>
+                  {badgeVariantAndLabel && (
+                    <Badge
+                      variant={badgeVariantAndLabel.variant}
+                      className="ml-2"
+                      data-testid="subscription-status-badge"
+                    >
+                      {badgeVariantAndLabel.label}
+                    </Badge>
+                  )}
+                </div>
               </div>
             )}
             cardClassNames={className}

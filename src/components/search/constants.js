@@ -12,6 +12,7 @@ export const COURSE_TITLE = 'Courses';
 export const PROGRAM_TITLE = 'Programs';
 export const PATHWAY_TITLE = 'Pathways';
 export const HEADER_TITLE = 'Search Courses and Programs';
+export const SEARCH_TRACKING_NAME = 'learner_portal';
 
 const OVERRIDE_FACET_FILTERS = [];
 if (features.PROGRAM_TYPE_FACET) {
