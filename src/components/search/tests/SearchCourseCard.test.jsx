@@ -3,11 +3,15 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
+import { renderHook } from '@testing-library/react-hooks';
 
 import SearchCourseCard from '../SearchCourseCard';
+import * as optimizelyUtils from '../../../utils/optimizely';
+import * as courseSearchUtils from '../utils';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
+import { useCourseAboutPageVisitClickHandler } from '../data/hooks';
 
 jest.mock('react-truncate', () => ({
   __esModule: true,
@@ -82,5 +86,47 @@ describe('<SearchCourseCard />', () => {
     const cardEl = screen.getByTestId('search-course-card');
     userEvent.click(cardEl);
     expect(history.entries).toHaveLength(1);
+  });
+
+  test('render course_length field in place of course text', () => {
+    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
+    jest.spyOn(courseSearchUtils, 'isShortCourse').mockImplementation(() => true);
+
+    const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
+
+    // assert that the card footer shows text "Short Course"
+    expect(container.querySelector('.pgn__card-footer-text')).toHaveTextContent('Short Course');
+  });
+
+  test('do not render course_length field in place of course text', () => {
+    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
+    jest.spyOn(courseSearchUtils, 'isShortCourse').mockImplementation(() => false);
+
+    const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
+
+    // assert that the card footer shows text "Course"
+    expect(container.querySelector('.pgn__card-footer-text')).toHaveTextContent('Course');
+  });
+
+  test('optimizely event is being triggered in onClick when search card is clicked', () => {
+    const basicProps = {
+      courseKey: 'course-key',
+      enterpriseId: 'enterprise-id',
+    };
+    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => (true));
+
+    const { result } = renderHook(() => useCourseAboutPageVisitClickHandler(basicProps));
+    result.current({ preventDefault: jest.fn() });
+
+    const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
+
+    // select card with class pgn__card and click on it
+    const card = container.querySelector('.pgn__card');
+    card.click();
+
+    expect(pushEventSpy).toHaveBeenCalledWith('enterprise_learner_portal_course_about_page_click', {
+      courseKey: 'course-key',
+      enterpriseId: 'enterprise-id',
+    });
   });
 });

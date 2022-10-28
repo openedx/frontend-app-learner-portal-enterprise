@@ -9,6 +9,10 @@ import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
+import { GENERAL_LENGTH_COURSE, SHORT_LENGTH_COURSE } from './data/constants';
+import { useCourseAboutPageVisitClickHandler } from './data/hooks';
+import { isExperimentVariant } from '../../utils/optimizely';
+import { isShortCourse } from './utils';
 
 const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
@@ -45,12 +49,26 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
     [course],
   );
 
+  const config = getConfig();
+  const isExperimentVariationA = isExperimentVariant(
+    config.EXPERIMENT_3_ID,
+    config.EXPERIMENT_3_VARIANT_1_ID,
+  );
+
+  const isShortLengthCourse = isShortCourse(course);
+
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
+
+  const handleCourseAboutPageVisitClick = useCourseAboutPageVisitClickHandler({
+    courseKey: course.key,
+    enterpriseId: uuid,
+  });
 
   const handleCardClick = () => {
     if (!linkToCourse) {
       return;
     }
+    handleCourseAboutPageVisitClick();
     sendEnterpriseTrackEvent(
       uuid,
       'edx.ui.enterprise.learner_portal.search.card.clicked',
@@ -92,7 +110,12 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
         )}
       />
       <Card.Section />
-      <Card.Footer textElement={<span className="text-muted">Course</span>} />
+      <Card.Footer textElement={(
+        <span className="text-muted">
+          {(isExperimentVariationA && isShortLengthCourse) ? SHORT_LENGTH_COURSE : GENERAL_LENGTH_COURSE}
+        </span>
+      )}
+      />
     </Card>
   );
 };
