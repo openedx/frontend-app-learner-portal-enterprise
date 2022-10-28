@@ -25,21 +25,19 @@ const baseSubsidyRequestContextValue = {
   catalogsForSubsidyRequests: [],
 };
 
-function CourseSkillsWithContext({
+const CourseSkillsWithContext = ({
   initialAppState,
   initialCourseState,
   initialSubsidyRequestContextValue,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-        <CourseContextProvider initialState={initialCourseState}>
-          <CourseSkills />
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
+      <CourseContextProvider initialState={initialCourseState}>
+        <CourseSkills />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
+  </AppContext.Provider>
+);
 
 CourseSkillsWithContext.propTypes = {
   initialAppState: PropTypes.shape(),

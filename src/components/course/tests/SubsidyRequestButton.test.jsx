@@ -52,18 +52,23 @@ const initialCourseState = {
   subsidyRequestCatalogsApplicableToCourse: new Set([TEST_CATALOG_UUID]),
 };
 
-function SubsidyRequestButtonWrapper({
+const SubsidyRequestButtonWrapper = ({
   subsidyRequestsState = {},
   courseState = {},
-}) => (
-  <ToastsContext.Provider value={initialToastsState}>
-    <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
-      <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
-        <SubsidyRequestButton />
-      </CourseContext.Provider>
-    </SubsidyRequestsContext.Provider>
-  </ToastsContext.Provider>
-);
+}) => {
+  const subsidyContextValue = useMemo(() => (
+    { ...initialSubsidyRequestsState, ...subsidyRequestsState }), [subsidyRequestsState]);
+  const courseContextValue = useMemo(() => ({ ...initialCourseState, ...courseState }), [courseState]);
+  return (
+    <ToastsContext.Provider value={initialToastsState}>
+      <SubsidyRequestsContext.Provider value={subsidyContextValue}>
+        <CourseContext.Provider value={courseContextValue}>
+          <SubsidyRequestButton />
+        </CourseContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </ToastsContext.Provider>
+  );
+};
 
 describe('<SubsidyRequestButton />', () => {
   afterEach(() => jest.clearAllMocks());

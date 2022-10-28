@@ -22,7 +22,7 @@ import NotFoundPage from '../NotFoundPage';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from './data/constants';
 import ProgramDataBar from './ProgramDataBar';
 
-function ProgramPage() {
+const ProgramPage = () => {
   const { programUuid } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
 
@@ -94,6 +94,6 @@ function ProgramPage() {
       </ProgramContextProvider>
     </>
   );
-}
+};
 
 export default ProgramPage;

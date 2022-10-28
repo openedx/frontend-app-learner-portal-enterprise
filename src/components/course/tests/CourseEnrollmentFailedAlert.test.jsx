@@ -36,19 +36,17 @@ const defaultCourseEnrollmentsState = {
   },
 };
 
-function CourseEnrollmentFailedAlertWrapper({
+const CourseEnrollmentFailedAlertWrapper = ({
   initialAppState = defaultAppState,
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
   ...rest
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-        <CourseEnrollmentFailedAlert {...rest} />
-      </CourseEnrollmentsContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+      <CourseEnrollmentFailedAlert {...rest} />
+    </CourseEnrollmentsContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<CourseEnrollmentFailedAlert />', () => {
   describe('Upgraded from dashboard', () => {

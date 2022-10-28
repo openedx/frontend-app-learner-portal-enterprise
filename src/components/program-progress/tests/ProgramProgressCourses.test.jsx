@@ -43,20 +43,18 @@ const subsidyRequestsState = {
   },
 };
 
-function ProgramProgressCoursesWithContext({
+const ProgramProgressCoursesWithContext = ({
   // eslint-disable-next-line react/prop-types
   initialAppState, initialUserSubsidyState, courseData, initialSubsidyRequestsState,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <ProgramProgressCourses courseData={courseData} />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <ProgramProgressCourses courseData={courseData} />
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<ProgramProgressCourses />', () => {
   it('displays the completed course with enrolled course run', () => {

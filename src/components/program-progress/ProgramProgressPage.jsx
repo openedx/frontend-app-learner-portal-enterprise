@@ -23,7 +23,7 @@ import {
 
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
 
-function ProgramProgressPage() {
+const ProgramProgressPage = () => {
   const { programUUID } = useParams();
   const [program, fetchError] = useLearnerProgramProgressData(programUUID);
 
@@ -118,6 +118,6 @@ function ProgramProgressPage() {
       </CourseEnrollmentsContextProvider>
     </>
   );
-}
+};
 
 export default ProgramProgressPage;

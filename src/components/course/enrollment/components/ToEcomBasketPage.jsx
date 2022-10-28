@@ -21,7 +21,7 @@ import {
  * @param {Component} args.enrollLabel An EnrollLabel component
  * @returns {Component} Rendered enroll button with a enrollment modal behavior included.
  */
-function ToEcomBasketPage({ enrollLabel, enrollmentUrl, courseRunPrice }) {
+const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
   const { userSubsidyApplicableToCourse, couponCodesCount } = useSubsidyDataForCourse();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -68,7 +68,7 @@ function ToEcomBasketPage({ enrollLabel, enrollmentUrl, courseRunPrice }) {
       />
     </>
   );
-}
+};
 
 ToEcomBasketPage.propTypes = {
   enrollLabel: PropTypes.node.isRequired,

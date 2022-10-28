@@ -8,11 +8,11 @@ const iconByVariant = {
   danger: WarningFilled,
 };
 
-function CourseEnrollmentsAlert({
+const CourseEnrollmentsAlert = ({
   children,
   variant,
   onClose,
-}) {
+}) => {
   const icon = iconByVariant[variant];
 
   return (
@@ -26,7 +26,7 @@ function CourseEnrollmentsAlert({
       {children}
     </Alert>
   );
-}
+};
 
 CourseEnrollmentsAlert.propTypes = {
   children: PropTypes.node.isRequired,

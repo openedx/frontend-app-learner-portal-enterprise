@@ -28,7 +28,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-function SearchPathwayCardWithAppContext(props) {
+const SearchPathwayCardWithAppContext = (props) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
   }), []);
@@ -37,7 +37,7 @@ function SearchPathwayCardWithAppContext(props) {
       <SearchPathwayCard {...props} />
     </AppContext.Provider>
   );
-}
+};
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
 const TEST_TITLE = 'Test Title';

@@ -3,7 +3,7 @@ import { CardGrid } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
 import CourseRecommendationCard from './CourseRecommendationCard';
 
-function CourseRecommendations() {
+const CourseRecommendations = () => {
   const { state } = useContext(CourseContext);
   const { course, courseRecommendations } = state;
   const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
@@ -36,6 +36,6 @@ function CourseRecommendations() {
       )}
     </div>
   );
-}
+};
 
 export default CourseRecommendations;

@@ -14,13 +14,13 @@ const btnLabels = {
   pending: 'Unenrolling...',
 };
 
-export default function UnenrollModal({
+const UnenrollModal = ({
   courseRunId,
   enrollmentType,
   isOpen,
   onClose,
   onSuccess,
-}) {
+}) => {
   const { removeCourseEnrollment } = useContext(CourseEnrollmentsContext);
   const { addToast } = useContext(ToastsContext);
 
@@ -88,7 +88,7 @@ export default function UnenrollModal({
       </>
     </AlertModal>
   );
-}
+};
 
 UnenrollModal.propTypes = {
   courseRunId: PropTypes.string.isRequired,
@@ -97,3 +97,5 @@ UnenrollModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSuccess: PropTypes.func.isRequired,
 };
+
+export default UnenrollModal;

@@ -37,7 +37,7 @@ const filterSkillNames = skillNames => {
   return skillsToReturn;
 };
 
-function SearchPathwayCard({ hit, isLoading, isSkillQuizResult }) {
+const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
 
   const pathway = useMemo(() => {
@@ -158,11 +158,9 @@ function SearchPathwayCard({ hit, isLoading, isSkillQuizResult }) {
       </Link>
     </div>
   );
-}
+};
 
-function SkeletonPathwayCard(props) {
-  return <SearchPathwayCard {...props} isLoading />;
-}
+const SkeletonPathwayCard = (props) => <SearchPathwayCard {...props} isLoading />;
 
 SearchPathwayCard.propTypes = {
   hit: PropTypes.shape({

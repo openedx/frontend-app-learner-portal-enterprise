@@ -49,7 +49,7 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
 
-function SkillsQuizStepper() {
+const SkillsQuizStepper = () => {
   const config = getConfig();
   const { userId } = getAuthenticatedUser();
   const [searchClient, courseIndex, jobIndex] = useMemo(
@@ -384,6 +384,6 @@ function SkillsQuizStepper() {
       </ModalDialog>
     </Stepper>
   );
-}
+};
 
 export default SkillsQuizStepper;

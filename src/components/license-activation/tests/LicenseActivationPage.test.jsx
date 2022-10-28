@@ -35,7 +35,7 @@ const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ACTIVATION_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
 
-function LicenseActivationPageWithContext({
+const LicenseActivationPageWithContext = ({
   initialUserSubsidyState = {
     subscriptionLicense: undefined,
     couponCodes: {
@@ -43,7 +43,7 @@ function LicenseActivationPageWithContext({
       couponCodesCount: 0,
     },
   },
-}) {
+}) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: {
       uuid: TEST_ENTERPRISE_UUID,
@@ -60,7 +60,7 @@ function LicenseActivationPageWithContext({
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   );
-}
+};
 
 describe('<LicenseActivationPageWithAppContext />', () => {
   it.each(

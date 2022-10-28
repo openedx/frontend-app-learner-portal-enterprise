@@ -35,7 +35,7 @@ export const MODAL_TEXTS = {
   },
 };
 
-function EnrollModal({
+const EnrollModal = ({
   isModalOpen,
   setIsModalOpen,
   enrollmentUrl,
@@ -43,7 +43,7 @@ function EnrollModal({
   userSubsidyApplicableToCourse,
   couponCodesCount,
   onEnroll,
-}) {
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const getModalTexts = () => {
@@ -103,7 +103,7 @@ function EnrollModal({
       onClose={() => setIsModalOpen(false)}
     />
   );
-}
+};
 
 EnrollModal.propTypes = {
   isModalOpen: PropTypes.bool.isRequired,

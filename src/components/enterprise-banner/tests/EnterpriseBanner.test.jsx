@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-function BannerWrapper() {
+const BannerWrapper = () => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: {
       slug: 'slug',
@@ -23,7 +23,7 @@ function BannerWrapper() {
       <EnterpriseBanner />
     </AppContext.Provider>
   );
-}
+};
 
 describe('<EnterpriseBanner />', () => {
   afterAll(() => {

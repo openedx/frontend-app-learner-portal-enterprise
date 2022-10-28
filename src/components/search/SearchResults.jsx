@@ -17,7 +17,7 @@ import {
 } from './constants';
 import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 
-function SearchResults({
+const SearchResults = ({
   searchResults,
   searchState,
   isSearchStalled,
@@ -25,7 +25,7 @@ function SearchResults({
   hitComponent,
   title,
   contentType,
-}) {
+}) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
   const linkText = `Show (${nbHits}) >`;
@@ -137,7 +137,7 @@ function SearchResults({
       </>
     </Container>
   );
-}
+};
 
 SearchResults.propTypes = {
   searchState: PropTypes.shape({

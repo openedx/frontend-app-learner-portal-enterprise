@@ -26,13 +26,11 @@ const initialAppState = {
 };
 
 /* eslint-disable react/prop-types */
-function CourseRecommendationCardWithContext(props) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <CourseRecommendationCard {...props} />
-    </AppContext.Provider>
-  );
-}
+const CourseRecommendationCardWithContext = (props) => (
+  <AppContext.Provider value={initialAppState}>
+    <CourseRecommendationCard {...props} />
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 const TEST_COURSE_KEY = 'test-course-key';

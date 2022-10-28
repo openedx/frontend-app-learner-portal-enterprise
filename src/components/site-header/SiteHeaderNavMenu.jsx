@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
-function SiteHeaderNavMenu() {
+const SiteHeaderNavMenu = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const mainMenuLinkClassName = 'nav-link';
 
@@ -20,6 +20,6 @@ function SiteHeaderNavMenu() {
       </NavLink>
     </>
   );
-}
+};
 
 export default SiteHeaderNavMenu;

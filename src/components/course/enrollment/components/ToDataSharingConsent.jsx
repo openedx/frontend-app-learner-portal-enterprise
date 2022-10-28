@@ -51,7 +51,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl, triggerLicenseSu
       }}
     />
   );
-}
+};
 
 ToDataSharingConsentPage.propTypes = {
   enrollLabel: PropTypes.node.isRequired,

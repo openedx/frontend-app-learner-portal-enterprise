@@ -26,15 +26,13 @@ const TEST_ENTERPRISES = [
 ];
 
 /* eslint-disable react/prop-types */
-function EnterprisePageRedirectWithContext({
+const EnterprisePageRedirectWithContext = ({
   initialAppState = {},
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <EnterprisePageRedirect />
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <EnterprisePageRedirect />
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 describe('<EnterprisePageRedirect />', () => {

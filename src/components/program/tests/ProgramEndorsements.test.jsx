@@ -12,21 +12,19 @@ jest.mock('react-router-dom', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-function ProgramEndorsementsWithContext({
+const ProgramEndorsementsWithContext = ({
   initialAppState = {},
   initialProgramState = {},
   initialUserSubsidyState = {},
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramContextProvider initialState={initialProgramState}>
-          <ProgramEndorsements />
-        </ProgramContextProvider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <ProgramContextProvider initialState={initialProgramState}>
+        <ProgramEndorsements />
+      </ProgramContextProvider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 describe('<ProgramEndorsements />', () => {

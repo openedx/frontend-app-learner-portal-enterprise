@@ -11,7 +11,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
-function SearchCourseCard({ hit, isLoading }) {
+const SearchCourseCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
 
   const course = useMemo(() => (hit ? camelCaseObject(hit) : {}), [hit]);
@@ -153,11 +153,9 @@ function SearchCourseCard({ hit, isLoading }) {
       </Link>
     </div>
   );
-}
+};
 
-function SkeletonCourseCard(props) {
-  return <SearchCourseCard {...props} isLoading />;
-}
+const SkeletonCourseCard = (props) => <SearchCourseCard {...props} isLoading />;
 
 SearchCourseCard.propTypes = {
   hit: PropTypes.shape({

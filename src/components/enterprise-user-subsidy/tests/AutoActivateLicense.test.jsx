@@ -12,7 +12,7 @@ const TEST_ENTERPRISE_SLUG = 'test-slug';
 const initialPathname = `/${TEST_ENTERPRISE_SLUG}`;
 
 // eslint-disable-next-line react/prop-types
-function AutoActivateLicenseWrapper({ subscriptionLicense }) {
+const AutoActivateLicenseWrapper = ({ subscriptionLicense }) => {
   const contextValue = useMemo(() => ({ enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG } }), []);
   const subsidyContextValue = useMemo(() => ({ subscriptionLicense }), [subscriptionLicense]);
   return (
@@ -24,7 +24,7 @@ function AutoActivateLicenseWrapper({ subscriptionLicense }) {
       </AppContext.Provider>
     </Route>
   );
-}
+};
 
 describe('<AutoActivationLicense />', () => {
   afterEach(() => jest.clearAllMocks());

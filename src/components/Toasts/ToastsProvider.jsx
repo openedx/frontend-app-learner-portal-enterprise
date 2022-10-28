@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 export const ToastsContext = createContext();
 
-function ToastsProvider({ children }) {
+const ToastsProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
   const addToast = (message) => {
@@ -34,7 +34,7 @@ function ToastsProvider({ children }) {
       {children}
     </ToastsContext.Provider>
   );
-}
+};
 
 ToastsProvider.propTypes = {
   children: PropTypes.node.isRequired,

@@ -7,7 +7,7 @@ import { NUM_RESULTS_PATHWAY, CONTENT_TYPE_PATHWAY, PATHWAY_TITLE } from './cons
 import SearchResults from './SearchResults';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 
-function SearchPathway({ filter }) {
+const SearchPathway = ({ filter }) => {
   const defaultFilter = `content_type:${CONTENT_TYPE_PATHWAY}  AND ${filter}`;
   const config = getConfig();
 
@@ -21,7 +21,7 @@ function SearchPathway({ filter }) {
       <SearchResults hitComponent={SearchPathwayCard} title={PATHWAY_TITLE} />
     </Index>
   );
-}
+};
 
 SearchPathway.propTypes = {
   filter: PropTypes.string.isRequired,

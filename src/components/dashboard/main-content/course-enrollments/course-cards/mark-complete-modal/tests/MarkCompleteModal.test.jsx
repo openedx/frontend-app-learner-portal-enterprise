@@ -9,7 +9,7 @@ import * as service from '../data/service';
 
 jest.mock('../data/service');
 
-function ModalWrapper({ initialProps, enterpriseConfig }) {
+const ModalWrapper = ({ initialProps, enterpriseConfig }) => {
   const contextValue = useMemo(() => ({ enterpriseConfig }), [enterpriseConfig]);
   return (
     <AppContext.Provider value={contextValue}>
@@ -18,7 +18,7 @@ function ModalWrapper({ initialProps, enterpriseConfig }) {
       />
     </AppContext.Provider>
   );
-}
+};
 
 ModalWrapper.propTypes = {
   initialProps: PropTypes.shape({}).isRequired,

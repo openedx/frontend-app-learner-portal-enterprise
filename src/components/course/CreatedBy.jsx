@@ -5,7 +5,7 @@ import { Hyperlink } from '@edx/paragon';
 import { CourseContext } from './CourseContextProvider';
 import { useCoursePartners } from './data/hooks';
 
-export default function CreatedBy() {
+const CreatedBy = () => {
   const { config } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
@@ -73,4 +73,6 @@ export default function CreatedBy() {
       )}
     </div>
   );
-}
+};
+
+export default CreatedBy;

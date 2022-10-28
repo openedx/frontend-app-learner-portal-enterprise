@@ -54,7 +54,7 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
   );
 });
 
-function PathwayModal({ learnerPathwayUuid, isOpen, onClose }) {
+const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
   const { enterpriseConfig: { slug } } = useContext(AppContext);
   const pathwayUuid = isOpen ? learnerPathwayUuid : null;
   const [pathway, isLoading] = useLearnerPathwayData({ learnerPathwayUuid: pathwayUuid });
@@ -167,11 +167,9 @@ function PathwayModal({ learnerPathwayUuid, isOpen, onClose }) {
 
     </MarketingModal>
   );
-}
+};
 
-function SkeletonPathwayModal(props) {
-  return <PathwayModal {...props} isLoading />;
-}
+const SkeletonPathwayModal = (props) => <PathwayModal {...props} isLoading />;
 
 PathwayModal.propTypes = {
   learnerPathwayUuid: PropTypes.string.isRequired,

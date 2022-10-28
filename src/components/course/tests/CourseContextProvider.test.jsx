@@ -18,19 +18,17 @@ const baseInitialCourseState = {
   catalog: { catalogList: [] },
 };
 
-function CourseContextProviderWrapper({
+const CourseContextProviderWrapper = ({
   subsidyRequestsContextValue,
   initialCourseState,
   children,
-}) {
-  return (
-    <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
-      <CourseContextProvider initialState={initialCourseState}>
-        {children}
-      </CourseContextProvider>
-    </SubsidyRequestsContext.Provider>
-  );
-}
+}) => (
+  <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
+    <CourseContextProvider initialState={initialCourseState}>
+      {children}
+    </CourseContextProvider>
+  </SubsidyRequestsContext.Provider>
+);
 
 CourseContextProviderWrapper.propTypes = {
   children: PropTypes.node.isRequired,

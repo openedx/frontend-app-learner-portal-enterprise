@@ -3,9 +3,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { MailtoLink } from '@edx/paragon';
 import PropTypes from 'prop-types';
 
-function ContactAdminMailto({
+const ContactAdminMailto = ({
   children,
-}) {
+}) => {
   const { enterpriseConfig: { adminUsers } } = useContext(AppContext);
   const adminEmails = adminUsers.map(user => user.email);
 
@@ -21,7 +21,7 @@ function ContactAdminMailto({
   }
 
   return children;
-}
+};
 
 ContactAdminMailto.propTypes = {
   children: PropTypes.node,

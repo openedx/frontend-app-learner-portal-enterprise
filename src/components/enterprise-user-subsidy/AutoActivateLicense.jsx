@@ -8,7 +8,7 @@ import { LICENSE_STATUS } from './data/constants';
 /**
  * Redirects users to the license activation page if they have an assigned license.
  */
-function AutoActivateLicense() {
+const AutoActivateLicense = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense } = useContext(UserSubsidyContext);
   const location = useLocation();
@@ -28,6 +28,6 @@ function AutoActivateLicense() {
     }}
     />
   );
-}
+};
 
 export default AutoActivateLicense;

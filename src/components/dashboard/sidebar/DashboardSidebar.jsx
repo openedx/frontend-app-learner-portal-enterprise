@@ -4,17 +4,15 @@ import { Card } from '@edx/paragon';
 import SupportInformation from './SupportInformation';
 import SubsidiesSummary from './SubsidiesSummary';
 
-function DashboardSidebar() {
-  return (
-    <div className="mt-3 mt-lg-0">
-      <SubsidiesSummary />
-      <Card>
-        <Card.Section>
-          <SupportInformation />
-        </Card.Section>
-      </Card>
-    </div>
-  );
-}
+const DashboardSidebar = () => (
+  <div className="mt-3 mt-lg-0">
+    <SubsidiesSummary />
+    <Card>
+      <Card.Section>
+        <SupportInformation />
+      </Card.Section>
+    </Card>
+  </div>
+);
 
 export default DashboardSidebar;

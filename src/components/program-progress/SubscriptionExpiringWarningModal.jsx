@@ -9,10 +9,10 @@ import PropTypes from 'prop-types';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from './data/constants';
 
-function SubscriptionExpirationWarningModal({
+const SubscriptionExpirationWarningModal = ({
   isSubscriptionExpiringWarningModalOpen,
   onSubscriptionExpiringWarningModalClose,
-}) {
+}) => {
   const {
     enterpriseConfig: { name, contactEmail },
   } = useContext(AppContext);
@@ -63,7 +63,7 @@ function SubscriptionExpirationWarningModal({
       {renderExpiredBody()}
     </StandardModal>
   );
-}
+};
 SubscriptionExpirationWarningModal.propTypes = {
   isSubscriptionExpiringWarningModalOpen: PropTypes.bool.isRequired,
   onSubscriptionExpiringWarningModalClose: PropTypes.func.isRequired,

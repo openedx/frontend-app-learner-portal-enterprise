@@ -96,24 +96,22 @@ const defaultUserSubsidyState = {
 };
 
 /* eslint-disable react/prop-types */
-function SidebarWithContext({
+const SidebarWithContext = ({
   initialAppState = appStateWithOrigPriceHidden,
   subsidyRequestsState = defaultSubsidyRequestsState,
   initialCourseState,
   initialUserSubsidyState = defaultUserSubsidyState,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
-          <CourseContextProvider initialState={initialCourseState}>
-            <CourseSidebarPrice />
-          </CourseContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
+        <CourseContextProvider initialState={initialCourseState}>
+          <CourseSidebarPrice />
+        </CourseContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';

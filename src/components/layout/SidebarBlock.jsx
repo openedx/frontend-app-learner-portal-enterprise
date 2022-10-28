@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-function SidebarBlock({
+const SidebarBlock = ({
   className,
   title,
   children,
   titleOptions,
-}) {
+}) => {
   const { tag: TitleTag } = titleOptions;
   return (
     <div className={className}>
@@ -19,7 +19,7 @@ function SidebarBlock({
       {children}
     </div>
   );
-}
+};
 
 SidebarBlock.propTypes = {
   children: PropTypes.node.isRequired,

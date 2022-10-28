@@ -5,9 +5,9 @@ import {
   X_AXIS, Y_AXIS, CIRCLE_RADIUS, CIRCLE_DEGREES, STROKE_WIDTH, CIRCLE_LABEL,
 } from './data/constants';
 
-function CircleSegment({
+const CircleSegment = ({
   total, index, classList,
-}) {
+}) => {
   const segmentDash = 2 * Math.PI * CIRCLE_RADIUS;
   const degreeInc = 360 / total;
   // Remove strokeWidth to show a gap between the segments
@@ -33,9 +33,9 @@ function CircleSegment({
       strokeDashoffset={offset}
     />
   );
-}
+};
 
-function ProgramProgressCircle() {
+const ProgramProgressCircle = () => {
   const { programData, courseData } = useContext(ProgramProgressContext);
   const { inProgress, completed, notStarted } = courseData;
   const totalCourses = inProgress.length + completed.length + notStarted.length;
@@ -63,7 +63,7 @@ function ProgramProgressCircle() {
       </div>
     </>
   );
-}
+};
 
 export default ProgramProgressCircle;
 

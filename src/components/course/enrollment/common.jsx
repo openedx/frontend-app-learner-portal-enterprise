@@ -5,19 +5,17 @@ import { Button } from '@edx/paragon';
 // Common UI components for enrollment to avoid duplication, consistent styling etc.
 // Each enroll component can use the EnrollButtonCta to render the enroll behavior
 
-function EnrollButtonWrapper({
+const EnrollButtonWrapper = ({
   as: Component,
   children,
   ...props
-}) {
-  return (
-    <div>
-      <Component {...props}>
-        {children}
-      </Component>
-    </div>
-  );
-}
+}) => (
+  <div>
+    <Component {...props}>
+      {children}
+    </Component>
+  </div>
+);
 
 EnrollButtonWrapper.propTypes = {
   children: PropTypes.node.isRequired,
@@ -28,13 +26,11 @@ EnrollButtonWrapper.defaultProps = {
   as: Button,
 };
 
-function EnrollButtonCta({ enrollLabel: EnrollLabel, ...props }) {
-  return (
-    <EnrollButtonWrapper {...props}>
-      {EnrollLabel}
-    </EnrollButtonWrapper>
-  );
-}
+const EnrollButtonCta = ({ enrollLabel: EnrollLabel, ...props }) => (
+  <EnrollButtonWrapper {...props}>
+    {EnrollLabel}
+  </EnrollButtonWrapper>
+);
 
 EnrollButtonCta.propTypes = { enrollLabel: PropTypes.node.isRequired };
 

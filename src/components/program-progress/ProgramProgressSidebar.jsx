@@ -7,7 +7,7 @@ import ProgramPathwayOpportunity from './ProgramPathwayOpportunity';
 import { getProgramCertImage } from './data/utils';
 import progSampleCertImage from './images/sample-cert.png';
 
-function ProgramProgressSideBar() {
+const ProgramProgressSideBar = () => {
   const {
     programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
   } = useContext(ProgramProgressContext);
@@ -99,6 +99,6 @@ function ProgramProgressSideBar() {
       )}
     </div>
   );
-}
+};
 
 export default ProgramProgressSideBar;

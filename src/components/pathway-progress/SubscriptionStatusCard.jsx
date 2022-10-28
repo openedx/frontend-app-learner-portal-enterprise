@@ -5,7 +5,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
 
-function SubscriptionStatusCard() {
+const SubscriptionStatusCard = () => {
   const {
     subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,
@@ -37,6 +37,6 @@ function SubscriptionStatusCard() {
       </Card>
     </div>
   );
-}
+};
 
 export default SubscriptionStatusCard;

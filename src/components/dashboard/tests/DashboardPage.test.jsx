@@ -104,26 +104,24 @@ let mockLocation = {
 };
 
 /* eslint-disable react/prop-types */
-function DashboardWithContext({
+const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialCourseState = defaultCourseState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <CourseEnrollmentsContextProvider>
-            <CourseContextProvider initialState={initialCourseState}>
-              <DashboardPage />
-            </CourseContextProvider>
-          </CourseEnrollmentsContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <CourseEnrollmentsContextProvider>
+          <CourseContextProvider initialState={initialCourseState}>
+            <DashboardPage />
+          </CourseContextProvider>
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 jest.mock('react-router-dom', () => ({

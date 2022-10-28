@@ -7,7 +7,7 @@ import { formatStringAsNumber } from '../../utils/common';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 import { NOT_AVAILABLE } from './constants';
 
-function SelectJobCard() {
+const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
   const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
   const {
@@ -64,6 +64,6 @@ function SelectJobCard() {
       </SelectableBox.Set>
     </div>
   );
-}
+};
 
 export default SelectJobCard;

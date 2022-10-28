@@ -10,12 +10,12 @@ import {
   NO_BALANCE_ALERT_TEXT,
 } from '../data/constants';
 
-function EnterpriseOffersBalanceAlertWrapper({
+const EnterpriseOffersBalanceAlertWrapper = ({
   enterpriseConfig = {
     adminUsers: [],
   },
   hasNoEnterpriseOffersBalance,
-}) {
+}) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig,
   }), [enterpriseConfig]);
@@ -26,7 +26,7 @@ function EnterpriseOffersBalanceAlertWrapper({
       />
     </AppContext.Provider>
   );
-}
+};
 
 describe('<EnterpriseOffersBalanceAlert />', () => {
   it('should not render mailto link if there are no enterprise admins', () => {

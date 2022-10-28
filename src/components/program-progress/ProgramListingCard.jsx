@@ -11,7 +11,7 @@ import Truncate from 'react-truncate';
 import { getProgramIcon } from '../course/data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
-function ProgramListingCard({ program }) {
+const ProgramListingCard = ({ program }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const history = useHistory();
@@ -104,7 +104,7 @@ function ProgramListingCard({ program }) {
       </Card.Section>
     </Card>
   );
-}
+};
 
 ProgramListingCard.propTypes = {
   program: PropTypes.shape({

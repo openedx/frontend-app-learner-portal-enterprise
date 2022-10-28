@@ -4,7 +4,7 @@ import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ProgramContext } from './ProgramContextProvider';
 
-function ProgramFAQ() {
+const ProgramFAQ = () => {
   const { program: { faq } } = useContext(ProgramContext);
   return faq?.length > 0
     ? (
@@ -28,6 +28,6 @@ function ProgramFAQ() {
         </div>
       </div>
     ) : null;
-}
+};
 
 export default ProgramFAQ;

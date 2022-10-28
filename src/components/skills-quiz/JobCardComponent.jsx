@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { formatStringAsNumber } from '../../utils/common';
 import { NOT_AVAILABLE } from './constants';
 
-function JobCardComponent({ jobs, isLoading }) {
+const JobCardComponent = ({ jobs, isLoading }) => {
   const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -60,7 +60,7 @@ function JobCardComponent({ jobs, isLoading }) {
       ))}
     </>
   );
-}
+};
 
 JobCardComponent.defaultProps = {
   jobs: undefined,

@@ -15,7 +15,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
  * A component to render an alert when a learner has a license request that is pending review.
  * Once dismissed, the learner will not see this alert again until the cookies are cleared.
  */
-function LicenseRequestedAlert({ catalogList }) {
+const LicenseRequestedAlert = ({ catalogList }) => {
   const cookies = new Cookies();
   const previouslyDismissed = cookies.get(LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME);
   const [isAlertOpen, setIsAlertOpen] = useState(!previouslyDismissed);
@@ -56,7 +56,7 @@ function LicenseRequestedAlert({ catalogList }) {
       </Alert>
     </Container>
   );
-}
+};
 
 LicenseRequestedAlert.propTypes = {
   catalogList: PropTypes.arrayOf(PropTypes.string).isRequired,

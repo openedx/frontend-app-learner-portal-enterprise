@@ -18,7 +18,7 @@ export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
 export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 
-function SubscriptionExpirationModal() {
+const SubscriptionExpirationModal = () => {
   const {
     enterpriseConfig: { uuid: enterpriseId, adminUsers },
     config,
@@ -156,6 +156,6 @@ function SubscriptionExpirationModal() {
       open
     />
   );
-}
+};
 
 export default SubscriptionExpirationModal;

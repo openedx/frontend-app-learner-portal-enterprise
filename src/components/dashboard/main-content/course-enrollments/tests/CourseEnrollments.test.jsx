@@ -58,7 +58,7 @@ hooks.useCourseEnrollments.mockReturnValue({
   updateCourseEnrollmentStatus: jest.fn(),
 });
 
-function RenderEnrollmentsComponent() {
+const RenderEnrollmentsComponent = () => {
   const contextValue = useMemo(() => ({ enterpriseConfig }), []);
   const requestsContextValue = useMemo(() => ({ isLoading: false }), []);
   return (
@@ -70,7 +70,7 @@ function RenderEnrollmentsComponent() {
       </SubsidyRequestsContext.Provider>
     </AppContext.Provider>
   );
-}
+};
 
 describe('Course enrollments', () => {
   beforeEach(() => {

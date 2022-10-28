@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ProgramContext } from './ProgramContextProvider';
 
-function ProgramStaff({ program }) {
+const ProgramStaff = ({ program }) => {
   const { config } = useContext(AppContext);
   const formatStaffFullName = staff => `${staff.givenName} ${staff.familyName}`;
 
@@ -40,7 +40,7 @@ function ProgramStaff({ program }) {
       ))}
     </div>
   );
-}
+};
 
 ProgramStaff.propTypes = {
   program: PropTypes.shape({
@@ -57,7 +57,7 @@ ProgramStaff.propTypes = {
   }).isRequired,
 };
 
-function ProgramInstructors() {
+const ProgramInstructors = () => {
   const { program } = useContext(ProgramContext);
 
   return (
@@ -106,6 +106,6 @@ function ProgramInstructors() {
       )}
     </div>
   );
-}
+};
 
 export default ProgramInstructors;

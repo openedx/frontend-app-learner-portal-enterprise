@@ -35,7 +35,7 @@ import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import PathwayModal from '../pathway/PathwayModal';
 
-function Search() {
+const Search = () => {
   const { pathwayUUID } = useParams();
   const history = useHistory();
   const { refinements: { content_type: contentType } } = useContext(SearchContext);
@@ -150,6 +150,6 @@ function Search() {
       <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
     </>
   );
-}
+};
 
 export default Search;

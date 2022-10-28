@@ -56,7 +56,7 @@ const renderDialog = () => (
   </div>
 );
 
-function SearchProgramCard({ index }) {
+const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
@@ -291,7 +291,7 @@ function SearchProgramCard({ index }) {
       </div>
     </div>
   );
-}
+};
 
 SearchProgramCard.propTypes = {
   index: PropTypes.shape({

@@ -26,7 +26,7 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
-function PathwayModalWithAppContext(props) {
+const PathwayModalWithAppContext = (props) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
   }), []);
@@ -35,7 +35,7 @@ function PathwayModalWithAppContext(props) {
       <PathwayModal {...props} />
     </AppContext.Provider>
   );
-}
+};
 
 const defaultProps = {
   learnerPathwayUuid: TEST_PATHWAY_DATA.uuid,

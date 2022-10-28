@@ -30,23 +30,21 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
 });
 
 /* eslint-disable react/prop-types */
-function ProgramCTAtWithContext({
+const ProgramCTAtWithContext = ({
   initialAppState = {},
   initialProgramState = {},
   initialUserSubsidyState = {},
-}) {
-  return (
-    <IntlProvider locale="en">
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <ProgramContextProvider initialState={initialProgramState}>
-            <ProgramCTA />
-          </ProgramContextProvider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
-  );
-}
+}) => (
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <ProgramContextProvider initialState={initialProgramState}>
+          <ProgramCTA />
+        </ProgramContextProvider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
+);
 /* eslint-enable react/prop-types */
 
 describe('<ProgramCTA />', () => {

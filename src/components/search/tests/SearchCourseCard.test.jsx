@@ -19,7 +19,7 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
-function SearchCourseCardWithAppContext(props) {
+const SearchCourseCardWithAppContext = (props) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
   }), []);
@@ -28,7 +28,7 @@ function SearchCourseCardWithAppContext(props) {
       <SearchCourseCard {...props} />
     </AppContext.Provider>
   );
-}
+};
 
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';

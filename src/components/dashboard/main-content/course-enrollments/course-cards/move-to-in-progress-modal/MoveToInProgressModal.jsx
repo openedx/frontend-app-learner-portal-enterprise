@@ -17,14 +17,14 @@ const initialState = {
   confirmSuccessful: false,
 };
 
-function MoveToInProgressModal({
+const MoveToInProgressModal = ({
   courseId,
   isOpen,
   courseTitle,
   courseLink,
   onSuccess,
   onClose,
-}) {
+}) => {
   const { enterpriseConfig: { uuid } } = useContext(AppContext);
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
@@ -88,7 +88,7 @@ function MoveToInProgressModal({
       />
     </MoveToInProgressModalContext.Provider>
   );
-}
+};
 
 MoveToInProgressModal.propTypes = {
   courseId: PropTypes.string.isRequired,

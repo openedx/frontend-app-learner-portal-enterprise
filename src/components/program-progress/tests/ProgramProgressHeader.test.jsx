@@ -7,15 +7,13 @@ import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramIcon } from '../data/utils';
 
 /* eslint-disable react/prop-types */
-function ProgramProgressHeaderWithContext({
+const ProgramProgressHeaderWithContext = ({
   initialProgramProgressContext = {},
-}) {
-  return (
-    <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-      <ProgramProgressHeader />
-    </ProgramProgressContext.Provider>
-  );
-}
+}) => (
+  <ProgramProgressContext.Provider value={initialProgramProgressContext}>
+    <ProgramProgressHeader />
+  </ProgramProgressContext.Provider>
+);
 
 const testProgramData = {
   type: 'MicroMasters',

@@ -9,7 +9,7 @@ import * as utils from '../../utils/common';
 jest.mock('../../utils/common');
 
 // eslint-disable-next-line react/prop-types
-function LoginRefreshWithContext({ roles = [] }) {
+const LoginRefreshWithContext = ({ roles = [] }) => {
   const contextValue = useMemo(() => ({
     authenticatedUser: {
       userId: 1,
@@ -23,7 +23,7 @@ function LoginRefreshWithContext({ roles = [] }) {
       </LoginRefresh>
     </AppContext.Provider>
   );
-} /* eslint-enable react/prop-types */
+}; /* eslint-enable react/prop-types */
 
 describe('<LoginRefresh />', () => {
   it('should call loginRefresh if the user has no roles', async () => {

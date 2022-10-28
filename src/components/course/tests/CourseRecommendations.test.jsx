@@ -54,15 +54,13 @@ const initialCourseState = {
 };
 
 /* eslint-disable react/prop-types */
-function CourseRecommendationsWithContext() {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <CourseContext.Provider value={initialCourseState}>
-        <CourseRecommendations />
-      </CourseContext.Provider>
-    </AppContext.Provider>
-  );
-}
+const CourseRecommendationsWithContext = () => (
+  <AppContext.Provider value={initialAppState}>
+    <CourseContext.Provider value={initialCourseState}>
+      <CourseRecommendations />
+    </CourseContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 describe('<CourseRecommendations />', () => {

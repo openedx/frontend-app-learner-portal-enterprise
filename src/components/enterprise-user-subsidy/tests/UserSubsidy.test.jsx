@@ -61,12 +61,12 @@ const mockEmptyListResponse = {
 };
 
 /* eslint-disable react/prop-types */
-function UserSubsidyWithAppContext({
+const UserSubsidyWithAppContext = ({
   enterpriseConfig = {},
   contextValue = {},
   authenticatedUser = TEST_USER,
   children,
-}) {
+}) => {
   const appContextValue = useMemo(() => ({
     enterpriseConfig: {
       slug: TEST_ENTERPRISE_SLUG,
@@ -83,18 +83,18 @@ function UserSubsidyWithAppContext({
       </UserSubsidy>
     </AppContext.Provider>
   );
-}
+};
 /* eslint-enable react/prop-types */
 
-function SubscriptionLicenseConsumer() {
+const SubscriptionLicenseConsumer = () => {
   const { subscriptionLicense } = useContext(UserSubsidyContext);
   return <div>License status: {subscriptionLicense?.status || 'none'}</div>;
-}
+};
 
-function CouponCodesConsumer() {
+const CouponCodesConsumer = () => {
   const { couponCodes } = useContext(UserSubsidyContext);
   return <div>Coupon codes count: {couponCodes?.couponCodesCount || 'none'}</div>;
-}
+};
 
 describe('UserSubsidy', () => {
   describe('without subsidy', () => {

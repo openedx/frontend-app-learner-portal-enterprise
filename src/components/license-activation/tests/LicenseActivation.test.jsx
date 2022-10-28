@@ -21,11 +21,11 @@ const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ACTIVATION_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
 
-function LicenseActivationWithAppContext({
+const LicenseActivationWithAppContext = ({
   initialUserSubsidyState = {
     activateUserLicense: jest.fn(() => true),
   },
-}) {
+}) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: {
       uuid: TEST_ENTERPRISE_UUID,
@@ -42,7 +42,7 @@ function LicenseActivationWithAppContext({
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   );
-}
+};
 
 describe('LicenseActivation', () => {
   beforeEach(() => jest.clearAllMocks());

@@ -44,7 +44,7 @@ const EnterpriseOffersSummaryCard = ({ className, offer, searchCoursesCta }) => 
         </p>
       ) }
 
-      {offer.endDatetime
+    {offer.endDatetime
       && (
         <p data-testid="offer-summary-end-date-text">
           Available until <b>{moment(offer.endDatetime).format('MMM D, YYYY')}</b>

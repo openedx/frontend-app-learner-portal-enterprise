@@ -9,7 +9,7 @@ import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 export const UpgradeableCourseEnrollmentContext = createContext({ isLoading: false, upgradeUrl: undefined });
 
-export function UpgradeableCourseEnrollmentContextProvider({ courseEnrollment, children }) {
+export const UpgradeableCourseEnrollmentContextProvider = ({ courseEnrollment, children }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
   const location = useLocation();
@@ -43,7 +43,7 @@ export function UpgradeableCourseEnrollmentContextProvider({ courseEnrollment, c
       {children}
     </UpgradeableCourseEnrollmentContext.Provider>
   );
-}
+};
 
 UpgradeableCourseEnrollmentContextProvider.propTypes = {
   children: PropTypes.node.isRequired,

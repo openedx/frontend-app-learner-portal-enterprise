@@ -7,7 +7,7 @@ import {
 import { SET_KEY_VALUE } from './data/constants';
 import { SkillsContext } from './SkillsContextProvider';
 
-function GoalDropdown() {
+const GoalDropdown = () => {
   const { dispatch, state } = useContext(SkillsContext);
   const { goal } = state;
   const selectGoal = (selectedGoal) => {
@@ -30,6 +30,6 @@ function GoalDropdown() {
       </Dropdown.Menu>
     </Dropdown>
   );
-}
+};
 
 export default GoalDropdown;

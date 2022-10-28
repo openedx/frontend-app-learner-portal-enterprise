@@ -13,15 +13,13 @@ const initialSubsidyRequestsState = {
 };
 
 // eslint-disable-next-line react/prop-types
-function CreatedByWithCourseContext({ initialState = {} }) {
-  return (
-    <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-      <CourseContextProvider initialState={initialState}>
-        <CreatedBy />
-      </CourseContextProvider>
-    </SubsidyRequestsContext.Provider>
-  );
-}
+const CreatedByWithCourseContext = ({ initialState = {} }) => (
+  <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+    <CourseContextProvider initialState={initialState}>
+      <CreatedBy />
+    </CourseContextProvider>
+  </SubsidyRequestsContext.Provider>
+);
 
 describe('<CreatedBy />', () => {
   const initialState = {

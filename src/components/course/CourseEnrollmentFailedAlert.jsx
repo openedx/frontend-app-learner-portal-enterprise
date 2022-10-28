@@ -67,7 +67,7 @@ const createUpgradeFailureMessages = (contactHelpText, enrollmentSource) => ({
  * reasons. The contents of the alert are determined by a ``failureReason`` which is passed
  * from the Data Sharing Consent (DSC) page as a query parameter.
  */
-function CourseEnrollmentFailedAlert({ className, enrollmentSource }) {
+const CourseEnrollmentFailedAlert = ({ className, enrollmentSource }) => {
   const { search } = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
@@ -112,7 +112,7 @@ function CourseEnrollmentFailedAlert({ className, enrollmentSource }) {
       </Alert>
     </Container>
   );
-}
+};
 
 CourseEnrollmentFailedAlert.defaultProps = {
   className: 'mt-3',

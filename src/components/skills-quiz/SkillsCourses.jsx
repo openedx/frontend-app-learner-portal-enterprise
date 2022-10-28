@@ -36,7 +36,7 @@ const renderDialog = () => (
   </div>
 );
 
-function SkillsCourses({ index }) {
+const SkillsCourses = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state: { selectedJob } } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -163,7 +163,7 @@ function SkillsCourses({ index }) {
       </div>
     </div>
   );
-}
+};
 
 SkillsCourses.propTypes = {
   index: PropTypes.shape({

@@ -9,7 +9,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
 
-function ProgramCTA() {
+const ProgramCTA = () => {
   const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
@@ -138,6 +138,6 @@ function ProgramCTA() {
       </div>
     </div>
   );
-}
+};
 
 export default ProgramCTA;

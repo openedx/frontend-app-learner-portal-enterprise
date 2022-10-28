@@ -42,15 +42,13 @@ const initialUserSubsidyState = {
   },
 };
 
-function SubscriptionSummaryCardForProgressPageWithContext(props) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubscriptionSummaryCard {...props} />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+const SubscriptionSummaryCardForProgressPageWithContext = (props) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubscriptionSummaryCard {...props} />
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SubscriptionSummaryCard />', () => {
   const subscriptionPlan = {

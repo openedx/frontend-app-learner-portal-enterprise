@@ -118,6 +118,6 @@ const SubsidyRequestButton = () => {
   return (
     <StatefulButton {...props} state={getButtonState()} onClick={handleRequestButtonClick} />
   );
-}
+};
 
 export default SubsidyRequestButton;

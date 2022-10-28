@@ -30,7 +30,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-function SearchProgramCardWithAppContext(props) {
+const SearchProgramCardWithAppContext = (props) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
   }), []);
@@ -39,7 +39,7 @@ function SearchProgramCardWithAppContext(props) {
       <SearchProgramCard {...props} />
     </AppContext.Provider>
   );
-}
+};
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';

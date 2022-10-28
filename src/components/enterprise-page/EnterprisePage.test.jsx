@@ -56,10 +56,10 @@ describe('<EnterprisePage />', () => {
       slug: 'test-slug',
     };
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [mockEnterpriseConfig, undefined]);
-    function ChildComponent() {
+    const ChildComponent = () => {
       const contextValue = useContext(AppContext);
       return <div className="did-i-render" data-contextvalue={contextValue} />;
-    }
+    };
     const wrapper = mount(<EnterprisePage><ChildComponent /></EnterprisePage>);
     const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
     expect(actualContextValue).toEqual(

@@ -69,7 +69,7 @@ const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
 
-function SkillsQuizStepperWrapper({ searchContext, skillsQuizContextState }) {
+const SkillsQuizStepperWrapper = ({ searchContext, skillsQuizContextState }) => {
   const contextValue = useMemo(() => ({ ...searchContext }), [searchContext]);
   const skillContextProvider = skillsQuizContextState ? (
     <SkillsContext.Provider value={skillsQuizContextState}>
@@ -101,7 +101,7 @@ function SkillsQuizStepperWrapper({ searchContext, skillsQuizContextState }) {
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   );
-}
+};
 SkillsQuizStepperWrapper.defaultProps = {
   searchContext: null,
   skillsQuizContextState: null,

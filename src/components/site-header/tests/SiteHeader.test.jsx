@@ -29,15 +29,13 @@ const appState = {
 };
 
 /* eslint-disable react/prop-types */
-function SiteHeaderWithContext({
+const SiteHeaderWithContext = ({
   initialAppState = appState,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <SiteHeader />
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <SiteHeader />
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 const mockWindowConfig = {

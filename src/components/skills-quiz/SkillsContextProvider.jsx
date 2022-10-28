@@ -19,7 +19,7 @@ const reducer = (state, action) => {
   }
 };
 
-export function SkillsContextProvider({ children, initialState = { goal: GOAL_DROPDOWN_DEFAULT_OPTION } }) {
+export const SkillsContextProvider = ({ children, initialState = { goal: GOAL_DROPDOWN_DEFAULT_OPTION } }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const value = useMemo(() => ({ state, dispatch }), [state]);
 
@@ -28,7 +28,7 @@ export function SkillsContextProvider({ children, initialState = { goal: GOAL_DR
       {children}
     </SkillsContext.Provider>
   );
-}
+};
 
 SkillsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,

@@ -24,7 +24,7 @@ const getCourseRun = course => (
   )[0]
 );
 
-function ProgramCourses() {
+const ProgramCourses = () => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const { program } = useContext(ProgramContext);
   const { programUuid } = useParams();
@@ -103,6 +103,6 @@ function ProgramCourses() {
       </div>
     </>
   );
-}
+};
 
 export default ProgramCourses;

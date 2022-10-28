@@ -13,7 +13,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
-function SearchPathways({ index }) {
+const SearchPathways = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
@@ -86,7 +86,7 @@ function SearchPathways({ index }) {
       </div>
     </div>
   );
-}
+};
 
 SearchPathways.propTypes = {
   index: PropTypes.shape({

@@ -9,7 +9,7 @@ import ContinueLearningButton from './ContinueLearningButton';
 import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
 
-function CompletedCourseCard(props) {
+const CompletedCourseCard = (props) => {
   const user = getAuthenticatedUser();
   const { username } = user;
   const {
@@ -69,7 +69,7 @@ function CompletedCourseCard(props) {
       {renderCertificateInfo()}
     </BaseCourseCard>
   );
-}
+};
 
 CompletedCourseCard.propTypes = {
   linkToCourse: PropTypes.string.isRequired,

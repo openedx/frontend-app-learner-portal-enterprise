@@ -39,22 +39,20 @@ const baseUserSubsidyState = {
   },
 };
 
-function ContextWrapper({
+const ContextWrapper = ({
   initialCourseState,
   initialSubsidyRequestContextValue,
   initialUserSubsidyState,
   children,
-}) {
-  return (
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-        <CourseContextProvider initialState={initialCourseState}>
-          {children}
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  );
-}
+}) => (
+  <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+    <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
+      <CourseContextProvider initialState={initialCourseState}>
+        {children}
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
+  </UserSubsidyContext.Provider>
+);
 
 ContextWrapper.propTypes = {
   initialCourseState: PropTypes.shape(),

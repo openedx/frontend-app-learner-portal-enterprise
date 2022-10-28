@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { AvatarButton, Dropdown } from '@edx/paragon';
 import { isDefinedAndNotNull } from '../../utils/common';
 
-function AvatarDropdown({ showLabel }) {
+const AvatarDropdown = ({ showLabel }) => {
   const {
     BASE_URL,
     LMS_BASE_URL,
@@ -55,7 +55,7 @@ function AvatarDropdown({ showLabel }) {
       </Dropdown.Menu>
     </Dropdown>
   );
-}
+};
 
 AvatarDropdown.propTypes = {
   showLabel: PropTypes.bool,

@@ -11,7 +11,7 @@ import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import CourseRecommendations from './CourseRecommendations';
 
-function DashboardMainContent() {
+const DashboardMainContent = () => {
   const {
     enterpriseConfig: {
       name,
@@ -59,6 +59,6 @@ function DashboardMainContent() {
       </MediaQuery>
     </>
   );
-}
+};
 
 export default DashboardMainContent;

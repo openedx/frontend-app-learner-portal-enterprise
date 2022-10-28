@@ -22,9 +22,9 @@ import {
 } from './data/constants';
 import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
 
-function SubscriptionSummaryCard({
+const SubscriptionSummaryCard = ({
   subscriptionPlan, licenseRequest, className, courseEndDate, programProgressPage,
-}) {
+}) => {
   const [
     isSubscriptionExpiringWarningModalOpen,
     subscriptionExpiringWarningModalOpen,
@@ -147,7 +147,7 @@ function SubscriptionSummaryCard({
         )}
     </>
   );
-}
+};
 
 SubscriptionSummaryCard.propTypes = {
   subscriptionPlan: PropTypes.shape({

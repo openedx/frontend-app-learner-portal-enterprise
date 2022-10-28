@@ -15,31 +15,29 @@ import ErrorPageContent from './ErrorPageContent';
  * a header, error alert, and a footer.
  */
 
-function ErrorPage({
+const ErrorPage = ({
   title,
   subtitle,
   showSiteHeader,
   showSiteFooter,
   children,
-}) {
-  return (
-    <>
-      {showSiteHeader && <ErrorPageHeader />}
-      <main id="content">
-        <ErrorPageContent>
-          <Col xs={12} lg={{ span: 10, offset: 1 }}>
-            <ErrorPageTitle>{title}</ErrorPageTitle>
-            {subtitle && (
-              <ErrorPageSubtitle>{subtitle}</ErrorPageSubtitle>
-            )}
-            {children}
-          </Col>
-        </ErrorPageContent>
-      </main>
-      {showSiteFooter && <SiteFooter />}
-    </>
-  );
-}
+}) => (
+  <>
+    {showSiteHeader && <ErrorPageHeader />}
+    <main id="content">
+      <ErrorPageContent>
+        <Col xs={12} lg={{ span: 10, offset: 1 }}>
+          <ErrorPageTitle>{title}</ErrorPageTitle>
+          {subtitle && (
+            <ErrorPageSubtitle>{subtitle}</ErrorPageSubtitle>
+          )}
+          {children}
+        </Col>
+      </ErrorPageContent>
+    </main>
+    {showSiteFooter && <SiteFooter />}
+  </>
+);
 
 ErrorPage.Content = ErrorPageContent;
 ErrorPage.Title = ErrorPageTitle;

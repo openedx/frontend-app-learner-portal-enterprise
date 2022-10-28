@@ -4,7 +4,7 @@ import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetLi
 
 import { CURRENT_JOB_FACET } from './constants';
 
-function CurrentJobDropdown() {
+const CurrentJobDropdown = () => {
   const { refinements } = useContext(SearchContext);
   const {
     title, attribute, typeaheadOptions, facetValueType, customAttribute,
@@ -25,6 +25,6 @@ function CurrentJobDropdown() {
       showBadge={false}
     />
   );
-}
+};
 
 export default CurrentJobDropdown;

@@ -7,7 +7,7 @@ import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import JobCardComponent from './JobCardComponent';
 
-function SearchJobCard({ index }) {
+const SearchJobCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
   const { name: jobs } = refinements;
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +51,7 @@ function SearchJobCard({ index }) {
       <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
     </div>
   );
-}
+};
 
 SearchJobCard.propTypes = {
   index: PropTypes.shape({

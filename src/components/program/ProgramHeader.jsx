@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 import { fixedEncodeURIComponent } from '../../utils/common';
 
-function ProgramHeader() {
+const ProgramHeader = () => {
   const config = getConfig();
   const { enterpriseSlug } = useParams();
   const {
@@ -93,6 +93,6 @@ function ProgramHeader() {
         : ''}
     </>
   );
-}
+};
 
 export default ProgramHeader;

@@ -42,6 +42,7 @@ describe('skills quiz service', () => {
     const skillsId = [1, 2];
     const interestedJobsId = [3, 4];
     const currentJobRoleId = 5;
+    // eslint-disable-next-line no-import-assign
     service.postSkillsGoalsAndJobsUserSelected = jest.fn()
       .mockImplementation(() => Promise.resolve({
       }));

@@ -19,15 +19,13 @@ jest.mock('react-router-dom', () => ({
 }));
 
 /* eslint-disable react/prop-types */
-function ProgramListingCardWithContext({ initialAppState, initialUserSubsidyState, programData }) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingCard program={programData} />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+const ProgramListingCardWithContext = ({ initialAppState, initialUserSubsidyState, programData }) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <ProgramListingCard program={programData} />
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 const appState = {
   enterpriseConfig: {

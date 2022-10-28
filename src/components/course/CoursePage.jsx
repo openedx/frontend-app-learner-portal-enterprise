@@ -23,7 +23,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { useSearchCatalogs } from '../search/data/hooks';
 
-export default function CoursePage() {
+const CoursePage = () => {
   const { courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
   const { search } = useLocation();
@@ -154,4 +154,6 @@ export default function CoursePage() {
       </CourseEnrollmentsContextProvider>
     </>
   );
-}
+};
+
+export default CoursePage;

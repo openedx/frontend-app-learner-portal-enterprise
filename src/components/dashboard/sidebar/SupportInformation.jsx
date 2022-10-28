@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { SidebarBlock } from '../../layout';
 import { CONTACT_HELP_EMAIL_MESSAGE, NEED_HELP_BLOCK_TITLE } from './data/constants';
 
-function SupportInformation({ className }) {
+const SupportInformation = ({ className }) => {
   const config = getConfig();
   const {
     enterpriseConfig: {
@@ -51,7 +51,7 @@ function SupportInformation({ className }) {
       </p>
     </SidebarBlock>
   );
-}
+};
 
 SupportInformation.propTypes = {
   className: PropTypes.string,

@@ -13,20 +13,18 @@ import GoalDropdown from '../GoalDropdown';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 
 /* eslint-disable react/prop-types */
-function GoalDropdownWithContext({
+const GoalDropdownWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SkillsContextProvider>
-          <GoalDropdown />
-        </SkillsContextProvider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SkillsContextProvider>
+        <GoalDropdown />
+      </SkillsContextProvider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 const mockLocation = {

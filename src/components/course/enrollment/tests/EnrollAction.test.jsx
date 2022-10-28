@@ -52,10 +52,9 @@ const subscriptionLicense = { uuid: 'a-license' };
    * @param {object} args Arguments.
    * @param {string} args.enrollAction
    */
-function EnrollLabel(props) {
-  // eslint-disable-next-line react/prop-types
-  return <div>{props.enrollLabelText}</div>;
-}
+// eslint-disable-next-line react/prop-types
+const EnrollLabel = (props) => <div>{props.enrollLabelText}</div>;
+
 const renderEnrollAction = ({
   enrollAction,
   courseInitState = selfPacedCourseWithLicenseSubsidy,

@@ -13,7 +13,7 @@ import {
   getVerboseProgramPacing,
 } from './data/utils';
 
-function ProgramSidebar() {
+const ProgramSidebar = () => {
   const { program } = useContext(ProgramContext);
   const expertInstructionSecondaryContent = getExpertInstructionSecondaryContent(program);
   const programPacingType = getProgramPacing(program);
@@ -59,6 +59,6 @@ function ProgramSidebar() {
       }
     </ul>
   );
-}
+};
 
 export default ProgramSidebar;

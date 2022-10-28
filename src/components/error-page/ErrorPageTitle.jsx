@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
  * Individual title component of ErrorPage component parent.
  * Includes default styling for error pages.
  */
-function ErrorPageTitle({ children }) {
-  return <h2 className="text-danger mb-4">{children}</h2>;
-}
+const ErrorPageTitle = ({ children }) => <h2 className="text-danger mb-4">{children}</h2>;
 
 ErrorPageTitle.propTypes = {
   children: PropTypes.node,

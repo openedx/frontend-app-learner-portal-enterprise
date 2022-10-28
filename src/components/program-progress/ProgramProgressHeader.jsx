@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { ProgramProgressContext } from './ProgramProgressContextProvider';
 import { getProgramIcon } from './data/utils';
 
-function ProgramProgressHeader() {
+const ProgramProgressHeader = () => {
   const { programData } = useContext(ProgramProgressContext);
   const programIcon = getProgramIcon(programData.type);
 
@@ -36,6 +36,6 @@ function ProgramProgressHeader() {
       </div>
     </div>
   );
-}
+};
 
 export default ProgramProgressHeader;

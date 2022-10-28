@@ -15,7 +15,7 @@ import {
 } from './data';
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 
-function ExecutiveEducation2UPage() {
+const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const activeQueryParams = useActiveQueryParams();
 
@@ -114,6 +114,6 @@ function ExecutiveEducation2UPage() {
       )}
     </Container>
   );
-}
+};
 
 export default ExecutiveEducation2UPage;

@@ -37,7 +37,7 @@ export const ProgramType = ({ type }) => {
   return programTypeToDisplay;
 };
 
-function SearchProgramCard({ hit, isLoading }) {
+const SearchProgramCard = ({ hit, isLoading }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const program = useMemo(() => {
     if (!hit) {
@@ -192,11 +192,9 @@ function SearchProgramCard({ hit, isLoading }) {
       </Link>
     </div>
   );
-}
+};
 
-function SkeletonProgramCard(props) {
-  return <SearchProgramCard {...props} isLoading />;
-}
+const SkeletonProgramCard = (props) => <SearchProgramCard {...props} isLoading />;
 
 SearchProgramCard.propTypes = {
   hit: PropTypes.shape({

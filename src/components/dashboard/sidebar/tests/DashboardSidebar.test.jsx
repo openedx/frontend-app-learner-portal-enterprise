@@ -20,7 +20,7 @@ import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
 
 /* eslint-disable react/prop-types */
-function DashboardSidebarWithContext({
+const DashboardSidebarWithContext = ({
   initialAppState = { fakeContext: 'foo' },
   initialUserSubsidyState = {},
   initialSubsidyRequestsState = {
@@ -34,19 +34,17 @@ function DashboardSidebarWithContext({
   initialCourseEnrollmentsState = {
     courseEnrollmentsByStatus: {},
   },
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
-            <DashboardSidebar />
-          </CourseEnrollmentsContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
+          <DashboardSidebar />
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 describe('<DashboardSidebar />', () => {

@@ -24,9 +24,9 @@ const initialLicenseRequests = [
 ];
 
 /* eslint-disable react/prop-types */
-function LicenseRequestedAlertWrapper({
+const LicenseRequestedAlertWrapper = ({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
-}) {
+}) => {
   const contextValue = useMemo(() => ({
     couponCodes: {
       couponCodes: [],
@@ -53,7 +53,7 @@ function LicenseRequestedAlertWrapper({
       </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
   );
-}
+};
 /* eslint-enable react/prop-types */
 
 describe('<LicenseRequestedAlert />', () => {

@@ -29,7 +29,7 @@ const {
  * @param {string} args.userEnrollment enrollment if applicable, or null.
  * @param {string} args.subscriptionLicense user license if applicable, or null.
  */
-function EnrollAction({
+const EnrollAction = ({
   enrollmentType,
   enrollmentUrl,
   enrollLabel,
@@ -71,7 +71,7 @@ function EnrollAction({
       case HIDE_BUTTON:
       default: return null;
   }
-}
+};
 
 EnrollAction.propTypes = {
   enrollmentType: PropTypes.string.isRequired,

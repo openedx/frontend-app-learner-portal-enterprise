@@ -31,22 +31,20 @@ const initialAppContextValue = {
   },
 };
 
-function UserEnrollmentFormWrapper({
+const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
-}) {
-  return (
-    <AppContext.Provider value={appContextValue}>
-      <UserEnrollmentForm
-        enterpriseId={enterpriseId}
-        productSKU={productSKU}
-        onCheckoutSuccess={onCheckoutSuccess}
-      />
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={appContextValue}>
+    <UserEnrollmentForm
+      enterpriseId={enterpriseId}
+      productSKU={productSKU}
+      onCheckoutSuccess={onCheckoutSuccess}
+    />
+  </AppContext.Provider>
+);
 
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {

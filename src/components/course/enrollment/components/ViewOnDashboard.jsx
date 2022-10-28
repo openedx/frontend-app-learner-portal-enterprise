@@ -9,7 +9,7 @@ import { EnrollButtonCta } from '../common';
 
 import { enrollLinkClass } from '../constants';
 
-function ViewOnDashboard({ enrollLabel }) {
+const ViewOnDashboard = ({ enrollLabel }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const handleClick = useTrackSearchConversionClickHandler({
     eventName: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_dashboard.clicked',
@@ -24,7 +24,7 @@ function ViewOnDashboard({ enrollLabel }) {
       onClick={handleClick}
     />
   );
-}
+};
 
 ViewOnDashboard.propTypes = {
   enrollLabel: PropTypes.node.isRequired,

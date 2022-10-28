@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { PathwayProgressContext } from './PathwayProgressContextProvider';
 import SubscriptionStatusCard from './SubscriptionStatusCard';
 
-function PathwayProgressHeader() {
+const PathwayProgressHeader = () => {
   const { learnerPathwayProgress } = useContext(PathwayProgressContext);
   const { enterpriseSlug } = useParams();
   const links = [
@@ -40,6 +40,6 @@ function PathwayProgressHeader() {
       </div>
     </header>
   );
-}
+};
 
 export default PathwayProgressHeader;

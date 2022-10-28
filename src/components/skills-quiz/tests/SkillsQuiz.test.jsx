@@ -59,21 +59,19 @@ const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
 
-function SkillsQuizWithContext({
+const SkillsQuizWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <SkillsQuiz />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+        <SkillsQuiz />
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SkillsQuiz />', () => {
   afterAll(() => {

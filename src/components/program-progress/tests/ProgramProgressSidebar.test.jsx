@@ -8,15 +8,13 @@ import { getProgramCertImage } from '../data/utils';
 import progSampleCertImage from '../images/sample-cert.png';
 
 /* eslint-disable react/prop-types */
-function ProgramProgressSideBarWithContext({
+const ProgramProgressSideBarWithContext = ({
   initialProgramProgressContext = {},
-}) {
-  return (
-    <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-      <ProgramProgressSidebar />
-    </ProgramProgressContext.Provider>
-  );
-}
+}) => (
+  <ProgramProgressContext.Provider value={initialProgramProgressContext}>
+    <ProgramProgressSidebar />
+  </ProgramProgressContext.Provider>
+);
 
 const testProgramData = {
   type: 'MicroMasters',

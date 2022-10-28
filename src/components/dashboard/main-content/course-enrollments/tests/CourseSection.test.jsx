@@ -33,7 +33,7 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
 };
 const TEST_ENTERPRISE_UUID = 'test-uuid';
 
-function CourseSectionWrapper(props) {
+const CourseSectionWrapper = (props) => {
   const contextValue = useMemo(() => ({
     enterpriseConfig: {
       uuid: TEST_ENTERPRISE_UUID,
@@ -46,7 +46,7 @@ function CourseSectionWrapper(props) {
       />
     </AppContext.Provider>
   );
-}
+};
 
 describe('<CourseSection />', () => {
   it('should handle collapsible toggle', () => {

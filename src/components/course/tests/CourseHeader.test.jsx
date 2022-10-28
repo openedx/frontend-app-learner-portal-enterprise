@@ -47,27 +47,25 @@ const defaultCourseEnrollmentsState = {
 };
 
 /* eslint-disable react/prop-types */
-function CourseHeaderWrapper({
+const CourseHeaderWrapper = ({
   initialAppState = {},
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
   initialCourseState = {},
   initialUserSubsidyState = {},
   initialSubsidyRequestsState = defaultSubsidyRequestsState,
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-            <CourseContextProvider initialState={initialCourseState}>
-              <CourseHeader />
-            </CourseContextProvider>
-          </CourseEnrollmentsContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+          <CourseContextProvider initialState={initialCourseState}>
+            <CourseHeader />
+          </CourseContextProvider>
+        </CourseEnrollmentsContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 /* eslint-enable react/prop-types */
 
 describe('<CourseHeader />', () => {

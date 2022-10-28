@@ -6,7 +6,7 @@ import { Container } from '@edx/paragon';
 import { LoadingSpinner } from '../loading-spinner';
 import { loginRefresh } from '../../utils/common';
 
-function LoginRefresh({ children }) {
+const LoginRefresh = ({ children }) => {
   const { authenticatedUser } = useContext(AppContext);
   const { roles } = authenticatedUser;
 
@@ -33,7 +33,7 @@ function LoginRefresh({ children }) {
     );
   }
   return children;
-}
+};
 
 LoginRefresh.propTypes = {
   children: PropTypes.node.isRequired,

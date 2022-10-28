@@ -15,7 +15,7 @@ import PathwayProgressHeader from './PathwayProgressHeader';
 import PathwayRequirements from './PathwayRequirements';
 import './styles/index.scss';
 
-export default function PathwayProgressPage() {
+const PathwayProgressPage = () => {
   const { pathwayUUID } = useParams();
   const [pathwayProgressDetails, fetchError] = useLearnerPathwayProgressData(pathwayUUID);
 
@@ -55,4 +55,6 @@ export default function PathwayProgressPage() {
       </CourseEnrollmentsContextProvider>
     </>
   );
-}
+};
+
+export default PathwayProgressPage;

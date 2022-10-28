@@ -21,7 +21,7 @@ const enterpriseConfig = {
   name: 'test-enterprise-name',
 };
 
-function CourseCardWrapper({ isLoading }) {
+const CourseCardWrapper = ({ isLoading }) => {
   const contextValue = useMemo(() => ({ enterpriseConfig }), []);
   return (
     <AppContext.Provider value={contextValue}>
@@ -35,7 +35,7 @@ function CourseCardWrapper({ isLoading }) {
       />
     </AppContext.Provider>
   );
-}
+};
 CourseCardWrapper.defaultProps = {
   isLoading: false,
 };
@@ -44,7 +44,7 @@ CourseCardWrapper.propTypes = {
   isLoading: PropTypes.bool,
 };
 
-function CourseEnrollmentWrapper() {
+const CourseEnrollmentWrapper = () => {
   const contextValue = useMemo(() => ({ enterpriseConfig }), []);
   const toastContextValue = useMemo(() => ({ addToast: jest.fn() }), []);
   const enrollmentContextValue = useMemo(() => ({ removeCourseEnrollment: jest.fn() }), []);
@@ -64,7 +64,7 @@ function CourseEnrollmentWrapper() {
       </ToastsContext.Provider>
     </AppContext.Provider>
   );
-}
+};
 
 describe('<BaseCourseCard />', () => {
   let wrapper;

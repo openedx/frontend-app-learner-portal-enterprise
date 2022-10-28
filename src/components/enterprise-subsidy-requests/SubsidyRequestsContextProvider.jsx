@@ -13,7 +13,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 export const SubsidyRequestsContext = createContext();
 
-function SubsidyRequestsContextProvider({ children }) {
+const SubsidyRequestsContextProvider = ({ children }) => {
   const {
     enterpriseConfig: {
       uuid: enterpriseUUID,
@@ -75,7 +75,7 @@ function SubsidyRequestsContextProvider({ children }) {
       {children}
     </SubsidyRequestsContext.Provider>
   );
-}
+};
 
 SubsidyRequestsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,

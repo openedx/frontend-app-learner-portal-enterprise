@@ -13,7 +13,7 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
 };
 
-function CourseEnrollments({ children }) {
+const CourseEnrollments = ({ children }) => {
   const {
     courseEnrollmentsByStatus,
     fetchCourseEnrollmentsError,
@@ -88,7 +88,7 @@ function CourseEnrollments({ children }) {
       </>
     </>
   );
-}
+};
 
 CourseEnrollments.propTypes = {
   children: PropTypes.node,

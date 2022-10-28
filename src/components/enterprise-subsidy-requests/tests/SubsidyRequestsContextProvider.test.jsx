@@ -15,7 +15,7 @@ const enterpriseConfig = {
   uuid: 'example-enterprise-uuid',
 };
 
-function SubsidyRequestsContextProviderWrapper({
+const SubsidyRequestsContextProviderWrapper = ({
   initialAppState = {
     enterpriseConfig,
   },
@@ -28,17 +28,15 @@ function SubsidyRequestsContextProviderWrapper({
       subscriptions: [],
     },
   },
-}) {
-  return (
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContextProvider>
-          <div>children</div>
-        </SubsidyRequestsContextProvider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={initialAppState}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContextProvider>
+        <div>children</div>
+      </SubsidyRequestsContextProvider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('<SubsidyRequestsContextProvider />', () => {
   beforeEach(() => {
