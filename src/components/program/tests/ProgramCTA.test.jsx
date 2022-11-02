@@ -395,6 +395,6 @@ describe('<ProgramCTA />', () => {
       />,
     );
 
-    expect(screen.getByText('2 courses present in this program')).toBeInTheDocument();
+    expect(screen.getByText('2 courses in 2 years 6 months')).toBeInTheDocument();
   });
 });
