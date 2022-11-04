@@ -146,18 +146,15 @@ export const findEnterpriseOfferForCourse = ({
     return undefined;
   }
 
-  return enterpriseOffers.find((enterpriseOffer) => {
+  const applicableEnterpriseOffers = enterpriseOffers.filter((enterpriseOffer) => {
     const {
       remainingBalance,
       remainingBalanceForUser,
     } = enterpriseOffer;
-
     const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
-
     if (!isCourseInCatalog) {
       return false;
     }
-
     if (offerHasBookingsLimit(enterpriseOffer)) {
       if (remainingBalance !== null && remainingBalance < coursePrice) {
         return false;
@@ -167,9 +164,30 @@ export const findEnterpriseOfferForCourse = ({
         return false;
       }
     }
-
     return true;
   });
+
+  // use offer that has no bookings limit
+  const enterpriseOfferWithoutBookingsLimit = applicableEnterpriseOffers.find(offer => !offerHasBookingsLimit(offer));
+  if (enterpriseOfferWithoutBookingsLimit) {
+    return enterpriseOfferWithoutBookingsLimit;
+  }
+
+  // use offer that has largest remaining balance for user
+  const enterpriseOfferWithUserBookingsLimit = applicableEnterpriseOffers
+    .filter(offer => offer.remainingBalanceForUser)
+    .sort((a, b) => a.remainingBalanceForUser - b.remainingBalanceForUser)
+    .reverse()[0];
+  if (enterpriseOfferWithUserBookingsLimit) {
+    return enterpriseOfferWithUserBookingsLimit;
+  }
+
+  // use offer with largest remaining balance overall
+  const enterpriseOfferWithBookingsLimit = applicableEnterpriseOffers
+    .sort((a, b) => a.remainingBalance - b.remainingBalance)
+    .reverse()[0];
+
+  return enterpriseOfferWithBookingsLimit;
 };
 
 const getBestCourseMode = (courseModes) => {

@@ -34,7 +34,6 @@ const SubsidiesSummary = ({
     subscriptionLicense: userSubscriptionLicense,
     couponCodes: { couponCodesCount },
     enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
   } = useContext(UserSubsidyContext);
 
   const {
@@ -55,8 +54,10 @@ const SubsidiesSummary = ({
 
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
 
+  const hasEnterpriseOffers = enterpriseOffers.length > 0;
+
   const hasAvailableSubsidyOrRequests = hasActiveLicenseOrLicenseRequest
-   || hasAssignedCodesOrCodeRequests || canEnrollWithEnterpriseOffers;
+   || hasAssignedCodesOrCodeRequests || hasEnterpriseOffers;
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
@@ -101,10 +102,10 @@ const SubsidiesSummary = ({
               className="mb-2 border-remove"
             />
           )}
-          {canEnrollWithEnterpriseOffers && (
+          {hasEnterpriseOffers && (
             <EnterpriseOffersSummaryCard
               className="border-remove"
-              offer={enterpriseOffers[0]}
+              offers={enterpriseOffers}
             />
           )}
         </div>

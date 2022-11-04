@@ -13,57 +13,66 @@ import {
 } from './data/constants';
 import SidebarCard from './SidebarCard';
 
-const EnterpriseOffersSummaryCard = ({ className, offer, searchCoursesCta }) => (
-  <SidebarCard
-    title={
-      (
-        <div className="d-flex align-items-center justify-content-between">
-          <h3 className="m-0">{ENTERPRISE_OFFER_SUMMARY_CARD_TITLE}</h3>
-          <Badge
-            variant={ENTERPRISE_OFFER_ACTIVE_BADGE_VARIANT}
-            className="ml-2"
-            data-testid="enterprise-offer-status-badge"
-          >
-            {ENTERPRISE_OFFER_ACTIVE_BADGE_LABEL}
-          </Badge>
-        </div>
-      )
-    }
-    cardClassNames={className}
-  >
-    {offer.remainingBalanceForUser && offer.remainingBalanceForUser !== Number.MAX_VALUE
-      ? (
-        <p data-testid="offer-summary-text-detailed">
-          Apply your <b>${offer.remainingBalanceForUser}</b>{' '}
-          balance to enroll into courses.
-        </p>
-      )
-      : (
-        <p data-testid="offer-summary-text">
-          Apply your organization&apos;s learner credit balance to enroll into courses with no out of pocket cost.
-        </p>
-      ) }
+const EnterpriseOffersSummaryCard = ({
+  className, offers, searchCoursesCta,
+}) => {
+  const totalRemainingBalanceForUser = offers.reduce(
+    (accumulator, currentOffer) => accumulator + (currentOffer.remainingBalanceForUser || 0),
+    0,
+  );
+  const offerExpiringFirst = offers.sort((a, b) => new Date(a.endDatetime) - new Date(b.endDatetime))[0];
 
-    {offer.endDatetime
-      && (
+  return (
+    <SidebarCard
+      title={
+        (
+          <div className="d-flex align-items-center justify-content-between">
+            <h3 className="m-0">{ENTERPRISE_OFFER_SUMMARY_CARD_TITLE}</h3>
+            <Badge
+              variant={ENTERPRISE_OFFER_ACTIVE_BADGE_VARIANT}
+              className="ml-2"
+              data-testid="enterprise-offer-status-badge"
+            >
+              {ENTERPRISE_OFFER_ACTIVE_BADGE_LABEL}
+            </Badge>
+          </div>
+        )
+      }
+      cardClassNames={className}
+    >
+      {totalRemainingBalanceForUser
+        ? (
+          <p data-testid="offer-summary-text-detailed">
+            Apply your <b>${totalRemainingBalanceForUser}</b>{' '}
+            balance to enroll into courses.
+          </p>
+        )
+        : (
+          <p data-testid="offer-summary-text">
+            Apply your organization&apos;s learner credit balance to enroll into courses with no out of pocket cost.
+          </p>
+        )}
+
+      {offerExpiringFirst.endDatetime && (
         <p data-testid="offer-summary-end-date-text">
-          Available until <b>{moment(offer.endDatetime).format('MMM D, YYYY')}</b>
+          Available until <b>{moment(offerExpiringFirst.endDatetime).format('MMM D, YYYY')}</b>
         </p>
       )}
 
-    {searchCoursesCta && (
-      <Row className="mt-3 d-flex justify-content-end">
-        <Col xl={12}>{searchCoursesCta}</Col>
-      </Row>
-    )}
-  </SidebarCard>
-);
+      {searchCoursesCta && (
+        <Row className="mt-3 d-flex justify-content-end">
+          <Col xl={12}>{searchCoursesCta}</Col>
+        </Row>
+      )}
+    </SidebarCard>
+  );
+};
 
 EnterpriseOffersSummaryCard.propTypes = {
-  offer: PropTypes.shape({
+  offers: PropTypes.arrayOf(PropTypes.shape({
     endDatetime: PropTypes.string,
     remainingBalanceForUser: PropTypes.number,
-  }).isRequired,
+  })).isRequired,
   className: PropTypes.string,
   searchCoursesCta: PropTypes.node,
 };

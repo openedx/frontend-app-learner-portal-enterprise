@@ -96,12 +96,11 @@ export function useAllCourseData({
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
             applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
-            applicableEnterpriseOffer: canEnrollWithEnterpriseOffers
-              ? findEnterpriseOfferForCourse({
-                enterpriseOffers,
-                catalogList: catalogsWithCourse,
-                coursePrice: firstEnrollablePaidSeatPrice,
-              }) : undefined,
+            applicableEnterpriseOffer: findEnterpriseOfferForCourse({
+              enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
+              catalogList: catalogsWithCourse,
+              coursePrice: firstEnrollablePaidSeatPrice,
+            }),
           });
         }
 
