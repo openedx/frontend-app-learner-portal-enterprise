@@ -47,7 +47,6 @@ export const useEnterpriseOffers = ({
     }
 
     if (enterpriseOffers.length > 0) {
-      console.log('setCanEnrollWithEnterpriseOffers', enterpriseOffers);
       setCanEnrollWithEnterpriseOffers(true);
 
       const hasLowBalance = enterpriseOffers.some(offer => offer.isLowOnBalance);

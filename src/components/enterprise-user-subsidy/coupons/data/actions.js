@@ -33,11 +33,7 @@ export const fetchCouponCodeAssignments = (queryOptions, dispatch) => {
 
   return service.fetchCouponCodeAssignments(queryOptions)
     .then((response) => {
-      // dispatch(fetchCouponCodesSuccess(camelCaseObject(response.data)));
-      dispatch(fetchCouponCodesSuccess(camelCaseObject({
-        count: 0,
-        results: [],
-      })));
+      dispatch(fetchCouponCodesSuccess(camelCaseObject(response.data)));
     })
     .catch((error) => {
       dispatch(fetchCouponCodesFailure(error));
