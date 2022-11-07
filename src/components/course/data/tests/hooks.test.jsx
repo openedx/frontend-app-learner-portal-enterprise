@@ -199,7 +199,7 @@ describe('useAllCourseData', () => {
     });
   });
 
-  describe.only('learner credit subsidy', () => {
+  describe('learner credit subsidy', () => {
     it('returns learner credit subsidy if there is an applicable enterprise offer', async () => {
       const offers = [mockEnterpriseOffersForCourse.globalBookingsLimit];
       const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
