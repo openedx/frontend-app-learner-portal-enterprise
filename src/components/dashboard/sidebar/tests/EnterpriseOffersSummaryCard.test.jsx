@@ -77,13 +77,13 @@ describe('<EnterpriseOffersSummaryCard />', () => {
           mockEnterpriseOffer,
           {
             ...mockEnterpriseOffer,
-            endDatetime: '2023-04-01T00:00:00Z',
+            endDatetime: '2022-04-01T00:00:00Z', // earliest start date
           },
         ]}
       />,
     );
 
     expect(screen.getByTestId('offer-summary-end-date-text')).toBeInTheDocument();
-    expect(screen.getByText('Mar 31, 2023')).toBeInTheDocument();
+    expect(screen.getByText('2022', { exact: false })).toBeInTheDocument();
   });
 });
