@@ -186,7 +186,6 @@ export const findEnterpriseOfferForCourse = ({
   const enterpriseOfferWithBookingsLimit = applicableEnterpriseOffers
     .sort((a, b) => a.remainingBalance - b.remainingBalance)
     .reverse()[0];
-
   return enterpriseOfferWithBookingsLimit;
 };
 
