@@ -75,7 +75,6 @@ const CourseSidebarPrice = () => {
   // Case 3: No subsidies found
   if (!hasDiscountedPrice) {
     const { catalogList } = courseData.catalog;
-    // TODO: why do we need to find() within enterpriseOffers here versus using `userSubsidyApplicableToCourse`?
     const hasOfferWithInsufficientBalance = canEnrollWithEnterpriseOffers && enterpriseOffers.find(
       (enterpriseOffer) => {
         const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
