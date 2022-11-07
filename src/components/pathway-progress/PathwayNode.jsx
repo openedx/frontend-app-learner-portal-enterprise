@@ -36,7 +36,11 @@ function PathwayNode({ node }) {
                   <h3>{node.title}</h3>&nbsp;
                   {node.status === IN_PROGRESS && <Badge variant="success">In Progress</Badge>}
                 </div>
-                <p className="row">{node.shortDescription}</p>
+                <p
+                  className="row lead font-weight-normal"
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: node.shortDescription }}
+                />
               </div>
               <div className="col-2">
                 {
