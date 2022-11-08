@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { Container, Alert, MailtoLink } from '@edx/paragon';
-import { WarningFilled } from '@edx/paragon/icons';
+import { WarningFilled, Error } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -23,7 +23,7 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
 
   const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
-  const icon = WarningFilled;
+  const icon = hasNoEnterpriseOffersBalance ? Error : WarningFilled;
   const heading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
   const text = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
 
@@ -40,7 +40,8 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
           OFFER_BALANCE_CLICK_EVENT,
         );
       }}
-    >{adminText}
+    >
+      {adminText}
     </MailtoLink>,
   ] : [];
 

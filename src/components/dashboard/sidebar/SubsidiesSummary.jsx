@@ -104,7 +104,7 @@ const SubsidiesSummary = ({
           {canEnrollWithEnterpriseOffers && (
             <EnterpriseOffersSummaryCard
               className="border-remove"
-              offer={enterpriseOffers[0]}
+              offers={enterpriseOffers}
             />
           )}
         </div>
