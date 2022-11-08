@@ -24,6 +24,7 @@ import {
   hasCourseStarted,
   findHighestLevelSeatSku,
   numberWithPrecision,
+  getCoursePrice,
 } from './data/utils';
 import { formatStringAsNumber } from '../../utils/common';
 import { isExperimentVariant } from '../../utils/optimizely';
@@ -38,10 +39,13 @@ const DEFAULT_BUTTON_LABEL = 'Enroll';
 
 const LicenseSubsidyPriceText = ({
   courseRun,
+  courseEntitlements,
   userSubsidyApplicableToCourse,
 }) => {
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    activeCourseRun: courseRun, userSubsidyApplicableToCourse,
+    activeCourseRun: courseRun,
+    userSubsidyApplicableToCourse,
+    courseEntitlements,
   });
 
   return (
@@ -57,6 +61,7 @@ const LicenseSubsidyPriceText = ({
 };
 
 const CourseRunCard = ({
+  courseEntitlements,
   userEntitlements,
   courseRun,
   userEnrollments,
@@ -102,8 +107,18 @@ const CourseRunCard = ({
   } = useSubsidyDataForCourse();
 
   const sku = useMemo(
-    () => findHighestLevelSeatSku(seats),
-    [seats],
+    () => {
+      const skuForSeats = findHighestLevelSeatSku(seats);
+      if (skuForSeats) {
+        return skuForSeats;
+      }
+      if (courseEntitlements.length > 0) {
+        const skuForEntitlements = courseEntitlements[0]?.sku;
+        return skuForEntitlements;
+      }
+      return undefined;
+    },
+    [seats, courseEntitlements],
   );
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
@@ -251,6 +266,7 @@ const CourseRunCard = ({
             <LicenseSubsidyPriceText
               courseRun={courseRun}
               userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+              courseEntitlements={courseEntitlements}
             />
           )}
         </div>
@@ -262,7 +278,10 @@ const CourseRunCard = ({
             userEnrollment={userEnrollment}
             subscriptionLicense={subscriptionLicense}
             triggerLicenseSubsidyEvent={triggerLicenseSubsidyEvent}
-            courseRunPrice={courseRun.firstEnrollablePaidSeatPrice}
+            courseRunPrice={getCoursePrice({
+              activeCourseRun: courseRun,
+              courseEntitlements,
+            })}
           />
         )}
       </Card.Section>
@@ -280,7 +299,10 @@ CourseRunCard.propTypes = {
     enrollmentCount: PropTypes.number,
     start: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
-    seats: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+    seats: PropTypes.arrayOf(PropTypes.shape({
+      type: PropTypes.string,
+      sku: PropTypes.string,
+    })).isRequired,
     firstEnrollablePaidSeatPrice: PropTypes.number.isRequired,
   }).isRequired,
   userEnrollments: PropTypes.arrayOf(PropTypes.shape({
@@ -290,6 +312,10 @@ CourseRunCard.propTypes = {
     mode: PropTypes.string.isRequired,
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  courseEntitlements: PropTypes.arrayOf(PropTypes.shape({
+    sku: PropTypes.string,
+    price: PropTypes.string,
+  })).isRequired,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
 };
 
@@ -305,6 +331,10 @@ LicenseSubsidyPriceText.propTypes = {
     seats: PropTypes.arrayOf(PropTypes.shape()).isRequired,
     firstEnrollablePaidSeatPrice: PropTypes.number.isRequired,
   }).isRequired,
+  courseEntitlements: PropTypes.arrayOf(PropTypes.shape({
+    sku: PropTypes.string,
+    price: PropTypes.string,
+  })).isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({
     discountType: PropTypes.string.isRequired,
     discountValue: PropTypes.number.isRequired,

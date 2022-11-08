@@ -22,11 +22,17 @@ export const INSUFFICIENT_ENTERPRISE_OFFER_BALANCE = 'Your organization doesn\'t
 const CourseSidebarPrice = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state: courseData } = useContext(CourseContext);
-  const { activeCourseRun, userSubsidyApplicableToCourse } = courseData;
+  const {
+    activeCourseRun,
+    userSubsidyApplicableToCourse,
+    course: { entitlements: courseEntitlements },
+  } = courseData;
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    activeCourseRun, userSubsidyApplicableToCourse,
+    activeCourseRun,
+    userSubsidyApplicableToCourse,
+    courseEntitlements,
   });
 
   const {

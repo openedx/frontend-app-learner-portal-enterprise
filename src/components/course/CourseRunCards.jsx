@@ -18,7 +18,12 @@ const CourseRunCards = () => {
     catalog: { catalogList },
   } = courseData;
 
-  const { course: { key } } = courseData;
+  const {
+    course: {
+      key,
+      entitlements: courseEntitlements,
+    },
+  } = courseData;
 
   return (
     <CardGrid columnSizes={{ sm: 12, lg: 5 }}>
@@ -30,6 +35,7 @@ const CourseRunCards = () => {
           courseRun={courseRun}
           catalogList={catalogList}
           userEntitlements={userEntitlements}
+          courseEntitlements={courseEntitlements}
           subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
         />
       ))}

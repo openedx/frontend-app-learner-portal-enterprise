@@ -339,3 +339,14 @@ export const createEnrollWithCouponCodeUrl = ({
 
   return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
 };
+
+export const getCoursePrice = ({ activeCourseRun, courseEntitlements }) => {
+  let coursePrice;
+  const { firstEnrollablePaidSeatPrice } = activeCourseRun || {};
+  if (firstEnrollablePaidSeatPrice !== null) {
+    coursePrice = firstEnrollablePaidSeatPrice;
+  } else {
+    coursePrice = parseFloat(courseEntitlements[0]?.price);
+  }
+  return coursePrice;
+};

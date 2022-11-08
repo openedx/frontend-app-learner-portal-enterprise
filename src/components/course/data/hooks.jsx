@@ -22,6 +22,7 @@ import {
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
+  getCoursePrice,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -73,6 +74,7 @@ export function useAllCourseData({
             containsContentItems,
             catalogList: catalogsWithCourse,
           },
+          courseDetails: { entitlements: courseEntitlements },
         } = data;
 
         let userSubsidyApplicableToCourse = null;
@@ -91,15 +93,16 @@ export function useAllCourseData({
             }
           }
 
-          const { firstEnrollablePaidSeatPrice } = courseService.activeCourseRun || {};
-
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
             applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
             applicableEnterpriseOffer: findEnterpriseOfferForCourse({
               enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
               catalogList: catalogsWithCourse,
-              coursePrice: firstEnrollablePaidSeatPrice,
+              coursePrice: getCoursePrice({
+                activeCourseRun: courseService.activeCourseRun,
+                courseEntitlements,
+              }),
             }),
           });
         }
@@ -260,13 +263,18 @@ export function useCoursePacingType(courseRun) {
  * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
  */
 export const useCoursePriceForUserSubsidy = ({
-  activeCourseRun, userSubsidyApplicableToCourse,
+  activeCourseRun,
+  courseEntitlements,
+  userSubsidyApplicableToCourse,
 }) => {
   const currency = CURRENCY_USD;
 
   const coursePrice = useMemo(
     () => {
-      const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
+      const listPrice = getCoursePrice({
+        activeCourseRun,
+        courseEntitlements,
+      });
 
       if (!listPrice) {
         return null;
@@ -305,7 +313,7 @@ export const useCoursePriceForUserSubsidy = ({
       // Case 2: No subsidy available for course
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidyApplicableToCourse],
+    [activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements],
   );
 
   return [coursePrice, currency];
