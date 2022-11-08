@@ -30,6 +30,9 @@ const mockCourseData = {
     containsContentItems: true,
     catalogList: ['catalog-1'],
   },
+  courseDetails: {
+    entitlements: [],
+  },
 };
 
 const mockLicenseForCourse = {
@@ -245,7 +248,7 @@ describe('useAllCourseData', () => {
       });
     });
 
-    it('prefers offers with user bookings limit over global bookings limit', async () => {
+    it.only('prefers offers with user bookings limit over global bookings limit', async () => {
       const offers = [
         mockEnterpriseOffersForCourse.globalBookingsLimit,
         mockEnterpriseOffersForCourse.userBookingsLimit,
@@ -256,6 +259,8 @@ describe('useAllCourseData', () => {
         canEnrollWithEnterpriseOffers: true,
       }));
       await waitForNextUpdate();
+
+      console.log('RESULTS?!', result.current);
 
       expect(result.current.courseData).toEqual({
         ...mockCourseData,
