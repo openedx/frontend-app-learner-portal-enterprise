@@ -340,6 +340,15 @@ export const createEnrollWithCouponCodeUrl = ({
   return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
 };
 
+/**
+ * Determines the price of a course.
+ *
+ * @param {args} Arguments
+ * @param {object} args.activeCourseRun Metadata for the advertised course run, which includes
+ * a field for the first paid seat price.
+ * @param {array} args.courseEntitlements List of entitlements associated with the courses.
+ * @returns The price of the course as a number.
+ */
 export const getCoursePrice = ({ activeCourseRun, courseEntitlements }) => {
   let coursePrice;
   const { firstEnrollablePaidSeatPrice } = activeCourseRun || {};
