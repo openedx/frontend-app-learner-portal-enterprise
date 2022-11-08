@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import capitalize from 'lodash.capitalize';
 
 import { CONTENT_TYPES, IN_PROGRESS } from './constants';
+import { shortenString } from '../course/data/utils';
 
 function PathwayNode({ node }) {
   const { enterpriseSlug } = useParams();
@@ -22,6 +23,12 @@ function PathwayNode({ node }) {
     },
     [node, enterpriseSlug],
   );
+
+  const description = useMemo(
+    () => shortenString(node.shortDescription, 250, '...'),
+    [node],
+  );
+
   return (
     <div className="pathway-node">
       <div className="row-cols-1 pathway-node-card">
@@ -39,7 +46,7 @@ function PathwayNode({ node }) {
                 <p
                   className="row lead font-weight-normal"
                   // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: node.shortDescription }}
+                  dangerouslySetInnerHTML={{ __html: description }}
                 />
               </div>
               <div className="col-2">
