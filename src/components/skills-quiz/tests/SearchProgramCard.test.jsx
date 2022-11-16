@@ -33,7 +33,6 @@ jest.mock('react-truncate', () => ({
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
-  // eslint-disable-next-line react/prop-types
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 

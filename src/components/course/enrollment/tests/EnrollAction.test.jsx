@@ -53,7 +53,6 @@ const subscriptionLicense = { uuid: 'a-license' };
    * @param {string} args.enrollAction
    */
 const EnrollLabel = (props) => (
-  // eslint-disable-next-line react/prop-types
   <div>{props.enrollLabelText}</div>
 );
 const renderEnrollAction = ({

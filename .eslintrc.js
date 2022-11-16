@@ -12,4 +12,13 @@ config.rules['indent'] = ['error', 2, { 'ignoredNodes': ['TemplateLiteral', 'Swi
 config.rules['template-curly-spacing'] = 'off';
 config.rules['import/prefer-default-export'] = 'off';
 
+// Disable react/prop-types for test files
+config.overrides = [
+    {
+        'files': ['*.test.js', '*.test.jsx'],
+        'rules': {
+            'react/prop-types': 'off'
+        }
+    }
+]
 module.exports = config;

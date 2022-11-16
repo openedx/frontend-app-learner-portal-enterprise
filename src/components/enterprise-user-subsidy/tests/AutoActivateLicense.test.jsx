@@ -11,7 +11,6 @@ import { renderWithRouter } from '../../../utils/tests';
 const TEST_ENTERPRISE_SLUG = 'test-slug';
 const initialPathname = `/${TEST_ENTERPRISE_SLUG}`;
 
-// eslint-disable-next-line react/prop-types
 const AutoActivateLicenseWrapper = ({ subscriptionLicense }) => (
   <Route path={initialPathname} exact>
     <AppContext.Provider value={{ enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG } }}>
