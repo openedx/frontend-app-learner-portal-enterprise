@@ -43,11 +43,13 @@ describe('<ProgramSidebar />', () => {
         {
           activeCourseRun: {
             pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+            weeksToComplete: 1,
           },
         },
         {
           activeCourseRun: {
             pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+            weeksToComplete: 1,
           },
         },
       ],
@@ -87,7 +89,7 @@ describe('<ProgramSidebar />', () => {
     expect(screen.getByText(PACING_TYPE_CONTENT.SELF_PACED)).toBeInTheDocument();
 
     // renders program duration
-    const programDuration = `${initialProgramState.program.weeksToComplete} weeks`;
+    const programDuration = '2 weeks';
     expect(screen.getByText('Length:')).toBeInTheDocument();
     expect(screen.getByText(programDuration)).toBeInTheDocument();
 

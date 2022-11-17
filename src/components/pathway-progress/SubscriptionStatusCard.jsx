@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Card, Badge } from '@edx/paragon';
+import moment from 'moment';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
@@ -26,12 +27,18 @@ const SubscriptionStatusCard = () => {
         <Card.Section
           className="d-flex flex-column align-items-left justify-content-between"
         >
-          <div className="h4 mb-0">
+          <div className="h4 mb-0 d-flex align-items-start justify-content-between">
             <span>Subscription Status</span>&nbsp; &nbsp;
             <Badge variant={hasActiveLicenseOrLicenseRequest ? 'success' : 'danger'}>{hasActiveLicenseOrLicenseRequest ? 'Active' : 'Not Active'}</Badge>
           </div>
           {
-            expirationDate && <div className="subscription-expiry">Available Until {expirationDate}</div>
+            hasActiveLicenseOrLicenseRequest && expirationDate && (
+              <div className="subscription-expiry">Available until {' '}
+                <span className="font-weight-bold">
+                  {moment(expirationDate).format('MMMM Do, YYYY')}
+                </span>
+              </div>
+            )
           }
         </Card.Section>
       </Card>

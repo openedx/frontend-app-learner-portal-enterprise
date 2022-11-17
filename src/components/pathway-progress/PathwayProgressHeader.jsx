@@ -10,9 +10,7 @@ const PathwayProgressHeader = () => {
   const { enterpriseSlug } = useParams();
   const links = [
     { label: 'Dashboard', url: `/${enterpriseSlug}` },
-
-    // TODO: Make sure to update this URL after pathways list page is created.
-    { label: 'Pathways', url: `/${enterpriseSlug}/pathway` },
+    { label: 'Pathways', url: `/${enterpriseSlug}` }, // Redirect to dashboard page, user can then select pathways tab.
   ];
   return (
     <header className="pathway-header">

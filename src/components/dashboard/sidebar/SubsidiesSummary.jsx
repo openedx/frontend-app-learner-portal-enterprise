@@ -77,44 +77,46 @@ const SubsidiesSummary = ({
 
   return (
   // TODO: Design debt, don't have cards in a card
-    <SidebarCard
-      cardSectionClassNames="border-remove"
-      cardClassNames={classNames('mb-5', { 'col-8 border-remove': programProgressPage })}
-    >
-      <div className={className} data-testid="subsidies-summary">
-        {hasActiveLicenseOrLicenseRequest && (
-          <SubscriptionSummaryCard
-            subscriptionPlan={subscriptionPlan}
-            licenseRequest={licenseRequests[0]}
-            courseEndDate={courseEndDate}
-            programProgressPage={programProgressPage}
-            className="mb-2 border-remove"
-          />
+    <>
+      <SidebarCard
+        cardSectionClassNames="border-remove"
+        cardClassNames={classNames('mb-5', { 'col-8 border-remove': programProgressPage })}
+      >
+        <div className={className} data-testid="subsidies-summary">
+          {hasActiveLicenseOrLicenseRequest && (
+            <SubscriptionSummaryCard
+              subscriptionPlan={subscriptionPlan}
+              licenseRequest={licenseRequests[0]}
+              courseEndDate={courseEndDate}
+              programProgressPage={programProgressPage}
+              className="mb-2 border-remove"
+            />
+          )}
+          {hasAssignedCodesOrCodeRequests && (
+            <CouponCodesSummaryCard
+              couponCodesCount={couponCodesCount}
+              couponCodeRequestsCount={couponCodeRequests.length}
+              totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
+              programProgressPage={programProgressPage}
+              className="mb-2 border-remove"
+            />
+          )}
+          {canEnrollWithEnterpriseOffers && (
+            <EnterpriseOffersSummaryCard
+              className="border-remove"
+              offers={enterpriseOffers}
+            />
+          )}
+        </div>
+        {searchCoursesCta && (
+          <SidebarCard
+            cardClassNames="border-remove"
+          >
+            {searchCoursesCta}
+          </SidebarCard>
         )}
-        {hasAssignedCodesOrCodeRequests && (
-          <CouponCodesSummaryCard
-            couponCodesCount={couponCodesCount}
-            couponCodeRequestsCount={couponCodeRequests.length}
-            totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
-            programProgressPage={programProgressPage}
-            className="mb-2 border-remove"
-          />
-        )}
-        {canEnrollWithEnterpriseOffers && (
-          <EnterpriseOffersSummaryCard
-            className="border-remove"
-            offer={enterpriseOffers[0]}
-          />
-        )}
-      </div>
-      {searchCoursesCta && (
-        <SidebarCard
-          cardClassNames="border-remove"
-        >
-          {searchCoursesCta}
-        </SidebarCard>
-      )}
-    </SidebarCard>
+      </SidebarCard>
+    </>
   );
 };
 
