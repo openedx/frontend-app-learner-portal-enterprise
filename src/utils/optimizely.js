@@ -1,6 +1,7 @@
 export const EVENTS = {
   ENROLLMENT_CLICK: 'enterprise_learner_portal_enrollment_click',
   FIRST_ENROLLMENT_CLICK: 'enterprise_learner_portal_first_enrollment_click',
+  LICENSE_SUBSIDY_ENROLLMENT_CLICK: 'enterprise_learner_portal_license_subsidy_enrollment_click',
 };
 
 export const getActiveExperiments = () => {

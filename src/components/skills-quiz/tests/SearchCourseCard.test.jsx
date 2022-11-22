@@ -41,7 +41,7 @@ const TEST_PARTNER = {
   name: 'Partner Name',
   logoImageUrl: TEST_IMAGE_URL,
 };
-
+const ADVERTISED_COURSE_RUN = 'course-v1:test-2020';
 const courses = {
   hits: [
     {
@@ -50,6 +50,9 @@ const courses = {
       card_image_url: TEST_CARD_IMG_URL,
       partners: [TEST_PARTNER],
       skill_names: [],
+      advertised_course_run: {
+        key: ADVERTISED_COURSE_RUN,
+      },
     },
   ],
   nbHits: 1,
@@ -75,6 +78,7 @@ const defaultSkillsState = {
   state: {
     goal: 'Goal',
     selectedJob: 'job-1',
+    enrolledCourseIds: ['course-v1:test-2022'],
     interestedJobs: [
       {
         name: 'job-1',
@@ -159,6 +163,9 @@ describe('<SearchCourseCard />', () => {
           card_image_url: TEST_CARD_IMG_URL,
           partners: [TEST_PARTNER],
           skill_names: skillNames,
+          advertised_course_run: {
+            key: ADVERTISED_COURSE_RUN,
+          },
         },
       ],
       nbHits: 1,
@@ -190,6 +197,9 @@ describe('<SearchCourseCard />', () => {
           card_image_url: TEST_CARD_IMG_URL,
           partners: [TEST_PARTNER],
           skill_names: skillNames,
+          advertised_course_run: {
+            key: ADVERTISED_COURSE_RUN,
+          },
         },
       ],
       nbHits: 1,
@@ -227,5 +237,58 @@ describe('<SearchCourseCard />', () => {
       );
     });
     expect(screen.getByText(NO_COURSES_ALERT_MESSAGE)).toBeTruthy();
+  });
+
+  test('renders the recommended courses without already enrolled courses', async () => {
+    const skillNames = ['test-skill-1', 'test-skill-2'];
+    const coursesWithSkills = {
+      hits: [
+        {
+          key: TEST_COURSE_KEY,
+          title: TEST_TITLE,
+          card_image_url: TEST_CARD_IMG_URL,
+          partners: [TEST_PARTNER],
+          skill_names: skillNames,
+          advertised_course_run: {
+            key: ADVERTISED_COURSE_RUN,
+          },
+        },
+        {
+          key: 'test-course-key-two',
+          title: 'Test Title Two',
+          card_image_url: TEST_CARD_IMG_URL,
+          partners: [TEST_PARTNER],
+          skill_names: skillNames,
+          advertised_course_run: {
+            key: 'course-v1:test-2021',
+          },
+        },
+        {
+          key: 'test-course-key-three',
+          title: 'Test Title Three',
+          card_image_url: TEST_CARD_IMG_URL,
+          partners: [TEST_PARTNER],
+          skill_names: skillNames,
+          advertised_course_run: {
+            key: 'course-v1:test-2022',
+          },
+        },
+      ],
+      nbHits: 3,
+    };
+    const courseIndex = {
+      indexName: 'test-index-name',
+      search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
+    };
+    await act(async () => {
+      renderWithRouter(
+        <SearchCourseCardWithContext
+          index={courseIndex}
+        />,
+      );
+    });
+    expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
+    expect(screen.getByText('Test Title Two')).toBeInTheDocument();
+    expect(screen.queryByText('Test Title Three')).not.toBeInTheDocument();
   });
 });

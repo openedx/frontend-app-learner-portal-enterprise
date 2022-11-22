@@ -96,12 +96,11 @@ export function useAllCourseData({
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
             applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
-            applicableEnterpriseOffer: canEnrollWithEnterpriseOffers
-              ? findEnterpriseOfferForCourse({
-                enterpriseOffers,
-                catalogList: catalogsWithCourse,
-                coursePrice: firstEnrollablePaidSeatPrice,
-              }) : undefined,
+            applicableEnterpriseOffer: findEnterpriseOfferForCourse({
+              enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
+              catalogList: catalogsWithCourse,
+              coursePrice: firstEnrollablePaidSeatPrice,
+            }),
           });
         }
 
@@ -488,6 +487,30 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
       );
     },
     [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey],
+  );
+
+  return handleClick;
+};
+
+/**
+ * Returns a function to be used as a click handler that emits an optimizely license subsidy enrollment click event.
+ *
+ * @returns Click handler function for clicks on enrollment buttons when a learner possesses a license subsidy.
+ */
+export const useOptimizelyLicenseSubsidyEnrollmentClickHandler = ({ href, courseRunKey }) => {
+  const handleClick = useCallback(
+    (e) => {
+      // If tracking is on a link with an external href destination, we must intentionally delay the default click
+      // behavior to allow enough time for the async analytics event call to resolve.
+      if (href) {
+        e.preventDefault();
+        setTimeout(() => {
+          global.location.href = href;
+        }, CLICK_DELAY_MS);
+      }
+      pushEvent(EVENTS.LICENSE_SUBSIDY_ENROLLMENT_CLICK, { courseKey: courseRunKey });
+    },
+    [courseRunKey, href],
   );
 
   return handleClick;

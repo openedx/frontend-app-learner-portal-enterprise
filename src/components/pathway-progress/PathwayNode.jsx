@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import capitalize from 'lodash.capitalize';
 
 import { CONTENT_TYPES, IN_PROGRESS } from './constants';
+import { shortenString } from '../course/data/utils';
 
 function PathwayNode({ node }) {
   const { enterpriseSlug } = useParams();
@@ -22,6 +23,12 @@ function PathwayNode({ node }) {
     },
     [node, enterpriseSlug],
   );
+
+  const description = useMemo(
+    () => shortenString(node.shortDescription, 250, '...'),
+    [node],
+  );
+
   return (
     <div className="pathway-node">
       <div className="row-cols-1 pathway-node-card">
@@ -36,7 +43,11 @@ function PathwayNode({ node }) {
                   <h3>{node.title}</h3>&nbsp;
                   {node.status === IN_PROGRESS && <Badge variant="success">In Progress</Badge>}
                 </div>
-                <p className="row">{node.shortDescription}</p>
+                <p
+                  className="row lead font-weight-normal"
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
               </div>
               <div className="col-2">
                 {

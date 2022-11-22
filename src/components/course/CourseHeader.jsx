@@ -89,7 +89,7 @@ export default function CourseHeader() {
             {catalog.containsContentItems ? (
               <>
                 <CourseRunCards />
-                <SubsidyRequestButton enterpriseSlug={enterpriseConfig.slug} />
+                <SubsidyRequestButton />
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.

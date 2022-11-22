@@ -2,14 +2,28 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import moment from 'moment';
 import { camelCaseObject } from '@edx/frontend-platform';
-import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse, useAllCourseData } from '../hooks';
+import {
+  useCourseEnrollmentUrl,
+  useUserHasSubsidyRequestForCourse,
+  useAllCourseData,
+  useOptimizelyEnrollmentClickHandler,
+  useOptimizelyLicenseSubsidyEnrollmentClickHandler,
+} from '../hooks';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
-import { LICENSE_SUBSIDY_TYPE, COUPON_CODE_SUBSIDY_TYPE } from '../constants';
+import {
+  LICENSE_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+} from '../constants';
+import * as optimizelyUtils from '../../../../utils/optimizely';
 
 jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
 }));
+
+jest.useFakeTimers();
+jest.spyOn(global, 'setTimeout');
 
 const mockCourseData = {
   catalog: {
@@ -30,6 +44,37 @@ const mockCouponCodesForCourse = [{
   couponEndDate: moment().add(8, 'w').toISOString(),
 }];
 
+const mockBaseEnterpriseOffer = {
+  usageType: 'Percentage',
+  enterpriseCatalogUuid: 'catalog-1',
+  discountValue: 100,
+  startDatetime: '2022-10-01T00:00:00Z',
+  endDatetime: '2023-10-01T00:00:00Z',
+  maxDiscount: null,
+  maxUserDiscount: null,
+  remainingBalance: null,
+  remainingBalanceForUser: null,
+};
+const mockEnterpriseOffersForCourse = {
+  noBookingsLimit: {
+    ...mockBaseEnterpriseOffer,
+    startDatetime: '2020-10-01T00:00:00Z',
+    endDatetime: '2021-10-01T00:00:00Z',
+  },
+  userBookingsLimit: {
+    ...mockBaseEnterpriseOffer,
+    maxUserDiscount: 250,
+    remainingBalanceForUser: 250,
+    startDatetime: '2021-10-01T00:00:00Z',
+    endDatetime: '2022-10-01T00:00:00Z',
+  },
+  globalBookingsLimit: {
+    ...mockBaseEnterpriseOffer,
+    maxDiscount: 1000,
+    remainingBalance: 1000,
+  },
+};
+
 const mockCourseRecommendataions = {
   all_recommendations: ['edX+DemoX'],
   same_partner_recommendations: ['edX+DemoX'],
@@ -40,6 +85,9 @@ const mockCourseService = {
   fetchUserLicenseSubsidy: jest.fn(() => ({ data: mockLicenseForCourse })),
   fetchAllCourseRecommendations: jest.fn(() => mockCourseRecommendataions),
   fetchFilteredRecommendations: jest.fn(() => mockCourseRecommendataions),
+  activeCourseRun: {
+    firstEnrollablePaidSeatPrice: 100,
+  },
 };
 
 jest.mock('../service', () => ({
@@ -56,6 +104,9 @@ describe('useAllCourseData', () => {
     courseRunKey: 'courseRunKey',
     subscriptionLicense: null,
     couponCodes: [],
+    enterpriseOffers: [],
+    canEnrollWithEnterpriseOffers: false,
+    activeCatalogs: [],
   };
 
   afterEach(() => jest.clearAllMocks());
@@ -145,6 +196,77 @@ describe('useAllCourseData', () => {
         ...camelCaseObject(mockLicenseForCourse),
         subsidyType: LICENSE_SUBSIDY_TYPE,
       },
+    });
+  });
+
+  describe('learner credit subsidy', () => {
+    it('returns learner credit subsidy if there is an applicable enterprise offer', async () => {
+      const offers = [mockEnterpriseOffersForCourse.globalBookingsLimit];
+      const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
+        ...basicProps,
+        enterpriseOffers: offers,
+        canEnrollWithEnterpriseOffers: true,
+      }));
+      await waitForNextUpdate();
+
+      expect(result.current.courseData).toEqual({
+        ...mockCourseData,
+        userSubsidyApplicableToCourse: {
+          discountType: mockBaseEnterpriseOffer.usageType.toLowerCase(),
+          discountValue: mockBaseEnterpriseOffer.discountValue,
+          startDate: mockEnterpriseOffersForCourse.globalBookingsLimit.startDatetime,
+          endDate: mockEnterpriseOffersForCourse.globalBookingsLimit.endDatetime,
+          subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+        },
+      });
+    });
+
+    it('prefers offers with no bookings limits over all other offers', async () => {
+      const offers = [
+        mockEnterpriseOffersForCourse.globalBookingsLimit,
+        mockEnterpriseOffersForCourse.noBookingsLimit,
+      ];
+      const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
+        ...basicProps,
+        enterpriseOffers: offers,
+        canEnrollWithEnterpriseOffers: true,
+      }));
+      await waitForNextUpdate();
+
+      expect(result.current.courseData).toEqual({
+        ...mockCourseData,
+        userSubsidyApplicableToCourse: {
+          discountType: mockBaseEnterpriseOffer.usageType.toLowerCase(),
+          discountValue: mockBaseEnterpriseOffer.discountValue,
+          startDate: mockEnterpriseOffersForCourse.noBookingsLimit.startDatetime,
+          endDate: mockEnterpriseOffersForCourse.noBookingsLimit.endDatetime,
+          subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+        },
+      });
+    });
+
+    it('prefers offers with user bookings limit over global bookings limit', async () => {
+      const offers = [
+        mockEnterpriseOffersForCourse.globalBookingsLimit,
+        mockEnterpriseOffersForCourse.userBookingsLimit,
+      ];
+      const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
+        ...basicProps,
+        enterpriseOffers: offers,
+        canEnrollWithEnterpriseOffers: true,
+      }));
+      await waitForNextUpdate();
+
+      expect(result.current.courseData).toEqual({
+        ...mockCourseData,
+        userSubsidyApplicableToCourse: {
+          discountType: mockBaseEnterpriseOffer.usageType.toLowerCase(),
+          discountValue: mockBaseEnterpriseOffer.discountValue,
+          startDate: mockEnterpriseOffersForCourse.userBookingsLimit.startDatetime,
+          endDate: mockEnterpriseOffersForCourse.userBookingsLimit.endDatetime,
+          subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+        },
+      });
     });
   });
 });
@@ -339,5 +461,40 @@ describe('useUserHasSubsidyRequestForCourse', () => {
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
     expect(result.current).toBe(false);
+  });
+});
+
+describe('useOptimizelyLicenseSubsidyEnrollmentClickHandler', () => {
+  const basicProps = {
+    courseRunKey: 'courseRunKey',
+    href: 'http://example.com',
+  };
+
+  afterEach(() => jest.clearAllMocks());
+
+  it('sends correct optimizely event', () => {
+    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
+    const { result } = renderHook(() => useOptimizelyLicenseSubsidyEnrollmentClickHandler(basicProps));
+    result.current({ preventDefault: jest.fn() });
+    expect(pushEventSpy).toHaveBeenCalledWith('enterprise_learner_portal_license_subsidy_enrollment_click', { courseKey: 'courseRunKey' });
+  });
+});
+
+describe('useOptimizelyEnrollmentClickHandler', () => {
+  const basicProps = {
+    courseRunKey: 'courseRunKey',
+    href: 'http://example.com',
+    courseEnrollmentsByStatus: {},
+  };
+
+  afterEach(() => jest.clearAllMocks());
+
+  it('sends correct optimizely event', () => {
+    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
+    const { result } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
+    result.current({ preventDefault: jest.fn() });
+    expect(pushEventSpy).toHaveBeenCalledTimes(2);
+    expect(pushEventSpy).toHaveBeenNthCalledWith(1, 'enterprise_learner_portal_enrollment_click', { courseKey: 'courseRunKey' });
+    expect(pushEventSpy).toHaveBeenNthCalledWith(2, 'enterprise_learner_portal_first_enrollment_click', { courseKey: 'courseRunKey' });
   });
 });

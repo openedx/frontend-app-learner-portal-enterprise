@@ -59,14 +59,15 @@ export function getExpertInstructionSecondaryContent(program) {
 }
 
 export function getTotalWeeks(program) {
-  const totalWeeks = program?.weeksToComplete;
-  if (totalWeeks) {
-    return totalWeeks;
-  }
-  if (program.weeksToCompleteMin && program.weeksToCompleteMax) {
-    return Math.round((program.weeksToCompleteMin + program.weeksToCompleteMax) / 2);
-  }
-  return null;
+  const { courses } = program;
+  const reducer = (totalWeeks, course) => {
+    let additionalWeeks = 0;
+    if (course.activeCourseRun && course.activeCourseRun.weeksToComplete) {
+      additionalWeeks = Number.parseInt(course.activeCourseRun.weeksToComplete, 10);
+    }
+    return totalWeeks + additionalWeeks;
+  };
+  return Number.parseInt(courses.reduce(reducer, 0), 10);
 }
 
 export function getTotalEstimatedEffortInHoursPerWeek(program) {

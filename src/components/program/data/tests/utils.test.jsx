@@ -8,11 +8,13 @@ const program = {
     {
       activeCourseRun: {
         pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+        weeksToComplete: 2,
       },
     },
     {
       activeCourseRun: {
         pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+        weeksToComplete: 5,
       },
     },
   ],
@@ -122,31 +124,29 @@ describe('getExpertInstructionSecondaryContent', () => {
 describe('getTotalWeeks', () => {
   it('when program contains weeks to complete info', () => {
     const totalWeeks = programUtils.getTotalWeeks(program);
-    expect(totalWeeks).toEqual(program.weeksToComplete);
+    expect(totalWeeks).toEqual(7);
   });
 
-  it('when program contains min and max weeks to complete info', () => {
-    const MIN = 5;
-    const MAX = 7;
-    const programWithMinMaxWeekInfo = {
-      ...program,
-      weeksToComplete: null,
-      weeksToCompleteMin: MIN,
-      weeksToCompleteMax: MAX,
+  it('when program courses does not contain weeks to complete info', () => {
+    const programWithoutWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+            weeksToComplete: null,
+          },
+        },
+        {
+          activeCourseRun: {
+            pacingType: PROGRAM_PACING_MAP.SELF_PACED,
+            weeksToComplete: null,
+          },
+        },
+      ],
+      type: PROGRAM_TYPE_MAP.MICROMASTERS,
     };
-    const totalWeeks = programUtils.getTotalWeeks(programWithMinMaxWeekInfo);
-    const expected = Math.round((MIN + MAX) / 2);
-    expect(totalWeeks).toEqual(expected);
-  });
 
-  it('when program does not contain weeks to complete info', () => {
-    const programWithNoInfo = {
-      ...program,
-      weeksToComplete: null,
-      weeksToCompleteMin: null,
-      weeksToCompleteMax: null,
-    };
-    const totalWeeks = programUtils.getTotalWeeks(programWithNoInfo);
+    const totalWeeks = programUtils.getTotalWeeks(programWithoutWeeksToComplete);
     expect(totalWeeks).toBeFalsy();
   });
 });
@@ -184,106 +184,180 @@ describe('getTotalEstimatedEffortInHoursPerWeek', () => {
 
 describe('getProgramDuration', () => {
   it('when program does not contain weeks to complete info', () => {
-    const programWithNoInfo = {
-      ...program,
-      weeksToComplete: null,
-      weeksToCompleteMin: null,
-      weeksToCompleteMax: null,
+    const programWithCustomWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: null,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: null,
+          },
+        },
+      ],
     };
-    const programDuration = programUtils.getProgramDuration(programWithNoInfo);
+    const programDuration = programUtils.getProgramDuration(programWithCustomWeeksToComplete);
     expect(programDuration).toBeFalsy();
   });
 
   it('when weeks to complete are less than a month', () => {
     // with 3 weeks
-    let programDuration = programUtils.getProgramDuration(program);
-    expect(programDuration).toEqual(`${program.weeksToComplete} weeks`);
-
-    // with 1 week
-    const progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: 1,
+    const programWithCustomWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: 2,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: 1,
+          },
+        },
+      ],
     };
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
-    expect(programDuration).toEqual(`${progWithOneWeekDuration.weeksToComplete} week`);
+    const programDuration = programUtils.getProgramDuration(programWithCustomWeeksToComplete);
+    expect(programDuration).toEqual(`${3} weeks`);
   });
 
   it('when weeks to complete are more than a month but less than a year', () => {
     // with 5 weeks
-    let totalWeeks = 5;
-    let progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
+    const fiveWeeks = 5;
+    const programWithFiveWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: fiveWeeks,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: null,
+          },
+        },
+      ],
     };
-    let expectedDuration = `${Math.round(totalWeeks / 4)} month`;
-    let programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
+
+    let expectedDuration = `${Math.round(fiveWeeks / 4)} month`;
+    let programDuration = programUtils.getProgramDuration(programWithFiveWeeksToComplete);
     expect(programDuration).toEqual(expectedDuration);
 
     // with 10 weeks
-    totalWeeks = 10;
-    progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
+    const programWithTenWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: fiveWeeks,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: fiveWeeks,
+          },
+        },
+      ],
     };
-    expectedDuration = `${Math.round(totalWeeks / 4)} months`;
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
+    const tenWeeks = 10;
+    expectedDuration = `${Math.round(tenWeeks / 4)} months`;
+    programDuration = programUtils.getProgramDuration(programWithTenWeeksToComplete);
     expect(programDuration).toEqual(expectedDuration);
   });
 
   it('when weeks to complete are more than a year', () => {
     // with 49 weeks; approx. 1 year
-    let totalWeeks = 49;
-    let progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
+    const fortyNineWeeks = 49;
+    const programWithFortyNineWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: fortyNineWeeks,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: null,
+          },
+        },
+      ],
     };
-    let programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
+    let programDuration = programUtils.getProgramDuration(programWithFortyNineWeeksToComplete);
+    expect(programDuration).toEqual('1 year');
+
+    const programWithFortyNineWeeksToCompleteInMultipleCourseRuns = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: 10,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: 39,
+          },
+        },
+      ],
+    };
+    programDuration = programUtils.getProgramDuration(programWithFortyNineWeeksToCompleteInMultipleCourseRuns);
     expect(programDuration).toEqual('1 year');
 
     // with 96 weeks; approx. 2 years
-    totalWeeks = 96;
-    progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
+    const ninetySixWeeks = 96;
+    const programWithNinetySixWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: ninetySixWeeks,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: null,
+          },
+        },
+      ],
     };
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
+    programDuration = programUtils.getProgramDuration(programWithNinetySixWeeksToComplete);
     expect(programDuration).toEqual('2 years');
 
     // with 70 weeks; approx. 1.5 year
-    totalWeeks = 70;
-    progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
+    const seventyWeeks = 70;
+    const programWithSeventyWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: seventyWeeks,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: null,
+          },
+        },
+      ],
     };
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
+    programDuration = programUtils.getProgramDuration(programWithSeventyWeeksToComplete);
     expect(programDuration).toEqual('1 year 6 months');
 
     // with 52 weeks; approx. 1 year, 1 month
-    totalWeeks = 52;
-    progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
+    const threeWeeks = 3;
+    const programWithFiftyTwoWeeksToComplete = {
+      courses: [
+        {
+          activeCourseRun: {
+            weeksToComplete: fortyNineWeeks,
+          },
+        },
+        {
+          activeCourseRun: {
+            weeksToComplete: threeWeeks,
+          },
+        },
+      ],
     };
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
+    programDuration = programUtils.getProgramDuration(programWithFiftyTwoWeeksToComplete);
     expect(programDuration).toEqual('1 year 1 month');
-
-    // with 100 weeks; approx. 2 years, 1 month
-    totalWeeks = 100;
-    progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
-    };
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
-    expect(programDuration).toEqual('2 years 1 month');
-
-    // with 104 weeks; approx. 2 years, 2 months
-    totalWeeks = 104;
-    progWithOneWeekDuration = {
-      ...program,
-      weeksToComplete: totalWeeks,
-    };
-    programDuration = programUtils.getProgramDuration(progWithOneWeekDuration);
-    expect(programDuration).toEqual('2 years 2 months');
   });
 });
 

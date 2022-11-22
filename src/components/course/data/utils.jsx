@@ -139,6 +139,20 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   }));
 }
 
+/**
+ * Returns an applicable enterprise offer to the specified enterprise catalogs, if one exists, with the
+ * following prioritization:
+ *   - Offer with no bookings limit (global or user)
+ *   - Offer with user bookings limit
+ *   - Offer with global bookings limit
+ *
+ * @param {array} enterpriseOffers List of enterprise offers available for the enterprise customer.
+ * @param {array} catalogList List of enterprise catalog UUIDs associated with a given course.
+ * @param {number} coursePrice The price of the course.
+ *
+ * @returns An object containing the metadata for the enterprise offer, if any, most applicable for
+ * the specified enterporise catalog uuids and course price.
+ */
 export const findEnterpriseOfferForCourse = ({
   enterpriseOffers, catalogList = [], coursePrice,
 }) => {
@@ -146,18 +160,15 @@ export const findEnterpriseOfferForCourse = ({
     return undefined;
   }
 
-  return enterpriseOffers.find((enterpriseOffer) => {
+  const applicableEnterpriseOffers = enterpriseOffers.filter((enterpriseOffer) => {
     const {
       remainingBalance,
       remainingBalanceForUser,
     } = enterpriseOffer;
-
     const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
-
     if (!isCourseInCatalog) {
       return false;
     }
-
     if (offerHasBookingsLimit(enterpriseOffer)) {
       if (remainingBalance !== null && remainingBalance < coursePrice) {
         return false;
@@ -167,9 +178,29 @@ export const findEnterpriseOfferForCourse = ({
         return false;
       }
     }
-
     return true;
   });
+
+  // use offer that has no bookings limit
+  const enterpriseOfferWithoutBookingsLimit = applicableEnterpriseOffers.find(offer => !offerHasBookingsLimit(offer));
+  if (enterpriseOfferWithoutBookingsLimit) {
+    return enterpriseOfferWithoutBookingsLimit;
+  }
+
+  // use offer that has largest remaining balance for user
+  const enterpriseOfferWithUserBookingsLimit = applicableEnterpriseOffers
+    .filter(offer => offer.remainingBalanceForUser)
+    .sort((a, b) => b.remainingBalanceForUser - a.remainingBalanceForUser)[0];
+
+  if (enterpriseOfferWithUserBookingsLimit) {
+    return enterpriseOfferWithUserBookingsLimit;
+  }
+
+  // use offer with largest remaining balance overall
+  const enterpriseOfferWithBookingsLimit = applicableEnterpriseOffers
+    .sort((a, b) => b.remainingBalance - a.remainingBalance)[0];
+
+  return enterpriseOfferWithBookingsLimit;
 };
 
 const getBestCourseMode = (courseModes) => {

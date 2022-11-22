@@ -4,29 +4,21 @@ import {
 } from 'react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
-import { fetchCouponsOverview } from '../../coupons/data/service';
 import { features } from '../../../../config';
 import * as enterpriseOffersService from './service';
-import { hasValidStartExpirationDates } from '../../../../utils/common';
 import { transformEnterpriseOffer } from './utils';
 
 export const useEnterpriseOffers = ({
   enterpriseId,
   enableLearnerPortalOffers,
-  customerAgreementConfig,
-  isLoadingCustomerAgreementConfig,
 }) => {
   const [enterpriseOffers, setEnterpriseOffers] = useState([]);
   const [isLoadingOffers, setIsLoadingOffers] = useState(true);
-  const [isLoadingEnterpriseCoupons, setIsLoadingEnterpriseCoupons] = useState(true);
-  const [enterpriseCoupons, setEnterpriseCoupons] = useState([]);
   const [canEnrollWithEnterpriseOffers, setCanEnrollWithEnterpriseOffers] = useState(false);
   const [hasLowEnterpriseOffersBalance, setHasLowEnterpriseOffersBalance] = useState(false);
   const [hasNoEnterpriseOffersBalance, setHasNoEnterpriseOffersBalance] = useState(false);
 
   const enableOffers = features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS && enableLearnerPortalOffers;
-
-  const isLoading = isLoadingOffers || isLoadingCustomerAgreementConfig || isLoadingEnterpriseCoupons;
 
   useEffect(() => {
     // Fetch enterprise offers here if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS is true
@@ -49,58 +41,21 @@ export const useEnterpriseOffers = ({
     }
   }, [enterpriseId, enableOffers]);
 
-  // Fetch enterprise coupons to determine if the enterprise offers can be used to enroll
   useEffect(() => {
-    const fetchEnterpriseCoupons = async () => {
-      try {
-        const response = await fetchCouponsOverview(
-          { enterpriseId },
-        );
-        const { results } = camelCaseObject(response.data);
-        setEnterpriseCoupons(results);
-      } catch (error) {
-        logError(error);
-      } finally {
-        setIsLoadingEnterpriseCoupons(false);
-      }
-    };
-
-    if (enableOffers) {
-      fetchEnterpriseCoupons();
-    } else {
-      setIsLoadingEnterpriseCoupons(false);
-    }
-  }, [enableOffers, enterpriseId]);
-
-  useEffect(() => {
-    if (!enableOffers || isLoading) {
+    if (!enableOffers || isLoadingOffers) {
       return;
     }
 
-    const enterpriseHasActiveCoupons = enterpriseCoupons.length > 0;
-    const enterpriseHasActiveSubscription = !!(customerAgreementConfig?.subscriptions ?? []).find(({
-      startDate,
-      expirationDate,
-    }) => hasValidStartExpirationDates({
-      startDate,
-      expirationDate,
-    }));
+    if (enterpriseOffers.length > 0) {
+      setCanEnrollWithEnterpriseOffers(true);
 
-    // For MVP we will only support enterprises with one active offer
-    const enterpriseHasOneOffer = enterpriseOffers.length === 1;
-
-    if (enterpriseHasActiveCoupons || enterpriseHasActiveSubscription || !enterpriseHasOneOffer) {
-      return;
+      const hasLowBalance = enterpriseOffers.some(offer => offer.isLowOnBalance);
+      const hasNoBalance = enterpriseOffers.every(offer => offer.isOutOfBalance);
+      setHasLowEnterpriseOffersBalance(hasLowBalance);
+      setHasNoEnterpriseOffersBalance(hasNoBalance);
     }
-
-    setCanEnrollWithEnterpriseOffers(true);
-    setHasLowEnterpriseOffersBalance(enterpriseOffers[0].isLowOnBalance);
-    setHasNoEnterpriseOffersBalance(enterpriseOffers[0].isOutOfBalance);
   }, [
-    isLoading,
-    enterpriseCoupons,
-    customerAgreementConfig,
-    isLoadingCustomerAgreementConfig,
+    isLoadingOffers,
     enableOffers,
     enterpriseOffers,
   ]);
@@ -110,6 +65,6 @@ export const useEnterpriseOffers = ({
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
-    isLoading,
+    isLoading: isLoadingOffers,
   };
 };
