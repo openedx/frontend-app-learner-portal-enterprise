@@ -4,12 +4,11 @@ import React, {
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
 import { Link } from 'react-router-dom';
-import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, StatusAlert,
+  Badge, Card, Icon, StatusAlert, Skeleton,
 } from '@edx/paragon';
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';

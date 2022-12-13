@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Hits, connectStateResults } from 'react-instantsearch-dom';
-import Skeleton from 'react-loading-skeleton';
-
+import { connectStateResults } from 'react-instantsearch-dom';
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
-import SearchError from '../SearchError';
+import { Skeleton, CardGrid } from '@edx/paragon';
 
+import SearchError from '../SearchError';
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getHitComponentFromTitle, getSkeletonCardFromTitle } from '../../utils/search';
@@ -18,6 +17,9 @@ const PopularResults = ({
   numberResultsToDisplay,
 }) => {
   const nbHits = useNbHitsFromSearchResults(searchResults);
+  const hits = searchResults?.hits || [];
+  const SkeletonCard = getSkeletonCardFromTitle(title);
+  const HitComponent = getHitComponentFromTitle(title);
 
   return (
     <>
@@ -27,20 +29,30 @@ const PopularResults = ({
         )}
       </h2>
       {isSearchStalled && (
-        <div className="row">
-          {[...Array(numberResultsToDisplay).keys()].map(resultNum => (
-            <div key={resultNum} className="skeleton-course-card">
-              {getSkeletonCardFromTitle(title)}
-            </div>
-          ))}
-        </div>
+        <CardGrid
+          columnSizes={{
+            xs: 12,
+            md: 6,
+            lg: 4,
+            xl: 3,
+          }}
+        >
+          {[...Array(numberResultsToDisplay).keys()].map(resultNum => <SkeletonCard key={resultNum} />)}
+        </CardGrid>
       )}
       {!isSearchStalled && nbHits > 0 && (
         <>
-          <h2>
-            {`Popular ${title}`}
-          </h2>
-          <Hits hitComponent={getHitComponentFromTitle(title)} />
+          <h2 className="mb-3">{`Popular ${title}`}</h2>
+          <CardGrid
+            columnSizes={{
+              xs: 12,
+              md: 6,
+              lg: 4,
+              xl: 3,
+            }}
+          >
+            {hits.map(hit => <HitComponent hit={hit} />)}
+          </CardGrid>
         </>
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && (

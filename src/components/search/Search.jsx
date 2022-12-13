@@ -111,7 +111,6 @@ const Search = () => {
             enterpriseConfig={enterpriseConfig}
           />
         </div>
-
         <PathwayModal
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
@@ -120,30 +119,26 @@ const Search = () => {
             onClose();
           }}
         />
-
         {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
-
-        { (contentType === undefined || contentType.length === 0) && (
+        {(contentType === undefined || contentType.length === 0) && (
           <>
-            {
-              features.ENABLE_PATHWAYS && <SearchPathway filter={filters} />
-            }
-            { features.ENABLE_PROGRAMS ? <SearchProgram filter={filters} /> : <div /> }
+            {features.ENABLE_PATHWAYS && <SearchPathway filter={filters} />}
+            {features.ENABLE_PROGRAMS && <SearchProgram filter={filters} />}
             <SearchCourse filter={filters} />
           </>
         )}
 
-        { contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
+        {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
           <SearchResults hitComponent={SearchPathwayCard} title={PATHWAY_TITLE} contentType={CONTENT_TYPE_PATHWAY} />
         )}
 
-        { contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (
+        {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (
           <SearchResults hitComponent={SearchProgramCard} title={PROGRAM_TITLE} contentType={CONTENT_TYPE_PROGRAM} />
         )}
 
-        { contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (
+        {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (
           <SearchResults hitComponent={SearchCourseCard} title={COURSE_TITLE} contentType={CONTENT_TYPE_COURSE} />
         )}
       </InstantSearch>

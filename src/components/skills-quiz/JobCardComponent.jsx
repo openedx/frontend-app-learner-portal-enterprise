@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card } from '@edx/paragon';
-import Skeleton from 'react-loading-skeleton';
+import { Card, Skeleton } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import { formatStringAsNumber } from '../../utils/common';
 import { NOT_AVAILABLE } from './constants';

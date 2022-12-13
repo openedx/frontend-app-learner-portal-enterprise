@@ -1,11 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { connectStateResults, Hits } from 'react-instantsearch-dom';
-import Skeleton from 'react-loading-skeleton';
+import { connectStateResults } from 'react-instantsearch-dom';
 import {
   useNbHitsFromSearchResults, SearchContext, SearchPagination, setRefinementAction,
 } from '@edx/frontend-enterprise-catalog-search';
-import { Container, Row } from '@edx/paragon';
+import {
+  CardGrid, Container, Skeleton,
+} from '@edx/paragon';
 
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
@@ -22,12 +23,13 @@ const SearchResults = ({
   searchState,
   isSearchStalled,
   error,
-  hitComponent,
+  hitComponent: HitComponent,
   title,
   contentType,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
+  const hits = searchResults?.hits || [];
   const linkText = `Show (${nbHits}) >`;
 
   // To prevent from showing same error twice, we only render the StatusAlert when course results are zero */
@@ -78,63 +80,75 @@ const SearchResults = ({
     [nbHits, query, title],
   );
 
+  const SkeletonCard = getSkeletonCardFromTitle(title);
+
   return (
     <Container size="lg" className="search-results my-5">
-      <>
-        <div className="d-flex align-items-center mb-2">
-          <h2 className="flex-grow-1 mb-2">
-            {isSearchStalled && (
-              <Skeleton className="h2 d-block mb-3" width={240} />
-            )}
-            {!isSearchStalled && nbHits > 0 && (
-              <>  {resultsHeading}  </>
-            )}
-          </h2>
-          {(!isSearchStalled && nbHits > 0) && (contentType !== undefined) && (
-            <SearchPagination
-              defaultRefinement={page}
-              maxPagesDisplayed={5}
-            />
+      <div className="d-flex align-items-center mb-2">
+        <h2 className="flex-grow-1 mb-2">
+          {isSearchStalled && (
+            <Skeleton className="h2 d-block mb-3" width={240} />
           )}
-          {(!isSearchStalled && nbHits > 0) && (contentType === undefined) && (
-            <button
-              onClick={clickHandler}
-              className="show-all-link btn btn-link muted-link inline-link d-inline-block pl-0 pr-4 px-xl-0"
-              type="button"
-            >
-              {linkText}
-            </button>
+          {!isSearchStalled && nbHits > 0 && (
+            <>  {resultsHeading}  </>
           )}
-        </div>
-        {isSearchStalled && (
-          <>
-            <Skeleton className="lead mb-4" width={160} />
-            <Row>
-              {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => (
-                <div key={resultNum} className="skeleton-course-card">
-                  {getSkeletonCardFromTitle(title)}
-                </div>
-              ))}
-            </Row>
-          </>
+        </h2>
+        {(!isSearchStalled && nbHits > 0) && (contentType !== undefined) && (
+          <SearchPagination
+            defaultRefinement={page}
+            maxPagesDisplayed={5}
+          />
         )}
-        {!isSearchStalled && nbHits > 0 && (
-          <>
-            <Hits hitComponent={hitComponent} />
-            {(contentType !== undefined) && (
-              <div className="d-flex justify-content-center">
-                <SearchPagination defaultRefinement={page} />
-              </div>
-            )}
-          </>
+        {(!isSearchStalled && nbHits > 0) && (contentType === undefined) && (
+          <button
+            onClick={clickHandler}
+            className="show-all-link btn btn-link muted-link inline-link d-inline-block pl-0 pr-4 px-xl-0"
+            type="button"
+          >
+            {linkText}
+          </button>
         )}
-        {!isSearchStalled && nbHits === 0 && getContentTypeFromTitle(title) !== CONTENT_TYPE_PATHWAY && (
-          <SearchNoResults title={title} />
-        )}
-        {!isSearchStalled && isDefinedAndNotNull(error) && showMessage(contentType, title) && (
-          <SearchError title={title} />
-        )}
-      </>
+      </div>
+      {isSearchStalled && (
+        <>
+          <Skeleton className="lead mb-4" width={160} />
+          <CardGrid
+            columnSizes={{
+              xs: 12,
+              md: 6,
+              lg: 4,
+              xl: 3,
+            }}
+          >
+            {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => <SkeletonCard key={resultNum} />)}
+          </CardGrid>
+        </>
+      )}
+      {!isSearchStalled && nbHits > 0 && (
+        <>
+          <CardGrid
+            columnSizes={{
+              xs: 12,
+              md: 6,
+              lg: 4,
+              xl: 3,
+            }}
+          >
+            {hits?.map((hit) => <HitComponent hit={hit} />)}
+          </CardGrid>
+          {(contentType !== undefined) && (
+            <div className="d-flex justify-content-center">
+              <SearchPagination defaultRefinement={page} />
+            </div>
+          )}
+        </>
+      )}
+      {!isSearchStalled && nbHits === 0 && getContentTypeFromTitle(title) !== CONTENT_TYPE_PATHWAY && (
+        <SearchNoResults title={title} />
+      )}
+      {!isSearchStalled && isDefinedAndNotNull(error) && showMessage(contentType, title) && (
+        <SearchError title={title} />
+      )}
     </Container>
   );
 };
@@ -146,6 +160,7 @@ SearchResults.propTypes = {
   }).isRequired,
   searchResults: PropTypes.shape({
     nbHits: PropTypes.number,
+    hits: PropTypes.arrayOf(PropTypes.shape()),
   }),
   isSearchStalled: PropTypes.bool,
   error: PropTypes.shape(),

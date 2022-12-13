@@ -1,7 +1,6 @@
 import React, { useContext, useMemo } from 'react';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card, Skeleton } from '@edx/paragon';
 import { Link } from 'react-router-dom';
-import Skeleton from 'react-loading-skeleton';
 import Truncate from 'react-truncate';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';

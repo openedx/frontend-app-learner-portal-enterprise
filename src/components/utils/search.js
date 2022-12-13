@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   CONTENT_TYPE_COURSE, CONTENT_TYPE_PATHWAY,
   CONTENT_TYPE_PROGRAM,
@@ -51,15 +50,14 @@ export const getNoOfResultsFromTitle = (title) => {
 
 export const getSkeletonCardFromTitle = (title) => {
   switch (title) {
-      case COURSE_TITLE:
-          // eslint-disable-next-line react/jsx-filename-extension
-        return <SearchCourseCard.Skeleton />;
-      case PROGRAM_TITLE:
-        return <SearchProgramCard.Skeleton />;
-      case PATHWAY_TITLE:
-        return <SearchPathwayCard.Skeleton />;
-      default:
-        return null;
+    case COURSE_TITLE:
+      return SearchCourseCard.Skeleton;
+    case PROGRAM_TITLE:
+      return SearchProgramCard.Skeleton;
+    case PATHWAY_TITLE:
+      return SearchPathwayCard.Skeleton;
+    default:
+      return null;
   }
 };
 
