@@ -92,7 +92,7 @@ const mockCourseService = {
 
 jest.mock('../service', () => ({
   __esModule: true,
-  default: () => mockCourseService,
+  default: jest.fn(() => mockCourseService),
 }));
 
 describe('useAllCourseData', () => {
@@ -109,7 +109,9 @@ describe('useAllCourseData', () => {
     activeCatalogs: [],
   };
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('returns course data and course recommendations', async () => {
     const { result, waitForNextUpdate } = renderHook(() => useAllCourseData(basicProps));

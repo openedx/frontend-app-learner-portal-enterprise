@@ -5,6 +5,7 @@ import {
   within,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
@@ -59,13 +60,15 @@ hooks.useCourseEnrollments.mockReturnValue({
 });
 
 const renderEnrollmentsComponent = () => render(
-  <AppContext.Provider value={{ enterpriseConfig }}>
-    <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
-      <CourseEnrollmentsContextProvider>
-        <CourseEnrollments />
-      </CourseEnrollmentsContextProvider>
-    </SubsidyRequestsContext.Provider>
-  </AppContext.Provider>,
+  <IntlProvider locale="en">
+    <AppContext.Provider value={{ enterpriseConfig }}>
+      <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
+        <CourseEnrollmentsContextProvider>
+          <CourseEnrollments />
+        </CourseEnrollmentsContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>,
 );
 
 describe('Course enrollments', () => {

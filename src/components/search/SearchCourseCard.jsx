@@ -10,7 +10,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
-const SearchCourseCard = ({ hit, isLoading }) => {
+const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const history = useHistory();
 
@@ -19,7 +19,7 @@ const SearchCourseCard = ({ hit, isLoading }) => {
   const linkToCourse = useMemo(
     () => {
       if (!Object.keys(course).length) {
-        return '#';
+        return undefined;
       }
       const queryParams = new URLSearchParams();
       if (course.queryId && course.objectId) {
@@ -48,6 +48,9 @@ const SearchCourseCard = ({ hit, isLoading }) => {
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
 
   const handleCardClick = () => {
+    if (!linkToCourse) {
+      return;
+    }
     sendEnterpriseTrackEvent(
       uuid,
       'edx.ui.enterprise.learner_portal.search.card.clicked',
@@ -64,9 +67,11 @@ const SearchCourseCard = ({ hit, isLoading }) => {
 
   return (
     <Card
+      data-testid="search-course-card"
       isLoading={isLoading}
       isClickable
       onClick={handleCardClick}
+      {...rest}
     >
       <Card.ImageCap
         src={course.cardImageUrl}

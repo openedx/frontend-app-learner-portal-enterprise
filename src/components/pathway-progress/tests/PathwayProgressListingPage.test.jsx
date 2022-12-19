@@ -21,6 +21,11 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/react', () => ({
+  ...jest.requireActual('@edx/frontend-platform/react'),
+  ErrorPage: () => <div data-testid="error-page" />,
+}));
+
 jest.mock('../data/hooks', () => ({
   useInProgressPathwaysData: jest.fn(),
 }));
@@ -73,20 +78,15 @@ describe('<PathwayProgressListingPage />', () => {
     });
   });
 
-  it('renders pathway error.', async () => {
+  it('renders pathway error.', () => {
     useInProgressPathwaysData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-
-    await act(async () => {
-      render(
-        <PathwayProgressListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-
-      expect(screen.getByText('This is a test message.')).toBeInTheDocument();
-      expect(screen.getByText('Try again')).toBeInTheDocument();
-    });
+    render(
+      <PathwayProgressListingWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
   });
 
   it('renders no pathways message when data received is empty', async () => {

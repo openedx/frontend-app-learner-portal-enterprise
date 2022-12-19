@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connectStateResults } from 'react-instantsearch-dom';
 import { useNbHitsFromSearchResults } from '@edx/frontend-enterprise-catalog-search';
 import { Skeleton, CardGrid } from '@edx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 
 import SearchError from '../SearchError';
 import { isDefinedAndNotNull } from '../../../utils/common';
@@ -51,7 +52,7 @@ const PopularResults = ({
               xl: 3,
             }}
           >
-            {hits.map(hit => <HitComponent hit={hit} />)}
+            {hits.map(hit => <HitComponent key={uuidv4()} hit={hit} />)}
           </CardGrid>
         </>
       )}

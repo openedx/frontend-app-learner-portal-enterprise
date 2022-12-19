@@ -81,7 +81,7 @@ const SearchPathways = ({ index }) => {
       {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these pathways </h3> : null}
       <div className="skill-quiz-results">
         {(hitCount > 0) && pathways.map(pathway => (
-          <SearchPathwayCard isLoading={isLoading} hit={pathway} isSkillQuizResult />
+          <SearchPathwayCard key={pathway.uuid} isLoading={isLoading} hit={pathway} isSkillQuizResult />
         ))}
       </div>
     </div>

@@ -42,7 +42,7 @@
     "react-dom": "16.14.0",
     "react-fullstory": "1.4.0",
     "react-helmet": "5.2.1",
-    "react-instantsearch-dom": "6.8.2",
+    "react-instantsearch-dom": "6.38.1",
     "react-parallax": "3.3.0",
     "react-redux": "7.2.2",
     "react-router": "4.3.1",
@@ -53,7 +53,8 @@
     "react-truncate": "2.4.0",
     "redux": "4.0.5",
     "reselect": "4.0.0",
-    "universal-cookie": "4.0.4"
+    "universal-cookie": "4.0.4",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@edx/browserslist-config": "1.1.1",
@@ -66,9 +67,11 @@
     "axios-mock-adapter": "1.19.0",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.6",
+    "jest-canvas-mock": "^2.4.0",
     "match-media-mock": "0.1.1",
     "prettier": "2.2.1",
-    "react-test-renderer": "16.14.0"
+    "react-test-renderer": "16.14.0",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "keywords": [],
   "license": "AGPL-3.0",

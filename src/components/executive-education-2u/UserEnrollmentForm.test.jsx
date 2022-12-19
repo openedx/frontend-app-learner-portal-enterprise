@@ -4,6 +4,7 @@ import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
@@ -38,13 +39,15 @@ function UserEnrollmentFormWrapper({
   onCheckoutSuccess = mockOnCheckoutSuccess,
 }) {
   return (
-    <AppContext.Provider value={appContextValue}>
-      <UserEnrollmentForm
-        enterpriseId={enterpriseId}
-        productSKU={productSKU}
-        onCheckoutSuccess={onCheckoutSuccess}
-      />
-    </AppContext.Provider>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={appContextValue}>
+        <UserEnrollmentForm
+          enterpriseId={enterpriseId}
+          productSKU={productSKU}
+          onCheckoutSuccess={onCheckoutSuccess}
+        />
+      </AppContext.Provider>
+    </IntlProvider>
   );
 }
 

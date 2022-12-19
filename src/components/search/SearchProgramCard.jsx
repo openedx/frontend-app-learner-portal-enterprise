@@ -35,7 +35,7 @@ export const ProgramType = ({ type }) => {
   return programTypeToDisplay;
 };
 
-const SearchProgramCard = ({ hit, isLoading }) => {
+const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   const history = useHistory();
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const program = useMemo(() => {
@@ -45,21 +45,16 @@ const SearchProgramCard = ({ hit, isLoading }) => {
     return camelCaseObject(hit);
   }, [hit]);
 
-  const programUuid = useMemo(() => {
-    if (!Object.keys(program).length) {
-      return undefined;
-    }
-    return program.aggregationKey.split(':').pop();
-  }, [program]);
+  const programUuid = program?.aggregationKey?.split(':').pop();
 
   const linkToProgram = useMemo(
     () => {
-      if (!Object.keys(program).length) {
+      if (!programUuid) {
         return '#';
       }
       return `/${slug}/program/${programUuid}`;
     },
-    [program, programUuid, slug],
+    [programUuid, slug],
   );
 
   const partnerDetails = useMemo(
@@ -105,6 +100,8 @@ const SearchProgramCard = ({ hit, isLoading }) => {
       isClickable
       onClick={handleCardClick}
       className="bg-primary-500 border-0"
+      data-testid="search-program-card"
+      {...rest}
     >
       <Card.ImageCap
         src={program.cardImageUrl}
@@ -130,6 +127,7 @@ const SearchProgramCard = ({ hit, isLoading }) => {
         <Badge
           variant="light"
           className="text-primary-500"
+          data-testid="program-type-badge"
         >
           <div className="d-flex align-items-center">
             <Icon src={Program} className="mr-1" />

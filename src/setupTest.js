@@ -2,6 +2,8 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import matchMediaMock from 'match-media-mock';
+import ResizeObserverPolyfill from 'resize-observer-polyfill';
+import 'jest-canvas-mock';
 
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
@@ -24,3 +26,5 @@ process.on('unhandledRejection', (reason, p) => {
   // eslint-disable-next-line no-console
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason.stack);
 });
+
+global.ResizeObserver = ResizeObserverPolyfill;

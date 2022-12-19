@@ -34,6 +34,11 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/react', () => ({
+  ...jest.requireActual('@edx/frontend-platform/react'),
+  ErrorPage: () => <div data-testid="error-page" />,
+}));
+
 jest.mock('../data/hooks', () => ({
   useAllProgramData: jest.fn(),
 }));
@@ -90,19 +95,13 @@ describe('<Program />', () => {
 
   test('renders program error.', async () => {
     useAllProgramData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-
-    await act(async () => {
-      render(
-        <ProgramWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-      await waitForAsync();
-
-      expect(screen.getByText('This is a test message.')).toBeInTheDocument();
-      expect(screen.getByText('Try again')).toBeInTheDocument();
-    });
+    render(
+      <ProgramWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
   });
 
   test('renders program not found error.', async () => {

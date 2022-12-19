@@ -7,8 +7,26 @@ const MockReactInstantSearch = jest.genMockFromModule(
 );
 
 const fakeHits = [
-  { objectID: '1', title: 'bla', key: 'Bees101' },
-  { objectID: '2', title: 'blp', key: 'Wasps200' },
+  {
+    objectID: '1',
+    title: 'bla',
+    key: 'Bees101',
+    type: 'course',
+    aggregation_key: 'course:Bees101',
+    authoring_organizations: [],
+    card_image_url: 'https://fake.image',
+    course_keys: [],
+  },
+  {
+    objectID: '2',
+    title: 'blp',
+    key: 'Wasps200',
+    type: 'course',
+    aggregation_key: 'course:Wasps200',
+    authoring_organizations: [],
+    card_image_url: 'https://fake.image',
+    course_keys: [],
+  },
 ];
 
 MockReactInstantSearch.connectStateResults = Component => (props) => (
@@ -32,7 +50,7 @@ MockReactInstantSearch.connectPagination = Component => (props) => (
   <Component
     nbPages={1}
     currentRefinement={1}
-    maxPagesDisplayed={1}
+    maxPagesDisplayed={5}
     {...props}
   />
 );
@@ -53,7 +71,6 @@ MockReactInstantSearch.connectRefinementList = Component => (props) => (
 
 MockReactInstantSearch.InstantSearch = ({ children }) => <>{children}</>;
 MockReactInstantSearch.Configure = () => <div>CONFIGURED</div>;
-MockReactInstantSearch.Hits = () => <div>HIT</div>;
 MockReactInstantSearch.Index = ({ children }) => <>{children}</>;
 
 // It is necessary to export this way, or tests not using the mock will fail

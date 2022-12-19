@@ -7,6 +7,7 @@ import {
 import {
   CardGrid, Container, Skeleton,
 } from '@edx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
@@ -90,7 +91,7 @@ const SearchResults = ({
             <Skeleton className="h2 d-block mb-3" width={240} />
           )}
           {!isSearchStalled && nbHits > 0 && (
-            <>  {resultsHeading}  </>
+            <>{resultsHeading}</>
           )}
         </h2>
         {(!isSearchStalled && nbHits > 0) && (contentType !== undefined) && (
@@ -120,7 +121,7 @@ const SearchResults = ({
               xl: 3,
             }}
           >
-            {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => <SkeletonCard key={resultNum} />)}
+            {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => <SkeletonCard data-testid="skeleton-card" key={resultNum} />)}
           </CardGrid>
         </>
       )}
@@ -134,7 +135,7 @@ const SearchResults = ({
               xl: 3,
             }}
           >
-            {hits?.map((hit) => <HitComponent hit={hit} />)}
+            {hits?.map((hit) => <HitComponent key={uuidv4()} hit={hit} />)}
           </CardGrid>
           {(contentType !== undefined) && (
             <div className="d-flex justify-content-center">

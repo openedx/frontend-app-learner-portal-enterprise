@@ -43,7 +43,12 @@ const filterSkillNames = (skillNames) => {
   return skillsToReturn;
 };
 
-const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
+const SearchPathwayCard = ({
+  hit,
+  isLoading,
+  isSkillQuizResult,
+  ...rest
+}) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
   const history = useHistory();
 
@@ -66,7 +71,7 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   const linkToPathway = useMemo(
     () => {
       if (!Object.keys(pathway).length) {
-        return '#';
+        return undefined;
       }
       return `/${slug}/search/${pathwayUuid}`;
     },
@@ -74,6 +79,9 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   );
 
   const handleCardClick = () => {
+    if (!linkToPathway) {
+      return;
+    }
     sendEnterpriseTrackEvent(
       enterpriseCustomerUUID,
       eventName,
@@ -90,10 +98,12 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
 
   return (
     <Card
+      data-testid="search-pathway-card"
       isClickable
       isLoading={isLoading}
       onClick={handleCardClick}
       className="bg-primary-500 border-0"
+      {...rest}
     >
       <Card.ImageCap
         src={pathway?.cardImageUrl}

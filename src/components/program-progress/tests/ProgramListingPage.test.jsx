@@ -59,6 +59,11 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/react', () => ({
+  ...jest.requireActual('@edx/frontend-platform/react'),
+  ErrorPage: () => <div data-testid="error-page" />,
+}));
+
 jest.mock('../data/hooks', () => ({
   useLearnerProgramsListData: jest.fn(),
 }));
@@ -114,18 +119,13 @@ describe('<ProgramListing />', () => {
 
   it('renders program error.', async () => {
     useLearnerProgramsListData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-
-    await act(async () => {
-      render(
-        <ProgramListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-
-      expect(screen.getByText('This is a test message.')).toBeInTheDocument();
-      expect(screen.getByText('Try again')).toBeInTheDocument();
-    });
+    render(
+      <ProgramListingWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
   });
 
   it('renders no programs message when data received is empty', async () => {

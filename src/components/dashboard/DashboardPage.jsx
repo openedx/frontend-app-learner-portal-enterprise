@@ -21,7 +21,7 @@ import { features } from '../../config';
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
 export default function DashboardPage() {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
   const history = useHistory();
@@ -35,9 +35,6 @@ export default function DashboardPage() {
     }
   }, [history, state]);
 
-  const {
-    authenticatedUser,
-  } = useContext(AppContext);
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const CoursesTabComponent = (
     <>

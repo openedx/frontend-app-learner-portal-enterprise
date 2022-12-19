@@ -43,6 +43,7 @@ export const useSearchCatalogs = ({
   return searchCatalogs;
 };
 
+// const prodEnterpriseId = 'e783bb19-277f-479e-9c41-8b0ed31b4060';
 export const useDefaultSearchFilters = ({
   enterpriseConfig,
   searchCatalogs,
@@ -59,6 +60,8 @@ export const useDefaultSearchFilters = ({
 
   const filters = useMemo(
     () => {
+      // return `enterprise_customer_uuids:${prodEnterpriseId}`;
+
       // Show all enterprise catalogs
       if (showAllRefinement) {
         return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
