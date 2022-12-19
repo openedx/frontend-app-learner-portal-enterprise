@@ -1,10 +1,10 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   screen, render, act, fireEvent,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from 'react-intl';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -19,6 +19,11 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: () => ({ username: 'b.wayne' }),
   getAuthenticatedHttpClient: jest.fn(),
+}));
+
+jest.mock('@edx/frontend-platform/react', () => ({
+  ...jest.requireActual('@edx/frontend-platform/react'),
+  ErrorPage: () => <div data-testid="error-page" />,
 }));
 
 jest.mock('../data/hooks', () => ({
@@ -73,20 +78,15 @@ describe('<PathwayProgressListingPage />', () => {
     });
   });
 
-  it('renders pathway error.', async () => {
+  it('renders pathway error.', () => {
     useInProgressPathwaysData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-
-    await act(async () => {
-      render(
-        <PathwayProgressListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-
-      expect(screen.getByText('This is a test message.')).toBeInTheDocument();
-      expect(screen.getByText('Try again')).toBeInTheDocument();
-    });
+    render(
+      <PathwayProgressListingWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
   });
 
   it('renders no pathways message when data received is empty', async () => {

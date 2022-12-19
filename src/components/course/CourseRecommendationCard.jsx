@@ -68,15 +68,13 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
             {course.title}
           </Truncate>
         )}
-        subtitle={
-          course.owners?.length > 0 && (
-            <p className="partner text-muted m-0">
-              <Truncate lines={1} trimWhitespace>
-                {course.owners.map(partner => partner.name).join(', ')}
-              </Truncate>
-            </p>
-          )
-        }
+        subtitle={course.owners?.length > 0 && (
+          <p className="partner text-muted m-0">
+            <Truncate lines={1} trimWhitespace>
+              {course.owners.map(partner => partner.name).join(', ')}
+            </Truncate>
+          </p>
+        )}
       />
 
       {/* Intentionally empty section so the footer is correctly spaced at the bottom of the card */}

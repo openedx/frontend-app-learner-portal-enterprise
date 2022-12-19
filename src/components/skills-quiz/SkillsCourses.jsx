@@ -1,18 +1,17 @@
 import React, {
   useEffect, useState, useContext, useMemo,
 } from 'react';
-import { Badge, StatusAlert } from '@edx/paragon';
+import { Badge, StatusAlert, Skeleton } from '@edx/paragon';
 import {
   SearchContext,
 } from '@edx/frontend-enterprise-catalog-search';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-
-import Skeleton from 'react-loading-skeleton';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
+
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';

@@ -2,8 +2,9 @@ import React, {
   useContext, useEffect, useMemo,
 } from 'react';
 import { Helmet } from 'react-helmet';
-import Skeleton from 'react-loading-skeleton';
-import { Container, Row, Col } from '@edx/paragon';
+import {
+  Container, Row, Col, Skeleton,
+} from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 

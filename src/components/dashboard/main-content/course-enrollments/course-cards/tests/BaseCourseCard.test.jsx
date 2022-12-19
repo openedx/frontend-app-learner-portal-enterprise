@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
+import { Skeleton } from '@edx/paragon';
 
-import Skeleton from 'react-loading-skeleton';
 import BaseCourseCard from '../BaseCourseCard';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { ToastsContext } from '../../../../../Toasts';

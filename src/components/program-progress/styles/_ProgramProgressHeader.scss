@@ -47,13 +47,6 @@ $btn-color-primary: rgba(6, 86, 131, 100) !default;
       svg {
         width: inherit;
       }
-
-      /* IE11 CSS styles */
-      @include media-breakpoint-up(md) {
-        @media (-ms-high-contrast: none), (-ms-high-contrast: active) {
-          height: 50px;
-        }
-      }
     }
 
     .micromasters {

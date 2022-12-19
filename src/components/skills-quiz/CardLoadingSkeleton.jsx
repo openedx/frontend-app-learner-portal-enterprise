@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '@edx/paragon';
-import Skeleton from 'react-loading-skeleton';
+import { Card, Skeleton } from '@edx/paragon';
 import { LOADING_NO_OF_CARDS } from './constants';
 
 const CardLoadingSkeleton = () => (

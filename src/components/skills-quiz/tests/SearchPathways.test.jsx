@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
-import { screen, act } from '@testing-library/react';
+import { screen, act, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -39,6 +39,7 @@ const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMAGE_URL = 'http://fake.image';
 
 const TEST_PATHWAY = {
+  uuid: TEST_PATHWAY_UUID,
   aggregation_key: `learner_pathway:${TEST_PATHWAY_UUID}`,
   title: TEST_TITLE,
   card_image_url: TEST_CARD_IMAGE_URL,
@@ -123,18 +124,12 @@ const SearchPathwaysWithContext = ({
 
 describe('<SearchPathways />', () => {
   test('renders the correct data', async () => {
-    let containerDOM = {};
-    await act(async () => {
-      const { container } = renderWithRouter(
-        <SearchPathwaysWithContext
-          index={testIndex}
-        />,
-      );
-      containerDOM = container;
+    renderWithRouter(<SearchPathwaysWithContext index={testIndex} />);
+    await waitFor(() => {
+      expect(screen.getByText('Get started with these pathways')).toBeInTheDocument();
+      expect(screen.getByTestId('search-pathway-card')).toBeInTheDocument();
+      expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     });
-    expect(screen.getByText('Get started with these pathways')).toBeInTheDocument();
-    expect(containerDOM.querySelector('.search-pathway-card')).toBeInTheDocument();
-    expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
   });
 
   test('renders the correct data with skills', async () => {

@@ -43,4 +43,11 @@ OVERRIDE_FACET_FILTERS.forEach(({ overrideSearchKey, overrideSearchValue, update
   });
 });
 
+export const CARDGRID_COLUMN_SIZES = {
+  xs: 12,
+  md: 6,
+  lg: 4,
+  xl: 3,
+};
+
 export { SEARCH_FACET_FILTERS };

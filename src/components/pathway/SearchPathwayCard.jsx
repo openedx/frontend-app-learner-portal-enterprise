@@ -1,20 +1,26 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { Link } from 'react-router-dom';
-import Skeleton from 'react-loading-skeleton';
+import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card, Stack } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import classNames from 'classnames';
 
-import { MAX_VISIBLE_SKILLS_PATHWAY, PATHWAY_SEARCH_EVENT_NAME, PATHWAY_SKILL_QUIZ_EVENT_NAME } from './constants';
+import {
+  MAX_VISIBLE_SKILLS_PATHWAY,
+  PATHWAY_SEARCH_EVENT_NAME,
+  PATHWAY_SKILL_QUIZ_EVENT_NAME,
+} from './constants';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
-const filterSkillNames = skillNames => {
+const filterSkillNames = (skillNames) => {
+  if (!skillNames) {
+    return undefined;
+  }
+
   // This is the maximum allowed length a skillNames can have.
   const singleSkillNameSizeLimit = 40;
   const offset = 5;
@@ -37,8 +43,14 @@ const filterSkillNames = skillNames => {
   return skillsToReturn;
 };
 
-const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
+const SearchPathwayCard = ({
+  hit,
+  isLoading,
+  isSkillQuizResult,
+  ...rest
+}) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
+  const history = useHistory();
 
   const pathway = useMemo(() => {
     if (!hit) {
@@ -59,104 +71,66 @@ const SearchPathwayCard = ({ hit, isLoading, isSkillQuizResult }) => {
   const linkToPathway = useMemo(
     () => {
       if (!Object.keys(pathway).length) {
-        return '#';
+        return undefined;
       }
       return `/${slug}/search/${pathwayUuid}`;
     },
     [pathway, pathwayUuid, slug],
   );
 
-  const loadingCard = () => (
+  const handleCardClick = () => {
+    if (!linkToPathway) {
+      return;
+    }
+    sendEnterpriseTrackEvent(
+      enterpriseCustomerUUID,
+      eventName,
+      {
+        objectID: pathway.objectId,
+        position: pathway.position,
+        index: getConfig().ALGOLIA_INDEX_NAME,
+        queryID: pathway.queryId,
+        pathwayUUID: pathwayUuid,
+      },
+    );
+    history.push(linkToPathway);
+  };
+
+  return (
     <Card
-      className={classNames({ 'skill-quiz-pathway-card': isSkillQuizResult })}
-    >
-      <Skeleton duration={0} />
-
-      <Skeleton count={2} data-testid="pathway-title-loading" />
-
-      <Skeleton duration={0} data-testid="content-type-loading" />
-
-    </Card>
-  );
-
-  const searchPathwayCard = () => (
-    <Card
+      data-testid="search-pathway-card"
       isClickable
-      className={classNames({ 'h-100': !isSkillQuizResult })}
+      isLoading={isLoading}
+      onClick={handleCardClick}
+      className="bg-primary-500 border-0"
+      {...rest}
     >
       <Card.ImageCap
-        src={pathway?.cardImageUrl || ''}
+        src={pathway?.cardImageUrl}
         alt=""
       />
-
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
+          <Truncate lines={3} trimWhitespace className="text-white">
             {pathway.title}
           </Truncate>
         )}
       />
-
-      <Card.Section className="py-1">
-        <div className="flex-wrap pathway-skill-names">
-          {pathway.skillNames
-           && filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(
-             skillName => (
-               <>
-                 <Badge
-                   variant="light"
-                   key={skillName}
-                   className="pathway-badge justify-content-center align-items-center"
-                 >
-                   <span className="badge-text">{skillName}</span>
-                 </Badge>
-                 {'   '}
-               </>
-             ),
-           )}
-        </div>
+      <Card.Section>
+        {pathway.skillNames && (
+          <Stack direction="horizontal" gap={2} className="flex-wrap">
+            {filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(skillName => (
+              <Badge
+                variant="light"
+                key={skillName}
+              >
+                {skillName}
+              </Badge>
+            ))}
+          </Stack>
+        )}
       </Card.Section>
     </Card>
-  );
-
-  /*
-    Including both search-pathway-card and search-result-card
-    in the wrapper div is important so that pathway cards have a layout
-    that's identical to the program and course search result cards
-    in the skills quiz page.
-  */
-  const wrapperClassNames = classNames(
-    {
-      'search-result-card': isSkillQuizResult,
-    },
-    'search-pathway-card mb-4 h-100',
-  );
-  return (
-    <div
-      className={wrapperClassNames}
-      role="group"
-      aria-label={pathway.title}
-    >
-      <Link
-        className="h-100"
-        to={linkToPathway}
-        onClick={() => {
-          sendEnterpriseTrackEvent(
-            enterpriseCustomerUUID,
-            eventName,
-            {
-              objectID: pathway.objectId,
-              position: pathway.position,
-              index: getConfig().ALGOLIA_INDEX_NAME,
-              queryID: pathway.queryId,
-              pathwayUUID: pathwayUuid,
-            },
-          );
-        }}
-      >
-        {isLoading ? loadingCard() : searchPathwayCard()}
-      </Link>
-    </div>
   );
 };
 

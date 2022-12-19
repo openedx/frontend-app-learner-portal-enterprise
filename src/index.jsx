@@ -9,6 +9,8 @@ import {
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
+import { messages as footerMessages } from '@edx/frontend-component-footer';
+import { messages as paragonMessages } from '@edx/paragon';
 
 import { App } from './components/app';
 
@@ -48,7 +50,10 @@ initialize({
       });
     },
   },
-  messages: [],
+  messages: [
+    paragonMessages,
+    footerMessages,
+  ],
   // We don't require authenticated users so that we can perform our own auth redirect to a proxy login that depends on
   // the route, rather than the LMS like frontend-platform does.
   requireAuthenticatedUser: false,

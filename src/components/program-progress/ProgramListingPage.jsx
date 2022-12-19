@@ -7,7 +7,6 @@ import {
   Button,
 } from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import './styles/index.scss';
 
 import { Search } from '@edx/paragon/icons';
 

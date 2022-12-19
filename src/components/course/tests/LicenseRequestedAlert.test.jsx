@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
+
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import { CourseContext } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -27,32 +29,34 @@ const initialLicenseRequests = [
 const LicenseRequestedAlertWrapper = ({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
 }) => (
-  <UserSubsidyContext.Provider value={{
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-    subscriptionLicense: {},
-    customerAgreementConfig: {
-      subscriptions,
-    },
-  }}
-  >
-    <SubsidyRequestsContext.Provider value={
-      {
-        subsidyRequestConfiguration: null,
-        requestsBySubsidyType: {
-          [SUBSIDY_TYPE.LICENSE]: licenseRequests,
-          [SUBSIDY_TYPE.COUPON]: [],
-        },
-      }
-    }
+  <IntlProvider locale="en">
+    <UserSubsidyContext.Provider value={{
+      couponCodes: {
+        couponCodes: [],
+        couponCodesCount: 0,
+      },
+      subscriptionLicense: {},
+      customerAgreementConfig: {
+        subscriptions,
+      },
+    }}
     >
-      <CourseContext.Provider>
-        <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
-      </CourseContext.Provider>
-    </SubsidyRequestsContext.Provider>
-  </UserSubsidyContext.Provider>
+      <SubsidyRequestsContext.Provider value={
+        {
+          subsidyRequestConfiguration: null,
+          requestsBySubsidyType: {
+            [SUBSIDY_TYPE.LICENSE]: licenseRequests,
+            [SUBSIDY_TYPE.COUPON]: [],
+          },
+        }
+      }
+      >
+        <CourseContext.Provider>
+          <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
+        </CourseContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </IntlProvider>
 );
 /* eslint-enable react/prop-types */
 
