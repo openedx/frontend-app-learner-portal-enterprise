@@ -16,6 +16,7 @@ import { isDefinedAndNotNull } from '../../utils/common';
 import {
   CONTENT_TYPE_PATHWAY,
   PROGRAM_TITLE,
+  CARDGRID_COLUMN_SIZES,
 } from './constants';
 import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 
@@ -113,28 +114,14 @@ const SearchResults = ({
       {isSearchStalled && (
         <>
           <Skeleton className="lead mb-4" width={160} />
-          <CardGrid
-            columnSizes={{
-              xs: 12,
-              md: 6,
-              lg: 4,
-              xl: 3,
-            }}
-          >
+          <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
             {[...Array(getNoOfResultsFromTitle(title)).keys()].map(resultNum => <SkeletonCard data-testid="skeleton-card" key={resultNum} />)}
           </CardGrid>
         </>
       )}
       {!isSearchStalled && nbHits > 0 && (
         <>
-          <CardGrid
-            columnSizes={{
-              xs: 12,
-              md: 6,
-              lg: 4,
-              xl: 3,
-            }}
-          >
+          <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
             {hits?.map((hit) => <HitComponent key={uuidv4()} hit={hit} />)}
           </CardGrid>
           {(contentType !== undefined) && (

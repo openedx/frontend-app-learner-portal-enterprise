@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import SearchError from '../SearchError';
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
+import { CARDGRID_COLUMN_SIZES } from '../constants';
 import { getHitComponentFromTitle, getSkeletonCardFromTitle } from '../../utils/search';
 
 const PopularResults = ({
@@ -30,28 +31,14 @@ const PopularResults = ({
         )}
       </h2>
       {isSearchStalled && (
-        <CardGrid
-          columnSizes={{
-            xs: 12,
-            md: 6,
-            lg: 4,
-            xl: 3,
-          }}
-        >
+        <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
           {[...Array(numberResultsToDisplay).keys()].map(resultNum => <SkeletonCard key={resultNum} />)}
         </CardGrid>
       )}
       {!isSearchStalled && nbHits > 0 && (
         <>
           <h2 className="mb-3">{`Popular ${title}`}</h2>
-          <CardGrid
-            columnSizes={{
-              xs: 12,
-              md: 6,
-              lg: 4,
-              xl: 3,
-            }}
-          >
+          <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
             {hits.map(hit => <HitComponent key={uuidv4()} hit={hit} />)}
           </CardGrid>
         </>
