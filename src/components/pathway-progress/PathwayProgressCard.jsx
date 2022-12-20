@@ -16,7 +16,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
   };
   return (
     <Card
-      className="mb-4 progress-listing-card mr-5"
+      className="progress-listing-card"
       isClickable
       onClick={redirectToProgressDetailPage}
     >
@@ -26,7 +26,6 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
         data-testid="pathway-card-image"
         srcAlt="dug"
       />
-
       <Card.Header
         title={(
           <Truncate lines={2} trimWhitespace>
@@ -34,8 +33,8 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
           </Truncate>
         )}
       />
-
-      <Card.Section className="py-3">
+      <Card.Section />
+      <Card.Section>
         <ProgressCategoryBubbles
           inProgress={progress.inProgress}
           notStarted={progress.notStarted}

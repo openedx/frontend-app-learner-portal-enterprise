@@ -5,6 +5,7 @@ import {
   Row,
   Container,
   Button,
+  CardGrid,
 } from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import './styles/index.scss';
@@ -38,27 +39,25 @@ const PathwayProgressListingPage = () => {
   }
 
   return (
-    <>
-      <Container size="lg" className="py-5 w-100">
-        <Row>
-          {pathwayProgressData?.length > 0 ? (
-            pathwayProgressData.map((pathway) => (
-              <PathwayProgressCard
-                pathway={pathway}
-                key={pathway.learnerPathwayProgress.uuid}
-              />
-            ))
-          ) : (
-            <div className="no-content-message">
-              <h2>{NO_PATHWAYS_ERROR_MESSAGE}</h2>
-              <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`}>
-                <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore pathways</Button>
-              </Link>
-            </div>
-          )}
-        </Row>
-      </Container>
-    </>
+    <div className="py-5">
+      {pathwayProgressData?.length > 0 ? (
+        <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
+          {pathwayProgressData.map((pathway) => (
+            <PathwayProgressCard
+              pathway={pathway}
+              key={pathway.learnerPathwayProgress.uuid}
+            />
+          ))}
+        </CardGrid>
+      ) : (
+        <div className="no-content-message">
+          <h2>{NO_PATHWAYS_ERROR_MESSAGE}</h2>
+          <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`}>
+            <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore pathways</Button>
+          </Link>
+        </div>
+      )}
+    </div>
   );
 };
 

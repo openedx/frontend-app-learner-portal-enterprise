@@ -56,7 +56,7 @@ const ProgramListingCard = ({ program }) => {
 
   return (
     <Card
-      className="mb-4 progress-listing-card mr-5"
+      className="progress-listing-card"
       isClickable
       onClick={handleCardClick}
     >
@@ -74,28 +74,24 @@ const ProgramListingCard = ({ program }) => {
             {program.title}
           </Truncate>
         )}
-        subtitle={(
-          <div>
-            <div>
-              {program.authoringOrganizations?.length > 0
-               && program.authoringOrganizations.map(org => org.key).join(' ')}
-            </div>
-
-            <div className="font-weight-light d-flex justify-content-between">
-              <div className="program-type">
-                <img
-                  src={getProgramIcon(program.type)}
-                  alt="Program Type Logo"
-                  className="program-type-icon mr-2"
-                />
-                {program.type}
-              </div>
-            </div>
-          </div>
-        )}
+        subtitle={program.authoringOrganizations?.length > 0 ? (
+          <Truncate lines={2} trimWhitespace>
+            {program.authoringOrganizations.map(org => org.key).join(', ')}
+          </Truncate>
+        ) : undefined}
       />
-
-      <Card.Section className="py-3">
+      <Card.Section>
+        <div className="d-flex align-items-center">
+          <img
+            src={getProgramIcon(program.type)}
+            alt="Program Type Logo"
+            className="program-type-icon mr-2"
+            style={{ height: 17, width: 'auto' }}
+          />
+          {program.type}
+        </div>
+      </Card.Section>
+      <Card.Section>
         <ProgressCategoryBubbles
           inProgress={program.progress.inProgress}
           notStarted={program.progress.notStarted}
