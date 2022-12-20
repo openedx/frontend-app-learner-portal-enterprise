@@ -47,6 +47,8 @@ initialize({
         GETSMARTER_PRIVACY_POLICY_URL: process.env.GETSMARTER_PRIVACY_POLICY_URL || null,
         EXPERIMENT_2_ID: process.env.EXPERIMENT_2_ID || null,
         EXPERIMENT_2_VARIANT_1_ID: process.env.EXPERIMENT_2_VARIANT_1_ID || null,
+        EXPERIMENT_3_ID: process.env.EXPERIMENT_3_ID || null,
+        EXPERIMENT_3_VARIANT_1_ID: process.env.EXPERIMENT_3_VARIANT_1_ID || null,
       });
     },
   },

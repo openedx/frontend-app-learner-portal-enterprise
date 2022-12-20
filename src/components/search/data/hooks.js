@@ -1,11 +1,12 @@
 import {
-  useContext, useMemo, useEffect,
+  useContext, useMemo, useEffect, useCallback,
 } from 'react';
 import {
   SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
 } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../../config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { pushEvent, EVENTS } from '../../../utils/optimizely';
 
 export const useSearchCatalogs = ({
   subscriptionPlan,
@@ -75,4 +76,21 @@ export const useDefaultSearchFilters = ({
   );
 
   return { filters };
+};
+
+/**
+ * Returns a function to be used as a click handler emitting an optimizely event on course about page visit click event.
+ *
+ * @returns Click handler function for course about page visit click events.
+ */
+export const useCourseAboutPageVisitClickHandler = ({ courseKey, enterpriseId }) => {
+  const handleClick = useCallback(
+    () => {
+      // Send the Optimizely event to track the course about page visit
+      pushEvent(EVENTS.COURSE_ABOUT_PAGE_CLICK, { courseKey, enterpriseId });
+    },
+    [courseKey, enterpriseId],
+  );
+
+  return handleClick;
 };
