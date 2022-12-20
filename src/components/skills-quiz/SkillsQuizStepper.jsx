@@ -279,7 +279,6 @@ const SkillsQuizStepper = () => {
                           <div className="mt-4.5">
                             Next, tell us about your current job title.
                           </div>
-
                           <InstantSearch
                             indexName={config.ALGOLIA_INDEX_NAME_JOBS}
                             searchClient={searchClient}
@@ -330,7 +329,7 @@ const SkillsQuizStepper = () => {
                     <h2>Start Exploring Courses!</h2>
                   </div>
                   <div className="search-job-card mb-4">
-                    { canContinueToRecommendedCourses ? <SelectJobCard /> : null}
+                    {canContinueToRecommendedCourses ? <SelectJobCard /> : null}
                   </div>
                   <SelectedJobSkills />
                   <div>
