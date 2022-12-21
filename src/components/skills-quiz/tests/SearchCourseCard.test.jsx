@@ -139,7 +139,7 @@ describe('<SearchCourseCard />', () => {
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(TEST_PARTNER.name)).toBeInTheDocument();
-    expect(screen.getByText(TEST_PARTNER.name));
+    expect(screen.getByText(TEST_PARTNER.name)).toBeInTheDocument();
 
     // should show both logo image and card image with proper URLs
     const cardImages = container.querySelectorAll('img');
