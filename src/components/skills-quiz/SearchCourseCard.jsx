@@ -4,7 +4,7 @@ import React, {
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { StatusAlert } from '@edx/paragon';
+import { StatusAlert, CardGrid } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -96,25 +96,26 @@ const SearchCourseCard = ({ index }) => {
     [enrolledCourseIds, filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
+  if (hitCount === 0) {
+    return (
+      <StatusAlert
+        className="mt-4 mb-5"
+        alertType="info"
+        dialog={renderDialog()}
+        dismissible={false}
+        open
+      />
+    );
+  }
+
   return (
     <div>
-      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these courses </h3> : null}
-      <div className="skill-quiz-results">
-        {(hitCount > 0) && courses.map(course => (
+      <h3 className="mb-3">Get started with these courses</h3>
+      <CardGrid>
+        {courses.map(course => (
           <CourseCard isLoading={isLoading} course={course} allSkills={selectedJobSkills} />
         ))}
-      </div>
-      <div>
-        { hitCount === 0 && (
-          <StatusAlert
-            className="mt-4 mb-5"
-            alertType="info"
-            dialog={renderDialog()}
-            dismissible={false}
-            open
-          />
-        )}
-      </div>
+      </CardGrid>
     </div>
   );
 };

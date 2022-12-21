@@ -3,12 +3,12 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, StatusAlert, Skeleton,
+  Badge, Card, Icon, StatusAlert, CardGrid, Stack,
 } from '@edx/paragon';
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -55,6 +55,7 @@ const renderDialog = () => (
 );
 
 const SearchProgramCard = ({ index }) => {
+  const history = useHistory();
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
@@ -154,139 +155,93 @@ const SearchProgramCard = ({ index }) => {
     [programs],
   );
 
-  const loadingCard = () => (
-    <Card>
-      <Card.ImageCap
-        as={Skeleton}
-        duration={0}
-      />
-      <Card.Header
-        title={
-          <Skeleton duration={0} data-testid="program-title-loading" />
-        }
-      />
-      <Card.Section>
-        <Skeleton duration={0} data-testid="program-type-loading" />
-      </Card.Section>
-      <Card.Section>
-        <Skeleton duration={0} data-testid="partner-key-loading" />
-      </Card.Section>
-      <Card.Section>
-        <Skeleton count={1} data-testid="skills-loading" />
-      </Card.Section>
-      <Card.Footer className="bg-white border-0 pt-0 pb-2">
-        <Skeleton duration={0} data-testid="program-courses-count-loading" />
-      </Card.Footer>
-    </Card>
-  );
-
-  const programCard = (program) => {
-    const getProgramCourseCount = () => {
-      const numCourses = program.courseKeys?.length || 0;
-      if (!numCourses) {
-        return undefined;
-      }
-      return `${numCourses} ${numCourses > 1 ? 'Courses' : 'Course'}`;
-    };
-    const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails[program.aggregationKey]);
-
-    return (
-      <Card isClickable>
-        <Card.ImageCap
-          src={program.cardImageUrl}
-          srcAlt=""
-          logoSrc={primaryPartnerLogo?.src}
-          logoAlt={primaryPartnerLogo?.alt}
-        />
-        <Card.Header
-          title={(
-            <Truncate lines={2} trimWhitespace>
-              {program.title}
-            </Truncate>
-          )}
-          subtitle={
-            program.authoringOrganizations?.length > 0 && (
-              <p className="partner text-muted m-0">
-                <Truncate lines={1} trimWhitespace>
-                  {program.authoringOrganizations.map(org => org.key).join(', ')}
-                </Truncate>
-              </p>
-            )
-          }
-        />
-
-        <Card.Section className="py-1">
-          <>
-            {program.skillNames?.length > 0 && (
-              <div className="mb-2 d-inline">
-                {getCommonSkills(program, selectedJobSkills, MAX_VISIBLE_SKILLS_PROGRAM).map((skill) => (
-                  <Badge
-                    key={skill}
-                    className="skill-badge"
-                    variant="light"
-                  >
-                    { shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR) }
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </>
-        </Card.Section>
-
-        <Card.Section className="py-1">
-          <div className="d-flex">
-            <Badge
-              variant="light"
-              className="d-flex justify-content-center align-items-center text-primary-500"
-            >
-              <Icon src={Program} className="badge-icon" />
-              <div>
-                <span className="badge-text">
-                  <ProgramType type={program.type} />
-                </span>
-              </div>
-            </Badge>
-          </div>
-        </Card.Section>
-
-        <Card.Footer
-          textElement={getProgramCourseCount()}
-        />
-      </Card>
-    );
+  const getProgramCourseCount = (program) => {
+    const numCourses = program.courseKeys?.length || 0;
+    if (!numCourses) {
+      return undefined;
+    }
+    return `${numCourses} ${numCourses > 1 ? 'Courses' : 'Course'}`;
   };
+
+  const handleCardClick = (program) => {
+    if (isLoading) {
+      return;
+    }
+    history.push(linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid));
+  };
+
+  if (hitCount === 0) {
+    return (
+      <StatusAlert
+        className="mt-4 mb-5"
+        alertType="info"
+        dialog={renderDialog()}
+        dismissible={false}
+        open
+      />
+    );
+  }
 
   return (
     <div>
-      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these programs </h3> : null}
-      <div className="skill-quiz-results">
-        {(hitCount > 0) && programs.map(program => (
-          <div
-            className="search-result-card mb-4"
-            role="group"
-            aria-label={program.title}
-            key={program.title}
-          >
-            { /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-            <Link
-              to={isLoading ? '#' : linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid)}
+      <h3 className="mb-3">Get started with these programs</h3>
+      <CardGrid>
+        {programs.map(program => {
+          const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails[program.aggregationKey]);
+          return (
+            <Card
+              isClickable
+              isLoading={isLoading}
+              onClick={() => handleCardClick(program)}
+              variant="dark"
             >
-              {isLoading ? loadingCard() : programCard(program) }
-            </Link>
-          </div>
-        ))}
-      </div>
-      <div>
-        { hitCount === 0 && (
-          <StatusAlert
-            className="mt-4 mb-5"
-            alertType="info"
-            dialog={renderDialog()}
-            dismissible={false}
-            open
-          />
-        )}
-      </div>
+              <Card.ImageCap
+                src={program.cardImageUrl}
+                srcAlt=""
+                logoSrc={primaryPartnerLogo?.src}
+                logoAlt={primaryPartnerLogo?.alt}
+              />
+              <Card.Header
+                title={(
+                  <Truncate lines={3} className="text-white" trimWhitespace>
+                    {program.title}
+                  </Truncate>
+                )}
+                subtitle={program.authoringOrganizations?.length > 0 && (
+                  <Truncate lines={2} className="text-white" trimWhitespace>
+                    {program.authoringOrganizations.map(org => org.key).join(', ')}
+                  </Truncate>
+                )}
+              />
+              <Card.Section>
+                <Stack direction="horizontal" gap={2} className="flex-wrap">
+                  {program.skillNames?.length > 0
+                    && getCommonSkills(program, selectedJobSkills, MAX_VISIBLE_SKILLS_PROGRAM).map((skill) => (
+                      <Badge key={skill} variant="light">
+                        {shortenString(skill, SKILL_NAME_CUTOFF_LIMIT, ELLIPSIS_STR)}
+                      </Badge>
+                    ))}
+                </Stack>
+              </Card.Section>
+              <Card.Section>
+                <Badge
+                  variant="light"
+                  className="text-primary-500"
+                  data-testid="program-type-badge"
+                >
+                  <div className="d-flex align-items-center">
+                    <Icon src={Program} className="mr-1" />
+                    <ProgramType type={program.type} />
+                  </div>
+                </Badge>
+              </Card.Section>
+              <Card.Footer
+                textElement={<span>{getProgramCourseCount(program)}</span>}
+              />
+            </Card>
+          );
+        })}
+      </CardGrid>
     </div>
   );
 };

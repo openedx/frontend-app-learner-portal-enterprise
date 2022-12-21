@@ -21,6 +21,7 @@ const SkillsDropDown = () => {
       typeaheadOptions={typeaheadOptions}
       searchable={!!typeaheadOptions}
       doRefinement={false}
+      variant="default"
     />
   );
 };

@@ -99,7 +99,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       isLoading={isLoading}
       isClickable
       onClick={handleCardClick}
-      className="bg-primary-500 border-0"
+      variant="dark"
       data-testid="search-program-card"
       {...rest}
     >

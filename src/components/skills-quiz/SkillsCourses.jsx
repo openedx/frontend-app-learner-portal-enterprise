@@ -1,7 +1,13 @@
 import React, {
   useEffect, useState, useContext, useMemo,
 } from 'react';
-import { Badge, StatusAlert, Skeleton } from '@edx/paragon';
+import {
+  Button,
+  Badge,
+  StatusAlert,
+  Skeleton,
+  CardGrid,
+} from '@edx/paragon';
 import {
   SearchContext,
 } from '@edx/frontend-enterprise-catalog-search';
@@ -115,42 +121,49 @@ const SkillsCourses = ({ index }) => {
   }, [courses, skillsWithSignificanceOrder]);
 
   return (
-    <div className="mt-4" style={{ paddingLeft: '15%' }}>
+    <div className="mt-4">
       {hitCount > 0 && <h3>Skills</h3>}
       <div className="skills-badge">
-        {isLoading ? <Badge as={Skeleton} width={100} count={6} className="course-skill" variant="top" duration={0} height={25} />
-          : coursesWithSkills?.map(coursesWithSkill => (
-            <Badge
+        {isLoading ? (
+          <div className="mb-3">
+            <Skeleton count={2} height={25} />
+          </div>
+        ) : coursesWithSkills?.map(coursesWithSkill => (
+          <Badge
+            as={Link}
+            to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
+            key={coursesWithSkill.key}
+            className="course-skill"
+            variant="light"
+          >
+            {coursesWithSkill.key}
+          </Badge>
+        ))}
+      </div>
+      {isLoading ? (
+        <CardLoadingSkeleton />
+      ) : coursesWithSkills?.map((coursesWithSkill) => (
+        <>
+          <div className="my-4 d-flex align-items-center justify-content-between">
+            <h3 className="mb-0">Top courses in {coursesWithSkill.key}</h3>
+            <Button
               as={Link}
               to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
-              key={coursesWithSkill.key}
-              className="course-skill"
-              variant="light"
+              variant="link"
+              size="inline"
             >
-              {coursesWithSkill.key}
-            </Badge>
-          )) }
-      </div>
-      {isLoading ? <CardLoadingSkeleton /> : coursesWithSkills?.map((coursesWithSkill) => (
-        <>
-          <h3> Top courses in {coursesWithSkill.key}</h3>
-          <div className="row col col-12 p-0">
-            <div className="skill-quiz-results align-items-l-between col col-xl-10">
-              {coursesWithSkill?.value.map((course) => (
-                <CourseCard isLoading={isLoading} course={course} allSkills={allSkills} />
-              ))}
-            </div>
-            <Link
-              className="more-courses-link col col-2 text-muted"
-              to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
-            >
-              See more courses
-            </Link>
+              See more courses &gt;
+            </Button>
           </div>
+          <CardGrid>
+            {coursesWithSkill?.value.map((course) => (
+              <CourseCard isLoading={isLoading} course={course} allSkills={allSkills} />
+            ))}
+          </CardGrid>
         </>
       ))}
       <div>
-        { hitCount === 0 && (
+        {hitCount === 0 && (
           <StatusAlert
             className="mt-4 mb-5"
             alertType="info"

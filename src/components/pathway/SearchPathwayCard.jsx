@@ -102,7 +102,7 @@ const SearchPathwayCard = ({
       isClickable
       isLoading={isLoading}
       onClick={handleCardClick}
-      className="bg-primary-500 border-0"
+      variant="dark"
       {...rest}
     >
       <Card.ImageCap

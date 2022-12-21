@@ -234,7 +234,7 @@ const CourseRunCard = ({
   const triggerLicenseSubsidyEvent = shouldShowLicenseSubsidyPriceText;
 
   return (
-    <Card className="w-100">
+    <Card>
       <Card.Section
         className="d-flex flex-column align-items-center justify-content-between"
       >
