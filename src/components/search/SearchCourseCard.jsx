@@ -92,7 +92,7 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
       {...rest}
     >
       <Card.ImageCap
-        src={course.cardImageUrl}
+        src={course.cardImageUrl || course.originalImageUrl}
         srcAlt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}

@@ -17,8 +17,8 @@ const GoalDropdown = () => {
     DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_OTHER];
 
   return (
-    <Dropdown className="form-floating mr-md-3">
-      <Dropdown.Toggle variant="inverse-primary" id="dropdown-basic">
+    <Dropdown>
+      <Dropdown.Toggle variant="outline-primary" id="dropdown-basic">
         {goal}
       </Dropdown.Toggle>
       <Dropdown.Menu>

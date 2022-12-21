@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { CardGrid } from '@edx/paragon';
 
 import { SkillsContext } from './SkillsContextProvider';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
@@ -76,14 +77,18 @@ const SearchPathways = ({ index }) => {
     [filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
+  if (hitCount === 0) {
+    return null;
+  }
+
   return (
     <div>
-      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these pathways </h3> : null}
-      <div className="skill-quiz-results">
-        {(hitCount > 0) && pathways.map(pathway => (
+      <h3 className="mb-3">Get started with these pathways</h3>
+      <CardGrid>
+        {pathways.map(pathway => (
           <SearchPathwayCard key={pathway.uuid} isLoading={isLoading} hit={pathway} isSkillQuizResult />
         ))}
-      </div>
+      </CardGrid>
     </div>
   );
 };

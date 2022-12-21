@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
-import { screen, act, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -26,12 +26,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
-}));
-
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  // eslint-disable-next-line react/prop-types
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
@@ -144,14 +138,12 @@ describe('<SearchPathways />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(pathwaysWithSkills)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchPathwaysWithContext
-          index={pathwayIndex}
-        />,
-      );
-    });
-    expect(screen.getByText(skillNames[0])).toBeInTheDocument();
+    renderWithRouter(
+      <SearchPathwaysWithContext
+        index={pathwayIndex}
+      />,
+    );
+    expect(await screen.findByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
   });
 
@@ -164,16 +156,12 @@ describe('<SearchPathways />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(noPathways)),
     };
-    let containerDOM = {};
-    await act(async () => {
-      const { container } = renderWithRouter(
-        <SearchPathwaysWithContext
-          index={pathwayIndex}
-        />,
-      );
-      containerDOM = container;
-    });
-    expect(screen.queryByText('Get started with these pathways')).not.toBeInTheDocument();
-    expect(containerDOM.querySelector('.search-pathway-card')).not.toBeInTheDocument();
+    const { container } = renderWithRouter(
+      <SearchPathwaysWithContext
+        index={pathwayIndex}
+      />,
+    );
+    expect(await screen.findByText('Get started with these pathways')).not.toBeInTheDocument();
+    expect(container.querySelector('.search-pathway-card')).not.toBeInTheDocument();
   });
 });

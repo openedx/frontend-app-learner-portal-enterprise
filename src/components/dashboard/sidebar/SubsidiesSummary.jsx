@@ -79,8 +79,8 @@ const SubsidiesSummary = ({
   // TODO: Design debt, don't have cards in a card
     <>
       <SidebarCard
-        cardSectionClassNames="border-0"
-        cardClassNames={classNames('mb-5', { 'col-8 border-0': programProgressPage })}
+        cardSectionClassNames="border-0 shadow-none p-0"
+        cardClassNames={classNames('mb-5', { 'col-8 border-0 shadow-none': programProgressPage })}
       >
         <div className={className} data-testid="subsidies-summary">
           {hasActiveLicenseOrLicenseRequest && (
@@ -89,7 +89,7 @@ const SubsidiesSummary = ({
               licenseRequest={licenseRequests[0]}
               courseEndDate={courseEndDate}
               programProgressPage={programProgressPage}
-              className="mb-2 border-0"
+              className="border-0 shadow-none"
             />
           )}
           {hasAssignedCodesOrCodeRequests && (
@@ -98,19 +98,19 @@ const SubsidiesSummary = ({
               couponCodeRequestsCount={couponCodeRequests.length}
               totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
               programProgressPage={programProgressPage}
-              className="mb-2 border-0"
+              className="border-0 shadow-none"
             />
           )}
           {canEnrollWithEnterpriseOffers && (
             <EnterpriseOffersSummaryCard
-              className="border-0"
+              className="border-0 shadow-none"
               offers={enterpriseOffers}
             />
           )}
         </div>
         {searchCoursesCta && (
           <SidebarCard
-            cardClassNames="border-0"
+            cardClassNames="border-0 shadow-none"
           >
             {searchCoursesCta}
           </SidebarCard>

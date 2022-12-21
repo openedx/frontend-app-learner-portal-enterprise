@@ -113,7 +113,7 @@ describe('<ProgramListingCard />', () => {
       initialUserSubsidyState={userSubsidyState}
       programData={dummyDataWithMultipleOrgs}
     />);
-    const aggregatedOrganizations = dummyDataWithMultipleOrgs.authoringOrganizations.map(org => org.key).join(' ');
+    const aggregatedOrganizations = dummyDataWithMultipleOrgs.authoringOrganizations.map(org => org.key).join(', ');
     expect(screen.getByText(aggregatedOrganizations)).toBeInTheDocument();
   });
 

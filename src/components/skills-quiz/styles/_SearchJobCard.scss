@@ -1,14 +1,9 @@
 .search-job-card {
-  .card {
-    box-shadow: $box-shadow;
-    width: 325px;
-    padding: 5px;
-  }
-
- .medium-font {
+  .medium-font {
     font-size: medium;
- }
- .pgn__form-radio{
-   float: right;
- }
+  }
+  // TODO: avoid overriding `.pgn__` classes
+  .pgn__form-radio{
+    float: right;
+  }
 }

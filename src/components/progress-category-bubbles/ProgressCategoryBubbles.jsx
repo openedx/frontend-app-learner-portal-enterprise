@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import './styles/index.scss';
 
 const ProgressCategoryBubbles = ({ notStarted, inProgress, completed }) => (
-  <Stack direction="horizontal" gap={2}>
+  <Stack direction="horizontal" gap={2} className="flex-wrap">
     <Bubble className="remaining-courses" data-testid="remaining-count">
       {notStarted}
     </Bubble>

@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
-import { Badge, Card, Skeleton } from '@edx/paragon';
-import { Link } from 'react-router-dom';
+import { Badge, Card, Stack } from '@edx/paragon';
+import { useHistory } from 'react-router-dom';
 import Truncate from 'react-truncate';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
@@ -13,6 +13,7 @@ import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants'
 const CourseCard = ({
   isLoading, course, allSkills,
 }) => {
+  const history = useHistory();
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const partnerDetails = useMemo(() => {
@@ -25,112 +26,66 @@ const CourseCard = ({
     };
   }, [course]);
 
-  const loadingCard = () => (
-    <Card>
-      <Card.ImageCap
-        as={Skeleton}
-        duration={0}
-      />
+  const primaryPartnerLogo = partnerDetails.primaryPartner && partnerDetails.showPartnerLogo ? {
+    src: partnerDetails.primaryPartner.logoImageUrl,
+    alt: partnerDetails.primaryPartner.name,
+  } : undefined;
 
-      <Card.Header
-        title={
-          <Skeleton count={2} data-testid="course-title-loading" />
-        }
-      />
-
-      <Card.Section>
-        <Skeleton duration={0} data-testid="partner-name-loading" />
-      </Card.Section>
-
-      <Card.Section>
-        <Skeleton count={1} data-testid="skills-loading" />
-      </Card.Section>
-    </Card>
-  );
-
-  const courseCard = () => {
-    const primaryPartnerLogo = partnerDetails.primaryPartner && partnerDetails.showPartnerLogo ? {
-      src: partnerDetails.primaryPartner.logoImageUrl,
-      alt: partnerDetails.primaryPartner.name,
-    } : undefined;
-
-    return (
-      <Card isClickable>
-        <Card.ImageCap
-          src={course.cardImageUrl}
-          srcAlt=""
-          logoSrc={primaryPartnerLogo?.src}
-          logoAlt={primaryPartnerLogo?.alt}
-        />
-
-        <Card.Header
-          className="h-100"
-          title={(
-            <Truncate
-              lines={course.skillNames?.length < 5 ? 3 : 2}
-              trimWhitespace
-            >
-              {course.title}
-            </Truncate>
-          )}
-          subtitle={
-            course.partners.length > 0 && (
-              <p className="partner text-muted m-0">
-                <Truncate lines={2} trimWhitespace>
-                  {course.partners
-                    .map((partner) => partner.name)
-                    .join(', ')}
-                </Truncate>
-              </p>
-            )
-          }
-        />
-
-        <Card.Section className="py-1">
-          <>
-            {course.skillNames?.length > 0 && (
-              <div className="mb-2">
-                {getCommonSkills(
-                  course,
-                  allSkills,
-                  MAX_VISIBLE_SKILLS_COURSE,
-                )
-                  .map((skill) => (
-                    <Badge
-                      key={skill}
-                      className="skill-badge"
-                      variant="light"
-                    >
-                      {shortenString(
-                        skill,
-                        SKILL_NAME_CUTOFF_LIMIT,
-                        ELLIPSIS_STR,
-                      )}
-                    </Badge>
-                  ))}
-              </div>
-            )}
-          </>
-        </Card.Section>
-      </Card>
-    );
+  const handleCardClick = () => {
+    if (isLoading) {
+      return;
+    }
+    history.push(linkToCourse(course, slug, uuid));
   };
 
   return (
-    <div
-      className="search-result-card mb-4"
-      role="group"
-      aria-label={course.title}
-      key={course.title}
+    <Card
+      isClickable
+      isLoading={isLoading}
+      onClick={handleCardClick}
+      data-testid="skills-quiz-course-card"
     >
-      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <Link
-        to={isLoading ? '#' : linkToCourse(course, slug, uuid)}
-        className="h-100"
-      >
-        {isLoading ? loadingCard() : courseCard()}
-      </Link>
-    </div>
+      <Card.ImageCap
+        src={course.cardImageUrl || course.originalImageUrl}
+        srcAlt=""
+        logoSrc={primaryPartnerLogo?.src}
+        logoAlt={primaryPartnerLogo?.alt}
+      />
+      <Card.Header
+        title={(
+          <Truncate
+            lines={course.skillNames?.length < 5 ? 3 : 2}
+            trimWhitespace
+          >
+            {course.title}
+          </Truncate>
+        )}
+        subtitle={course.partners.length > 0 && (
+          <Truncate lines={2} trimWhitespace>
+            {course.partners
+              .map((partner) => partner.name)
+              .join(', ')}
+          </Truncate>
+        )}
+      />
+      <Card.Section>
+        <Stack direction="horizontal" gap={2} className="flex-wrap">
+          {course.skillNames?.length > 0 && getCommonSkills(
+            course,
+            allSkills,
+            MAX_VISIBLE_SKILLS_COURSE,
+          ).map((skill) => (
+            <Badge key={skill} variant="light">
+              {shortenString(
+                skill,
+                SKILL_NAME_CUTOFF_LIMIT,
+                ELLIPSIS_STR,
+              )}
+            </Badge>
+          ))}
+        </Stack>
+      </Card.Section>
+    </Card>
   );
 };
 
@@ -138,11 +93,12 @@ CourseCard.propTypes = {
   course: PropTypes.shape({
     title: PropTypes.string.isRequired,
     cardImageUrl: PropTypes.string.isRequired,
+    originalImageUrl: PropTypes.string,
     key: PropTypes.string.isRequired,
-    partners: PropTypes.shape.isRequired,
+    partners: PropTypes.arrayOf(PropTypes.shape()).isRequired,
     skillNames: PropTypes.array.isRequired,
   }).isRequired,
-  allSkills: PropTypes.shape.isRequired,
+  allSkills: PropTypes.arrayOf(PropTypes.string).isRequired,
   isLoading: PropTypes.bool.isRequired,
 };
 
