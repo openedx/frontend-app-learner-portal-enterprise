@@ -2,6 +2,7 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { StatusAlert, CardGrid } from '@edx/paragon';
@@ -113,7 +114,12 @@ const SearchCourseCard = ({ index }) => {
       <h3 className="mb-3">Get started with these courses</h3>
       <CardGrid>
         {courses.map(course => (
-          <CourseCard isLoading={isLoading} course={course} allSkills={selectedJobSkills} />
+          <CourseCard
+            key={uuidv4()}
+            isLoading={isLoading}
+            course={course}
+            allSkills={selectedJobSkills}
+          />
         ))}
       </CardGrid>
     </div>

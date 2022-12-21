@@ -11,6 +11,7 @@ import {
 import {
   SearchContext,
 } from '@edx/frontend-enterprise-catalog-search';
+import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -143,7 +144,7 @@ const SkillsCourses = ({ index }) => {
       {isLoading ? (
         <CardLoadingSkeleton />
       ) : coursesWithSkills?.map((coursesWithSkill) => (
-        <>
+        <React.Fragment key={uuidv4()}>
           <div className="my-4 d-flex align-items-center justify-content-between">
             <h3 className="mb-0">Top courses in {coursesWithSkill.key}</h3>
             <Button
@@ -157,10 +158,15 @@ const SkillsCourses = ({ index }) => {
           </div>
           <CardGrid>
             {coursesWithSkill?.value.map((course) => (
-              <CourseCard isLoading={isLoading} course={course} allSkills={allSkills} />
+              <CourseCard
+                isLoading={isLoading}
+                course={course}
+                allSkills={allSkills}
+                key={uuidv4()}
+              />
             ))}
           </CardGrid>
-        </>
+        </React.Fragment>
       ))}
       <div>
         {hitCount === 0 && (

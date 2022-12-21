@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
-import { screen, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -29,14 +30,9 @@ jest.mock('react-truncate', () => ({
   default: ({ children }) => children,
 }));
 
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
-}));
-
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';
-const TEST_CARD_IMG_URL = 'http://fake.image';
+const TEST_CARD_IMG_URL = 'https://fake.image';
 const TEST_PARTNER = {
   name: 'Partner Name',
   logoImageUrl: TEST_IMAGE_URL,
@@ -132,25 +128,30 @@ const SearchCourseCardWithContext = ({
 
 describe('<SearchCourseCard />', () => {
   test('renders the correct data', async () => {
-    let containerDOM = {};
-    await act(async () => {
-      const { container } = renderWithRouter(
-        <SearchCourseCardWithContext
-          index={testIndex}
-        />,
-      );
-      containerDOM = container;
-    });
+    const { container, history } = renderWithRouter(
+      <SearchCourseCardWithContext
+        index={testIndex}
+      />,
+    );
+
+    const searchCourseCard = await screen.findByTestId('skills-quiz-course-card');
+    expect(searchCourseCard).toBeInTheDocument();
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(TEST_PARTNER.name)).toBeInTheDocument();
+    expect(screen.getByText(TEST_PARTNER.name));
 
-    expect(containerDOM.querySelector('.search-result-card > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`,
-    );
-    expect(containerDOM.querySelector('p.partner')).toHaveTextContent(TEST_PARTNER.name);
-    expect(containerDOM.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    // should show both logo image and card image with proper URLs
+    const cardImages = container.querySelectorAll('img');
+    expect(cardImages).toHaveLength(2);
+    cardImages.forEach((cardImg) => {
+      expect(cardImg).toHaveAttribute('src', TEST_CARD_IMG_URL);
+    });
+
+    // handles click
+    userEvent.click(searchCourseCard);
+    expect(history.entries).toHaveLength(2);
+    expect(history.location.pathname).toContain(`${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders the correct data with skills', async () => {
@@ -174,14 +175,12 @@ describe('<SearchCourseCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchCourseCardWithContext
-          index={courseIndex}
-        />,
-      );
-    });
-    expect(screen.getByText(skillNames[0])).toBeInTheDocument();
+    renderWithRouter(
+      <SearchCourseCardWithContext
+        index={courseIndex}
+      />,
+    );
+    expect(await screen.findByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
   });
 
@@ -208,14 +207,12 @@ describe('<SearchCourseCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchCourseCardWithContext
-          index={courseIndex}
-        />,
-      );
-    });
-    expect(screen.getByText(skillNames[0])).toBeInTheDocument();
+    renderWithRouter(
+      <SearchCourseCardWithContext
+        index={courseIndex}
+      />,
+    );
+    expect(await screen.findByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
     expect(screen.queryByText(irrelevantSkill)).not.toBeInTheDocument();
   });
@@ -229,14 +226,12 @@ describe('<SearchCourseCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(noCourses)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchCourseCardWithContext
-          index={courseIndex}
-        />,
-      );
-    });
-    expect(screen.getByText(NO_COURSES_ALERT_MESSAGE)).toBeTruthy();
+    renderWithRouter(
+      <SearchCourseCardWithContext
+        index={courseIndex}
+      />,
+    );
+    expect(await screen.findByText(NO_COURSES_ALERT_MESSAGE)).toBeInTheDocument();
   });
 
   test('renders the recommended courses without already enrolled courses', async () => {
@@ -280,14 +275,12 @@ describe('<SearchCourseCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(coursesWithSkills)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchCourseCardWithContext
-          index={courseIndex}
-        />,
-      );
-    });
-    expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
+    renderWithRouter(
+      <SearchCourseCardWithContext
+        index={courseIndex}
+      />,
+    );
+    expect(await screen.findByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByText('Test Title Two')).toBeInTheDocument();
     expect(screen.queryByText('Test Title Three')).not.toBeInTheDocument();
   });

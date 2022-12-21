@@ -2,6 +2,7 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 import Truncate from 'react-truncate';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -31,15 +32,6 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
     return '#';
   }
-  const { userId } = getAuthenticatedUser();
-  sendEnterpriseTrackEvent(
-    enterpriseUUID,
-    'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',
-    {
-      userId,
-      programUuid,
-    },
-  );
   return `/${slug}/program/${programUuid}`;
 };
 
@@ -167,7 +159,17 @@ const SearchProgramCard = ({ index }) => {
     if (isLoading) {
       return;
     }
-    history.push(linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid));
+    const url = linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid);
+    const { userId } = getAuthenticatedUser();
+    sendEnterpriseTrackEvent(
+      uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',
+      {
+        userId,
+        programUuid: programUuids[program.aggregationKey].uuid,
+      },
+    );
+    history.push(url);
   };
 
   if (hitCount === 0) {
@@ -190,10 +192,12 @@ const SearchProgramCard = ({ index }) => {
           const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails[program.aggregationKey]);
           return (
             <Card
+              key={uuidv4()}
               isClickable
               isLoading={isLoading}
               onClick={() => handleCardClick(program)}
               variant="dark"
+              data-testid="search-program-card"
             >
               <Card.ImageCap
                 src={program.cardImageUrl}

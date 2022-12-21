@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { screen, act } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   SearchContext, removeFromRefinementArray, deleteRefinementAction, SearchData,
@@ -71,38 +71,6 @@ const defaultSubsidyRequestState = {
 describe('<SkillsQuizStepper />', () => {
   afterAll(() => {
     jest.restoreAllMocks();
-  });
-
-  it('Handles removal skill is handled correctly.', async () => {
-    const searchContext = {
-      refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
-      dispatch: () => null,
-    };
-
-    renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
-      { route: '/test/skills-quiz/' },
-    );
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    await act(async () => {
-      await screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION).click();
-      await screen.queryByText(DROPDOWN_OPTION_GET_PROMOTED).click();
-    });
-    expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
-
-    // Remove the first selected skill.
-    screen.getByTestId('test-skill-1').click();
-    expect(removeFromRefinementArray.mock.calls.length).toBe(1);
   });
 
   it('checks header is correctly rendered', () => {
@@ -304,15 +272,45 @@ describe('<SkillsQuizStepper />', () => {
       </AppContext.Provider>,
       { route: '/test/skills-quiz/?skill_names=xyz' },
     );
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    await act(async () => {
-      await screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION).click();
-      screen.queryByText(DROPDOWN_OPTION_GET_PROMOTED).click();
-    });
+    userEvent.click(screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION));
+    userEvent.click(await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED));
+    expect(screen.getByText(SKILLS_FACET.title)).toBeInTheDocument();
+    expect(screen.getByText(CURRENT_JOB_FACET.title)).toBeInTheDocument();
+    expect(screen.getByText(DESIRED_JOB_FACET.title)).toBeInTheDocument();
+  });
 
-    expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
-    expect(screen.queryByText(CURRENT_JOB_FACET.title)).toBeInTheDocument();
-    expect(screen.queryByText(DESIRED_JOB_FACET.title)).toBeInTheDocument();
+  it('Handles removal skill is handled correctly.', async () => {
+    const searchContext = {
+      refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
+      dispatch: () => null,
+    };
+
+    renderWithRouter(
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/' },
+    );
+    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
+    const goalDropdown = screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION);
+    userEvent.click(goalDropdown);
+    const getPromotedOption = await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED);
+    expect(getPromotedOption).toBeInTheDocument();
+    userEvent.click(getPromotedOption);
+
+    expect(await screen.findByText(SKILLS_FACET.title)).toBeInTheDocument();
+
+    // Remove the first selected skill.
+    userEvent.click(screen.getByTestId('test-skill-1').querySelector('[role="button"]'));
+    expect(removeFromRefinementArray.mock.calls.length).toBe(1);
   });
 
   it('Handles removal of the last skill is handled correctly.', async () => {
@@ -337,13 +335,16 @@ describe('<SkillsQuizStepper />', () => {
     );
 
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    await act(async () => {
-      await screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION).click();
-      await screen.queryByText(DROPDOWN_OPTION_GET_PROMOTED).click();
-    });
-    expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
+    const goalDropdown = screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION);
+    userEvent.click(goalDropdown);
+    const getPromotedOption = await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED);
+    expect(getPromotedOption).toBeInTheDocument();
+    userEvent.click(getPromotedOption);
+
+    expect(await screen.findByText(SKILLS_FACET.title)).toBeInTheDocument();
+
     // remove the last skill as well and make sure deleteRefinementAction is called.
-    screen.getByTestId('test-skill-1').click();
+    userEvent.click(screen.getByTestId('test-skill-1').querySelector('[role="button"]'));
     expect(deleteRefinementAction.mock.calls.length).toBe(1);
   });
 

@@ -11,6 +11,7 @@ const TagCloud = ({ tags, onRemove }) => (
         variant="light"
         iconAfter={Close}
         onIconAfterClick={() => onRemove(tag.metadata)}
+        data-testid={tag.title}
       >
         {tag.title}
       </Chip>

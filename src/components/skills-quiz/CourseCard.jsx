@@ -43,6 +43,7 @@ const CourseCard = ({
       isClickable
       isLoading={isLoading}
       onClick={handleCardClick}
+      data-testid="skills-quiz-course-card"
     >
       <Card.ImageCap
         src={course.cardImageUrl || course.originalImageUrl}
@@ -94,10 +95,10 @@ CourseCard.propTypes = {
     cardImageUrl: PropTypes.string.isRequired,
     originalImageUrl: PropTypes.string,
     key: PropTypes.string.isRequired,
-    partners: PropTypes.shape.isRequired,
+    partners: PropTypes.arrayOf(PropTypes.shape()).isRequired,
     skillNames: PropTypes.array.isRequired,
   }).isRequired,
-  allSkills: PropTypes.shape.isRequired,
+  allSkills: PropTypes.arrayOf(PropTypes.string).isRequired,
   isLoading: PropTypes.bool.isRequired,
 };
 
