@@ -1,4 +1,9 @@
-import React, { createContext, useState } from 'react';
+import React, {
+  createContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
 
 export const ToastsContext = createContext();
@@ -6,7 +11,7 @@ export const ToastsContext = createContext();
 const ToastsProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = (message) => {
+  const addToast = useCallback((message) => {
     setToasts(prevToasts => [
       ...prevToasts,
       {
@@ -14,19 +19,25 @@ const ToastsProvider = ({ children }) => {
         message,
       },
     ]);
-  };
+  }, []);
 
-  const removeToast = (id) => {
+  const removeToast = useCallback((id) => {
     const index = toasts.findIndex(toast => toast.id === id);
     setToasts((prevToasts) => {
       const newToasts = [...prevToasts];
       newToasts.splice(index, 1);
       return newToasts;
     });
-  };
+  }, [toasts]);
+
+  const contextValue = useMemo(() => ({
+    toasts,
+    addToast,
+    removeToast,
+  }), [toasts, removeToast, addToast]);
 
   return (
-    <ToastsContext.Provider value={{ toasts, addToast, removeToast }}>
+    <ToastsContext.Provider value={contextValue}>
       {children}
     </ToastsContext.Provider>
   );

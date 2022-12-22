@@ -13,7 +13,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramDataBarWithContext = ({ initialAppState, initialUserSubsidyState, initialProgramState }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>

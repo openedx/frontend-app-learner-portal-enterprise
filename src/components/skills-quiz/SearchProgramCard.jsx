@@ -207,12 +207,12 @@ const SearchProgramCard = ({ index }) => {
               />
               <Card.Header
                 title={(
-                  <Truncate lines={3} className="text-white" trimWhitespace>
+                  <Truncate lines={3} trimWhitespace>
                     {program.title}
                   </Truncate>
                 )}
                 subtitle={program.authoringOrganizations?.length > 0 && (
-                  <Truncate lines={2} className="text-white" trimWhitespace>
+                  <Truncate lines={2} trimWhitespace>
                     {program.authoringOrganizations.map(org => org.key).join(', ')}
                   </Truncate>
                 )}

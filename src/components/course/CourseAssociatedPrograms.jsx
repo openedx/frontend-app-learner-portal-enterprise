@@ -37,12 +37,14 @@ export default function CourseAssociatedPrograms() {
                   : program.marketingUrl}
                 target="_blank"
                 onClick={() => {
-                  sendEnterpriseTrackEvent(enterpriseConfig.uuid,
+                  sendEnterpriseTrackEvent(
+                    enterpriseConfig.uuid,
                     'edx.ui.enterprise.learner_portal.course.sidebar.program.clicked',
                     {
                       program_title: program.title,
                       program_type: program.type,
-                    });
+                    },
+                  );
                 }}
               >
                 {program.title}

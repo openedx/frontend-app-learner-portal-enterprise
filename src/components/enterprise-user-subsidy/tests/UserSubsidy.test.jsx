@@ -60,7 +60,6 @@ const mockEmptyListResponse = {
   },
 };
 
-/* eslint-disable react/prop-types */
 const UserSubsidyWithAppContext = ({
   enterpriseConfig = {},
   contextValue = {},
@@ -83,7 +82,6 @@ const UserSubsidyWithAppContext = ({
     </UserSubsidy>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const SubscriptionLicenseConsumer = () => {
   const { subscriptionLicense } = useContext(UserSubsidyContext);

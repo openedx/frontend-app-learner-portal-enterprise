@@ -8,7 +8,6 @@ import {
   X_AXIS, Y_AXIS, CIRCLE_RADIUS, STROKE_WIDTH, CIRCLE_LABEL,
 } from '../data/constants';
 
-/* eslint-disable react/prop-types */
 const ProgramProgressCircleWithContext = ({
   initialProgramProgressContext = {},
 }) => (

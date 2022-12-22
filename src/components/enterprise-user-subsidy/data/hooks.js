@@ -181,12 +181,14 @@ export function useCouponCodes(enterpriseId) {
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
-        fetchCouponCodeAssignments({
-          enterprise_uuid: enterpriseId,
-          full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
-          is_active: 'True',
-        },
-        dispatch);
+        fetchCouponCodeAssignments(
+          {
+            enterprise_uuid: enterpriseId,
+            full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
+            is_active: 'True',
+          },
+          dispatch,
+        );
       }
     },
     [enterpriseId],

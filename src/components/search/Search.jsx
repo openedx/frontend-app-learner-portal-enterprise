@@ -26,6 +26,7 @@ import SearchCourse from './SearchCourse';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
 import SearchResults from './SearchResults';
+import { ContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
@@ -38,7 +39,7 @@ import PathwayModal from '../pathway/PathwayModal';
 const Search = () => {
   const { pathwayUUID } = useParams();
   const history = useHistory();
-  const { refinements: { content_type: contentType } } = useContext(SearchContext);
+  const { refinements } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
   const {
@@ -50,9 +51,7 @@ const Search = () => {
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
   } = useContext(UserSubsidyContext);
-
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-
   const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
     subscriptionLicense,
@@ -60,7 +59,6 @@ const Search = () => {
     enterpriseOffers,
     catalogsForSubsidyRequests,
   });
-
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,
     searchCatalogs,
@@ -84,8 +82,12 @@ const Search = () => {
     },
     [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
   );
+
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
+
+  const { content_type: contentType } = refinements;
+  const hasRefinements = Object.keys(refinements).length > 0;
 
   return (
     <>
@@ -124,6 +126,7 @@ const Search = () => {
         )}
         {(contentType === undefined || contentType.length === 0) && (
           <>
+            {!hasRefinements && <ContentHighlights className="my-5" />}
             {features.ENABLE_PATHWAYS && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && <SearchProgram filter={filters} />}
             <SearchCourse filter={filters} />

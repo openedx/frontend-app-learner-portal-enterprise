@@ -30,7 +30,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-/* eslint-disable react/prop-types */
 const ProgramCTAtWithContext = ({
   initialAppState = {},
   initialProgramState = {},
@@ -46,7 +45,6 @@ const ProgramCTAtWithContext = ({
     </AppContext.Provider>
   </IntlProvider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<ProgramCTA />', () => {
   const initialAppState = {

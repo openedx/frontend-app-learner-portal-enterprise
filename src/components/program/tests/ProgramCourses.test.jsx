@@ -30,7 +30,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-/* eslint-disable react/prop-types */
 const ProgramCoursestWithContext = ({
   initialAppState = {},
   initialProgramState = {},
@@ -44,7 +43,6 @@ const ProgramCoursestWithContext = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<ProgramCourses />', () => {
   const initialAppState = {

@@ -92,12 +92,14 @@ const CourseEnrollmentFailedAlert = ({ className, enrollmentSource }) => {
     [courseEnrollmentsByStatus, courseRunKey],
   );
 
-  const failureReasonMessages = useMemo(() => {
-    const contactHelpText = renderContactHelpText(Alert.Link);
-    return isUpgradeAttempt ? createUpgradeFailureMessages(contactHelpText, enrollmentSource)
-      : createEnrollmentFailureMessages(contactHelpText);
-  },
-  [enrollmentSource, isUpgradeAttempt, renderContactHelpText]);
+  const failureReasonMessages = useMemo(
+    () => {
+      const contactHelpText = renderContactHelpText(Alert.Link);
+      return isUpgradeAttempt ? createUpgradeFailureMessages(contactHelpText, enrollmentSource)
+        : createEnrollmentFailureMessages(contactHelpText);
+    },
+    [enrollmentSource, isUpgradeAttempt, renderContactHelpText],
+  );
 
   if (!hasEnrollmentFailed) {
     return null;

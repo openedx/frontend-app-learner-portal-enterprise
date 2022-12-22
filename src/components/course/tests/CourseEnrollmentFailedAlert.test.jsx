@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';

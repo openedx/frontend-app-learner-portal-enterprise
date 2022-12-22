@@ -111,7 +111,7 @@ const SearchPathwayCard = ({
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace className="text-white">
+          <Truncate lines={3} trimWhitespace>
             {pathway.title}
           </Truncate>
         )}

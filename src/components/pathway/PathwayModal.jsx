@@ -33,8 +33,10 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
         </h3>
         {/* eslint-disable react/no-danger */}
         <div dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(node.shortDescription,
-            { USE_PROFILES: { html: true } }),
+          __html: DOMPurify.sanitize(
+            node.shortDescription,
+            { USE_PROFILES: { html: true } },
+          ),
         }}
         />
       </Col>

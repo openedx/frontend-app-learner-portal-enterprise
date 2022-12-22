@@ -53,7 +53,6 @@ const initialCourseState = {
   },
 };
 
-/* eslint-disable react/prop-types */
 const CourseRecommendationsWithContext = () => (
   <AppContext.Provider value={initialAppState}>
     <CourseContext.Provider value={initialCourseState}>
@@ -61,7 +60,6 @@ const CourseRecommendationsWithContext = () => (
     </CourseContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<CourseRecommendations />', () => {
   test('renders the correct data', () => {

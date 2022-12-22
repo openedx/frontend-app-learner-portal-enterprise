@@ -7,7 +7,6 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 
-/* eslint-disable react/prop-types */
 const SelectJobCardWithContext = ({
   initialJobCardState = {},
   initialAppState,
@@ -20,7 +19,6 @@ const SelectJobCardWithContext = ({
     </SearchContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const TEST_MEDIAN_SALARY = '100000';
 const TEST_MEDIAN_SALARY_2 = '250000';

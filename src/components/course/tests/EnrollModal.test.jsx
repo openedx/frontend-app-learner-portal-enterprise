@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render, fireEvent } from '@testing-library/react';
@@ -57,9 +56,12 @@ describe('<EnrollModal />', () => {
       <EnrollModal {...props} />,
     );
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.title)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(
-      props.userSubsidyApplicableToCourse, props.courseRunPrice,
-    ))).toBeInTheDocument();
+    expect(
+      screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.body(
+        props.userSubsidyApplicableToCourse,
+        props.courseRunPrice,
+      )),
+    ).toBeInTheDocument();
     expect(screen.getByText(MODAL_TEXTS.HAS_ENTERPRISE_OFFER.button)).toBeInTheDocument();
   });
 

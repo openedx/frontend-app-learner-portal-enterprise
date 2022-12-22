@@ -12,7 +12,6 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
-// eslint-disable-next-line react/prop-types
 const CreatedByWithCourseContext = ({ initialState = {} }) => (
   <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
     <CourseContextProvider initialState={initialState}>

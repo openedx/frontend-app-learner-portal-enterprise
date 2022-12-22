@@ -30,7 +30,6 @@ jest.mock('../data/hooks', () => ({
   useInProgressPathwaysData: jest.fn(),
 }));
 
-/* eslint-disable react/prop-types */
 const PathwayProgressListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},

@@ -7,7 +7,7 @@ import capitalize from 'lodash.capitalize';
 import { CONTENT_TYPES, IN_PROGRESS } from './constants';
 import { shortenString } from '../course/data/utils';
 
-function PathwayNode({ node }) {
+const PathwayNode = ({ node }) => {
   const { enterpriseSlug } = useParams();
 
   const linkToNode = useMemo(
@@ -64,7 +64,7 @@ function PathwayNode({ node }) {
       </div>
     </div>
   );
-}
+};
 
 export default PathwayNode;
 

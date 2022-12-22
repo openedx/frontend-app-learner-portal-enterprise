@@ -21,8 +21,12 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../CourseRunCards', () => () => <p>Cards</p>);
-jest.mock('../SubsidyRequestButton', () => () => <p>SubsidyRequestButton</p>);
+jest.mock('../CourseRunCards', () => function () {
+  return <p>Cards</p>;
+});
+jest.mock('../SubsidyRequestButton', () => function () {
+  return <p>SubsidyRequestButton</p>;
+});
 
 const defaultSubsidyRequestsState = {
   requestsBySubsidyType: {
@@ -42,7 +46,6 @@ const defaultCourseEnrollmentsState = {
   },
 };
 
-/* eslint-disable react/prop-types */
 const CourseHeaderWrapper = ({
   initialAppState = {},
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
@@ -62,7 +65,6 @@ const CourseHeaderWrapper = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<CourseHeader />', () => {
   const initialAppState = {

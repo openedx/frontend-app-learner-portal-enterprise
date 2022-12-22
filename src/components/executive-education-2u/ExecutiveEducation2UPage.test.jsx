@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen } from '@testing-library/react';
@@ -19,7 +18,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
   logError: jest.fn(),
 }));
-jest.mock('./UserEnrollmentForm', () => ({ productSKU, onCheckoutSuccess }) => (
+const MockUserEnrollmentForm = ({ productSKU, onCheckoutSuccess }) => (
   <div data-testid="user-enrollment-form-component">
     <div>{productSKU}</div>
     <button
@@ -32,7 +31,8 @@ jest.mock('./UserEnrollmentForm', () => ({ productSKU, onCheckoutSuccess }) => (
       Mock submit enrollment form
     </button>
   </div>
-));
+);
+jest.mock('./UserEnrollmentForm', () => <MockUserEnrollmentForm />);
 const locationAssignMock = jest.fn();
 
 const enterpriseSlug = 'test-enterprise-slug';
@@ -44,15 +44,13 @@ const initialAppContextValue = {
   },
 };
 
-function ExecutiveEducation2UPageWrapper({
+const ExecutiveEducation2UPageWrapper = ({
   appContextValue = initialAppContextValue,
-}) {
-  return (
-    <AppContext.Provider value={appContextValue}>
-      <ExecutiveEducation2UPage />
-    </AppContext.Provider>
-  );
-}
+}) => (
+  <AppContext.Provider value={appContextValue}>
+    <ExecutiveEducation2UPage />
+  </AppContext.Provider>
+);
 
 describe('ExecutiveEducation2UPage', () => {
   beforeEach(() => {

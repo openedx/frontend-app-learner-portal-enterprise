@@ -111,13 +111,13 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       />
       <Card.Header
         title={(
-          <Truncate className="text-white" lines={3} trimWhitespace>
+          <Truncate lines={3} trimWhitespace>
             {program.title}
           </Truncate>
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <Truncate className="text-white" lines={2} trimWhitespace>
+            <Truncate lines={2} trimWhitespace>
               {program.authoringOrganizations.map(org => org.key).join(', ')}
             </Truncate>
           )
@@ -135,9 +135,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
           </div>
         </Badge>
       </Card.Section>
-      <Card.Footer
-        textElement={<span className="text-white">{getProgramCourseCount()}</span>}
-      />
+      <Card.Footer textElement={getProgramCourseCount()} />
     </Card>
   );
 };

@@ -5,13 +5,11 @@ import { faRoad, faRocket } from '@fortawesome/free-solid-svg-icons';
 
 import './styles/VerifiedCertPitch.scss';
 
-function VerifiedCertPitchIcon({ icon }) {
-  return (
-    <div className="icon d-flex bg-info mr-3 p-2 align-items-center justify-content-center">
-      <FontAwesomeIcon className="text-white" icon={icon} />
-    </div>
-  );
-}
+const VerifiedCertPitchIcon = ({ icon }) => (
+  <div className="icon d-flex bg-info mr-3 p-2 align-items-center justify-content-center">
+    <FontAwesomeIcon className="text-white" icon={icon} />
+  </div>
+);
 
 VerifiedCertPitchIcon.propTypes = {
   icon: PropTypes.shape({}).isRequired,

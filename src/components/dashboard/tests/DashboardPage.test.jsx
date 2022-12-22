@@ -104,7 +104,6 @@ let mockLocation = {
   state: { activationSuccess: true },
 };
 
-/* eslint-disable react/prop-types */
 const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
@@ -123,7 +122,6 @@ const DashboardWithContext = ({
     </AppContext.Provider>
   </IntlProvider>
 );
-/* eslint-enable react/prop-types */
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -378,7 +376,9 @@ describe('<Dashboard />', () => {
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' },
+        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
+        true,
+        { sameSite: 'strict' },
       );
     });
 
@@ -423,7 +423,9 @@ describe('<Dashboard />', () => {
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' },
+        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
+        true,
+        { sameSite: 'strict' },
       );
     });
 

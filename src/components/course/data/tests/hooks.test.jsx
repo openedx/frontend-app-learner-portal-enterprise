@@ -387,7 +387,6 @@ describe('useUserHasSubsidyRequestForCourse', () => {
     const context = {
       subsidyRequestConfiguration: null,
     };
-    /* eslint-disable react/prop-types */
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
@@ -403,7 +402,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         [SUBSIDY_TYPE.COUPON]: [],
       },
     };
-    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+    const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
@@ -421,7 +420,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         [SUBSIDY_TYPE.COUPON]: [],
       },
     };
-    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+    const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
@@ -440,7 +439,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
       },
     };
-    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+    const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(courseId), { wrapper });
@@ -458,7 +457,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
         [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
       },
     };
-    const wrapper = ({ children }) => (/* eslint-disable react/prop-types */
+    const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });

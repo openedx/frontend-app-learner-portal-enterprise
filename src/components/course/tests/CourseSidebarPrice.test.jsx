@@ -95,7 +95,6 @@ const defaultUserSubsidyState = {
   canEnrollWithEnterpriseOffers: false,
 };
 
-/* eslint-disable react/prop-types */
 const SidebarWithContext = ({
   initialAppState = appStateWithOrigPriceHidden,
   subsidyRequestsState = defaultSubsidyRequestsState,
@@ -112,7 +111,6 @@ const SidebarWithContext = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
 
