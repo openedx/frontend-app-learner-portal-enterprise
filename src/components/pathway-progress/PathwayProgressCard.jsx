@@ -48,7 +48,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
 PathwayProgressCard.propTypes = {
   pathway: PropTypes.shape({
     learnerPathwayProgress: PropTypes.shape({
-      steps: PropTypes.array.isRequired,
+      steps: PropTypes.arrayOf(PropTypes.shape()).isRequired,
       title: PropTypes.string.isRequired,
       uuid: PropTypes.string.isRequired,
       cardImage: PropTypes.string,

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -31,6 +31,15 @@ const MoveToInProgressModal = ({
     setState,
   ] = useState(initialState);
 
+  const contextValue = useMemo(
+    () => ({
+      courseTitle,
+      courseLink,
+      confirmError,
+    }),
+    [courseTitle, courseLink, confirmError],
+  );
+
   const handleConfirmButtonClick = async () => {
     setState({ confirmButtonState: 'pending' });
     try {
@@ -57,13 +66,7 @@ const MoveToInProgressModal = ({
   };
 
   return (
-    <MoveToInProgressModalContext.Provider
-      value={{
-        courseTitle,
-        courseLink,
-        confirmError,
-      }}
-    >
+    <MoveToInProgressModalContext.Provider value={contextValue}>
       <Modal
         title="Move course to &quot;In Progress&quot;"
         body={<ModalBody />}

@@ -28,7 +28,7 @@ function formatSponsorTextList(sponsors) {
   return sponsorTextList;
 }
 
-export default function CourseMainContent() {
+const CourseMainContent = () => {
   const { config } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
@@ -156,4 +156,6 @@ export default function CourseMainContent() {
       )}
     </>
   );
-}
+};
+
+export default CourseMainContent;

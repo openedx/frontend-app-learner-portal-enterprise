@@ -47,62 +47,60 @@ const CouponCodesSummaryCard = ({
     return null;
   }
 
-  return (
-    <>
-      {programProgressPage ? (
-        <>
-          <CouponCodesWarningModal
-            isCouponCodeWarningModalOpen={isCouponCodeWarningModalOpen}
-            onCouponCodeWarningModalClose={onCouponCodeWarningModalClose}
-            couponCodesCount={couponCodesCount}
-          />
+  if (programProgressPage) {
+    return (
+      <>
+        <CouponCodesWarningModal
+          isCouponCodeWarningModalOpen={isCouponCodeWarningModalOpen}
+          onCouponCodeWarningModalClose={onCouponCodeWarningModalClose}
+          couponCodesCount={couponCodesCount}
+        />
+        <SidebarCard
+          title={(
+            <div className="d-flex align-items-start justify-content-between">
+              <h3>{COUPON_CODES_SUMMARY_REMAINING_CODES}</h3>
+              {totalCoursesEligibleForCertificate > couponCodesCount && (
+                <WarningFilled
+                  className="ml-2"
+                  onClick={() => { couponCodeWarningModalOpen(); }}
+                />
+              )}
+            </div>
+          )}
+          cardClassNames={className}
+        >
+          <p className="m-0">
+            <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}<span className="ml-2">{COUPON_CODES_SUMMARY_DETAIL}</span>
+          </p>
+        </SidebarCard>
+      </>
+    );
+  }
 
-          <SidebarCard
-            title={(
-              <div className="d-flex align-items-start justify-content-between">
-                <h3>{COUPON_CODES_SUMMARY_REMAINING_CODES}</h3>
-                {totalCoursesEligibleForCertificate > couponCodesCount && (
-                  <WarningFilled
-                    className="ml-2"
-                    onClick={() => { couponCodeWarningModalOpen(); }}
-                  />
-                )}
-              </div>
+  return (
+    <SidebarCard
+      title={(
+        <div className="d-flex align-items-start justify-content-between">
+          <div>{`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}</div>
+          <div>
+            {badgeVariantAndLabel && (
+              <Badge
+                variant={badgeVariantAndLabel.variant}
+                className="ml-2"
+                data-testid="subscription-status-badge"
+              >
+                {badgeVariantAndLabel.label}
+              </Badge>
             )}
-            cardClassNames={className}
-          >
-            <p className="m-0">
-              <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}<span className="ml-2">{COUPON_CODES_SUMMARY_DETAIL}</span>
-            </p>
-          </SidebarCard>
-        </>
-      )
-        : (
-          <SidebarCard
-            title={(
-              <div className="d-flex align-items-start justify-content-between">
-                <div>{`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}</div>
-                <div>
-                  {badgeVariantAndLabel && (
-                    <Badge
-                      variant={badgeVariantAndLabel.variant}
-                      className="ml-2"
-                      data-testid="subscription-status-badge"
-                    >
-                      {badgeVariantAndLabel.label}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            )}
-            cardClassNames={className}
-          >
-            <p className="m-0">
-              {COUPON_CODES_SUMMARY_NOTICE}
-            </p>
-          </SidebarCard>
-        )}
-    </>
+          </div>
+        </div>
+      )}
+      cardClassNames={className}
+    >
+      <p className="m-0">
+        {COUPON_CODES_SUMMARY_NOTICE}
+      </p>
+    </SidebarCard>
   );
 };
 

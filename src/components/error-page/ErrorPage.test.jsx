@@ -8,8 +8,9 @@ import ErrorPage from './ErrorPage';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-platform/config');
-const MockFrontendComponentFooter = () => <div data-testid="site-footer" />;
-jest.mock('@edx/frontend-component-footer', () => <MockFrontendComponentFooter />);
+jest.mock('@edx/frontend-component-footer', () => function MockFrontendComponentFooter() {
+  return <div data-testid="site-footer" />;
+});
 
 getAuthenticatedUser.mockReturnValue({
   id: 1,

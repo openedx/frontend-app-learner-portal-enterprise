@@ -18,7 +18,15 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const history = useHistory();
 
-  const course = hit ? camelCaseObject(hit) : {};
+  const course = useMemo(
+    () => {
+      if (!hit) {
+        return {};
+      }
+      return camelCaseObject(hit);
+    },
+    [hit],
+  );
 
   const linkToCourse = useMemo(
     () => {

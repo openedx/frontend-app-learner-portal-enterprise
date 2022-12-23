@@ -7,7 +7,7 @@ import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
 import { features } from '../../config';
 
-export default function CourseAssociatedPrograms() {
+const CourseAssociatedPrograms = () => {
   const { state } = useContext(CourseContext);
   const { course } = state;
   const { enterpriseConfig } = useContext(AppContext);
@@ -55,4 +55,6 @@ export default function CourseAssociatedPrograms() {
       </ul>
     </div>
   );
-}
+};
+
+export default CourseAssociatedPrograms;

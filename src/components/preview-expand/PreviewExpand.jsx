@@ -5,12 +5,12 @@ import { Button } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
-export default function PreviewExpand({
+const PreviewExpand = ({
   className,
   children,
   cta,
   heading,
-}) {
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div className={classNames('preview-expand-component', className)}>
@@ -32,7 +32,7 @@ export default function PreviewExpand({
       </Button>
     </div>
   );
-}
+};
 
 PreviewExpand.propTypes = {
   children: PropTypes.element.isRequired,
@@ -48,3 +48,5 @@ PreviewExpand.propTypes = {
 PreviewExpand.defaultProps = {
   className: null,
 };
+
+export default PreviewExpand;

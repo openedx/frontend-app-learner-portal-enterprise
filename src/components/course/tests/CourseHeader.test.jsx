@@ -21,10 +21,10 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../CourseRunCards', () => function () {
+jest.mock('../CourseRunCards', () => function CourseRunCards() {
   return <p>Cards</p>;
 });
-jest.mock('../SubsidyRequestButton', () => function () {
+jest.mock('../SubsidyRequestButton', () => function SubsidyRequestButton() {
   return <p>SubsidyRequestButton</p>;
 });
 

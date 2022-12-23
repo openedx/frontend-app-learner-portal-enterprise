@@ -18,7 +18,7 @@ import { useAlgoliaSearch } from '../../utils/hooks';
 import { useUpdateActiveEnterpriseForUser, useEnterpriseCustomerConfig } from './data/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
 
-export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
+const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   const { enterpriseSlug } = useParams();
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
   const config = getConfig();
@@ -76,7 +76,7 @@ export default function EnterprisePage({ children, useEnterpriseConfigCache }) {
       {children}
     </AppContext.Provider>
   );
-}
+};
 
 EnterprisePage.propTypes = {
   children: PropTypes.node.isRequired,
@@ -86,3 +86,5 @@ EnterprisePage.propTypes = {
 EnterprisePage.defaultProps = {
   useEnterpriseConfigCache: true,
 };
+
+export default EnterprisePage;

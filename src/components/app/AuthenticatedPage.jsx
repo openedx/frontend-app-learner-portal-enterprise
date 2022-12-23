@@ -13,7 +13,7 @@ import { Layout } from '../layout';
 import LoginRefresh from './LoginRefresh';
 import { ErrorPage } from '../error-page';
 
-export default function AuthenticatedPage({ children, useEnterpriseConfigCache }) {
+const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const { enterpriseSlug } = useParams();
@@ -55,7 +55,7 @@ export default function AuthenticatedPage({ children, useEnterpriseConfigCache }
       </LoginRefresh>
     </LoginRedirect>
   );
-}
+};
 
 AuthenticatedPage.propTypes = {
   children: PropTypes.node.isRequired,
@@ -65,3 +65,5 @@ AuthenticatedPage.propTypes = {
 AuthenticatedPage.defaultProps = {
   useEnterpriseConfigCache: true,
 };
+
+export default AuthenticatedPage;

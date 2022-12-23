@@ -85,9 +85,7 @@ const ExecutiveEducation2UPage = () => {
           <h2 className="mb-3">
             {isLoading ? (
               <Skeleton containerTestId="loading-skeleton-page-title" />
-            ) : (
-              <>{pageTitle}</>
-            )}
+            ) : pageTitle}
           </h2>
           {(isLoading || !contentMetadata) ? (
             <p>

@@ -13,7 +13,7 @@ import './styles/Layout.scss';
 export const TITLE_TEMPLATE = '%s - edX';
 export const DEFAULT_TITLE = 'edX';
 
-export default function Layout({ children }) {
+const Layout = ({ children }) => {
   const { config, enterpriseConfig } = useContext(AppContext);
   const brandStyles = useStylesForCustomBrandColors(enterpriseConfig);
 
@@ -54,8 +54,10 @@ export default function Layout({ children }) {
       <SiteFooter />
     </>
   );
-}
+};
 
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default Layout;

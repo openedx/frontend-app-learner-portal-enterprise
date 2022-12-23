@@ -33,7 +33,7 @@ const COURSE_ID = '123';
 
 jest.mock('../../../config');
 
-jest.mock('../enrollment/EnrollAction', () => function ({ enrollLabel, enrollmentType }) {
+jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
   return (
     <>
       <span>{enrollLabel}</span>

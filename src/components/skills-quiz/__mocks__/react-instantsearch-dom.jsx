@@ -1,6 +1,6 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable react/prop-types */
-import React from 'react';
+const React = require('react');
 
 const MockReactInstantSearch = jest.genMockFromModule(
   'react-instantsearch-dom',
@@ -55,8 +55,6 @@ MockReactInstantSearch.connectPagination = Component => (props) => (
   />
 );
 
-MockReactInstantSearch.InstantSearch = ({ children }) => <div>{children}</div>;
-
 MockReactInstantSearch.connectRefinementList = Component => (props) => (
   <Component
     attribute="skills"
@@ -69,9 +67,9 @@ MockReactInstantSearch.connectRefinementList = Component => (props) => (
   />
 );
 
-MockReactInstantSearch.InstantSearch = ({ children }) => <>{children}</>;
-MockReactInstantSearch.Configure = () => <div>CONFIGURED</div>;
-MockReactInstantSearch.Index = ({ children }) => <>{children}</>;
+MockReactInstantSearch.InstantSearch = function InstantSearch({ children }) { return children; };
+MockReactInstantSearch.Configure = function Configure() { return <div>CONFIGURED</div>; };
+MockReactInstantSearch.Index = function Index({ children }) { return children; };
 
 // It is necessary to export this way, or tests not using the mock will fail
 module.exports = MockReactInstantSearch;

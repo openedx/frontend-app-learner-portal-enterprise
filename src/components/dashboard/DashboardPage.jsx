@@ -20,7 +20,7 @@ import { features } from '../../config';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
-export default function DashboardPage() {
+const DashboardPage = () => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
@@ -93,4 +93,6 @@ export default function DashboardPage() {
       </Container>
     </>
   );
-}
+};
+
+export default DashboardPage;

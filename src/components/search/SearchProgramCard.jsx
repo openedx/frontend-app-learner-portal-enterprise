@@ -26,10 +26,10 @@ export const ProgramType = ({ type }) => {
       programTypeToDisplay = <>Master&apos;s Degree Program</>;
       break;
     case 'Professional Certificate':
-      programTypeToDisplay = <>{type}</>;
+      programTypeToDisplay = type;
       break;
     default:
-      programTypeToDisplay = <>{type}</>;
+      programTypeToDisplay = type;
   }
 
   return programTypeToDisplay;

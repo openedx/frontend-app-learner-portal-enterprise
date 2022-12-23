@@ -66,31 +66,29 @@ const ProgramHeader = () => {
     links.push({ label: `${subjectName} Courses`, url: `/${enterpriseSlug}/search?subjects=${ fixedEncodeURIComponent(subjectName)}` });
   }
 
+  if (!subjectSlug) {
+    return null;
+  }
+
   return (
-    <>
-      {subjectSlug
-        ? (
-          <Parallax
-            blur={0}
-            bgImage={backgroundImage}
-            bgImageAlt=""
-            strength={600}
-          >
-            <header className="program-header">
-              <div className="container mw-lg program-header-container">
-                <div className="header-breadcrumbs ml-2">
-                  <Breadcrumb
-                    links={links}
-                    activeLabel={prependProgramOrganizationsToTitle()}
-                  />
-                </div>
-                <h1 className="display-3">{marketingHook}</h1>
-              </div>
-            </header>
-          </Parallax>
-        )
-        : ''}
-    </>
+    <Parallax
+      blur={0}
+      bgImage={backgroundImage}
+      bgImageAlt=""
+      strength={600}
+    >
+      <header className="program-header">
+        <div className="container mw-lg program-header-container">
+          <div className="header-breadcrumbs ml-2">
+            <Breadcrumb
+              links={links}
+              activeLabel={prependProgramOrganizationsToTitle()}
+            />
+          </div>
+          <h1 className="display-3">{marketingHook}</h1>
+        </div>
+      </header>
+    </Parallax>
   );
 };
 

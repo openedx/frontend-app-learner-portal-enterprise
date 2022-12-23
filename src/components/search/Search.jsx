@@ -7,7 +7,7 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { useToggle } from '@edx/paragon';
+import { useToggle, Stack } from '@edx/paragon';
 
 import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
@@ -125,12 +125,12 @@ const Search = () => {
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
         {(contentType === undefined || contentType.length === 0) && (
-          <>
-            {!hasRefinements && <ContentHighlights className="my-5" />}
+          <Stack className="my-5" gap={5}>
+            {!hasRefinements && <ContentHighlights />}
             {features.ENABLE_PATHWAYS && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && <SearchProgram filter={filters} />}
             <SearchCourse filter={filters} />
-          </>
+          </Stack>
         )}
 
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (

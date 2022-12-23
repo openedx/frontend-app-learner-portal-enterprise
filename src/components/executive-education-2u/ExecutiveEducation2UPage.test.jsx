@@ -18,21 +18,22 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
   logError: jest.fn(),
 }));
-const MockUserEnrollmentForm = ({ productSKU, onCheckoutSuccess }) => (
-  <div data-testid="user-enrollment-form-component">
-    <div>{productSKU}</div>
-    <button
-      type="button"
-      onClick={() => {
-        const sampleResponse = { receiptPageUrl: mockReceiptPageUrl };
-        onCheckoutSuccess(sampleResponse);
-      }}
-    >
-      Mock submit enrollment form
-    </button>
-  </div>
-);
-jest.mock('./UserEnrollmentForm', () => <MockUserEnrollmentForm />);
+jest.mock('./UserEnrollmentForm', () => function MockUserEnrollmentForm({ productSKU, onCheckoutSuccess }) {
+  return (
+    <div data-testid="user-enrollment-form-component">
+      <div>{productSKU}</div>
+      <button
+        type="button"
+        onClick={() => {
+          const sampleResponse = { receiptPageUrl: mockReceiptPageUrl };
+          onCheckoutSuccess(sampleResponse);
+        }}
+      >
+        Mock submit enrollment form
+      </button>
+    </div>
+  );
+});
 const locationAssignMock = jest.fn();
 
 const enterpriseSlug = 'test-enterprise-slug';

@@ -24,7 +24,7 @@ import {
 import LicenseRequestedAlert from './LicenseRequestedAlert';
 import SubsidyRequestButton from './SubsidyRequestButton';
 
-export default function CourseHeader() {
+const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, catalog } = state;
@@ -111,4 +111,6 @@ export default function CourseHeader() {
       </Container>
     </div>
   );
-}
+};
+
+export default CourseHeader;

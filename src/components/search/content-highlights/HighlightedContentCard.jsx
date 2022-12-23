@@ -59,7 +59,7 @@ HighlightedContentCard.defaultProps = {
   isLoading: false,
 };
 
-HighlightedContentCard.Skeleton = function (props) {
+HighlightedContentCard.Skeleton = function HighlightedContentCardSkeleton(props) {
   return <HighlightedContentCard isLoading {...props} />;
 };
 

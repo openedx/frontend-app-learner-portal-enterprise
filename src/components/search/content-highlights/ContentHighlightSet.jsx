@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { CardGrid, Skeleton } from '@edx/paragon';
+import { Skeleton, CardDeck } from '@edx/paragon';
 
 import { CARDGRID_COLUMN_SIZES } from '../constants';
 import HighlightedContentCard from './HighlightedContentCard';
@@ -15,11 +15,11 @@ const ContentHighlightSet = ({ highlightSet }) => {
   return (
     <div data-testid="content-highlights-set">
       <h2 className="mb-3">{title}</h2>
-      <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-        {[...highlightedContent, ...highlightedContent, ...highlightedContent, ...highlightedContent].map(contentItem => (
+      <CardDeck columnSizes={CARDGRID_COLUMN_SIZES} hasInteractiveChildren>
+        {[...highlightedContent, ...highlightedContent, ...highlightedContent].map(contentItem => (
           <HighlightedContentCard key={uuidv4()} highlightedContent={contentItem} />
         ))}
-      </CardGrid>
+      </CardDeck>
     </div>
   );
 };
@@ -39,15 +39,15 @@ ContentHighlightSet.propTypes = {
   }).isRequired,
 };
 
-ContentHighlightSet.Skeleton = function () {
-  return (
-    <>
-      <h2 className="mb-3"><Skeleton /></h2>
-      <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-        {Array.from({ length: 4 }).map(() => <HighlightedContentCard.Skeleton key={uuidv4()} />)}
-      </CardGrid>
-    </>
-  );
-};
+const ContentHighlightSetSkeleton = () => (
+  <>
+    <h2 className="mb-3"><Skeleton /></h2>
+    <CardDeck columnSizes={CARDGRID_COLUMN_SIZES}>
+      {Array.from({ length: 4 }).map(() => <HighlightedContentCard.Skeleton key={uuidv4()} />)}
+    </CardDeck>
+  </>
+);
+
+ContentHighlightSet.Skeleton = ContentHighlightSetSkeleton;
 
 export default ContentHighlightSet;

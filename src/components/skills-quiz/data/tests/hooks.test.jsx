@@ -6,13 +6,15 @@ import { useSelectedSkillsAndJobSkills } from '../hooks';
 import { SkillsContext } from '../../SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_GET_PROMOTED } from '../../constants';
 
-const SearchWrapper = (searchContext, initialSkillsState) => ({ children }) => (
-  <SearchContext.Provider value={searchContext}>
-    <SkillsContext.Provider value={initialSkillsState}>
-      {children}
-    </SkillsContext.Provider>
-  </SearchContext.Provider>
-);
+const SearchWrapper = (searchContext, initialSkillsState) => function BaseSearchWrapper({ children }) {
+  return (
+    <SearchContext.Provider value={searchContext}>
+      <SkillsContext.Provider value={initialSkillsState}>
+        {children}
+      </SkillsContext.Provider>
+    </SearchContext.Provider>
+  );
+};
 
 const skills = ['test-skill-1', 'test-skill-2'];
 const SELECTED_JOB_SKILL_NAME = 'test-skill-3';
