@@ -6,6 +6,7 @@ import {
   Row,
   Col,
 } from '@edx/paragon';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -43,6 +44,18 @@ const CourseHeader = () => {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
+            <div className="small">
+              <Breadcrumb
+                links={[
+                  {
+                    label: 'Find a Course',
+                    to: `/${enterpriseConfig.slug}/search`,
+                  },
+                ]}
+                activeLabel={course.title}
+                linkAs={Link}
+              />
+            </div>
             {primarySubject && !enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
