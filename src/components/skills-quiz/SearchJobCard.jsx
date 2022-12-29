@@ -46,11 +46,7 @@ const SearchJobCard = ({ index }) => {
     [dispatch, index, jobs, jobsToFetch],
   );
 
-  return (
-    <div className="row">
-      <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
-    </div>
-  );
+  return <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />;
 };
 
 SearchJobCard.propTypes = {

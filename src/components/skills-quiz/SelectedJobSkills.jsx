@@ -11,13 +11,13 @@ const SelectedJobSkills = () => {
 
   // Select currentJobRole from state if goal is to improve current job role otherwise choose interestedJobs
   const jobSelected = goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? currentJobRole : interestedJobs;
-  const selectedJobDetails = jobSelected.filter(job => job.name === selectedJob);
+  const selectedJobDetails = jobSelected?.filter(job => job.name === selectedJob) || [];
   let selectedJobSkills = selectedJobDetails[0]?.skills?.sort((a, b) => (
     (a.significance < b.significance) ? 1 : -1));
   selectedJobSkills = selectedJobSkills?.slice(0, 5);
 
   return (
-    <div className="mb-3 mt-5">
+    <div className="my-4">
       <div className="col-12 row">
         {selectedJobSkills?.map(skill => (
           <Badge
@@ -26,7 +26,7 @@ const SelectedJobSkills = () => {
             variant="light"
             data-testid="top-skills-badge"
           >
-            { skill.name }
+            {skill.name}
           </Badge>
         ))}
       </div>

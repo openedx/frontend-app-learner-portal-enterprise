@@ -9,8 +9,26 @@ const MockReactInstantSearch = jest.genMockFromModule(
 );
 
 const fakeHits = [
-  { objectID: '1', title: 'bla', key: 'Bees101' },
-  { objectID: '2', title: 'blp', key: 'Wasps200' },
+  {
+    objectID: '1',
+    title: 'bla',
+    key: 'Bees101',
+    type: 'course',
+    aggregation_key: 'course:Bees101',
+    authoring_organizations: [],
+    card_image_url: 'https://fake.image',
+    course_keys: [],
+  },
+  {
+    objectID: '2',
+    title: 'blp',
+    key: 'Wasps200',
+    type: 'course',
+    aggregation_key: 'course:Wasps200',
+    authoring_organizations: [],
+    card_image_url: 'https://fake.image',
+    course_keys: [],
+  },
 ];
 
 MockReactInstantSearch.connectStateResults = Component => function (props) {
@@ -37,7 +55,7 @@ MockReactInstantSearch.connectPagination = Component => function (props) {
     <Component
       nbPages={1}
       currentRefinement={1}
-      maxPagesDisplayed={1}
+      maxPagesDisplayed={5}
       {...props}
     />
   );
@@ -66,9 +84,6 @@ MockReactInstantSearch.InstantSearch = function ({ children }) {
 };
 MockReactInstantSearch.Configure = function () {
   return <div>CONFIGURED</div>;
-};
-MockReactInstantSearch.Hits = function () {
-  return <div>HIT</div>;
 };
 MockReactInstantSearch.Index = function ({ children }) {
   return <>{children}</>;

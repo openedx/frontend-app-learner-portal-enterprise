@@ -1,5 +1,5 @@
-
 .learner-pathway-modal {
+  // [tech debt] avoid overriding Paragon styles; don't use !important
   .pgn__modal-close-button{
     background-color: white !important;
     color: $primary-500 !important;

@@ -9,6 +9,8 @@ import {
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
+import { messages as footerMessages } from '@edx/frontend-component-footer';
+import { messages as paragonMessages } from '@edx/paragon';
 
 import { App } from './components/app';
 
@@ -45,10 +47,15 @@ initialize({
         GETSMARTER_PRIVACY_POLICY_URL: process.env.GETSMARTER_PRIVACY_POLICY_URL || null,
         EXPERIMENT_2_ID: process.env.EXPERIMENT_2_ID || null,
         EXPERIMENT_2_VARIANT_1_ID: process.env.EXPERIMENT_2_VARIANT_1_ID || null,
+        EXPERIMENT_3_ID: process.env.EXPERIMENT_3_ID || null,
+        EXPERIMENT_3_VARIANT_1_ID: process.env.EXPERIMENT_3_VARIANT_1_ID || null,
       });
     },
   },
-  messages: [],
+  messages: [
+    paragonMessages,
+    footerMessages,
+  ],
   // We don't require authenticated users so that we can perform our own auth redirect to a proxy login that depends on
   // the route, rather than the LMS like frontend-platform does.
   requireAuthenticatedUser: false,

@@ -2,12 +2,10 @@ import React, {
   useContext,
 } from 'react';
 import {
-  Row,
-  Container,
   Button,
+  CardGrid,
 } from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import './styles/index.scss';
 
 import { Search } from '@edx/paragon/icons';
 
@@ -31,27 +29,27 @@ const ProgramListingPage = () => {
 
   if (!learnerProgramsData) {
     return (
-      <Container size="lg" className="py-5">
+      <div className="py-5">
         <LoadingSpinner screenReaderText="loading program" />
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container size="lg" className="py-5 w-100">
-      <Row>
-        {learnerProgramsData.length > 0 ? (
-          learnerProgramsData.map((program) => <ProgramListingCard program={program} key={program.title} />)
-        ) : (
-          <div className="no-content-message">
-            <h2>{NO_PROGRAMS_ERROR_MESSAGE}</h2>
-            <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
-              <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore programs</Button>
-            </Link>
-          </div>
-        )}
-      </Row>
-    </Container>
+    <div className="py-5">
+      {learnerProgramsData.length > 0 ? (
+        <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
+          {learnerProgramsData.map((program) => <ProgramListingCard program={program} key={program.title} />)}
+        </CardGrid>
+      ) : (
+        <div className="no-content-message">
+          <h2>{NO_PROGRAMS_ERROR_MESSAGE}</h2>
+          <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
+            <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore programs</Button>
+          </Link>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
-  Dropdown, Badge, IconButton, Icon,
+  Dropdown, Badge, IconButton, Icon, Skeleton,
 } from '@edx/paragon';
 import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -10,7 +10,6 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MoreVert } from '@edx/paragon/icons';
-import Skeleton from 'react-loading-skeleton';
 
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';

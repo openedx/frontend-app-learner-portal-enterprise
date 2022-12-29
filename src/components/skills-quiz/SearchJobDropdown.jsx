@@ -20,6 +20,7 @@ const SearchJobDropdown = () => {
       searchable={!!typeaheadOptions}
       doRefinement={false}
       showBadge={false}
+      variant="default"
     />
   );
 };

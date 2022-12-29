@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
+
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import { CourseContext } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -37,6 +39,7 @@ const LicenseRequestedAlertWrapper = ({
       subscriptions,
     },
   }), [subscriptions]);
+
   const requestContextValue = useMemo(() => ({
     subsidyRequestConfiguration: null,
     requestsBySubsidyType: {
@@ -44,14 +47,17 @@ const LicenseRequestedAlertWrapper = ({
       [SUBSIDY_TYPE.COUPON]: [],
     },
   }), [licenseRequests]);
+
   return (
-    <UserSubsidyContext.Provider value={contextValue}>
-      <SubsidyRequestsContext.Provider value={requestContextValue}>
-        <CourseContext.Provider>
-          <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
-        </CourseContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
+    <IntlProvider locale="en">
+      <UserSubsidyContext.Provider value={contextValue}>
+        <SubsidyRequestsContext.Provider value={requestContextValue}>
+          <CourseContext.Provider>
+            <LicenseRequestedAlert catalogList={[mockCatalogUUID]} />
+          </CourseContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </IntlProvider>
   );
 };
 /* eslint-enable react/prop-types */
