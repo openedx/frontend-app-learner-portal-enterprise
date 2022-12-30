@@ -60,15 +60,16 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
 
   const handleCourseAboutPageVisitClick = useCourseAboutPageVisitClickHandler({
+    href: linkToCourse,
     courseKey: course.key,
     enterpriseId: uuid,
   });
 
-  const handleCardClick = () => {
+  const handleCardClick = (e) => {
     if (!linkToCourse) {
       return;
     }
-    handleCourseAboutPageVisitClick();
+    handleCourseAboutPageVisitClick(e);
     sendEnterpriseTrackEvent(
       uuid,
       'edx.ui.enterprise.learner_portal.search.card.clicked',
@@ -88,7 +89,9 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
       data-testid="search-course-card"
       isLoading={isLoading}
       isClickable
-      onClick={handleCardClick}
+      onClick={(e) => {
+        handleCardClick(e);
+      }}
       {...rest}
     >
       <Card.ImageCap
