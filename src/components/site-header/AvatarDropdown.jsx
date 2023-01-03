@@ -25,7 +25,12 @@ const AvatarDropdown = ({ showLabel }) => {
   const logoutUrl = `${LOGOUT_URL}?next=${nextUrl}`;
   return (
     <Dropdown>
-      <Dropdown.Toggle showLabel={showLabel} as={AvatarButton} src={profileImage.imageUrlMedium}>
+      <Dropdown.Toggle
+        showLabel={showLabel}
+        as={AvatarButton}
+        src={profileImage.imageUrlMedium}
+        id="site-header-avatar-dropdown-toggle"
+      >
         {username}
       </Dropdown.Toggle>
       <Dropdown.Menu
