@@ -1,7 +1,13 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Skeleton, CardCarousel, CardDeck } from '@edx/paragon';
+import {
+  Skeleton,
+  CardCarousel,
+  CardDeck,
+  useMediaQuery,
+  breakpoints,
+} from '@edx/paragon';
 
 import { CARDGRID_COLUMN_SIZES } from '../constants';
 import HighlightedContentCard from './HighlightedContentCard';
@@ -20,12 +26,25 @@ const ContentHighlightSet = ({ highlightSet }) => {
     return content;
   }, [highlightSet]);
 
+  const isMobileWindowSize = useMediaQuery({
+    query: `(max-width: ${breakpoints.medium.maxWidth}px)`,
+  });
+
   return (
     <div data-testid="content-highlights-set">
       <CardCarousel
+        ariaLabel={`${title} content carousel`}
         title={title}
         subtitle="Enroll in content selected for you by your organization."
         columnSizes={CARDGRID_COLUMN_SIZES}
+        onScrollPrevious={() => {
+          // TODO: add segment event
+        }}
+        onScrollNext={() => {
+          // TODO: add segment event
+        }}
+        CardCarouselControls={isMobileWindowSize ? () => null : undefined}
+        canScrollHorizontal={isMobileWindowSize}
         hasInteractiveChildren
       >
         {highlightedContent}
