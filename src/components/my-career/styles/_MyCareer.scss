@@ -1,0 +1,63 @@
+.job-role {
+
+  .job-role-image {
+    width: inherit;
+  }
+
+  .add-job-icon {
+    margin-right: 0.5rem;
+  }
+
+  .edit-job-icon {
+    margin-right: 0.5rem;
+  }
+
+  .job-role-details {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.skills-chart-reading-instructions {
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+}
+
+.level-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.level-bar {
+  width: 9px;
+  height: 6px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  border-radius: 0%;
+  margin-right: 0.25rem;
+}
+
+.skill-level-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skill-level-details-row {
+  display: flex;
+  align-content: flex-start;
+  align-items: center;
+}
+
+.skill-detail {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
