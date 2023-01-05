@@ -11,7 +11,7 @@ import {
   getContentPageUrl,
 } from './utils';
 
-export const useContentHighlights = () => {
+export const useContentHighlights = (enterpriseUUID) => {
   const [isLoading, setIsLoading] = useState(true);
   const [contentHighlights, setContentHighlights] = useState([]);
   const [fetchError, setFetchError] = useState();
@@ -20,7 +20,7 @@ export const useContentHighlights = () => {
     const fetchContentHighlights = async () => {
       try {
         setIsLoading(true);
-        const response = await getContentHighlights();
+        const response = await getContentHighlights(enterpriseUUID);
         const results = camelCaseObject(response.data.results);
         const highlightSetsWithContent = results.filter(highlightSet => highlightSet.highlightedContent.length > 0);
         setContentHighlights(highlightSetsWithContent);
@@ -34,7 +34,7 @@ export const useContentHighlights = () => {
     if (getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
       fetchContentHighlights();
     }
-  }, []);
+  }, [enterpriseUUID]);
 
   return {
     isLoading,
