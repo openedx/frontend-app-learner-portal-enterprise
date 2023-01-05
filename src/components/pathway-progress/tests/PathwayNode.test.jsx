@@ -38,7 +38,6 @@ const pathwaySteps = camelCaseObject(
   LearnerPathwayProgressData[0].learner_pathway_progress.steps,
 );
 
-/* eslint-disable react/prop-types */
 const PathwayNodeWithContext = ({ pathwayNodedData }) => (
   <AppContext.Provider value={appState}>
     <UserSubsidyContext.Provider value={userSubsidyState}>

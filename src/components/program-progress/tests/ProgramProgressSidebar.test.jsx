@@ -7,7 +7,6 @@ import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramCertImage } from '../data/utils';
 import progSampleCertImage from '../images/sample-cert.png';
 
-/* eslint-disable react/prop-types */
 const ProgramProgressSideBarWithContext = ({
   initialProgramProgressContext = {},
 }) => (

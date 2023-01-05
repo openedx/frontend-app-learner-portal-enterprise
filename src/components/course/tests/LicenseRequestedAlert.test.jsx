@@ -25,7 +25,6 @@ const initialLicenseRequests = [
   },
 ];
 
-/* eslint-disable react/prop-types */
 const LicenseRequestedAlertWrapper = ({
   subscriptions = initialSubscriptions, licenseRequests = initialLicenseRequests,
 }) => (
@@ -58,7 +57,6 @@ const LicenseRequestedAlertWrapper = ({
     </UserSubsidyContext.Provider>
   </IntlProvider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<LicenseRequestedAlert />', () => {
   it('renders correctly', () => {
@@ -94,7 +92,9 @@ describe('<LicenseRequestedAlert />', () => {
     const { getByText, queryByText } = render(<LicenseRequestedAlertWrapper />);
     fireEvent.click(getByText('Dismiss'));
     expect(mockSetCookies).toHaveBeenCalledWith(
-      LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, true, { sameSite: 'strict' },
+      LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME,
+      true,
+      { sameSite: 'strict' },
     );
 
     await waitFor(() => {

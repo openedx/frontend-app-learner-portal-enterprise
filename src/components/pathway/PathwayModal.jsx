@@ -33,8 +33,10 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
         </h3>
         {/* eslint-disable react/no-danger */}
         <div dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(node.shortDescription,
-            { USE_PROFILES: { html: true } }),
+          __html: DOMPurify.sanitize(
+            node.shortDescription,
+            { USE_PROFILES: { html: true } },
+          ),
         }}
         />
       </Col>
@@ -171,9 +173,13 @@ const SkeletonPathwayModal = (props) => (
 );
 
 PathwayModal.propTypes = {
-  learnerPathwayUuid: PropTypes.string.isRequired,
+  learnerPathwayUuid: PropTypes.string,
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+};
+
+PathwayModal.defaultProps = {
+  learnerPathwayUuid: undefined,
 };
 
 PathwayModal.Skeleton = SkeletonPathwayModal;

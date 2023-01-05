@@ -1,1 +1,3 @@
-export { default } from './NoticesProvider';
+import NoticesProvider from './NoticesProvider';
+
+export default NoticesProvider;

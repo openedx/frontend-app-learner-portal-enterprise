@@ -45,14 +45,12 @@ const LicenseSubsidyPriceText = ({
   });
 
   return (
-    <>
-      <div className="mt-2" data-testid="subsidy-license-price-text">
-        <del>
-          <span className="sr-only">Priced reduced from:</span>${numberWithPrecision(coursePrice.list)} {currency}
-        </del>
-        <span>{' '}included in your subscription</span>
-      </div>
-    </>
+    <div className="mt-2" data-testid="subsidy-license-price-text">
+      <del>
+        <span className="sr-only">Priced reduced from:</span>${numberWithPrecision(coursePrice.list)} {currency}
+      </del>
+      <span>{' '}included in your subscription</span>
+    </div>
   );
 };
 

@@ -23,6 +23,7 @@ describe('<MarkCompleteModal />', () => {
   };
 
   it('handles confirm click with success', () => {
+    // eslint-disable-next-line no-import-assign
     service.markCourseAsCompleteRequest = jest.fn()
       .mockImplementation(() => Promise.resolve({
         data: {
@@ -46,6 +47,7 @@ describe('<MarkCompleteModal />', () => {
   });
 
   it('handles confirm click with error', async () => {
+    // eslint-disable-next-line no-import-assign
     service.markCourseAsCompleteRequest = jest.fn()
       .mockImplementation(() => Promise.reject(new Error('test error')));
     const wrapper = mount((

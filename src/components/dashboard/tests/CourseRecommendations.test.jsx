@@ -24,7 +24,6 @@ const defaultAppState = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
-/* eslint-disable react/prop-types */
 const CourseRecommendationsContext = ({
   initialAppState = defaultAppState,
 }) => (
@@ -32,7 +31,6 @@ const CourseRecommendationsContext = ({
     <CourseRecommendations />
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<CourseRecommendations />', () => {
   it('renders component correctly', () => {

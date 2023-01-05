@@ -13,7 +13,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramFAQWithContext = ({
   initialAppState = {},
   initialProgramState = {},
@@ -27,7 +26,6 @@ const ProgramFAQWithContext = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<ProgramFAQ />', () => {
   const initialAppState = {

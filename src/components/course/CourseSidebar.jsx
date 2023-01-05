@@ -28,7 +28,7 @@ import {
   useCoursePacingType,
 } from './data/hooks';
 
-export default function CourseSidebar() {
+const CourseSidebar = () => {
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
   const { primarySubject } = useCourseSubjects(course);
@@ -155,4 +155,6 @@ export default function CourseSidebar() {
       )}
     </>
   );
-}
+};
+
+export default CourseSidebar;

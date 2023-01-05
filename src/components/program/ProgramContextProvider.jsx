@@ -3,13 +3,11 @@ import PropTypes from 'prop-types';
 
 export const ProgramContext = createContext();
 
-export function ProgramContextProvider({ children, initialState }) {
-  return (
-    <ProgramContext.Provider value={initialState}>
-      {children}
-    </ProgramContext.Provider>
-  );
-}
+export const ProgramContextProvider = ({ children, initialState }) => (
+  <ProgramContext.Provider value={initialState}>
+    {children}
+  </ProgramContext.Provider>
+);
 
 ProgramContextProvider.propTypes = {
   children: PropTypes.node.isRequired,

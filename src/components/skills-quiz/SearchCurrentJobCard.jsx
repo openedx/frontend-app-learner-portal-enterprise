@@ -20,8 +20,7 @@ const SearchCurrentJobCard = ({ index }) => {
       jobsArray.push(`name:${currentJob[0]}`);
     }
     return jobsArray;
-  },
-  [currentJob]);
+  }, [currentJob]);
 
   useEffect(
     () => {

@@ -24,7 +24,7 @@ TagCloud.propTypes = {
   tags: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string.isRequired,
-      metadata: PropTypes.object.isRequired,
+      metadata: PropTypes.shape().isRequired,
     }),
   ).isRequired,
 };

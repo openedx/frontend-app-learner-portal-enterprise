@@ -11,11 +11,11 @@ import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 /**
  * Button for upgrading a course via coupon code (possibly offer later on).
  */
-export default function UpgradeCourseButton({
+const UpgradeCourseButton = ({
   className,
   title,
   variant,
-}) {
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { enterpriseConfig: { uuid } } = useContext(AppContext);
@@ -62,13 +62,7 @@ export default function UpgradeCourseButton({
         onEnroll={handleEnroll}
       />
     </>
-
   );
-}
-
-UpgradeCourseButton.defaultProps = {
-  className: undefined,
-  variant: 'outline-primary',
 };
 
 UpgradeCourseButton.propTypes = {
@@ -76,3 +70,10 @@ UpgradeCourseButton.propTypes = {
   variant: PropTypes.string,
   title: PropTypes.string.isRequired,
 };
+
+UpgradeCourseButton.defaultProps = {
+  className: undefined,
+  variant: 'outline-primary',
+};
+
+export default UpgradeCourseButton;

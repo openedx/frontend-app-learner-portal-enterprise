@@ -11,7 +11,7 @@ export const initialCouponCodesState = {
   error: null,
 };
 
-const couponCodesReducer = (state = initialCouponCodesState, action) => {
+const couponCodesReducer = (state, action) => {
   switch (action.type) {
     case FETCH_COUPON_CODES_REQUEST:
       return {

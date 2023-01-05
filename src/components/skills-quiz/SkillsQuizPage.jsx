@@ -5,10 +5,12 @@ import { Redirect } from 'react-router-dom';
 
 import SkillsQuiz from './SkillsQuiz';
 
-export default function DashboardPage() {
+const SkillsQuizPage = () => {
   const config = getConfig();
   if (!config.ENABLE_SKILLS_QUIZ) {
     return <Redirect to="/" />;
   }
   return <SkillsQuiz />;
-}
+};
+
+export default SkillsQuizPage;

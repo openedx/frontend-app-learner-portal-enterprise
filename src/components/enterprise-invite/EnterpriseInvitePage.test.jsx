@@ -24,7 +24,6 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
 jest.mock('../error-page', () => ({
-  // eslint-disable-next-line react/prop-types
   ErrorPage: ({ children }) => <div data-testid="error-page-message">{children}</div>,
 }));
 

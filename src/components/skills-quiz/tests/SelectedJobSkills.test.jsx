@@ -6,7 +6,6 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectedJobSkills from '../SelectedJobSkills';
 
-/* eslint-disable react/prop-types */
 const SelectedJobSkillsWithContext = ({
   initialSelectedJobSkillsState = {},
   initialAppState,
@@ -19,7 +18,6 @@ const SelectedJobSkillsWithContext = ({
     </SearchContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const PROGRAMMING = 'Programming';
 const ACCOUNTING = 'Accounting';

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { PathwayProgressContext } from './PathwayProgressContextProvider';
 import PathwayStep from './PathwayStep';
 
-export default function PathwayRequirements() {
+const PathwayRequirements = () => {
   const { learnerPathwayProgress } = useContext(PathwayProgressContext);
   const getStepNodes = (step) => [...step.courses, ...step.programs];
 
@@ -21,4 +21,6 @@ export default function PathwayRequirements() {
       </section>
     </div>
   );
-}
+};
+
+export default PathwayRequirements;

@@ -19,7 +19,6 @@ import CourseEnrollmentsContextProvider from '../../main-content/course-enrollme
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
 
-/* eslint-disable react/prop-types */
 const DashboardSidebarWithContext = ({
   initialAppState = { fakeContext: 'foo' },
   initialUserSubsidyState = {},
@@ -45,7 +44,6 @@ const DashboardSidebarWithContext = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<DashboardSidebar />', () => {
   const defaultUserSubsidyState = {

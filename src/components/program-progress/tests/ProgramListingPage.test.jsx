@@ -68,7 +68,6 @@ jest.mock('../data/hooks', () => ({
   useLearnerProgramsListData: jest.fn(),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},

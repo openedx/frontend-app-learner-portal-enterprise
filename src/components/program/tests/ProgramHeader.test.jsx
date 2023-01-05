@@ -12,7 +12,6 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn().mockReturnValue({ enterpriseSlug: 'test-enterprise-slug' }),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramHeaderWithContext = ({
   initialAppState = {},
   initialProgramState = {},
@@ -26,7 +25,6 @@ const ProgramHeaderWithContext = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<ProgramHeader />', () => {
   const initialAppState = {

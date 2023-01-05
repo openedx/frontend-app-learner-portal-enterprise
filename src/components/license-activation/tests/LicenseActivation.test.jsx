@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -51,10 +50,12 @@ describe('LicenseActivation', () => {
     const mockActivateUserLicense = jest.fn();
 
     const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext initialUserSubsidyState={{
-        activateUserLicense: mockActivateUserLicense,
-      }}
-      />, {
+      <LicenseActivationWithAppContext
+        initialUserSubsidyState={{
+          activateUserLicense: mockActivateUserLicense,
+        }}
+      />,
+      {
         route: TEST_ROUTE,
       },
     );
@@ -76,10 +77,12 @@ describe('LicenseActivation', () => {
     );
 
     const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext initialUserSubsidyState={{
-        activateUserLicense: mockActivateUserLicense,
-      }}
-      />, {
+      <LicenseActivationWithAppContext
+        initialUserSubsidyState={{
+          activateUserLicense: mockActivateUserLicense,
+        }}
+      />,
+      {
         route: TEST_ROUTE,
       },
     );
@@ -106,10 +109,12 @@ describe('LicenseActivation', () => {
 
     const mockActivateUserLicense = jest.fn();
     const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext initialUserSubsidyState={{
-        activateUserLicense: mockActivateUserLicense,
-      }}
-      />, {
+      <LicenseActivationWithAppContext
+        initialUserSubsidyState={{
+          activateUserLicense: mockActivateUserLicense,
+        }}
+      />,
+      {
         route: TEST_ROUTE,
       },
     );

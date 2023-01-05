@@ -201,174 +201,172 @@ const SkillsQuizStepper = () => {
   }, []);
 
   return (
-    <>
-      <Stepper activeKey={currentStep}>
-        <ModalDialog
-          title="Skills Quiz"
-          size="fullscreen"
-          className="bg-light-200 skills-quiz-modal"
-          isOpen
-          onClose={closeSkillsQuiz}
-        >
-          <ModalDialog.Hero className="bg-img">
-            <ModalDialog.Hero.Background
-              backgroundSrc={headerImage}
-            />
-            <ModalDialog.Hero.Content style={{ maxWidth: '15rem' }}>
-              <SkillsQuizHeader />
-            </ModalDialog.Hero.Content>
-          </ModalDialog.Hero>
-          <ModalDialog.Body>
-            <Container size="lg">
-              <Stepper.Step eventKey="skills-search" title="Skills Search">
-                <div className="skills-quiz-dropdown my-4">
-                  <p>
-                    {SKILLS_QUIZ_SEARCH_PAGE_MESSAGE}
-                  </p>
-                  <p className="mt-4.5">
-                    First, tell us a bit more about what you want to achieve.
-                  </p>
-                  <div className="mt-2">
-                    <GoalDropdown />
-                  </div>
-                  {skillsVisible && (
+    <Stepper activeKey={currentStep}>
+      <ModalDialog
+        title="Skills Quiz"
+        size="fullscreen"
+        className="bg-light-200 skills-quiz-modal"
+        isOpen
+        onClose={closeSkillsQuiz}
+      >
+        <ModalDialog.Hero className="bg-img">
+          <ModalDialog.Hero.Background
+            backgroundSrc={headerImage}
+          />
+          <ModalDialog.Hero.Content style={{ maxWidth: '15rem' }}>
+            <SkillsQuizHeader />
+          </ModalDialog.Hero.Content>
+        </ModalDialog.Hero>
+        <ModalDialog.Body>
+          <Container size="lg">
+            <Stepper.Step eventKey="skills-search" title="Skills Search">
+              <div className="skills-quiz-dropdown my-4">
+                <p>
+                  {SKILLS_QUIZ_SEARCH_PAGE_MESSAGE}
+                </p>
+                <p className="mt-4.5">
+                  First, tell us a bit more about what you want to achieve.
+                </p>
+                <div className="mt-2">
+                  <GoalDropdown />
+                </div>
+                {skillsVisible && (
+                  <InstantSearch
+                    indexName={config.ALGOLIA_INDEX_NAME}
+                    searchClient={searchClient}
+                  >
+                    <Configure
+                      filters={filters}
+                      facetingAfterDistinct
+                    />
+                    <div className="skills-drop-down">
+                      <p className="mt-4.5">
+                        Second, which skills are you interested in developing? (select at least one)
+                      </p>
+                      <div className="mt-2">
+                        <SkillsDropDown />
+                      </div>
+                    </div>
+                  </InstantSearch>
+                )}
+                {skillsVisible && (
+                  <TagCloud
+                    tags={selectedSkills}
+                    onRemove={(skillMetadata) => {
+                      if (selectedSkills.length > 1) {
+                        dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
+                      } else {
+                        dispatch(deleteRefinementAction('skill_names'));
+                      }
+                    }}
+                  />
+                )}
+                {jobsDropdownsVisible && (
+                  <div>
+                    <p className="mt-4.5">
+                      Next, tell us about your current job title.
+                    </p>
                     <InstantSearch
-                      indexName={config.ALGOLIA_INDEX_NAME}
+                      indexName={config.ALGOLIA_INDEX_NAME_JOBS}
                       searchClient={searchClient}
                     >
-                      <Configure
-                        filters={filters}
-                        facetingAfterDistinct
-                      />
-                      <div className="skills-drop-down">
-                        <p className="mt-4.5">
-                          Second, which skills are you interested in developing? (select at least one)
-                        </p>
-                        <div className="mt-2">
-                          <SkillsDropDown />
-                        </div>
+                      <div className="mt-2">
+                        <CurrentJobDropdown />
+                        <Form.Checkbox
+                          checked={isStudentChecked}
+                          onChange={handleIsStudentCheckedChange}
+                          disabled={goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE}
+                          data-testid="is-student-checkbox"
+                        >
+                          I am currently a student
+                        </Form.Checkbox>
+                      </div>
+                      <div>
+                        {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE
+                          ? (
+                            <>
+                              <p className="mt-4.5">
+                                Lastly, tell us about career paths you&apos;re interested in (select up to three)
+                              </p>
+                              <div className="mt-2">
+                                <SearchJobDropdown />
+                              </div>
+                            </>
+                          ) : null }
                       </div>
                     </InstantSearch>
-                  )}
-                  {skillsVisible && (
-                    <TagCloud
-                      tags={selectedSkills}
-                      onRemove={(skillMetadata) => {
-                        if (selectedSkills.length > 1) {
-                          dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
-                        } else {
-                          dispatch(deleteRefinementAction('skill_names'));
-                        }
-                      }}
-                    />
-                  )}
-                  {jobsDropdownsVisible && (
-                    <div>
-                      <p className="mt-4.5">
-                        Next, tell us about your current job title.
-                      </p>
-                      <InstantSearch
-                        indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-                        searchClient={searchClient}
-                      >
-                        <div className="mt-2">
-                          <CurrentJobDropdown />
-                          <Form.Checkbox
-                            checked={isStudentChecked}
-                            onChange={handleIsStudentCheckedChange}
-                            disabled={goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE}
-                            data-testid="is-student-checkbox"
-                          >
-                            I am currently a student
-                          </Form.Checkbox>
-                        </div>
-                        <div>
-                          {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE
-                            ? (
-                              <>
-                                <p className="mt-4.5">
-                                  Lastly, tell us about career paths you&apos;re interested in (select up to three)
-                                </p>
-                                <div className="mt-2">
-                                  <SearchJobDropdown />
-                                </div>
-                              </>
-                            ) : null }
-                        </div>
-                      </InstantSearch>
-                    </div>
-                  )}
-                  {jobsDropdownsVisible && (
-                    <>
-                      {goalExceptImproveAndJobSelected
-                        ? <SearchJobCard index={jobIndex} /> : null }
-                      {improveGoalAndCurrentJobSelected
-                        ? <SearchCurrentJobCard index={jobIndex} /> : null }
-                    </>
-                  )}
+                  </div>
+                )}
+                {jobsDropdownsVisible && (
+                  <>
+                    {goalExceptImproveAndJobSelected
+                      ? <SearchJobCard index={jobIndex} /> : null }
+                    {improveGoalAndCurrentJobSelected
+                      ? <SearchCurrentJobCard index={jobIndex} /> : null }
+                  </>
+                )}
+              </div>
+            </Stepper.Step>
+            <Stepper.Step eventKey="courses-with-jobs" title="Recommended Courses With Jobs">
+              <div>
+                <div className="row mb-4 pl-2 mt-4">
+                  <h2>Start Exploring Courses!</h2>
                 </div>
-              </Stepper.Step>
-              <Stepper.Step eventKey="courses-with-jobs" title="Recommended Courses With Jobs">
+                <div className="search-job-card">
+                  {canContinueToRecommendedCourses ? <SelectJobCard /> : null}
+                </div>
+                <SelectedJobSkills />
                 <div>
-                  <div className="row mb-4 pl-2 mt-4">
-                    <h2>Start Exploring Courses!</h2>
-                  </div>
-                  <div className="search-job-card">
-                    {canContinueToRecommendedCourses ? <SelectJobCard /> : null}
-                  </div>
-                  <SelectedJobSkills />
-                  <div>
-                    {(selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
-                      <Stack gap={4}>
-                        <SearchCourseCard index={courseIndex} />
-                        <SearchProgramCard index={courseIndex} />
-                        <SearchPathways index={courseIndex} />
-                      </Stack>
-                    )}
-                  </div>
+                  {(selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
+                    <Stack gap={4}>
+                      <SearchCourseCard index={courseIndex} />
+                      <SearchProgramCard index={courseIndex} />
+                      <SearchPathways index={courseIndex} />
+                    </Stack>
+                  )}
                 </div>
-                <div className="text-center py-4">
-                  <Button variant="outline-primary" onClick={() => setCurrentStep(STEP3)}>
-                    See more course recommendations
-                  </Button>
-                </div>
-              </Stepper.Step>
-              <Stepper.Step eventKey="courses-with-skills" title="Recommended Courses With Skills">
-                <SkillsCourses index={courseIndex} />
-              </Stepper.Step>
-            </Container>
-          </ModalDialog.Body>
-          <ModalDialog.Footer>
-            <Stepper.ActionRow eventKey="skills-search">
-              <Button variant="outline-primary" onClick={() => closeSkillsQuiz()}>
-                Cancel
-              </Button>
-              <Stepper.ActionRow.Spacer />
-              <Button
-                disabled={!canContinueToRecommendedCourses}
-                onClick={() => flipToRecommendedCourses()}
-              >
-                Continue
-              </Button>
-            </Stepper.ActionRow>
-            <Stepper.ActionRow eventKey="courses-with-jobs">
-              <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
-                Go back
-              </Button>
-              <Stepper.ActionRow.Spacer />
-              <Button onClick={() => setCurrentStep(STEP3)}>Continue</Button>
-            </Stepper.ActionRow>
-            <Stepper.ActionRow eventKey="courses-with-skills">
-              <Button variant="outline-primary" onClick={() => setCurrentStep(STEP2)}>
-                Go back
-              </Button>
-              <Stepper.ActionRow.Spacer />
-              <Button onClick={() => closeSkillsQuiz()}>Done</Button>
-            </Stepper.ActionRow>
-          </ModalDialog.Footer>
-        </ModalDialog>
-      </Stepper>
-    </>
+              </div>
+              <div className="text-center py-4">
+                <Button variant="outline-primary" onClick={() => setCurrentStep(STEP3)}>
+                  See more course recommendations
+                </Button>
+              </div>
+            </Stepper.Step>
+            <Stepper.Step eventKey="courses-with-skills" title="Recommended Courses With Skills">
+              <SkillsCourses index={courseIndex} />
+            </Stepper.Step>
+          </Container>
+        </ModalDialog.Body>
+        <ModalDialog.Footer>
+          <Stepper.ActionRow eventKey="skills-search">
+            <Button variant="outline-primary" onClick={() => closeSkillsQuiz()}>
+              Cancel
+            </Button>
+            <Stepper.ActionRow.Spacer />
+            <Button
+              disabled={!canContinueToRecommendedCourses}
+              onClick={() => flipToRecommendedCourses()}
+            >
+              Continue
+            </Button>
+          </Stepper.ActionRow>
+          <Stepper.ActionRow eventKey="courses-with-jobs">
+            <Button variant="outline-primary" onClick={() => setCurrentStep(STEP1)}>
+              Go back
+            </Button>
+            <Stepper.ActionRow.Spacer />
+            <Button onClick={() => setCurrentStep(STEP3)}>Continue</Button>
+          </Stepper.ActionRow>
+          <Stepper.ActionRow eventKey="courses-with-skills">
+            <Button variant="outline-primary" onClick={() => setCurrentStep(STEP2)}>
+              Go back
+            </Button>
+            <Stepper.ActionRow.Spacer />
+            <Button onClick={() => closeSkillsQuiz()}>Done</Button>
+          </Stepper.ActionRow>
+        </ModalDialog.Footer>
+      </ModalDialog>
+    </Stepper>
   );
 };
 

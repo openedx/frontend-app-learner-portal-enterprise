@@ -85,15 +85,13 @@ const SearchResults = ({
   const SkeletonCard = getSkeletonCardFromTitle(title);
 
   return (
-    <Container size="lg" className="search-results my-5">
+    <Container size="lg" className="search-results">
       <div className="d-flex align-items-center mb-2">
         <h2 className="flex-grow-1 mb-2">
           {isSearchStalled && (
             <Skeleton className="h2 d-block mb-3" width={240} />
           )}
-          {!isSearchStalled && nbHits > 0 && (
-            <>{resultsHeading}</>
-          )}
+          {!isSearchStalled && nbHits > 0 && resultsHeading}
         </h2>
         {(!isSearchStalled && nbHits > 0) && (contentType !== undefined) && (
           <SearchPagination

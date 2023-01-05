@@ -37,9 +37,11 @@ const ProgramProgressPage = () => {
     [program],
   );
   const courseData = program?.data?.courseData;
+  /* eslint-disable no-unsafe-optional-chaining */
   const totalCoursesInProgram = courseData?.notStarted?.length
     + courseData?.completed?.length
     + courseData?.inProgress?.length;
+  /* eslint-enable no-unsafe-optional-chaining */
   const allCoursesCompleted = !courseData?.notStarted?.length
     && !courseData?.inProgress?.length
     && courseData?.completed?.length;
@@ -54,6 +56,7 @@ const ProgramProgressPage = () => {
     enrolledCourses = [...enrolledCourses, ...courseData.inProgress];
   }
   const coursesEnrolledInAuditMode = getCoursesEnrolledInAuditMode(enrolledCourses);
+  /* eslint-disable-next-line no-unsafe-optional-chaining */
   const totalCoursesEligibleForCertificate = totalCoursesNotStarted + coursesEnrolledInAuditMode?.length;
   let courseEndDate;
   if (totalCoursesEligibleForCertificate) {

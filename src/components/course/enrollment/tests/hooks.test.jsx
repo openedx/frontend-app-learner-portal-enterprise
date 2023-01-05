@@ -99,7 +99,6 @@ describe('useEnrollData', () => {
     };
 
     // Needed to render our hook with context initialized
-    // eslint-disable-next-line react/prop-types
     const wrapper = ({ children }) => (
       <ContextWrapper initialCourseState={courseState}>
         {children}
@@ -149,7 +148,6 @@ describe('useSubsidyDataForCourse', () => {
       catalog: { catalogList: ['catalog-1', 'catalog-2'] },
     };
     // Needed to render our hook with context initialized
-    // eslint-disable-next-line react/prop-types
     const wrapper = ({ children }) => (
       <ContextWrapper
         initialCourseState={courseState}

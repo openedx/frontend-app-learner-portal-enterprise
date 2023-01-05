@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, StatefulButton } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -30,6 +30,12 @@ const MarkCompleteModal = ({
     { confirmButtonState, confirmError, confirmSuccessful },
     setState,
   ] = useState(initialState);
+
+  const contextValue = useMemo(() => ({
+    courseTitle,
+    courseLink,
+    confirmError,
+  }), [courseTitle, courseLink, confirmError]);
 
   const handleConfirmButtonClick = async () => {
     setState({ confirmButtonState: 'pending' });
@@ -66,13 +72,7 @@ const MarkCompleteModal = ({
   };
 
   return (
-    <MarkCompleteModalContext.Provider
-      value={{
-        courseTitle,
-        courseLink,
-        confirmError,
-      }}
-    >
+    <MarkCompleteModalContext.Provider value={contextValue}>
       <Modal
         title="Save course for later"
         body={<ModalBody />}

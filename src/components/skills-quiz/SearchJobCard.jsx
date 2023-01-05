@@ -19,8 +19,7 @@ const SearchJobCard = ({ index }) => {
       jobs.forEach(job => jobsArray.push(`name:${job}`));
     }
     return jobsArray;
-  },
-  [jobs]);
+  }, [jobs]);
 
   useEffect(
     () => {

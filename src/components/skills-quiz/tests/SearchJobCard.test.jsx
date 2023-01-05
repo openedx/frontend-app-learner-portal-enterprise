@@ -14,11 +14,9 @@ jest.mock('react-truncate', () => ({
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
-  // eslint-disable-next-line react/prop-types
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
-/* eslint-disable react/prop-types */
 const SearchJobCardWithContext = ({
   index,
   initialAppState,
@@ -33,7 +31,6 @@ const SearchJobCardWithContext = ({
     </SearchContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const TEST_JOB_KEY = 'test-job-key';
 const TEST_JOB_TITLE = 'Test Job Title';

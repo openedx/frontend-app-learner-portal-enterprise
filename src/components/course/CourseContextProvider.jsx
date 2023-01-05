@@ -18,7 +18,7 @@ const reducer = (state, action) => {
   }
 };
 
-export function CourseContextProvider({ children, initialState }) {
+export const CourseContextProvider = ({ children, initialState }) => {
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { catalog } = state;
@@ -42,7 +42,7 @@ export function CourseContextProvider({ children, initialState }) {
       {children}
     </CourseContext.Provider>
   );
-}
+};
 
 CourseContextProvider.propTypes = {
   children: PropTypes.node.isRequired,

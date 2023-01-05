@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -32,24 +31,22 @@ const initialAppContextValue = {
   },
 };
 
-function UserEnrollmentFormWrapper({
+const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
-}) {
-  return (
-    <IntlProvider locale="en">
-      <AppContext.Provider value={appContextValue}>
-        <UserEnrollmentForm
-          enterpriseId={enterpriseId}
-          productSKU={productSKU}
-          onCheckoutSuccess={onCheckoutSuccess}
-        />
-      </AppContext.Provider>
-    </IntlProvider>
-  );
-}
+}) => (
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <UserEnrollmentForm
+        enterpriseId={enterpriseId}
+        productSKU={productSKU}
+        onCheckoutSuccess={onCheckoutSuccess}
+      />
+    </AppContext.Provider>
+  </IntlProvider>
+);
 
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {

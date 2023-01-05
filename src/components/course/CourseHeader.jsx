@@ -6,6 +6,7 @@ import {
   Row,
   Col,
 } from '@edx/paragon';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
@@ -17,18 +18,14 @@ import {
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
-import {
-  useCourseSubjects,
-  useCoursePartners,
-} from './data/hooks';
+import { useCoursePartners } from './data/hooks';
 import LicenseRequestedAlert from './LicenseRequestedAlert';
 import SubsidyRequestButton from './SubsidyRequestButton';
 
-export default function CourseHeader() {
+const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, catalog } = state;
-  const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
@@ -43,16 +40,17 @@ export default function CourseHeader() {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            {primarySubject && !enterpriseConfig.disableSearch && (
+            {!enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
                   links={[
                     {
                       label: 'Find a Course',
-                      url: `/${enterpriseConfig.slug}/search`,
+                      to: `/${enterpriseConfig.slug}/search`,
                     },
                   ]}
                   activeLabel={course.title}
+                  linkAs={Link}
                 />
               </div>
             )}
@@ -111,4 +109,6 @@ export default function CourseHeader() {
       </Container>
     </div>
   );
-}
+};
+
+export default CourseHeader;

@@ -14,7 +14,7 @@ import { shortenString } from './data/utils';
 
 export const MAX_VISIBLE_SKILLS = 5;
 
-export default function CourseSkills() {
+const CourseSkills = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { skills } = state.course;
@@ -57,4 +57,6 @@ export default function CourseSkills() {
       </div>
     </div>
   );
-}
+};
+
+export default CourseSkills;

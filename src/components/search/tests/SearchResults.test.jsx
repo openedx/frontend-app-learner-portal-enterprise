@@ -77,7 +77,6 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
-/* eslint-enable react/prop-types */
 const SearchResultsWithContext = (props) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
@@ -89,7 +88,6 @@ const SearchResultsWithContext = (props) => (
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';

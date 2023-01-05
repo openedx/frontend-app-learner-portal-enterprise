@@ -96,7 +96,7 @@ CourseCard.propTypes = {
     originalImageUrl: PropTypes.string,
     key: PropTypes.string.isRequired,
     partners: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-    skillNames: PropTypes.array.isRequired,
+    skillNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   allSkills: PropTypes.arrayOf(PropTypes.string).isRequired,
   isLoading: PropTypes.bool.isRequired,

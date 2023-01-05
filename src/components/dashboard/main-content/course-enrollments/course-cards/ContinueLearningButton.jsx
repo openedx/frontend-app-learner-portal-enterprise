@@ -15,12 +15,12 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
  *
  * @returns {Function} A functional React component for the continue learning button.
  */
-export default function ContinueLearningButton({
+const ContinueLearningButton = ({
   className,
   linkToCourse,
   title,
   courseRunId,
-}) {
+}) => {
   const { enterpriseConfig } = useContext(AppContext);
 
   const onClickHandler = () => {
@@ -42,7 +42,7 @@ export default function ContinueLearningButton({
       <span className="sr-only">for {title}</span>
     </a>
   );
-}
+};
 
 ContinueLearningButton.defaultProps = {
   className: 'btn-outline-primary',
@@ -54,3 +54,5 @@ ContinueLearningButton.propTypes = {
   title: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
 };
+
+export default ContinueLearningButton;

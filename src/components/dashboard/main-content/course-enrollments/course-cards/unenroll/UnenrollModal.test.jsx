@@ -35,7 +35,6 @@ const baseUnenrollModalProps = {
 const mockAddToast = jest.fn();
 
 const UnenrollModalWrapper = ({
-  // eslint-disable-next-line react/prop-types
   courseEnrollmentsContextValue = defaultCourseEnrollmentsContextValue,
   ...props
 }) => (
