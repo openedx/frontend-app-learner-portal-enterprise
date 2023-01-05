@@ -85,7 +85,7 @@ const SearchResults = ({
   const SkeletonCard = getSkeletonCardFromTitle(title);
 
   return (
-    <Container size="lg" className="search-results">
+    <Container size="lg" className="search-results my-5">
       <div className="d-flex align-items-center mb-2">
         <h2 className="flex-grow-1 mb-2">
           {isSearchStalled && (
