@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connectStateResults } from 'react-instantsearch-dom';
 import {
   useNbHitsFromSearchResults, SearchContext, SearchPagination, setRefinementAction,
@@ -21,6 +22,7 @@ import {
 import { getContentTypeFromTitle, getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 
 const SearchResults = ({
+  className,
   searchResults,
   searchState,
   isSearchStalled,
@@ -85,7 +87,7 @@ const SearchResults = ({
   const SkeletonCard = getSkeletonCardFromTitle(title);
 
   return (
-    <Container size="lg" className="search-results my-5">
+    <Container size="lg" className={classNames('search-results', className)}>
       <div className="d-flex align-items-center mb-2">
         <h2 className="flex-grow-1 mb-2">
           {isSearchStalled && (
@@ -140,6 +142,7 @@ const SearchResults = ({
 };
 
 SearchResults.propTypes = {
+  className: PropTypes.string,
   searchState: PropTypes.shape({
     query: PropTypes.string,
     page: PropTypes.number,
@@ -156,6 +159,7 @@ SearchResults.propTypes = {
 };
 
 SearchResults.defaultProps = {
+  className: undefined,
   searchResults: undefined,
   isSearchStalled: false,
   error: undefined,

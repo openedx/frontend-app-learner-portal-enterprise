@@ -131,7 +131,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
         >
           <div className="d-flex align-items-center">
             <Icon src={Program} className="mr-1" />
-            <ProgramType type={program.type} />
+            <ProgramType type={program.type || null} />
           </div>
         </Badge>
       </Card.Section>
