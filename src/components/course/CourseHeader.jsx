@@ -18,10 +18,7 @@ import {
   getDefaultProgram,
   formatProgramType,
 } from './data/utils';
-import {
-  useCourseSubjects,
-  useCoursePartners,
-} from './data/hooks';
+import { useCoursePartners } from './data/hooks';
 import LicenseRequestedAlert from './LicenseRequestedAlert';
 import SubsidyRequestButton from './SubsidyRequestButton';
 
@@ -29,7 +26,6 @@ const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
   const { course, catalog } = state;
-  const { primarySubject } = useCourseSubjects(course);
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
@@ -44,7 +40,7 @@ const CourseHeader = () => {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            {primarySubject && !enterpriseConfig.disableSearch && (
+            {!enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
                   links={[

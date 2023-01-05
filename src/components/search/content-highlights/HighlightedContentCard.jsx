@@ -86,13 +86,14 @@ const HighlightedContentCard = ({
 const HighlightedContentCardSkeleton = props => <HighlightedContentCard isLoading {...props} />;
 
 HighlightedContentCard.propTypes = {
-  highlightSetUUID: PropTypes.string.isRequired,
+  highlightSetUUID: PropTypes.string,
   highlightedContent: PropTypes.shape(),
   isLoading: PropTypes.bool,
 };
 
 HighlightedContentCard.defaultProps = {
-  highlightedContent: null,
+  highlightSetUUID: undefined,
+  highlightedContent: undefined,
   isLoading: false,
 };
 
