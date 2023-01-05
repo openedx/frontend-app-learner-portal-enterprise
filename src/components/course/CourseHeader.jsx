@@ -44,28 +44,17 @@ const CourseHeader = () => {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            <div className="small">
-              <Breadcrumb
-                links={[
-                  {
-                    label: 'Find a Course',
-                    to: `/${enterpriseConfig.slug}/search`,
-                  },
-                ]}
-                activeLabel={course.title}
-                linkAs={Link}
-              />
-            </div>
             {primarySubject && !enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
                   links={[
                     {
                       label: 'Find a Course',
-                      url: `/${enterpriseConfig.slug}/search`,
+                      to: `/${enterpriseConfig.slug}/search`,
                     },
                   ]}
                   activeLabel={course.title}
+                  linkAs={Link}
                 />
               </div>
             )}

@@ -8,6 +8,7 @@ import {
   getHighlightedContentCardVariant,
   getFormattedContentType,
   getAuthoringOrganizations,
+  getContentPageUrl,
 } from './utils';
 
 export const useContentHighlights = () => {
@@ -42,7 +43,10 @@ export const useContentHighlights = () => {
   };
 };
 
-export const useHighlightedContentCardData = (highlightedContent) => {
+export const useHighlightedContentCardData = ({
+  enterpriseSlug,
+  highlightedContent,
+}) => {
   const cardData = {};
 
   if (!highlightedContent) {
@@ -50,13 +54,21 @@ export const useHighlightedContentCardData = (highlightedContent) => {
   }
 
   const {
+    contentKey,
     contentType,
     title,
     cardImageUrl,
     authoringOrganizations,
+    aggregationKey,
   } = highlightedContent;
 
+  cardData.aggregationKey = aggregationKey;
   cardData.variant = getHighlightedContentCardVariant(contentType);
+  cardData.href = getContentPageUrl({
+    contentKey,
+    contentType,
+    enterpriseSlug,
+  });
   cardData.contentType = getFormattedContentType(contentType);
   cardData.title = title;
   cardData.cardImageUrl = cardImageUrl;

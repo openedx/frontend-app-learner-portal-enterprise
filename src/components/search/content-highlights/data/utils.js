@@ -18,3 +18,23 @@ export const getAuthoringOrganizations = (authoringOrganizations) => {
   }
   return authoringOrganizationsData;
 };
+
+export const getContentPageUrl = ({
+  contentKey,
+  contentType,
+  enterpriseSlug,
+}) => {
+  if (contentType === 'course') {
+    return `/${enterpriseSlug}/course/${contentKey}`;
+  }
+
+  if (contentType === 'program') {
+    return `/${enterpriseSlug}/program/${contentKey}`;
+  }
+
+  if (contentType === 'learnerpathway') {
+    return `/${enterpriseSlug}/searcb/${contentKey}`;
+  }
+
+  return undefined;
+};
