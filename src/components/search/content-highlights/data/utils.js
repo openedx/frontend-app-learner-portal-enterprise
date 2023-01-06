@@ -33,7 +33,7 @@ export const getContentPageUrl = ({
   }
 
   if (contentType === 'learnerpathway') {
-    return `/${enterpriseSlug}/searcb/${contentKey}`;
+    return `/${enterpriseSlug}/search/${contentKey}`;
   }
 
   return undefined;
