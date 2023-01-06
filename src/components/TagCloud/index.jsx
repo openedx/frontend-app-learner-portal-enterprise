@@ -1,26 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import './styles/TagCloud.scss';
+import { Chip } from '@edx/paragon';
+import { Close } from '@edx/paragon/icons';
 
 const TagCloud = ({ tags, onRemove }) => (
-  <>
-    <div className="skills-tag">
-      <ul className="item">
-        {
-          tags.map(
-            tag => (
-              <li className="list-item" key={tag.title}>
-                <span className="black">{tag.title}</span>
-                <button data-testid={tag.title} type="button" className="remove" onClick={() => onRemove(tag.metadata)}>x</button>
-              </li>
-            ),
-          )
-        }
-      </ul>
-    </div>
-
-  </>
+  <div className="skills-tag">
+    {tags.map(tag => (
+      <Chip
+        key={tag.title}
+        variant="light"
+        iconAfter={Close}
+        onIconAfterClick={() => onRemove(tag.metadata)}
+        data-testid={tag.title}
+      >
+        {tag.title}
+      </Chip>
+    ))}
+  </div>
 );
 
 TagCloud.propTypes = {
@@ -28,7 +24,7 @@ TagCloud.propTypes = {
   tags: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string.isRequired,
-      metadata: PropTypes.object.isRequired,
+      metadata: PropTypes.shape().isRequired,
     }),
   ).isRequired,
 };

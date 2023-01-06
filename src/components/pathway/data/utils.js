@@ -6,8 +6,10 @@ export default function coursesAndProgramsText(pathway) {
   let message;
 
   for (let i = 0; i < pathway.steps.length; i++) {
+    /* eslint-disable no-unsafe-optional-chaining */
     courseCount += pathway.steps[i].courses?.length;
     programCount += pathway.steps[i].programs?.length;
+    /* eslint-enable no-unsafe-optional-chaining */
   }
 
   textCourse = courseCount === 1 ? 'course' : 'courses';

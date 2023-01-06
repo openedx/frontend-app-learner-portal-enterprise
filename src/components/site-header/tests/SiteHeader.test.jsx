@@ -28,7 +28,6 @@ const appState = {
   },
 };
 
-/* eslint-disable react/prop-types */
 const SiteHeaderWithContext = ({
   initialAppState = appState,
 }) => (
@@ -36,7 +35,6 @@ const SiteHeaderWithContext = ({
     <SiteHeader />
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const mockWindowConfig = {
   type: 'screen',

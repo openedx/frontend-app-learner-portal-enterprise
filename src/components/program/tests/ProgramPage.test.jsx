@@ -1,15 +1,15 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, render, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from 'react-intl';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramPage from '../ProgramPage';
 import { useAllProgramData } from '../data/hooks';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
 
-const waitForAsync = () => new Promise(resolve => setImmediate(resolve));
+const waitForAsync = () => new Promise((resolve) => { setImmediate(resolve); });
 
 const programData = {
   title: 'Test Program Title',
@@ -34,11 +34,15 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/react', () => ({
+  ...jest.requireActual('@edx/frontend-platform/react'),
+  ErrorPage: () => <div data-testid="error-page" />,
+}));
+
 jest.mock('../data/hooks', () => ({
   useAllProgramData: jest.fn(),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
@@ -51,7 +55,6 @@ const ProgramWithContext = ({
     </AppContext.Provider>
   </IntlProvider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<Program />', () => {
   const initialAppState = {
@@ -90,19 +93,13 @@ describe('<Program />', () => {
 
   test('renders program error.', async () => {
     useAllProgramData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-
-    await act(async () => {
-      render(
-        <ProgramWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-      await waitForAsync();
-
-      expect(screen.getByText('This is a test message.')).toBeInTheDocument();
-      expect(screen.getByText('Try again')).toBeInTheDocument();
-    });
+    render(
+      <ProgramWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
   });
 
   test('renders program not found error.', async () => {

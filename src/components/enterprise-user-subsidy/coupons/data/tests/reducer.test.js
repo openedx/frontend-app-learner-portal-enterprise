@@ -14,7 +14,7 @@ const initialState = {
 
 describe('couponCodesReducer', () => {
   it('should return the initial state', () => {
-    expect(couponCodesReducer(undefined, {})).toEqual(initialState);
+    expect(couponCodesReducer(initialState, {})).toEqual(initialState);
   });
 
   it('should handle FETCH_COUPON_CODES_REQUEST', () => {
@@ -23,7 +23,7 @@ describe('couponCodesReducer', () => {
       loading: true,
       error: null,
     };
-    expect(couponCodesReducer(undefined, {
+    expect(couponCodesReducer(initialState, {
       type: FETCH_COUPON_CODES_REQUEST,
     })).toEqual(expected);
   });
@@ -35,7 +35,7 @@ describe('couponCodesReducer', () => {
       couponCodesCount: 4,
       error: null,
     };
-    expect(couponCodesReducer(undefined, {
+    expect(couponCodesReducer(initialState, {
       type: FETCH_COUPON_CODES_SUCCESS,
       payload: {
         couponCodes: ['some data'],
@@ -50,7 +50,7 @@ describe('couponCodesReducer', () => {
       loading: false,
       error: Error,
     };
-    expect(couponCodesReducer(undefined, {
+    expect(couponCodesReducer(initialState, {
       type: FETCH_COUPON_CODES_FAILURE,
       payload: {
         error: Error,

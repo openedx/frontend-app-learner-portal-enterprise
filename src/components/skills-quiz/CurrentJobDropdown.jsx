@@ -23,6 +23,7 @@ const CurrentJobDropdown = () => {
       doRefinement={false}
       customAttribute={customAttribute}
       showBadge={false}
+      variant="default"
     />
   );
 };

@@ -44,7 +44,6 @@ const subsidyRequestsState = {
 };
 
 const ProgramProgressCoursesWithContext = ({
-  // eslint-disable-next-line react/prop-types
   initialAppState, initialUserSubsidyState, courseData, initialSubsidyRequestsState,
 }) => (
   <AppContext.Provider value={initialAppState}>

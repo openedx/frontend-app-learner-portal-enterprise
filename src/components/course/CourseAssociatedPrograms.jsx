@@ -7,7 +7,7 @@ import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
 import { features } from '../../config';
 
-export default function CourseAssociatedPrograms() {
+const CourseAssociatedPrograms = () => {
   const { state } = useContext(CourseContext);
   const { course } = state;
   const { enterpriseConfig } = useContext(AppContext);
@@ -37,12 +37,14 @@ export default function CourseAssociatedPrograms() {
                   : program.marketingUrl}
                 target="_blank"
                 onClick={() => {
-                  sendEnterpriseTrackEvent(enterpriseConfig.uuid,
+                  sendEnterpriseTrackEvent(
+                    enterpriseConfig.uuid,
                     'edx.ui.enterprise.learner_portal.course.sidebar.program.clicked',
                     {
                       program_title: program.title,
                       program_type: program.type,
-                    });
+                    },
+                  );
                 }}
               >
                 {program.title}
@@ -53,4 +55,6 @@ export default function CourseAssociatedPrograms() {
       </ul>
     </div>
   );
-}
+};
+
+export default CourseAssociatedPrograms;

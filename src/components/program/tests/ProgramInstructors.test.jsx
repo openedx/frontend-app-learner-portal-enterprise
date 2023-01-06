@@ -5,7 +5,6 @@ import '@testing-library/jest-dom/extend-expect';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramInstructors from '../ProgramInstructors';
 
-// eslint-disable-next-line react/prop-types
 const ProgramInstructorsWithContext = ({ initialState = {} }) => (
   <ProgramContextProvider initialState={initialState}>
     <ProgramInstructors />

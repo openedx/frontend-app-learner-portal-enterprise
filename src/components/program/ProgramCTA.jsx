@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { defineMessages, useIntl, FormattedMessage } from 'react-intl';
+import { defineMessages, useIntl, FormattedMessage } from '@edx/frontend-platform/i18n';
 import classNames from 'classnames';
 import { Dropdown } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -9,7 +9,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
 
-function ProgramCTA() {
+const ProgramCTA = () => {
   const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
@@ -138,6 +138,6 @@ function ProgramCTA() {
       </div>
     </div>
   );
-}
+};
 
 export default ProgramCTA;

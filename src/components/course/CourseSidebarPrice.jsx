@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import { Skeleton } from '@edx/paragon';
 import classNames from 'classnames';
 import { AppContext } from '@edx/frontend-platform/react';
 

@@ -7,7 +7,7 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
 import PathwayNode from './PathwayNode';
 
-function PathwayStep({ index, minRequirements, nodes }) {
+const PathwayStep = ({ index, minRequirements, nodes }) => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -25,7 +25,7 @@ function PathwayStep({ index, minRequirements, nodes }) {
       }
     </Collapsible>
   );
-}
+};
 
 export default PathwayStep;
 

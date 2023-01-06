@@ -1,7 +1,7 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import '@testing-library/jest-dom';
-import { screen, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -29,12 +29,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
-}));
-
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  // eslint-disable-next-line react/prop-types
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
@@ -140,28 +134,32 @@ const SearchProgramCardWithContext = ({
 
 describe('<SearchProgramCard />', () => {
   test('renders the correct data', async () => {
-    let containerDOM = {};
-    await act(async () => {
-      const { container } = renderWithRouter(
-        <SearchProgramCardWithContext
-          index={testIndex}
-        />,
-      );
-      containerDOM = container;
-    });
+    const { container, history } = renderWithRouter(
+      <SearchProgramCardWithContext
+        index={testIndex}
+      />,
+    );
+
+    const searchProgramCard = await screen.findByTestId('search-program-card');
+    expect(searchProgramCard).toBeInTheDocument();
 
     expect(screen.getByText(PROGRAM_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(PROGRAM_AUTHOR_ORG.name)).toBeInTheDocument();
+    expect(screen.getByText(PROGRAM_AUTHOR_ORG.name)).toBeInTheDocument();
 
-    expect(containerDOM.querySelector('.search-result-card > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`,
-    );
-
-    expect(containerDOM.querySelector('p.partner')).toHaveTextContent(PROGRAM_AUTHOR_ORG.name);
-    expect(containerDOM.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
-    expect(containerDOM.querySelector('span.badge-text')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
+    expect(screen.getByTestId('program-type-badge')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
     expect(screen.getByText(PROGRAM_COURSES_COUNT_TEXT)).toBeInTheDocument();
+
+    // should show both logo image and card image with proper URLs
+    const cardImages = container.querySelectorAll('img');
+    expect(cardImages).toHaveLength(2);
+    expect(cardImages[0]).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
+    expect(cardImages[1]).toHaveAttribute('src', PROGRAM_PARTNER_LOGO_IMG_URL);
+
+    // handles click
+    userEvent.click(searchProgramCard);
+    expect(history.entries).toHaveLength(2);
+    expect(history.location.pathname).toContain(`${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
   });
 
   test('renders the correct data with skills', async () => {
@@ -186,14 +184,13 @@ describe('<SearchProgramCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(programWithSkills)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchProgramCardWithContext
-          index={index}
-        />,
-      );
-    });
-    expect(screen.getByText(skillNames[0])).toBeInTheDocument();
+
+    renderWithRouter(
+      <SearchProgramCardWithContext
+        index={index}
+      />,
+    );
+    expect(await screen.findByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
   });
 
@@ -221,14 +218,12 @@ describe('<SearchProgramCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(programWithSkills)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchProgramCardWithContext
-          index={index}
-        />,
-      );
-    });
-    expect(screen.getByText(skillNames[0])).toBeInTheDocument();
+    renderWithRouter(
+      <SearchProgramCardWithContext
+        index={index}
+      />,
+    );
+    expect(await screen.findByText(skillNames[0])).toBeInTheDocument();
     expect(screen.getByText(skillNames[1])).toBeInTheDocument();
     expect(screen.queryByText(irrelevantSkill)).not.toBeInTheDocument();
   });
@@ -242,13 +237,11 @@ describe('<SearchProgramCard />', () => {
       indexName: 'test-index-name',
       search: jest.fn().mockImplementation(() => Promise.resolve(noPrograms)),
     };
-    await act(async () => {
-      renderWithRouter(
-        <SearchProgramCardWithContext
-          index={index}
-        />,
-      );
-    });
-    expect(screen.getByText(NO_PROGRAMS_ALERT_MESSAGE)).toBeTruthy();
+    renderWithRouter(
+      <SearchProgramCardWithContext
+        index={index}
+      />,
+    );
+    expect(await screen.findByText(NO_PROGRAMS_ALERT_MESSAGE)).toBeInTheDocument();
   });
 });

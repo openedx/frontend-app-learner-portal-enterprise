@@ -12,6 +12,11 @@ const mockUser = {
   profileImage: 'http://fake.image',
 };
 jest.mock('@edx/frontend-platform/auth');
+jest.mock('@edx/frontend-platform/react', () => ({
+  esModule: true,
+  ...jest.requireActual('@edx/frontend-platform/react'),
+  ErrorPage: () => <div data-testid="error-page" />,
+}));
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn().mockReturnValue({ enterpriseSlug: 'test-enterprise-slug' }),
 }));

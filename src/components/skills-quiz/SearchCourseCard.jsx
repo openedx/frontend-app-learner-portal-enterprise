@@ -2,9 +2,10 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { Alert } from '@edx/paragon';
+import { Alert, CardGrid } from '@edx/paragon';
 import { ZoomOut } from '@edx/paragon/icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
@@ -84,27 +85,33 @@ const SearchCourseCard = ({ index }) => {
     [enrolledCourseIds, filters, index, selectedJob, skills, skillsFacetFilter],
   );
 
+  if (hitCount === 0) {
+    return (
+      <Alert
+        className="mt-4 mb-5"
+        variant="info"
+        dismissible={false}
+        icon={ZoomOut}
+        show
+      >
+        { NO_COURSES_ALERT_MESSAGE }
+      </Alert>
+    );
+  }
+
   return (
     <div>
-      {(hitCount > 0) ? <h3 className="mt-2 mb-2"> Get started with these courses </h3> : null}
-      <div className="skill-quiz-results">
-        {(hitCount > 0) && courses.map(course => (
-          <CourseCard isLoading={isLoading} course={course} allSkills={selectedJobSkills} />
+      <h3 className="mb-3">Get started with these courses</h3>
+      <CardGrid>
+        {courses.map(course => (
+          <CourseCard
+            key={uuidv4()}
+            isLoading={isLoading}
+            course={course}
+            allSkills={selectedJobSkills}
+          />
         ))}
-      </div>
-      <div>
-        { hitCount === 0 && (
-          <Alert
-            className="mt-4 mb-5"
-            variant="info"
-            dismissible={false}
-            icon={ZoomOut}
-            show
-          >
-            { NO_COURSES_ALERT_MESSAGE }
-          </Alert>
-        )}
-      </div>
+      </CardGrid>
     </div>
   );
 };

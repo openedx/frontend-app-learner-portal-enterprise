@@ -1,9 +1,9 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
@@ -31,13 +31,13 @@ const initialAppContextValue = {
   },
 };
 
-function UserEnrollmentFormWrapper({
+const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
-}) {
-  return (
+}) => (
+  <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
       <UserEnrollmentForm
         enterpriseId={enterpriseId}
@@ -45,8 +45,8 @@ function UserEnrollmentFormWrapper({
         onCheckoutSuccess={onCheckoutSuccess}
       />
     </AppContext.Provider>
-  );
-}
+  </IntlProvider>
+);
 
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {

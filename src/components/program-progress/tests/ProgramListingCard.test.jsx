@@ -18,7 +18,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramListingCardWithContext = ({ initialAppState, initialUserSubsidyState, programData }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
@@ -113,7 +112,7 @@ describe('<ProgramListingCard />', () => {
       initialUserSubsidyState={userSubsidyState}
       programData={dummyDataWithMultipleOrgs}
     />);
-    const aggregatedOrganizations = dummyDataWithMultipleOrgs.authoringOrganizations.map(org => org.key).join(' ');
+    const aggregatedOrganizations = dummyDataWithMultipleOrgs.authoringOrganizations.map(org => org.key).join(', ');
     expect(screen.getByText(aggregatedOrganizations)).toBeInTheDocument();
   });
 

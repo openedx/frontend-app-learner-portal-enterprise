@@ -30,12 +30,6 @@ jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
 }));
 
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  // eslint-disable-next-line react/prop-types
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
-}));
-
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
@@ -83,7 +77,6 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
-/* eslint-enable react/prop-types */
 const SearchResultsWithContext = (props) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
@@ -95,14 +88,14 @@ const SearchResultsWithContext = (props) => (
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMG_URL = 'http://fake.image';
 const TEST_PARTNER = {
+  key: 'test-partner-key',
   name: 'Partner Name',
-  logoImgUrl: TEST_IMAGE_URL,
+  logo_image_url: TEST_IMAGE_URL,
 };
 
 const SEARCH_RESULT_COURSES = {
@@ -112,9 +105,39 @@ const SEARCH_RESULT_COURSES = {
       key: TEST_COURSE_KEY,
       title: TEST_TITLE,
       card_image_url: TEST_CARD_IMG_URL,
-      partners: [TEST_PARTNER],
+      authoring_organizations: [TEST_PARTNER],
+      type: 'course',
+      aggregation_key: 'course:edX+DemoX',
     },
 
+  ],
+};
+
+const SEARCH_RESULT_PROGRAMS = {
+  nbHits: 1,
+  hits: [
+    {
+      uuid: 'test-program-uuid',
+      title: TEST_TITLE,
+      aggregation_key: 'program:test-program-uuid',
+      type: 'program',
+      authoring_organizations: [TEST_PARTNER],
+      card_image_url: TEST_CARD_IMG_URL,
+      course_keys: [TEST_COURSE_KEY],
+    },
+  ],
+};
+
+const SEARCH_RESULT_PATHWAYS = {
+  nbHits: 1,
+  hits: [
+    {
+      uuid: 'test-pathway-uuid',
+      title: TEST_TITLE,
+      aggregation_key: 'pathway:test-pathway-uuid',
+      type: 'learnerpathway',
+      card_image_url: TEST_CARD_IMG_URL,
+    },
   ],
 };
 
@@ -130,12 +153,29 @@ const propsForCourseResults = {
   contentType: CONTENT_TYPE_COURSE,
 };
 
+const propsForProgramResults = {
+  ...propsForCourseResults,
+  searchResults: SEARCH_RESULT_PROGRAMS,
+  hitComponent: SearchProgramCard,
+  title: PROGRAM_TITLE,
+  contentType: CONTENT_TYPE_PROGRAM,
+};
+
+const propsForPathwayResults = {
+  ...propsForCourseResults,
+  searchResults: SEARCH_RESULT_PATHWAYS,
+  hitComponent: SearchPathwayCard,
+  title: PATHWAY_TITLE,
+  contentType: CONTENT_TYPE_PATHWAY,
+};
+
 const propsForError = {
   searchResults: undefined,
   isSearchStalled: false,
   error: {
     body: 'Test Error String',
   },
+  hitComponent: SearchCourseCard,
   contentType: CONTENT_TYPE_COURSE,
   title: COURSE_TITLE,
 };
@@ -160,36 +200,30 @@ describe('<SearchResults />', () => {
     renderWithRouter(
       <SearchResultsWithContext {...propsForCourseResults} />,
     );
-    // Algolia Hits widget is mocked to return 'HIT'
-    expect(screen.getByText('HIT')).toBeInTheDocument();
+    expect(screen.getByText(COURSE_TITLE, { exact: false })).toBeInTheDocument();
+    SEARCH_RESULT_COURSES.hits.forEach((hit) => {
+      expect(screen.getByText(hit.title)).toBeInTheDocument();
+    });
   });
 
   test('renders correct results for programs', () => {
-    const propsForProgramResults = {
-      ...propsForCourseResults,
-      hitComponent: SearchProgramCard,
-      title: PROGRAM_TITLE,
-      contentType: CONTENT_TYPE_PROGRAM,
-    };
     renderWithRouter(
       <SearchResultsWithContext {...propsForProgramResults} />,
     );
-    // Algolia Hits widget is mocked to return 'HIT'
-    expect(screen.getByText('HIT')).toBeInTheDocument();
+    expect(screen.getByText(PROGRAM_TITLE, { exact: false })).toBeInTheDocument();
+    SEARCH_RESULT_PROGRAMS.hits.forEach((hit) => {
+      expect(screen.getByText(hit.title)).toBeInTheDocument();
+    });
   });
 
   test('renders correct results for pathways', () => {
-    const propsForPathwayResults = {
-      ...propsForCourseResults,
-      hitComponent: SearchPathwayCard,
-      title: PATHWAY_TITLE,
-      contentType: CONTENT_TYPE_PATHWAY,
-    };
     renderWithRouter(
       <SearchResultsWithContext {...propsForPathwayResults} />,
     );
-    // Algolia Hits widget is mocked to return 'HIT'
-    expect(screen.getByText('HIT')).toBeInTheDocument();
+    expect(screen.getByText(PATHWAY_TITLE, { exact: false })).toBeInTheDocument();
+    SEARCH_RESULT_PATHWAYS.hits.forEach((hit) => {
+      expect(screen.getByText(hit.title)).toBeInTheDocument();
+    });
   });
 
   test('renders loading component for courses correctly when search is stalled', () => {
@@ -197,38 +231,35 @@ describe('<SearchResults />', () => {
     renderWithRouter(
       <SearchResultsWithContext {...propsForLoadingCourses} />,
     );
-    const titles = screen.queryAllByTestId('course-title-loading');
-    expect(titles.length).toEqual(NUM_RESULTS_COURSE);
+    // assert correct number of loading skeleton cards
+    const skeletonCards = screen.queryAllByTestId('skeleton-card');
+    expect(skeletonCards).toHaveLength(NUM_RESULTS_COURSE);
   });
 
   test('renders loading component for programs correctly when search is stalled', () => {
     const propsForLoadingProgram = {
-      ...propsForCourseResults,
+      ...propsForProgramResults,
       isSearchStalled: true,
-      hitComponent: SearchProgramCard,
-      title: PROGRAM_TITLE,
-      contentType: CONTENT_TYPE_PROGRAM,
     };
     renderWithRouter(
       <SearchResultsWithContext {...propsForLoadingProgram} />,
     );
-    const elements = screen.queryAllByTestId('program-title-loading');
-    expect(elements.length).toEqual(NUM_RESULTS_PROGRAM);
+    // assert correct number of loading skeleton cards
+    const skeletonCards = screen.queryAllByTestId('skeleton-card');
+    expect(skeletonCards).toHaveLength(NUM_RESULTS_PROGRAM);
   });
 
   test('renders loading component for pathways correctly when search is stalled', () => {
     const propsForLoadingPathway = {
-      ...propsForCourseResults,
+      ...propsForPathwayResults,
       isSearchStalled: true,
-      hitComponent: SearchPathwayCard,
-      title: PATHWAY_TITLE,
-      contentType: CONTENT_TYPE_PATHWAY,
     };
     renderWithRouter(
       <SearchResultsWithContext {...propsForLoadingPathway} />,
     );
-    const elements = screen.queryAllByTestId('pathway-title-loading');
-    expect(elements.length).toEqual(NUM_RESULTS_PATHWAY);
+    // assert correct number of loading skeleton cards
+    const skeletonCards = screen.queryAllByTestId('skeleton-card');
+    expect(skeletonCards).toHaveLength(NUM_RESULTS_PATHWAY);
   });
 
   test('renders an alert in case of an error for courses', () => {
@@ -241,7 +272,12 @@ describe('<SearchResults />', () => {
   });
 
   test('renders an alert in case of an error for programs', () => {
-    const propsForErrorProgram = { ...propsForError, contentType: CONTENT_TYPE_PROGRAM, title: PROGRAM_TITLE };
+    const propsForErrorProgram = {
+      ...propsForError,
+      hitComponent: SearchProgramCard,
+      contentType: CONTENT_TYPE_PROGRAM,
+      title: PROGRAM_TITLE,
+    };
     const searchErrorMessage = getSearchErrorMessage(PROGRAM_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForErrorProgram} />,
@@ -251,7 +287,12 @@ describe('<SearchResults />', () => {
   });
 
   test('renders an alert in case of an error for pathways', () => {
-    const propsForErrorPathway = { ...propsForError, contentType: CONTENT_TYPE_PATHWAY, title: PATHWAY_TITLE };
+    const propsForErrorPathway = {
+      ...propsForError,
+      hitComponent: SearchPathwayCard,
+      contentType: CONTENT_TYPE_PATHWAY,
+      title: PATHWAY_TITLE,
+    };
     const searchErrorMessage = getSearchErrorMessage(PATHWAY_TITLE);
     renderWithRouter(
       <SearchResultsWithContext {...propsForErrorPathway} />,
@@ -271,7 +312,10 @@ describe('<SearchResults />', () => {
 
   test('renders an alert in case of no results for programs', () => {
     const propsForNoResultsProgram = {
-      ...propsForNoResults, hitComponent: SearchProgramCard, title: PROGRAM_TITLE, contentType: CONTENT_TYPE_PROGRAM,
+      ...propsForNoResults,
+      hitComponent: SearchProgramCard,
+      title: PROGRAM_TITLE,
+      contentType: CONTENT_TYPE_PROGRAM,
     };
     const noResultsMessage = getNoResultsMessage(PROGRAM_TITLE);
     renderWithRouter(

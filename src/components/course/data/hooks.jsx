@@ -344,16 +344,21 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
-  const baseQueryParams = new URLSearchParams(location.search);
+  const baseQueryParams = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    params.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+    params.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
+    return params;
+  }, [location.search, courseRunKey]);
 
-  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
-  baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
-
-  const baseEnrollmentOptions = {
-    next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
-    // Redirect back to the same page with a failure query param
-    failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
-  };
+  const baseEnrollmentOptions = useMemo(
+    () => ({
+      next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
+      // Redirect back to the same page with a failure query param
+      failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
+    }),
+    [config.LMS_BASE_URL, courseRunKey, baseQueryParams, location.pathname],
+  );
 
   // TODO: use the new helper functions (createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl) to generate url
   const enrollmentUrl = useMemo(
@@ -393,7 +398,8 @@ export const useCourseEnrollmentUrl = ({
     },
     [
       userSubsidyApplicableToCourse,
-      sku, baseEnrollmentOptions,
+      sku,
+      baseEnrollmentOptions,
       baseQueryParams,
       config.ECOMMERCE_BASE_URL,
       config.LMS_BASE_URL,

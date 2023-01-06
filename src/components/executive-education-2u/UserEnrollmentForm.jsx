@@ -22,11 +22,11 @@ export const formValidationMessages = {
   studentTermsAndConditionsRequired: 'Please agree to Terms and Conditions for Students',
 };
 
-function UserEnrollmentForm({
+const UserEnrollmentForm = ({
   className,
   productSKU,
   onCheckoutSuccess,
-}) {
+}) => {
   const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
 
   const config = getConfig();
@@ -262,7 +262,7 @@ function UserEnrollmentForm({
       }}
     </Formik>
   );
-}
+};
 
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,

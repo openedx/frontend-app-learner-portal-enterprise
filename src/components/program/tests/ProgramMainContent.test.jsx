@@ -16,7 +16,6 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedUser: () => ({ username: 'b.wayne' }),
 }));
 
-/* eslint-disable react/prop-types */
 const ProgramMainContentWithContext = ({
   initialAppState = {},
   initialProgramState = {},
@@ -30,7 +29,6 @@ const ProgramMainContentWithContext = ({
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<ProgramMainContent />', () => {
   const initialAppState = {

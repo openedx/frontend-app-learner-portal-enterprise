@@ -1,5 +1,6 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -12,12 +13,6 @@ import { renderWithRouter } from '../../../utils/tests';
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
-}));
-
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  // eslint-disable-next-line react/prop-types
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => {
@@ -40,7 +35,7 @@ const SearchPathwayCardWithAppContext = (props) => (
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
 const TEST_TITLE = 'Test Title';
-const TEST_CARD_IMAGE_URL = 'http://fake.image';
+const TEST_CARD_IMAGE_URL = 'https://fake.image';
 
 const defaultProps = {
   hit: {
@@ -57,17 +52,21 @@ const propsForLoading = {
 
 describe('<SearchPathwayCard />', () => {
   test('renders the correct data', () => {
-    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
+    const { container, history } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
 
-    expect(container.querySelector('.search-pathway-card > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
-    );
-    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+    // should show card image with proper URL
+    const cardImage = container.querySelectorAll('img');
+    expect(cardImage).toHaveLength(1);
+    cardImage.forEach((cardImg) => {
+      expect(cardImg).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+    });
 
-    fireEvent.click(screen.getByText(TEST_TITLE));
+    const cardEl = screen.getByTestId('search-pathway-card');
+    userEvent.click(cardEl);
+    expect(history.entries).toHaveLength(2);
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
       PATHWAY_SEARCH_EVENT_NAME,
@@ -77,19 +76,31 @@ describe('<SearchPathwayCard />', () => {
     );
   });
 
+  test('handles card click', () => {
+    const { history } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
+    const cardEl = screen.getByTestId('search-pathway-card');
+    userEvent.click(cardEl);
+    expect(history.entries).toHaveLength(2);
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
+  });
+
   test('renders the correct data when clicked from skills quiz page', () => {
     const propsForSkillQuiz = { ...defaultProps, isSkillQuizResult: true };
-    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForSkillQuiz} />);
+    const { container, history } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForSkillQuiz} />);
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
 
-    expect(container.querySelector('.search-pathway-card > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
-    );
-    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+    // should show card image with proper URL
+    const cardImage = container.querySelectorAll('img');
+    expect(cardImage).toHaveLength(1);
+    cardImage.forEach((cardImg) => {
+      expect(cardImg).toHaveAttribute('src', TEST_CARD_IMAGE_URL);
+    });
 
-    fireEvent.click(screen.getByText(TEST_TITLE));
+    const cardEl = screen.getByTestId('search-pathway-card');
+    userEvent.click(cardEl);
+    expect(history.entries).toHaveLength(2);
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
       PATHWAY_SKILL_QUIZ_EVENT_NAME,
@@ -108,26 +119,24 @@ describe('<SearchPathwayCard />', () => {
     defaultProps.hit.skillNames = [
       skillName45CharactersLong, firstSkillName, secondSkillName, thirdSkillName, fourthSkillName,
     ];
-    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
-
+    renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
-
-    expect(container.querySelector('.search-pathway-card > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`,
-    );
-    expect(container.querySelector('.pathway-skill-names').textContent).toContain(firstSkillName);
-    expect(container.querySelector('.pathway-skill-names').textContent).toContain(secondSkillName);
-    expect(container.querySelector('.pathway-skill-names').textContent).toContain(thirdSkillName);
-    expect(container.querySelector('.pathway-skill-names').textContent).not.toContain(fourthSkillName);
+    expect(screen.getByText(firstSkillName)).toBeInTheDocument();
+    expect(screen.getByText(secondSkillName)).toBeInTheDocument();
+    expect(screen.getByText(thirdSkillName)).toBeInTheDocument();
+    expect(screen.queryByText(fourthSkillName)).not.toBeInTheDocument();
   });
 
   test('renders the loading state', () => {
-    renderWithRouter(<SearchPathwayCardWithAppContext {...propsForLoading} />);
+    const { container, history } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForLoading} />);
 
-    // assert <Skeleton /> loading components render to verify
-    // course card is properly in a loading state.
-    expect(screen.queryByTestId('pathway-title-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('content-type-loading')).toBeInTheDocument();
+    // ensure `Card` was passed `isLoading` by asserting each `Card` subcomponent
+    // is treated as a skeleton instead, indicated by `aria-busy="true"`.
+    expect(container.querySelectorAll('[aria-busy="true"]')).toHaveLength(3);
+
+    // does not do anything when clicked
+    const cardEl = screen.getByTestId('search-pathway-card');
+    userEvent.click(cardEl);
+    expect(history.entries).toHaveLength(1);
   });
 });

@@ -5,10 +5,11 @@ import { Button, Container } from '@edx/paragon';
 
 import './styles/EnterpriseBanner.scss';
 
-export default function EnterpriseBanner() {
+const EnterpriseBanner = () => {
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
   const isSearchPage = `/${ enterpriseConfig.slug }/search` === location.pathname;
+
   return (
     <div className="enterprise-banner bg-brand-secondary border-brand-tertiary">
       <Container size="lg">
@@ -30,4 +31,6 @@ export default function EnterpriseBanner() {
       </Container>
     </div>
   );
-}
+};
+
+export default EnterpriseBanner;

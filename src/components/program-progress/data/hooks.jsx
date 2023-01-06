@@ -34,8 +34,8 @@ export function useLearnerProgramsListData(enterpriseUuid) {
     const fetchData = async () => {
       if (enterpriseUuid) {
         try {
-          const { data } = await getLearnerProgramsList(enterpriseUuid);
-          setLearnerProgramsListData(data);
+          const response = await getLearnerProgramsList(enterpriseUuid);
+          setLearnerProgramsListData(response.data);
         } catch (error) {
           logError(error);
           setFetchError(error);

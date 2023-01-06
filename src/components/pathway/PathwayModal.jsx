@@ -1,10 +1,9 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Skeleton from 'react-loading-skeleton';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  Icon, MarketingModal, ModalDialog, Container, Row, Col, Collapsible, Button, Image,
+  Icon, MarketingModal, ModalDialog, Container, Row, Col, Collapsible, Button, Image, Skeleton,
 } from '@edx/paragon';
 import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
 import DOMPurify from 'dompurify';
@@ -34,8 +33,10 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
         </h3>
         {/* eslint-disable react/no-danger */}
         <div dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(node.shortDescription,
-            { USE_PROFILES: { html: true } }),
+          __html: DOMPurify.sanitize(
+            node.shortDescription,
+            { USE_PROFILES: { html: true } },
+          ),
         }}
         />
       </Col>
@@ -172,9 +173,13 @@ const SkeletonPathwayModal = (props) => (
 );
 
 PathwayModal.propTypes = {
-  learnerPathwayUuid: PropTypes.string.isRequired,
+  learnerPathwayUuid: PropTypes.string,
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+};
+
+PathwayModal.defaultProps = {
+  learnerPathwayUuid: undefined,
 };
 
 PathwayModal.Skeleton = SkeletonPathwayModal;

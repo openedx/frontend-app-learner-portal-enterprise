@@ -19,8 +19,7 @@ const SearchJobCard = ({ index }) => {
       jobs.forEach(job => jobsArray.push(`name:${job}`));
     }
     return jobsArray;
-  },
-  [jobs]);
+  }, [jobs]);
 
   useEffect(
     () => {
@@ -44,11 +43,7 @@ const SearchJobCard = ({ index }) => {
     [dispatch, index, jobs, jobsToFetch],
   );
 
-  return (
-    <div className="row">
-      <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
-    </div>
-  );
+  return <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />;
 };
 
 SearchJobCard.propTypes = {

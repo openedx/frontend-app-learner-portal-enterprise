@@ -1,8 +1,8 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from 'react-intl';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -13,6 +13,7 @@ const userId = 'batman';
 const courseKey = 'edX+DemoX';
 const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 const programUuid = '00000000-0000-0000-0000-000000000000';
+
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ programUuid }),
@@ -29,7 +30,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-/* eslint-disable react/prop-types */
 const ProgramCTAtWithContext = ({
   initialAppState = {},
   initialProgramState = {},
@@ -45,7 +45,6 @@ const ProgramCTAtWithContext = ({
     </AppContext.Provider>
   </IntlProvider>
 );
-/* eslint-enable react/prop-types */
 
 describe('<ProgramCTA />', () => {
   const initialAppState = {

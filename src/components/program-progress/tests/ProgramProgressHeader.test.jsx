@@ -6,7 +6,6 @@ import ProgramProgressHeader from '../ProgramProgressHeader';
 import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramIcon } from '../data/utils';
 
-/* eslint-disable react/prop-types */
 const ProgramProgressHeaderWithContext = ({
   initialProgramProgressContext = {},
 }) => (

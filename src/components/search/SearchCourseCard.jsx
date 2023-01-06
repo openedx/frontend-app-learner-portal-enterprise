@@ -1,8 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { Link } from 'react-router-dom';
-import Skeleton from 'react-loading-skeleton';
+import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -10,16 +9,29 @@ import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
+import { GENERAL_LENGTH_COURSE, SHORT_LENGTH_COURSE } from './data/constants';
+import { useCourseAboutPageVisitClickHandler } from './data/hooks';
+import { isExperimentVariant } from '../../utils/optimizely';
+import { isShortCourse } from './utils';
 
-const SearchCourseCard = ({ hit, isLoading }) => {
+const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const history = useHistory();
 
-  const course = hit ? camelCaseObject(hit) : {};
+  const course = useMemo(
+    () => {
+      if (!hit) {
+        return {};
+      }
+      return camelCaseObject(hit);
+    },
+    [hit],
+  );
 
   const linkToCourse = useMemo(
     () => {
       if (!Object.keys(course).length) {
-        return '#';
+        return undefined;
       }
       const queryParams = new URLSearchParams();
       if (course.queryId && course.objectId) {
@@ -45,112 +57,77 @@ const SearchCourseCard = ({ hit, isLoading }) => {
     [course],
   );
 
-  const loadingCard = () => (
-    <Card>
-      <Card.ImageCap
-        as={Skeleton}
-        duration={0}
-      />
-
-      <Card.Header
-        title={
-          <Skeleton duration={0} data-testid="course-title-loading" />
-        }
-      />
-
-      <Card.Section>
-        <Skeleton duration={0} data-testid="partner-name-loading" />
-      </Card.Section>
-
-      <Card.Footer className="bg-white border-0 pt-0 pb-2">
-        <Skeleton duration={0} data-testid="content-type-loading" />
-      </Card.Footer>
-
-    </Card>
+  const config = getConfig();
+  const isExperimentVariationA = isExperimentVariant(
+    config.EXPERIMENT_3_ID,
+    config.EXPERIMENT_3_VARIANT_1_ID,
   );
 
-  /*
-    AED 2022-06-01: We can't yet use a CardGrid or CardDeck to contain these
-    cards/hits (and thus take advantage of the Grid or Deck forcing
-    the cards to be equal heights),
-    so we set height to 100% for the card, image/header sub-components,
-    and the Link and div in which the card is wrapped.
-    This will cause the card to fill up the static height we've allocated
-    to search result items in ``_SearchResults.scss``.
-  */
-  const searchCourseCard = () => {
-    const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
+  const isShortLengthCourse = isShortCourse(course);
 
-    return (
-      <Card
-        isClickable
-        className="h-100"
-      >
-        <Card.ImageCap
-          className="h-100"
-          src={course.cardImageUrl}
-          srcAlt=""
-          logoSrc={primaryPartnerLogo?.src}
-          logoAlt={primaryPartnerLogo?.alt}
-        />
+  const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
 
-        <Card.Header
-          className="h-100"
-          title={(
-            <Truncate lines={3} trimWhitespace>
-              {course.title}
-            </Truncate>
-          )}
-        />
+  const handleCourseAboutPageVisitClick = useCourseAboutPageVisitClickHandler({
+    href: linkToCourse,
+    courseKey: course.key,
+    enterpriseId: uuid,
+  });
 
-        <Card.Section
-          className="py-3"
-        >
-          <>
-            {course.partners?.length > 0 && (
-              <p className="partner text-muted m-0">
-                <Truncate lines={1} trimWhitespace>
-                  {course.partners.map(partner => partner.name).join(', ')}
-                </Truncate>
-              </p>
-            )}
-          </>
-        </Card.Section>
-
-        <Card.Footer textElement={
-          <span className="text-muted">Course</span>
-        }
-        />
-      </Card>
+  const handleCardClick = (e) => {
+    if (!linkToCourse) {
+      return;
+    }
+    handleCourseAboutPageVisitClick(e);
+    sendEnterpriseTrackEvent(
+      uuid,
+      'edx.ui.enterprise.learner_portal.search.card.clicked',
+      {
+        objectID: course.objectId,
+        position: course.position,
+        index: getConfig().ALGOLIA_INDEX_NAME,
+        queryID: course.queryId,
+        courseKey: course.key,
+      },
     );
+    history.push(linkToCourse);
   };
 
   return (
-    <div
-      className="search-course-card mb-4 h-100"
-      role="group"
-      aria-label={course.title}
+    <Card
+      data-testid="search-course-card"
+      isLoading={isLoading}
+      isClickable
+      onClick={(e) => {
+        handleCardClick(e);
+      }}
+      {...rest}
     >
-      <Link
-        className="h-100"
-        to={linkToCourse}
-        onClick={() => {
-          sendEnterpriseTrackEvent(
-            uuid,
-            'edx.ui.enterprise.learner_portal.search.card.clicked',
-            {
-              objectID: course.objectId,
-              position: course.position,
-              index: getConfig().ALGOLIA_INDEX_NAME,
-              queryID: course.queryId,
-              courseKey: course.key,
-            },
-          );
-        }}
-      >
-        {isLoading ? loadingCard() : searchCourseCard()}
-      </Link>
-    </div>
+      <Card.ImageCap
+        src={course.cardImageUrl || course.originalImageUrl}
+        srcAlt=""
+        logoSrc={primaryPartnerLogo?.src}
+        logoAlt={primaryPartnerLogo?.alt}
+      />
+      <Card.Header
+        title={(
+          <Truncate lines={3} trimWhitespace>
+            {course.title}
+          </Truncate>
+        )}
+        subtitle={course.partners?.length > 0 && (
+          <Truncate lines={2} trimWhitespace>
+            {course.partners.map(partner => partner.name).join(', ')}
+          </Truncate>
+        )}
+      />
+      <Card.Section />
+      <Card.Footer textElement={(
+        <span className="text-muted">
+          {(isExperimentVariationA && isShortLengthCourse) ? SHORT_LENGTH_COURSE : GENERAL_LENGTH_COURSE}
+        </span>
+      )}
+      />
+    </Card>
   );
 };
 

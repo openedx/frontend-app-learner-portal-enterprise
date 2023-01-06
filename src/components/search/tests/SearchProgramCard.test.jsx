@@ -1,5 +1,6 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -13,12 +14,6 @@ const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
-}));
-
-jest.mock('react-loading-skeleton', () => ({
-  __esModule: true,
-  // eslint-disable-next-line react/prop-types
-  default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -69,8 +64,16 @@ const defaultProps = {
 };
 
 const propsForLoading = {
-  hit: {},
+  hit: undefined,
   isLoading: true,
+};
+
+const programTypes = {
+  MicroBachelors: 'MicroBachelors® Program',
+  MicroMasters: 'MicroMasters® Program',
+  XSeries: 'XSeries Program',
+  Masters: 'Master\'s Degree Program',
+  'Professional Certificate': 'Professional Certificate',
 };
 
 describe('<SearchProgramCard />', () => {
@@ -80,31 +83,29 @@ describe('<SearchProgramCard />', () => {
     expect(screen.getByText(PROGRAM_TITLE)).toBeInTheDocument();
     expect(screen.getByText(PROGRAM_AUTHOR_ORG.key)).toBeInTheDocument();
 
-    expect(container.querySelector('.search-program-card > a')).toHaveAttribute(
-      'href',
-      `/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`,
-    );
-    expect(container.querySelector('p.partner')).toHaveTextContent(PROGRAM_AUTHOR_ORG.key);
-    expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
-    expect(container.querySelector('span.badge-text')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
+    // should show both logo image and card image with proper URLs
+    const foundImages = container.querySelectorAll('img');
+    expect(foundImages).toHaveLength(2);
+    expect(foundImages[0]).toHaveAttribute('src', PROGRAM_CARD_IMG_URL);
+    expect(foundImages[1]).toHaveAttribute('src', PROGRAM_PARTNER_LOGO_IMG_URL);
+
+    expect(screen.getByTestId('program-type-badge')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
     expect(screen.getByText(PROGRAM_COURSES_COUNT_TEXT)).toBeInTheDocument();
   });
 
-  test('renders the correct program type', () => {
-    const programTypes = {
-      MicroBachelors: 'MicroBachelors® Program',
-      MicroMasters: 'MicroMasters® Program',
-      XSeries: 'XSeries Program',
-      Masters: 'Master\'s Degree Program',
-      'Professional Certificate': 'Professional Certificate',
-    };
+  test('handles card click', () => {
+    const { history } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
+    const cardEl = screen.getByTestId('search-program-card');
+    userEvent.click(cardEl);
+    expect(history.entries).toHaveLength(2);
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+  });
 
-    Object.keys(programTypes).forEach((type) => {
-      const value = programTypes[type];
-      const props = { ...defaultProps, ...{ hit: { ...defaultProps.hit, type } } };
-      const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...props} />);
-      expect(container.querySelector('span.badge-text')).toHaveTextContent(value);
-    });
+  test.each(Object.keys(programTypes))('renders the correct program type: %s', (type) => {
+    const value = programTypes[type];
+    const props = { ...defaultProps, ...{ hit: { ...defaultProps.hit, type } } };
+    renderWithRouter(<SearchProgramCardWithAppContext {...props} />);
+    expect(screen.getByTestId('program-type-badge')).toHaveTextContent(value);
   });
 
   test('does not render course count if no courses', () => {
@@ -116,18 +117,15 @@ describe('<SearchProgramCard />', () => {
   test('renders the loading state', () => {
     const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...propsForLoading} />);
 
-    // assert <Skeleton /> loading components render to verify
-    // program card is properly in a loading state.
-    expect(container.getElementsByClassName('pgn__card-image-cap').length).toBe(1);
-    expect(screen.queryByTestId('program-title-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('program-type-loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('program-courses-count-loading')).toBeInTheDocument();
+    // ensure `Card` was passed `isLoading` by asserting each `Card` subcomponent
+    // is treated as a skeleton instead, indicated by `aria-busy="live"`.
+    expect(container.querySelectorAll('[aria-busy="true"]')).toHaveLength(4);
   });
 
   test('sends correct event data upon click on view the course link', () => {
-    const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
-
-    fireEvent.click(container.querySelector('.search-program-card > a'));
+    renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
+    const cardEl = screen.getByTestId('search-program-card');
+    userEvent.click(cardEl);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       enterpriseUuid,
       'edx.ui.enterprise.learner_portal.search.program.card.clicked',

@@ -2,8 +2,9 @@ import React, {
   useContext, useEffect, useMemo,
 } from 'react';
 import { Helmet } from 'react-helmet';
-import Skeleton from 'react-loading-skeleton';
-import { Container, Row, Col } from '@edx/paragon';
+import {
+  Container, Row, Col, Skeleton,
+} from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 
@@ -15,7 +16,7 @@ import {
 } from './data';
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 
-function ExecutiveEducation2UPage() {
+const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const activeQueryParams = useActiveQueryParams();
 
@@ -84,9 +85,7 @@ function ExecutiveEducation2UPage() {
           <h2 className="mb-3">
             {isLoading ? (
               <Skeleton containerTestId="loading-skeleton-page-title" />
-            ) : (
-              <>{pageTitle}</>
-            )}
+            ) : pageTitle}
           </h2>
           {(isLoading || !contentMetadata) ? (
             <p>
@@ -113,6 +112,6 @@ function ExecutiveEducation2UPage() {
       )}
     </Container>
   );
-}
+};
 
 export default ExecutiveEducation2UPage;

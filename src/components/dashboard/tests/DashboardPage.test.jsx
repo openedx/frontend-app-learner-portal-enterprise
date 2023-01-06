@@ -2,8 +2,10 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
 import {
@@ -21,7 +23,6 @@ import {
 import DashboardPage, { LICENCE_ACTIVATION_MESSAGE } from '../DashboardPage';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
-import CourseEnrollmentsContextProvider from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
@@ -103,35 +104,36 @@ let mockLocation = {
   state: { activationSuccess: true },
 };
 
-/* eslint-disable react/prop-types */
 const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
   initialCourseState = defaultCourseState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <CourseEnrollmentsContextProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
           <CourseContextProvider initialState={initialCourseState}>
             <DashboardPage />
           </CourseContextProvider>
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
-/* eslint-enable react/prop-types */
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => (mockLocation),
+  useLocation: jest.fn(() => mockLocation),
 }));
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => mockAuthenticatedUser,
+  getAuthenticatedUser: jest.fn(() => mockAuthenticatedUser),
+  getAuthenticatedHttpClient: jest.fn(() => ({
+    get: jest.fn(() => ({})),
+  })),
 }));
 
 jest.mock('universal-cookie');
@@ -374,7 +376,9 @@ describe('<Dashboard />', () => {
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' },
+        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
+        true,
+        { sameSite: 'strict' },
       );
     });
 
@@ -419,7 +423,9 @@ describe('<Dashboard />', () => {
       const modal = screen.getByRole('dialog');
       fireEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`, true, { sameSite: 'strict' },
+        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
+        true,
+        { sameSite: 'strict' },
       );
     });
 

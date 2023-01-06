@@ -10,7 +10,7 @@ import SiteHeaderNavMenu from './SiteHeaderNavMenu';
 import { Menu, MenuTrigger, MenuContent } from './menu';
 import AvatarDropdown from './AvatarDropdown';
 
-export default function SiteHeader() {
+const SiteHeader = () => {
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
 
@@ -84,4 +84,6 @@ export default function SiteHeader() {
       </MediaQuery>
     </>
   );
-}
+};
+
+export default SiteHeader;

@@ -23,7 +23,7 @@ const mockCourseService = {
 
 jest.mock('../../../../../course/data/service', () => ({
   __esModule: true,
-  default: () => mockCourseService,
+  default: jest.fn(() => mockCourseService),
 }));
 
 const mockRawCourseEnrollment = createRawCourseEnrollment();
