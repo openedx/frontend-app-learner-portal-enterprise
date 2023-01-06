@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import cardImageCapFallbackSrc from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
 import { useHighlightedContentCardData } from './data';
 
@@ -61,6 +62,7 @@ const HighlightedContentCard = ({
     >
       <Card.ImageCap
         src={cardImageUrl}
+        fallbackSrc={cardImageCapFallbackSrc}
         srcAlt=""
         logoSrc={authoringOrganizations?.logoImageUrl}
         logoAlt={`${authoringOrganizations?.content}'s logo`}
