@@ -19,16 +19,20 @@ const SelectedJobSkills = () => {
   return (
     <div className="my-4">
       <div className="col-12 row">
-        {selectedJobSkills?.map(skill => (
-          <Badge
-            key={skill.name}
-            className="skill-badge"
-            variant="light"
-            data-testid="top-skills-badge"
-          >
-            {skill.name}
-          </Badge>
-        ))}
+        <div>
+          <h5> Top Skills for a {selectedJobDetails[0]?.name} </h5>
+            {selectedJobSkills?.map(skill => (
+              <Badge
+                key={skill.name}
+                className="skill-badge"
+                variant="light"
+                data-testid="top-skills-badge"
+                style={{fontWeight:500}}
+              >
+                {skill.name}
+              </Badge>
+            ))}
+        </div>
       </div>
     </div>
   );

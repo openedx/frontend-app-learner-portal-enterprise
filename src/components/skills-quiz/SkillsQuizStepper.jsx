@@ -18,7 +18,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import GoalDropdown from './GoalDropdown';
 import SearchJobDropdown from './SearchJobDropdown';
 import CurrentJobDropdown from './CurrentJobDropdown';
-import SkillsDropDown from './SkillsDropDown';
+import IndustryDropDown from './IndustryDropDown';
 import SearchJobCard from './SearchJobCard';
 import SearchCurrentJobCard from './SearchCurrentJobCard';
 import SearchCourseCard from './SearchCourseCard';
@@ -41,7 +41,7 @@ import {
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
-import SelectedJobSkills from './SelectedJobSkills';
+import TopSkillsOverview from './TopSkillsOverview';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
@@ -72,7 +72,10 @@ const SkillsQuizStepper = () => {
     state: { selectedJob, goal, currentJobRole, interestedJobs },
     dispatch: skillsDispatch,
   } = useContext(SkillsContext);
-  const { refinements, dispatch } = useContext(SearchContext);
+
+  console.log('skills context', useContext(SkillsContext));
+  const { refinements } = useContext(SearchContext);
+  console.log('search context', useContext(SearchContext));
   const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
   const {
@@ -173,7 +176,7 @@ const SkillsQuizStepper = () => {
   const [jobsDropdownsVisible, setJobsDropdownsVisible] = useState(false);
 
   useEffect(() => {
-    if (skillsVisible && selectedSkills.length) {
+    if (skillsVisible) {
       setJobsDropdownsVisible(true);
     } else {
       setJobsDropdownsVisible(false);
@@ -230,47 +233,23 @@ const SkillsQuizStepper = () => {
                 <div className="mt-2">
                   <GoalDropdown />
                 </div>
-                {skillsVisible && (
-                  <InstantSearch
-                    indexName={config.ALGOLIA_INDEX_NAME}
-                    searchClient={searchClient}
-                  >
-                    <Configure
-                      filters={filters}
-                      facetingAfterDistinct
-                    />
-                    <div className="skills-drop-down">
-                      <p className="mt-4.5">
-                        Second, which skills are you interested in developing? (select at least one)
-                      </p>
-                      <div className="mt-2">
-                        <SkillsDropDown />
-                      </div>
-                    </div>
-                  </InstantSearch>
-                )}
-                {skillsVisible && (
-                  <TagCloud
-                    tags={selectedSkills}
-                    onRemove={(skillMetadata) => {
-                      if (selectedSkills.length > 1) {
-                        dispatch(removeFromRefinementArray('skill_names', skillMetadata.title));
-                      } else {
-                        dispatch(deleteRefinementAction('skill_names'));
-                      }
-                    }}
-                  />
-                )}
                 {jobsDropdownsVisible && (
                   <div>
-                    <p className="mt-4.5">
-                      Next, tell us about your current job title.
-                    </p>
                     <InstantSearch
                       indexName={config.ALGOLIA_INDEX_NAME_JOBS}
                       searchClient={searchClient}
                     >
+                      <div className="mt-4.5">
+                        Second, which industry describes where you work? (select one, or leave blank)
+                      </div>
+                      <div className="col col-8 p-0 mt-3">
+                        <IndustryDropDown />
+                      </div>
+
                       <div className="mt-2">
+                        <p className="mt-4.5">
+                           Next, tell us about your current job title.
+                        </p>
                         <CurrentJobDropdown />
                         <Form.Checkbox
                           checked={isStudentChecked}
@@ -281,6 +260,7 @@ const SkillsQuizStepper = () => {
                           I am currently a student
                         </Form.Checkbox>
                       </div>
+
                       <div>
                         {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE
                           ? (

@@ -7,16 +7,17 @@ export const DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE_LABEL = 'improve_current_role'
 export const DROPDOWN_OPTION_OTHER = 'Other';
 export const DROPDOWN_OPTION_OTHER_LABEL = 'other';
 export const GOAL_DROPDOWN_DEFAULT_OPTION = 'Select a Goal';
+export const INDUSTRY_DROPDOWN_DEFAULT_OPTION = 'Not Specified';
 
 export const JOB_ATTRIBUTE_NAME = 'name';
+export const INDUSTRY_ATTRIBUTE_NAME = 'industry_names'
 
-export const SKILLS_FACET = {
-  attribute: 'skill_names',
-  title: 'I am interested in learning about',
-  facetValueType: 'array',
+export const INDUSTRY_FACET = {
+  attribute: INDUSTRY_ATTRIBUTE_NAME,
+  title: 'Industry I belong to',
   typeaheadOptions: {
-    placeholder: 'Find a skill...',
-    ariaLabel: 'Type to find a skill',
+    placeholder: 'Find an industry...',
+    ariaLabel: 'Type to find an industry',
     minLength: 3,
   },
 };
