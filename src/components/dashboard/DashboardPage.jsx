@@ -17,7 +17,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
-import { useContentHighlights, useDisabledContentTypes } from '../search/content-highlights/data';
+import { getContentTypeSet, useContentHighlights, useDisabledContentTypes } from '../search/content-highlights/data';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -30,11 +30,13 @@ const DashboardPage = () => {
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
 
   const { contentHighlights } = useContentHighlights(enterpriseUUID);
-  const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
-  const [contentTypes, setContentTypes] = useState('');
+  const contentTypeSet = getContentTypeSet(contentHighlights);
+  const [contentTypes, setContentTypes] = useState(new Set());
   useEffect(() => {
-    setContentTypes(contentTypeSet);
-  }, []);
+    if(contentHighlights){
+      setContentTypes(contentTypeSet);
+    }
+  }, [contentHighlights]);
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
