@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useContext, useEffect, useMemo,
+} from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
@@ -17,7 +19,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
-import { getContentTypeSet, useContentHighlights, useDisabledContentTypes } from '../search/content-highlights/data';
+import { getContentTypeSet, useContentHighlights } from '../search/content-highlights/data';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -31,12 +33,7 @@ const DashboardPage = () => {
 
   const { contentHighlights } = useContentHighlights(enterpriseUUID);
   const contentTypeSet = getContentTypeSet(contentHighlights);
-  const [contentTypes, setContentTypes] = useState(new Set());
-  useEffect(() => {
-    if(contentHighlights){
-      setContentTypes(contentTypeSet);
-    }
-  }, [contentHighlights]);
+
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
@@ -90,11 +87,11 @@ const DashboardPage = () => {
           <Tab eventKey="courses" title="Courses">
             {CoursesTabComponent}
           </Tab>
-          <Tab eventKey="programs" title="Programs" disabled={contentTypes.has('programs')}>
+          <Tab eventKey="programs" title="Programs" disabled={!!contentTypeSet.has('programs')}>
             <ProgramListingPage />
           </Tab>
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways" disabled={contentTypes.has('learnerpathway')}>
+            <Tab eventKey="pathways" title="Pathways" disabled={!!contentTypeSet.has('learnerpathway')}>
               <PathwayProgressListingPage />
             </Tab>
           )}

@@ -41,9 +41,13 @@ export const getContentPageUrl = ({
 /**
  * Takes in the contentHighlights from useContentHighlights hook, and returns a set of contentTypes
  * based on all of the highlight sets and its corresponding highlighted content
- * @param {Object} contentHighlights 
- * @returns 
+ * @param {Object} contentHighlights
+ * @returns {Set} contentTypeSet
  */
 export const getContentTypeSet = (contentHighlights) => {
-  return new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
+  const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
+  if (contentTypeSet.size > 0) {
+    return contentTypeSet;
+  }
+  return new Set();
 };

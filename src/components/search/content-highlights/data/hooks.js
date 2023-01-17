@@ -3,17 +3,16 @@ import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
-import { 
+import {
   getContentHighlights,
   getEnterpriseCuration,
- } from './service';
+} from './service';
 import {
   getHighlightedContentCardVariant,
   getFormattedContentType,
   getAuthoringOrganizations,
   getContentPageUrl,
 } from './utils';
-import { result } from 'lodash';
 
 export const useContentHighlights = (enterpriseUUID) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -78,7 +77,6 @@ export const useEnterpriseCuration = (enterpriseUUID) => {
     fetchError,
   };
 };
-
 
 export const useHighlightedContentCardData = ({
   enterpriseSlug,
