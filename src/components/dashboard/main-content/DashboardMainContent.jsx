@@ -10,6 +10,7 @@ import { CourseEnrollments } from './course-enrollments';
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import CourseRecommendations from './CourseRecommendations';
+import { useEnterpriseCuration } from '../../search/content-highlights/data';
 
 const DashboardMainContent = () => {
   const {
@@ -17,9 +18,14 @@ const DashboardMainContent = () => {
       name,
       slug,
       disableSearch,
+      uuid: enterpriseUUID,
     },
   } = useContext(AppContext);
-
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseUUID);
   return (
     <>
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
@@ -49,7 +55,7 @@ const DashboardMainContent = () => {
             </Button>
 
             <br />
-            <CourseRecommendations />
+            {!canOnlyViewHighlightSets && <CourseRecommendations />}
           </>
         )}
       </CourseEnrollments>
