@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
@@ -17,16 +17,24 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
+import { useContentHighlights, useDisabledContentTypes } from '../search/content-highlights/data';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
 const DashboardPage = () => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
+  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
   const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
 
+  const { contentHighlights } = useContentHighlights(enterpriseUUID);
+  const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
+  const [contentTypes, setContentTypes] = useState('');
+  useEffect(() => {
+    setContentTypes(contentTypeSet);
+  }, []);
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
@@ -80,15 +88,14 @@ const DashboardPage = () => {
           <Tab eventKey="courses" title="Courses">
             {CoursesTabComponent}
           </Tab>
-          <Tab eventKey="programs" title="Programs">
+          <Tab eventKey="programs" title="Programs" disabled={contentTypes.has('programs')}>
             <ProgramListingPage />
           </Tab>
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways">
+            <Tab eventKey="pathways" title="Pathways" disabled={contentTypes.has('learnerpathway')}>
               <PathwayProgressListingPage />
             </Tab>
           )}
-
         </Tabs>
       </Container>
     </>

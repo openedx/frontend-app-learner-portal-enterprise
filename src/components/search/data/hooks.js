@@ -19,8 +19,9 @@ export const useSearchCatalogs = ({
   catalogsForSubsidyRequests,
 }) => {
   const searchCatalogs = useMemo(() => {
+    // Hard coded local catalog uuid
+    // const catalogs = ['88fce376-946e-419e-967b-ea6e68a44d23'];
     const catalogs = [];
-
     // Scope to catalogs from coupons, enterprise offers, or subscription plan associated with learner's license
     if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
       catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
