@@ -165,7 +165,7 @@ export function useCourseSubjects(course) {
 
 export function useCoursePartners(course) {
   const [partners, setPartners] = useState([]);
-  const [label, setLabel] = useState();
+  const [label, setLabel] = useState('');
 
   useEffect(() => {
     if (course?.owners) {
@@ -186,8 +186,10 @@ export function useCourseRunWeeksToComplete(courseRun) {
   const [label, setLabel] = useState(undefined);
 
   useEffect(() => {
+    // this conditional will always fail at courseRun.weeksToComplete === 0, because it always equals false
     if (courseRun && courseRun.weeksToComplete) {
       setWeeksToComplete(courseRun.weeksToComplete);
+      // OR condition will never meet the === 0 case because of line the above conditional
       if (courseRun.weeksToComplete > 1 || courseRun.weeksToComplete === 0) {
         setLabel('weeks');
       } else {

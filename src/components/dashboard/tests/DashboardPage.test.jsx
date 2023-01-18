@@ -15,6 +15,7 @@ import {
 import {
   SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
 } from '../../../config/constants';
+import { features } from '../../../config';
 import * as hooks from '../main-content/course-enrollments/data/hooks';
 
 import {
@@ -34,6 +35,12 @@ const defaultCouponCodesState = {
 };
 
 const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
+
+jest.mock('../../../config', () => ({
+  features: {
+    FEATURE_ENABLE_PATHWAY_PROGRESS: jest.fn(),
+  },
+}));
 
 const defaultAppState = {
   enterpriseConfig: {
@@ -218,6 +225,14 @@ describe('<Dashboard />', () => {
       <DashboardWithContext />,
     );
     expect(screen.getByText('Find a course'));
+  });
+
+  it('renders Pathways when feature is enabled', () => {
+    features.FEATURE_ENABLE_PATHWAY_PROGRESS.mockImplementation(() => true);
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+    expect(screen.getByText('Pathways'));
   });
 
   it('does not render "Find a course" when search is disabled for the customer', () => {
