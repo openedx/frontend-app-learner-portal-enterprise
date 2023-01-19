@@ -10,8 +10,13 @@ export const getFormattedContentType = (contentType) => {
 };
 
 export const getAuthoringOrganizations = (authoringOrganizations) => {
+  if (!authoringOrganizations) {
+    return {
+      content: '',
+    };
+  }
   const authoringOrganizationsData = {
-    content: authoringOrganizations.map(org => org.name).join(', '),
+    content: authoringOrganizations?.map(org => org.name).join(', '),
   };
   if (authoringOrganizations.length === 1) {
     authoringOrganizationsData.logoImageUrl = authoringOrganizations[0].logoImageUrl;
