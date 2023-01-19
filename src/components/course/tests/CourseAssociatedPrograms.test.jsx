@@ -1,25 +1,37 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { screen, render } from '@testing-library/react';
+import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { AppContext } from '@edx/frontend-platform/react';
+import { initialAppState } from '../../../utils/tests';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  sendEnterpriseTrackEvent: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn(),
+}));
 
 const baseSubsidyRequestContextValue = {
   catalogsForSubsidyRequests: [],
 };
 
+const INITIAL_APP_STATE = initialAppState({});
+
 const CourseAssociatedProgramsWithCourseContext = ({
   initialState,
   subsidyRequestContextValue,
 }) => (
-  <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-    <CourseContextProvider initialState={initialState}>
-      <CourseAssociatedPrograms />
-    </CourseContextProvider>
-  </SubsidyRequestsContext.Provider>
+  <AppContext.Provider value={INITIAL_APP_STATE}>
+    <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
+      <CourseContextProvider initialState={initialState}>
+        <CourseAssociatedPrograms />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
+  </AppContext.Provider>
 );
 
 CourseAssociatedProgramsWithCourseContext.propTypes = {
@@ -53,8 +65,11 @@ describe('<CourseAssociatedPrograms />', () => {
 
   test('renders programs with title', () => {
     render(<CourseAssociatedProgramsWithCourseContext initialState={initialState} />);
-    initialState.course.programs.forEach((program) => {
+    initialState.course.programs.forEach((program, index) => {
       expect(screen.queryByText(program.title)).toBeInTheDocument();
+      const button = screen.getByText(program.title);
+      fireEvent.click(button);
+      expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(index + 1);
     });
   });
 });

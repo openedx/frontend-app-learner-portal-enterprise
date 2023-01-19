@@ -45,12 +45,11 @@ export const getContentPageUrl = ({
  * @returns {Set} contentTypeSet
  */
 export const getContentTypeSet = (contentHighlights) => {
-  if (contentHighlights.length < 1) {
-    return new Set();
-  }
-  const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
-  if (contentTypeSet.size > 0) {
-    return contentTypeSet;
+  if (contentHighlights.length > 0) {
+    const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
+    if (contentTypeSet.size > 0) {
+      return contentTypeSet;
+    }
   }
   return new Set();
 };
