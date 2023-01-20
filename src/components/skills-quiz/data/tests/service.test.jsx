@@ -13,12 +13,7 @@ import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE_LABEL } from '../../constants';
 const APP_CONFIG = {
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
 };
-jest.mock('@edx/frontend-platform/auth', () => ({
-  getAuthenticatedHttpClient: {
-    get: jest.fn(),
-    post: jest.fn(),
-  },
-}));
+
 jest.mock('@edx/frontend-platform/auth', () => {
   const actual = jest.requireActual('@edx/frontend-platform/auth');
   return {
