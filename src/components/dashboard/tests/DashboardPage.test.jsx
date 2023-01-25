@@ -1,11 +1,12 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
 
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
 import {
@@ -389,7 +390,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       const modal = screen.getByRole('dialog');
-      fireEvent.click(modal.querySelector('button'));
+      userEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
         `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
         true,
@@ -436,7 +437,7 @@ describe('<Dashboard />', () => {
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       const modal = screen.getByRole('dialog');
-      fireEvent.click(modal.querySelector('button'));
+      userEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
         `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
         true,

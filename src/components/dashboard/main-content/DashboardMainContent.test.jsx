@@ -94,6 +94,6 @@ describe('DashboardMainContent', () => {
       }}
       initialUserSubsidyState={defaultUserSubsidyState}
     />);
-    expect(screen.getByText('Reach out to your administrator for instructions on how to start learning learning with edX!', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Reach out to your administrator for instructions on how to start learning with edX!', { exact: false })).toBeInTheDocument();
   });
 });

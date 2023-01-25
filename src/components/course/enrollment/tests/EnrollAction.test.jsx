@@ -1,8 +1,9 @@
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import userEvent from '@testing-library/user-event';
 import {
   renderWithRouter,
   initialAppState,
@@ -164,7 +165,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(actualUrl).toContain(`${enrollmentUrl}`);
 
     const enrollButton = screen.getByText(enrollLabelText);
-    fireEvent.click(enrollButton);
+    userEvent.click(enrollButton);
   });
   test('<ToEcomBasketPage /> is rendered if enrollmentType is TO_ECOM_BASKET', () => {
     const enrollAction = (

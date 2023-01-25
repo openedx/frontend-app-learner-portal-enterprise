@@ -115,7 +115,7 @@ describe('useEnterpriseCuration', () => {
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
 
     expect(result.current.isLoading).toBe(true);
-    expect(result.current.enterpriseCuration).toEqual([]);
+    expect(result.current.enterpriseCuration).toEqual({});
 
     await waitForNextUpdate();
 
@@ -134,7 +134,7 @@ describe('useEnterpriseCuration', () => {
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
 
     expect(result.current.isLoading).toBe(true);
-    expect(result.current.enterpriseCuration).toEqual([]);
+    expect(result.current.enterpriseCuration).toEqual({});
     expect(result.current.fetchError).toBeUndefined();
 
     await waitForNextUpdate();
@@ -142,7 +142,7 @@ describe('useEnterpriseCuration', () => {
     expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
     expect(logError).toHaveBeenCalledWith(fetchError);
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.enterpriseCuration).toEqual([]);
+    expect(result.current.enterpriseCuration).toEqual({});
     expect(result.current.fetchError).toEqual(fetchError);
   });
 });

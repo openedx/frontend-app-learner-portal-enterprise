@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/extend-expect';
 import {
-  getContentTypeSet,
+  getHighlightsContentTypeSet,
   getFormattedContentType,
   getAuthoringOrganizations,
   getContentPageUrl,
@@ -31,7 +31,7 @@ describe('utils', () => {
       },
     ];
     const contentTypeSet = new Set(['course', 'program', 'learnerpathway']);
-    expect(getContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
+    expect(getHighlightsContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
   });
   it('should return a set of content types given an array of contentHighlights', () => {
     const contentTypes = ['course', 'program', 'learnerpathway'];
@@ -59,13 +59,13 @@ describe('utils', () => {
         },
       ];
       const contentTypeSet = new Set([contentTypes[i]]);
-      expect(getContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
+      expect(getHighlightsContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
     }
   });
   it('should return an empty set if there are no contentHighlights', () => {
     const contentHighlights = [];
     const contentTypeSet = new Set();
-    expect(getContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
+    expect(getHighlightsContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
   });
   it('should return an empty set if there are no highlightedContent', () => {
     const contentHighlights = [
@@ -77,7 +77,7 @@ describe('utils', () => {
       },
     ];
     const contentTypeSet = new Set(['']);
-    expect(getContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
+    expect(getHighlightsContentTypeSet(contentHighlights)).toEqual(contentTypeSet);
   });
   it('should return the correct formatted content type', () => {
     const contentTypes = ['course', 'program', 'learnerpathway'];

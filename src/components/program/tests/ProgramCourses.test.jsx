@@ -1,10 +1,11 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import moment from 'moment';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCourses, { DATE_FORMAT } from '../ProgramCourses';
@@ -103,8 +104,8 @@ describe('<ProgramCourses />', () => {
       />,
     );
 
-    fireEvent.click(screen.getByText('Test Course Title'));
-    fireEvent.click(screen.getByRole('link', { name: 'View the course' }));
+    userEvent.click(screen.getByText('Test Course Title'));
+    userEvent.click(screen.getByRole('link', { name: 'View the course' }));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       enterpriseUuid,
       'edx.ui.enterprise.learner_portal.program.course.clicked',
@@ -121,7 +122,7 @@ describe('<ProgramCourses />', () => {
       />,
     );
 
-    fireEvent.click(screen.getByText('Test Course Title'));
+    userEvent.click(screen.getByText('Test Course Title'));
     expect(screen.getByText('View the course')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View the course' })).toHaveAttribute('href', '/test-enterprise-slug/course/edX+DemoX');
   });
@@ -139,7 +140,7 @@ describe('<ProgramCourses />', () => {
     );
 
     expect(screen.queryByText('View the course')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByText('Test Course Title'));
+    userEvent.click(screen.getByText('Test Course Title'));
     expect(screen.getByText("This course is not included in your organization's catalog.")).toBeInTheDocument();
   });
 
@@ -152,7 +153,7 @@ describe('<ProgramCourses />', () => {
       />,
     );
 
-    fireEvent.click(screen.getByText('Test Course Title'));
+    userEvent.click(screen.getByText('Test Course Title'));
     const courseRun = initialProgramState.program.courses[0].courseRuns[0];
     expect(screen.queryByText(`Starts ${moment(courseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });
@@ -169,7 +170,7 @@ describe('<ProgramCourses />', () => {
       />,
     );
 
-    fireEvent.click(screen.getByText('Test Course Title'));
+    userEvent.click(screen.getByText('Test Course Title'));
     expect(screen.queryByText(`Starts ${moment(courseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
   });
 
@@ -190,7 +191,7 @@ describe('<ProgramCourses />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    fireEvent.click(screen.getByText('Test Course Title'));
+    userEvent.click(screen.getByText('Test Course Title'));
     expect(screen.queryByText(`Starts ${moment(firstCourseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
     expect(screen.queryByText(`Starts ${moment(secondCourseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });

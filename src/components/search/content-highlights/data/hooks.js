@@ -48,7 +48,7 @@ export const useContentHighlights = (enterpriseUUID) => {
 
 export const useEnterpriseCuration = (enterpriseUUID) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [enterpriseCuration, setEnterpriseCuration] = useState([]);
+  const [enterpriseCuration, setEnterpriseCuration] = useState({});
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {

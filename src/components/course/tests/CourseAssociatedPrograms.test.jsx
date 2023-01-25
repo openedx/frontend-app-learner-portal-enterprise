@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
+import userEvent from '@testing-library/user-event';
 import { initialAppState } from '../../../utils/tests';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
@@ -68,7 +69,7 @@ describe('<CourseAssociatedPrograms />', () => {
     initialState.course.programs.forEach((program, index) => {
       expect(screen.queryByText(program.title)).toBeInTheDocument();
       const button = screen.getByText(program.title);
-      fireEvent.click(button);
+      userEvent.click(button);
       expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(index + 1);
     });
   });

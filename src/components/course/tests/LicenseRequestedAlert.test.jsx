@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import Cookies from 'universal-cookie';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
+import userEvent from '@testing-library/user-event';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import { CourseContext } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -90,7 +91,7 @@ describe('<LicenseRequestedAlert />', () => {
     const mockSetCookies = jest.fn();
     Cookies.mockReturnValue({ get: jest.fn(), set: mockSetCookies });
     const { getByText, queryByText } = render(<LicenseRequestedAlertWrapper />);
-    fireEvent.click(getByText('Dismiss'));
+    userEvent.click(getByText('Dismiss'));
     expect(mockSetCookies).toHaveBeenCalledWith(
       LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME,
       true,

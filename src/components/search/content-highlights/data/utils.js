@@ -49,7 +49,7 @@ export const getContentPageUrl = ({
  * @param {Object} contentHighlights
  * @returns {Set} contentTypeSet
  */
-export const getContentTypeSet = (contentHighlights) => {
+export const getHighlightsContentTypeSet = (contentHighlights) => {
   if (contentHighlights.length > 0) {
     const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
     if (contentTypeSet.size > 0) {

@@ -19,7 +19,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
-import { getContentTypeSet, useContentHighlights } from '../search/content-highlights/data';
+import { getHighlightsContentTypeSet, useContentHighlights, useEnterpriseCuration } from '../search/content-highlights/data';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -30,9 +30,13 @@ const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
-
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseUUID);
   const { contentHighlights } = useContentHighlights(enterpriseUUID);
-  const contentTypeSet = getContentTypeSet(contentHighlights);
+  const highlightsContentTypeSet = getHighlightsContentTypeSet(contentHighlights);
 
   useEffect(() => {
     if (state?.activationSuccess) {
@@ -87,11 +91,11 @@ const DashboardPage = () => {
           <Tab eventKey="courses" title="Courses">
             {CoursesTabComponent}
           </Tab>
-          <Tab eventKey="programs" title="Programs" disabled={!!contentTypeSet.has('programs')}>
+          <Tab eventKey="programs" title="Programs" disabled={canOnlyViewHighlightSets && !highlightsContentTypeSet.has('program')}>
             <ProgramListingPage />
           </Tab>
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways" disabled={!!contentTypeSet.has('learnerpathway')}>
+            <Tab eventKey="pathways" title="Pathways" disabled={canOnlyViewHighlightSets && !highlightsContentTypeSet.has('learnerpathway')}>
               <PathwayProgressListingPage />
             </Tab>
           )}

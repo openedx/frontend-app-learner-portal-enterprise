@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-  render, screen, act, fireEvent,
+  render, screen, act,
 } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import userEvent from '@testing-library/user-event';
 import ToastsProvider, { ToastsContext } from './ToastsProvider';
 import Toasts from './Toasts';
 
@@ -59,7 +60,7 @@ describe('ToastsProvider', () => {
 
     expect(toastContainerClassesBefore.match(/show/)).toBeTruthy();
 
-    fireEvent.click(closeButton);
+    userEvent.click(closeButton);
     const toastContainerClassesAfter = screen.getAllByRole('alert')[0].className;
 
     expect(toastContainerClassesAfter.match(/show/)).toBeFalsy();
