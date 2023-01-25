@@ -63,7 +63,7 @@ const defaultAppState = {
 };
 
 const defaultSearchContext = {
-  refinements: { skill_names: ['test-skill-3'] },
+  refinements: { },
   dispatch: () => null,
 };
 
