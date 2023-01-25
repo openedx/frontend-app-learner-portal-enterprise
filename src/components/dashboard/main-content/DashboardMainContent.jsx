@@ -55,7 +55,7 @@ const DashboardMainContent = () => {
             </Button>
 
             <br />
-            {!canOnlyViewHighlightSets && <CourseRecommendations />}
+            {canOnlyViewHighlightSets === false && <CourseRecommendations />}
           </>
         )}
       </CourseEnrollments>

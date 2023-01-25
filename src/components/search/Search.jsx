@@ -109,7 +109,7 @@ const Search = () => {
             clickAnalytics
           />
         )}
-        {!canOnlyViewHighlightSets && (
+        {canOnlyViewHighlightSets === false && (
           <div className="search-header-wrapper">
             <SearchHeader
               containerSize="lg"
@@ -134,9 +134,9 @@ const Search = () => {
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
-            {features.ENABLE_PATHWAYS && !canOnlyViewHighlightSets && <SearchPathway filter={filters} />}
-            {features.ENABLE_PROGRAMS && !canOnlyViewHighlightSets && <SearchProgram filter={filters} />}
-            {!canOnlyViewHighlightSets && <SearchCourse filter={filters} /> }
+            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
+            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
+            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
           </Stack>
         )}
 

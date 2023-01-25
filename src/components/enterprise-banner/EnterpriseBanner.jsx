@@ -23,7 +23,7 @@ const EnterpriseBanner = () => {
             {enterpriseConfig.name}
           </h1>
           {isSearchPage
-          && !canOnlyViewHighlightSets && (
+          && (canOnlyViewHighlightSets === false) && (
             <Button
               as={Link}
               to={`/${ enterpriseConfig.slug }/skills-quiz`}

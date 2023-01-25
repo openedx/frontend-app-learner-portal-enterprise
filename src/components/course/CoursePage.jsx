@@ -154,7 +154,7 @@ const CoursePage = () => {
                   </Sidebar>
                 )}
               </MediaQuery>
-              {!canOnlyViewHighlightSets && <CourseRecommendations />}
+              {canOnlyViewHighlightSets === false && <CourseRecommendations />}
             </Row>
           </Container>
         </CourseContextProvider>
