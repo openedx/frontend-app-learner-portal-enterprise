@@ -19,24 +19,15 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
-import { getHighlightsContentTypeSet, useContentHighlights, useEnterpriseCuration } from '../search/content-highlights/data';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
 const DashboardPage = () => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
   const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
-  const {
-    enterpriseCuration: {
-      canOnlyViewHighlightSets,
-    },
-  } = useEnterpriseCuration(enterpriseUUID);
-  const { contentHighlights } = useContentHighlights(enterpriseUUID);
-  const highlightsContentTypeSet = getHighlightsContentTypeSet(contentHighlights);
 
   useEffect(() => {
     if (state?.activationSuccess) {
@@ -91,11 +82,11 @@ const DashboardPage = () => {
           <Tab eventKey="courses" title="Courses">
             {CoursesTabComponent}
           </Tab>
-          <Tab eventKey="programs" title="Programs" disabled={canOnlyViewHighlightSets && !highlightsContentTypeSet.has('program')}>
+          <Tab eventKey="programs" title="Programs">
             <ProgramListingPage />
           </Tab>
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways" disabled={canOnlyViewHighlightSets && !highlightsContentTypeSet.has('learnerpathway')}>
+            <Tab eventKey="pathways" title="Pathways">
               <PathwayProgressListingPage />
             </Tab>
           )}
