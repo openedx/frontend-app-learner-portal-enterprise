@@ -6,6 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import {
   SearchContext, removeFromRefinementArray, deleteRefinementAction, SearchData,
 } from '@edx/frontend-enterprise-catalog-search';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import {
@@ -97,6 +98,32 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText('Start your learning journey with edX')).toBeTruthy();
     const image = getByAltText('edx-logo');
     expect(image.src).toContain(edxLogo);
+  });
+
+  it('checks track event is sent on close', () => {
+    const searchContext = {
+      refinements: {},
+      dispatch: () => null,
+    };
+
+    renderWithRouter(
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/' },
+    );
+    const closeButton = screen.getByRole('button', { name: 'Close' });
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(2);
+    userEvent.click(closeButton);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(3);
   });
 
   it('checks continue button is in disabled state initially', () => {

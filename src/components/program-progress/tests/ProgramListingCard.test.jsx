@@ -1,10 +1,11 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  screen, render, fireEvent,
+  screen, render,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import ProgramListingCard from '../ProgramListingCard';
@@ -137,7 +138,7 @@ describe('<ProgramListingCard />', () => {
       initialUserSubsidyState={userSubsidyState}
       programData={dummyProgramData}
     />);
-    fireEvent.click(container.firstElementChild);
+    userEvent.click(container.firstElementChild);
     expect(mockedPush).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
   });
 });

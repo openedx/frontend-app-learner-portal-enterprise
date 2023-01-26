@@ -1,9 +1,10 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import userEvent from '@testing-library/user-event';
 import PathwayModal from '../PathwayModal';
 import { useLearnerPathwayData } from '../data/hooks';
 import { TEST_ENTERPRISE_SLUG, TEST_PATHWAY_DATA } from './constants';
@@ -69,7 +70,7 @@ describe('<PathwayModal />', () => {
       const step = TEST_PATHWAY_DATA.steps[i];
       const collapsibleTitle = `Requirement ${i + 1}: Choose any ${step.min_requirement} of the following`;
       expect(screen.getByText(collapsibleTitle)).toBeInTheDocument();
-      fireEvent.click(screen.getByText(collapsibleTitle));
+      userEvent.click(screen.getByText(collapsibleTitle));
 
       const allNodes = [].concat(step.courses, step.programs);
       for (i = 0; i < allNodes.length; i++) {

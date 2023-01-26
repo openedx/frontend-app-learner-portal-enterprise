@@ -2,10 +2,11 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  screen, render, act, fireEvent,
+  screen, render, act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
@@ -152,7 +153,7 @@ describe('<ProgramListing />', () => {
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
-      fireEvent.click(screen.getByText('Explore programs'));
+      userEvent.click(screen.getByText('Explore programs'));
       expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
       expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
     });

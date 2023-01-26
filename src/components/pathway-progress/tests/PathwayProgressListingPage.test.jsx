@@ -2,11 +2,12 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  screen, render, act, fireEvent,
+  screen, render, act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import PathwayProgressListingPage from '../PathwayProgressListingPage';
 import { useInProgressPathwaysData } from '../data/hooks';
@@ -113,7 +114,7 @@ describe('<PathwayProgressListingPage />', () => {
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
-      fireEvent.click(screen.getByText('Explore pathways'));
+      userEvent.click(screen.getByText('Explore pathways'));
       expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
       expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PATHWAY}`);
     });

@@ -1,7 +1,8 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../../utils/tests';
 import SubscriptionSummaryCard from '../SubscriptionSummaryCard';
 import {
@@ -104,7 +105,7 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_WARNING_BADGE_VARIANT}`);
     expect(screen.queryByTestId('warning-icon')).toBeInTheDocument();
-    fireEvent.click(screen.queryByTestId('warning-icon'));
+    userEvent.click(screen.queryByTestId('warning-icon'));
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
   });
 });

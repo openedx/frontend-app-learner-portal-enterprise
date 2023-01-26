@@ -22,10 +22,17 @@ import CourseRecommendations from './CourseRecommendations';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { useSearchCatalogs } from '../search/data/hooks';
+import { useEnterpriseCuration } from '../search/content-highlights/data';
 
 const CoursePage = () => {
   const { courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseUUID);
   const { search } = useLocation();
 
   const courseRunKey = useMemo(
@@ -147,7 +154,7 @@ const CoursePage = () => {
                   </Sidebar>
                 )}
               </MediaQuery>
-              <CourseRecommendations />
+              {canOnlyViewHighlightSets === false && <CourseRecommendations />}
             </Row>
           </Container>
         </CourseContextProvider>

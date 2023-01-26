@@ -10,6 +10,7 @@ import { CourseEnrollments } from './course-enrollments';
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import CourseRecommendations from './CourseRecommendations';
+import { useEnterpriseCuration } from '../../search/content-highlights/data';
 
 const DashboardMainContent = () => {
   const {
@@ -17,9 +18,14 @@ const DashboardMainContent = () => {
       name,
       slug,
       disableSearch,
+      uuid: enterpriseUUID,
     },
   } = useContext(AppContext);
-
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseUUID);
   return (
     <>
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
@@ -32,7 +38,7 @@ const DashboardMainContent = () => {
         {disableSearch ? (
           <p>
             You are not enrolled in any courses sponsored by {name}.
-            Reach out to your administrator for instructions on how to start learning learning with edX!
+            Reach out to your administrator for instructions on how to start learning with edX!
           </p>
         ) : (
           <>
@@ -49,7 +55,7 @@ const DashboardMainContent = () => {
             </Button>
 
             <br />
-            <CourseRecommendations />
+            {canOnlyViewHighlightSets === false && <CourseRecommendations />}
           </>
         )}
       </CourseEnrollments>

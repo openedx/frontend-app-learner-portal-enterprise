@@ -1,9 +1,10 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import CourseRecommendationCard, { COURSE_REC_EVENT_NAME, SAME_PART_EVENT_NAME } from '../CourseRecommendationCard';
@@ -62,7 +63,7 @@ describe('<CourseRecommendationCard />', () => {
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} />,
     );
-    fireEvent.click(container.querySelector('.pgn__card'));
+    userEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_UUID,
       COURSE_REC_EVENT_NAME,
@@ -74,7 +75,7 @@ describe('<CourseRecommendationCard />', () => {
     const { container } = renderWithRouter(
       <CourseRecommendationCardWithContext course={course} isPartnerRecommendation />,
     );
-    fireEvent.click(container.querySelector('.pgn__card'));
+    userEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_UUID,
       SAME_PART_EVENT_NAME,

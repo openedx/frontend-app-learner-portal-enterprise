@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  render, screen, fireEvent,
+  render, screen,
 } from '@testing-library/react';
 import * as frontendEnterpriseUtils from '@edx/frontend-enterprise-utils';
 
+import userEvent from '@testing-library/user-event';
 import CourseSection from '../CourseSection';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 import { COURSE_MODES, COURSE_STATUSES } from '../../../../../constants';
@@ -58,7 +59,7 @@ describe('<CourseSection />', () => {
 
     expect(screen.getByText(title));
 
-    fireEvent.click(screen.getByText(title));
+    userEvent.click(screen.getByText(title));
 
     expect(frontendEnterpriseUtils.sendEnterpriseTrackEvent).toHaveBeenCalled();
 

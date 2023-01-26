@@ -2,14 +2,19 @@ import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button, Container } from '@edx/paragon';
-
+import { useEnterpriseCuration } from '../search/content-highlights/data';
 import './styles/EnterpriseBanner.scss';
 
 const EnterpriseBanner = () => {
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const isSearchPage = `/${ enterpriseConfig.slug }/search` === location.pathname;
-
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseUUID);
   return (
     <div className="enterprise-banner bg-brand-secondary border-brand-tertiary">
       <Container size="lg">
@@ -18,7 +23,7 @@ const EnterpriseBanner = () => {
             {enterpriseConfig.name}
           </h1>
           {isSearchPage
-          && (
+          && (canOnlyViewHighlightSets === false) && (
             <Button
               as={Link}
               to={`/${ enterpriseConfig.slug }/skills-quiz`}

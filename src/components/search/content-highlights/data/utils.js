@@ -10,8 +10,13 @@ export const getFormattedContentType = (contentType) => {
 };
 
 export const getAuthoringOrganizations = (authoringOrganizations) => {
+  if (!authoringOrganizations) {
+    return {
+      content: '',
+    };
+  }
   const authoringOrganizationsData = {
-    content: authoringOrganizations.map(org => org.name).join(', '),
+    content: authoringOrganizations?.map(org => org.name).join(', '),
   };
   if (authoringOrganizations.length === 1) {
     authoringOrganizationsData.logoImageUrl = authoringOrganizations[0].logoImageUrl;
@@ -37,4 +42,19 @@ export const getContentPageUrl = ({
   }
 
   return undefined;
+};
+/**
+ * Takes in the contentHighlights from useContentHighlights hook, and returns a set of contentTypes
+ * based on all of the highlight sets and its corresponding highlighted content
+ * @param {Object} contentHighlights
+ * @returns {Set} contentTypeSet
+ */
+export const getHighlightsContentTypeSet = (contentHighlights) => {
+  if (contentHighlights.length > 0) {
+    const contentTypeSet = new Set(contentHighlights.map(highlight => highlight.highlightedContent.map(content => content.contentType).join(' ')).join(' ').split(' '));
+    if (contentTypeSet.size > 0) {
+      return contentTypeSet;
+    }
+  }
+  return new Set();
 };
