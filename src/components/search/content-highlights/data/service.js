@@ -13,5 +13,5 @@ export const getEnterpriseCuration = (enterpriseUUID) => {
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
   });
-  return getAuthenticatedHttpClient().get(`${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-curations-admin/?${queryParams.toString()}`);
+  return getAuthenticatedHttpClient().get(`${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-curations/?${queryParams.toString()}`);
 };
