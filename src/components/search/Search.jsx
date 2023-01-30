@@ -35,6 +35,7 @@ import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import PathwayModal from '../pathway/PathwayModal';
+import { useEnterpriseCuration } from './content-highlights/data';
 
 const Search = () => {
   const { pathwayUUID } = useParams();
@@ -63,6 +64,10 @@ const Search = () => {
     enterpriseConfig,
     searchCatalogs,
   });
+
+  // Flag to toggle highlights visibility
+  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
+  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseUUID);
 
   useEffect(() => {
     if (pathwayUUID) {
@@ -104,15 +109,17 @@ const Search = () => {
             clickAnalytics
           />
         )}
-        <div className="search-header-wrapper">
-          <SearchHeader
-            containerSize="lg"
-            headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''}
-            index={courseIndex}
-            filters={filters}
-            enterpriseConfig={enterpriseConfig}
-          />
-        </div>
+        {canOnlyViewHighlightSets === false && (
+          <div className="search-header-wrapper">
+            <SearchHeader
+              containerSize="lg"
+              headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''}
+              index={courseIndex}
+              filters={filters}
+              enterpriseConfig={enterpriseConfig}
+            />
+          </div>
+        )}
         <PathwayModal
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
@@ -127,9 +134,9 @@ const Search = () => {
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
-            {features.ENABLE_PATHWAYS && <SearchPathway filter={filters} />}
-            {features.ENABLE_PROGRAMS && <SearchProgram filter={filters} />}
-            <SearchCourse filter={filters} />
+            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
+            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
+            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
           </Stack>
         )}
 

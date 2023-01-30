@@ -1,7 +1,8 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 
+import userEvent from '@testing-library/user-event';
 import EnrollModal, { MODAL_TEXTS } from '../EnrollModal';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../data/constants';
 
@@ -72,7 +73,7 @@ describe('<EnrollModal />', () => {
       <EnrollModal {...basicProps} onEnroll={mockHandleEnroll} />,
     );
     const enrollButton = screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button);
-    fireEvent.click(enrollButton);
+    userEvent.click(enrollButton);
 
     expect(mockHandleEnroll).toHaveBeenCalled();
   });

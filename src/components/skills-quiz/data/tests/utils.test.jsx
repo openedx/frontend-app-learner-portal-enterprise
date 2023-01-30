@@ -1,4 +1,9 @@
-import { goalLabels, sortSkillsCoursesWithCourseCount } from '../utils';
+import {
+  goalLabels,
+  sortSkillsCoursesWithCourseCount,
+  saveSkillsGoalsAndJobsUserSelected,
+} from '../utils';
+import { postSkillsGoalsAndJobsUserSelected, fetchSkillsId } from '../service';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS,
   DROPDOWN_OPTION_CHANGE_CAREERS_LABEL,
@@ -9,6 +14,8 @@ import {
   DROPDOWN_OPTION_OTHER,
   DROPDOWN_OPTION_OTHER_LABEL,
 } from '../../constants';
+
+jest.mock('../service');
 
 describe('sortSkillsCoursesWithCourseCount', () => {
   test('returns sorted skills based on # of courses in descending order', () => {
@@ -37,5 +44,19 @@ describe('returnGoalLabel', () => {
   test('return other goal label if find no match', () => {
     expect(goalLabels('random string')).toEqual(DROPDOWN_OPTION_OTHER_LABEL);
     expect(goalLabels('')).toEqual(DROPDOWN_OPTION_OTHER_LABEL);
+  });
+});
+
+describe('saveSkillsGoalsAndJobsUserSelected', () => {
+  test('save skills, goals and jobs user selected', async () => {
+    fetchSkillsId.mockImplementation(() => Promise.resolve({ data: { skills: ['skill-1', 'skill-2'] } }));
+    const skills = ['skill-1', 'skill-2'];
+    const goals = ['goal-1', 'goal-2'];
+    const jobs = ['job-1', 'job-2'];
+    await saveSkillsGoalsAndJobsUserSelected(skills, goals, jobs);
+
+    expect(fetchSkillsId).toHaveBeenCalledTimes(1);
+    expect(fetchSkillsId).toHaveBeenCalledWith(goals);
+    expect(postSkillsGoalsAndJobsUserSelected).toHaveBeenCalledTimes(1);
   });
 });

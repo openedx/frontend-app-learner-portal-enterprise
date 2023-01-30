@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, {
+  useContext, useEffect, useMemo,
+} from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
@@ -88,7 +90,6 @@ const DashboardPage = () => {
               <PathwayProgressListingPage />
             </Tab>
           )}
-
         </Tabs>
       </Container>
     </>

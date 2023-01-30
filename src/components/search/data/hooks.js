@@ -20,7 +20,6 @@ export const useSearchCatalogs = ({
 }) => {
   const searchCatalogs = useMemo(() => {
     const catalogs = [];
-
     // Scope to catalogs from coupons, enterprise offers, or subscription plan associated with learner's license
     if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
       catalogs.push(subscriptionPlan.enterpriseCatalogUuid);

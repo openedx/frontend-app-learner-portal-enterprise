@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-  screen, render, fireEvent, waitFor,
+  screen, render, waitFor,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
 import { ToastsContext } from '../../Toasts/ToastsProvider';
 import { SubsidyRequestsContext, SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import SubsidyRequestButton from '../SubsidyRequestButton';
@@ -187,7 +188,7 @@ describe('<SubsidyRequestButton />', () => {
       />,
     );
     const requestEnrollmentBtn = screen.getByText('Request enrollment');
-    fireEvent.click(requestEnrollmentBtn);
+    userEvent.click(requestEnrollmentBtn);
 
     await waitFor(() => {
       expect(
