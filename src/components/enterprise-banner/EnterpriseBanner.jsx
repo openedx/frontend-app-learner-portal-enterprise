@@ -10,11 +10,10 @@ const EnterpriseBanner = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const isSearchPage = `/${ enterpriseConfig.slug }/search` === location.pathname;
-  const {
-    enterpriseCuration: {
-      canOnlyViewHighlightSets,
-    },
-  } = useEnterpriseCuration(enterpriseUUID);
+
+  const { enterpriseCuration } = useEnterpriseCuration(enterpriseUUID);
+  const { canOnlyViewHighlightSets } = enterpriseCuration;
+
   return (
     <div className="enterprise-banner bg-brand-secondary border-brand-tertiary">
       <Container size="lg">

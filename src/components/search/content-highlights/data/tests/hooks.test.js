@@ -1,5 +1,4 @@
 import { logError } from '@edx/frontend-platform/logging';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 import { renderHook } from '@testing-library/react-hooks';
 import {
@@ -27,9 +26,6 @@ jest.mock('../utils', () => ({
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
-jest.mock('@edx/frontend-platform/utils', () => ({
-  camelCaseObject: jest.fn(() => []),
-}));
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({ FEATURE_CONTENT_HIGHLIGHTS: true })),
 }));
@@ -40,7 +36,6 @@ describe('useContentHighlights', () => {
     const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
     await waitForNextUpdate();
     expect(getContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
-    expect(camelCaseObject).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
     expect(result.current.contentHighlights).toEqual([]);
     expect(result.current.fetchError).toBeUndefined();
@@ -98,18 +93,24 @@ describe('useEnterpriseCuration', () => {
     jest.clearAllMocks();
   });
 
-  it('should fetch enterprise curation and set it to state', async () => {
+  it.each([
+    { hasResults: true, hasFallbackCuration: false },
+    { hasResults: false, hasFallbackCuration: true },
+  ])('should fetch enterprise curation and set it to state', async ({ hasResults, hasFallbackCuration }) => {
     const enterpriseUUID = '123';
     const enterpriseCuration = {
       id: '123',
       name: 'Test Enterprise',
+      canOnlyViewHighlightSets: false,
+    };
+    const fallbackEnterpriseCuration = {
+      canOnlyViewHighlightSets: false,
     };
     getEnterpriseCuration.mockResolvedValue({
       data: {
-        results: [enterpriseCuration],
+        results: hasResults ? [enterpriseCuration] : [],
       },
     });
-    camelCaseObject.mockReturnValue([enterpriseCuration]);
     getConfig.mockReturnValue({ FEATURE_CONTENT_HIGHLIGHTS: true });
 
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseCuration(enterpriseUUID));
@@ -120,9 +121,13 @@ describe('useEnterpriseCuration', () => {
     await waitForNextUpdate();
 
     expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
-    expect(camelCaseObject).toHaveBeenCalledWith([enterpriseCuration]);
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.enterpriseCuration).toEqual(enterpriseCuration);
+
+    if (hasFallbackCuration) {
+      expect(result.current.enterpriseCuration).toEqual(fallbackEnterpriseCuration);
+    } else {
+      expect(result.current.enterpriseCuration).toEqual(enterpriseCuration);
+    }
   });
 
   it('should handle fetch errors and set error to state', async () => {

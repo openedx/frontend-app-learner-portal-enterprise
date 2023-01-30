@@ -57,7 +57,8 @@ export const useEnterpriseCuration = (enterpriseUUID) => {
         setIsLoading(true);
         const response = await getEnterpriseCuration(enterpriseUUID);
         const results = camelCaseObject(response.data.results);
-        const enterpriseCurationConfig = results[0];
+        // if no enterprise curation config is found, fallback to an empty object to match the initial state.
+        const enterpriseCurationConfig = results[0] || { canOnlyViewHighlightSets: false };
         setEnterpriseCuration(enterpriseCurationConfig);
       } catch (err) {
         logError(err);
