@@ -5,9 +5,8 @@ import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { StatusAlert, CardGrid } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { Alert, CardGrid } from '@edx/paragon';
+import { ZoomOut } from '@edx/paragon/icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
 
@@ -17,17 +16,6 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import CourseCard from './CourseCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-
-const renderDialog = () => (
-  <div className="lead d-flex align-items-center py-3">
-    <div className="mr-3">
-      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-    </div>
-    <p>
-      { NO_COURSES_ALERT_MESSAGE }
-    </p>
-  </div>
-);
 
 const SearchCourseCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -99,13 +87,15 @@ const SearchCourseCard = ({ index }) => {
 
   if (hitCount === 0) {
     return (
-      <StatusAlert
+      <Alert
         className="mt-4 mb-5"
-        alertType="info"
-        dialog={renderDialog()}
+        variant="info"
         dismissible={false}
-        open
-      />
+        icon={ZoomOut}
+        show
+      >
+        { NO_COURSES_ALERT_MESSAGE }
+      </Alert>
     );
   }
 

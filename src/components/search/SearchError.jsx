@@ -1,36 +1,24 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { StatusAlert } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { Alert } from '@edx/paragon';
+import { Warning } from '@edx/paragon/icons';
 import { getSearchErrorMessage } from '../utils/search';
 
 const SearchError = ({ title }) => {
   const searchErrorMessage = getSearchErrorMessage(title);
-  const renderDialog = useCallback(
-    () => (
-      <div className="lead d-flex align-items-center py-3">
-        <div className="mr-3">
-          <FontAwesomeIcon icon={faExclamationTriangle} size="2x" />
-        </div>
-        <div>
-          {searchErrorMessage.messageTitle}
-          <br />
-          {searchErrorMessage.messageContent}
-        </div>
-      </div>
-    ),
-    [searchErrorMessage.messageContent, searchErrorMessage.messageTitle],
-  );
 
-  // TODO: Design Debt. Replace with `Alert` from @edx/paragon.
   return (
-    <StatusAlert
-      alertType="danger"
-      dialog={renderDialog()}
+    <Alert
+      variant="danger"
       dismissible={false}
+      icon={Warning}
       open
-    />
+    >
+      <Alert.Heading>
+        {searchErrorMessage.messageTitle}
+      </Alert.Heading>
+      {searchErrorMessage.messageContent}
+    </Alert>
   );
 };
 

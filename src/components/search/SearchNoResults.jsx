@@ -1,40 +1,26 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { StatusAlert } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { Alert } from '@edx/paragon';
+import { ZoomOut } from '@edx/paragon/icons';
 
 import { PopularResults } from './popular-results';
 import { getNoResultsMessage } from '../utils/search';
 
 const SearchNoResults = ({ title }) => {
   const noResultsMessage = getNoResultsMessage(title);
-  const renderDialog = useCallback(
-    () => (
-      <div className="lead d-flex align-items-center py-3">
-        <div className="mr-3">
-          <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-        </div>
-        <div>
-          {noResultsMessage.messageTitle}
-          <br />
-          {noResultsMessage.messageContent}
-        </div>
-      </div>
-    ),
-    [noResultsMessage.messageContent, noResultsMessage.messageTitle],
-  );
 
-  // TODO: Design Debt. Replace with `Alert` from @edx/paragon.
   return (
     <>
-      <StatusAlert
+      <Alert
         className="mb-5"
-        alertType="info"
-        dialog={renderDialog()}
+        variant="info"
         dismissible={false}
-        open
-      />
+        icon={ZoomOut}
+        show
+      >
+        <Alert.Heading>{noResultsMessage.messageTitle}</Alert.Heading>
+        {noResultsMessage.messageContent}
+      </Alert>
       <PopularResults title={title} />
     </>
   );
