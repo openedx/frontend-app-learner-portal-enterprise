@@ -141,7 +141,7 @@ export function useAllCourseData({
     isLoading,
   };
 }
-
+// TODO: Refactor away from useEffect useState
 export function useCourseSubjects(course) {
   const [subjects, setSubjects] = useState([]);
   const [primarySubject, setPrimarySubject] = useState(null);
@@ -163,6 +163,7 @@ export function useCourseSubjects(course) {
   return { subjects, primarySubject };
 }
 
+// TODO: Refactor away from useEffect useState
 export function useCoursePartners(course) {
   const [partners, setPartners] = useState([]);
   const [label, setLabel] = useState('');
@@ -182,25 +183,23 @@ export function useCoursePartners(course) {
 }
 
 export function useCourseRunWeeksToComplete(courseRun) {
-  const [weeksToComplete, setWeeksToComplete] = useState(undefined);
-  const [label, setLabel] = useState(undefined);
+  let weeksToComplete;
+  let label;
 
-  useEffect(() => {
-    // this conditional will always fail at courseRun.weeksToComplete === 0, because it always equals false
-    if (courseRun && courseRun.weeksToComplete) {
-      setWeeksToComplete(courseRun.weeksToComplete);
-      // OR condition will never meet the === 0 case because of line the above conditional
-      if (courseRun.weeksToComplete > 1 || courseRun.weeksToComplete === 0) {
-        setLabel('weeks');
-      } else {
-        setLabel('week');
-      }
+  // consolidated logic for weeksToComplete and label
+  if (courseRun?.weeksToComplete >= 0) {
+    weeksToComplete = courseRun.weeksToComplete;
+    if (courseRun.weeksToComplete === 1) {
+      label = 'week';
+    } else {
+      label = 'weeks';
     }
-  }, [courseRun]);
+  }
 
   return [weeksToComplete, label];
 }
 
+// TODO: Refactor away from useEffect useState
 export function useCourseTranscriptLanguages(courseRun) {
   const [languages, setLanguages] = useState([]);
   const [label, setLabel] = useState(undefined);
@@ -219,6 +218,7 @@ export function useCourseTranscriptLanguages(courseRun) {
   return [languages, label];
 }
 
+// TODO: Refactor away from useEffect useState
 export function useCoursePacingType(courseRun) {
   const [pacingType, setPacingType] = useState();
 
@@ -235,6 +235,7 @@ export function useCoursePacingType(courseRun) {
     [courseRun],
   );
 
+  // TODO: Refactor away from useEffect useState
   const pacingTypeContent = useMemo(
     () => {
       if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {

@@ -596,6 +596,12 @@ describe('useCourseRunWeeksToComplete', () => {
     expect(result.current[0]).toBe(4);
     expect(result.current[1]).toBe('weeks');
   });
+  it('should handle 0 weekToComplete', () => {
+    const courseRun = { weeksToComplete: 0 };
+    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun));
+    expect(result.current[0]).toBe(0);
+    expect(result.current[1]).toBe('weeks');
+  });
   it('should handle 1 weekToComplete', () => {
     const courseRun = { weeksToComplete: 1 };
     const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun));
