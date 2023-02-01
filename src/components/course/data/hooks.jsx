@@ -186,6 +186,7 @@ export function useCourseRunWeeksToComplete(courseRun) {
   const [label, setLabel] = useState(undefined);
 
   useEffect(() => {
+    // added additional logical operator to allow a zero value for weeks to complete to pass the conditional
     if (courseRun && (courseRun.weeksToComplete || courseRun.weeksToComplete >= 0)) {
       setWeeksToComplete(courseRun.weeksToComplete);
       if (courseRun.weeksToComplete === 1) {
