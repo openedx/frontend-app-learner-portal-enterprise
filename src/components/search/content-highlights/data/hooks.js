@@ -63,6 +63,7 @@ export const useEnterpriseCuration = (enterpriseUUID) => {
       } catch (err) {
         logError(err);
         setFetchError(err);
+        setEnterpriseCuration({ canOnlyViewHighlightSets: false });
       } finally {
         setIsLoading(false);
       }

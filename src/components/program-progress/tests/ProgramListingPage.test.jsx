@@ -72,11 +72,12 @@ jest.mock('../data/hooks', () => ({
 const ProgramListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
+  canOnlyViewHighlightSets = false,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingPage />
+        <ProgramListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -157,5 +158,18 @@ describe('<ProgramListing />', () => {
       expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
       expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
     });
+  });
+
+  it('does not render button when canOnlyViewHighlightSets is true', () => {
+    useLearnerProgramsListData.mockImplementation(() => ([[], null]));
+
+    render(
+      <ProgramListingWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        canOnlyViewHighlightSets
+      />,
+    );
+    expect(screen.queryByText('Explore programs')).not.toBeInTheDocument();
   });
 });

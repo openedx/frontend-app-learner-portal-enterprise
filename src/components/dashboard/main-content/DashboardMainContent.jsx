@@ -4,28 +4,22 @@ import { AppContext } from '@edx/frontend-platform/react';
 import {
   Button, breakpoints, MediaQuery,
 } from '@edx/paragon';
+import PropTypes from 'prop-types';
 
 import { CourseEnrollments } from './course-enrollments';
 
 import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import CourseRecommendations from './CourseRecommendations';
-import { useEnterpriseCuration } from '../../search/content-highlights/data';
 
-const DashboardMainContent = () => {
+const DashboardMainContent = ({ canOnlyViewHighlightSets }) => {
   const {
     enterpriseConfig: {
       name,
       slug,
       disableSearch,
-      uuid: enterpriseUUID,
     },
   } = useContext(AppContext);
-  const {
-    enterpriseCuration: {
-      canOnlyViewHighlightSets,
-    },
-  } = useEnterpriseCuration(enterpriseUUID);
   return (
     <>
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
@@ -65,6 +59,14 @@ const DashboardMainContent = () => {
       </MediaQuery>
     </>
   );
+};
+
+DashboardMainContent.propTypes = {
+  canOnlyViewHighlightSets: PropTypes.bool,
+};
+
+DashboardMainContent.defaultProps = {
+  canOnlyViewHighlightSets: false,
 };
 
 export default DashboardMainContent;

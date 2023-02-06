@@ -34,11 +34,12 @@ jest.mock('../data/hooks', () => ({
 const PathwayProgressListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
+  canOnlyViewHighlightSets = false,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <PathwayProgressListingPage />
+        <PathwayProgressListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -118,5 +119,17 @@ describe('<PathwayProgressListingPage />', () => {
       expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
       expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PATHWAY}`);
     });
+  });
+
+  it('does not render button when canOnlyViewHighlightSets is true', () => {
+    useInProgressPathwaysData.mockImplementation(() => ([camelCaseObject(learnerPathwayData), null]));
+    render(
+      <PathwayProgressListingWithContext
+        initialAppState={{ ...initialAppState, canOnlyViewHighlightSets: true }}
+        initialUserSubsidyState={initialUserSubsidyState}
+        canOnlyViewHighlightSets
+      />,
+    );
+    expect(screen.queryByText('Explore pathways')).not.toBeInTheDocument();
   });
 });

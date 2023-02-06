@@ -147,7 +147,9 @@ describe('useEnterpriseCuration', () => {
     expect(getEnterpriseCuration).toHaveBeenCalledWith(enterpriseUUID);
     expect(logError).toHaveBeenCalledWith(fetchError);
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.enterpriseCuration).toEqual({});
+    expect(result.current.enterpriseCuration).toEqual({
+      canOnlyViewHighlightSets: false,
+    });
     expect(result.current.fetchError).toEqual(fetchError);
   });
 });

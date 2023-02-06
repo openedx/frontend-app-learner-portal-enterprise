@@ -30,12 +30,13 @@ const DashboardMainContentWrapper = ({
   initialCourseEnrollmentsState = {
     courseEnrollmentsByStatus: {},
   },
+  canOnlyViewHighlightSets = false,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
-          <DashboardMainContent />
+          <DashboardMainContent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
         </CourseEnrollmentsContextProvider>
       </SubsidyRequestsContext.Provider>
     </UserSubsidyContext.Provider>
@@ -59,6 +60,19 @@ describe('DashboardMainContent', () => {
       uuid: 'uuid',
     },
   };
+  it('does not render recommended courses when canOnlyViewHighlightSets true', () => {
+    useEnterpriseCuration.mockImplementation(() => ({
+      enterpriseCuration: {
+        canOnlyViewHighlightSets: true,
+      },
+    }));
+    renderWithRouter(<DashboardMainContentWrapper
+      initialAppState={initialAppState}
+      initialUserSubsidyState={defaultUserSubsidyState}
+      canOnlyViewHighlightSets
+    />);
+    expect(screen.queryByText('Recommend courses for me')).not.toBeInTheDocument();
+  });
   it('renders recommended courses when canOnlyViewHighlightSets false', () => {
     useEnterpriseCuration.mockImplementation(() => ({
       enterpriseCuration: {
@@ -68,20 +82,9 @@ describe('DashboardMainContent', () => {
     renderWithRouter(<DashboardMainContentWrapper
       initialAppState={initialAppState}
       initialUserSubsidyState={defaultUserSubsidyState}
+      canOnlyViewHighlightSets={false}
     />);
     expect(screen.getByText('Recommend courses for me')).toBeInTheDocument();
-  });
-  it('renders recommended courses when canOnlyViewHighlightSets false', () => {
-    useEnterpriseCuration.mockImplementation(() => ({
-      enterpriseCuration: {
-        canOnlyViewHighlightSets: true,
-      },
-    }));
-    renderWithRouter(<DashboardMainContentWrapper
-      initialAppState={initialAppState}
-      initialUserSubsidyState={defaultUserSubsidyState}
-    />);
-    expect(screen.queryByText('Recommend courses for me')).not.toBeInTheDocument();
   });
   it('Displays disableSearch Flag message', () => {
     renderWithRouter(<DashboardMainContentWrapper

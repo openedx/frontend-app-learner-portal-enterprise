@@ -19,6 +19,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
+import { useEnterpriseCuration } from '../search/content-highlights/data';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 
@@ -28,7 +29,11 @@ const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
-
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseConfig.uuid);
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
@@ -53,7 +58,7 @@ const DashboardPage = () => {
         <CourseEnrollmentsContextProvider>
           <CourseEnrollmentFailedAlert className="mt-0 mb-3" enrollmentSource={ENROLLMENT_SOURCE.DASHBOARD} />
           <MainContent>
-            <DashboardMainContent />
+            <DashboardMainContent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
           </MainContent>
           <MediaQuery minWidth={breakpoints.large.minWidth}>
             {matches => (matches ? (
@@ -83,11 +88,11 @@ const DashboardPage = () => {
             {CoursesTabComponent}
           </Tab>
           <Tab eventKey="programs" title="Programs">
-            <ProgramListingPage />
+            <ProgramListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
           </Tab>
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
             <Tab eventKey="pathways" title="Pathways">
-              <PathwayProgressListingPage />
+              <PathwayProgressListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
             </Tab>
           )}
         </Tabs>
