@@ -15,22 +15,21 @@ import { Search } from '@edx/paragon/icons';
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
 
-import { useInProgressPathwaysData } from './data/hooks';
 import { NO_PATHWAYS_ERROR_MESSAGE } from './constants';
 import PathwayProgressCard from './PathwayProgressCard';
 
 import { CONTENT_TYPE_PATHWAY } from '../search/constants';
 
-const PathwayProgressListingPage = ({ canOnlyViewHighlightSets }) => {
+const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayData }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const [pathwayProgressData, fetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
+  const { data, error } = pathwayData;
 
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
+  if (error) {
+    return <ErrorPage message={error.message} />;
   }
 
-  if (!pathwayProgressData) {
+  if (!data) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading pathways" />
@@ -40,9 +39,9 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets }) => {
 
   return (
     <div className="py-5">
-      {pathwayProgressData?.length > 0 ? (
+      {data?.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
-          {pathwayProgressData.map((pathway) => (
+          {data.map((pathway) => (
             <PathwayProgressCard
               pathway={pathway}
               key={pathway.learnerPathwayProgress.uuid}
@@ -65,10 +64,20 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets }) => {
 
 PathwayProgressListingPage.propTypes = {
   canOnlyViewHighlightSets: PropTypes.bool,
+  pathwayData: PropTypes.shape({
+    data: PropTypes.arrayOf(),
+    error: PropTypes.shape({
+      message: PropTypes.string,
+    }),
+  }),
 };
 
 PathwayProgressListingPage.defaultProps = {
   canOnlyViewHighlightSets: false,
+  pathwayData: {
+    data: [],
+    error: null,
+  },
 };
 
 export default PathwayProgressListingPage;

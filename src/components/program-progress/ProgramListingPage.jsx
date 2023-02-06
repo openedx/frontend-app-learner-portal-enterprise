@@ -12,22 +12,21 @@ import { Search } from '@edx/paragon/icons';
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
 
-import { useLearnerProgramsListData } from './data/hooks';
 import { NO_PROGRAMS_ERROR_MESSAGE } from './data/constants';
 import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
 
-const ProgramListingPage = ({ canOnlyViewHighlightSets }) => {
+const ProgramListingPage = ({ canOnlyViewHighlightSets, programData }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const [learnerProgramsData, fetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
+  const { data, error } = programData;
 
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
+  if (error) {
+    return <ErrorPage message={error.message} />;
   }
 
-  if (!learnerProgramsData) {
+  if (!data) {
     return (
       <div className="py-5">
         <LoadingSpinner screenReaderText="loading program" />
@@ -37,9 +36,9 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets }) => {
 
   return (
     <div className="py-5">
-      {learnerProgramsData.length > 0 ? (
+      {data.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
-          {learnerProgramsData.map((program) => <ProgramListingCard program={program} key={program.title} />)}
+          {data.map((program) => <ProgramListingCard program={program} key={program.title} />)}
         </CardGrid>
       ) : (
         <div className="no-content-message">
@@ -57,10 +56,20 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets }) => {
 
 ProgramListingPage.propTypes = {
   canOnlyViewHighlightSets: PropTypes.bool,
+  programData: PropTypes.shape({
+    data: PropTypes.arrayOf(),
+    error: PropTypes.shape({
+      message: PropTypes.string,
+    }),
+  }),
 };
 
 ProgramListingPage.defaultProps = {
   canOnlyViewHighlightSets: false,
+  programData: {
+    data: [],
+    error: null,
+  },
 };
 
 export default ProgramListingPage;

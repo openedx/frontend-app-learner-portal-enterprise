@@ -2,7 +2,7 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  screen, render, act,
+  screen, act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -73,11 +73,15 @@ const ProgramListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
   canOnlyViewHighlightSets = false,
+  programData = {
+    data: [],
+    error: null,
+  },
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
+        <ProgramListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} programData={programData} />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -107,10 +111,16 @@ describe('<ProgramListing />', () => {
     useLearnerProgramsListData.mockImplementation(() => ([[dummyProgramData, dataForAnotherProgram], null]));
 
     await act(async () => {
-      render(
+      renderWithRouter(
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
+          programData={
+            {
+              data: [dummyProgramData, dataForAnotherProgram],
+              error: null,
+            }
+          }
         />,
       );
       expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
@@ -120,10 +130,14 @@ describe('<ProgramListing />', () => {
 
   it('renders program error.', async () => {
     useLearnerProgramsListData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-    render(
+    renderWithRouter(
       <ProgramListingWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
+        programData={{
+          data: [],
+          error: { message: 'This is a test message.' },
+        }}
       />,
     );
     expect(screen.getByTestId('error-page')).toBeInTheDocument();
@@ -137,6 +151,10 @@ describe('<ProgramListing />', () => {
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
+          programData={{
+            data: [],
+            error: null,
+          }}
         />,
       );
       expect(screen.getByText(NO_PROGRAMS_ERROR_MESSAGE)).toBeInTheDocument();
@@ -163,7 +181,7 @@ describe('<ProgramListing />', () => {
   it('does not render button when canOnlyViewHighlightSets is true', () => {
     useLearnerProgramsListData.mockImplementation(() => ([[], null]));
 
-    render(
+    renderWithRouter(
       <ProgramListingWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}

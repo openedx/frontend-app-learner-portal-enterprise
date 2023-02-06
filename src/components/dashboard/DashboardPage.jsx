@@ -20,20 +20,24 @@ import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
+import { useLearnerProgramsListData } from '../program-progress/data/hooks';
+import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
 
 export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
-
 const DashboardPage = () => {
-  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
   const history = useHistory();
+  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
+  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
+  const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
+  const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
   const {
     enterpriseCuration: {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseConfig.uuid);
+
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
@@ -87,12 +91,34 @@ const DashboardPage = () => {
           <Tab eventKey="courses" title="Courses">
             {CoursesTabComponent}
           </Tab>
-          <Tab eventKey="programs" title="Programs">
-            <ProgramListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
+          <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
+            {learnerProgramsListData > 0
+            && (
+              <ProgramListingPage
+                canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+                programData={
+                  {
+                    data: learnerProgramsListData,
+                    error: programsFetchError,
+                  }
+                }
+              />
+            )}
           </Tab>
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways">
-              <PathwayProgressListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
+            <Tab eventKey="pathways" title="Pathways" disabled={pathwayProgressData.length === 0}>
+              {pathwayProgressData.length > 0
+              && (
+                <PathwayProgressListingPage
+                  canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+                  pathwayData={
+                    {
+                      data: pathwayProgressData,
+                      error: pathwayFetchError,
+                    }
+                  }
+                />
+              )}
             </Tab>
           )}
         </Tabs>

@@ -27,8 +27,8 @@ export function useLearnerProgramProgressData(programUUID) {
 }
 
 export function useLearnerProgramsListData(enterpriseUuid) {
-  const [learnerProgramsListData, setLearnerProgramsListData] = useState();
-  const [fetchError, setFetchError] = useState();
+  const [learnerProgramsListData, setLearnerProgramsListData] = useState([]);
+  const [programsFetchError, setProgramsFetchError] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,12 +38,12 @@ export function useLearnerProgramsListData(enterpriseUuid) {
           setLearnerProgramsListData(response.data);
         } catch (error) {
           logError(error);
-          setFetchError(error);
+          setProgramsFetchError(error);
         }
       }
       return undefined;
     };
     fetchData();
   }, [enterpriseUuid]);
-  return [camelCaseObject(learnerProgramsListData), fetchError];
+  return [camelCaseObject(learnerProgramsListData), programsFetchError];
 }
