@@ -57,7 +57,9 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programData }) => {
 ProgramListingPage.propTypes = {
   canOnlyViewHighlightSets: PropTypes.bool,
   programData: PropTypes.shape({
-    data: PropTypes.arrayOf(),
+    data: PropTypes.arrayOf(PropTypes.shape({
+      title: PropTypes.string,
+    })),
     error: PropTypes.shape({
       message: PropTypes.string,
     }),

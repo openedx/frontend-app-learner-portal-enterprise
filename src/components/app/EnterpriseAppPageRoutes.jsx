@@ -12,6 +12,8 @@ import { features } from '../../config';
 import { LicenseActivationPage } from '../license-activation';
 import { PathwayProgressPage } from '../pathway-progress';
 
+// TODO: Techdebt, Create Context wrapper around this page for enterpriseCuration
+// to reduce API calls by 2 (DashboardPage, CoursePage, SearchPage) or by 3 ( + AuthenticatedPage) if created in App.jsx
 const EnterpriseAppPageRoutes = () => (
   <AuthenticatedUserSubsidyPage>
     <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />

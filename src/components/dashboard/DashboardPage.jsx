@@ -4,34 +4,29 @@ import React, {
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
-  Container, Alert, Row, breakpoints, useToggle, MediaQuery, Tabs, Tab,
+  Container,
+  Tabs,
+  Tab,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { IntegrationWarningModal } from '../integration-warning-modal';
-import { MainContent, Sidebar } from '../layout';
-import { DashboardMainContent } from './main-content';
-import { DashboardSidebar } from './sidebar';
-import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { CourseEnrollmentsContextProvider } from './main-content/course-enrollments';
-import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 import { useLearnerProgramsListData } from '../program-progress/data/hooks';
 import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
+import CoursesTabComponent from './main-content/CoursesTabComponent';
 
-export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
 const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
-  const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
+
+  // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
   const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
+
   const {
     enterpriseCuration: {
       canOnlyViewHighlightSets,
@@ -47,37 +42,54 @@ const DashboardPage = () => {
   }, [history, state]);
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
-  const CoursesTabComponent = (
-    <>
-      <Alert
-        variant="success"
-        show={isActivationAlertOpen}
-        onClose={closeActivationAlert}
-        className="mt-3"
-        dismissible
-      >
-        {LICENCE_ACTIVATION_MESSAGE}
-      </Alert>
-      <Row className="py-5">
-        <CourseEnrollmentsContextProvider>
-          <CourseEnrollmentFailedAlert className="mt-0 mb-3" enrollmentSource={ENROLLMENT_SOURCE.DASHBOARD} />
-          <MainContent>
-            <DashboardMainContent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
-          </MainContent>
-          <MediaQuery minWidth={breakpoints.large.minWidth}>
-            {matches => (matches ? (
-              <Sidebar data-testid="sidebar">
-                <DashboardSidebar />
-              </Sidebar>
-            ) : null)}
-          </MediaQuery>
-        </CourseEnrollmentsContextProvider>
-        <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
-        {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
-      </Row>
-    </>
-  );
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
+  const tabs = useMemo(() => {
+    const tabsList = [(
+      <Tab eventKey="courses" title="Courses">
+        <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
+      </Tab>),
+    (
+      <Tab
+        eventKey="programs"
+        title="Programs"
+        disabled={learnerProgramsListData.length === 0}
+      >
+        {learnerProgramsListData > 0 && (
+          <ProgramListingPage
+            canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+            programData={
+              {
+                data: learnerProgramsListData,
+                error: programsFetchError,
+              }
+            }
+          />
+        )}
+      </Tab>
+    )];
+    if (features.FEATURE_ENABLE_PATHWAY_PROGRESS) {
+      tabsList.push(
+        <Tab
+          eventKey="pathways"
+          title="Pathways"
+          disabled={pathwayProgressData.length === 0}
+        >
+          {pathwayProgressData.length > 0 && (
+            <PathwayProgressListingPage
+              canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+              pathwayData={
+                {
+                  data: pathwayProgressData,
+                  error: pathwayFetchError,
+                }
+              }
+            />
+          )}
+        </Tab>,
+      );
+    }
+    return tabsList;
+  }, [canOnlyViewHighlightSets, learnerProgramsListData, pathwayProgressData, pathwayFetchError, programsFetchError]);
 
   return (
     <>
@@ -88,39 +100,7 @@ const DashboardPage = () => {
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
         <Tabs defaultActiveKey="courses">
-          <Tab eventKey="courses" title="Courses">
-            {CoursesTabComponent}
-          </Tab>
-          <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
-            {learnerProgramsListData > 0
-            && (
-              <ProgramListingPage
-                canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-                programData={
-                  {
-                    data: learnerProgramsListData,
-                    error: programsFetchError,
-                  }
-                }
-              />
-            )}
-          </Tab>
-          {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways" disabled={pathwayProgressData.length === 0}>
-              {pathwayProgressData.length > 0
-              && (
-                <PathwayProgressListingPage
-                  canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-                  pathwayData={
-                    {
-                      data: pathwayProgressData,
-                      error: pathwayFetchError,
-                    }
-                  }
-                />
-              )}
-            </Tab>
-          )}
+          {tabs.map(tab => (<Tab key={tab.props.eventKey} {...tab.props}>{tab.props.children}</Tab>))}
         </Tabs>
       </Container>
     </>

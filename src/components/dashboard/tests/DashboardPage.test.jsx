@@ -22,12 +22,13 @@ import * as hooks from '../main-content/course-enrollments/data/hooks';
 import {
   renderWithRouter,
 } from '../../../utils/tests';
-import DashboardPage, { LICENCE_ACTIVATION_MESSAGE } from '../DashboardPage';
+import DashboardPage from '../DashboardPage';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
+import { LICENCE_ACTIVATION_MESSAGE } from '../main-content/CoursesTabComponent';
 
 const defaultCouponCodesState = {
   couponCodes: [],

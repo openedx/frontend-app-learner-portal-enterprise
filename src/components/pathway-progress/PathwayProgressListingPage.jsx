@@ -39,7 +39,7 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayData }) =
 
   return (
     <div className="py-5">
-      {data?.length > 0 ? (
+      {data.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
           {data.map((pathway) => (
             <PathwayProgressCard
@@ -65,7 +65,11 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayData }) =
 PathwayProgressListingPage.propTypes = {
   canOnlyViewHighlightSets: PropTypes.bool,
   pathwayData: PropTypes.shape({
-    data: PropTypes.arrayOf(),
+    data: PropTypes.arrayOf(PropTypes.shape({
+      learnerPathwayProgress: PropTypes.shape({
+        uuid: PropTypes.string,
+      }),
+    })),
     error: PropTypes.shape({
       message: PropTypes.string,
     }),
