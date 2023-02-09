@@ -8,6 +8,7 @@ import {
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import { LICENCE_ACTIVATION_MESSAGE } from './data/constants';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardMainContent } from './main-content';
@@ -19,8 +20,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/Course
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
-
-export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
+import { MyCareerTab } from '../my-career';
 
 const DashboardPage = () => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
@@ -88,6 +88,11 @@ const DashboardPage = () => {
           {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
             <Tab eventKey="pathways" title="Pathways">
               <PathwayProgressListingPage />
+            </Tab>
+          )}
+          {features.FEATURE_ENABLE_MY_CAREER && (
+            <Tab eventKey="my-career" title="My Career">
+              <MyCareerTab />
             </Tab>
           )}
         </Tabs>

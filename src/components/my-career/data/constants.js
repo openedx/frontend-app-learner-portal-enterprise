@@ -1,0 +1,1 @@
+export const NUM_POPULAR_COURSES_TO_DISPLAY = 4;
