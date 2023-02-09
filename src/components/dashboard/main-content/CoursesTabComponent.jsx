@@ -17,8 +17,7 @@ import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../../course/Cou
 import DashboardMainContent from './DashboardMainContent';
 import { DashboardSidebar } from '../sidebar';
 import SubscriptionExpirationModal from '../SubscriptionExpirationModal';
-
-export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
+import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 
 const CoursesTabComponent = ({ canOnlyViewHighlightSets }) => {
   const { state } = useLocation();
@@ -35,7 +34,7 @@ const CoursesTabComponent = ({ canOnlyViewHighlightSets }) => {
         className="mt-3"
         dismissible
       >
-        {LICENCE_ACTIVATION_MESSAGE}
+        {LICENSE_ACTIVATION_MESSAGE}
       </Alert>
       <Row className="py-5">
         <CourseEnrollmentsContextProvider>

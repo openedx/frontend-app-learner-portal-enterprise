@@ -23,12 +23,13 @@ import {
   renderWithRouter,
 } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
+
+import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
-import { LICENCE_ACTIVATION_MESSAGE } from '../main-content/CoursesTabComponent';
 
 const defaultCouponCodesState = {
   couponCodes: [],
@@ -41,6 +42,7 @@ const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
 jest.mock('../../../config', () => ({
   features: {
     FEATURE_ENABLE_PATHWAY_PROGRESS: jest.fn(),
+    FEATURE_ENABLE_MY_CAREER: jest.fn(),
   },
 }));
 
@@ -132,6 +134,8 @@ const DashboardWithContext = ({
   </IntlProvider>
 );
 
+jest.mock('plotly.js-dist', () => {});
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(() => mockLocation),
@@ -187,7 +191,7 @@ describe('<Dashboard />', () => {
       <DashboardWithContext />,
       { route: '/?activationSuccess=true' },
     );
-    expect(screen.getByText(LICENCE_ACTIVATION_MESSAGE));
+    expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE));
   });
 
   it('does not render license activation alert without activation success', () => {
@@ -196,7 +200,7 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
+    expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy();
   });
 
   it('renders a sidebar on a large screen', () => {
@@ -237,8 +241,17 @@ describe('<Dashboard />', () => {
     expect(screen.getByText('Pathways'));
   });
 
+  it('renders My Career when feature is enabled', () => {
+    features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+    expect(screen.getByText('My Career'));
+  });
+
   it('does not render "Find a course" when search is disabled for the customer', () => {
     const appState = {
+      ...defaultAppState,
       enterpriseConfig: {
         name: 'BearsRUs',
         uuid: 'BearsRUs',

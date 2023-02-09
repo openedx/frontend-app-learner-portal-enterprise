@@ -17,6 +17,7 @@ import { useEnterpriseCuration } from '../search/content-highlights/data';
 import { useLearnerProgramsListData } from '../program-progress/data/hooks';
 import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
 import CoursesTabComponent from './main-content/CoursesTabComponent';
+import { MyCareerTab } from '../my-career';
 
 const DashboardPage = () => {
   const { state } = useLocation();
@@ -85,6 +86,13 @@ const DashboardPage = () => {
               }
             />
           )}
+        </Tab>,
+      );
+    }
+    if (features.FEATURE_ENABLE_MY_CAREER) {
+      tabsList.push(
+        <Tab eventKey="my-career" title="My Career">
+          <MyCareerTab />
         </Tab>,
       );
     }
