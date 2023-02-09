@@ -28,7 +28,7 @@ const MyCareerTab = () => {
 
   const skillQuiz = learnerSkillQuiz.results[0];
 
-  return (!skillQuiz) ? (
+  return (!skillQuiz || !skillQuiz.currentJob) ? (
     <AddJobRole />
   ) : (
     <VisualizeCareer jobId={skillQuiz.currentJob} />
