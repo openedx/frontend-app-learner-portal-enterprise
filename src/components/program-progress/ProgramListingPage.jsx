@@ -17,16 +17,14 @@ import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
 
-const ProgramListingPage = ({ canOnlyViewHighlightSets, programData }) => {
+const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, programsFetchError }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const { data, error } = programData;
-
-  if (error) {
-    return <ErrorPage message={error.message} />;
+  if (programsFetchError) {
+    return <ErrorPage message={programsFetchError.message} />;
   }
 
-  if (!data) {
+  if (!programsListData) {
     return (
       <div className="py-5">
         <LoadingSpinner screenReaderText="loading program" />
@@ -36,9 +34,9 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programData }) => {
 
   return (
     <div className="py-5">
-      {data.length > 0 ? (
+      {programsListData.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
-          {data.map((program) => <ProgramListingCard program={program} key={program.title} />)}
+          {programsListData.map((program) => <ProgramListingCard program={program} key={program.title} />)}
         </CardGrid>
       ) : (
         <div className="no-content-message">
@@ -56,22 +54,18 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programData }) => {
 
 ProgramListingPage.propTypes = {
   canOnlyViewHighlightSets: PropTypes.bool,
-  programData: PropTypes.shape({
-    data: PropTypes.arrayOf(PropTypes.shape({
-      title: PropTypes.string,
-    })),
-    error: PropTypes.shape({
-      message: PropTypes.string,
-    }),
+  programsListData: PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.string,
+  })),
+  programsFetchError: PropTypes.shape({
+    message: PropTypes.string,
   }),
 };
 
 ProgramListingPage.defaultProps = {
   canOnlyViewHighlightSets: false,
-  programData: {
-    data: [],
-    error: null,
-  },
+  programsListData: [],
+  programsFetchError: null,
 };
 
 export default ProgramListingPage;

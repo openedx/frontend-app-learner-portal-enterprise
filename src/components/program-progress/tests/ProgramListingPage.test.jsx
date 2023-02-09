@@ -73,15 +73,17 @@ const ProgramListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
   canOnlyViewHighlightSets = false,
-  programData = {
-    data: [],
-    error: null,
-  },
+  programsListData = [],
+  programsFetchError = null,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} programData={programData} />
+        <ProgramListingPage
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          programsListData={programsListData}
+          programsFetchError={programsFetchError}
+        />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -115,12 +117,7 @@ describe('<ProgramListing />', () => {
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
-          programData={
-            {
-              data: [dummyProgramData, dataForAnotherProgram],
-              error: null,
-            }
-          }
+          programsListData={[dummyProgramData, dataForAnotherProgram]}
         />,
       );
       expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
@@ -134,10 +131,7 @@ describe('<ProgramListing />', () => {
       <ProgramListingWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
-        programData={{
-          data: [],
-          error: { message: 'This is a test message.' },
-        }}
+        programsFetchError={{ message: 'This is a test message.' }}
       />,
     );
     expect(screen.getByTestId('error-page')).toBeInTheDocument();
@@ -151,10 +145,6 @@ describe('<ProgramListing />', () => {
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
-          programData={{
-            data: [],
-            error: null,
-          }}
         />,
       );
       expect(screen.getByText(NO_PROGRAMS_ERROR_MESSAGE)).toBeInTheDocument();

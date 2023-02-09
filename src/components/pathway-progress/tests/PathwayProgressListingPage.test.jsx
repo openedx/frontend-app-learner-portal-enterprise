@@ -35,15 +35,17 @@ const PathwayProgressListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
   canOnlyViewHighlightSets = false,
-  pathwayData = {
-    data: [],
-    error: null,
-  },
+  pathwayProgressData = [],
+  pathwayFetchError = null,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <PathwayProgressListingPage canOnlyViewHighlightSets={canOnlyViewHighlightSets} pathwayData={pathwayData} />
+        <PathwayProgressListingPage
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          pathwayProgressData={pathwayProgressData}
+          pathwayFetchError={pathwayFetchError}
+        />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -75,12 +77,7 @@ describe('<PathwayProgressListingPage />', () => {
         <PathwayProgressListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
-          pathwayData={
-            {
-              data: camelCaseObject(learnerPathwayData),
-              error: null,
-            }
-          }
+          pathwayProgressData={camelCaseObject(learnerPathwayData)}
         />,
       );
       expect(screen.getByText('test 1')).toBeInTheDocument();
@@ -95,12 +92,7 @@ describe('<PathwayProgressListingPage />', () => {
       <PathwayProgressListingWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
-        pathwayData={
-          {
-            data: [],
-            error: { message: 'This is a test message.' },
-          }
-        }
+        pathwayFetchError={{ message: 'This is a test message.' }}
       />,
     );
     expect(screen.getByTestId('error-page')).toBeInTheDocument();
@@ -114,10 +106,6 @@ describe('<PathwayProgressListingPage />', () => {
         <PathwayProgressListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
-          pathwayData={{
-            data: [],
-            error: null,
-          }}
         />,
       );
       expect(screen.getByText(NO_PATHWAYS_ERROR_MESSAGE)).toBeInTheDocument();

@@ -20,16 +20,14 @@ import PathwayProgressCard from './PathwayProgressCard';
 
 import { CONTENT_TYPE_PATHWAY } from '../search/constants';
 
-const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayData }) => {
+const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayProgressData, pathwayFetchError }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const { data, error } = pathwayData;
-
-  if (error) {
-    return <ErrorPage message={error.message} />;
+  if (pathwayFetchError) {
+    return <ErrorPage message={pathwayFetchError.message} />;
   }
 
-  if (!data) {
+  if (!pathwayProgressData) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading pathways" />
@@ -39,9 +37,9 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayData }) =
 
   return (
     <div className="py-5">
-      {data.length > 0 ? (
+      {pathwayProgressData.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
-          {data.map((pathway) => (
+          {pathwayProgressData.map((pathway) => (
             <PathwayProgressCard
               pathway={pathway}
               key={pathway.learnerPathwayProgress.uuid}
@@ -64,24 +62,20 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayData }) =
 
 PathwayProgressListingPage.propTypes = {
   canOnlyViewHighlightSets: PropTypes.bool,
-  pathwayData: PropTypes.shape({
-    data: PropTypes.arrayOf(PropTypes.shape({
-      learnerPathwayProgress: PropTypes.shape({
-        uuid: PropTypes.string,
-      }),
-    })),
-    error: PropTypes.shape({
-      message: PropTypes.string,
+  pathwayProgressData: PropTypes.arrayOf(PropTypes.shape({
+    learnerPathwayProgress: PropTypes.shape({
+      uuid: PropTypes.string,
     }),
+  })),
+  pathwayFetchError: PropTypes.shape({
+    message: PropTypes.string,
   }),
 };
 
 PathwayProgressListingPage.defaultProps = {
   canOnlyViewHighlightSets: false,
-  pathwayData: {
-    data: [],
-    error: null,
-  },
+  pathwayProgressData: [],
+  pathwayFetchError: null,
 };
 
 export default PathwayProgressListingPage;

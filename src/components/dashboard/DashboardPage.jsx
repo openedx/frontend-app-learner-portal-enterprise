@@ -45,11 +45,10 @@ const DashboardPage = () => {
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
   const tabs = useMemo(() => {
-    const tabsList = [(
+    const tabsList = [
       <Tab eventKey="courses" title="Courses">
         <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
-      </Tab>),
-    (
+      </Tab>,
       <Tab
         eventKey="programs"
         title="Programs"
@@ -58,16 +57,12 @@ const DashboardPage = () => {
         {learnerProgramsListData > 0 && (
           <ProgramListingPage
             canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-            programData={
-              {
-                data: learnerProgramsListData,
-                error: programsFetchError,
-              }
-            }
+            programsListData={learnerProgramsListData}
+            programsFetchError={programsFetchError}
           />
         )}
-      </Tab>
-    )];
+      </Tab>,
+    ];
     if (features.FEATURE_ENABLE_PATHWAY_PROGRESS) {
       tabsList.push(
         <Tab
@@ -78,12 +73,8 @@ const DashboardPage = () => {
           {pathwayProgressData.length > 0 && (
             <PathwayProgressListingPage
               canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-              pathwayData={
-                {
-                  data: pathwayProgressData,
-                  error: pathwayFetchError,
-                }
-              }
+              pathwayProgressData={pathwayProgressData}
+              pathwayFetchError={pathwayFetchError}
             />
           )}
         </Tab>,
@@ -108,7 +99,7 @@ const DashboardPage = () => {
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
         <Tabs defaultActiveKey="courses">
-          {tabs.map(tab => (<Tab key={tab.props.eventKey} {...tab.props}>{tab.props.children}</Tab>))}
+          {tabs}
         </Tabs>
       </Container>
     </>
