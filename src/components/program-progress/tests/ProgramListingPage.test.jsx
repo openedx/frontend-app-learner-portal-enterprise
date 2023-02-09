@@ -2,7 +2,7 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  screen, render, act,
+  screen, act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -72,11 +72,18 @@ jest.mock('../data/hooks', () => ({
 const ProgramListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
+  canOnlyViewHighlightSets = false,
+  programsListData = [],
+  programsFetchError = null,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <ProgramListingPage />
+        <ProgramListingPage
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          programsListData={programsListData}
+          programsFetchError={programsFetchError}
+        />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -106,10 +113,11 @@ describe('<ProgramListing />', () => {
     useLearnerProgramsListData.mockImplementation(() => ([[dummyProgramData, dataForAnotherProgram], null]));
 
     await act(async () => {
-      render(
+      renderWithRouter(
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
+          programsListData={[dummyProgramData, dataForAnotherProgram]}
         />,
       );
       expect(screen.getByText(dummyProgramData.title)).toBeInTheDocument();
@@ -119,10 +127,11 @@ describe('<ProgramListing />', () => {
 
   it('renders program error.', async () => {
     useLearnerProgramsListData.mockImplementation(() => ([{}, { message: 'This is a test message.' }]));
-    render(
+    renderWithRouter(
       <ProgramListingWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
+        programsFetchError={{ message: 'This is a test message.' }}
       />,
     );
     expect(screen.getByTestId('error-page')).toBeInTheDocument();
@@ -157,5 +166,18 @@ describe('<ProgramListing />', () => {
       expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
       expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
     });
+  });
+
+  it('does not render button when canOnlyViewHighlightSets is true', () => {
+    useLearnerProgramsListData.mockImplementation(() => ([[], null]));
+
+    renderWithRouter(
+      <ProgramListingWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+        canOnlyViewHighlightSets
+      />,
+    );
+    expect(screen.queryByText('Explore programs')).not.toBeInTheDocument();
   });
 });

@@ -11,7 +11,7 @@ import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SubscriptionExpirationModal from '../dashboard/SubscriptionExpirationModal';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
-import { LICENCE_ACTIVATION_MESSAGE } from '../dashboard/data/constants';
+import { LICENSE_ACTIVATION_MESSAGE } from '../dashboard/data/constants';
 
 import SkillsQuizImage from '../../assets/images/skills-quiz/skills-quiz.png';
 
@@ -43,7 +43,7 @@ const AddJobRole = () => {
         className="mt-3"
         dismissible
       >
-        {LICENCE_ACTIVATION_MESSAGE}
+        {LICENSE_ACTIVATION_MESSAGE}
       </Alert>
       <Row className="py-5">
         <CourseEnrollmentsContextProvider>

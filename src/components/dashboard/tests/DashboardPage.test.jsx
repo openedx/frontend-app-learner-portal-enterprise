@@ -23,7 +23,8 @@ import {
   renderWithRouter,
 } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
-import { LICENCE_ACTIVATION_MESSAGE } from '../data/constants';
+
+import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -190,7 +191,7 @@ describe('<Dashboard />', () => {
       <DashboardWithContext />,
       { route: '/?activationSuccess=true' },
     );
-    expect(screen.getByText(LICENCE_ACTIVATION_MESSAGE));
+    expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE));
   });
 
   it('does not render license activation alert without activation success', () => {
@@ -199,7 +200,7 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.queryByText(LICENCE_ACTIVATION_MESSAGE)).toBeFalsy();
+    expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy();
   });
 
   it('renders a sidebar on a large screen', () => {

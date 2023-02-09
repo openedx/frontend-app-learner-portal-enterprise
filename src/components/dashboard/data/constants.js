@@ -1,1 +1,1 @@
-export const LICENCE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';
+export const LICENSE_ACTIVATION_MESSAGE = 'Your license was successfully activated.';

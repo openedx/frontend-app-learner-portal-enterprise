@@ -8,25 +8,23 @@ import {
 } from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import './styles/index.scss';
+import PropTypes from 'prop-types';
 
 import { Search } from '@edx/paragon/icons';
 
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
 
-import { useInProgressPathwaysData } from './data/hooks';
 import { NO_PATHWAYS_ERROR_MESSAGE } from './constants';
 import PathwayProgressCard from './PathwayProgressCard';
 
 import { CONTENT_TYPE_PATHWAY } from '../search/constants';
 
-const PathwayProgressListingPage = () => {
+const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayProgressData, pathwayFetchError }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
-  const [pathwayProgressData, fetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
-
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
+  if (pathwayFetchError) {
+    return <ErrorPage message={pathwayFetchError.message} />;
   }
 
   if (!pathwayProgressData) {
@@ -39,7 +37,7 @@ const PathwayProgressListingPage = () => {
 
   return (
     <div className="py-5">
-      {pathwayProgressData?.length > 0 ? (
+      {pathwayProgressData.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
           {pathwayProgressData.map((pathway) => (
             <PathwayProgressCard
@@ -51,13 +49,33 @@ const PathwayProgressListingPage = () => {
       ) : (
         <div className="no-content-message">
           <h2>{NO_PATHWAYS_ERROR_MESSAGE}</h2>
-          <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`}>
-            <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore pathways</Button>
-          </Link>
+          {(canOnlyViewHighlightSets === false) && (
+            <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`}>
+              <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore pathways</Button>
+            </Link>
+          )}
         </div>
       )}
     </div>
   );
+};
+
+PathwayProgressListingPage.propTypes = {
+  canOnlyViewHighlightSets: PropTypes.bool,
+  pathwayProgressData: PropTypes.arrayOf(PropTypes.shape({
+    learnerPathwayProgress: PropTypes.shape({
+      uuid: PropTypes.string,
+    }),
+  })),
+  pathwayFetchError: PropTypes.shape({
+    message: PropTypes.string,
+  }),
+};
+
+PathwayProgressListingPage.defaultProps = {
+  canOnlyViewHighlightSets: false,
+  pathwayProgressData: [],
+  pathwayFetchError: null,
 };
 
 export default PathwayProgressListingPage;
