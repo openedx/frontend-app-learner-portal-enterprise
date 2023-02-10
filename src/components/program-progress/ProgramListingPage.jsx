@@ -19,7 +19,6 @@ import { CONTENT_TYPE_PROGRAM } from '../search/constants';
 
 const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, programsFetchError }) => {
   const { enterpriseConfig } = useContext(AppContext);
-
   if (programsFetchError) {
     return <ErrorPage message={programsFetchError.message} />;
   }

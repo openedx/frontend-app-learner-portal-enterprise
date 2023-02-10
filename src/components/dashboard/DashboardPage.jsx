@@ -27,7 +27,6 @@ const DashboardPage = () => {
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
   const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
-
   const {
     enterpriseCuration: {
       canOnlyViewHighlightSets,
@@ -44,62 +43,39 @@ const DashboardPage = () => {
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
-  const tabs = useMemo(() => {
-    const tabsList = [
-      <Tab eventKey="courses" title="Courses">
-        <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
-      </Tab>,
-      <Tab
-        eventKey="programs"
-        title="Programs"
-        disabled={learnerProgramsListData.length === 0}
-      >
-        {learnerProgramsListData > 0 && (
-          <ProgramListingPage
-            canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-            programsListData={learnerProgramsListData}
-            programsFetchError={programsFetchError}
-          />
-        )}
-      </Tab>,
-    ];
-    if (features.FEATURE_ENABLE_PATHWAY_PROGRESS) {
-      tabsList.push(
-        <Tab
-          eventKey="pathways"
-          title="Pathways"
-          disabled={pathwayProgressData.length === 0}
-        >
-          {pathwayProgressData.length > 0 && (
-            <PathwayProgressListingPage
-              canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-              pathwayProgressData={pathwayProgressData}
-              pathwayFetchError={pathwayFetchError}
-            />
-          )}
-        </Tab>,
-      );
-    }
-    if (features.FEATURE_ENABLE_MY_CAREER) {
-      tabsList.push(
-        <Tab eventKey="my-career" title="My Career">
-          <MyCareerTab />
-        </Tab>,
-      );
-    }
-    return tabsList;
-  }, [canOnlyViewHighlightSets, learnerProgramsListData, pathwayProgressData, pathwayFetchError, programsFetchError]);
 
   return (
     <>
       <Helmet title={PAGE_TITLE} />
-
       <Container size="lg">
         <h2 className="h1 mb-4 mt-4">
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
         <Tabs defaultActiveKey="courses">
-          {tabs}
+          <Tab eventKey="courses" title="Courses">
+            <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
+          </Tab>
+          <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
+            <ProgramListingPage
+              canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+              programsListData={learnerProgramsListData}
+              programsFetchError={programsFetchError}
+            />
+          </Tab>
+          {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
+            <Tab eventKey="pathways" title="Pathways" disabled={pathwayProgressData.length === 0}>
+              <PathwayProgressListingPage
+                canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+                pathwayProgressData={pathwayProgressData}
+                pathwayFetchError={pathwayFetchError}
+              />
+            </Tab>
+          )}
+          {features.FEATURE_ENABLE_MY_CAREER && (
+            <Tab eventKey="my-career" title="My Career">
+              <MyCareerTab />
+            </Tab>
+          )}
         </Tabs>
       </Container>
     </>
