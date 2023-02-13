@@ -43,9 +43,9 @@ const VisualizeCareer = ({ jobId }) => {
             <ActionRow>
               <p>Current Role</p>
               <ActionRow.Spacer />
-              <Hyperlink destination={`/${slug}/skills-quiz`}>
-                <Icon id="edit-job-role-icon" className="fa fa-pencil edit-job-icon" screenReaderText="Edit Role" />
-                Edit
+              <Hyperlink destination={`/${slug}/skills-quiz`} class="edit-job-role-link">
+                <Icon className="fa fa-pencil edit-job-role-icon" screenReaderText="Edit Role" />
+                <span className="edit-job-role-text">Edit</span>
               </Hyperlink>
             </ActionRow>
           </Row>

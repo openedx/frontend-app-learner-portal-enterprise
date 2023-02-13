@@ -4,7 +4,9 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 export function getLearnerSkillQuiz(username) {
   const config = getConfig();
   const discoveryUrl = config.DISCOVERY_API_BASE_URL;
-  const url = `${discoveryUrl}/taxonomy/api/v1/skills-quiz/?page_size=1&username=${username}`;
+  const taxonomyAPIUrl = 'taxonomy/api/v1/skills-quiz';
+  const query = `?page_size=10&ordering=-created&username=${username}`;
+  const url = `${discoveryUrl}/${taxonomyAPIUrl}/${query}`;
   return getAuthenticatedHttpClient().get(url);
 }
 

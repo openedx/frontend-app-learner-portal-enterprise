@@ -5,6 +5,7 @@ import { useLearnerSkillQuiz } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
 import AddJobRole from './AddJobRole';
 import VisualizeCareer from './VisualizeCareer';
+import { getSkillQuiz } from './data/utils';
 
 const MyCareerTab = () => {
   const { authenticatedUser } = useContext(AppContext);
@@ -26,9 +27,9 @@ const MyCareerTab = () => {
     );
   }
 
-  const skillQuiz = learnerSkillQuiz.results[0];
+  const skillQuiz = getSkillQuiz(learnerSkillQuiz);
 
-  return (!skillQuiz || !skillQuiz.currentJob) ? (
+  return (!skillQuiz) ? (
     <AddJobRole />
   ) : (
     <VisualizeCareer jobId={skillQuiz.currentJob} />

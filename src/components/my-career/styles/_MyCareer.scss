@@ -8,13 +8,21 @@
     margin-right: 0.5rem;
   }
 
-  .edit-job-icon {
-    margin-right: 0.5rem;
-  }
-
   .job-role-details {
     margin-top: 1rem;
     margin-bottom: 1rem;
+  }
+}
+
+.edit-job-role-link {
+  display: flex;
+
+  .edit-job-role-icon {
+    margin-top: 0.3rem;
+  }
+
+  .edit-job-role-text {
+    margin-left: 0.5rem;
   }
 }
 
