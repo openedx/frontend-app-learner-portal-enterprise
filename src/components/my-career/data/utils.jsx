@@ -1,3 +1,14 @@
+export function getSkillQuiz(skillsQuizes) {
+  if (skillsQuizes && skillsQuizes.results.length > 0) {
+    for (let i = 0; i < skillsQuizes.results.length; i++) {
+      if (skillsQuizes.results[i].currentJob) {
+        return skillsQuizes.results[i];
+      }
+    }
+  }
+  return null;
+}
+
 export function prepareSpiderChartData(categories) {
   const jobName = categories.name;
   const topCategories = [];
@@ -43,6 +54,7 @@ export function getSpiderChartData(jobName, topCategories, averageScores, learne
   ];
 
   const layout = {
+    width: 600,
     polar: {
       radialaxis: {
         visible: true,

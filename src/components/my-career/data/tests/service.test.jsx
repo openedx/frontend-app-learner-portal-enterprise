@@ -19,7 +19,10 @@ axios.get = jest.fn();
 
 describe('my career services', () => {
   it('fetches enterprise learner skill quiz', () => {
-    const url = 'http://localhost:18381/taxonomy/api/v1/skills-quiz/?page_size=1&username=edx';
+    const discoveryUrl = 'http://localhost:18381';
+    const skillQuizAPI = 'taxonomy/api/v1/skills-quiz';
+    const query = '?page_size=10&ordering=-created&username=edx';
+    const url = `${discoveryUrl}/${skillQuizAPI}/${query}`;
     getLearnerSkillQuiz('edx');
     expect(axios.get).toBeCalledWith(url);
   });
