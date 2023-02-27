@@ -9,7 +9,7 @@ import JobCardComponent from './JobCardComponent';
 
 const SearchJobCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
-  const { name: jobs } = refinements;
+  const { name: jobs, current_job: currentJob } = refinements;
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, state } = useContext(SkillsContext);
   const { interestedJobs } = state;
@@ -20,6 +20,13 @@ const SearchJobCard = ({ index }) => {
     }
     return jobsArray;
   }, [jobs]);
+  const jobToFetch = useMemo(() => {
+    const jobArray = [];
+    if (currentJob?.length > 0) {
+      jobArray.push(`name:${currentJob[0]}`);
+    }
+    return jobArray;
+  }, [currentJob]);
 
   useEffect(
     () => {
@@ -42,6 +49,22 @@ const SearchJobCard = ({ index }) => {
     },
     [dispatch, index, jobs, jobsToFetch],
   );
+  useEffect(() => {
+    let fetch = true;
+    if (currentJob) {
+      fetchJob(); // eslint-disable-line no-use-before-define
+    }
+    return () => { fetch = false; };
+    async function fetchJob() {
+      const { hits } = await index.search('', {
+        facetFilters: [
+          jobToFetch,
+        ],
+      });
+      if (!fetch) { return; }
+      dispatch({ type: SET_KEY_VALUE, key: 'currentJobRole', value: hits });
+    }
+  }, [dispatch, index, currentJob, jobToFetch]);
 
   return <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />;
 };
