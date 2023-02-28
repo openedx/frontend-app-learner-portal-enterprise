@@ -70,7 +70,7 @@ const testIndex = {
 };
 
 const initialSearchState = {
-  refinements: { name: [] },
+  refinements: { name: [], current_job: ['test-current-job'] },
   dispatch: () => null,
 };
 
