@@ -96,7 +96,7 @@ const TopSkillsOverview = ({ index }) => {
           <Card.Section>
             <div className="row skill-overview-body">
               <div
-                className={goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0 ? 'col-6' : null}
+                className={goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0 ? 'col-6' : 'full-max-width'}
               >
                 <SelectedJobSkills
                   heading={`Top Skills for ${selectedJob}`}
