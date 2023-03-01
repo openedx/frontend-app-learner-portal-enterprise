@@ -2,18 +2,18 @@ import React, { useContext } from 'react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 
-import { SKILLS_FACET } from './constants';
+import { INDUSTRY_ATTRIBUTE_NAME, INDUSTRY_FACET } from './constants';
 
-const SkillsDropDown = () => {
+const IndustryDropdown = () => {
   const { refinements } = useContext(SearchContext);
   const {
     title, attribute, typeaheadOptions, facetValueType,
-  } = SKILLS_FACET;
+  } = INDUSTRY_FACET;
 
   return (
     <FacetListRefinement
       key={attribute}
-      title={title}
+      title={refinements[INDUSTRY_ATTRIBUTE_NAME]?.length > 0 ? refinements[INDUSTRY_ATTRIBUTE_NAME][0] : title}
       attribute={attribute}
       limit={300} // this is replicating the B2C search experience
       refinements={refinements}
@@ -21,9 +21,9 @@ const SkillsDropDown = () => {
       typeaheadOptions={typeaheadOptions}
       searchable={!!typeaheadOptions}
       doRefinement={false}
-      variant="default"
+      showBadge={false}
     />
   );
 };
 
-export default SkillsDropDown;
+export default IndustryDropdown;
