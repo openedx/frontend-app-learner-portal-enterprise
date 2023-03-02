@@ -8,7 +8,7 @@ Accepted (03-02-2023)
 
 The Enterprise Learner Portal currently supports learner credit (aka enterprise offers) via the ecommerce IDA. However, the ecommerce IDA is deprecated and will be replaced by a new system for managing learner credit and other enterprise subsidies. As such, this micro-frontend (MFE) will need to support the migration from the ecommerce-backed learner credit to the new learner credit system in an incremental fashion, given there are production enterprise customers relying on the current implementation of the ecommerce-backed learner credit.
 
-### Understanding the existing learner credit support
+### Understanding support for existing learner credit
 There are 3 primary page routes that rely on learner credit throughout the MFE application:
 * Dashboard
 * Search
@@ -82,11 +82,10 @@ Once all these API requests are resolved, we proceed with business logic to do t
 
 The `userSubsidyApplicableToCourse` attribute is used for several purposes:
 * Determining the course price via [`useCoursePriceForUserSubsidy`](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/5034f5ab170589a923c223cfe238112eff48f5c4/src/components/course/data/hooks.jsx#L265).
-* Determining the enrollment type (which dictates the messaging and behavior of the "Enroll" button).
-* Generating the enrollment URL for the course (e.g., enrolling with a subscription license goes through Data Sharing Consent while enrolling via learner credit goes through ecommerce's basket page).
+* Determining the enrollment type (which dictates the messaging and behavior of the "Enroll" button) via [`determineEnrollmentType`](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/5034f5ab170589a923c223cfe238112eff48f5c4/src/components/course/enrollment/utils.js#L16).
+* Generating the enrollment URL for the course (e.g., enrolling with a subscription license goes through Data Sharing Consent while enrolling via learner credit goes through ecommerce's basket page) via [`useCourseEnrollmentUrl`](https://github.com/openedx/frontend-app-learner-portal-enterprise/blob/5034f5ab170589a923c223cfe238112eff48f5c4/src/components/course/data/hooks.jsx#L342).
 
 ## Decision
-
 
 In order to support all page routes with the new learner credit system, we will need to understand the state of subsidy spend available to the authenticated user. We will also need to migrate away from much of the business logic housed within `CoursePage` in favor of the `can_redeem` and `redeem` API abstractions within the new learner credit system (via enterprise-access and enterprise-subsidy).
 
@@ -100,14 +99,23 @@ It currently relies on the system-wide feature flag `FEATURE_ENROLL_WITH_ENTERPR
 
 Within `useEnterpriseOffers`, we will make API calls to fetch learner credit data from both the legacy ecommerce system as well as the new learner credit system in parallel (e.g., 2 custom React hooks called simulateously or perhaps via `Promise.all`). If there is learner credit returned by the new system, we will use that as the source data for the returned interface by `UserSubsidyContext`. If there is no learner credit data returned by the new system, we will fallback to using any learner credit returned by ecommerce instead.
 
+Note these changes will require a `GET` API endpoint in enterprise-access to return the policies (and subsequent subsidies) associated with learner credit that is applicable to the authenticated user (e.g., has global balance remaining, has user-specific balance remaining).
+
 ### Implications for course page route
 
 As previously described, the course page route currently includes a fair amount of business logic to determine which subsidies available to the learner, if any, are applicable to the course in question.
 
+A significant change with the new learner credit system is that much of this business logic will now be abstracted into the API layer instead of within the MFE itself. This paradigm shift will eventually allow us to simplify the existing implementation by removing much of this business logic (though, the true benefit of this would come once the new subsidy services support other subsidies beyond just learner credit).
+
+The API abstractions are baked into the `can_redeem` and `redeem` API endpoints.
+
+More to come...
+
 ## Consequences
 
-TODO
+* Given the introduction of an extra API call to fetch learner credit from the new system, the MFE will have an extra network request to resolve before we can render the page route and have it be usable by learners.
+* Related, part of the recommondation in this ADR is to eliminate the need for the `enableLearnerPortalOffers` configuration flag on the enterprise customer, even for learner credit backed by the deprecated ecommerce IDA. Similar to the above consequence, the implications for these changes would mean that even enterprise customers that don't have any learner credit configured (in ecommerce or the new learner credit system) would be making the API requests to fetch the current state of learner credit.
 
 ## Alternatives Considered
 
-TODO
+* We considered cutting over to the new learner credit system (via enterprise-access and enterprise-subsidy) wholesale, but opted to take a more incremental rollout approach to migrate individual offers in order to more effectively QA the new system while simultaneously supporting existing learner credit customers backed by ecommerce.
