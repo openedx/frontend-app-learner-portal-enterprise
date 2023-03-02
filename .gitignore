@@ -1,5 +1,5 @@
 # local dev related
-# https://github.com/edx/frontend-build#local-module-configuration-for-webpack
+# https://github.com/openedx/frontend-build#local-module-configuration-for-webpack
 .env.private
 module.config.js
 
