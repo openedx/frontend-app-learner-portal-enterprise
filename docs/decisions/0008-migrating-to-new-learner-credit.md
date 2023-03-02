@@ -99,7 +99,7 @@ It currently relies on the system-wide feature flag `FEATURE_ENROLL_WITH_ENTERPR
 
 Within `useEnterpriseOffers`, we will make API calls to fetch learner credit data from both the legacy ecommerce system as well as the new learner credit system in parallel (e.g., 2 custom React hooks called simulateously or perhaps via `Promise.all`). If there is learner credit returned by the new system, we will use that as the source data for the returned interface by `UserSubsidyContext`. If there is no learner credit data returned by the new system, we will fallback to using any learner credit returned by ecommerce instead.
 
-Note these changes will require a `GET` API endpoint in enterprise-access to return the policies (and subsequent subsidies) associated with learner credit that is applicable to the authenticated user (e.g., has global balance remaining, has user-specific balance remaining).
+These changes will require a `GET` API endpoint in enterprise-access to return the policies (and subsequent subsidies) associated with learner credit that are applicable to the authenticated user (e.g., has total spend balance remaining, has user-specific spend balance remaining). Given how these data are used through the UX of this MFE, the API can not be specific to a particular content item; rather, the API response should largely be answering the question of what subsidies are generally available to the learner irrespective of content and/or catalog.
 
 ### Implications for course page route
 
