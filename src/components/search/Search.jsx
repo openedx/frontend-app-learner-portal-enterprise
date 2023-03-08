@@ -92,7 +92,8 @@ const Search = () => {
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
   const { content_type: contentType } = refinements;
-  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0;
+  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0
+  && (contentType !== undefined ? contentType.length > 0 : true);
 
   return (
     <>
