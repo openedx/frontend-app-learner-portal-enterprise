@@ -15,12 +15,12 @@ const IndustryDropdown = () => {
       key={attribute}
       title={refinements[INDUSTRY_ATTRIBUTE_NAME]?.length > 0 ? refinements[INDUSTRY_ATTRIBUTE_NAME][0] : title}
       attribute={attribute}
+      defaultRefinement={refinements[INDUSTRY_ATTRIBUTE_NAME]}
       limit={300} // this is replicating the B2C search experience
       refinements={refinements}
       facetValueType={facetValueType}
       typeaheadOptions={typeaheadOptions}
       searchable={!!typeaheadOptions}
-      doRefinement={false}
       showBadge={false}
     />
   );
