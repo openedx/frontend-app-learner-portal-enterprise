@@ -339,3 +339,11 @@ export const createEnrollWithCouponCodeUrl = ({
 
   return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
 };
+
+export const courseUsesEntitlementPricing = (course) => {
+  const courseTypes = getConfig().COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE;
+  if (courseTypes) {
+    return courseTypes.includes(course.courseType);
+  }
+  return false;
+};
