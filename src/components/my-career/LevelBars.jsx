@@ -15,9 +15,9 @@ const LevelBars = ({ skillLevel }) => {
     const levelBars = [];
     for (let i = 3; i >= 1; i -= 1) {
       if (i > level) {
-        levelBars.push(<Chip className="level-bar" data-testid="level-bar" label="" key={i} variant="dark" />);
+        levelBars.push(<Chip className="level-bar" data-testid="level-bar" label="" key={i} variant="light" />);
       } else {
-        levelBars.push(<Chip className="level-bar bg-dark" data-testid="level-bar" label="" key={i} variant="light" />);
+        levelBars.push(<Chip className="level-bar bg-dark" data-testid="level-bar" label="" key={i} variant="dark" />);
       }
     }
     return levelBars;
