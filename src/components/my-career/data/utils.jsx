@@ -63,6 +63,9 @@ export function getSpiderChartData(jobName, topCategories, averageScores, learne
       showlegend: true,
     },
   };
+  const config = {
+    displayModeBar: false,
+  };
 
-  return [data, layout];
+  return [data, layout, config];
 }
