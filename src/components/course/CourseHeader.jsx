@@ -21,6 +21,8 @@ import {
 import { useCoursePartners } from './data/hooks';
 import LicenseRequestedAlert from './LicenseRequestedAlert';
 import SubsidyRequestButton from './SubsidyRequestButton';
+import CourseReview from './CourseReview';
+import { features } from '../../config';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -84,10 +86,20 @@ const CourseHeader = () => {
               />
             )}
             {course.skills?.length > 0 && <CourseSkills />}
-            {catalog.containsContentItems ? (
+            {catalog.containsContentItems && (
               <>
                 <CourseRunCards />
                 <SubsidyRequestButton />
+              </>
+            )}
+          </Col>
+          <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
+            <img src={course.image.src} alt="course preview" className="w-100" />
+          </Col>
+          <Col xs={12} lg={12}>
+            {catalog.containsContentItems ? (
+              <>
+                {features.ENABLE_COURSE_REVIEW && <CourseReview />}
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
@@ -100,11 +112,6 @@ const CourseHeader = () => {
               </p>
             )}
           </Col>
-          {course.image?.src && (
-            <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
-              <img src={course.image.src} alt="course preview" className="w-100" />
-            </Col>
-          )}
         </Row>
       </Container>
     </div>
