@@ -11,8 +11,8 @@ const CourseReview = () => (
     </Row>
     <Row>
       <Col sm className="mr-4">
-        <h1 className="number-color mb-0">133%</h1>
-        <div><b>Demand growth</b> over the last year.</div>
+        <h1 className="number-color mb-0">300</h1>
+        <div>learners took this course in the last 12 months</div>
       </Col>
       <Col sm className="mr-4">
         <div className="d-flex align-items-center"><h1 className="number-color mb-0">4.5</h1><Icon className="star-color" src={StarFilled} />
