@@ -18,6 +18,7 @@ import { useLearnerProgramsListData } from '../program-progress/data/hooks';
 import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
 import CoursesTabComponent from './main-content/CoursesTabComponent';
 import { MyCareerTab } from '../my-career';
+import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const DashboardPage = () => {
   const { state } = useLocation();
@@ -51,6 +52,7 @@ const DashboardPage = () => {
         <h2 className="h1 mb-4 mt-4">
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
+        <EnterpriseLearnerFirstVisitRedirect />
         <Tabs defaultActiveKey="courses">
           <Tab eventKey="courses" title="Courses">
             <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
