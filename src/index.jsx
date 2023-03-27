@@ -50,6 +50,8 @@ initialize({
         EXPERIMENT_3_ID: process.env.EXPERIMENT_3_ID || null,
         EXPERIMENT_3_VARIANT_1_ID: process.env.EXPERIMENT_3_VARIANT_1_ID || null,
         FEATURE_CONTENT_HIGHLIGHTS: process.env.FEATURE_CONTENT_HIGHLIGHTS || null,
+        EXPERIMENT_4_ID: process.env.EXPERIMENT_4_ID || null,
+        EXPERIMENT_4_VARIANT_1_ID: process.env.EXPERIMENT_4_VARIANT_1_ID || null,
       });
     },
   },
