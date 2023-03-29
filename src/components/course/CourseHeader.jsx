@@ -22,7 +22,6 @@ import { useCoursePartners } from './data/hooks';
 import LicenseRequestedAlert from './LicenseRequestedAlert';
 import SubsidyRequestButton from './SubsidyRequestButton';
 import CourseReview from './CourseReview';
-import { features } from '../../config';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -34,6 +33,7 @@ const CourseHeader = () => {
     () => getDefaultProgram(course.programs),
     [course],
   );
+  const enableReviewSection = false;
 
   return (
     <div className="course-header">
@@ -99,7 +99,7 @@ const CourseHeader = () => {
           <Col xs={12} lg={12}>
             {catalog.containsContentItems ? (
               <>
-                {features.ENABLE_COURSE_REVIEW && <CourseReview />}
+                {enableReviewSection && <CourseReview />}
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
