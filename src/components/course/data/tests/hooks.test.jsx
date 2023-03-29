@@ -11,7 +11,6 @@ import {
   useUserHasSubsidyRequestForCourse,
   useAllCourseData,
   useOptimizelyEnrollmentClickHandler,
-  useOptimizelyLicenseSubsidyEnrollmentClickHandler,
   useCoursePartners,
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
@@ -519,22 +518,6 @@ describe('useUserHasSubsidyRequestForCourse', () => {
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
     expect(result.current).toBe(false);
-  });
-});
-
-describe('useOptimizelyLicenseSubsidyEnrollmentClickHandler', () => {
-  const basicProps = {
-    courseRunKey: 'courseRunKey',
-    href: 'http://example.com',
-  };
-
-  afterEach(() => jest.clearAllMocks());
-
-  it('sends correct optimizely event', () => {
-    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
-    const { result } = renderHook(() => useOptimizelyLicenseSubsidyEnrollmentClickHandler(basicProps));
-    result.current({ preventDefault: jest.fn() });
-    expect(pushEventSpy).toHaveBeenCalledWith('enterprise_learner_portal_license_subsidy_enrollment_click', { courseKey: 'courseRunKey' });
   });
 });
 
