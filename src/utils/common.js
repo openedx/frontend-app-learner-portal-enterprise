@@ -53,6 +53,7 @@ export const loginRefresh = async () => {
   const loginRefreshUrl = `${config.LMS_BASE_URL}/login_refresh`;
 
   try {
+    // eslint-disable-next-line @typescript-eslint/return-await
     return await getAuthenticatedHttpClient().post(loginRefreshUrl);
   } catch (error) {
     const isUserUnauthenticated = error.response?.status === 401;

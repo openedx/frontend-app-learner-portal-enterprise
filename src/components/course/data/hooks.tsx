@@ -15,13 +15,17 @@ import { CourseContext } from '../CourseContextProvider';
 
 import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
-import CourseService from './service';
+import CourseService, { AllCourseData } from './service';
+import {
+  Course, CourseOwner, CourseRecommendation, EnterpriseSubsidy, SubscriptionLicense,
+} from './types';
 import {
   isCourseInstructorPaced,
   isCourseSelfPaced,
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
+  courseUsesEntitlementPricing,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -33,6 +37,9 @@ import {
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
+import { getEntitlementPrice } from '../enrollment/utils';
+
+import { ReactAppContext } from '../../../../external';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -48,8 +55,10 @@ export function useAllCourseData({
   activeCatalogs,
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [courseData, setCourseData] = useState();
-  const [courseRecommendations, setCourseRecommendations] = useState();
+  const [courseData, setCourseData] = useState<AllCourseData>();
+  const [courseRecommendations, setCourseRecommendations] = useState<
+  CourseRecommendation[] | undefined
+  >();
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
@@ -73,33 +82,49 @@ export function useAllCourseData({
             containsContentItems,
             catalogList: catalogsWithCourse,
           },
+          courseDetails,
         } = data;
 
-        let userSubsidyApplicableToCourse = null;
+        let userSubsidyApplicableToCourse: EnterpriseSubsidy | null = null;
 
         if (containsContentItems) {
-          let licenseForCourse = null;
+          let licenseForCourse: SubscriptionLicense | null = null;
 
           if (subscriptionLicense) {
             // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
             try {
               const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
-              licenseForCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
-            } catch (error) {
+              licenseForCourse = camelCaseObject(
+                fetchLicenseSubsidyResponse.data,
+              );
+            } catch (error: any) {
               logError(error);
               setFetchError(error);
             }
           }
 
-          const { firstEnrollablePaidSeatPrice } = courseService.activeCourseRun || {};
+          let coursePrice: number | undefined = 0;
+
+          if (courseUsesEntitlementPricing(courseDetails)) {
+            coursePrice = getEntitlementPrice(courseDetails?.entitlements);
+          }
+
+          if (courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice) {
+            coursePrice = courseService.activeCourseRun.firstEnrollablePaidSeatPrice;
+          }
 
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
-            applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
+            applicableCouponCode: findCouponCodeForCourse(
+              couponCodes,
+              catalogsWithCourse,
+            ),
             applicableEnterpriseOffer: findEnterpriseOfferForCourse({
-              enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
+              enterpriseOffers: canEnrollWithEnterpriseOffers
+                ? enterpriseOffers
+                : [],
               catalogList: catalogsWithCourse,
-              coursePrice: firstEnrollablePaidSeatPrice,
+              coursePrice,
             }),
           });
         }
@@ -108,13 +133,15 @@ export function useAllCourseData({
           ...data,
           userSubsidyApplicableToCourse,
         });
-      } catch (error) {
+      } catch (error: any) {
         logError(error);
         setFetchError(error);
       }
 
       try {
-        const data = await courseService.fetchAllCourseRecommendations(activeCatalogs);
+        const data = await courseService.fetchAllCourseRecommendations(
+          activeCatalogs,
+        );
         setCourseRecommendations(data);
       } catch (error) {
         logError(error);
@@ -164,9 +191,9 @@ export function useCourseSubjects(course) {
 }
 
 // TODO: Refactor away from useEffect useState
-export function useCoursePartners(course) {
-  const [partners, setPartners] = useState([]);
-  const [label, setLabel] = useState('');
+export function useCoursePartners(course: Course): [CourseOwner[], string] {
+  const [partners, setPartners] = useState<CourseOwner[]>([]);
+  const [label, setLabel] = useState<string>('');
 
   useEffect(() => {
     if (course?.owners) {
@@ -202,7 +229,7 @@ export function useCourseRunWeeksToComplete(courseRun) {
 // TODO: Refactor away from useEffect useState
 export function useCourseTranscriptLanguages(courseRun) {
   const [languages, setLanguages] = useState([]);
-  const [label, setLabel] = useState(undefined);
+  const [label, setLabel] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (courseRun && courseRun.transcriptLanguages) {
@@ -220,36 +247,30 @@ export function useCourseTranscriptLanguages(courseRun) {
 
 // TODO: Refactor away from useEffect useState
 export function useCoursePacingType(courseRun) {
-  const [pacingType, setPacingType] = useState();
+  const [pacingType, setPacingType] = useState<string>();
 
-  useEffect(
-    () => {
-      if (isCourseSelfPaced(courseRun.pacingType)) {
-        setPacingType(COURSE_PACING_MAP.SELF_PACED);
-      }
+  useEffect(() => {
+    if (isCourseSelfPaced(courseRun.pacingType)) {
+      setPacingType(COURSE_PACING_MAP.SELF_PACED);
+    }
 
-      if (isCourseInstructorPaced(courseRun.pacingType)) {
-        setPacingType(COURSE_PACING_MAP.INSTRUCTOR_PACED);
-      }
-    },
-    [courseRun],
-  );
+    if (isCourseInstructorPaced(courseRun.pacingType)) {
+      setPacingType(COURSE_PACING_MAP.INSTRUCTOR_PACED);
+    }
+  }, [courseRun]);
 
   // TODO: Refactor away from useEffect useState
-  const pacingTypeContent = useMemo(
-    () => {
-      if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
-        return 'Instructor-led on a course schedule';
-      }
+  const pacingTypeContent = useMemo(() => {
+    if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
+      return 'Instructor-led on a course schedule';
+    }
 
-      if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
-        return 'Self-paced on your time';
-      }
+    if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
+      return 'Self-paced on your time';
+    }
 
-      return undefined;
-    },
-    [pacingType],
-  );
+    return undefined;
+  }, [pacingType]);
 
   return [pacingType, pacingTypeContent];
 }
@@ -259,17 +280,17 @@ export function useCoursePacingType(courseRun) {
  * @param {object} args Arguments.
  * @param {Object} args.activeCourseRun course run info
  * @param {Object} args.userSubsidyApplicableToCourse Usersubsidy
+ * @param {Object} args.courseEntitlements Course Entitlements
  *
  * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
  */
 export const useCoursePriceForUserSubsidy = ({
-  activeCourseRun, userSubsidyApplicableToCourse,
+  activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements,
 }) => {
   const currency = CURRENCY_USD;
-
   const coursePrice = useMemo(
     () => {
-      const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
+      const listPrice = activeCourseRun?.firstEnrollablePaidSeatPrice || getEntitlementPrice(courseEntitlements);
 
       if (!listPrice) {
         return null;
@@ -283,13 +304,19 @@ export const useCoursePriceForUserSubsidy = ({
         const { discountType, discountValue } = userSubsidyApplicableToCourse;
         let discountedPrice;
 
-        if (discountType
-            && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
-          discountedPrice = listPrice - (listPrice * (discountValue / 100));
+        if (
+          discountType
+        && discountType.toLowerCase()
+          === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()
+        ) {
+          discountedPrice = listPrice - listPrice * (discountValue / 100);
         }
 
-        if (discountType
-            && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
+        if (
+          discountType
+        && discountType.toLowerCase()
+          === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()
+        ) {
           discountedPrice = Math.max(listPrice - discountValue, 0);
         }
 
@@ -308,7 +335,7 @@ export const useCoursePriceForUserSubsidy = ({
       // Case 2: No subsidy available for course
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidyApplicableToCourse],
+    [activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements],
   );
 
   return [coursePrice, currency];
@@ -349,7 +376,7 @@ export const useCourseEnrollmentUrl = ({
   const config = getConfig();
   const baseQueryParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    params.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+    params.set(ENROLLMENT_FAILED_QUERY_PARAM, 'true');
     params.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
     return params;
   }, [location.search, courseRunKey]);
@@ -358,94 +385,99 @@ export const useCourseEnrollmentUrl = ({
     () => ({
       next: `${config.LMS_BASE_URL}/courses/${courseRunKey}/course`,
       // Redirect back to the same page with a failure query param
-      failure_url: `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`,
+      failure_url: `${global.location.origin}${
+        location.pathname
+      }?${baseQueryParams.toString()}`,
     }),
     [config.LMS_BASE_URL, courseRunKey, baseQueryParams, location.pathname],
   );
 
   // TODO: use the new helper functions (createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl) to generate url
-  const enrollmentUrl = useMemo(
-    () => {
-      if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
-        const queryParams = new URLSearchParams({
-          ...baseEnrollmentOptions,
-          license_uuid: userSubsidyApplicableToCourse.subsidyId,
-          course_id: courseRunKey,
-          enterprise_customer_uuid: enterpriseConfig.uuid,
-          // We don't want any sidebar text we show the data consent page from this workflow since
-          // the text on the sidebar is used when a learner is coming from their employer's system.
-          left_sidebar_text_override: '',
-          source: 'enterprise-learner-portal',
-        });
-        return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
-      }
-
-      if (!sku) {
-        // No product SKU is present, so the course cannot be enrolled in.
-        return null;
-      }
-
+  const enrollmentUrl = useMemo(() => {
+    if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
       const queryParams = new URLSearchParams({
         ...baseEnrollmentOptions,
-        sku,
-        consent_url_param_string: `failure_url=${encodeURIComponent(global.location.href)}?${baseQueryParams.toString()}&left_sidebar_text_override=`,
+        license_uuid: userSubsidyApplicableToCourse.subsidyId,
+        course_id: courseRunKey,
+        enterprise_customer_uuid: enterpriseConfig.uuid,
+        // We don't want any sidebar text we show the data consent page from this workflow since
+        // the text on the sidebar is used when a learner is coming from their employer's system.
+        left_sidebar_text_override: '',
+        source: 'enterprise-learner-portal',
       });
+      return `${
+        config.LMS_BASE_URL
+      }/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
+    }
 
-      if (features.ENROLL_WITH_CODES && userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
-        queryParams.set('code', userSubsidyApplicableToCourse.code);
-        return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
-      }
+    if (!sku) {
+      // No product SKU is present, so the course cannot be enrolled in.
+      return null;
+    }
 
-      // This enrollment url will automatically apply enterprise offers
-      return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
-    },
-    [
-      userSubsidyApplicableToCourse,
+    const queryParams = new URLSearchParams({
+      ...baseEnrollmentOptions,
       sku,
-      baseEnrollmentOptions,
-      baseQueryParams,
-      config.ECOMMERCE_BASE_URL,
-      config.LMS_BASE_URL,
-      courseRunKey,
-      enterpriseConfig.uuid,
-    ],
-  );
+      consent_url_param_string: `failure_url=${encodeURIComponent(
+        global.location.href,
+      )}?${baseQueryParams.toString()}&left_sidebar_text_override=`,
+    });
+
+    if (
+      features.ENROLL_WITH_CODES
+      && userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE
+    ) {
+      queryParams.set('code', userSubsidyApplicableToCourse.code);
+      return `${
+        config.ECOMMERCE_BASE_URL
+      }/coupons/redeem/?${queryParams.toString()}`;
+    }
+
+    // This enrollment url will automatically apply enterprise offers
+    return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
+  }, [
+    userSubsidyApplicableToCourse,
+    sku,
+    baseEnrollmentOptions,
+    baseQueryParams,
+    config.ECOMMERCE_BASE_URL,
+    config.LMS_BASE_URL,
+    courseRunKey,
+    enterpriseConfig.uuid,
+  ]);
 
   return enrollmentUrl;
 };
 
+export type AlgoliaSearchParams = {
+  objectId?: string | null, queryId?: string | null
+};
 /**
  * A hook that parses the URL query parameters to extract an objectId and queryId and then
  * immediately remove them from the URL via a history replace to keep the URLs clean.
  *
  * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
  */
-export const useExtractAndRemoveSearchParamsFromURL = () => {
+export const useExtractAndRemoveSearchParamsFromURL: () => AlgoliaSearchParams | {} = () => {
   const { search } = useLocation();
   const history = useHistory();
-  const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
+  const [algoliaSearchParams, setAlgoliaSearchParams] = useState<AlgoliaSearchParams | {}>({});
 
-  const queryParams = useMemo(
-    () => new URLSearchParams(search),
-    [search],
-  );
+  const queryParams = useMemo(() => new URLSearchParams(search), [search]);
 
-  useEffect(
-    () => {
-      if (queryParams.get('queryId') && queryParams.get('objectId')) {
-        setAlgoliaSearchParams({
-          queryId: queryParams.get('queryId'),
-          objectId: queryParams.get('objectId'),
-        });
-        queryParams.delete('queryId');
-        queryParams.delete('objectId');
-        history.replace({
-          search: queryParams.toString(),
-        });
-      }
-    },
-    [history, queryParams],
-  );
+  useEffect(() => {
+    if (queryParams.get('queryId') && queryParams.get('objectId')) {
+      setAlgoliaSearchParams({
+        queryId: queryParams.get('queryId'),
+        objectId: queryParams.get('objectId'),
+      });
+      queryParams.delete('queryId');
+      queryParams.delete('objectId');
+      history.replace({
+        search: queryParams.toString(),
+      });
+    }
+  }, [history, queryParams]);
 
   return algoliaSearchParams;
 };
@@ -469,7 +501,7 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
       algoliaSearchParams,
     },
   } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig } = useContext<ReactAppContext>(AppContext);
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;
@@ -484,16 +516,12 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
           global.location.href = href;
         }, CLICK_DELAY_MS);
       }
-      sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
-        eventName,
-        {
-          products: [{ objectID: objectId }],
-          index: getConfig().ALGOLIA_INDEX_NAME,
-          queryID: queryId,
-          courseKey,
-        },
-      );
+      sendEnterpriseTrackEvent(enterpriseConfig.uuid, eventName, {
+        products: [{ objectID: objectId }],
+        index: getConfig().ALGOLIA_INDEX_NAME,
+        queryID: queryId,
+        courseKey,
+      });
     },
     [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey],
   );
@@ -506,7 +534,10 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
  *
  * @returns Click handler function for clicks on enrollment buttons when a learner possesses a license subsidy.
  */
-export const useOptimizelyLicenseSubsidyEnrollmentClickHandler = ({ href, courseRunKey }) => {
+export const useOptimizelyLicenseSubsidyEnrollmentClickHandler = ({
+  href,
+  courseRunKey,
+}) => {
   const handleClick = useCallback(
     (e) => {
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
@@ -517,7 +548,9 @@ export const useOptimizelyLicenseSubsidyEnrollmentClickHandler = ({ href, course
           global.location.href = href;
         }, CLICK_DELAY_MS);
       }
-      pushEvent(EVENTS.LICENSE_SUBSIDY_ENROLLMENT_CLICK, { courseKey: courseRunKey });
+      pushEvent(EVENTS.LICENSE_SUBSIDY_ENROLLMENT_CLICK, {
+        courseKey: courseRunKey,
+      });
     },
     [courseRunKey, href],
   );
@@ -530,7 +563,11 @@ export const useOptimizelyLicenseSubsidyEnrollmentClickHandler = ({ href, course
  *
  * @returns Click handler function for clicks on enrollment buttons.
  */
-export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, courseEnrollmentsByStatus }) => {
+export const useOptimizelyEnrollmentClickHandler = ({
+  href,
+  courseRunKey,
+  courseEnrollmentsByStatus,
+}) => {
   const enrollmentCountIsZero = Object.values(courseEnrollmentsByStatus).flat().length === 0;
 
   const handleClick = useCallback(
@@ -567,11 +604,10 @@ export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, course
  * @param {string} [courseKey] - optional filter for specific course
  * @returns {boolean}
  */
-export function useUserHasSubsidyRequestForCourse(courseKey) {
-  const {
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
+export function useUserHasSubsidyRequestForCourse(courseKey?: string) {
+  const { subsidyRequestConfiguration, requestsBySubsidyType } = useContext(
+    SubsidyRequestsContext,
+  );
 
   return useMemo(() => {
     if (!subsidyRequestConfiguration?.subsidyRequestsEnabled) {
@@ -582,17 +618,13 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
         return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
       }
       case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-          request => (!courseKey || request.courseId === courseKey),
-        );
+        const foundCouponRequest = requestsBySubsidyType[
+          SUBSIDY_TYPE.COUPON
+        ].find((request) => !courseKey || request.courseId === courseKey);
         return !!foundCouponRequest;
       }
       default:
         return false;
     }
-  }, [
-    courseKey,
-    subsidyRequestConfiguration,
-    requestsBySubsidyType,
-  ]);
+  }, [courseKey, subsidyRequestConfiguration, requestsBySubsidyType]);
 }

@@ -3,9 +3,42 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
+import { FrontendPlatformConfig, HttpClient } from '../../../../external';
+import {
+  CourseData,
+  CourseRun,
+  CourseServiceOptions,
+  CourseRecommendation,
+  CourseEnrollment,
+  UserEntitlement,
+  CatalogData,
+  EnterpriseSubsidy,
+} from './types';
 
-export default class CourseService {
-  constructor(options = {}) {
+export type AllCourseData = {
+  courseDetails: CourseData;
+  userEnrollments: CourseEnrollment[];
+  userEntitlements: UserEntitlement[];
+  catalog: CatalogData;
+  userSubsidyApplicableToCourse?: EnterpriseSubsidy | null;
+};
+
+export default class CourseService implements CourseServiceOptions {
+  activeCourseRun?: CourseRun;
+
+  courseKey?: string;
+
+  courseRunKey?: string;
+
+  enterpriseUuid?: string;
+
+  config: FrontendPlatformConfig;
+
+  authenticatedHttpClient: HttpClient;
+
+  cachedAuthenticatedHttpClient: HttpClient;
+
+  constructor(options: CourseServiceOptions = {}) {
     const {
       activeCourseRun,
       courseKey,
@@ -25,13 +58,13 @@ export default class CourseService {
     this.activeCourseRun = activeCourseRun;
   }
 
-  async fetchAllCourseData() {
+  async fetchAllCourseData(): Promise<AllCourseData> {
     const courseDataRaw = await Promise.all([
       this.fetchCourseDetails(),
       this.fetchUserEnrollments(),
       this.fetchUserEntitlements(),
       this.fetchEnterpriseCustomerContainsContent(),
-    ]).then((responses) => responses.map(res => res.data));
+    ]).then((responses) => responses.map((res) => res.data));
 
     const courseData = camelCaseObject(courseDataRaw);
     const courseDetails = courseData[0];
@@ -46,7 +79,9 @@ export default class CourseService {
       if (availableCourseRunKeys.includes(this.courseRunKey)) {
         courseDetails.canonicalCourseRunKey = this.courseRunKey;
         courseDetails.courseRunKeys = [this.courseRunKey];
-        courseDetails.courseRuns = availableCourseRuns.filter(obj => obj.key === this.courseRunKey);
+        courseDetails.courseRuns = availableCourseRuns.filter(
+          (obj) => obj.key === this.courseRunKey,
+        );
         courseDetails.advertisedCourseRunUuid = courseDetails.courseRuns[0].uuid;
       }
     }
@@ -59,39 +94,56 @@ export default class CourseService {
     };
   }
 
-  async fetchAllCourseRecommendations(activeCatalogs = []) {
-    const resp = await this.fetchCourseRecommendations()
-      .then(async (response) => {
+  async fetchAllCourseRecommendations(
+    activeCatalogs = [],
+  ): Promise<CourseRecommendation[]> {
+    const resp = await this.fetchCourseRecommendations().then(
+      async (response) => {
         const {
           all_recommendations: allRecommendations,
           same_partner_recommendations: samePartnerRecommendations,
         } = response.data;
 
         // handle no recommendations case
-        if (allRecommendations.length < 1 && samePartnerRecommendations.length < 1) {
+        if (
+          allRecommendations.length < 1
+          && samePartnerRecommendations.length < 1
+        ) {
           return response.data;
         }
-        const allRecommendationsKeys = allRecommendations?.map((rec) => rec.key);
-        const samePartnerRecommendationsKeys = samePartnerRecommendations?.map((rec) => rec.key);
+        const allRecommendationsKeys = allRecommendations?.map(
+          (rec) => rec.key,
+        );
+        const samePartnerRecommendationsKeys = samePartnerRecommendations?.map(
+          (rec) => rec.key,
+        );
 
         const options = {
-          content_keys: allRecommendationsKeys.concat(samePartnerRecommendationsKeys),
+          content_keys: allRecommendationsKeys.concat(
+            samePartnerRecommendationsKeys,
+          ),
           catalog_uuids: activeCatalogs,
         };
 
-        const filteredRecommendations = await this.fetchFilteredRecommendations(options);
-        const { filtered_content_keys: filteredContentKeys } = filteredRecommendations.data;
+        const filteredRecommendations = await this.fetchFilteredRecommendations(
+          options,
+        );
+        const {
+          filtered_content_keys: filteredContentKeys,
+        } = filteredRecommendations.data;
 
         const recommendations = {
           all_recommendations: allRecommendations.filter(
-            (rec) => !samePartnerRecommendationsKeys.includes(rec.key) && filteredContentKeys.includes(rec.key),
+            (rec) => !samePartnerRecommendationsKeys.includes(rec.key)
+              && filteredContentKeys.includes(rec.key),
           ),
           same_partner_recommendations: samePartnerRecommendations.filter(
             (rec) => filteredContentKeys.includes(rec.key),
           ),
         };
         return recommendations;
-      });
+      },
+    );
     return resp;
   }
 
@@ -100,7 +152,7 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.post(url, options);
   }
 
-  fetchCourseDetails() {
+  fetchCourseDetails(): CourseData {
     const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/courses/${this.courseKey}/`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
@@ -118,10 +170,12 @@ export default class CourseService {
   fetchUserEnrollments() {
     const queryParams = new URLSearchParams({
       enterprise_id: this.enterpriseUuid,
-      is_active: true,
-    });
+      is_active: 'true',
+    } as Record<string, string>);
     const config = getConfig();
-    const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
+    const url = `${
+      config.LMS_BASE_URL
+    }/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
     return getAuthenticatedHttpClient().get(url);
   }
 
@@ -134,21 +188,27 @@ export default class CourseService {
     // This API call will *only* obtain the enterprise's catalogs whose
     // catalog queries return/contain the specified courseKey.
     const queryParams = new URLSearchParams({
-      course_run_ids: courseRunIds,
-      get_catalogs_containing_specified_content_ids: true,
-    });
+      course_run_ids: courseRunIds.toString(),
+      get_catalogs_containing_specified_content_ids: 'true',
+    } as Record<string, string>);
 
-    const url = `${this.config.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${this.enterpriseUuid}/contains_content_items/?${queryParams.toString()}`;
+    const url = `${
+      this.config.ENTERPRISE_CATALOG_API_BASE_URL
+    }/api/v1/enterprise-customer/${
+      this.enterpriseUuid
+    }/contains_content_items/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
-  fetchUserLicenseSubsidy(courseKey = this.activeCourseRun.key) {
+  fetchUserLicenseSubsidy(courseKey = this?.activeCourseRun?.key) {
     const queryParams = new URLSearchParams({
       enterprise_customer_uuid: this.enterpriseUuid,
       course_key: courseKey,
-    });
-    const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
-    return this.cachedAuthenticatedHttpClient.get(url).catch(error => {
+    } as Record<string, string>);
+    const url = `${
+      this.config.LICENSE_MANAGER_URL
+    }/api/v1/license-subsidy/?${queryParams.toString()}`;
+    return this.cachedAuthenticatedHttpClient.get(url).catch((error) => {
       const httpErrorStatus = error.customAttributes?.httpErrorStatus;
       if (httpErrorStatus === 404) {
         // 404 means the user's license is not applicable for the course, return undefined instead of throwing an error

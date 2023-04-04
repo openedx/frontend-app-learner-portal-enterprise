@@ -3,7 +3,10 @@ import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import CourseService from '../service';
-import { TEST_RECOMMENDATION_DATA, FILTERED_RECOMMENDATIONS } from '../../tests/constants';
+import {
+  TEST_RECOMMENDATION_DATA,
+  FILTERED_RECOMMENDATIONS,
+} from '../../tests/constants';
 
 // config
 const APP_CONFIG = {
@@ -24,11 +27,15 @@ const FILTER_RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
-axiosMock.onGet(RECOMMENDATION_API_ENDPOINT).reply(200, TEST_RECOMMENDATION_DATA);
-axiosMock.onPost(FILTER_RECOMMENDATION_API_ENDPOINT).reply(200, FILTERED_RECOMMENDATIONS);
+axiosMock
+  .onGet(RECOMMENDATION_API_ENDPOINT)
+  .reply(200, TEST_RECOMMENDATION_DATA);
+axiosMock
+  .onPost(FILTER_RECOMMENDATION_API_ENDPOINT)
+  .reply(200, FILTERED_RECOMMENDATIONS);
 
 jest.mock('@edx/frontend-platform/config', () => ({
-  getConfig: () => (APP_CONFIG),
+  getConfig: () => APP_CONFIG,
 }));
 
 describe('CourseService', () => {
@@ -59,10 +66,14 @@ describe('CourseService', () => {
     // based on what we get from filtered recommendations API [FILTERED_RECOMMENDATIONS], expected data should be:
     const expectedData = {
       all_recommendations: [TEST_RECOMMENDATION_DATA.all_recommendations[0]],
-      same_partner_recommendations: [TEST_RECOMMENDATION_DATA.same_partner_recommendations[1]],
+      same_partner_recommendations: [
+        TEST_RECOMMENDATION_DATA.same_partner_recommendations[1],
+      ],
     };
     expect(axiosMock.history.get[0].url).toBe(RECOMMENDATION_API_ENDPOINT);
-    expect(axiosMock.history.post[0].url).toBe(FILTER_RECOMMENDATION_API_ENDPOINT);
+    expect(axiosMock.history.post[0].url).toBe(
+      FILTER_RECOMMENDATION_API_ENDPOINT,
+    );
 
     expect(data).toEqual(expectedData);
   });

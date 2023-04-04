@@ -7,7 +7,7 @@ export function getPathwayProgressDetails(pathwayUUID) {
   return getAuthenticatedHttpClient().get(url);
 }
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export function getInProgressPathways(enterpriseUUID) {
   // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
   const config = getConfig();

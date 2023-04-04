@@ -1,32 +1,35 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
 import moment from 'moment';
 import { camelCaseObject } from '@edx/frontend-platform';
-import {
-  MemoryRouter,
-} from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { logError } from '@edx/frontend-platform/logging';
 import {
   useCourseEnrollmentUrl,
   useUserHasSubsidyRequestForCourse,
   useAllCourseData,
   useOptimizelyEnrollmentClickHandler,
-  useOptimizelyLicenseSubsidyEnrollmentClickHandler,
   useCoursePartners,
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
   useCoursePacingType,
   useCoursePriceForUserSubsidy,
   useExtractAndRemoveSearchParamsFromURL,
+  AlgoliaSearchParams,
 } from '../hooks';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
+import {
+  SUBSIDY_TYPE,
+  SUBSIDY_REQUEST_STATE,
+} from '../../../enterprise-subsidy-requests/constants';
 import {
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
+import { CouponCode, CourseRun } from '../types';
 
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
@@ -51,12 +54,17 @@ const mockLicenseForCourse = {
   start_date: moment().subtract(1, 'w').toISOString(),
   expiration_date: moment().add(8, 'w').toISOString(),
 };
-
-const mockCouponCodesForCourse = [{
-  catalog: 'catalog-1',
-  couponStartDate: moment().subtract(1, 'w').toISOString(),
-  couponEndDate: moment().add(8, 'w').toISOString(),
-}];
+const mockCouponCodesForCourse: CouponCode[] = [
+  {
+    catalog: 'catalog-1',
+    couponStartDate: moment().subtract(1, 'w').toISOString(),
+    couponEndDate: moment().add(8, 'w').toISOString(),
+    uuid: '',
+    code: '',
+    usageType: '',
+    benefitValue: 0,
+  },
+];
 
 const mockBaseEnterpriseOffer = {
   usageType: 'Percentage',
@@ -139,7 +147,9 @@ describe('useAllCourseData', () => {
     expect(mockCourseService.fetchAllCourseData).toHaveBeenCalled();
     expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalled();
 
-    expect(result.current.courseRecommendations).toEqual(camelCaseObject(mockCourseRecommendataions));
+    expect(result.current.courseRecommendations).toEqual(
+      camelCaseObject(mockCourseRecommendataions),
+    );
   });
 
   it('returns null if no courseKey or enterpriseConfig is provided', async () => {
@@ -175,7 +185,9 @@ describe('useAllCourseData', () => {
 
   it('handles non 404 errors fetching All course data', async () => {
     const mockError = new Error('error');
-    mockCourseService.fetchAllCourseData.mockRejectedValueOnce(mockError);
+    mockCourseService.fetchAllCourseData.mockRejectedValueOnce(
+      mockError as never,
+    );
     const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
       ...basicProps,
     }));
@@ -187,7 +199,9 @@ describe('useAllCourseData', () => {
 
   it('handles non 404 errors fetching All course recommendations', async () => {
     const mockError = new Error('error');
-    mockCourseService.fetchAllCourseRecommendations.mockRejectedValueOnce(mockError);
+    mockCourseService.fetchAllCourseRecommendations.mockRejectedValueOnce(
+      mockError as never,
+    );
     const { result, waitForNextUpdate } = renderHook(() => useAllCourseData({
       ...basicProps,
       activeCatalogs: null,
@@ -200,14 +214,18 @@ describe('useAllCourseData', () => {
     });
 
     expect(mockCourseService.fetchAllCourseData).toHaveBeenCalled();
-    expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalledWith(null);
+    expect(
+      mockCourseService.fetchAllCourseRecommendations,
+    ).toHaveBeenCalledWith(null);
     expect(logError).toHaveBeenCalledWith(mockError);
     expect(result.current.courseRecommendations).toEqual([]);
   });
 
   it('handles non 404 errors fetching user license subsidy', async () => {
     const mockError = new Error('error');
-    mockCourseService.fetchUserLicenseSubsidy.mockRejectedValueOnce(mockError);
+    mockCourseService.fetchUserLicenseSubsidy.mockRejectedValueOnce(
+      mockError as never,
+    );
     const subscriptionLicense = {
       uuid: 'license-uuid',
     };
@@ -235,6 +253,7 @@ describe('useAllCourseData', () => {
         discountValue: mockCouponCodesForCourse[0].benefitValue,
         startDate: mockCouponCodesForCourse[0].couponStartDate,
         endDate: mockCouponCodesForCourse[0].couponEndDate,
+        code: mockCouponCodesForCourse[0].code,
         subsidyType: COUPON_CODE_SUBSIDY_TYPE,
       },
     });
@@ -273,8 +292,10 @@ describe('useAllCourseData', () => {
         userSubsidyApplicableToCourse: {
           discountType: mockBaseEnterpriseOffer.usageType.toLowerCase(),
           discountValue: mockBaseEnterpriseOffer.discountValue,
-          startDate: mockEnterpriseOffersForCourse.globalBookingsLimit.startDatetime,
-          endDate: mockEnterpriseOffersForCourse.globalBookingsLimit.endDatetime,
+          startDate:
+            mockEnterpriseOffersForCourse.globalBookingsLimit.startDatetime,
+          endDate:
+            mockEnterpriseOffersForCourse.globalBookingsLimit.endDatetime,
           subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
         },
       });
@@ -297,7 +318,8 @@ describe('useAllCourseData', () => {
         userSubsidyApplicableToCourse: {
           discountType: mockBaseEnterpriseOffer.usageType.toLowerCase(),
           discountValue: mockBaseEnterpriseOffer.discountValue,
-          startDate: mockEnterpriseOffersForCourse.noBookingsLimit.startDatetime,
+          startDate:
+            mockEnterpriseOffersForCourse.noBookingsLimit.startDatetime,
           endDate: mockEnterpriseOffersForCourse.noBookingsLimit.endDatetime,
           subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
         },
@@ -321,7 +343,8 @@ describe('useAllCourseData', () => {
         userSubsidyApplicableToCourse: {
           discountType: mockBaseEnterpriseOffer.usageType.toLowerCase(),
           discountValue: mockBaseEnterpriseOffer.discountValue,
-          startDate: mockEnterpriseOffersForCourse.userBookingsLimit.startDatetime,
+          startDate:
+            mockEnterpriseOffersForCourse.userBookingsLimit.startDatetime,
           endDate: mockEnterpriseOffersForCourse.userBookingsLimit.endDatetime,
           subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
         },
@@ -337,7 +360,12 @@ describe('useCourseEnrollmentUrl', () => {
     couponStartDate: moment().subtract(1, 'w').toISOString(),
     couponEndDate: moment().add(8, 'w').toISOString(),
   };
+  const enrollmentImputBase = {
+    catalogList: [],
+    userSubsidyApplicableToCourse: {},
+  };
   const noLicenseEnrollmentInputs = {
+    ...enrollmentImputBase,
     enterpriseConfig: {
       uuid: 'foo',
     },
@@ -345,10 +373,10 @@ describe('useCourseEnrollmentUrl', () => {
     couponCodes: [mockCouponCode],
     sku: 'xkcd',
     location: { search: 'foo' },
-
   };
   // just skip the coupon codes here to ensure we process absence correctly
   const noCouponCodesEnrollmentInputs = {
+    ...enrollmentImputBase,
     enterpriseConfig: {
       uuid: 'foo',
     },
@@ -363,23 +391,31 @@ describe('useCourseEnrollmentUrl', () => {
       subsidyType: LICENSE_SUBSIDY_TYPE,
       subsidyId: 'license-uuid',
     },
+    key: undefined,
   };
 
   describe('subscription license', () => {
     test('returns an lms url to DSC for enrollment with a license', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseEnrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseConfig.uuid);
+      expect(result.current).toContain(
+        withLicenseEnrollmentInputs.enterpriseConfig.uuid,
+      );
       expect(result.current).toContain(withLicenseEnrollmentInputs.key);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
+      expect(result.current).toContain(
+        withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId,
+      );
     });
 
     test('does not use the license uuid for enrollment if there is no valid license subsidy (even with a license uuid)', () => {
       const noSubsidyEnrollmentInputs = { ...withLicenseEnrollmentInputs };
+      // @ts-ignore
       delete noSubsidyEnrollmentInputs.userSubsidyApplicableToCourse;
 
       const { result } = renderHook(() => useCourseEnrollmentUrl(noSubsidyEnrollmentInputs));
-      expect(result.current).not.toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
+      expect(result.current).not.toContain(
+        withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId,
+      );
     });
   });
 
@@ -394,15 +430,15 @@ describe('useCourseEnrollmentUrl', () => {
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(noLicenseEnrollmentInputs.couponCodes[0].code);
+      expect(result.current).toContain(
+        noLicenseEnrollmentInputs.couponCodes[0].code,
+      );
       expect(result.current).toContain(withLicenseEnrollmentInputs.key);
     });
 
     test('with no coupon codes returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noLicenseEnrollmentInputs,
-        couponCodes: [],
-
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
@@ -432,7 +468,7 @@ describe('useCourseEnrollmentUrl', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noCouponCodesEnrollmentInputs,
       }));
-      expect(result.current.includes('failure_url'));
+      expect(result?.current?.includes('failure_url'));
     });
   });
 });
@@ -445,9 +481,13 @@ describe('useUserHasSubsidyRequestForCourse', () => {
       subsidyRequestConfiguration: null,
     };
     const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+      <SubsidyRequestsContext.Provider value={context}>
+        {children}
+      </SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), {
+      wrapper,
+    });
     expect(result.current).toBe(false);
   });
 
@@ -460,9 +500,13 @@ describe('useUserHasSubsidyRequestForCourse', () => {
       },
     };
     const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+      <SubsidyRequestsContext.Provider value={context}>
+        {children}
+      </SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), {
+      wrapper,
+    });
     expect(result.current).toBe(false);
   });
 
@@ -478,9 +522,13 @@ describe('useUserHasSubsidyRequestForCourse', () => {
       },
     };
     const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+      <SubsidyRequestsContext.Provider value={context}>
+        {children}
+      </SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), {
+      wrapper,
+    });
     expect(result.current).toBe(true);
   });
 
@@ -493,13 +541,20 @@ describe('useUserHasSubsidyRequestForCourse', () => {
       },
       requestsBySubsidyType: {
         [SUBSIDY_TYPE.LICENSE]: [],
-        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId }],
+        [SUBSIDY_TYPE.COUPON]: [
+          { state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId },
+        ],
       },
     };
     const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+      <SubsidyRequestsContext.Provider value={context}>
+        {children}
+      </SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(courseId), { wrapper });
+    const { result } = renderHook(
+      () => useUserHasSubsidyRequestForCourse(courseId),
+      { wrapper },
+    );
     expect(result.current).toBe(true);
   });
 
@@ -511,30 +566,21 @@ describe('useUserHasSubsidyRequestForCourse', () => {
       },
       requestsBySubsidyType: {
         [SUBSIDY_TYPE.LICENSE]: [],
-        [SUBSIDY_TYPE.COUPON]: [{ state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' }],
+        [SUBSIDY_TYPE.COUPON]: [
+          { state: SUBSIDY_REQUEST_STATE.REQUESTED, courseId: 'lorem' },
+        ],
       },
     };
     const wrapper = ({ children }) => (
-      <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
+      <SubsidyRequestsContext.Provider value={context}>
+        {children}
+      </SubsidyRequestsContext.Provider>
     );
-    const { result } = renderHook(() => useUserHasSubsidyRequestForCourse('ipsum'), { wrapper });
+    const { result } = renderHook(
+      () => useUserHasSubsidyRequestForCourse('ipsum'),
+      { wrapper },
+    );
     expect(result.current).toBe(false);
-  });
-});
-
-describe('useOptimizelyLicenseSubsidyEnrollmentClickHandler', () => {
-  const basicProps = {
-    courseRunKey: 'courseRunKey',
-    href: 'http://example.com',
-  };
-
-  afterEach(() => jest.clearAllMocks());
-
-  it('sends correct optimizely event', () => {
-    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
-    const { result } = renderHook(() => useOptimizelyLicenseSubsidyEnrollmentClickHandler(basicProps));
-    result.current({ preventDefault: jest.fn() });
-    expect(pushEventSpy).toHaveBeenCalledWith('enterprise_learner_portal_license_subsidy_enrollment_click', { courseKey: 'courseRunKey' });
   });
 });
 
@@ -548,12 +594,22 @@ describe('useOptimizelyEnrollmentClickHandler', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('sends correct optimizely event', () => {
-    const pushEventSpy = jest.spyOn(optimizelyUtils, 'pushEvent').mockImplementation(() => true);
+    const pushEventSpy = jest
+      .spyOn(optimizelyUtils, 'pushEvent')
+      .mockImplementation(() => true);
     const { result } = renderHook(() => useOptimizelyEnrollmentClickHandler(basicProps));
     result.current({ preventDefault: jest.fn() });
     expect(pushEventSpy).toHaveBeenCalledTimes(2);
-    expect(pushEventSpy).toHaveBeenNthCalledWith(1, 'enterprise_learner_portal_enrollment_click', { courseKey: 'courseRunKey' });
-    expect(pushEventSpy).toHaveBeenNthCalledWith(2, 'enterprise_learner_portal_first_enrollment_click', { courseKey: 'courseRunKey' });
+    expect(pushEventSpy).toHaveBeenNthCalledWith(
+      1,
+      'enterprise_learner_portal_enrollment_click',
+      { courseKey: 'courseRunKey' },
+    );
+    expect(pushEventSpy).toHaveBeenNthCalledWith(
+      2,
+      'enterprise_learner_portal_first_enrollment_click',
+      { courseKey: 'courseRunKey' },
+    );
   });
 });
 
@@ -566,7 +622,7 @@ describe('useCoursePartners', () => {
         <h2>{label}</h2>
         <ul>
           {partners.map((partner) => (
-            <li key={partner}>{partner}</li>
+            <li key={partner.key}>{partner}</li>
           ))}
         </ul>
       </div>
@@ -685,13 +741,17 @@ describe('CoursePacingType', () => {
 
     expect(screen.getByText('Pacing Type')).toBeTruthy();
     expect(screen.getByText('instructor_paced')).toBeTruthy();
-    expect(screen.getByText('Instructor-led on a course schedule')).toBeTruthy();
+    expect(
+      screen.getByText('Instructor-led on a course schedule'),
+    ).toBeTruthy();
   });
 });
 
 describe('useCoursePriceForUserSubsidy', () => {
+  const baseCourseRun = { key: '', title: '', uuid: '' };
+
   it('should return the correct course price when a user subsidy is applicable with percentage discount', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const activeCourseRun: CourseRun = { ...baseCourseRun, firstEnrollablePaidSeatPrice: 100 };
     const userSubsidyApplicableToCourse = {
       discountType: 'percentage',
       discountValue: 10,
@@ -702,13 +762,14 @@ describe('useCoursePriceForUserSubsidy', () => {
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       activeCourseRun,
       userSubsidyApplicableToCourse,
+      courseEntitlements: {},
     }));
     const [coursePrice] = result.current;
     expect(coursePrice).toEqual({ list: 100, discounted: 90 });
   });
 
   it('should return the correct course price when a user subsidy is applicable with absolute discount', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 150 };
+    const activeCourseRun = { ...baseCourseRun, firstEnrollablePaidSeatPrice: 150 };
     const userSubsidyApplicableToCourse = {
       discountType: 'absolute',
       discountValue: 10,
@@ -719,20 +780,38 @@ describe('useCoursePriceForUserSubsidy', () => {
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       activeCourseRun,
       userSubsidyApplicableToCourse,
+      courseEntitlements: {},
     }));
     const [coursePrice] = result.current;
     expect(coursePrice).toEqual({ list: 150, discounted: 140 });
   });
 
   it('should return the correct course price when a user subsidy is not applicable', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const activeCourseRun = { ...baseCourseRun, firstEnrollablePaidSeatPrice: 100 };
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       activeCourseRun,
       userSubsidyApplicableToCourse,
+      courseEntitlements: {},
     }));
     const [coursePrice] = result.current;
     expect(coursePrice).toEqual({ list: 100 });
+  });
+
+  it('should return the correct course price for exec ed course', () => {
+    const execEdCourseEntitlements = [{
+      price: 200,
+    }];
+
+    const activeCourseRun = { };
+    const userSubsidyApplicableToCourse = null;
+    const { result } = renderHook(() => useCoursePriceForUserSubsidy({
+      courseEntitlements: execEdCourseEntitlements,
+      activeCourseRun,
+      userSubsidyApplicableToCourse,
+    }));
+    const [coursePrice] = result.current;
+    expect(coursePrice).toEqual({ list: 200 });
   });
 
   it('should return the correct currency', () => {
@@ -741,6 +820,7 @@ describe('useCoursePriceForUserSubsidy', () => {
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       activeCourseRun,
       userSubsidyApplicableToCourse,
+      courseEntitlements: {},
     }));
     const [, currency] = result.current;
     expect(currency).toEqual('USD');
@@ -751,6 +831,7 @@ describe('useCoursePriceForUserSubsidy', () => {
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
       activeCourseRun,
       userSubsidyApplicableToCourse,
+      courseEntitlements: {},
     }));
     const [coursePrice] = result.current;
     expect(coursePrice).toEqual(null);
@@ -759,12 +840,12 @@ describe('useCoursePriceForUserSubsidy', () => {
 
 describe('useExtractAndRemoveSearchParamsFromURL', () => {
   const TestComponent = () => {
-    const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
+    const algoliaSearchParams: AlgoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
     return (
       <div>
-        <p>Query ID: {algoliaSearchParams.queryId}</p>
-        <p>Object ID: {algoliaSearchParams.objectId}</p>
+        <p>Query ID: {algoliaSearchParams?.queryId}</p>
+        <p>Object ID: {algoliaSearchParams?.objectId}</p>
       </div>
     );
   };

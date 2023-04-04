@@ -1,4 +1,5 @@
 import React from 'react';
+import isNumber from 'lodash.isnumber';
 
 import { getConfig } from '@edx/frontend-platform';
 import {
@@ -18,9 +19,15 @@ import VerifiedSvgIcon from '../../../assets/icons/verified.svg';
 import XSeriesSvgIcon from '../../../assets/icons/xseries.svg';
 import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
-import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
+import {
+  programIsMicroMasters,
+  programIsProfessionalCertificate,
+} from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { offerHasBookingsLimit } from '../../enterprise-user-subsidy/enterprise-offers/data/utils';
+import {
+  CouponCode, EnterpriseOffer, EnterpriseSubsidy, SubscriptionLicense,
+} from './types';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -30,11 +37,7 @@ export function hasCourseStarted(start) {
 
 export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
   return userEnrollments.find(
-    ({
-      isEnrollmentActive,
-      isRevoked,
-      courseRunId,
-    }) => (isEnrollmentActive && !isRevoked && courseRunId === key),
+    ({ isEnrollmentActive, isRevoked, courseRunId }) => isEnrollmentActive && !isRevoked && courseRunId === key,
   );
 }
 
@@ -45,7 +48,7 @@ export function isUserEntitledForCourse({ userEntitlements, courseUuid }) {
 export function weeksRemainingUntilEnd(courseRun) {
   const today = new Date();
   const end = new Date(courseRun.end);
-  const secondsDifference = Math.abs(end - today) / 1000;
+  const secondsDifference = Math.abs(end.valueOf() - today.valueOf()) / 1000;
   const days = Math.floor(secondsDifference / 86400);
   return Math.floor(days / 7);
 }
@@ -95,9 +98,14 @@ export function formatProgramType(programType) {
   switch (programType) {
     case PROGRAM_TYPE_MAP.MICROMASTERS:
     case PROGRAM_TYPE_MAP.MICROBACHELORS:
-      return <>{programType}<sup>&reg;</sup> Program</>;
+      return (
+        <>
+          {programType}
+          <sup>&reg;</sup> Program
+        </>
+      );
     case PROGRAM_TYPE_MAP.MASTERS:
-      return 'Master\'s';
+      return "Master's";
     default:
       return programType;
   }
@@ -123,20 +131,29 @@ export const numberWithPrecision = (number, precision = 2) => number.toFixed(pre
 // See https://openedx.atlassian.net/wiki/spaces/WS/pages/1045200922/Enroll+button+and+Course+Run+Selector+Logic
 // for more detailed documentation on course run selection and the enroll button.
 export function getActiveCourseRun(course) {
-  return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
+  return course.courseRuns.find(
+    (courseRun) => courseRun.uuid === course.advertisedCourseRunUuid,
+  );
 }
 
 export function getAvailableCourseRuns(course) {
   return course.courseRuns.filter(
-    courseRun => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
+    (courseRun) => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
   );
 }
 
-export function findCouponCodeForCourse(couponCodes, catalogList = []) {
-  return couponCodes.find((couponCode) => catalogList?.includes(couponCode.catalog) && hasValidStartExpirationDates({
-    startDate: couponCode.couponStartDate,
-    endDate: couponCode.couponEndDate,
-  }));
+export function findCouponCodeForCourse(
+  couponCodes: CouponCode[],
+  catalogList: string[] = [],
+) {
+  return couponCodes.find(
+    (couponCode) => catalogList?.includes(couponCode.catalog)
+      && hasValidStartExpirationDates({
+        startDate: couponCode.couponStartDate,
+        endDate: couponCode.couponEndDate,
+        expirationDate: undefined,
+      }),
+  );
 }
 
 /**
@@ -154,58 +171,82 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
  * the specified enterporise catalog uuids and course price.
  */
 export const findEnterpriseOfferForCourse = ({
-  enterpriseOffers, catalogList = [], coursePrice,
+  enterpriseOffers,
+  catalogList = [],
+  coursePrice,
+}: {
+  enterpriseOffers: EnterpriseOffer[];
+  catalogList: string[];
+  coursePrice?: number;
 }) => {
   if (!coursePrice) {
     return undefined;
   }
 
-  const applicableEnterpriseOffers = enterpriseOffers.filter((enterpriseOffer) => {
-    const {
-      remainingBalance,
-      remainingBalanceForUser,
-    } = enterpriseOffer;
-    const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
-    if (!isCourseInCatalog) {
-      return false;
-    }
-    if (offerHasBookingsLimit(enterpriseOffer)) {
-      if (remainingBalance !== null && remainingBalance < coursePrice) {
+  const applicableEnterpriseOffers = enterpriseOffers.filter(
+    (enterpriseOffer) => {
+      const { remainingBalance, remainingBalanceForUser } = enterpriseOffer;
+      const isCourseInCatalog = catalogList.includes(
+        enterpriseOffer.enterpriseCatalogUuid,
+      );
+
+      if (!isCourseInCatalog) {
         return false;
       }
 
-      if (remainingBalanceForUser !== null && remainingBalanceForUser < coursePrice) {
-        return false;
+      if (offerHasBookingsLimit(enterpriseOffer)) {
+        if (
+          isNumber(remainingBalance)
+          && (remainingBalance || 0) < coursePrice
+        ) {
+          return false;
+        }
+
+        if (
+          isNumber(remainingBalanceForUser)
+          && (remainingBalanceForUser || 0) < coursePrice
+        ) {
+          return false;
+        }
       }
-    }
-    return true;
-  });
+      return true;
+    },
+  );
 
   // use offer that has no bookings limit
-  const enterpriseOfferWithoutBookingsLimit = applicableEnterpriseOffers.find(offer => !offerHasBookingsLimit(offer));
+  const enterpriseOfferWithoutBookingsLimit = applicableEnterpriseOffers.find(
+    (offer) => !offerHasBookingsLimit(offer),
+  );
   if (enterpriseOfferWithoutBookingsLimit) {
     return enterpriseOfferWithoutBookingsLimit;
   }
 
   // use offer that has largest remaining balance for user
   const enterpriseOfferWithUserBookingsLimit = applicableEnterpriseOffers
-    .filter(offer => offer.remainingBalanceForUser)
-    .sort((a, b) => b.remainingBalanceForUser - a.remainingBalanceForUser)[0];
+    .filter((offer) => offer.remainingBalanceForUser)
+    .sort(
+      (a, b) => (b.remainingBalanceForUser || 0) - (a.remainingBalanceForUser || 0),
+    )[0];
 
   if (enterpriseOfferWithUserBookingsLimit) {
     return enterpriseOfferWithUserBookingsLimit;
   }
 
   // use offer with largest remaining balance overall
-  const enterpriseOfferWithBookingsLimit = applicableEnterpriseOffers
-    .sort((a, b) => b.remainingBalance - a.remainingBalance)[0];
+  const enterpriseOfferWithBookingsLimit = applicableEnterpriseOffers.sort(
+    (a, b) => (b.remainingBalance || 0) - (a.remainingBalance || 0),
+  )[0];
 
   return enterpriseOfferWithBookingsLimit;
 };
 
 const getBestCourseMode = (courseModes) => {
   const {
-    VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT, HONOR,
+    VERIFIED,
+    PROFESSIONAL,
+    NO_ID_PROFESSIONAL,
+    AUDIT,
+    HONOR,
   } = COURSE_MODES_MAP;
   // Returns the 'highest' course mode available.
   // Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor']
@@ -232,9 +273,9 @@ export function findHighestLevelSeatSku(seats) {
   if (!seats || seats.length <= 0) {
     return null;
   }
-  const courseModes = seats.map(seat => seat.type);
+  const courseModes = seats.map((seat) => seat.type);
   const courseMode = getBestCourseMode(courseModes);
-  return seats.find(seat => seat.type === courseMode)?.sku;
+  return seats.find((seat) => seat.type === courseMode)?.sku;
 }
 
 export function shouldUpgradeUserEnrollment({
@@ -248,7 +289,9 @@ export function shouldUpgradeUserEnrollment({
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
 export function shortenString(str, maxLength, suffix, separator = ' ') {
-  if (str.length <= maxLength) { return str; }
+  if (str.length <= maxLength) {
+    return str;
+  }
   return `${str.substr(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
@@ -256,7 +299,11 @@ export const getSubsidyToApplyForCourse = ({
   applicableSubscriptionLicense = undefined,
   applicableCouponCode = undefined,
   applicableEnterpriseOffer = undefined,
-}) => {
+}: {
+  applicableSubscriptionLicense?: SubscriptionLicense | null;
+  applicableCouponCode?: CouponCode;
+  applicableEnterpriseOffer?: EnterpriseOffer;
+}): EnterpriseSubsidy | null => {
   if (applicableSubscriptionLicense) {
     return {
       ...applicableSubscriptionLicense,
@@ -291,10 +338,12 @@ export const getSubsidyToApplyForCourse = ({
 
 export const createEnrollFailureUrl = ({ courseRunKey, location }) => {
   const baseQueryParams = new URLSearchParams(location.search);
-  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
+  baseQueryParams.set(ENROLLMENT_FAILED_QUERY_PARAM, 'true');
   baseQueryParams.set(ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM, courseRunKey);
 
-  return `${global.location.origin}${location.pathname}?${baseQueryParams.toString()}`;
+  return `${global.location.origin}${
+    location.pathname
+  }?${baseQueryParams.toString()}`;
 };
 
 export const createEnrollWithLicenseUrl = ({
@@ -316,7 +365,9 @@ export const createEnrollWithLicenseUrl = ({
     left_sidebar_text_override: '',
     source: 'enterprise-learner-portal',
   });
-  return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
+  return `${
+    config.LMS_BASE_URL
+  }/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
 };
 
 export const createEnrollWithCouponCodeUrl = ({
@@ -334,8 +385,20 @@ export const createEnrollWithCouponCodeUrl = ({
     sku,
     code,
     // Deliberately doubly encoded since it will get parsed on the redirect.
-    consent_url_param_string: `failure_url=${encodeURIComponent(failureUrl)}&left_sidebar_text_override=`,
+    consent_url_param_string: `failure_url=${encodeURIComponent(
+      failureUrl,
+    )}&left_sidebar_text_override=`,
   });
 
-  return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
+  return `${
+    config.ECOMMERCE_BASE_URL
+  }/coupons/redeem/?${queryParams.toString()}`;
+};
+
+export const courseUsesEntitlementPricing = (course) => {
+  const courseTypes = getConfig().COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE;
+  if (courseTypes) {
+    return courseTypes.includes(course.courseType);
+  }
+  return false;
 };

@@ -76,6 +76,7 @@ const SearchProgramCard = ({ index }) => {
   useEffect(
     () => {
       let fetch = true;
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       fetchPrograms(); // eslint-disable-line no-use-before-define
       return () => { fetch = false; };
 

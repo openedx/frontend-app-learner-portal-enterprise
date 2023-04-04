@@ -5,7 +5,7 @@ const config = getBaseConfig('eslint');
 
 config.overrides = [
   {
-    files: ['*.test.js', '*.test.jsx'],
+    files: ['*.test.js', '*.test.jsx', '*.test.ts', '*.test.tsx'],
     rules: {
       'react/prop-types': 'off',
       'react/jsx-no-constructed-context-values': 'off',

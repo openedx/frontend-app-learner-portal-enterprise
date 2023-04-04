@@ -36,6 +36,7 @@
     "lodash.capitalize": "4.2.1",
     "lodash.clonedeep": "4.5.0",
     "lodash.debounce": "4.0.8",
+    "lodash.isnumber": "^3.0.3",
     "moment": "2.29.1",
     "plotly.js-dist": "^2.17.0",
     "prop-types": "15.7.2",
@@ -59,7 +60,7 @@
   },
   "devDependencies": {
     "@edx/browserslist-config": "1.1.1",
-    "@edx/frontend-build": "12.4.15",
+    "@edx/frontend-build": "12.9.0-alpha.1",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.7",
     "@testing-library/react-hooks": "3.7.0",
