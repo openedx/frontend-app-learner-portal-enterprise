@@ -1,0 +1,35 @@
+.course-summary {
+  .registration-outline {
+      background: $light-500;
+      padding: 1em;
+      border-radius: 10px;
+  }
+  .course-details {
+    line-height: 2em;
+  }
+}
+.registration-summary {
+  .registration-details {
+    border: 1px solid $gray-200;
+    border-radius: 10px;
+    padding: 1em;
+    line-height: 2em;
+  }
+
+  .age-error-message {
+    border: 1px solid $light-300;
+    padding: 1em;
+  }
+
+  .text-italic {
+    font-style: italic;
+  }
+}
+
+.margin-right-10 {
+  margin-right: 10px;
+}
+
+.vertical {
+  border-right: 1px solid $gray-200;
+}

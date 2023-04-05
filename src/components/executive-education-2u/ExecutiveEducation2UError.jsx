@@ -18,8 +18,8 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
       no_offer_with_enough_balance: 'Your enrollment was not completed! Your organization does not have remaining credit.',
       no_offer_with_enough_user_balance: 'Your enrollment was not completed! You have already spent your personal budget for enrollments.',
       no_offer_with_remaining_applications: 'Your enrollment was not completed! You have reached your maximum number of allowed enrollments.',
-      system_error: 'System Error has occured.',
-      default: 'An error has occured.',
+      system_error: 'System Error has occurred.',
+      default: 'An error has occurred.',
     };
     return failureCodeMessages[failureCode] ? failureCodeMessages[failureCode] : failureCodeMessages.default;
   };
