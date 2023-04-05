@@ -15,10 +15,10 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
   const createExecutiveEducationFailureMessage = (failureCode) => {
     const failureCodeMessages = {
       no_offer_available: 'No offer is available to cover this course.',
-      no_offer_with_enough_balance: 'Your organization doesn’t have sufficient balance to cover this course.',
+      no_offer_with_enough_balance: 'Your organization does not have sufficient balance to cover this course.',
       no_offer_with_enough_user_balance: 'You don’t have sufficient balance to cover this course.',
-      system_error: 'System Error has occured.',
-      default: 'An error has occured.',
+      system_error: 'System Error has occurred.',
+      default: 'An error has occurred.',
     };
     return failureCodeMessages[failureCode] ? failureCodeMessages[failureCode] : failureCodeMessages.default;
   };
