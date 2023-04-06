@@ -36,9 +36,6 @@ const CourseHeader = () => {
   );
   const enableReviewSection = false;
 
-  // 👇
-  const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
-
   return (
     <div className="course-header">
       <LicenseRequestedAlert catalogList={catalog.catalogList} />
@@ -46,9 +43,6 @@ const CourseHeader = () => {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            <div className="mb-3">
-              <code>FEATURE_ENABLE_EMET_REDEMPTION: {isEMETRedemptionEnabled ? 'Enabled' : 'Disabled'}</code>
-            </div>
             {!enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
@@ -95,7 +89,11 @@ const CourseHeader = () => {
             {course.skills?.length > 0 && <CourseSkills />}
             {catalog.containsContentItems && (
               <>
-                <CourseRunCards />
+                {getConfig().FEATURE_ENABLE_EMET_REDEMPTION ? (
+                  <CourseRunCards />
+                ) : (
+                  <CourseRunCards.Deprecated />
+                )}
                 <SubsidyRequestButton />
               </>
             )}
