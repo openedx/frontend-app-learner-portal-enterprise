@@ -89,7 +89,7 @@ const ExecutiveEducation2UPage = () => {
   }
 
   return (
-    <div className="bg-light-200">
+    <div className="exec-ed-registration-page">
       <Container size="lg" className="py-5">
         <Helmet>
           <title>{pageTitle}</title>

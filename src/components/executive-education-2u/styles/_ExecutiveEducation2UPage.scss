@@ -9,6 +9,12 @@
   }
 }
 
+.exec-ed-registration-page {
+  display: flex;
+  flex: 1;
+  background-color: $light-200;
+}
+
 .vertical {
   border-right: 1px solid $gray-200;
 }
