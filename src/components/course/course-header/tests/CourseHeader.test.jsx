@@ -21,10 +21,11 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../CourseRunCards', () => function CourseRunCards() {
-  return <p>Cards</p>;
-});
-jest.mock('../SubsidyRequestButton', () => function SubsidyRequestButton() {
+jest.mock('../CourseRunCards', () => ({
+  default: () => <p>Cards</p>,
+  Deprecated: () => <p>Deprecated cards</p>,
+}));
+jest.mock('../../SubsidyRequestButton', () => function SubsidyRequestButton() {
   return <p>SubsidyRequestButton</p>;
 });
 
@@ -150,7 +151,7 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
-  test('renders course run cards button', () => {
+  test('renders course run cards', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
@@ -158,7 +159,7 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Cards')).toBeInTheDocument();
+    expect(screen.queryByText('Deprecated cards')).toBeInTheDocument();
   });
 
   test('renders course image', () => {

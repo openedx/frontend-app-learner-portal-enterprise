@@ -30,9 +30,9 @@ const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
-jest.mock('../../../config');
+jest.mock('../../../../config');
 
-jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
+jest.mock('../../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
   return (
     <>
       <span>{enrollLabel}</span>
@@ -40,7 +40,7 @@ jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabe
     </>
   );
 });
-jest.mock('../data/hooks', () => ({
+jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
   useCatalogsForSubsidyRequests: jest.fn(() => []),
