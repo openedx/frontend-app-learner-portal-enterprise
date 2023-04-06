@@ -4,14 +4,14 @@ import { useLocation } from 'react-router-dom';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
-import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
+import { CourseContextProvider } from '../../CourseContextProvider';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
-import { COURSE_PACING_MAP } from '../data/constants';
-import { TEST_OWNER } from './data/constants';
-import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { COURSE_PACING_MAP } from '../../data/constants';
+import { TEST_OWNER } from '../../tests/data/constants';
+import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),

@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 import { useQuery } from '@tanstack/react-query';
 
-import { retrieveTransactionStatus } from '..';
+import retrieveTransactionStatus from '../retrieveTransactionStatus';
 
 const useTransactionStatus = ({
   transactionUUID,

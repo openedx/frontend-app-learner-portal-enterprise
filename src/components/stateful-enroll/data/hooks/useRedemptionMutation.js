@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 import { useMutation } from '@tanstack/react-query';
 
-import { submitRedemptionRequest } from '..';
+import submitRedemptionRequest from '../submitRedemptionRequest';
 
 const useRedemptionMutation = (options = {}) => {
   const createRedemption = async ({ userId, contentKey }) => {

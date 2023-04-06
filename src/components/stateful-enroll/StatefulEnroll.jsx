@@ -38,6 +38,7 @@ const StatefulEnroll = ({
     onSuccess: (transaction) => {
       setEnrollButtonState('complete');
       const coursewareURL = transaction.coursewareRedirectUrl;
+      // eslint-disable-next-line no-console
       console.log(`[EMET] Successfully enrolled. Redirecting to courseware URL (${coursewareURL})!`);
       // window.location.href = coursewareURL;
       setTimeout(() => {
