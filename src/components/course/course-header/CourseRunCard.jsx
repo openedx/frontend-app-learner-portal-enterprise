@@ -8,12 +8,12 @@ import {
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
-import EnrollAction from './enrollment/EnrollAction';
-import { enrollButtonTypes } from './enrollment/constants';
+import EnrollAction from '../enrollment/EnrollAction';
+import { enrollButtonTypes } from '../enrollment/constants';
 import {
   COURSE_AVAILABILITY_MAP,
   LICENSE_SUBSIDY_TYPE,
-} from './data/constants';
+} from '../data/constants';
 import {
   isUserEntitledForCourse,
   isCourseSelfPaced,
@@ -23,13 +23,17 @@ import {
   hasCourseStarted,
   findHighestLevelSeatSku,
   numberWithPrecision,
-} from './data/utils';
-import { formatStringAsNumber } from '../../utils/common';
+} from '../data/utils';
+import { formatStringAsNumber } from '../../../utils/common';
 
-import { useSubsidyDataForCourse } from './enrollment/hooks';
-import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse, useCoursePriceForUserSubsidy } from './data/hooks';
-import { determineEnrollmentType } from './enrollment/utils';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import { useSubsidyDataForCourse } from '../enrollment/hooks';
+import {
+  useCourseEnrollmentUrl,
+  useUserHasSubsidyRequestForCourse,
+  useCoursePriceForUserSubsidy,
+} from '../data/hooks';
+import { determineEnrollmentType } from '../enrollment/utils';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';

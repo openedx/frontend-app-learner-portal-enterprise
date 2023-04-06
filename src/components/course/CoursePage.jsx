@@ -10,7 +10,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
 import { CourseContextProvider } from './CourseContextProvider';
-import CourseHeader from './CourseHeader';
+import CourseHeader from './course-header/CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 

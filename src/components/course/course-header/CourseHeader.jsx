@@ -7,21 +7,22 @@ import {
   Col,
 } from '@edx/paragon';
 import { Link } from 'react-router-dom';
+import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { CourseContext } from './CourseContextProvider';
-import CourseSkills from './CourseSkills';
-import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from './CourseEnrollmentFailedAlert';
+import { CourseContext } from '../CourseContextProvider';
+import CourseSkills from '../CourseSkills';
+import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
 
 import {
   getDefaultProgram,
   formatProgramType,
-} from './data/utils';
-import { useCoursePartners } from './data/hooks';
-import LicenseRequestedAlert from './LicenseRequestedAlert';
-import SubsidyRequestButton from './SubsidyRequestButton';
-import CourseReview from './CourseReview';
+} from '../data/utils';
+import { useCoursePartners } from '../data/hooks';
+import LicenseRequestedAlert from '../LicenseRequestedAlert';
+import SubsidyRequestButton from '../SubsidyRequestButton';
+import CourseReview from '../CourseReview';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -35,6 +36,9 @@ const CourseHeader = () => {
   );
   const enableReviewSection = false;
 
+  // 👇
+  const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
+
   return (
     <div className="course-header">
       <LicenseRequestedAlert catalogList={catalog.catalogList} />
@@ -42,6 +46,9 @@ const CourseHeader = () => {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
+            <div className="mb-3">
+              <code>FEATURE_ENABLE_EMET_REDEMPTION: {isEMETRedemptionEnabled ? 'Enabled' : 'Disabled'}</code>
+            </div>
             {!enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
