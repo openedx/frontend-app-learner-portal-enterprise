@@ -126,6 +126,13 @@ Having the "Enroll" CTA logic essentially split between 2 components (i.e., `Cou
 
 To mitigate this concern, we will deprecate the existing `CourseRunCards` component in favor of creating a more streamlined, lightweight `CourseRunCards` component instead. That is, we will have `CourseRunCards` that is integrated with the EMET APIs and fallback to `CourseRunCards.Deprecated` to remain backwards compatible.
 
+#### Triggering an EMET redemption for course run
+When a learner clicks on the "Enroll" CTA for a course run that is redeemable by the EMET system (i.e., has learner credit enabled with balance remaining), the general logic is as follows:
+* Make a `POST` request to the `redeem` endpoint for the redeemable access policy returned by `can_redeem`. This returns the transaction payload from `enterprise-subsidy`.
+* Poll against `enterprise-subsidy`'s API for `transactions` until the transaction is in a non-pending state (e.g., "committed").
+
+We will ensure error handling is considered as well, displaying appropriate messaging and an option to retry in the course page UI as needed.
+
 #### Backwards compatibility with non-EMET subsidy types
 
 The proposed logic (subject to change at implementation) for the course page to attempt to redeem with the EMET APIs but remain backwards compatible with subscription licenses, legacy enterprise offers, and coupon codes is as follows:
