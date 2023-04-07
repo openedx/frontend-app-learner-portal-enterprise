@@ -103,19 +103,50 @@ These changes will require a `GET` API endpoint in enterprise-access to return t
 
 ### Implications for course page route
 
+The course page in the Learner Portal currently supports:
+* Enterprise offers
+* Coupon codes
+* Subscription license
+
 As previously described, the course page route currently includes a fair amount of business logic to determine which subsidies available to the learner, if any, are applicable to the course in question.
 
-A significant change with the new learner credit system is that much of this business logic will now be abstracted into the API layer instead of within the MFE itself. This paradigm shift will eventually allow us to simplify the existing implementation by removing much of this business logic (though, the true benefit of this would come once the new subsidy services support other subsidies beyond just learner credit).
+A significant change with the new EMET system is that much of this business logic will now be abstracted into the API layer instead of within the MFE itself. This paradigm shift will (eventually) allow us to simplify the existing implementation by removing much of this business logic in the current implementation. However, much of the existing business logic needs to remain while the course page continues to support coupon codes and subscription licenses, which do not rely on the EMET system. We do intend to make the EMET system compatible with subscriptions in the future such that calling `can_redeem` would return a policy that is aware of subscription licenses.
 
-The API abstractions are baked into the `can_redeem` and `redeem` API endpoints.
+Through the first release of EMET, we are converting enterprise offers into EMET learner credit. We plan to migrate eligible enterprise offers customers over to use the EMET learner credit instead. However, this means the course page still needs to support coupon codes and subscription licenses. As such, the majority of the existing API calls and business logic already in place within the course page must remain until codes are phased out and subscription subsidies are supported by the EMET system.
 
-More to come...
+#### `CourseHeader` component
+
+The `CourseHeader` component is responsible for the display of the course title, image, related skills, and renders an "Enroll" CTA for each available course run. A course run is deemed "available" if course-discovery denotes the course run is `is_marketable: true`, `is_enrollable: true`, and is not archived.
+
+The existing `CourseRunCards` component is responsible for iterating through the available course runs and rendering a `CourseRunCard` component with the appropriate messaging and "Enroll" CTA (or "View course" CTA is learner is already enrolled) for each course run.
+
+The existing `CourseRunCard` (rendered by `CourseRunCards`) is responsible for figuring out the display text of the "Enroll" / "View course" CTA and renders the `EnrollAction` component. `EnrollAction` is what determines the *functionality* of the CTA depending on the type of subsidy being used to enroll (i.e., link to Data Sharing Consent, link to ecommerce basket page, disabled "Enroll" button, etc.).
+
+Having the "Enroll" CTA logic essentially split between 2 components (i.e., `CourseRunCard` and `EnrollAction`), it's increasingly difficult to reason about. 
+
+To mitigate this concern, we will deprecate the existing `CourseRunCards` component in favor of creating a more streamlined, lightweight `CourseRunCards` component instead. That is, we will have `CourseRunCards` that is integrated with the EMET APIs and fallback to `CourseRunCards.Deprecated` to remain backwards compatible.
+
+#### Backwards compatibility with non-EMET subsidy types
+
+The proposed logic (subject to change at implementation) for the course page to attempt to redeem with the EMET APIs but remain backwards compatible with subscription licenses, legacy enterprise offers, and coupon codes is as follows:
+
+1. Learner lands on course page.
+1. If `FEATURE_ENABLE_EMET_REDEMPTION` is enabled:
+    * Fetch `can_redeem` API from `enterprise-access`. This tells us whether the learner can attempt to redeem the course based on the state of subsidies available to the enterprise/learner in `enterprise-subsidy` / `enterprise-access`.
+    * If `can_redeem` returns a redeemable access policy, we will use the new/simpler `CourseRunCards` component (and a EMET-integrated `StatefulEnroll` component via the new `CourseRunCard`).
+    * If `can_redeem` does not return a redeemable access policy for the learner/course, stick to using `CourseRunCards.Deprecated` to fallback to current state (which supports subscriptions, coupon codes, etc.).
+1. If `FEATURE_ENABLE_EMET_REDEMPTION` is NOT enabled:
+    * Render `CourseRunCards.Deprecated` to stick to current state.
+
+By implementing this "smart" fallback logic, we will ensure that the course page remains backwards compatible with non-EMET subsidy types (e.g., subscription licenses).
+
+In order to support existing enrollments that were redeemed outside of the EMET system (e.g., subscription license), the new `CourseRunCard` component (via `CourseRunCards`) will continue to rely on parsing the learner's existing `EnterpriseCourseEnrollments`, data available and used by the course page today, to understand whether the learner has an existing enterprise enrollment that was subsidized outside of the EMET system.
 
 ## Consequences
 
 * Given the introduction of an extra API call to fetch learner credit from the new system, the MFE will have an extra network request to resolve before we can render the page route and have it be usable by learners.
-* Related, part of the recommondation in this ADR is to eliminate the need for the `enableLearnerPortalOffers` configuration flag on the enterprise customer, even for learner credit backed by the deprecated ecommerce IDA. Similar to the above consequence, the implications for these changes would mean that even enterprise customers that don't have any learner credit configured (in ecommerce or the new learner credit system) would be making the API requests to fetch the current state of learner credit.
+* Related, part of the recommendation in this ADR is to eliminate the need for the `enableLearnerPortalOffers` configuration flag on the enterprise customer, even for learner credit backed by the deprecated ecommerce IDA. Similar to the above consequence, the implications for these changes would mean that even enterprise customers that don't have any learner credit configured (in ecommerce or the new learner credit system) would be making the API requests to fetch the current state of learner credit.
 
 ## Alternatives Considered
 
-* We considered cutting over to the new learner credit system (via enterprise-access and enterprise-subsidy) wholesale, but opted to take a more incremental rollout approach to migrate individual offers in order to more effectively QA the new system while simultaneously supporting existing learner credit customers backed by ecommerce.
+* We considered refactoring the existing components related to the display of the "Enroll" CTA per course run. However, the existing components are tighly coupled to data that's not needed in a world with EMET. As such, trying to rework the existing "Enroll" CTA integrated with the EMET APIs would be messy. Instead, we are opting for the approach of keeping the existing components as is, but deprecate them to be eventually removed in the future; this would be in favor of a net-new components that are similar but simpler and easier to reason about. 
