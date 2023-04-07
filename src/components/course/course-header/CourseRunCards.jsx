@@ -1,67 +1,13 @@
 import React, { useContext } from 'react';
-import moment from 'moment';
-import { Button, CardGrid } from '@edx/paragon';
+import { CardGrid } from '@edx/paragon';
 
 import DeprecatedCourseRunCards from './deprecated/CourseRunCards';
 
-import StatefulEnroll from '../../stateful-enroll';
 import { CourseContext } from '../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
-import { isCourseSelfPaced, findUserEnrollmentForCourseRun } from '../data/utils';
-import { formatStringAsNumber } from '../../../utils/common';
+import { findUserEnrollmentForCourseRun } from '../data/utils';
 
-const DATE_FORMAT = 'MMM D';
-
-const getHeadingText = ({
-  isCourseRunCurrent,
-  pacingType,
-  start,
-  isUserEnrolled,
-}) => {
-  if (isCourseRunCurrent) {
-    if (isCourseSelfPaced(pacingType) && !isUserEnrolled) {
-      return `Starts ${moment().format(DATE_FORMAT)}`;
-    }
-    return 'Course started';
-  }
-  return `Starts ${moment(start).format(DATE_FORMAT)}`;
-};
-
-const getCourseRunCardProps = ({
-  courseRun,
-  isUserEnrolled,
-}) => {
-  const {
-    availability,
-    start,
-    pacingType,
-  } = courseRun;
-  const isCourseRunCurrent = availability.toLowerCase() === 'current';
-  const heading = getHeadingText({
-    isCourseRunCurrent,
-    pacingType,
-    start,
-    isUserEnrolled,
-  });
-
-  if (isUserEnrolled) {
-    return {
-      heading,
-      subHeading: 'You are enrolled',
-      // TODO link to courseware_url from API response.
-      action: <Button>View course</Button>,
-    };
-  }
-
-  const { enrollmentCount } = courseRun;
-  const subHeading = enrollmentCount > 0 ? `${formatStringAsNumber(enrollmentCount)} recently enrolled!` : 'Be the first to enroll!';
-
-  return {
-    heading,
-    subHeading,
-    action: <StatefulEnroll contentKey={courseRun.key} />,
-  };
-};
+import { getCourseRunCardProps } from './data';
 
 const CourseRunCards = () => {
   const { state: courseData } = useContext(CourseContext);
@@ -74,17 +20,22 @@ const CourseRunCards = () => {
   return (
     <CardGrid columnSizes={{ sm: 12, lg: 5 }}>
       {availableCourseRuns.map((courseRun) => {
+        const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
+          userEnrollments,
+          key: courseRun.key,
+        });
         const courseRunCardProps = getCourseRunCardProps({
           userSubsidyApplicableToCourse,
           courseRun,
-          // TODO: knowing whether the user is enrolled in a course run will ultimately be derived from the
-          // EMET `can_redeem` API response in enterprise-access. To remain backwards compatible with other
+          // TODO: determining whether the user is enrolled in a course run will ultimately be derived from
+          // the EMET `can_redeem` API response in enterprise-access. To remain backwards compatible with other
           // subsidy types beyond EMET learner credit, we will continue to cross-check against enrollments
           // returned by the existing API call.
-          isUserEnrolled: findUserEnrollmentForCourseRun({
-            userEnrollments,
-            key: courseRun.key,
-          }),
+          isUserEnrolled: !!userEnrollmentForCourseRun,
+          // TODO: URL to courseware will get pulled from EMET `can_redeem` API instead during the redemption
+          // flow. Without the API integration in place yet, temporarily uses `courseRunUrl` associated with
+          // the user's enterprise enrollment record, which we already have the data for.
+          courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
         });
 
         return (
