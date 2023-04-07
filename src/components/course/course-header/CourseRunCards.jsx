@@ -25,8 +25,8 @@ const CourseRunCards = () => {
           key: courseRun.key,
         });
         const courseRunCardProps = getCourseRunCardProps({
-          userSubsidyApplicableToCourse,
           courseRun,
+          userSubsidyApplicableToCourse,
           // TODO: determining whether the user is enrolled in a course run will ultimately be derived from
           // the EMET `can_redeem` API response in enterprise-access. To remain backwards compatible with other
           // subsidy types beyond EMET learner credit, we will continue to cross-check against enrollments
@@ -37,7 +37,6 @@ const CourseRunCards = () => {
           // the user's enterprise enrollment record, which we already have the data for.
           courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
         });
-
         return (
           <CourseRunCard
             key={courseRun.uuid}

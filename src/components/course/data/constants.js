@@ -19,6 +19,7 @@ export const PROMISE_FULFILLED = 'fulfilled';
 export const CURRENCY_USD = 'USD';
 
 export const COURSE_AVAILABILITY_MAP = {
+  CURRENT: 'Current',
   UPCOMING: 'Upcoming',
   STARTING_SOON: 'Starting Soon',
   ARCHIVED: 'Archived',

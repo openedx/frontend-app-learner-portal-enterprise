@@ -5,9 +5,20 @@ import moment from 'moment';
 import StatefulEnroll from '../../../stateful-enroll';
 import { isCourseSelfPaced } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
+import {
+  COURSE_AVAILABILITY_MAP,
+  LICENSE_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+} from '../../data/constants';
 
 const DATE_FORMAT = 'MMM D';
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
 const getCourseRunCardHeading = ({
   isCourseRunCurrent,
   pacingType,
@@ -23,17 +34,26 @@ const getCourseRunCardHeading = ({
   return `Starts ${moment(start).format(DATE_FORMAT)}`;
 };
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
 const getCourseRunCardProps = ({
   courseRun,
+  userSubsidyApplicableToCourse,
   isUserEnrolled,
   courseRunUrl,
 }) => {
+  console.log('getCourseRunCardProps (userSubsidyApplicableToCourse):', userSubsidyApplicableToCourse);
+
   const {
     availability,
     start,
     pacingType,
   } = courseRun;
-  const isCourseRunCurrent = availability.toLowerCase() === 'current';
+  const isCourseRunCurrent = availability === COURSE_AVAILABILITY_MAP.CURRENT;
+
   const heading = getCourseRunCardHeading({
     isCourseRunCurrent,
     pacingType,
@@ -56,6 +76,8 @@ const getCourseRunCardProps = ({
   return {
     heading,
     subHeading,
+    // TODO: `StatefulEnroll` needs to know the UUID of the redeemable, applicable subsidy
+    // access policy for the user and course run. Will be returned by `can_redeem` API endpoint.
     action: <StatefulEnroll contentKey={courseRun.key} />,
   };
 };
