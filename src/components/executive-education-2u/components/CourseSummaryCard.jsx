@@ -5,7 +5,7 @@ import {
 } from '@edx/paragon';
 import { numberWithPrecision } from '../../course/data/utils';
 
-const CourseSummaryCard = ({ courseMetadata }) => (
+const CourseSummaryCard = ({ courseMetadata, enrolmentCompleted }) => (
   <Card
     className="mb-4 course-summary"
     orientation="horizontal"
@@ -31,7 +31,7 @@ const CourseSummaryCard = ({ courseMetadata }) => (
           <Col xs={12} lg={{ span: 4, offset: 0 }}>
             <div className="course-details">
               <Row>
-                <Col className="small font-weight-light text-gray-500 justify-content-start">Available start date:</Col>
+                <Col className="small font-weight-light text-gray-500 justify-content-start">{enrolmentCompleted ? 'Start date:' : 'Available start date:'}</Col>
                 <Col className="justify-content-end"><Row className="justify-content-end margin-right-10">{courseMetadata.startDate}</Row></Col>
               </Row>
               <Row>
@@ -54,7 +54,12 @@ const CourseSummaryCard = ({ courseMetadata }) => (
   </Card>
 );
 
+CourseSummaryCard.defaultProps = {
+  enrolmentCompleted: false,
+};
+
 CourseSummaryCard.propTypes = {
+  enrolmentCompleted: PropTypes.bool,
   courseMetadata: PropTypes.shape({
     organizationImage: PropTypes.string.isRequired,
     organizationName: PropTypes.string.isRequired,

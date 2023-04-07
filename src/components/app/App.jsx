@@ -15,6 +15,7 @@ import {
 import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ExecutiveEducation2UPage } from '../executive-education-2u';
 import { ToastsProvider, Toasts } from '../Toasts';
+import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
 
 const App = () => {
   useEffect(() => {
@@ -46,6 +47,15 @@ const App = () => {
               render={(routeProps) => (
                 <AuthenticatedPage>
                   <ExecutiveEducation2UPage {...routeProps} />
+                </AuthenticatedPage>
+              )}
+            />
+            <PageRoute
+              exact
+              path="/:enterpriseSlug/executive-education-2u/enrollment-completed"
+              render={(routeProps) => (
+                <AuthenticatedPage>
+                  <EnrollmentCompleted {...routeProps} />
                 </AuthenticatedPage>
               )}
             />
