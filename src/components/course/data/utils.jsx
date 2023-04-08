@@ -347,14 +347,20 @@ export const createEnrollWithCouponCodeUrl = ({
  * @returns
  */
 export const checkPolicyRedemptionEnabled = ({
-  accessPolicyRedemptionEligibilityData = {},
+  accessPolicyRedemptionEligibilityData = [],
 }) => {
   if (hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION')) {
     // Always enable the policy redemption feature when enabled via query parameter.
     return true;
   }
-  const { canRedeem: canRedeemAccessPolicy } = accessPolicyRedemptionEligibilityData;
+  const canRedeemAccessPolicy = accessPolicyRedemptionEligibilityData.some(({ canRedeem }) => canRedeem);
   const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
+
+  console.log('[checkPolicyRedemptionEnabled]', {
+    accessPolicyRedemptionEligibilityData,
+    isFeatureEnabled,
+    canRedeemAccessPolicy,
+  });
 
   // Enable EMET access policy redemption when the feature is enabled and there is a redeemable access policy.
   if (isFeatureEnabled && canRedeemAccessPolicy) {
