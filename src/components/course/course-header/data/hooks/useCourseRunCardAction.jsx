@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
 import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
 
@@ -30,6 +31,10 @@ const BasicNavigateToCourseware = ({ courseRunUrl }) => {
   );
 };
 
+BasicNavigateToCourseware.propTypes = {
+  courseRunUrl: PropTypes.string.isRequired,
+};
+
 const UpgradeAndNavigateToCourseware = ({
   userSubsidyApplicableToCourse,
   contentKey,
@@ -51,6 +56,13 @@ const UpgradeAndNavigateToCourseware = ({
   return <BasicNavigateToCourseware courseRunUrl={courseRunUrl} />;
 };
 
+UpgradeAndNavigateToCourseware.propTypes = {
+  contentKey: PropTypes.string.isRequired,
+  courseRunUrl: PropTypes.string.isRequired,
+  // TODO: add shape object
+  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
+};
+
 const NavigateToCourseware = ({
   contentKey,
   courseRunUrl,
@@ -68,6 +80,14 @@ const NavigateToCourseware = ({
   }
 
   return <BasicNavigateToCourseware courseRunUrl={courseRunUrl} />;
+};
+
+NavigateToCourseware.propTypes = {
+  contentKey: PropTypes.string.isRequired,
+  courseRunUrl: PropTypes.string.isRequired,
+  shouldUpgradeUserEnrollment: PropTypes.bool.isRequired,
+  // TODO: add shape object
+  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
 };
 
 /**

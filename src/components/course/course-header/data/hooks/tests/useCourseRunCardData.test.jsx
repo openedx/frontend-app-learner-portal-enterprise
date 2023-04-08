@@ -5,7 +5,7 @@ import {
   COURSE_RUN,
   COURSE_RUN_URL,
   LEARNER_CREDIT_SUBSIDY,
-} from '../../constants';
+} from './constants';
 
 describe('useCourseRunCardData', () => {
   describe('user already enrolled', () => {
