@@ -57,11 +57,6 @@ const NavigateToCourseware = ({
   shouldUpgradeUserEnrollment,
   userSubsidyApplicableToCourse,
 }) => {
-  console.log('[NavigateToCourseware]', {
-    shouldUpgradeUserEnrollment,
-    userSubsidyApplicableToCourse,
-  });
-
   if (shouldUpgradeUserEnrollment) {
     return (
       <UpgradeAndNavigateToCourseware

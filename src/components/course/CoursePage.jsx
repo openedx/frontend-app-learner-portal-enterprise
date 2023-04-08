@@ -98,10 +98,6 @@ const CoursePage = () => {
     accessPolicyRedemptionEligibilityData,
   });
 
-  console.log('[useCheckAccessPolicyRedemptionEligibility]', {
-    isPolicyRedemptionEnabled,
-  });
-
   const initialState = useMemo(
     () => {
       const isLoadingAny = (

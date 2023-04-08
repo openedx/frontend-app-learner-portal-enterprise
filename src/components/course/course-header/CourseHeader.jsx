@@ -35,8 +35,6 @@ const CourseHeader = () => {
   );
   const enableReviewSection = false;
 
-  console.log('isPolicyRedemptionEnabled', isPolicyRedemptionEnabled);
-
   return (
     <div className="course-header">
       <LicenseRequestedAlert catalogList={catalog.catalogList} />
