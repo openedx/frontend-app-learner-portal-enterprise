@@ -1,6 +1,7 @@
 import React from 'react';
-
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
+
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -338,4 +339,27 @@ export const createEnrollWithCouponCodeUrl = ({
   });
 
   return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
+};
+
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+export const checkPolicyRedemptionEnabled = ({
+  accessPolicyRedemptionEligibilityData = {},
+}) => {
+  if (hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION')) {
+    // Always enable the policy redemption feature when enabled via query parameter.
+    return true;
+  }
+  const { canRedeem: canRedeemAccessPolicy } = accessPolicyRedemptionEligibilityData;
+  const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
+
+  // Enable EMET access policy redemption when the feature is enabled and there is a redeemable access policy.
+  if (isFeatureEnabled && canRedeemAccessPolicy) {
+    return true;
+  }
+
+  return false;
 };

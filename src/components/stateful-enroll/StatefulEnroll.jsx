@@ -8,17 +8,26 @@ import {
   useTransactionStatus,
 } from './data';
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
 const StatefulEnroll = ({
   contentKey,
+  labels,
+  variant,
 }) => {
   const [enrollButtonState, setEnrollButtonState] = useState('default');
   const [transactionUUID, setTransactionUUID] = useState();
 
-  const enrollButtonLabels = {
+  const buttonLabels = {
     default: 'Enroll',
     pending: 'Enrolling...',
     complete: 'Enrolled',
     error: 'Try again',
+    // overrides default labels with any provided custom labels
+    ...labels,
   };
 
   const redemptionMutation = useRedemptionMutation({
@@ -43,7 +52,7 @@ const StatefulEnroll = ({
       // window.location.href = coursewareURL;
       setTimeout(() => {
         setEnrollButtonState('default');
-      }, 2000);
+      }, 5000);
     },
   });
 
@@ -56,7 +65,8 @@ const StatefulEnroll = ({
 
   return (
     <StatefulButton
-      labels={enrollButtonLabels}
+      labels={buttonLabels}
+      variant={variant}
       state={enrollButtonState}
       onClick={handleEnrollButtonClick}
     />
@@ -65,6 +75,18 @@ const StatefulEnroll = ({
 
 StatefulEnroll.propTypes = {
   contentKey: PropTypes.string.isRequired,
+  variant: PropTypes.string,
+  labels: PropTypes.shape({
+    default: PropTypes.string,
+    pending: PropTypes.string,
+    complete: PropTypes.string,
+    error: PropTypes.string,
+  }),
+};
+
+StatefulEnroll.defaultProps = {
+  variant: 'primary',
+  labels: {},
 };
 
 export default StatefulEnroll;

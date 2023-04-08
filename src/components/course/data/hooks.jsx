@@ -6,8 +6,10 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useQuery } from '@tanstack/react-query';
 
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
@@ -572,3 +574,52 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
     requestsBySubsidyType,
   ]);
 }
+
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+export const useCheckAccessPolicyRedemptionEligibility = ({
+  courseRunKeys,
+}) => {
+  const { id: lmsUserId } = getAuthenticatedUser();
+  const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
+
+  return useQuery({
+    queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
+    enabled: (isFeatureEnabled && courseRunKeys.length > 0),
+    queryFn: async () => {
+      console.log(`[EMET] Determining if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}...`);
+      const courseService = new CourseService();
+      const canRedeemResponse = await courseService.fetchCanRedeem({
+        lmsUserId,
+        courseRunKeys,
+      });
+      const canRedeemByCourseRun = canRedeemResponse.map((canRedeemForCourseRun) => {
+        const {
+          redemption,
+          subsidyAccessPolicy,
+        } = canRedeemForCourseRun;
+        const resultForCourseRun = {
+          courseRunKey: canRedeemForCourseRun.courseRunKey,
+          canRedeem: false,
+          alreadyRedeemed: false,
+          redemption: null,
+          redeemablePolicy: null,
+        };
+        if (redemption?.state === 'committed') {
+          resultForCourseRun.alreadyRedeemed = true;
+          resultForCourseRun.redemption = redemption;
+        }
+        if (subsidyAccessPolicy) {
+          resultForCourseRun.canRedeem = true;
+          resultForCourseRun.redeemablePolicy = subsidyAccessPolicy;
+        }
+        return resultForCourseRun;
+      });
+      console.log(`[EMET] Determined if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}:`, canRedeemByCourseRun);
+      return canRedeemByCourseRun;
+    },
+  });
+};

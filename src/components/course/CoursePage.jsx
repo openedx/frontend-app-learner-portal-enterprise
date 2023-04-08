@@ -14,8 +14,12 @@ import CourseHeader from './course-header/CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
-import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
+import {
+  useAllCourseData,
+  useExtractAndRemoveSearchParamsFromURL,
+  useCheckAccessPolicyRedemptionEligibility,
+} from './data/hooks';
+import { getActiveCourseRun, getAvailableCourseRuns, checkPolicyRedemptionEnabled } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
@@ -65,7 +69,10 @@ const CoursePage = () => {
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const {
-    courseData, courseRecommendations, fetchError, isLoading,
+    courseData,
+    courseRecommendations,
+    fetchError,
+    isLoading,
   } = useAllCourseData({
     courseKey,
     enterpriseConfig,
@@ -77,9 +84,27 @@ const CoursePage = () => {
     activeCatalogs,
   });
 
+  const {
+    isLoading: isLoadingAccessPolicyRedemptionEligibility,
+    isFetching: isFetchingAccessPolicyRedemptionEligibility,
+    data: accessPolicyRedemptionEligibilityData,
+  } = useCheckAccessPolicyRedemptionEligibility({
+    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+  });
+  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({
+    accessPolicyRedemptionEligibilityData,
+  });
+
+  console.log('[useCheckAccessPolicyRedemptionEligibility]', {
+    isPolicyRedemptionEnabled,
+  });
+
   const initialState = useMemo(
     () => {
-      if (isLoading || !courseData || !courseRecommendations) {
+      const isLoadingAny = (
+        isLoading || isLoadingAccessPolicyRedemptionEligibility || isFetchingAccessPolicyRedemptionEligibility
+      );
+      if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
       }
       const {
@@ -105,9 +130,18 @@ const CoursePage = () => {
           allRecommendations: allRecommendations?.slice(0, 3),
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
+        isPolicyRedemptionEnabled,
       };
     },
-    [isLoading, courseData, courseRecommendations, algoliaSearchParams],
+    [
+      isLoading,
+      courseData,
+      courseRecommendations,
+      algoliaSearchParams,
+      isPolicyRedemptionEnabled,
+      isLoadingAccessPolicyRedemptionEligibility,
+      isFetchingAccessPolicyRedemptionEligibility,
+    ],
   );
 
   if (fetchError) {

@@ -7,7 +7,6 @@ import {
   Col,
 } from '@edx/paragon';
 import { Link } from 'react-router-dom';
-import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from '../CourseContextProvider';
@@ -27,7 +26,7 @@ import CourseReview from '../CourseReview';
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
-  const { course, catalog } = state;
+  const { course, catalog, isPolicyRedemptionEnabled } = state;
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
@@ -35,6 +34,8 @@ const CourseHeader = () => {
     [course],
   );
   const enableReviewSection = false;
+
+  console.log('isPolicyRedemptionEnabled', isPolicyRedemptionEnabled);
 
   return (
     <div className="course-header">
@@ -87,13 +88,10 @@ const CourseHeader = () => {
               />
             )}
             {course.skills?.length > 0 && <CourseSkills />}
+            {isPolicyRedemptionEnabled && <CourseRunCards />}
             {catalog.containsContentItems && (
               <>
-                {getConfig().FEATURE_ENABLE_EMET_REDEMPTION ? (
-                  <CourseRunCards />
-                ) : (
-                  <CourseRunCards.Deprecated />
-                )}
+                {!isPolicyRedemptionEnabled && <CourseRunCards.Deprecated />}
                 <SubsidyRequestButton />
               </>
             )}
