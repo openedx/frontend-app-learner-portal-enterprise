@@ -85,12 +85,15 @@ const CoursePage = () => {
   });
 
   const {
-    isLoading: isLoadingAccessPolicyRedemptionEligibility,
-    isFetching: isFetchingAccessPolicyRedemptionEligibility,
+    isLoading: isLoadingAccessPolicyRedemptionStatus,
+    isFetching: isFetchingAccessPolicyRedemptionStatus,
     data: accessPolicyRedemptionEligibilityData,
   } = useCheckAccessPolicyRedemptionEligibility({
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
   });
+  const isLoadingAccessPolicyRedemptionEligibility = (
+    isLoadingAccessPolicyRedemptionStatus || isFetchingAccessPolicyRedemptionStatus
+  );
   const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({
     accessPolicyRedemptionEligibilityData,
   });
@@ -102,7 +105,7 @@ const CoursePage = () => {
   const initialState = useMemo(
     () => {
       const isLoadingAny = (
-        isLoading || isLoadingAccessPolicyRedemptionEligibility || isFetchingAccessPolicyRedemptionEligibility
+        isLoading || isLoadingAccessPolicyRedemptionEligibility
       );
       if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
@@ -135,12 +138,11 @@ const CoursePage = () => {
     },
     [
       isLoading,
+      isLoadingAccessPolicyRedemptionEligibility,
       courseData,
       courseRecommendations,
       algoliaSearchParams,
       isPolicyRedemptionEnabled,
-      isLoadingAccessPolicyRedemptionEligibility,
-      isFetchingAccessPolicyRedemptionEligibility,
     ],
   );
 
