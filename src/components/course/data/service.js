@@ -1,10 +1,10 @@
+import { v4 as uuidv4 } from 'uuid';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
-import { v4 as uuidv4 } from 'uuid';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
-import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 export default class CourseService {
   constructor(options = {}) {
