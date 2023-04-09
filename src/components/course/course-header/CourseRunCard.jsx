@@ -28,9 +28,6 @@ const CourseRunCard = ({ courseRun }) => {
     courseRun,
     userSubsidyApplicableToCourse,
     userEnrollment: userEnrollmentForCourseRun,
-    // TODO: URL to courseware will get pulled from EMET `can_redeem` API instead during the redemption
-    // flow. Without the API integration in place yet, temporarily uses `courseRunUrl` associated with
-    // the user's enterprise enrollment record, which we already have the data for.
     courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
   });
 
