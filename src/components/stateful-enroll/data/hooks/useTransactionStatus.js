@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useQuery } from '@tanstack/react-query';
 
 import retrieveTransactionStatus from '../retrieveTransactionStatus';
@@ -8,9 +7,7 @@ const useTransactionStatus = ({
   onSuccess,
 }) => {
   const checkTransactionStatus = async () => {
-    console.log(`[EMET] Sending transaction status request for transaction ${transactionUUID}...`);
     const response = await retrieveTransactionStatus(transactionUUID);
-    console.log(`[EMET] Finished transaction status request for transaction ${transactionUUID}!`);
     return response;
   };
 
@@ -19,26 +16,21 @@ const useTransactionStatus = ({
     return transactionState === 'pending';
   };
 
-  const {
-    isLoading,
-    isError,
-    data,
-    error,
-  } = useQuery({
+  const getRefetchInterval = (responseData) => {
+    if (shouldPollTransactionState(responseData)) {
+      return 1000;
+    }
+    return false;
+  };
+
+  return useQuery({
     queryKey: ['transaction-status', transactionUUID],
     enabled: !!transactionUUID,
     refetchOnWindowFocus: false,
     queryFn: checkTransactionStatus,
-    refetchInterval: (responseData) => (shouldPollTransactionState(responseData) ? 1000 : false),
+    refetchInterval: getRefetchInterval,
     onSuccess,
   });
-
-  return {
-    isLoading,
-    isError,
-    data,
-    error,
-  };
 };
 
 export default useTransactionStatus;

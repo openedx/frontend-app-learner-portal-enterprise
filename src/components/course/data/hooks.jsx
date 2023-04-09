@@ -579,7 +579,6 @@ const checkRedemptionEligiblity = async ({
   lmsUserId,
   courseRunKeys,
 }) => {
-  console.log(`[EMET] Determining if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}...`);
   const courseService = new CourseService();
   const canRedeemResponse = await courseService.fetchCanRedeem({
     lmsUserId,
@@ -607,7 +606,6 @@ const checkRedemptionEligiblity = async ({
     }
     return resultForCourseRun;
   });
-  console.log(`[EMET] Determined if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}:`, canRedeemByCourseRun);
   return canRedeemByCourseRun;
 };
 

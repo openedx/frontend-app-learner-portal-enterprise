@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
@@ -94,12 +94,7 @@ const CoursePage = () => {
   const isLoadingAccessPolicyRedemptionEligibility = (
     isLoadingAccessPolicyRedemptionStatus || isFetchingAccessPolicyRedemptionStatus
   );
-  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({
-    accessPolicyRedemptionEligibilityData,
-  });
-  useEffect(() => {
-    console.log('[EMET] isPolicyRedemptionEnabled:', isPolicyRedemptionEnabled);
-  }, [isPolicyRedemptionEnabled]);
+  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
 
   const initialState = useMemo(
     () => {
