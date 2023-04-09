@@ -45,7 +45,7 @@ const useCourseRunCardAction = ({
     setHasRedemptionError(false);
     const { coursewareUrl } = transaction;
     console.log(`[EMET] Successfully enrolled. Redirecting to courseware URL (${coursewareUrl})!`);
-    // window.location.href = coursewareUrl;
+    window.location.href = coursewareUrl;
   };
 
   const handleRedeemError = () => {

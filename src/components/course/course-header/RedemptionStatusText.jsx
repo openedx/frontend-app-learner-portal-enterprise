@@ -5,7 +5,7 @@ import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
 const messages = defineMessages({
   enrollSuccessHelperText: {
     id: 'useCourseRunCardAction.enroll.success.helperText',
-    defaultMessage: 'You were enrolled. Redirecting to the course.',
+    defaultMessage: 'You were successfully enrolled. Redirecting to the course.',
     description: 'Helper text providing additional context for button label when enrollment was successful.',
   },
   enrollErrorHelperText: {
