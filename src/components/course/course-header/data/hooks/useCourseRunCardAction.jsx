@@ -1,23 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Stack } from '@edx/paragon';
-import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
 
 import StatefulEnroll from '../../../../stateful-enroll';
 import { COURSE_MODES_MAP } from '../../../data/constants';
 import { NavigateToCourseware } from '../../course-run-actions';
-
-const messages = defineMessages({
-  errorHelperText: {
-    id: 'useCourseRunCardAction.error.helperText',
-    defaultMessage: 'An error occurred while processing your enrollment.',
-    description: 'Helper text providing additional context for the error button label.',
-  },
-  successHelperText: {
-    id: 'useCourseRunCardAction.success.helperText',
-    defaultMessage: 'You were successfully enrolled. Redirecting to your course.',
-    description: 'Helper text providing additional context for the success button label.',
-  },
-});
+import RedemptionStatusText from '../../RedemptionStatusText';
 
 /**
  * TODO
@@ -45,17 +32,8 @@ const useCourseRunCardAction = ({
   contentKey,
   userSubsidyApplicableToCourse,
 }) => {
-  const intl = useIntl();
   const [hasRedemptionSuccess, setHasRedemptionSuccess] = useState(false);
   const [hasRedemptionError, setHasRedemptionError] = useState(false);
-
-  useEffect(() => {
-    const cleanupOnUnmount = () => {
-      setHasRedemptionSuccess(false);
-      setHasRedemptionError(false);
-    };
-    return cleanupOnUnmount;
-  }, []);
 
   const handleRedeemClick = () => {
     setHasRedemptionSuccess(false);
@@ -82,15 +60,22 @@ const useCourseRunCardAction = ({
     });
     console.log('shouldUpgradeUserEnrollment', shouldUpgradeUserEnrollment);
     return (
-      <NavigateToCourseware
-        shouldUpgradeUserEnrollment={shouldUpgradeUserEnrollment}
-        contentKey={contentKey}
-        courseRunUrl={courseRunUrl}
-        userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        onUpgradeClick={handleRedeemClick}
-        onUpgradeSuccess={handleRedeemSuccess}
-        onUpgradeError={handleRedeemError}
-      />
+      <Stack gap={2}>
+        <NavigateToCourseware
+          shouldUpgradeUserEnrollment={shouldUpgradeUserEnrollment}
+          contentKey={contentKey}
+          courseRunUrl={courseRunUrl}
+          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+          onUpgradeClick={handleRedeemClick}
+          onUpgradeSuccess={handleRedeemSuccess}
+          onUpgradeError={handleRedeemError}
+        />
+        <RedemptionStatusText
+          hasRedemptionSuccess={hasRedemptionSuccess}
+          hasRedemptionError={hasRedemptionError}
+          isUpgrading={shouldUpgradeUserEnrollment}
+        />
+      </Stack>
     );
   }
 
@@ -103,16 +88,10 @@ const useCourseRunCardAction = ({
         onSuccess={handleRedeemSuccess}
         onError={handleRedeemError}
       />
-      {hasRedemptionSuccess && (
-        <div className="small text-gray">
-          {intl.formatMessage(messages.successHelperText)}
-        </div>
-      )}
-      {hasRedemptionError && (
-        <div className="small text-danger">
-          {intl.formatMessage(messages.errorHelperText)}
-        </div>
-      )}
+      <RedemptionStatusText
+        hasRedemptionSuccess={hasRedemptionSuccess}
+        hasRedemptionError={hasRedemptionError}
+      />
     </Stack>
   );
 };
