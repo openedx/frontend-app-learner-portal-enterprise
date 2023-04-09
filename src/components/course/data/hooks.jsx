@@ -575,6 +575,42 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   ]);
 }
 
+const checkRedemptionEligiblity = async ({
+  lmsUserId,
+  courseRunKeys,
+}) => {
+  console.log(`[EMET] Determining if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}...`);
+  const courseService = new CourseService();
+  const canRedeemResponse = await courseService.fetchCanRedeem({
+    lmsUserId,
+    courseRunKeys,
+  });
+  const canRedeemByCourseRun = canRedeemResponse.map((canRedeemForCourseRun) => {
+    const {
+      redemption,
+      subsidyAccessPolicy,
+    } = canRedeemForCourseRun;
+    const resultForCourseRun = {
+      courseRunKey: canRedeemForCourseRun.courseRunKey,
+      canRedeem: false,
+      alreadyRedeemed: false,
+      redemption: null,
+      redeemablePolicy: null,
+    };
+    if (redemption?.state === 'committed') {
+      resultForCourseRun.alreadyRedeemed = true;
+      resultForCourseRun.redemption = redemption;
+    }
+    if (subsidyAccessPolicy) {
+      resultForCourseRun.canRedeem = true;
+      resultForCourseRun.redeemablePolicy = subsidyAccessPolicy;
+    }
+    return resultForCourseRun;
+  });
+  console.log(`[EMET] Determined if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}:`, canRedeemByCourseRun);
+  return canRedeemByCourseRun;
+};
+
 /**
  * TODO
  * @param {*} param0
@@ -589,37 +625,6 @@ export const useCheckAccessPolicyRedemptionEligibility = ({
   return useQuery({
     queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
     enabled: (isFeatureEnabled && courseRunKeys.length > 0),
-    queryFn: async () => {
-      console.log(`[EMET] Determining if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}...`);
-      const courseService = new CourseService();
-      const canRedeemResponse = await courseService.fetchCanRedeem({
-        lmsUserId,
-        courseRunKeys,
-      });
-      const canRedeemByCourseRun = canRedeemResponse.map((canRedeemForCourseRun) => {
-        const {
-          redemption,
-          subsidyAccessPolicy,
-        } = canRedeemForCourseRun;
-        const resultForCourseRun = {
-          courseRunKey: canRedeemForCourseRun.courseRunKey,
-          canRedeem: false,
-          alreadyRedeemed: false,
-          redemption: null,
-          redeemablePolicy: null,
-        };
-        if (redemption?.state === 'committed') {
-          resultForCourseRun.alreadyRedeemed = true;
-          resultForCourseRun.redemption = redemption;
-        }
-        if (subsidyAccessPolicy) {
-          resultForCourseRun.canRedeem = true;
-          resultForCourseRun.redeemablePolicy = subsidyAccessPolicy;
-        }
-        return resultForCourseRun;
-      });
-      console.log(`[EMET] Determined if lms_user_id ${lmsUserId} can redeem content ${courseRunKeys}:`, canRedeemByCourseRun);
-      return canRedeemByCourseRun;
-    },
+    queryFn: async () => checkRedemptionEligiblity({ lmsUserId, courseRunKeys }),
   });
 };

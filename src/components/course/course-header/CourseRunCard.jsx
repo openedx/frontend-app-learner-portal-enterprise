@@ -45,8 +45,13 @@ const CourseRunCard = ({ courseRun }) => {
 };
 
 CourseRunCard.propTypes = {
-  // TODO: fill out the shape object
-  courseRun: PropTypes.shape().isRequired,
+  courseRun: PropTypes.shape({
+    key: PropTypes.string,
+    availability: PropTypes.string,
+    start: PropTypes.string,
+    pacingType: PropTypes.string,
+    enrollmentCount: PropTypes.number,
+  }).isRequired,
 };
 
 CourseRunCard.Deprecated = DeprecatedCourseRunCard;

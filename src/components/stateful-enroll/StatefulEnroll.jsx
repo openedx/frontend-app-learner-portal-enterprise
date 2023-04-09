@@ -44,7 +44,6 @@ const StatefulEnroll = ({
   onClick,
   onSuccess,
   onError,
-  reset,
 }) => {
   const intl = useIntl();
   const [enrollButtonState, setEnrollButtonState] = useState('default');
@@ -85,12 +84,6 @@ const StatefulEnroll = ({
         setEnrollButtonState('complete');
         if (onSuccess) {
           onSuccess(transaction);
-        }
-        if (reset) {
-          setTimeout(() => {
-            setEnrollButtonState('default');
-            reset();
-          }, 5000);
         }
       }
       if (transaction.state === 'error') {
@@ -134,7 +127,6 @@ StatefulEnroll.propTypes = {
   onClick: PropTypes.func,
   onSuccess: PropTypes.func,
   onError: PropTypes.func,
-  reset: PropTypes.func,
 };
 
 StatefulEnroll.defaultProps = {
@@ -143,7 +135,6 @@ StatefulEnroll.defaultProps = {
   onClick: undefined,
   onSuccess: undefined,
   onError: undefined,
-  reset: undefined,
 };
 
 export default StatefulEnroll;

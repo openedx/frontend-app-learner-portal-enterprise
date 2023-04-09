@@ -187,7 +187,7 @@ export default class CourseService {
     const payload = courseRunKeys.map((courseRunKey) => ({
       course_run_key: courseRunKey,
       redemptions: [],
-      subsidy_access_policy: hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION') ? REDEEMABLE_ACCESS_POLICY : null,
+      subsidy_access_policy: hasFeatureFlagEnabled('HAS_MOCK_REDEEMABLE_POLICY') ? REDEEMABLE_ACCESS_POLICY : null,
       reasons: [],
     }));
     const response = await fetch(url, {

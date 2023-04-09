@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Stack } from '@edx/paragon';
 import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
-import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import StatefulEnroll from '../../../../stateful-enroll';
 import { COURSE_MODES_MAP } from '../../../data/constants';
@@ -68,9 +67,7 @@ const useCourseRunCardAction = ({
     setHasRedemptionError(false);
     const { coursewareUrl } = transaction;
     console.log(`[EMET] Successfully enrolled. Redirecting to courseware URL (${coursewareUrl})!`);
-    if (!hasFeatureFlagEnabled('DISABLE_EMET_COURSEWARE_REDIRECT')) {
-      window.location.href = coursewareUrl;
-    }
+    window.location.href = coursewareUrl;
   };
 
   const handleRedeemError = () => {
@@ -78,16 +75,12 @@ const useCourseRunCardAction = ({
     setHasRedemptionError(true);
   };
 
-  const handleReset = () => {
-    setHasRedemptionSuccess(false);
-    setHasRedemptionError(false);
-  };
-
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
       userEnrollment,
       userSubsidyApplicableToCourse,
     });
+    console.log('shouldUpgradeUserEnrollment', shouldUpgradeUserEnrollment);
     return (
       <NavigateToCourseware
         shouldUpgradeUserEnrollment={shouldUpgradeUserEnrollment}
@@ -109,7 +102,6 @@ const useCourseRunCardAction = ({
         onClick={handleRedeemClick}
         onSuccess={handleRedeemSuccess}
         onError={handleRedeemError}
-        reset={handleReset}
       />
       {hasRedemptionSuccess && (
         <div className="small text-gray">

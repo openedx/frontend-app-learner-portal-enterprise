@@ -23,14 +23,27 @@ const UpgradeAndNavigateToCourseware = ({
   userSubsidyApplicableToCourse,
   contentKey,
   courseRunUrl,
+  onUpgradeClick,
+  onUpgradeSuccess,
+  onUpgradeError,
 }) => {
   const intl = useIntl();
 
   // When subsidyType === 'learnerCredit', attempt to re-redeem the course.
-  // TODO: verify this assumption is correct for EMET APIs.
-  if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
+  // TODO: verify this assumption is correct for EMET APIs
+  if (userSubsidyApplicableToCourse.subsidyType !== LEARNER_CREDIT_SUBSIDY_TYPE) {
     return (
-      <StatefulEnroll contentKey={contentKey}>
+      <StatefulEnroll
+        contentKey={contentKey}
+        onClick={onUpgradeClick}
+        onSuccess={onUpgradeSuccess}
+        onError={onUpgradeError}
+        labels={{
+          default: 'View course',
+          pending: 'Upgrading...',
+          complete: 'Upgraded',
+        }}
+      >
         {intl.formatMessage(messages.viewCourse)}
       </StatefulEnroll>
     );
@@ -43,8 +56,10 @@ const UpgradeAndNavigateToCourseware = ({
 UpgradeAndNavigateToCourseware.propTypes = {
   contentKey: PropTypes.string.isRequired,
   courseRunUrl: PropTypes.string.isRequired,
-  // TODO: add shape object
-  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape().isRequired, // TODO: add shape object
+  onUpgradeClick: PropTypes.func.isRequired,
+  onUpgradeSuccess: PropTypes.func.isRequired,
+  onUpgradeError: PropTypes.func.isRequired,
 };
 
 export default UpgradeAndNavigateToCourseware;

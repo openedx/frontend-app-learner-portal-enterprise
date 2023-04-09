@@ -14,6 +14,9 @@ const NavigateToCourseware = ({
   courseRunUrl,
   shouldUpgradeUserEnrollment,
   userSubsidyApplicableToCourse,
+  onUpgradeClick,
+  onUpgradeSuccess,
+  onUpgradeError,
 }) => {
   if (shouldUpgradeUserEnrollment) {
     return (
@@ -21,6 +24,9 @@ const NavigateToCourseware = ({
         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
         contentKey={contentKey}
         courseRunUrl={courseRunUrl}
+        onUpgradeClick={onUpgradeClick}
+        onUpgradeSuccess={onUpgradeSuccess}
+        onUpgradeError={onUpgradeError}
       />
     );
   }
@@ -32,8 +38,10 @@ NavigateToCourseware.propTypes = {
   contentKey: PropTypes.string.isRequired,
   courseRunUrl: PropTypes.string.isRequired,
   shouldUpgradeUserEnrollment: PropTypes.bool.isRequired,
-  // TODO: add shape object
-  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape().isRequired, // TODO: add shape object
+  onUpgradeClick: PropTypes.func.isRequired,
+  onUpgradeSuccess: PropTypes.func.isRequired,
+  onUpgradeError: PropTypes.func.isRequired,
 };
 
 export default NavigateToCourseware;
