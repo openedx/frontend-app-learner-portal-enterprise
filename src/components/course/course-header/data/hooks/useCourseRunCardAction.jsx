@@ -1,18 +1,30 @@
-import PropTypes from 'prop-types';
-import { Button } from '@edx/paragon';
+import { useEffect, useState } from 'react';
+import { Stack } from '@edx/paragon';
 import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import StatefulEnroll from '../../../../stateful-enroll';
-import { COURSE_MODES_MAP, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../../data/constants';
+import { COURSE_MODES_MAP } from '../../../data/constants';
+import { NavigateToCourseware } from '../../course-run-actions';
 
 const messages = defineMessages({
-  viewCourse: {
-    id: 'useCourseRunCardAction.viewCourse',
-    defaultMessage: 'View course',
-    description: 'Label for button when learner is already enrolled.',
+  errorHelperText: {
+    id: 'useCourseRunCardAction.error.helperText',
+    defaultMessage: 'An error occurred while processing your enrollment.',
+    description: 'Helper text providing additional context for the error button label.',
+  },
+  successHelperText: {
+    id: 'useCourseRunCardAction.success.helperText',
+    defaultMessage: 'You were successfully enrolled. Redirecting to your course.',
+    description: 'Helper text providing additional context for the success button label.',
   },
 });
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
 const checkUserEnrollmentUpgradeEligibility = ({
   userEnrollment,
   userSubsidyApplicableToCourse,
@@ -20,74 +32,6 @@ const checkUserEnrollmentUpgradeEligibility = ({
   const isAuditEnrollment = userEnrollment.mode === COURSE_MODES_MAP.AUDIT;
   const canUpgrade = !!userSubsidyApplicableToCourse;
   return !!(isAuditEnrollment && canUpgrade);
-};
-
-const BasicNavigateToCourseware = ({ courseRunUrl }) => {
-  const intl = useIntl();
-  return (
-    <Button href={courseRunUrl}>
-      {intl.formatMessage(messages.viewCourse)}
-    </Button>
-  );
-};
-
-BasicNavigateToCourseware.propTypes = {
-  courseRunUrl: PropTypes.string.isRequired,
-};
-
-const UpgradeAndNavigateToCourseware = ({
-  userSubsidyApplicableToCourse,
-  contentKey,
-  courseRunUrl,
-}) => {
-  const intl = useIntl();
-
-  // When subsidyType === 'learnerCredit', attempt to re-redeem the course.
-  // TODO: verify this assumption is correct for EMET APIs.
-  if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
-    return (
-      <StatefulEnroll contentKey={contentKey}>
-        {intl.formatMessage(messages.viewCourse)}
-      </StatefulEnroll>
-    );
-  }
-
-  // fallback to navigating to courseware without upgrading. there's no supported upgrade path.
-  return <BasicNavigateToCourseware courseRunUrl={courseRunUrl} />;
-};
-
-UpgradeAndNavigateToCourseware.propTypes = {
-  contentKey: PropTypes.string.isRequired,
-  courseRunUrl: PropTypes.string.isRequired,
-  // TODO: add shape object
-  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
-};
-
-const NavigateToCourseware = ({
-  contentKey,
-  courseRunUrl,
-  shouldUpgradeUserEnrollment,
-  userSubsidyApplicableToCourse,
-}) => {
-  if (shouldUpgradeUserEnrollment) {
-    return (
-      <UpgradeAndNavigateToCourseware
-        userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        contentKey={contentKey}
-        courseRunUrl={courseRunUrl}
-      />
-    );
-  }
-
-  return <BasicNavigateToCourseware courseRunUrl={courseRunUrl} />;
-};
-
-NavigateToCourseware.propTypes = {
-  contentKey: PropTypes.string.isRequired,
-  courseRunUrl: PropTypes.string.isRequired,
-  shouldUpgradeUserEnrollment: PropTypes.bool.isRequired,
-  // TODO: add shape object
-  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
 };
 
 /**
@@ -102,6 +46,43 @@ const useCourseRunCardAction = ({
   contentKey,
   userSubsidyApplicableToCourse,
 }) => {
+  const intl = useIntl();
+  const [hasRedemptionSuccess, setHasRedemptionSuccess] = useState(false);
+  const [hasRedemptionError, setHasRedemptionError] = useState(false);
+
+  useEffect(() => {
+    const cleanupOnUnmount = () => {
+      setHasRedemptionSuccess(false);
+      setHasRedemptionError(false);
+    };
+    return cleanupOnUnmount;
+  }, []);
+
+  const handleRedeemClick = () => {
+    setHasRedemptionSuccess(false);
+    setHasRedemptionError(false);
+  };
+
+  const handleRedeemSuccess = (transaction) => {
+    setHasRedemptionSuccess(true);
+    setHasRedemptionError(false);
+    const { coursewareUrl } = transaction;
+    console.log(`[EMET] Successfully enrolled. Redirecting to courseware URL (${coursewareUrl})!`);
+    if (!hasFeatureFlagEnabled('DISABLE_EMET_COURSEWARE_REDIRECT')) {
+      window.location.href = coursewareUrl;
+    }
+  };
+
+  const handleRedeemError = () => {
+    setHasRedemptionSuccess(false);
+    setHasRedemptionError(true);
+  };
+
+  const handleReset = () => {
+    setHasRedemptionSuccess(false);
+    setHasRedemptionError(false);
+  };
+
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
       userEnrollment,
@@ -113,12 +94,35 @@ const useCourseRunCardAction = ({
         contentKey={contentKey}
         courseRunUrl={courseRunUrl}
         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+        onUpgradeClick={handleRedeemClick}
+        onUpgradeSuccess={handleRedeemSuccess}
+        onUpgradeError={handleRedeemError}
       />
     );
   }
 
   // TODO: pass redeemable access policy (if any) so it knows which policy to redeem
-  return <StatefulEnroll contentKey={contentKey} />;
+  return (
+    <Stack gap={2}>
+      <StatefulEnroll
+        contentKey={contentKey}
+        onClick={handleRedeemClick}
+        onSuccess={handleRedeemSuccess}
+        onError={handleRedeemError}
+        reset={handleReset}
+      />
+      {hasRedemptionSuccess && (
+        <div className="small text-gray">
+          {intl.formatMessage(messages.successHelperText)}
+        </div>
+      )}
+      {hasRedemptionError && (
+        <div className="small text-danger">
+          {intl.formatMessage(messages.errorHelperText)}
+        </div>
+      )}
+    </Stack>
+  );
 };
 
 export default useCourseRunCardAction;

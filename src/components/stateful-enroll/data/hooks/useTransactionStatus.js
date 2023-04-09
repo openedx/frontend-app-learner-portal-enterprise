@@ -14,6 +14,11 @@ const useTransactionStatus = ({
     return response;
   };
 
+  const shouldPollTransactionState = (responseData) => {
+    const transactionState = responseData?.state;
+    return transactionState === 'pending';
+  };
+
   const {
     isLoading,
     isError,
@@ -24,6 +29,7 @@ const useTransactionStatus = ({
     enabled: !!transactionUUID,
     refetchOnWindowFocus: false,
     queryFn: checkTransactionStatus,
+    refetchInterval: (responseData) => (shouldPollTransactionState(responseData) ? 1000 : false),
     onSuccess,
   });
 
