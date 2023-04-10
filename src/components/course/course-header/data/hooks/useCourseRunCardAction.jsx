@@ -44,7 +44,6 @@ const useCourseRunCardAction = ({
     setHasRedemptionSuccess(true);
     setHasRedemptionError(false);
     const { coursewareUrl } = transaction;
-    console.log(`[EMET] Successfully enrolled. Redirecting to courseware URL (${coursewareUrl})!`);
     window.location.href = coursewareUrl;
   };
 
@@ -58,7 +57,6 @@ const useCourseRunCardAction = ({
       userEnrollment,
       userSubsidyApplicableToCourse,
     });
-    console.log('shouldUpgradeUserEnrollment', shouldUpgradeUserEnrollment);
     return (
       <Stack gap={2}>
         <NavigateToCourseware
