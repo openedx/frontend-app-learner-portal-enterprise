@@ -78,6 +78,7 @@ const useCourseRunCardAction = ({
   }
 
   // TODO: pass redeemable access policy (if any) so it knows which policy to redeem
+  const enrollHelperTextId = 'course-run-card-enroll-helper-text';
   return (
     <Stack gap={2}>
       <StatefulEnroll
@@ -85,8 +86,10 @@ const useCourseRunCardAction = ({
         onClick={handleRedeemClick}
         onSuccess={handleRedeemSuccess}
         onError={handleRedeemError}
+        aria-describedby={enrollHelperTextId}
       />
       <RedemptionStatusText
+        id={enrollHelperTextId}
         hasRedemptionSuccess={hasRedemptionSuccess}
         hasRedemptionError={hasRedemptionError}
       />

@@ -26,6 +26,7 @@ const messages = defineMessages({
 });
 
 const RedemptionStatusText = ({
+  id,
   hasRedemptionSuccess,
   hasRedemptionError,
   isUpgrading,
@@ -39,18 +40,19 @@ const RedemptionStatusText = ({
     : intl.formatMessage(messages.enrollErrorHelperText);
 
   return (
-    <>
+    <div id={id}>
       {hasRedemptionSuccess && (
         <div className="small text-gray">{successText}</div>
       )}
       {hasRedemptionError && (
         <div className="small text-danger">{errorText}</div>
       )}
-    </>
+    </div>
   );
 };
 
 RedemptionStatusText.propTypes = {
+  id: PropTypes.string.isRequired,
   hasRedemptionSuccess: PropTypes.bool.isRequired,
   hasRedemptionError: PropTypes.bool.isRequired,
   isUpgrading: PropTypes.bool,

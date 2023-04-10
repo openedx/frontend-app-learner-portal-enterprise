@@ -44,6 +44,7 @@ const StatefulEnroll = ({
   onClick,
   onSuccess,
   onError,
+  ...props
 }) => {
   const intl = useIntl();
   const [enrollButtonState, setEnrollButtonState] = useState('default');
@@ -111,6 +112,7 @@ const StatefulEnroll = ({
       variant={variant}
       state={enrollButtonState}
       onClick={handleEnrollButtonClick}
+      {...props}
     />
   );
 };
