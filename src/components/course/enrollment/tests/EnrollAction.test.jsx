@@ -154,7 +154,6 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
         enrollmentUrl={enrollmentUrl}
         courseRunPrice={100}
-        triggerLicenseSubsidyEvent
       />
     );
     renderEnrollAction({ enrollAction });

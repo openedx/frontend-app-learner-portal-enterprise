@@ -63,13 +63,13 @@ export function usePlotlySpiderChart(categories) {
       learnerScores,
     ] = prepareSpiderChartData(categories);
 
-    const [data, layout] = getSpiderChartData(
+    const [data, layout, config] = getSpiderChartData(
       jobName,
       topCategories,
       averageScores,
       learnerScores,
     );
 
-    Plotly.newPlot('skill-levels-spider', data, layout);
+    Plotly.newPlot('skill-levels-spider', data, layout, config);
   }, [categories]);
 }

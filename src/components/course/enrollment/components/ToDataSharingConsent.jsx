@@ -6,7 +6,6 @@ import { Hyperlink } from '@edx/paragon';
 import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
-  useOptimizelyLicenseSubsidyEnrollmentClickHandler,
 } from '../../data/hooks';
 import { enrollLinkClass } from '../constants';
 import { EnrollButtonCta } from '../common';
@@ -14,7 +13,7 @@ import { CourseContext } from '../../CourseContextProvider';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 // Data sharing consent
-const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl, triggerLicenseSubsidyEvent }) => {
+const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
   const {
     state: {
       activeCourseRun: { key: courseRunKey },
@@ -33,10 +32,6 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl, triggerLicenseSu
     courseRunKey,
     courseEnrollmentsByStatus,
   });
-  const optimizelyLicenseSubsidyHandler = useOptimizelyLicenseSubsidyEnrollmentClickHandler({
-    href: enrollmentUrl,
-    courseRunKey,
-  });
 
   return (
     <EnrollButtonCta
@@ -47,7 +42,6 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl, triggerLicenseSu
       onClick={(e) => {
         analyticsHandler(e);
         optimizelyHandler(e);
-        if (triggerLicenseSubsidyEvent) { optimizelyLicenseSubsidyHandler(e); }
       }}
     />
   );
@@ -56,11 +50,6 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl, triggerLicenseSu
 ToDataSharingConsentPage.propTypes = {
   enrollLabel: PropTypes.node.isRequired,
   enrollmentUrl: PropTypes.string.isRequired,
-  triggerLicenseSubsidyEvent: PropTypes.bool,
-};
-
-ToDataSharingConsentPage.defaultProps = {
-  triggerLicenseSubsidyEvent: false,
 };
 
 export default ToDataSharingConsentPage;

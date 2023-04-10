@@ -8,7 +8,6 @@ import {
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
-import { getConfig } from '@edx/frontend-platform/config';
 import EnrollAction from './enrollment/EnrollAction';
 import { enrollButtonTypes } from './enrollment/constants';
 import {
@@ -26,7 +25,6 @@ import {
   numberWithPrecision,
 } from './data/utils';
 import { formatStringAsNumber } from '../../utils/common';
-import { isExperimentVariant } from '../../utils/optimizely';
 
 import { useSubsidyDataForCourse } from './enrollment/hooks';
 import { useCourseEnrollmentUrl, useUserHasSubsidyRequestForCourse, useCoursePriceForUserSubsidy } from './data/hooks';
@@ -71,8 +69,6 @@ const CourseRunCard = ({
     seats,
     isEnrollable,
   } = courseRun;
-
-  const config = getConfig();
 
   const location = useLocation();
 
@@ -226,10 +222,6 @@ const CourseRunCard = ({
     && enrollmentType === enrollButtonTypes.TO_DATASHARING_CONSENT
     && userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE
   );
-  // Only users buckted in `Variation 1` can see the change.
-  const isExperimentVariation1 = isExperimentVariant(config.EXPERIMENT_2_ID, config.EXPERIMENT_2_VARIANT_1_ID);
-  // For our experiment, we should trigger our Optimizely event only when this condition is true
-  const triggerLicenseSubsidyEvent = shouldShowLicenseSubsidyPriceText;
 
   return (
     <Card>
@@ -245,7 +237,7 @@ const CourseRunCard = ({
         >
           <div className="h4 mb-0">{heading}</div>
           <div className="small">{subHeading}</div>
-          {isExperimentVariation1 && shouldShowLicenseSubsidyPriceText && (
+          {shouldShowLicenseSubsidyPriceText && (
             <LicenseSubsidyPriceText
               courseRun={courseRun}
               userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
@@ -259,7 +251,6 @@ const CourseRunCard = ({
             enrollmentUrl={enrollmentUrl}
             userEnrollment={userEnrollment}
             subscriptionLicense={subscriptionLicense}
-            triggerLicenseSubsidyEvent={triggerLicenseSubsidyEvent}
             courseRunPrice={courseRun?.firstEnrollablePaidSeatPrice}
           />
         )}

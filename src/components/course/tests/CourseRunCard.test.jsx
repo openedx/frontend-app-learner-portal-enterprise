@@ -23,7 +23,6 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/Subsid
 import * as subsidyRequestsHooks from '../data/hooks';
 import { enrollButtonTypes } from '../enrollment/constants';
 import * as utils from '../enrollment/utils';
-import * as optimizelyUtils from '../../../utils/optimizely';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
@@ -272,7 +271,6 @@ describe('<CourseRunCard/>', () => {
 
   test('user see the struck out price message in the card', () => {
     jest.spyOn(utils, 'determineEnrollmentType').mockImplementation(() => enrollButtonTypes.TO_DATASHARING_CONSENT);
-    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
     subsidyRequestsHooks.useCoursePriceForUserSubsidy.mockReturnValueOnce([{ list: 100 }, CURRENCY_USD]);
     const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
     const courseRun = generateCourseRun({
