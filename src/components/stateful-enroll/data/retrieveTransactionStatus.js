@@ -1,4 +1,5 @@
-import { camelCaseObject } from '@edx/frontend-platform';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { getConfig } from '@edx/frontend-platform/config';
 
 const retrieveTransactionStatus = async (transactionUUID) => {
   const sampleChoices = ['committed', 'pending', 'error'];
@@ -7,7 +8,7 @@ const retrieveTransactionStatus = async (transactionUUID) => {
   const mockCommittedTransaction = {
     uuid: transactionUUID,
     state: randomChoice,
-    courseware_url: 'http://localhost:2000/course/course-v1:edX+S2023+1T2023/home',
+    courseware_url: `${getConfig().LEARNING_BASE_URL}/course/course-v1:edX+S2023+1T2023/home`,
   };
   const url = 'https://httpbin.org/post';
   const response = await fetch(url, {
