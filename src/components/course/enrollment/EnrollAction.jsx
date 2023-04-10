@@ -77,13 +77,14 @@ EnrollAction.propTypes = {
   enrollmentUrl: PropTypes.string,
   userEnrollment: PropTypes.shape({}),
   subscriptionLicense: PropTypes.shape({}),
-  courseRunPrice: PropTypes.number.isRequired,
+  courseRunPrice: PropTypes.number,
 };
 
 EnrollAction.defaultProps = {
   enrollmentUrl: null,
   userEnrollment: null,
   subscriptionLicense: null,
+  courseRunPrice: 0,
 };
 
 export default EnrollAction;

@@ -1,7 +1,13 @@
 import moment from 'moment';
 import { ENTERPRISE_OFFER_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
-import { findCouponCodeForCourse, findEnterpriseOfferForCourse, getSubsidyToApplyForCourse } from '../utils';
+import {
+  courseUsesEntitlementPricing, findCouponCodeForCourse, findEnterpriseOfferForCourse, getSubsidyToApplyForCourse,
+} from '../utils';
+
+jest.mock('@edx/frontend-platform/config', () => ({
+  getConfig: () => ({ COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE: ['entitlement_course'] }),
+}));
 
 describe('findCouponCodeForCourse', () => {
   const couponCodes = [{
@@ -169,5 +175,23 @@ describe('getSubsidyToApplyForCourse', () => {
     });
 
     expect(subsidyToApply).toBeNull();
+  });
+});
+
+describe('courseUsesEntitlementPricing', () => {
+  const mockEntitlementCourse = {
+    courseType: 'entitlement_course',
+  };
+
+  const mockNonEntitlementCourse = {
+    courseType: 'non_entitlement_course',
+  };
+
+  it('Returns true when course type included in COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE', () => {
+    expect(courseUsesEntitlementPricing(mockEntitlementCourse)).toEqual(true);
+  });
+
+  it('Returns false when course type not included in COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE', () => {
+    expect(courseUsesEntitlementPricing(mockNonEntitlementCourse)).toEqual(false);
   });
 });
