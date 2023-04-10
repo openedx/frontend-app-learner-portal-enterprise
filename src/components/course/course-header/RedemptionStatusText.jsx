@@ -26,37 +26,33 @@ const messages = defineMessages({
 });
 
 const RedemptionStatusText = ({
-  hasRedemptionSuccess,
-  hasRedemptionError,
+  redemptionStatus,
   isUpgrading,
 }) => {
   const intl = useIntl();
 
-  const successText = isUpgrading ? intl.formatMessage(messages.upgradeSuccessHelperText)
-    : intl.formatMessage(messages.enrollSuccessHelperText);
+  if (redemptionStatus === 'success') {
+    const successText = isUpgrading ? intl.formatMessage(messages.upgradeSuccessHelperText)
+      : intl.formatMessage(messages.enrollSuccessHelperText);
+    return <div className="small text-gray">{successText}</div>;
+  }
 
-  const errorText = isUpgrading ? intl.formatMessage(messages.upgradeErrorHelperText)
-    : intl.formatMessage(messages.enrollErrorHelperText);
+  if (redemptionStatus === 'error') {
+    const errorText = isUpgrading ? intl.formatMessage(messages.upgradeErrorHelperText)
+      : intl.formatMessage(messages.enrollErrorHelperText);
+    return <div className="small text-danger">{errorText}</div>;
+  }
 
-  return (
-    <div className="course__course-header__redemption-status-text">
-      {hasRedemptionSuccess && (
-        <div className="small text-gray">{successText}</div>
-      )}
-      {hasRedemptionError && (
-        <div className="small text-danger">{errorText}</div>
-      )}
-    </div>
-  );
+  return null;
 };
 
 RedemptionStatusText.propTypes = {
-  hasRedemptionSuccess: PropTypes.bool.isRequired,
-  hasRedemptionError: PropTypes.bool.isRequired,
+  redemptionStatus: PropTypes.oneOf(['success', 'error']),
   isUpgrading: PropTypes.bool,
 };
 
 RedemptionStatusText.defaultProps = {
+  redemptionStatus: undefined,
   isUpgrading: false,
 };
 

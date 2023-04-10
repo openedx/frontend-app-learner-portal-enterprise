@@ -32,24 +32,20 @@ const useCourseRunCardAction = ({
   contentKey,
   userSubsidyApplicableToCourse,
 }) => {
-  const [hasRedemptionSuccess, setHasRedemptionSuccess] = useState(false);
-  const [hasRedemptionError, setHasRedemptionError] = useState(false);
+  const [redemptionStatus, setRedemptionStatus] = useState();
 
   const handleRedeemClick = () => {
-    setHasRedemptionSuccess(false);
-    setHasRedemptionError(false);
+    setRedemptionStatus();
   };
 
   const handleRedeemSuccess = (transaction) => {
-    setHasRedemptionSuccess(true);
-    setHasRedemptionError(false);
+    setRedemptionStatus('success');
     const { coursewareUrl } = transaction;
     window.location.href = coursewareUrl;
   };
 
   const handleRedeemError = () => {
-    setHasRedemptionSuccess(false);
-    setHasRedemptionError(true);
+    setRedemptionStatus('error');
   };
 
   if (isUserEnrolled) {
@@ -69,8 +65,7 @@ const useCourseRunCardAction = ({
           onUpgradeError={handleRedeemError}
         />
         <RedemptionStatusText
-          hasRedemptionSuccess={hasRedemptionSuccess}
-          hasRedemptionError={hasRedemptionError}
+          redemptionStatus={redemptionStatus}
           isUpgrading={shouldUpgradeUserEnrollment}
         />
       </Stack>
@@ -86,10 +81,7 @@ const useCourseRunCardAction = ({
         onSuccess={handleRedeemSuccess}
         onError={handleRedeemError}
       />
-      <RedemptionStatusText
-        hasRedemptionSuccess={hasRedemptionSuccess}
-        hasRedemptionError={hasRedemptionError}
-      />
+      <RedemptionStatusText redemptionStatus={redemptionStatus} />
     </Stack>
   );
 };
