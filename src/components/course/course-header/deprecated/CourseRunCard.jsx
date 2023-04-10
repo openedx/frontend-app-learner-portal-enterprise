@@ -255,7 +255,7 @@ const CourseRunCard = ({
             enrollmentUrl={enrollmentUrl}
             userEnrollment={userEnrollment}
             subscriptionLicense={subscriptionLicense}
-            courseRunPrice={courseRun.firstEnrollablePaidSeatPrice}
+            courseRunPrice={courseRun?.firstEnrollablePaidSeatPrice}
           />
         )}
       </Card.Section>
@@ -274,7 +274,7 @@ CourseRunCard.propTypes = {
     start: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
     seats: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-    firstEnrollablePaidSeatPrice: PropTypes.number.isRequired,
+    firstEnrollablePaidSeatPrice: PropTypes.number,
   }).isRequired,
   userEnrollments: PropTypes.arrayOf(PropTypes.shape({
     isEnrollmentActive: PropTypes.bool.isRequired,
@@ -296,7 +296,7 @@ LicenseSubsidyPriceText.propTypes = {
     start: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
     seats: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-    firstEnrollablePaidSeatPrice: PropTypes.number.isRequired,
+    firstEnrollablePaidSeatPrice: PropTypes.number,
   }).isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({
     discountType: PropTypes.string.isRequired,

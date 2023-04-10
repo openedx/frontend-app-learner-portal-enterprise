@@ -24,6 +24,7 @@ import {
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
+  courseUsesEntitlementPricing,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -35,6 +36,7 @@ import {
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
+import { getEntitlementPrice } from '../enrollment/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -75,6 +77,7 @@ export function useAllCourseData({
             containsContentItems,
             catalogList: catalogsWithCourse,
           },
+          courseDetails,
         } = data;
 
         let userSubsidyApplicableToCourse = null;
@@ -93,7 +96,15 @@ export function useAllCourseData({
             }
           }
 
-          const { firstEnrollablePaidSeatPrice } = courseService.activeCourseRun || {};
+          let coursePrice = 0;
+
+          if (courseUsesEntitlementPricing(courseDetails)) {
+            coursePrice = getEntitlementPrice(courseDetails?.entitlements) || {};
+          }
+
+          if (courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice) {
+            coursePrice = courseService.activeCourseRun.firstEnrollablePaidSeatPrice;
+          }
 
           userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
             applicableSubscriptionLicense: licenseForCourse,
@@ -101,7 +112,7 @@ export function useAllCourseData({
             applicableEnterpriseOffer: findEnterpriseOfferForCourse({
               enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
               catalogList: catalogsWithCourse,
-              coursePrice: firstEnrollablePaidSeatPrice,
+              coursePrice,
             }),
           });
         }
@@ -261,17 +272,17 @@ export function useCoursePacingType(courseRun) {
  * @param {object} args Arguments.
  * @param {Object} args.activeCourseRun course run info
  * @param {Object} args.userSubsidyApplicableToCourse Usersubsidy
+ * @param {Object} args.courseEntitlements Course Entitlements
  *
  * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
  */
 export const useCoursePriceForUserSubsidy = ({
-  activeCourseRun, userSubsidyApplicableToCourse,
+  activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements,
 }) => {
   const currency = CURRENCY_USD;
-
   const coursePrice = useMemo(
     () => {
-      const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
+      const listPrice = activeCourseRun?.firstEnrollablePaidSeatPrice || getEntitlementPrice(courseEntitlements);
 
       if (!listPrice) {
         return null;
@@ -310,7 +321,7 @@ export const useCoursePriceForUserSubsidy = ({
       // Case 2: No subsidy available for course
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidyApplicableToCourse],
+    [activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements],
   );
 
   return [coursePrice, currency];

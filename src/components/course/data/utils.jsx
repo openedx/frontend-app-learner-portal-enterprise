@@ -360,6 +360,13 @@ export const checkPolicyRedemptionEnabled = ({
   if (isFeatureEnabled && canRedeemAccessPolicy) {
     return true;
   }
+  return false;
+};
 
+export const courseUsesEntitlementPricing = (course) => {
+  const courseTypes = getConfig().COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE;
+  if (courseTypes) {
+    return courseTypes.includes(course.courseType);
+  }
   return false;
 };

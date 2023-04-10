@@ -718,6 +718,22 @@ describe('useCoursePriceForUserSubsidy', () => {
     expect(coursePrice).toEqual({ list: 100 });
   });
 
+  it('should return the correct course price for exec ed course', () => {
+    const execEdCourseEntitlements = [{
+      price: 200,
+    }];
+
+    const activeCourseRun = { };
+    const userSubsidyApplicableToCourse = null;
+    const { result } = renderHook(() => useCoursePriceForUserSubsidy({
+      courseEntitlements: execEdCourseEntitlements,
+      activeCourseRun,
+      userSubsidyApplicableToCourse,
+    }));
+    const [coursePrice] = result.current;
+    expect(coursePrice).toEqual({ list: 200 });
+  });
+
   it('should return the correct currency', () => {
     const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
     const userSubsidyApplicableToCourse = null;
