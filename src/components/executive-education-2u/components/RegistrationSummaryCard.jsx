@@ -17,25 +17,26 @@ const RegistrationSummaryCard = ({ priceDetails }) => (
           <Col xs={12} lg={{ span: 5, offset: 0 }}>
             <h3>Registration summary:</h3>
             <br />
-            <p className="small font-weight-light text-gray-500">
+            <p className="small font-weight-light text-gray-500 font-italic">
               This course is covered by the Learner Credit provided by your organization.
-              We are unable to provide refunds once the funds are redeemed.
             </p>
           </Col>
           <Col xs={12} lg={{ span: 5, offset: 2 }}>
-            <div className="registration-details">
+            <div className="registration-details rounded-lg border p-3">
               <Row>
                 <Col xs={12} lg={{ span: 6, offset: 0 }} className="small font-weight-light text-gray-500 justify-content-start">Registration total:</Col>
                 <Col xs={12} lg={{ span: 6, offset: 0 }} className="justify-content-end">
-                  <Row className="justify-content-end margin-right-10">
-                    ${priceDetails?.price ? `${numberWithPrecision(priceDetails.price)} ${priceDetails.currency}` : 'Unknown'}
-                  </Row>
-                  <Row className="justify-content-end margin-right-10">
+                  <div className="d-flex justify-content-end mr-2.5">
+                    <del>
+                      {priceDetails?.price ? `$${numberWithPrecision(priceDetails.price)} ${priceDetails.currency}` : '-'}
+                    </del>
+                  </div>
+                  <div className="d-flex justify-content-end mr-2.5">
                     ${priceDetails?.price ? `${String(0).padStart(priceDetails.price.toString().length, '0') }.00` : '0.00'} {priceDetails?.currency ? priceDetails.currency : CURRENCY_USD}
-                  </Row>
-                  <Row className="justify-content-end small font-weight-light text-gray-500 margin-right-10">
-                    Tax Included
-                  </Row>
+                  </div>
+                  <div className="d-flex justify-content-end small font-weight-light text-gray-500 mr-2.5">
+                    Tax included
+                  </div>
                 </Col>
               </Row>
             </div>

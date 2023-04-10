@@ -11,12 +11,15 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import moment from 'moment/moment';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 
 export const formValidationMessages = {
+  firstNameRequired: 'First name is required',
+  lastNameRequired: 'Last name is required',
   dateOfBirthRequired: 'Date of birth is required',
+  invalidDateOfBirth: 'Unfortunately you don\'t meet the minimum age requirement of 18 years and without any'
+    + ' parent or guardian consent you cannot proceed with your registration.',
   studentTermsAndConditionsRequired: 'Please agree to Terms and Conditions for Students',
   dataSharingConsentRequired: 'Please agree to Terms and Conditions for Date Sharing Consent',
 };
@@ -31,14 +34,21 @@ const UserEnrollmentForm = ({
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [isEnrollmentSubmitted, setIsEnrollmentSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
-  const [isAgeValid, setIsAgeValid] = useState(true);
-  const { name } = getAuthenticatedUser();
-  const [firstName, middleName, lastName] = name?.split(' ') || [];
 
   const handleFormValidation = (values) => {
     const errors = {};
+    const is18YearsOld = moment().diff(moment(values.dateOfBirth), 'years') >= 18;
+
+    if (!values.firstName) {
+      errors.firstName = formValidationMessages.firstNameRequired;
+    }
+    if (!values.lastName) {
+      errors.lastName = formValidationMessages.lastNameRequired;
+    }
     if (!values.dateOfBirth) {
       errors.dateOfBirth = formValidationMessages.dateOfBirthRequired;
+    } else if (!is18YearsOld) {
+      errors.dateOfBirth = formValidationMessages.invalidDateOfBirth;
     }
     if (!values.studentTermsAndConditions) {
       errors.studentTermsAndConditions = formValidationMessages.studentTermsAndConditionsRequired;
@@ -59,22 +69,16 @@ const UserEnrollmentForm = ({
   };
 
   const handleFormSubmit = async (values, { setSubmitting }) => {
-    const is18YearsOld = moment().diff(moment(values.dateOfBirth), 'years') >= 18;
-    if (!is18YearsOld) {
-      setIsAgeValid(false);
-      return;
-    }
-
     try {
       const result = await checkoutExecutiveEducation2U({
         sku: productSKU,
         userDetails: {
+          firstName: values.firstName,
+          lastName: values.lastName,
           dateOfBirth: values.dateOfBirth,
-          firstName,
-          lastName: lastName || middleName,
         },
         termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
-        ...(enableDataSharingConsent ? { dataShareConsent: true } : {}),
+        ...(enableDataSharingConsent ? { dataShareConsent: !!values.dataSharingConsent } : {}),
       });
 
       await sendEnterpriseTrackEventWithDelay(
@@ -95,6 +99,8 @@ const UserEnrollmentForm = ({
   return (
     <Formik
       initialValues={{
+        firstName: '',
+        lastName: '',
         dateOfBirth: '',
         studentTermsAndConditions: false,
         dataSharingConsent: false,
@@ -148,6 +154,46 @@ const UserEnrollmentForm = ({
                   </Alert>
 
                   <Row className="mb-4">
+                    <Col xs={12} lg={6}>
+                      <Form.Group
+                        isInvalid={!!errors.firstName}
+                        className="mb-4.5 mb-lg-0"
+                      >
+                        <Form.Control
+                          value={values.firstName}
+                          floatingLabel="First name *"
+                          name="firstName"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
+                        {errors.firstName && isFormSubmitted && (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.firstName}
+                          </Form.Control.Feedback>
+                        )}
+                      </Form.Group>
+                    </Col>
+                    <Col xs={12} lg={6}>
+                      <Form.Group
+                        isInvalid={!!errors.lastName}
+                      >
+                        <Form.Control
+                          value={values.lastName}
+                          floatingLabel="Last name *"
+                          name="lastName"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
+                        {errors.lastName && isFormSubmitted && (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.lastName}
+                          </Form.Control.Feedback>
+                        )}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Row className="mb-4">
                     <Col xs={12} lg={12}>
                       <Form.Group
                         isInvalid={!!errors.dateOfBirth}
@@ -185,7 +231,7 @@ const UserEnrollmentForm = ({
                             />
                             <span aria-hidden>I have read and accepted GetSmarter&apos;s data sharing consent.</span>
                           </div>
-                          <div className="small text-italic">
+                          <div className="small font-italic">
                             I acknowledge that information about my participation in the course will be shared with my
                             employer or funding entity, including my name, assessments of my performance such as grades,
                             and any perceived risk to my completion of the course.
@@ -243,40 +289,22 @@ const UserEnrollmentForm = ({
                       </p>
                     </Col>
                   </Row>
-                  {!isAgeValid && (
-                    <Row className="mb-4 age-error-message">
-                      <Col xs={12} lg={12}>
-                        <p className="text-italic">
-                          Unfortunately you don&apos;t meet minimum age requirement and without any parent or guardian
-                          consent you can not proceed with your registration.
-                        </p>
-                      </Col>
-                    </Row>
-                  )}
                 </Card.Section>
               </Card.Body>
             </Card>
 
-            <Row>
-              <Col className="justify-content-end">
-                <Row className="justify-content-end">
-                  {
-                    isAgeValid && (
-                      <StatefulButton
-                        type="submit"
-                        variant="danger"
-                        labels={{
-                          default: 'Confirm Registration',
-                          pending: 'Submitting enrollment information...',
-                          complete: 'Registration Confirmed',
-                        }}
-                        state={getButtonState()}
-                      />
-                    )
-                  }
-                </Row>
-              </Col>
-            </Row>
+            <div className="d-flex justify-content-end">
+              <StatefulButton
+                type="submit"
+                variant="primary"
+                labels={{
+                  default: 'Confirm registration',
+                  pending: 'Confirming registration...',
+                  complete: 'Registration confirmed',
+                }}
+                state={getButtonState()}
+              />
+            </div>
           </FormikForm>
         );
       }}

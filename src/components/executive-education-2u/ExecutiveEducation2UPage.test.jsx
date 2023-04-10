@@ -292,7 +292,7 @@ describe('ExecutiveEducation2UPage', () => {
 
     expect(mockedPush).toHaveBeenCalledTimes(1);
     expect(mockedPush).toHaveBeenCalledWith(
-      { pathname: `/${enterpriseSlug}/executive-education-2u-enrollment-completed`, state: { data: {} } },
+      { pathname: `/${enterpriseSlug}/executive-education-2u/enrollment-completed`, state: { data: {} } },
     );
   });
 });

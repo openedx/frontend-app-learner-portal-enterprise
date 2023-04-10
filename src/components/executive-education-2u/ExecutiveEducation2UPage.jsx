@@ -66,7 +66,7 @@ const ExecutiveEducation2UPage = () => {
         organizationName: organizationDetails.organizationName,
         title: contentMetadata.title,
         startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
-        duration: `${activeCourseRun?.weeksToComplete} Week${activeCourseRun?.weeksToComplete >= 1 ? '' : 's'}`,
+        duration: activeCourseRun ? `${activeCourseRun.weeksToComplete} Week${activeCourseRun.weeksToComplete <= 1 ? '' : 's'}` : '-',
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
       };
     }
@@ -75,7 +75,7 @@ const ExecutiveEducation2UPage = () => {
 
   const handleCheckoutSuccess = () => {
     push({
-      pathname: `/${enterpriseConfig.slug}/executive-education-2u-enrollment-completed`,
+      pathname: `/${enterpriseConfig.slug}/executive-education-2u/enrollment-completed`,
       state: {
         data: courseMetadata,
       },
@@ -89,67 +89,70 @@ const ExecutiveEducation2UPage = () => {
   }
 
   return (
-    <Container size="lg" className="py-5">
-      <Helmet>
-        <title>{pageTitle}</title>
-      </Helmet>
-      {queryParams.failureReason && (
-        <ExecutiveEducation2UError
-          failureReason={queryParams.failureReason}
-          httpReferrer={queryParams.httpReferrer}
-        />
-      )}
-      {!queryParams.failureReason && (
-        <>
-          <h2 className="mb-3">
-            {isLoading || !contentMetadata ? (
-              <Skeleton containerTestId="loading-skeleton-page-title" />
-            ) : 'Your Registration(s)'}
-          </h2>
-          {(isLoading || !contentMetadata) ? (
-            <p>
-              <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
-            </p>
-          ) : (
-            <Row className="mb-4">
-              <Col xs={12} lg={12}>
-                <p className="registration-outline small">
-                  <strong>
-                    This is where you finalize your registration for and edX executive
-                    eduction course through GetSmarter.
-                  </strong>
-                  &nbsp; Please ensure that the course details below are correct and confirm using learner credit with a
-                  &quot;Confirm registration&quot; button. Your learner credit funds will be redeemed at this point.
-                </p>
-              </Col>
-            </Row>
-          )}
+    <div className="bg-light-200">
+      <Container size="lg" className="py-5">
+        <Helmet>
+          <title>{pageTitle}</title>
+        </Helmet>
+        {queryParams.failureReason && (
+          <ExecutiveEducation2UError
+            failureReason={queryParams.failureReason}
+            httpReferrer={queryParams.httpReferrer}
+          />
+        )}
+        {!queryParams.failureReason && (
+          <>
+            <h2 className="mb-3">
+              {isLoading || !contentMetadata ? (
+                <Skeleton containerTestId="loading-skeleton-page-title" />
+              ) : 'Your registration(s)'}
+            </h2>
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
+              </p>
+            ) : (
+              <Row className="mb-4">
+                <Col xs={12} lg={12}>
+                  <p className="small bg-light-500 p-3 rounded-lg">
+                    <strong>
+                      This is where you finalize your registration for an edX executive
+                      education course through GetSmarter.
+                    </strong>
+                    &nbsp; Please ensure that the course details below are correct and confirm using Learner
+                    Credit with a &quot;Confirm registration&quot; button.
+                    Your Learner Credit funds will be redeemed at this point.
+                  </p>
+                </Col>
+              </Row>
+            )}
 
-          {(isLoading || !contentMetadata) ? (
-            <p>
-              <Skeleton count={3} containerTestId="loading-skeleton-course-summary" />
-            </p>
-          ) : (
-            <CourseSummaryCard courseMetadata={courseMetadata} />
-          )}
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-course-summary" />
+              </p>
+            ) : (
+              <CourseSummaryCard courseMetadata={courseMetadata} />
+            )}
 
-          {(isLoading || !contentMetadata) ? (
-            <p>
-              <Skeleton count={3} containerTestId="loading-skeleton-course-summary" />
-            </p>
-          ) : (
-            <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
-          )}
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-course-summary" />
+              </p>
+            ) : (
+              <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
+            )}
 
-          {!isLoading && (
-            <UserEnrollmentForm
-              productSKU={queryParams.sku}
-              onCheckoutSuccess={handleCheckoutSuccess}
-            />
-          )}
-        </>
-      )}
-    </Container>
+            {!isLoading && (
+              <UserEnrollmentForm
+                productSKU={queryParams.sku}
+                onCheckoutSuccess={handleCheckoutSuccess}
+              />
+            )}
+          </>
+        )}
+      </Container>
+    </div>
   );
 };
 

@@ -25,13 +25,6 @@ jest.mock('./data', () => ({
   checkoutExecutiveEducation2U: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({
-    name: `${mockFirstName} ${mockLastName}`,
-  }),
-}));
-
 const initialAppContextValue = {
   enterpriseConfig: {
     name: 'Test Enterprise',
@@ -68,20 +61,29 @@ describe('UserEnrollmentForm', () => {
     expect(screen.getByText('Course enrollment information')).toBeInTheDocument();
 
     // form fields
+    expect(screen.getByLabelText('First name *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Last name *')).toBeInTheDocument();
     expect(screen.getByLabelText('Date of birth *')).toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
+
+    expect(await screen.findByText(formValidationMessages.firstNameRequired)).toBeInTheDocument();
+    expect(await screen.findByText(formValidationMessages.lastNameRequired)).toBeInTheDocument();
     expect(await screen.findByText(formValidationMessages.dateOfBirthRequired)).toBeInTheDocument();
     expect(await screen.findByText(formValidationMessages.dataSharingConsentRequired)).toBeInTheDocument();
     expect(await screen.findByText(formValidationMessages.studentTermsAndConditionsRequired)).toBeInTheDocument();
 
     // typing in fields after form submission clears validation
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByLabelText(termsLabelText));
 
     await waitFor(() => {
+      expect(screen.queryByText(formValidationMessages.firstNameRequired)).not.toBeInTheDocument();
+      expect(screen.queryByText(formValidationMessages.lastNameRequired)).not.toBeInTheDocument();
       expect(screen.queryByText(formValidationMessages.dateOfBirthRequired)).not.toBeInTheDocument();
       expect(screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
       expect(screen.queryByText(formValidationMessages.studentTermsAndConditionsRequired)).not.toBeInTheDocument();
@@ -95,7 +97,7 @@ describe('UserEnrollmentForm', () => {
     expect(screen.getByLabelText(termsLabelText)).toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
     expect(await screen.findByText(formValidationMessages.studentTermsAndConditionsRequired)).toBeInTheDocument();
 
     // checking the checkbox after form submission clears validation
@@ -112,7 +114,7 @@ describe('UserEnrollmentForm', () => {
     expect(screen.getByLabelText(dataSharingConsentLabelText)).toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
     expect(await screen.findByText(formValidationMessages.dataSharingConsentRequired)).toBeInTheDocument();
 
     // checking the checkbox after form submission clears validation
@@ -138,7 +140,7 @@ describe('UserEnrollmentForm', () => {
     expect(await screen.queryByLabelText(dataSharingConsentLabelText)).not.toBeInTheDocument();
 
     // validation
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
     expect(await screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
   });
 
@@ -151,13 +153,15 @@ describe('UserEnrollmentForm', () => {
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
     render(<UserEnrollmentFormWrapper />);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
 
     // disabled while submitting
-    expect(screen.getByText('Submitting enrollment information...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
 
     await waitFor(() => {
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
@@ -182,7 +186,7 @@ describe('UserEnrollmentForm', () => {
     );
 
     // disabled after submitting
-    expect(screen.getByText('Registration Confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('handles successful form submission with data sharing consent disabled', async () => {
@@ -200,12 +204,14 @@ describe('UserEnrollmentForm', () => {
     };
     render(<UserEnrollmentFormWrapper appContextValue={appContext} />);
 
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
     userEvent.click(screen.getByLabelText(termsLabelText));
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
 
     // disabled while submitting
-    expect(screen.getByText('Submitting enrollment information...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
 
     await waitFor(() => {
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
@@ -229,7 +235,7 @@ describe('UserEnrollmentForm', () => {
     );
 
     // disabled after submitting
-    expect(screen.getByText('Registration Confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('handles age related errors during form submission', async () => {
@@ -241,18 +247,16 @@ describe('UserEnrollmentForm', () => {
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
     render(<UserEnrollmentFormWrapper />);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     // Set this year as date of birthday, so user is marked as less than 18 years old.
     userEvent.type(screen.getByLabelText('Date of birth *'), `${moment().year()}-06-10`);
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm Registration'));
-
-    const ageErrorMessage = 'Unfortunately you don\'t meet minimum age requirement and without any parent or '
-      + 'guardian consent you can not proceed with your registration.';
+    userEvent.click(screen.getByText('Confirm registration'));
 
     await waitFor(() => {
-      expect(screen.queryByText('Confirm Registration')).not.toBeInTheDocument();
-      expect(screen.getByText(ageErrorMessage)).toBeInTheDocument();
+      expect(screen.getByText(formValidationMessages.invalidDateOfBirth)).toBeInTheDocument();
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(0);
     });
     expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(0);
@@ -263,17 +267,19 @@ describe('UserEnrollmentForm', () => {
     Date.now = jest.fn(() => new Date().valueOf());
     checkoutExecutiveEducation2U.mockRejectedValueOnce(mockError);
     render(<UserEnrollmentFormWrapper />);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
-    userEvent.click(screen.getByText('Confirm Registration'));
+    userEvent.click(screen.getByText('Confirm registration'));
 
     // disabled while submitting
-    expect(screen.getByText('Submitting enrollment information...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
 
     await waitFor(() => {
       // no longer disabled after submitting
-      expect(screen.getByText('Confirm Registration').closest('button')).toHaveAttribute('aria-disabled', 'false');
+      expect(screen.getByText('Confirm registration').closest('button')).toHaveAttribute('aria-disabled', 'false');
     });
 
     // ensure error alert is visible
