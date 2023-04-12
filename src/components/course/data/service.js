@@ -166,6 +166,9 @@ export default class CourseService {
     // lmsUserId,
     courseRunKeys,
   }) {
+    console.log('fetchCanRedeem', {
+      courseRunKeys,
+    });
     const url = 'https://httpbin.org/post';
     const REDEEMABLE_POLICY_UUID = uuidv4();
     const REDEEMABLE_ACCESS_POLICY = {

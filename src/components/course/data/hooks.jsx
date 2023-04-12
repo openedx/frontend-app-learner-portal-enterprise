@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useQuery } from '@tanstack/react-query';
@@ -40,6 +40,21 @@ import { getEntitlementPrice } from '../enrollment/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
+
+export function useCourseMetadata({ courseKey }) {
+  return useQuery({
+    queryKey: ['course-metadata', courseKey],
+    queryFn: async () => {
+      const url = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/courses/${courseKey}/`;
+      const response = await getAuthenticatedHttpClient().get(url);
+      const courseMetadata = camelCaseObject(response.data);
+      return courseMetadata;
+    },
+    onSuccess: () => {
+      console.log('fetched course metadata!');
+    },
+  });
+}
 
 export function useAllCourseData({
   courseKey,
@@ -589,6 +604,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 const checkRedemptionEligiblity = async ({
   lmsUserId,
   courseRunKeys,
+  isQueryEnabled,
 }) => {
   const courseService = new CourseService();
   const canRedeemResponse = await courseService.fetchCanRedeem({
@@ -617,6 +633,7 @@ const checkRedemptionEligiblity = async ({
     }
     return resultForCourseRun;
   });
+  console.log('hello!??!!?', { isQueryEnabled, canRedeemByCourseRun });
   return canRedeemByCourseRun;
 };
 
@@ -626,14 +643,22 @@ const checkRedemptionEligiblity = async ({
  * @returns
  */
 export const useCheckAccessPolicyRedemptionEligibility = ({
-  courseRunKeys,
+  courseRunKeys = [],
+  isLoadingCourseMetadata,
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
   const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
 
   return useQuery({
     queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
-    enabled: (isFeatureEnabled && courseRunKeys.length > 0),
-    queryFn: async () => checkRedemptionEligiblity({ lmsUserId, courseRunKeys }),
+    enabled: !isLoadingCourseMetadata && (isFeatureEnabled && courseRunKeys.length > 0),
+    refetchOnWindowFocus: false,
+    queryFn: async () => checkRedemptionEligiblity({
+      lmsUserId,
+      courseRunKeys,
+    }),
+    onSuccess: (data) => {
+      console.log('fetched can redeem for user and course!', data);
+    },
   });
 };

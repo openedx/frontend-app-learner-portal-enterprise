@@ -15,6 +15,7 @@ import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
 import {
+  useCourseMetadata,
   useAllCourseData,
   useExtractAndRemoveSearchParamsFromURL,
   useCheckAccessPolicyRedemptionEligibility,
@@ -69,6 +70,20 @@ const CoursePage = () => {
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const {
+    isLoading: isLoadingCourseMetadata,
+    isFetching: isFetchingCourseMetadata,
+    data: courseMetadata,
+  } = useCourseMetadata({ courseKey });
+  const {
+    isLoading: isLoadingAccessPolicyRedemptionStatus,
+    data: accessPolicyRedemptionEligibilityData,
+  } = useCheckAccessPolicyRedemptionEligibility({
+    courseRunKeys: courseMetadata?.courseRunKeys,
+    isLoadingCourseMetadata: isLoadingCourseMetadata || isFetchingCourseMetadata,
+  });
+  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
+
+  const {
     courseData,
     courseRecommendations,
     fetchError,
@@ -84,22 +99,10 @@ const CoursePage = () => {
     activeCatalogs,
   });
 
-  const {
-    isLoading: isLoadingAccessPolicyRedemptionStatus,
-    isFetching: isFetchingAccessPolicyRedemptionStatus,
-    data: accessPolicyRedemptionEligibilityData,
-  } = useCheckAccessPolicyRedemptionEligibility({
-    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
-  });
-  const isLoadingAccessPolicyRedemptionEligibility = (
-    isLoadingAccessPolicyRedemptionStatus || isFetchingAccessPolicyRedemptionStatus
-  );
-  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
-
   const initialState = useMemo(
     () => {
       const isLoadingAny = (
-        isLoading || isLoadingAccessPolicyRedemptionEligibility
+        isLoading || isLoadingCourseMetadata || isLoadingAccessPolicyRedemptionStatus
       );
       if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
@@ -132,7 +135,8 @@ const CoursePage = () => {
     },
     [
       isLoading,
-      isLoadingAccessPolicyRedemptionEligibility,
+      isLoadingCourseMetadata,
+      isLoadingAccessPolicyRedemptionStatus,
       courseData,
       courseRecommendations,
       algoliaSearchParams,
