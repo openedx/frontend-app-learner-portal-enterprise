@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import { getConfig } from '@edx/frontend-platform/config';
 
-import { isExperimentVariant } from '../../utils/optimizely';
+import { AppContext } from '@edx/frontend-platform/react';
+import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 
 const EnterpriseLearnerFirstVisitRedirect = () => {
   const cookies = new Cookies();
   const config = getConfig();
+
+  const { authenticatedUser } = useContext(AppContext);
+  const { username } = authenticatedUser;
 
   const isFirstVisit = () => {
     const hasUserVisitedDashboard = cookies.get('has-user-visited-learner-dashboard');
@@ -20,8 +24,9 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
   );
 
   useEffect(() => {
-    if (isFirstVisit() && isExperimentVariationA) {
+    if (isFirstVisit()) {
       cookies.set('has-user-visited-learner-dashboard', true, { path: '/' });
+      pushEvent(EVENTS.ENTERPRISE_LEARNER_FIRST_VISIT_TO_DASHBOARD, { username });
     }
   });
 
