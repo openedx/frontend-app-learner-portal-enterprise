@@ -154,7 +154,43 @@ describe('ExecutiveEducation2UPage', () => {
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
     expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
-    expect(screen.getByText('Your organization doesn’t have sufficient balance to cover this course.')).toBeInTheDocument();
+    expect(screen.getByText('Your enrollment was not completed! Your organization does not have remaining credit.')).toBeInTheDocument();
+  });
+
+  it('renders error page with valid user balance failure message', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({
+      course_uuid: 'test-course-uuid',
+      sku: 'ABC123',
+      failure_reason: 'no_offer_with_enough_user_balance',
+    });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
+    expect(screen.getByText('Your enrollment was not completed! You have already spent your personal budget for enrollments.')).toBeInTheDocument();
+  });
+
+  it('renders error page with valid no remaining applications failure message', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({
+      course_uuid: 'test-course-uuid',
+      sku: 'ABC123',
+      failure_reason: 'no_offer_with_remaining_applications',
+    });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
+    expect(screen.getByText('Your enrollment was not completed! You have reached your maximum number of allowed enrollments.')).toBeInTheDocument();
   });
 
   it('renders error page with invalid failure_reason', () => {
