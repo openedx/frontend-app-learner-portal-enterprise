@@ -8,6 +8,7 @@ import {
 } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { CourseContext } from '../CourseContextProvider';
 import CourseSkills from '../CourseSkills';
@@ -23,16 +24,29 @@ import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
 
+import { isExperimentVariant } from '../../../utils/optimizely';
+
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
-  const { course, catalog, isPolicyRedemptionEnabled } = state;
+  const {
+    course,
+    catalog,
+    courseReviews,
+    isPolicyRedemptionEnabled,
+  } = state;
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
     () => getDefaultProgram(course.programs),
     [course],
   );
+  const config = getConfig();
+  const isExperimentVariationA = isExperimentVariant(
+    config.EXPERIMENT_5_ID,
+    config.EXPERIMENT_5_VARIANT_1_ID,
+  );
+  const hasSufficientReviewCount = courseReviews?.reviewsCount >= 5;
 
   return (
     <div className="course-header">
@@ -99,7 +113,7 @@ const CourseHeader = () => {
           <Col xs={12} lg={12}>
             {catalog.containsContentItems ? (
               <>
-                <CourseReview />
+                {hasSufficientReviewCount && isExperimentVariationA && <CourseReview />}
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
