@@ -8,6 +8,8 @@ import StatefulEnroll from './StatefulEnroll';
 import {
   useRedemptionMutation,
   // useTransactionStatus,
+  submitRedemptionRequest,
+  retrieveTransactionStatus,
 } from './data';
 
 // Create a client
@@ -21,6 +23,12 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   }),
 }));
 
+jest.mock('./data/service', () => ({
+  ...jest.requireActual('./data/service'),
+  submitRedemptionRequest: jest.fn(),
+  retrieveTransactionStatus: jest.fn(),
+}));
+
 const StatefulEnrollWrapper = (props) => (
   <QueryClientProvider client={queryClient}>
     <IntlProvider locale="en">
@@ -30,13 +38,20 @@ const StatefulEnrollWrapper = (props) => (
 );
 
 const MOCK_COURSE_RUN_KEY = 'course-v1:edX+S2023+1T2023';
+const MOCK_TRANSACTION_UUID = 'test-transaction-uuid';
 
 describe('StatefulEnroll', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should render with "Enroll" label', () => {
+  const clickEnrollButton = async () => {
+    const enrollBtn = screen.getByText('Enroll');
+    userEvent.click(enrollBtn);
+    expect(await screen.findByText('Enrolling...')).toBeInTheDocument();
+  };
+
+  it('should render with default "Enroll" label', () => {
     render(<StatefulEnrollWrapper contentKey={MOCK_COURSE_RUN_KEY} />);
     expect(screen.getByText('Enroll')).toBeInTheDocument();
   });
@@ -53,8 +68,45 @@ describe('StatefulEnroll', () => {
     expect(screen.getByText('Hello world')).toBeInTheDocument();
   });
 
-  it('should handle successful enrollment', () => {
+  it('should handle successful enrollment', async () => {
     render(<StatefulEnrollWrapper contentKey={MOCK_COURSE_RUN_KEY} />);
-    expect(screen.getByText('Enroll')).toBeInTheDocument();
+    submitRedemptionRequest.mockResolvedValueOnce({
+      uuid: MOCK_TRANSACTION_UUID,
+    });
+    retrieveTransactionStatus.mockResolvedValueOnce({
+      state: 'committed',
+    });
+    await clickEnrollButton();
+    expect(await screen.findByText('Enrolled')).toBeInTheDocument();
+  });
+
+  it('should handle redemption mutation error', async () => {
+    render(<StatefulEnrollWrapper contentKey={MOCK_COURSE_RUN_KEY} />);
+    submitRedemptionRequest.mockRejectedValueOnce();
+    await clickEnrollButton();
+    expect(await screen.findByText('Try again')).toBeInTheDocument();
+  });
+
+  it('should handle transaction status error', async () => {
+    render(<StatefulEnrollWrapper contentKey={MOCK_COURSE_RUN_KEY} />);
+    submitRedemptionRequest.mockResolvedValueOnce({
+      uuid: MOCK_TRANSACTION_UUID,
+    });
+    retrieveTransactionStatus.mockResolvedValueOnce({
+      state: 'error',
+    });
+    await clickEnrollButton();
+    expect(await screen.findByText('Try again')).toBeInTheDocument();
+  });
+
+  it('should handle transaction status pending', async () => {
+    render(<StatefulEnrollWrapper contentKey={MOCK_COURSE_RUN_KEY} />);
+    submitRedemptionRequest.mockResolvedValueOnce({
+      uuid: MOCK_TRANSACTION_UUID,
+    });
+    retrieveTransactionStatus.mockResolvedValueOnce({
+      state: 'pending',
+    });
+    await clickEnrollButton();
   });
 });

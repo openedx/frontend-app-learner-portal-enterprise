@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 
-import submitRedemptionRequest from '../submitRedemptionRequest';
+import { submitRedemptionRequest } from '../service';
 
-export const createRedemption = async ({ userId, contentKey }) => {
+const createRedemption = async ({ userId, contentKey }) => {
   const response = await submitRedemptionRequest({
     userId,
     contentKey,

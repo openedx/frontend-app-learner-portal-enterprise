@@ -1,16 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import retrieveTransactionStatus from '../retrieveTransactionStatus';
+import { retrieveTransactionStatus } from '../service';
 
 const useTransactionStatus = ({
   transactionUUID,
   onSuccess,
+  onError,
 }) => {
-  const checkTransactionStatus = async () => {
-    const response = await retrieveTransactionStatus(transactionUUID);
-    return response;
-  };
-
   const shouldPollTransactionState = (responseData) => {
     const transactionState = responseData?.state;
     return transactionState === 'pending';
@@ -23,6 +19,11 @@ const useTransactionStatus = ({
     return false;
   };
 
+  const checkTransactionStatus = async () => {
+    const response = await retrieveTransactionStatus(transactionUUID);
+    return response;
+  };
+
   return useQuery({
     queryKey: ['transaction-status', transactionUUID],
     enabled: !!transactionUUID,
@@ -30,6 +31,7 @@ const useTransactionStatus = ({
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
     onSuccess,
+    onError,
   });
 };
 
