@@ -71,7 +71,6 @@ const StatefulEnroll = ({
       setEnrollButtonState('pending');
     },
     onSuccess: (transaction) => {
-      console.log('[StatefulEnroll] success on redemption mutation', transaction);
       setTransactionUUID(transaction.uuid);
     },
     onError: () => {
@@ -82,7 +81,6 @@ const StatefulEnroll = ({
   useTransactionStatus({
     transactionUUID,
     onSuccess: (transaction) => {
-      console.log('[StatefulEnroll] success on transaction status', transaction);
       if (transaction.state === 'committed') {
         setEnrollButtonState('complete');
         if (onSuccess) {
@@ -94,7 +92,7 @@ const StatefulEnroll = ({
       }
     },
     onError: () => {
-      console.log('[StatefulEnroll] error on transaction status');
+      console.log('[StatefulEnroll]', 'onError!!!');
       handleRedemptionError();
     },
   });

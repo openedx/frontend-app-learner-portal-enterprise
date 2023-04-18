@@ -2,6 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { retrieveTransactionStatus } from '../service';
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
 const useTransactionStatus = ({
   transactionUUID,
   onSuccess,
@@ -20,7 +25,9 @@ const useTransactionStatus = ({
   };
 
   const checkTransactionStatus = async () => {
+    console.log('[checkTransactionStatus] transaction:', transactionUUID);
     const response = await retrieveTransactionStatus(transactionUUID);
+    console.log('[checkTransactionStatus] response:', response);
     return response;
   };
 

@@ -10,7 +10,7 @@ const createRedemption = async ({ userId, contentKey }) => {
   return response;
 };
 
-const useRedemptionMutation = (options = {}) => useMutation({
+const useRedemptionMutation = (options) => useMutation({
   mutationFn: createRedemption,
   ...options,
 });
