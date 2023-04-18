@@ -5,20 +5,15 @@ import { isCourseSelfPaced } from '../../../data/utils';
 import { DATE_FORMAT } from '../constants';
 
 const messages = defineMessages({
-  upcoming: {
+  courseStartDate: {
     id: 'useCourseRunCardHeading.headingUpcoming',
     defaultMessage: 'Starts {startDate}',
-    description: 'Heading for course run card when course run is upcoming.',
+    description: 'Heading for course run card when course start date is shown.',
   },
-  currentSelfPacedNotEnrolled: {
-    id: 'useCourseRunCardHeading.currentSelfPacedNotEnrolled',
-    defaultMessage: 'Starts {startDate}',
-    description: 'Heading for course run card when course run is current, self-paced, and the learner is not enrolled.',
-  },
-  currentInstructorLedOrEnrolled: {
+  courseStarted: {
     id: 'useCourseRunCardHeading.currentInstructorLedOrEnrolled',
     defaultMessage: 'Course started',
-    description: 'Heading for course run card when course run is current and either the course run is instructor-led or learner is enrolled.',
+    description: 'Heading for course run card when course run is shown as already started.',
   },
 });
 
@@ -34,17 +29,16 @@ const useCourseRunCardHeading = ({
   isUserEnrolled,
 }) => {
   const intl = useIntl();
-
   if (isCourseRunCurrent) {
     if (isCourseSelfPaced(pacingType) && !isUserEnrolled) {
       // always today's date (incentives enrollment)
-      return intl.formatMessage(messages.currentSelfPacedNotEnrolled, {
+      return intl.formatMessage(messages.courseStartDate, {
         startDate: moment().format(DATE_FORMAT),
       });
     }
-    return intl.formatMessage(messages.currentInstructorLedOrEnrolled);
+    return intl.formatMessage(messages.courseStarted);
   }
-  return intl.formatMessage(messages.currentSelfPacedNotEnrolled, {
+  return intl.formatMessage(messages.courseStartDate, {
     startDate: moment(start).format(DATE_FORMAT),
   });
 };

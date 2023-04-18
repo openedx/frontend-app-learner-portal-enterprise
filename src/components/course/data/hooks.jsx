@@ -586,40 +586,6 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   ]);
 }
 
-const checkRedemptionEligiblity = async ({
-  lmsUserId,
-  courseRunKeys,
-}) => {
-  const courseService = new CourseService();
-  const canRedeemResponse = await courseService.fetchCanRedeem({
-    lmsUserId,
-    courseRunKeys,
-  });
-  const canRedeemByCourseRun = canRedeemResponse.map((canRedeemForCourseRun) => {
-    const {
-      redemption,
-      subsidyAccessPolicy,
-    } = canRedeemForCourseRun;
-    const resultForCourseRun = {
-      courseRunKey: canRedeemForCourseRun.courseRunKey,
-      canRedeem: false,
-      alreadyRedeemed: false,
-      redemption: null,
-      redeemablePolicy: null,
-    };
-    if (redemption?.state === 'committed') {
-      resultForCourseRun.alreadyRedeemed = true;
-      resultForCourseRun.redemption = redemption;
-    }
-    if (subsidyAccessPolicy) {
-      resultForCourseRun.canRedeem = true;
-      resultForCourseRun.redeemablePolicy = subsidyAccessPolicy;
-    }
-    return resultForCourseRun;
-  });
-  return canRedeemByCourseRun;
-};
-
 /**
  * TODO
  * @param {*} param0
@@ -631,9 +597,40 @@ export const useCheckAccessPolicyRedemptionEligibility = ({
   const { id: lmsUserId } = getAuthenticatedUser();
   const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
 
+  const checkRedemptionEligiblity = async () => {
+    const courseService = new CourseService();
+    const canRedeemResponse = await courseService.fetchCanRedeem({
+      lmsUserId,
+      courseRunKeys,
+    });
+    const canRedeemByCourseRun = canRedeemResponse.map((canRedeemForCourseRun) => {
+      const {
+        redemption,
+        subsidyAccessPolicy,
+      } = canRedeemForCourseRun;
+      const resultForCourseRun = {
+        courseRunKey: canRedeemForCourseRun.courseRunKey,
+        canRedeem: false,
+        alreadyRedeemed: false,
+        redemption: null,
+        redeemablePolicy: null,
+      };
+      if (redemption?.state === 'committed') {
+        resultForCourseRun.alreadyRedeemed = true;
+        resultForCourseRun.redemption = redemption;
+      }
+      if (subsidyAccessPolicy) {
+        resultForCourseRun.canRedeem = true;
+        resultForCourseRun.redeemablePolicy = subsidyAccessPolicy;
+      }
+      return resultForCourseRun;
+    });
+    return canRedeemByCourseRun;
+  };
+
   return useQuery({
     queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
     enabled: (isFeatureEnabled && courseRunKeys.length > 0),
-    queryFn: async () => checkRedemptionEligiblity({ lmsUserId, courseRunKeys }),
+    queryFn: checkRedemptionEligiblity,
   });
 };
