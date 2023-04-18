@@ -25,9 +25,7 @@ const useTransactionStatus = ({
   };
 
   const checkTransactionStatus = async () => {
-    console.log('[checkTransactionStatus] transaction:', transactionUUID);
     const response = await retrieveTransactionStatus(transactionUUID);
-    console.log('[checkTransactionStatus] response:', response);
     return response;
   };
 

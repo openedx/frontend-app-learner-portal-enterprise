@@ -92,7 +92,6 @@ const StatefulEnroll = ({
       }
     },
     onError: () => {
-      console.log('[StatefulEnroll]', 'onError!!!');
       handleRedemptionError();
     },
   });

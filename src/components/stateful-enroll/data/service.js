@@ -7,13 +7,11 @@ import { v4 as uuidv4 } from 'uuid';
  * @param {*} transactionUUID
  * @returns
  */
+/* istanbul ignore next */
 export const retrieveTransactionStatus = async (transactionUUID) => {
-  // const sampleChoices = ['committed', 'pending', 'error'];
-  // const randomChoice = sampleChoices[Math.floor(Math.random() * sampleChoices.length)];
-
   const mockCommittedTransaction = {
     uuid: transactionUUID,
-    state: 'pending',
+    state: 'committed',
     courseware_url: `${getConfig().LEARNING_BASE_URL}/course/course-v1:edX+S2023+1T2023/home`,
   };
   const url = 'https://httpbin.org/post';
@@ -33,6 +31,7 @@ export const retrieveTransactionStatus = async (transactionUUID) => {
  * TODO
  * @returns
  */
+/* istanbul ignore next */
 export const submitRedemptionRequest = async () => {
   const mockTransactionResponse = {
     uuid: uuidv4(),
