@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
-  StatefulButton, Form, Hyperlink, CheckboxControl, Row, Col, Alert, Card,
+  StatefulButton, Form, Hyperlink, CheckboxControl, Row, Col, Alert, Card, MailtoLink,
 } from '@edx/paragon';
 import {
   Formik,
@@ -12,14 +12,18 @@ import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import moment from 'moment/moment';
+import reactStringReplace from 'react-string-replace';
+
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
   lastNameRequired: 'Last name is required',
   dateOfBirthRequired: 'Date of birth is required',
-  invalidDateOfBirth: 'Unfortunately you don\'t meet the minimum age requirement of 18 years and without any'
-    + ' parent or guardian consent you cannot proceed with your registration.',
+  invalidDateOfBirth:
+    'The date of birth you entered indicates that you are under the age of 18, and we need your parent or legal '
+    + 'guardian to consent to your registration and GetSmarter processing your personal information. '
+    + 'Please reach out to privacy@getsmarter.com to proceed with your registration.',
   studentTermsAndConditionsRequired: 'Please agree to Terms and Conditions for Students',
   dataSharingConsentRequired: 'Please agree to Terms and Conditions for Date Sharing Consent',
 };
@@ -209,7 +213,15 @@ const UserEnrollmentForm = ({
                         />
                         {errors.dateOfBirth && isFormSubmitted && (
                           <Form.Control.Feedback type="invalid">
-                            {errors.dateOfBirth}
+                            {
+                              reactStringReplace(
+                                errors.dateOfBirth,
+                                'privacy@getsmarter.com',
+                                (match) => (
+                                  <MailtoLink to={match}>{match}</MailtoLink>
+                                ),
+                              )
+                            }
                           </Form.Control.Feedback>
                         )}
                       </Form.Group>
