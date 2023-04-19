@@ -1,15 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { Button } from '@edx/paragon';
 
-const messages = defineMessages({
-  viewCourse: {
-    id: 'useCourseRunCardAction.viewCourse',
-    defaultMessage: 'View course',
-    description: 'Label for button when learner is already enrolled.',
-  },
-});
+import { messages } from './data';
 
 /**
  * TODO

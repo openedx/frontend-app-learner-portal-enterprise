@@ -1,18 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useIntl, defineMessages } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@edx/frontend-platform/i18n';
 
 import StatefulEnroll from '../../../stateful-enroll';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import BasicNavigateToCourseware from './BasicNavigateToCourseware';
-
-const messages = defineMessages({
-  viewCourse: {
-    id: 'useCourseRunCardAction.viewCourse',
-    defaultMessage: 'View course',
-    description: 'Label for button when learner is already enrolled.',
-  },
-});
+import { messages } from './data';
 
 /**
  * TODO
