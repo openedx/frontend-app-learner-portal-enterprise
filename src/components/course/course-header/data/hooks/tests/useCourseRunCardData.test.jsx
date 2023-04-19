@@ -5,9 +5,9 @@ import '@testing-library/jest-dom/extend-expect';
 import useCourseRunCardData from '../useCourseRunCardData';
 
 import {
-  COURSE_RUN,
-  COURSE_RUN_URL,
-  LEARNER_CREDIT_SUBSIDY,
+  MOCK_COURSE_RUN,
+  MOCK_COURSE_RUN_URL,
+  MOCK_LEARNER_CREDIT_SUBSIDY,
 } from './constants';
 
 jest.mock('../useCourseRunCardHeading', () => jest.fn(() => 'Course started'));
@@ -18,10 +18,10 @@ describe('useCourseRunCardData', () => {
   it('should return expected course run card data', () => {
     const { result } = renderHook(
       () => useCourseRunCardData({
-        courseRun: COURSE_RUN,
+        courseRun: MOCK_COURSE_RUN,
         isUserEnrolled: true,
-        userSubsidyApplicableToCourse: LEARNER_CREDIT_SUBSIDY,
-        courseRunUrl: COURSE_RUN_URL,
+        userSubsidyApplicableToCourse: MOCK_LEARNER_CREDIT_SUBSIDY,
+        courseRunUrl: MOCK_COURSE_RUN_URL,
       }),
     );
     expect(result.current).toEqual(

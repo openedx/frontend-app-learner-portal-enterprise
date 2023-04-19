@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
-import useRedemptionStatus from '../useRedemptionStatus';
 
-const MOCK_COURSEWARE_URL = 'https://edx.org';
+import { MOCK_COURSEWARE_URL } from './constants';
+import useRedemptionStatus from '../useRedemptionStatus';
 
 // mock global.location.href
 delete global.location;

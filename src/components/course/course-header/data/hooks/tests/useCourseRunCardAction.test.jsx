@@ -7,6 +7,13 @@ import useCourseRunCardAction from '../useCourseRunCardAction';
 
 import StatefulEnroll from '../../../../../stateful-enroll';
 import { NavigateToCourseware } from '../../../course-run-actions';
+import {
+  MOCK_COURSE_RUN_KEY,
+  MOCK_COURSE_RUN_URL,
+  MOCK_ENROLLMENT_VERIFIED,
+  MOCK_ENROLLMENT_AUDIT,
+  MOCK_REDEEMABLE_SUBSIDY,
+} from './constants';
 
 jest.mock('../../../../../stateful-enroll', () => jest.fn(() => <div data-testid="stateful-enroll" />));
 jest.mock('../../../RedemptionStatusText', () => jest.fn(() => <div data-testid="redemption-status-text" />));
@@ -25,12 +32,6 @@ jest.mock('../useRedemptionStatus', () => jest.fn(() => mockRedemptionActions));
 const wrapper = ({ children }) => (
   <IntlProvider locale="en">{children}</IntlProvider>
 );
-
-const MOCK_COURSE_RUN_KEY = 'course-v1:edX+DemoX+Demo_Course';
-const MOCK_COURSE_RUN_URL = 'https://edx.org';
-const MOCK_ENROLLMENT_VERIFIED = { mode: 'verified' };
-const MOCK_ENROLLMENT_AUDIT = { mode: 'audit' };
-const MOCK_REDEEMABLE_SUBSIDY = {};
 
 const renderUseCourseRunCardActionHook = (args) => {
   const { result } = renderHook(

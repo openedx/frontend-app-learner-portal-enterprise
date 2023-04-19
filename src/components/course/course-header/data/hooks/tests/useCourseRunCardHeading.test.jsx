@@ -2,9 +2,8 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 
+import { MOCK_COURSE_RUN_START } from './constants';
 import useCourseRunCardHeading from '../useCourseRunCardHeading';
-
-const MOCK_COURSE_RUN_START = '2023-04-20T12:00:00Z';
 
 const wrapper = ({ children }) => (
   <IntlProvider locale="en">{children}</IntlProvider>
