@@ -50,6 +50,7 @@
     "react-router-dom": "5.2.0",
     "react-router-hash-link": "2.3.1",
     "react-scroll": "1.8.4",
+    "react-string-replace": "^1.1.0",
     "react-transition-group": "4.4.1",
     "react-truncate": "2.4.0",
     "redux": "4.0.5",

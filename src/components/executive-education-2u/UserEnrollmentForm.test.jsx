@@ -255,8 +255,12 @@ describe('UserEnrollmentForm', () => {
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByText('Confirm registration'));
 
+    const invalidAgeErrorMessage = 'The date of birth you entered indicates '
+      + 'that you are under the age of 18, and we need your parent or legal '
+      + 'guardian to consent to your registration and GetSmarter processing '
+      + 'your personal information.';
     await waitFor(() => {
-      expect(screen.getByText(formValidationMessages.invalidDateOfBirth)).toBeInTheDocument();
+      expect(screen.getByText(invalidAgeErrorMessage, { exact: false })).toBeInTheDocument();
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(0);
     });
     expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(0);
