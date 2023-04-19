@@ -4,9 +4,14 @@ import useCourseRunCardSubHeading from './useCourseRunCardSubHeading';
 import useCourseRunCardAction from './useCourseRunCardAction';
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Gathers the data needed to render the `CourseRunCard` component.
+ * @param {object} args
+ * @param {object} args.courseRun The course run metadata, including the key, availability,
+ *  start date, pacing type, and enrollment count.
+ * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
+ * @param {string} args.courseRunUrl The URL to the course run coureware page.
+ * @param {object} args.userSubsidyApplicableToCourse A redeemable subsidy applicable to the course, if any.
+ * @returns An object containing the `heading, `subHeading`, and `action` data needed to render the `CourseRunCard`.
  */
 const useCourseRunCardData = ({
   courseRun,

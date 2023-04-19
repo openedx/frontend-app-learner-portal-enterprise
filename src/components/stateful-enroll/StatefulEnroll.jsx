@@ -33,9 +33,10 @@ const messages = defineMessages({
 });
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Handles asynchronous redemption of a subsidy access policy for a learner and course run key.
+ *
+ * When user clicks the button, an API call is made to redeem the subsidy access policy. It returns
+ * the payload for the associated transaction, which is subsequently polled for completion or error.
  */
 const StatefulEnroll = ({
   contentKey,

@@ -3,9 +3,13 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * TODO
- * @param {*} transactionUUID
- * @returns
+ * Makes an API request to retrieve the most recent payload for the
+ * specified transaction UUID.
+ *
+ * Note: this arg may change to be given the actual API url to call
+ * rather than just the `transactionUUID` (TBD during API integration).
+ * @param {string} transactionUUID
+ * @returns The payload for the specified transaction.
  */
 /* istanbul ignore next */
 export const retrieveTransactionStatus = async (transactionUUID) => {
@@ -28,8 +32,10 @@ export const retrieveTransactionStatus = async (transactionUUID) => {
 };
 
 /**
- * TODO
- * @returns
+ * Makes an API request to submit a redemption request for the specified
+ * user and course run key.
+ *
+ * @returns Payload from the redemption request.
  */
 /* istanbul ignore next */
 export const submitRedemptionRequest = async () => {

@@ -7,8 +7,8 @@ import { CourseContext } from '../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
 
 /**
- * TODO
- * @returns
+ * Displays a grid of `CourseRunCard` components, where each `CourseRunCard` represents
+ * an available/enrollable course run.
  */
 /* istanbul ignore next */
 const CourseRunCards = () => {

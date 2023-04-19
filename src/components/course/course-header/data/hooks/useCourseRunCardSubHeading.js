@@ -21,9 +21,11 @@ const messages = defineMessages({
 });
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Determines the sub-heading for the course run card.
+ * @param {object} args
+ * @param {object} args.enrollmentCount The number of enrollments in the course run.
+ * @param {boolean} args.isUserEnrolled Whether the user is already enrolled in the course run.
+ * @returns A message to display as the sub-heading for the course run card.
  */
 const useCourseRunCardSubHeading = ({
   enrollmentCount,

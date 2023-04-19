@@ -9,9 +9,8 @@ import { useCourseRunCardData } from './data';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * React component that displays information about the course run and provides a CTA to allow the learner
+ * to enroll in the course run or navigate to courseware.
  */
 /* istanbul ignore next */
 const CourseRunCard = ({ courseRun }) => {

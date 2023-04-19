@@ -5,9 +5,8 @@ import BasicNavigateToCourseware from './BasicNavigateToCourseware';
 import UpgradeAndNavigateToCourseware from './UpgradeAndNavigateToCourseware';
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Determines whether the user should be prompted to upgrade their
+ * enrollment or simply navigate to the courseware.
  */
 const NavigateToCourseware = ({
   contentKey,

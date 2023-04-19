@@ -8,9 +8,9 @@ import BasicNavigateToCourseware from './BasicNavigateToCourseware';
 import { messages } from './data';
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Handles upgrading the user's enrollment from audit to paid (e.g., verified) mode for
+ * certain supported subsidy types. If the redeemable subsidy type is not supported, falls
+ * back to rendering a hyperlink to the courseware.
  */
 const UpgradeAndNavigateToCourseware = ({
   userSubsidyApplicableToCourse,
@@ -23,7 +23,6 @@ const UpgradeAndNavigateToCourseware = ({
   const intl = useIntl();
 
   // When subsidyType === 'learnerCredit', attempt to re-redeem the course.
-  // TODO: add feature flag
   if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
     return (
       <StatefulEnroll

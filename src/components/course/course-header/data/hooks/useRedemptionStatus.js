@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 /**
- * TODO
- * @returns
+ * Acts as a state machine for the redemption status, with side effects for
+ * invalidating query cache and redirecting to courseware upon successful redemption.
+ *
+ * @returns An object containing the redemption status, and functions to mutate the redemption status.
  */
 const useRedemptionStatus = () => {
   const queryClient = useQueryClient();

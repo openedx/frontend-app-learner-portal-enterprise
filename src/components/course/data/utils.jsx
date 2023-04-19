@@ -342,9 +342,17 @@ export const createEnrollWithCouponCodeUrl = ({
 };
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Determines whether the subsidy access policy redemption feature is enabled
+ * based on a feature flag and whether any course runs are redeemable as determined
+ * by the `can-redeem` API response.
+ *
+ * Allows a temporary "?feature=ENABLE_EMET_REDEMPTION" query parameter to force
+ * enable subsidy access policy redemption (e.g., if the `FEATURE_ENABLE_EMET_REDEMPTION`
+ * feature flag is disabled).
+ *
+ * @param {object} args
+ * @param {array} args.accessPolicyRedemptionEligibilityData List of objects, each containing a `canRedeem` boolean.
+ * @returns True if the feature is enabled and at least one course run is redeemable.
  */
 export const checkPolicyRedemptionEnabled = ({
   accessPolicyRedemptionEligibilityData = [],

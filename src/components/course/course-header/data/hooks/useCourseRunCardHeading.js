@@ -18,8 +18,12 @@ const messages = defineMessages({
 });
 
 /**
- * TODO
- * @param {*} param0
+ * Determines the heading to display on the course run card.
+ * @param {object} args
+ * @param {boolean} args.isCourseRunCurrent Whether the course run is current.
+ * @param {string} args.pacingType The pacing type (e.g., self-paced) for the course run.
+ * @param {string} args.start The start date for the course run.
+ * @param {boolean} args.isUserEnrolled Whether the user is already enrolled in the course run.
  * @returns
  */
 const useCourseRunCardHeading = ({

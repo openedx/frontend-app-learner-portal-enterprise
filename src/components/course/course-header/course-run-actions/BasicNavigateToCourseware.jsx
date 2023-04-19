@@ -6,9 +6,7 @@ import { Button } from '@edx/paragon';
 import { messages } from './data';
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Renders a hyperlink styled as a button that navigates to the courseware.
  */
 const BasicNavigateToCourseware = ({ courseRunUrl }) => {
   const intl = useIntl();

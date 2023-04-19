@@ -26,9 +26,7 @@ const messages = defineMessages({
 });
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Displays helper text for the redemption status (success or error).
  */
 /* istanbul ignore next */
 const RedemptionStatusText = ({

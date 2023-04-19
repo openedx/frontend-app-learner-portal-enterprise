@@ -3,7 +3,7 @@ import {
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { hasFeatureFlagEnabled, sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -587,15 +587,19 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
 }
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Makes an API request to enterprise-access's `can-redeem` endpoint to return
+ * a redeemable subsidy, if any, for each course run key provided.
+ *
+ * @param {object} args
+ * @param {array} args.courseRunKeys
+ *
+ * @returns An object containing the output from `useQuery`.
  */
 export const useCheckAccessPolicyRedemptionEligibility = ({
   courseRunKeys,
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
-  const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
+  const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
 
   const checkRedemptionEligiblity = async () => {
     const courseService = new CourseService();
