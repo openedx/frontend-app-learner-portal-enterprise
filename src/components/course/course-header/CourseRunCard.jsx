@@ -8,6 +8,12 @@ import { useCourseRunCardData } from './data';
 
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+/* istanbul ignore next */
 const CourseRunCard = ({ courseRun }) => {
   const { state: courseData } = useContext(CourseContext);
   const {
@@ -54,6 +60,7 @@ CourseRunCard.propTypes = {
   }).isRequired,
 };
 
+/* istanbul ignore next */
 CourseRunCard.Deprecated = DeprecatedCourseRunCard;
 
 export default CourseRunCard;

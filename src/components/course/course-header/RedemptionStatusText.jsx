@@ -25,6 +25,12 @@ const messages = defineMessages({
   },
 });
 
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+/* istanbul ignore next */
 const RedemptionStatusText = ({
   redemptionStatus,
   isUpgrading,

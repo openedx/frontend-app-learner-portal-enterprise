@@ -1,3 +1,5 @@
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+
 import { act, renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -10,10 +12,18 @@ global.location = {
   assign: jest.fn(),
 };
 
+const queryClient = new QueryClient();
+
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
 describe('useRedemptionStatus', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  const renderUseRedemptionStatusHook = (args) => renderHook(() => useRedemptionStatus(args), { wrapper });
 
   const validateOutput = (result) => {
     expect(result.current).toEqual(
@@ -38,14 +48,13 @@ describe('useRedemptionStatus', () => {
   };
 
   it('return the correct arguments', () => {
-    const { result } = renderHook(() => useRedemptionStatus());
+    const { result } = renderUseRedemptionStatusHook();
     validateOutput(result);
   });
 
   it('handles redeem success', async () => {
     const locationAssignSpy = jest.spyOn(global.location, 'assign');
-
-    const { result } = renderHook(() => useRedemptionStatus());
+    const { result } = renderUseRedemptionStatusHook();
     validateOutput(result);
     act(() => {
       result.current.handleRedeemSuccess({
@@ -63,8 +72,7 @@ describe('useRedemptionStatus', () => {
 
   it('handles redeem error', async () => {
     const locationAssignSpy = jest.spyOn(global.location, 'assign');
-
-    const { result } = renderHook(() => useRedemptionStatus());
+    const { result } = renderUseRedemptionStatusHook();
     validateOutput(result);
     act(() => {
       result.current.handleRedeemError();
