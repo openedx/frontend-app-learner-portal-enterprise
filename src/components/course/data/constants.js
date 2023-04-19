@@ -46,3 +46,5 @@ export const LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME = 'license-requested-
 export const LICENSE_REQUESTED_ALERT_HEADING = 'Course requested';
 export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization’s subscription covers all of the courses in this catalog.'
                                     + ' You have already requested access to all courses.';
+export const UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education';
+export const PAID_EXECUTIVE_EDUCATION = 'paid-executive-education';
