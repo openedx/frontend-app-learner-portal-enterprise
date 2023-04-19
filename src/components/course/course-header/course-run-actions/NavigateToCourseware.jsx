@@ -38,7 +38,7 @@ NavigateToCourseware.propTypes = {
   contentKey: PropTypes.string.isRequired,
   courseRunUrl: PropTypes.string.isRequired,
   shouldUpgradeUserEnrollment: PropTypes.bool.isRequired,
-  userSubsidyApplicableToCourse: PropTypes.shape().isRequired, // TODO: add shape object
+  userSubsidyApplicableToCourse: PropTypes.shape().isRequired,
   onUpgradeClick: PropTypes.func.isRequired,
   onUpgradeSuccess: PropTypes.func.isRequired,
   onUpgradeError: PropTypes.func.isRequired,
