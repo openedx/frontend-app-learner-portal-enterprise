@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * TODO
  * @returns
  */
 const useRedemptionStatus = () => {
+  const queryClient = useQueryClient();
   const [redemptionStatus, setRedemptionStatus] = useState();
 
   const handleRedeemClick = () => {
@@ -12,7 +14,10 @@ const useRedemptionStatus = () => {
   };
 
   const handleRedeemSuccess = (transaction) => {
+    queryClient.invalidateQueries({ queryKey: ['can-user-redeem-course'] });
     setRedemptionStatus('success');
+
+    // redirect to courseware
     const { coursewareUrl } = transaction;
     global.location.assign(coursewareUrl);
   };
