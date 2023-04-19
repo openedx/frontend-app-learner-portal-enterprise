@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { Stack } from '@edx/paragon';
 
 import StatefulEnroll from '../../../../stateful-enroll';
 import { COURSE_MODES_MAP } from '../../../data/constants';
 import { NavigateToCourseware } from '../../course-run-actions';
 import RedemptionStatusText from '../../RedemptionStatusText';
+import useRedemptionStatus from './useRedemptionStatus';
 
 /**
  * TODO
@@ -17,7 +17,7 @@ const checkUserEnrollmentUpgradeEligibility = ({
 }) => {
   const isAuditEnrollment = userEnrollment.mode === COURSE_MODES_MAP.AUDIT;
   const canUpgrade = !!userSubsidyApplicableToCourse;
-  return !!(isAuditEnrollment && canUpgrade);
+  return isAuditEnrollment && canUpgrade;
 };
 
 /**
@@ -32,21 +32,12 @@ const useCourseRunCardAction = ({
   contentKey,
   userSubsidyApplicableToCourse,
 }) => {
-  const [redemptionStatus, setRedemptionStatus] = useState();
-
-  const handleRedeemClick = () => {
-    setRedemptionStatus();
-  };
-
-  const handleRedeemSuccess = (transaction) => {
-    setRedemptionStatus('success');
-    const { coursewareUrl } = transaction;
-    window.location.href = coursewareUrl;
-  };
-
-  const handleRedeemError = () => {
-    setRedemptionStatus('error');
-  };
+  const {
+    redemptionStatus,
+    handleRedeemClick,
+    handleRedeemSuccess,
+    handleRedeemError,
+  } = useRedemptionStatus();
 
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
