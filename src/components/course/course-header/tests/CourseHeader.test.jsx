@@ -151,7 +151,7 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
-  test('renders course run cards', () => {
+  test('renders deprecated course run cards', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}

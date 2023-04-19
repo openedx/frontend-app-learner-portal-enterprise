@@ -96,9 +96,9 @@ const StatefulEnroll = ({
     },
   });
 
-  const handleEnrollButtonClick = () => {
+  const handleEnrollButtonClick = (e) => {
     if (onClick) {
-      onClick();
+      onClick(e);
     }
     redemptionMutation.mutate({
       userId: getAuthenticatedUser().id,
