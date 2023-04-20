@@ -111,3 +111,15 @@ export const FILTERED_RECOMMENDATIONS = {
     'edX+DemoX2',
   ],
 };
+
+export const REVIEW_DATA = [
+  {
+    course_key: 'edX+DemoX',
+    reviews_count: 345,
+    avg_course_rating: '2.23',
+    confident_learners_percentage: '22.00',
+    most_common_goal: 'Job advancement',
+    most_common_goal_learners_percentage: '33.00',
+    total_enrollments: 4444,
+  },
+];

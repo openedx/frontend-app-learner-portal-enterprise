@@ -378,3 +378,5 @@ export const courseUsesEntitlementPricing = (course) => {
   }
   return false;
 };
+
+export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);

@@ -48,3 +48,10 @@ export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization’s subscription 
                                     + ' You have already requested access to all courses.';
 export const UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education';
 export const PAID_EXECUTIVE_EDUCATION = 'paid-executive-education';
+
+export const REVIEW_SECTION_CONTENT = {
+  DEMAND_AND_GROWTH: 'demand-and-growth',
+  AVERAGE_RATING: 'average-rating',
+  CONFIDENT_LEARNERS: 'confident-learners',
+  MOST_COMMON_GOAL_LEARNERS: 'most-common-goal-learners',
+};
