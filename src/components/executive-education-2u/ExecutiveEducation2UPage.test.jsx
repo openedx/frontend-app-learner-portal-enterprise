@@ -107,6 +107,7 @@ const initialAppContextValue = {
     slug: enterpriseSlug,
     enableExecutiveEducation2UFulfillment: true,
     enableDataSharingConsent: true,
+    adminUsers: [],
   },
 };
 
@@ -198,7 +199,7 @@ describe('ExecutiveEducation2UPage', () => {
 
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
-    expect(screen.getByText('Return to your learning platform')).toBeInTheDocument();
+    expect(screen.getByText('Helpful link:')).toBeInTheDocument();
     expect(screen.getByText('No offer is available to cover this course.')).toBeInTheDocument();
   });
 
@@ -212,12 +213,15 @@ describe('ExecutiveEducation2UPage', () => {
       sku: 'ABC123',
       failure_reason: 'no_offer_with_enough_balance',
     });
+    const failureReason = 'You don’t have access to this course because your organization '
+                          + 'doesn’t have enough funds. Please contact your edX administrator '
+                          + 'to resolve the error and provide you access to this content.';
     useActiveQueryParams.mockImplementation(() => searchParams);
 
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
-    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
-    expect(screen.getByText('Your enrollment was not completed! Your organization does not have remaining credit.')).toBeInTheDocument();
+    expect(screen.getByText('Helpful link:')).toBeInTheDocument();
+    expect(screen.getByText(failureReason)).toBeInTheDocument();
   });
 
   it('renders error page with valid user balance failure message', () => {
@@ -270,8 +274,30 @@ describe('ExecutiveEducation2UPage', () => {
 
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
-    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return to dashboard')).not.toBeInTheDocument();
     expect(screen.getByText('An error has occurred.')).toBeInTheDocument();
+  });
+
+  it('renders error page with system error and clicks on return button', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({
+      course_uuid: 'test-course-uuid',
+      sku: 'ABC123',
+      failure_reason: 'system_error',
+      http_referer: 'https://edx.org',
+    });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.getByText('System Error has occurred.')).toBeInTheDocument();
+
+    const returnButton = screen.getByText('Return to dashboard');
+    expect(returnButton).toBeInTheDocument();
+    userEvent.click(returnButton);
   });
 
   it('handles form submission success', () => {
