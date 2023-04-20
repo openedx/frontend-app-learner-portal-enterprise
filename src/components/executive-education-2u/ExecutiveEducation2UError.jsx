@@ -5,9 +5,12 @@ import { ArrowBack } from '@edx/paragon/icons';
 import { Button, Col, Row } from '@edx/paragon';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 
+import ContactAdminMailto from '../contact-admin-mailto';
 import {
   ErrorPage,
 } from '../error-page';
+import ExecutiveEducation2UErrorIllustration from
+  '../../assets/images/executive-education-2u/error-illustration.svg';
 
 const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
   const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
@@ -15,7 +18,9 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
   const createExecutiveEducationFailureMessage = (failureCode) => {
     const failureCodeMessages = {
       no_offer_available: 'No offer is available to cover this course.',
-      no_offer_with_enough_balance: 'Your enrollment was not completed! Your organization does not have remaining credit.',
+      no_offer_with_enough_balance: 'You don’t have access to this course because your organization '
+                                      + 'doesn’t have enough funds. Please contact your edX administrator '
+                                      + 'to resolve the error and provide you access to this content.',
       no_offer_with_enough_user_balance: 'Your enrollment was not completed! You have already spent your personal budget for enrollments.',
       no_offer_with_remaining_applications: 'Your enrollment was not completed! You have reached your maximum number of allowed enrollments.',
       system_error: 'System Error has occurred.',
@@ -23,18 +28,41 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
     };
     return failureCodeMessages[failureCode] ? failureCodeMessages[failureCode] : failureCodeMessages.default;
   };
+  const showHelpfulLink = (failureCode) => {
+    const failureCodeShowLink = {
+      no_offer_available: true,
+      no_offer_with_enough_balance: true,
+      no_offer_with_enough_user_balance: true,
+      no_offer_with_remaining_applications: true,
+      system_error: false,
+      default: false,
+    };
+    return failureCodeShowLink[failureCode] ? failureCodeShowLink[failureCode] : failureCodeShowLink.default;
+  };
   return (
     <ErrorPage.Content className="mt-5 text-center">
       <Row>
         <Col xs={12} lg={{ span: 10, offset: 1 }}>
-          <ErrorPage.Title />
-          <ErrorPage.Subtitle>
+          <img
+            src={ExecutiveEducation2UErrorIllustration}
+            className="mb-4"
+            alt="Executive Education 2U Error Illustration"
+          />
+          <div className="executive-education-2u-error-heading mb-4">
+            <span className="executive-education-2u-error-heading-red mr-2">
+              We&apos;re sorry.
+            </span>
+            <span className="executive-education-2u-error-heading-black">
+              Something went wrong.
+            </span>
+          </div>
+          <p
+            className="executive-education-2u-error-heading-details mb-4"
+            data-testid="executive-education-2u-error-heading-details"
+          >
             {createExecutiveEducationFailureMessage(failureReason)}
-          </ErrorPage.Subtitle>
-          <p className="mb-6">
-            Please contact your edX administrator to resolve the error and gain access to this content.
           </p>
-          {httpReferrer && (
+          {httpReferrer && !showHelpfulLink(failureReason) && (
             <Button
               href={httpReferrer}
               iconBefore={ArrowBack}
@@ -48,8 +76,18 @@ const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
                 global.location.href = httpReferrer;
               }}
             >
-              Return to your learning platform
+              Return to dashboard
             </Button>
+          )}
+          {showHelpfulLink(failureReason) && (
+            <div>
+              <span className="executive-education-2u-error-link-description pr-2">
+                Helpful link:
+              </span>
+              <span className="executive-education-2u-error-link-box">
+                <ContactAdminMailto />
+              </span>
+            </div>
           )}
         </Col>
       </Row>
