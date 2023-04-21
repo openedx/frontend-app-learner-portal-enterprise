@@ -25,7 +25,7 @@ export const formValidationMessages = {
     + 'guardian to consent to your registration and GetSmarter processing your personal information. '
     + 'Please reach out to privacy@getsmarter.com to proceed with your registration.',
   studentTermsAndConditionsRequired: 'Please agree to Terms and Conditions for Students',
-  dataSharingConsentRequired: 'Please agree to Terms and Conditions for Date Sharing Consent',
+  dataSharingConsentRequired: "Please agree to GetSmarter's data sharing consent",
 };
 
 const UserEnrollmentForm = ({
