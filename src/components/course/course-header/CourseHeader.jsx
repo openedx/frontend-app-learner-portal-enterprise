@@ -9,24 +9,24 @@ import {
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { CourseContext } from './CourseContextProvider';
-import CourseSkills from './CourseSkills';
-import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from './CourseEnrollmentFailedAlert';
+import { CourseContext } from '../CourseContextProvider';
+import CourseSkills from '../CourseSkills';
+import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
 
 import {
   getDefaultProgram,
   formatProgramType,
-} from './data/utils';
-import { useCoursePartners } from './data/hooks';
-import LicenseRequestedAlert from './LicenseRequestedAlert';
-import SubsidyRequestButton from './SubsidyRequestButton';
-import CourseReview from './CourseReview';
+} from '../data/utils';
+import { useCoursePartners } from '../data/hooks';
+import LicenseRequestedAlert from '../LicenseRequestedAlert';
+import SubsidyRequestButton from '../SubsidyRequestButton';
+import CourseReview from '../CourseReview';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
-  const { course, catalog } = state;
+  const { course, catalog, isPolicyRedemptionEnabled } = state;
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
@@ -86,9 +86,10 @@ const CourseHeader = () => {
               />
             )}
             {course.skills?.length > 0 && <CourseSkills />}
+            {isPolicyRedemptionEnabled && <CourseRunCards />}
             {catalog.containsContentItems && (
               <>
-                <CourseRunCards />
+                {!isPolicyRedemptionEnabled && <CourseRunCards.Deprecated />}
                 <SubsidyRequestButton />
               </>
             )}

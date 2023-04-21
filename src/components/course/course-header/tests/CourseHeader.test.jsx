@@ -4,14 +4,14 @@ import { useLocation } from 'react-router-dom';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
-import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
+import { CourseContextProvider } from '../../CourseContextProvider';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
-import { COURSE_PACING_MAP } from '../data/constants';
-import { TEST_OWNER } from './data/constants';
-import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { COURSE_PACING_MAP } from '../../data/constants';
+import { TEST_OWNER } from '../../tests/data/constants';
+import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -21,10 +21,11 @@ useLocation.mockImplementation(() => ({
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
-jest.mock('../CourseRunCards', () => function CourseRunCards() {
-  return <p>Cards</p>;
-});
-jest.mock('../SubsidyRequestButton', () => function SubsidyRequestButton() {
+jest.mock('../CourseRunCards', () => ({
+  default: () => <p>Cards</p>,
+  Deprecated: () => <p>Deprecated cards</p>,
+}));
+jest.mock('../../SubsidyRequestButton', () => function SubsidyRequestButton() {
   return <p>SubsidyRequestButton</p>;
 });
 
@@ -150,7 +151,7 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
-  test('renders course run cards button', () => {
+  test('renders deprecated course run cards', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
@@ -158,7 +159,7 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Cards')).toBeInTheDocument();
+    expect(screen.queryByText('Deprecated cards')).toBeInTheDocument();
   });
 
   test('renders course image', () => {

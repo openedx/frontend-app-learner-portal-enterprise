@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable object-curly-newline */
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import {

@@ -7,7 +7,7 @@ import {
   renderWithRouter,
   initialAppState,
   initialCourseState,
-} from '../../../utils/tests';
+} from '../../../../utils/tests';
 
 import {
   COURSE_MODES_MAP,
@@ -15,14 +15,14 @@ import {
   COURSE_PACING_MAP,
   LICENSE_SUBSIDY_TYPE,
   CURRENCY_USD,
-} from '../data/constants';
+} from '../../data/constants';
 import CourseRunCard from '../CourseRunCard';
-import { CourseContextProvider } from '../CourseContextProvider';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import * as subsidyRequestsHooks from '../data/hooks';
-import { enrollButtonTypes } from '../enrollment/constants';
-import * as utils from '../enrollment/utils';
+import { CourseContextProvider } from '../../CourseContextProvider';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import * as subsidyRequestsHooks from '../../data/hooks';
+import { enrollButtonTypes } from '../../enrollment/constants';
+import * as utils from '../../enrollment/utils';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
@@ -30,9 +30,9 @@ const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
-jest.mock('../../../config');
+jest.mock('../../../../config');
 
-jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
+jest.mock('../../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
   return (
     <>
       <span>{enrollLabel}</span>
@@ -40,7 +40,7 @@ jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabe
     </>
   );
 });
-jest.mock('../data/hooks', () => ({
+jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
   useCatalogsForSubsidyRequests: jest.fn(() => []),
@@ -113,7 +113,7 @@ const renderCard = ({
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <CourseContextProvider initialState={courseInitState}>
-            <CourseRunCard
+            <CourseRunCard.Deprecated
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
@@ -128,7 +128,7 @@ const renderCard = ({
   );
 };
 
-describe('<CourseRunCard/>', () => {
+describe('<CourseRunCard.Deprecated />', () => {
   test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();

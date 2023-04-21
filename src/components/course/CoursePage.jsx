@@ -10,12 +10,16 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
 import { CourseContextProvider } from './CourseContextProvider';
-import CourseHeader from './CourseHeader';
+import CourseHeader from './course-header/CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
-import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
+import {
+  useAllCourseData,
+  useExtractAndRemoveSearchParamsFromURL,
+  useCheckAccessPolicyRedemptionEligibility,
+} from './data/hooks';
+import { getActiveCourseRun, getAvailableCourseRuns, checkPolicyRedemptionEnabled } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
@@ -65,7 +69,10 @@ const CoursePage = () => {
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const {
-    courseData, courseRecommendations, fetchError, isLoading,
+    courseData,
+    courseRecommendations,
+    fetchError,
+    isLoading,
   } = useAllCourseData({
     courseKey,
     enterpriseConfig,
@@ -77,9 +84,24 @@ const CoursePage = () => {
     activeCatalogs,
   });
 
+  const {
+    isLoading: isLoadingAccessPolicyRedemptionStatus,
+    isFetching: isFetchingAccessPolicyRedemptionStatus,
+    data: accessPolicyRedemptionEligibilityData,
+  } = useCheckAccessPolicyRedemptionEligibility({
+    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+  });
+  const isLoadingAccessPolicyRedemptionEligibility = (
+    isLoadingAccessPolicyRedemptionStatus || isFetchingAccessPolicyRedemptionStatus
+  );
+  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
+
   const initialState = useMemo(
     () => {
-      if (isLoading || !courseData || !courseRecommendations) {
+      const isLoadingAny = (
+        isLoading || isLoadingAccessPolicyRedemptionEligibility
+      );
+      if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
       }
       const {
@@ -105,9 +127,17 @@ const CoursePage = () => {
           allRecommendations: allRecommendations?.slice(0, 3),
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
+        isPolicyRedemptionEnabled,
       };
     },
-    [isLoading, courseData, courseRecommendations, algoliaSearchParams],
+    [
+      isLoading,
+      isLoadingAccessPolicyRedemptionEligibility,
+      courseData,
+      courseRecommendations,
+      algoliaSearchParams,
+      isPolicyRedemptionEnabled,
+    ],
   );
 
   if (fetchError) {
