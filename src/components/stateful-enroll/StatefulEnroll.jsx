@@ -80,6 +80,7 @@ const StatefulEnroll = ({
   });
 
   useTransactionStatus({
+    contentKey,
     transactionUUID,
     onSuccess: (transaction) => {
       if (transaction.state === 'committed') {

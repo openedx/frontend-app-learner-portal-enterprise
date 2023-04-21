@@ -8,12 +8,15 @@ import { retrieveTransactionStatus } from '../service';
  * is in a "committed" or "failed" state.
  *
  * @param {object} args
+ * @param {string} contentKey The content key (course run key) associated with the
+ *  transaction. Temporary for mock API response.
  * @param {string} transactionUUID The transaction UUID to check the status of.
  * @param {function} onSuccess A callback function called when the transaction request is successful.
  * @param {function} onError A callback function called when the transaction request throws an error.
  * @returns
  */
 const useTransactionStatus = ({
+  contentKey,
   transactionUUID,
   onSuccess,
   onError,
@@ -31,7 +34,7 @@ const useTransactionStatus = ({
   };
 
   const checkTransactionStatus = async () => {
-    const response = await retrieveTransactionStatus(transactionUUID);
+    const response = await retrieveTransactionStatus({ transactionUUID, contentKey });
     return response;
   };
 
