@@ -8,15 +8,18 @@ import { v4 as uuidv4 } from 'uuid';
  *
  * Note: this arg may change to be given the actual API url to call
  * rather than just the `transactionUUID` (TBD during API integration).
- * @param {string} transactionUUID
+ *
+ * @param {object} args
+ * @param {string} args.contentKey
+ * @param {string} args.transactionUUID
  * @returns The payload for the specified transaction.
  */
 /* istanbul ignore next */
-export const retrieveTransactionStatus = async (transactionUUID) => {
+export const retrieveTransactionStatus = async ({ contentKey, transactionUUID }) => {
   const mockCommittedTransaction = {
     uuid: transactionUUID,
     state: 'committed',
-    courseware_url: `${getConfig().LEARNING_BASE_URL}/course/course-v1:edX+S2023+1T2023/home`,
+    courseware_url: `${getConfig().LEARNING_BASE_URL}/course/${contentKey}/home`,
   };
   const url = 'https://httpbin.org/post';
   const response = await fetch(url, {
