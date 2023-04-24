@@ -378,3 +378,37 @@ export const courseUsesEntitlementPricing = (course) => {
   }
   return false;
 };
+
+/**
+ * Determines the first entitlement price from a list of entitlements.
+ *
+ * @param {*} entitlements List of course entitlements
+ * @returns Price gleaned from entitlements
+ */
+export function getEntitlementPrice(entitlements) {
+  if (entitlements?.length) {
+    return Number(entitlements[0].price);
+  }
+  return undefined;
+}
+
+/**
+ * Determines the price for a course run.
+ *
+ * @param {object} args
+ * @param {object} args.courseDetails Object containing course type and entitlements properties.
+ * @param {number} args.firstEnrollablePaidSeatPrice Price of first enrollable paid seat.
+ * @returns Price for the course run.
+ */
+export const getCourseRunPrice = ({
+  courseDetails,
+  firstEnrollablePaidSeatPrice,
+}) => {
+  if (courseUsesEntitlementPricing(courseDetails)) {
+    return getEntitlementPrice(courseDetails?.entitlements) || {};
+  }
+  if (firstEnrollablePaidSeatPrice) {
+    return firstEnrollablePaidSeatPrice;
+  }
+  return undefined;
+};

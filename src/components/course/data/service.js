@@ -1,8 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
-import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 
@@ -162,43 +160,22 @@ export default class CourseService {
     });
   }
 
+  /**
+   * Service method to determine whether the authenticated user can redeem the specified course run(s).
+   *
+   * @param {object} args
+   * @param {array} courseRunKeys List of course run keys.
+   * @returns Camel-cased object of response data from the can-redeem API endpoint.
+   */
   async fetchCanRedeem({
-    // lmsUserId,
     courseRunKeys,
   }) {
-    const url = 'https://httpbin.org/post';
-    const REDEEMABLE_POLICY_UUID = uuidv4();
-    const REDEEMABLE_ACCESS_POLICY = {
-      uuid: REDEEMABLE_POLICY_UUID,
-      policy_redemption_url: `http://localhost:18270/api/v1/policy/${REDEEMABLE_POLICY_UUID}/redeem/`,
-      policy_type: 'LearnerCreditAccessPolicy',
-      description: 'Learner credit access policy',
-      active: true,
-      catalog_uuid: '14f701ea-7e0b-4a4e-bbda-f295e40c7bf1',
-      subsidy_uuid: '7801b0ef-b1c2-4f3a-97fa-121f0bce48be',
-      access_method: 'direct',
-      spent_limit: 10000,
-      per_learner_spend_limit: 200,
-      remaining_balance: 9500,
-      remaining_balance_for_learner: 200,
-      list_price: 199,
-    };
-
-    const payload = courseRunKeys.map((courseRunKey) => ({
-      course_run_key: courseRunKey,
-      redemptions: [],
-      subsidy_access_policy: hasFeatureFlagEnabled('HAS_MOCK_REDEEMABLE_POLICY') ? REDEEMABLE_ACCESS_POLICY : null,
-      reasons: [],
-    }));
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+    const queryParams = new URLSearchParams();
+    courseRunKeys.forEach((courseRunKey) => {
+      queryParams.append('content_key', courseRunKey);
     });
-    const result = await response.json();
-    return camelCaseObject(result.json);
+    const url = `${this.config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/enterprise-customer/${this.enterpriseUuid}/can-redeem/`;
+    const response = await this.authenticatedHttpClient.get(`${url}?${queryParams.toString()}`);
+    return camelCaseObject(response.data);
   }
 }
