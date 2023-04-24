@@ -41,7 +41,6 @@ const useTransactionStatus = ({
   return useQuery({
     queryKey: ['transaction-status', transactionUUID],
     enabled: !!transactionUUID,
-    refetchOnWindowFocus: false,
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
     onSuccess,

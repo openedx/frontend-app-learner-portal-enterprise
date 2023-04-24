@@ -23,7 +23,9 @@ import { ToastsProvider, Toasts } from '../Toasts';
 import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
 
 // Create a client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  refetchOnWindowFocus: false,
+});
 
 const App = () => {
   useEffect(() => {
