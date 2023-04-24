@@ -72,7 +72,7 @@ const CoursePage = () => {
     courseData,
     courseRecommendations,
     fetchError,
-    isLoading,
+    isLoadingCourseData,
   } = useAllCourseData({
     courseKey,
     enterpriseConfig,
@@ -85,21 +85,17 @@ const CoursePage = () => {
   });
 
   const {
-    isLoading: isLoadingAccessPolicyRedemptionStatus,
-    isFetching: isFetchingAccessPolicyRedemptionStatus,
+    isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
     data: accessPolicyRedemptionEligibilityData,
   } = useCheckAccessPolicyRedemptionEligibility({
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
   });
-  const isLoadingAccessPolicyRedemptionEligibility = (
-    isLoadingAccessPolicyRedemptionStatus || isFetchingAccessPolicyRedemptionStatus
-  );
   const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
 
   const initialState = useMemo(
     () => {
       const isLoadingAny = (
-        isLoading || isLoadingAccessPolicyRedemptionEligibility
+        isLoadingCourseData || isLoadingAccessPolicyRedemptionStatus
       );
       if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
@@ -131,8 +127,8 @@ const CoursePage = () => {
       };
     },
     [
-      isLoading,
-      isLoadingAccessPolicyRedemptionEligibility,
+      isLoadingCourseData,
+      isLoadingAccessPolicyRedemptionStatus,
       courseData,
       courseRecommendations,
       algoliaSearchParams,
@@ -144,7 +140,7 @@ const CoursePage = () => {
     return <ErrorPage message={fetchError.message} />;
   }
 
-  if (isLoading || !initialState) {
+  if (!initialState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />

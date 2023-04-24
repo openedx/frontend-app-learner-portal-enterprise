@@ -17,8 +17,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 }));
 jest.mock('../data/hooks', () => ({
   useCheckAccessPolicyRedemptionEligibility: jest.fn(() => ({
-    isLoading: false,
-    isFetching: false,
+    isInitialLoading: false,
     data: [],
   })),
   useAllCourseData: jest.fn(() => ({
