@@ -61,7 +61,6 @@ const useCourseRunCardAction = ({
           contentKey={contentKey}
           courseRunUrl={courseRunUrl}
           userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-          eligiblity={eligiblity}
           onUpgradeClick={handleRedeemClick}
           onUpgradeSuccess={handleRedeemSuccess}
           onUpgradeError={handleRedeemError}
