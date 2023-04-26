@@ -44,10 +44,6 @@ const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
 
 export function useAllCourseData({
   courseService,
-  subscriptionLicense,
-  couponCodes,
-  canEnrollWithEnterpriseOffers,
-  enterpriseOffers,
   activeCatalogs,
 }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -90,14 +86,7 @@ export function useAllCourseData({
       setIsLoading(false);
     };
     fetchData();
-  }, [
-    courseService,
-    activeCatalogs,
-    canEnrollWithEnterpriseOffers,
-    couponCodes,
-    enterpriseOffers,
-    subscriptionLicense,
-  ]);
+  }, [courseService, activeCatalogs]);
 
   return {
     courseData,

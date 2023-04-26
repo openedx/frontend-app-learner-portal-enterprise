@@ -89,7 +89,7 @@ const StatefulEnroll = ({
           onSuccess(transaction);
         }
       }
-      if (transaction.state === 'error') {
+      if (transaction.state === 'failed') {
         handleRedemptionError();
       }
     },

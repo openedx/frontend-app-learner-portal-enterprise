@@ -84,14 +84,7 @@ const CoursePage = () => {
     fetchError: fetchCourseDataError,
     courseReviews,
     isLoadingCourseData,
-  } = useAllCourseData({
-    courseService,
-    subscriptionLicense,
-    couponCodes,
-    canEnrollWithEnterpriseOffers,
-    enterpriseOffers,
-    activeCatalogs,
-  });
+  } = useAllCourseData({ courseService, activeCatalogs });
 
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
