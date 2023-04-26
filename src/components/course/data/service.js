@@ -201,4 +201,9 @@ export default class CourseService {
     const result = await response.json();
     return camelCaseObject(result.json);
   }
+
+  fetchCourseReviews() {
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/course_review/${this.courseKey}/`;
+    return this.cachedAuthenticatedHttpClient.get(url);
+  }
 }

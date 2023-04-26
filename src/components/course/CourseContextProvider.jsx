@@ -59,5 +59,6 @@ CourseContextProvider.propTypes = {
     userSubsidyApplicableToCourse: PropTypes.shape({}),
     catalog: PropTypes.shape({}).isRequired,
     courseRecommendations: PropTypes.shape({}).isRequired,
+    courseReviews: PropTypes.shape({}).isRequired,
   }).isRequired,
 };

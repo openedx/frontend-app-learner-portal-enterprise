@@ -33,7 +33,6 @@ const CourseHeader = () => {
     () => getDefaultProgram(course.programs),
     [course],
   );
-  const enableReviewSection = false;
 
   return (
     <div className="course-header">
@@ -100,7 +99,7 @@ const CourseHeader = () => {
           <Col xs={12} lg={12}>
             {catalog.containsContentItems ? (
               <>
-                {enableReviewSection && <CourseReview />}
+                <CourseReview />
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.

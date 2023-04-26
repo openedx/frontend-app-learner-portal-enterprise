@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import CourseService from '../service';
-import { TEST_RECOMMENDATION_DATA, FILTERED_RECOMMENDATIONS } from '../../tests/constants';
+import { TEST_RECOMMENDATION_DATA, FILTERED_RECOMMENDATIONS, REVIEW_DATA } from '../../tests/constants';
 
 // config
 const APP_CONFIG = {
@@ -20,12 +20,14 @@ const COURSE_RUN_KEY = 'edX+DemoX_2022';
 // endpoints
 const RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/taxonomy/api/v1/course_recommendations/${COURSE_KEY}/`;
 const FILTER_RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/filter_content_items/`;
+const REVIEW_API_ENDPOINT = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_review/${COURSE_KEY}/`;
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
 axiosMock.onGet(RECOMMENDATION_API_ENDPOINT).reply(200, TEST_RECOMMENDATION_DATA);
 axiosMock.onPost(FILTER_RECOMMENDATION_API_ENDPOINT).reply(200, FILTERED_RECOMMENDATIONS);
+axiosMock.onGet(REVIEW_API_ENDPOINT).reply(200, REVIEW_DATA);
 
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: () => (APP_CONFIG),
@@ -65,5 +67,14 @@ describe('CourseService', () => {
     expect(axiosMock.history.post[0].url).toBe(FILTER_RECOMMENDATION_API_ENDPOINT);
 
     expect(data).toEqual(expectedData);
+  });
+
+  it('fetches course review data', async () => {
+    const courseService = new CourseService({
+      courseKey: COURSE_KEY,
+    });
+    const response = await courseService.fetchCourseReviews();
+    expect(axiosMock.history.get[0].url).toBe(REVIEW_API_ENDPOINT);
+    expect(response.data).toEqual(REVIEW_DATA);
   });
 });

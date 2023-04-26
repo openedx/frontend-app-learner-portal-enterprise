@@ -94,6 +94,15 @@ jest.mock('../data/hooks', () => ({
         },
       ],
     },
+    courseReviews: {
+      course_key: 'test-course-key1',
+      reviews_count: 345,
+      avg_course_rating: '2.23',
+      confident_learners_percentage: '22.00',
+      most_common_goal: 'Job advancement',
+      most_common_goal_learners_percentage: '33.00',
+      total_enrollments: 4444,
+    },
   })),
   useExtractAndRemoveSearchParamsFromURL: jest.fn(() => ({
     courseRunKey: 'test-course-run-key',

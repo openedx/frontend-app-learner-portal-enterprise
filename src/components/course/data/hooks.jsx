@@ -54,6 +54,7 @@ export function useAllCourseData({
   const [isLoading, setIsLoading] = useState(false);
   const [courseData, setCourseData] = useState();
   const [courseRecommendations, setCourseRecommendations] = useState();
+  const [courseReviews, setCourseReviews] = useState();
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
@@ -133,6 +134,14 @@ export function useAllCourseData({
         logError(error);
         setCourseRecommendations([]);
       }
+
+      try {
+        const response = await courseService.fetchCourseReviews();
+        setCourseReviews(response.data);
+      } catch (error) {
+        logError(error);
+        setCourseReviews(undefined);
+      }
       setIsLoading(false);
     };
     fetchData();
@@ -150,6 +159,7 @@ export function useAllCourseData({
   return {
     courseData: camelCaseObject(courseData),
     courseRecommendations: camelCaseObject(courseRecommendations),
+    courseReviews: camelCaseObject(courseReviews),
     fetchError,
     isLoading,
   };
