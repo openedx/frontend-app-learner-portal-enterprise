@@ -10,7 +10,7 @@ import { REVIEW_SECTION_CONTENT } from './data/constants';
 const CourseReview = () => {
   const { state } = useContext(CourseContext);
   const { courseReviews } = state;
-  const [showInfoContent, setShowInfoContent] = useState(REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH);
+  const [showInfoContent, setShowInfoContent] = useState('');
   if (!courseReviews) {
     return '';
   }
@@ -26,9 +26,9 @@ const CourseReview = () => {
   } else if (showInfoContent === REVIEW_SECTION_CONTENT.MOST_COMMON_GOAL_LEARNERS) {
     infoContent = `We asked learners who enrolled in this course to choose the reason for taking it. Options were:
         “learn valuable skills”, “job advancement”, “learn for fun”, and “change careers”. 
-           <b>${parseInt(courseReviews.confidentLearnersPercentage, 10)}%</b> of learners who
+           <b>${parseInt(courseReviews.mostCommonGoalLearnersPercentage, 10)}%</b> of learners who
            enrolled in this course took it to <b>learn valuable skills</b>.`;
-  } else {
+  } else if (showInfoContent === REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH) {
     infoContent = `<b>${courseReviews.totalEnrollments}</b> learners took this course in the past year.`;
   }
 
@@ -38,21 +38,51 @@ const CourseReview = () => {
         <Col sm={12}><h3>The Impact:</h3></Col>
       </Row>
       <Row>
-        <Col sm className="mr-4" data-testid="demand-and-growth" id="review-1" onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH); }}>
-          <h1 className="number-color mb-0">{courseReviews.reviewsCount}</h1>
+        <Col sm className="mr-4" id="review-1">
+          <h1
+            role="presentation"
+            data-testid="demand-and-growth"
+            onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH); }}
+            className={`number-color mb-0 ${ showInfoContent === REVIEW_SECTION_CONTENT.DEMAND_AND_GROWTH && 'text-underline'}`}
+          >
+            {courseReviews.totalEnrollments}
+          </h1>
           <div>learners took this course in the last 12 months</div>
         </Col>
-        <Col sm className="mr-4" data-testid="average-rating" id="review-2" onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.AVERAGE_RATING); }}>
-          <div className="d-flex align-items-center"><h1 className="number-color mb-0">{fixDecimalNumber(courseReviews.avgCourseRating)}</h1><Icon className="star-color" src={StarFilled} />
+        <Col sm className="mr-4" id="review-2">
+          <div className="d-flex align-items-center">
+            <h1
+              role="presentation"
+              data-testid="average-rating"
+              onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.AVERAGE_RATING); }}
+              className={`number-color mb-0 ${ showInfoContent === REVIEW_SECTION_CONTENT.AVERAGE_RATING && 'text-underline'}`}
+            >
+              {fixDecimalNumber(courseReviews.avgCourseRating)}
+            </h1>
+            <Icon className="star-color" src={StarFilled} />
           </div>
           <div><b>average rating</b> for this course on a 5-star scale</div>
         </Col>
-        <Col sm className="mr-4" data-testid="confident-learners" id="review-3" onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.CONFIDENT_LEARNERS); }}>
-          <h1 className="number-color mb-0">{parseInt(courseReviews.confidentLearnersPercentage, 10)}%</h1>
+        <Col sm className="mr-4" id="review-3">
+          <h1
+            role="presentation"
+            data-testid="confident-learners"
+            onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.CONFIDENT_LEARNERS); }}
+            className={`number-color mb-0 ${ showInfoContent === REVIEW_SECTION_CONTENT.CONFIDENT_LEARNERS && 'text-underline'}`}
+          >
+            {parseInt(courseReviews.confidentLearnersPercentage, 10)}%
+          </h1>
           <div>are confident this course will help them <b>reach their goals</b></div>
         </Col>
-        <Col sm className="mr-4" data-testid="most-common-goal-learners" id="review-4" onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.MOST_COMMON_GOAL_LEARNERS); }}>
-          <h1 className="number-color mb-0">{parseInt(courseReviews.mostCommonGoalLearnersPercentage, 10)}%</h1>
+        <Col sm className="mr-4" id="review-4">
+          <h1
+            role="presentation"
+            data-testid="most-common-goal-learners"
+            onClick={() => { setShowInfoContent(REVIEW_SECTION_CONTENT.MOST_COMMON_GOAL_LEARNERS); }}
+            className={`number-color mb-0 ${ showInfoContent === REVIEW_SECTION_CONTENT.MOST_COMMON_GOAL_LEARNERS && 'text-underline'}`}
+          >
+            {parseInt(courseReviews.mostCommonGoalLearnersPercentage, 10)}%
+          </h1>
           <div>of the learners took this course to <b>learn new skills</b></div>
         </Col>
       </Row>

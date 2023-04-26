@@ -174,7 +174,6 @@ describe('<CourseHeader />', () => {
 
     expect(screen.queryByText('average rating')).toBeInTheDocument();
     expect(screen.queryByText('learners took this course in the last 12 months')).toBeInTheDocument();
-    expect(screen.getByText('learners took this course in the past year.')).toBeInTheDocument();
     expect(screen.getByText('for this course on a 5-star scale')).toBeInTheDocument();
   });
 
