@@ -172,7 +172,7 @@ describe('<CourseHeader />', () => {
 
     expect(screen.queryByText('average rating')).toBeInTheDocument();
     expect(screen.queryByText('learners took this course in the last 12 months')).toBeInTheDocument();
-    expect(screen.getByText('learner took this course in the past year.')).toBeInTheDocument();
+    expect(screen.getByText('learners took this course in the past year.')).toBeInTheDocument();
     expect(screen.getByText('for this course on a 5-star scale')).toBeInTheDocument();
   });
 
@@ -191,7 +191,7 @@ describe('<CourseHeader />', () => {
     userEvent.click(screen.queryByTestId('most-common-goal-learners'));
     expect(screen.getByText('We asked learners who enrolled in this course to choose the reason for taking it.', { exact: false })).toBeInTheDocument();
     userEvent.click(screen.queryByTestId('demand-and-growth'));
-    expect(screen.getByText('learner took this course in the past year.')).toBeInTheDocument();
+    expect(screen.getByText('learners took this course in the past year.')).toBeInTheDocument();
   });
 
   test('does not renders course reviews section', () => {

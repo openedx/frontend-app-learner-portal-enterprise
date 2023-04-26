@@ -128,6 +128,14 @@ export function useAllCourseData({
       }
 
       try {
+        const response = await courseService.fetchCourseReviews();
+        setCourseReviews(response.data);
+      } catch (error) {
+        logError(error);
+        setCourseReviews(undefined);
+      }
+
+      try {
         const data = await courseService.fetchAllCourseRecommendations(activeCatalogs);
         setCourseRecommendations(data);
       } catch (error) {
@@ -135,13 +143,6 @@ export function useAllCourseData({
         setCourseRecommendations([]);
       }
 
-      try {
-        const response = await courseService.fetchCourseReviews();
-        setCourseReviews(response.data);
-      } catch (error) {
-        logError(error);
-        setCourseReviews(undefined);
-      }
       setIsLoading(false);
     };
     fetchData();
