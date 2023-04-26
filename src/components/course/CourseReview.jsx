@@ -29,7 +29,7 @@ const CourseReview = () => {
            <b>${parseInt(courseReviews.confidentLearnersPercentage, 10)}%</b> of learners who
            enrolled in this course took it to <b>learn valuable skills</b>.`;
   } else {
-    infoContent = `<b>${courseReviews.totalEnrollments}</b> learner took this course in the past year.`;
+    infoContent = `<b>${courseReviews.totalEnrollments}</b> learners took this course in the past year.`;
   }
 
   return (
