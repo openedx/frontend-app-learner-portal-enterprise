@@ -82,6 +82,7 @@ const CoursePage = () => {
     courseData,
     courseRecommendations,
     fetchError: fetchCourseDataError,
+    courseReviews,
     isLoadingCourseData,
   } = useAllCourseData({
     courseService,
@@ -150,6 +151,7 @@ const CoursePage = () => {
         userEntitlements,
         userSubsidyApplicableToCourse,
         catalog,
+        courseReviews,
         algoliaSearchParams,
         courseRecommendations: {
           allRecommendations: allRecommendations?.slice(0, 3),
@@ -164,6 +166,7 @@ const CoursePage = () => {
       isLoadingAccessPolicyRedemptionStatus,
       courseData,
       courseRecommendations,
+      courseReviews,
       algoliaSearchParams,
       isPolicyRedemptionEnabled,
     ],

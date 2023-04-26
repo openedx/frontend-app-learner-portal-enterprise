@@ -178,4 +178,9 @@ export default class CourseService {
     const response = await this.authenticatedHttpClient.get(`${url}?${queryParams.toString()}`);
     return camelCaseObject(response.data);
   }
+
+  fetchCourseReviews() {
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/course_review/${this.courseKey}/`;
+    return this.cachedAuthenticatedHttpClient.get(url);
+  }
 }

@@ -412,3 +412,11 @@ export const getCourseRunPrice = ({
   }
   return undefined;
 };
+
+/**
+ * Transforms a value into a float with 2 decimal places.
+ *
+ * @param {*} value
+ * @returns Casts value to a float and fixes it to 2 decimal places.
+ */
+export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);
