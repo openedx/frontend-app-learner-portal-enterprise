@@ -7,6 +7,7 @@ import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
+import { linkToCourse } from './data/utils';
 
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
@@ -15,13 +16,8 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
   const history = useHistory();
-  const linkToCourse = useMemo(
-    () => {
-      if (!Object.keys(course).length) {
-        return '#';
-      }
-      return `/${slug}/course/${course.key}`;
-    },
+  const cachedLinkToCourse = useMemo(
+    () => linkToCourse(course, slug),
     [course, slug],
   );
 
@@ -53,7 +49,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
             courseKey: course.key,
           },
         );
-        history.push(linkToCourse);
+        history.push(cachedLinkToCourse);
       }}
     >
       <Card.ImageCap

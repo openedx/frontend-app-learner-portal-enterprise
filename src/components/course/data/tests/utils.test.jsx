@@ -6,7 +6,14 @@ import {
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
-  getConfig: () => ({ COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE: ['entitlement_course'] }),
+  getConfig: () => ({
+    COURSE_TYPE_CONFIG: {
+      entitlement_course: {
+        pathSlug: 'executive-education-2u',
+        usesEntitlementListPrice: true,
+      },
+    },
+  }),
 }));
 
 describe('findCouponCodeForCourse', () => {
@@ -187,11 +194,11 @@ describe('courseUsesEntitlementPricing', () => {
     courseType: 'non_entitlement_course',
   };
 
-  it('Returns true when course type included in COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE', () => {
+  it('Returns true when course type included in COURSE_TYPE_CONFIG usesEntitlementListPrice is true', () => {
     expect(courseUsesEntitlementPricing(mockEntitlementCourse)).toEqual(true);
   });
 
-  it('Returns false when course type not included in COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE', () => {
+  it('Returns false when course type not included in COURSE_TYPE_CONFIG', () => {
     expect(courseUsesEntitlementPricing(mockNonEntitlementCourse)).toEqual(false);
   });
 });

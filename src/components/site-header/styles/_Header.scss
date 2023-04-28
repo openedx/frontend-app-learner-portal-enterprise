@@ -1,7 +1,5 @@
 @import './Menu.scss';
 
-$getsmarter-logo-bg: #082135;
-
 .site-header-mobile,
 .site-header-desktop {
   background: $white;
@@ -20,8 +18,11 @@ $getsmarter-logo-bg: #082135;
       max-height: 50px;
   }
 
-  .getsmarter-logo {
-    background-color: $getsmarter-logo-bg;
+  .logo-right {
+    border-left: 1px solid $gray-200;
+  }
+
+  .partner-header-logo {
     width: 70px;
 
     @include media-breakpoint-up(md) {

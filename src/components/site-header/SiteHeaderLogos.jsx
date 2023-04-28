@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
 import { AppContext } from '@edx/frontend-platform/react';
-
-import GetSmarterLogo from '../../assets/icons/getsmarter-logo.svg';
+import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 
 const SiteHeaderLogos = () => {
+  const courseTypeMatch = useRouteMatch('/:enterpriseSlug/:courseType');
+  const courseType = courseTypeMatch?.params?.courseType;
   const { enterpriseConfig } = useContext(AppContext);
-  const { pathname } = useLocation();
-  const isInExecutiveEducationPath = pathname.includes('executive-education-2u');
+  const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
 
   let mainLogo = (
     <div className="d-flex">
@@ -32,12 +32,12 @@ const SiteHeaderLogos = () => {
   return (
     <>
       {mainLogo}
-      {isInExecutiveEducationPath && (
+      {courseTypePartnerLogo && (
         <img
-          className="d-block getsmarter-logo"
-          src={GetSmarterLogo}
-          alt="getsmarter-logo"
-          data-testid="getsmarter-logo-image-id"
+          className="d-block pl-2 partner-header-logo logo-right"
+          src={courseTypePartnerLogo}
+          alt="partner-header-logo"
+          data-testid="partner-header-logo-image-id"
         />
       )}
     </>

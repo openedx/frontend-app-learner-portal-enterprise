@@ -17,6 +17,7 @@ import {
   hasLicenseOrCoupon,
 } from './data/utils';
 import { NotCurrentlyAvailable } from './data/constants';
+import { linkToCourse } from '../course/data/utils';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -38,7 +39,7 @@ const ProgramProgressCourses = ({ courseData }) => {
   let coursesCompleted = [];
   let coursesInProgress = [];
   let coursesNotStarted = [];
-  const courseAboutPageURL = (key) => `/${enterpriseConfig.slug}/course/${key}`;
+  const courseAboutPageURL = (course) => linkToCourse(course, enterpriseConfig.slug);
   const courseSponserdByEnterprise = `Sponsored by ${enterpriseConfig.name}`;
 
   if (courseData?.completed) {
@@ -95,7 +96,7 @@ const ProgramProgressCourses = ({ courseData }) => {
       </Row>
       <a
         className="btn btn-outline-primary btn-xs-block float-right mb-2 pt-2"
-        href={courseAboutPageURL(course.key)}
+        href={courseAboutPageURL(course)}
       >
         Upgrade to Verified
       </a>
@@ -120,7 +121,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   </p>
                   <a
                     className="btn btn-outline-primary btn-xs-block float-right mb-4 mt-4"
-                    href={courseAboutPageURL(course.key)}
+                    href={courseAboutPageURL(course)}
                   >
                     {course.isEnded ? 'View Archived Course' : 'View Course'}
                   </a>
@@ -152,7 +153,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                       </p>
                       <a
                         className="btn btn-outline-primary btn-xs-block mt-2 float-right"
-                        href={courseAboutPageURL(course.key)}
+                        href={courseAboutPageURL(course)}
                       >
                         Enroll Now
                       </a>
@@ -197,7 +198,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                       </p>
                       <a
                         className="btn btn-outline-primary btn-xs-block mt-2 float-right"
-                        href={courseAboutPageURL(course.key)}
+                        href={courseAboutPageURL(course)}
                       >
                         Learn More
                       </a>
@@ -228,7 +229,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                 </p>
                 <a
                   className="btn btn-outline-primary btn-xs-block mb-6 float-right"
-                  href={courseAboutPageURL(course.key)}
+                  href={courseAboutPageURL(course)}
                 >
                   View Course
                 </a>

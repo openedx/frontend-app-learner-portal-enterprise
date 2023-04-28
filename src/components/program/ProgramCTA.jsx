@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
+import { linkToCourse } from '../course/data/utils';
 
 const ProgramCTA = () => {
   const intl = useIntl();
@@ -113,7 +114,7 @@ const ProgramCTA = () => {
                 <Dropdown.Item
                   key={course.title}
                   as="a"
-                  href={`/${slug}/course/${course.key}`}
+                  href={linkToCourse(course, slug)}
                   className="wrap-word"
                   onClick={() => {
                     sendEnterpriseTrackEvent(

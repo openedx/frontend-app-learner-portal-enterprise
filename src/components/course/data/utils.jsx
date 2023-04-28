@@ -340,10 +340,44 @@ export const createEnrollWithCouponCodeUrl = ({
   return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
 };
 
-export const courseUsesEntitlementPricing = (course) => {
-  const courseTypes = getConfig().COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE;
-  if (courseTypes) {
-    return courseTypes.includes(course.courseType);
+export const getCourseTypeConfig = (course) => {
+  const courseTypeConfig = getConfig()?.COURSE_TYPE_CONFIG;
+  if (courseTypeConfig) {
+    return courseTypeConfig[course.courseType];
+  }
+  return null;
+};
+
+export const pathContainsCourseTypeSlug = (path, courseType) => {
+  const courseTypeConfig = getConfig()?.COURSE_TYPE_CONFIG?.[courseType];
+  if (courseTypeConfig) {
+    return path.includes(courseTypeConfig?.pathSlug);
   }
   return false;
 };
+
+export const courseUsesEntitlementPricing = (course) => {
+  const courseTypeConfig = getCourseTypeConfig(course);
+  if (courseTypeConfig) {
+    return courseTypeConfig.usesEntitlementListPrice;
+  }
+  return false;
+};
+
+export function linkToCourse(course, slug) {
+  if (!Object.keys(course).length) {
+    return '#';
+  }
+  // If the course type has a path slug configured, add it to the url
+  const courseTypeConfig = getCourseTypeConfig(course);
+  const slugPlusCourseType = courseTypeConfig?.pathSlug ? `${slug}/${courseTypeConfig.pathSlug}` : slug;
+  const baseUrl = `/${slugPlusCourseType}/course/${course.key}`;
+  let query = '';
+  if (course.queryId && course.objectId) {
+    const queryParams = new URLSearchParams();
+    queryParams.set('queryId', course.queryId);
+    queryParams.set('objectId', course.objectId);
+    query = `?${queryParams.toString()}`;
+  }
+  return `${baseUrl}${query}`;
+}

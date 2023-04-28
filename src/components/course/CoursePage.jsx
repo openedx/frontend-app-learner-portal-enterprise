@@ -15,7 +15,9 @@ import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
 import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
-import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
+import {
+  getActiveCourseRun, getAvailableCourseRuns, linkToCourse, pathContainsCourseTypeSlug,
+} from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
@@ -25,7 +27,7 @@ import { useSearchCatalogs } from '../search/data/hooks';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 
 const CoursePage = () => {
-  const { courseKey } = useParams();
+  const { enterpriseSlug, courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
   const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const {
@@ -132,6 +134,22 @@ const CoursePage = () => {
       },
     );
     return <NotFoundPage />;
+  }
+
+  // Redirect if path does not contain course type
+  if (
+    initialState?.course?.courseType
+    && !pathContainsCourseTypeSlug(
+      window.location.href,
+      initialState.course.courseType,
+    )
+  ) {
+    const newUrl = linkToCourse(
+      initialState?.course,
+      enterpriseSlug,
+      enterpriseUUID,
+    );
+    window.location.replace(newUrl);
   }
 
   const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;

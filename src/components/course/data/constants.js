@@ -1,3 +1,5 @@
+import GetSmarterLogo from '../../../assets/icons/getsmarter-header-icon.svg';
+
 export const SET_COURSE_RUN = 'SET_COURSE_RUN';
 
 export const COURSE_PACING_MAP = {
@@ -46,3 +48,8 @@ export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization’s subscription 
                                     + ' You have already requested access to all courses.';
 export const UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education';
 export const PAID_EXECUTIVE_EDUCATION = 'paid-executive-education';
+
+// TODO: Put logo in external repository and link to it with internal config
+export const COURSE_TYPE_PARTNER_LOGOS = {
+  'executive-education-2u': GetSmarterLogo,
+};

@@ -97,9 +97,9 @@ describe('<SiteHeader />', () => {
   });
 
   test.each([{
-    route: '/slug/executive-education-2u',
+    route: '/slug/executive-education-2u/course/id',
   }, {
-    route: '/slug/random-path',
+    route: '/slug/course/id',
   }])('renders getSmarter logo when on /executive-education-2u path', ({
     route,
   }) => {
@@ -110,7 +110,7 @@ describe('<SiteHeader />', () => {
       },
     );
 
-    const getSmarterLogo = screen.queryByTestId('getsmarter-logo-image-id');
+    const getSmarterLogo = screen.queryByTestId('partner-header-logo-image-id');
 
     if (route.includes('executive-education-2u')) {
       expect(getSmarterLogo).toBeInTheDocument();
