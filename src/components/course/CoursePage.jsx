@@ -21,7 +21,7 @@ import CourseSidebar from './CourseSidebar';
 import {
   useAllCourseData,
   useExtractAndRemoveSearchParamsFromURL,
-  useCheckAccessPolicyRedemptionEligibility,
+  useChecksubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
 } from './data/hooks';
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
@@ -90,8 +90,8 @@ const CoursePage = () => {
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
-    data: accessPolicyRedemptionEligibility,
-  } = useCheckAccessPolicyRedemptionEligibility({
+    data: subsidyAccessPolicyRedeemability,
+  } = useChecksubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
     isEnabled: isEMETRedemptionEnabled,
@@ -99,7 +99,7 @@ const CoursePage = () => {
   const {
     redeemableSubsidyAccessPolicy,
     redeemabilityPerContentKey,
-  } = accessPolicyRedemptionEligibility || {};
+  } = subsidyAccessPolicyRedeemability || {};
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();

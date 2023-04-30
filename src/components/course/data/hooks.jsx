@@ -536,7 +536,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  *
  * @returns An object containing the output from `useQuery`.
  */
-export const useCheckAccessPolicyRedemptionEligibility = ({
+export const useChecksubsidyAccessPolicyRedeemability = ({
   courseRunKeys = [],
   enterpriseUuid,
   isEnabled,
