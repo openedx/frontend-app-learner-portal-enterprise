@@ -534,12 +534,12 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  * @param {array} args.courseRunKeys List of course run keys.
  * @param {string} args.enterpriseUuid Enterprise customer UUID.
  *
- * @returns An object containing the output from `useQuery`.
+ * @returns An object containing the output from `useQuery`
  */
 export const useCheckSubsidyAccessPolicyRedeemability = ({
   courseRunKeys = [],
   enterpriseUuid,
-  isEnabled,
+  isQueryEnabled,
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
 
@@ -550,11 +550,24 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
     return transformedResponse;
   };
 
-  return useQuery({
+  const useQueryResult = useQuery({
     queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
-    enabled: (isEnabled && courseRunKeys.length > 0),
+    enabled: (isQueryEnabled && courseRunKeys.length > 0),
     queryFn: checkRedemptionEligiblity,
   });
+
+  const {
+    redeemableSubsidyAccessPolicy,
+    redeemabilityPerContentKey,
+  } = useQueryResult.data || {};
+  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
+
+  return {
+    ...useQueryResult,
+    isPolicyRedemptionEnabled,
+    redeemableSubsidyAccessPolicy,
+    redeemabilityPerContentKey,
+  };
 };
 
 export const useUserSubsidyApplicableToCourse = ({

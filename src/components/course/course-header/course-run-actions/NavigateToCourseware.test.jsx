@@ -51,14 +51,16 @@ describe('NavigateToCourseware', () => {
 
   it('should render stateful enroll with learner credit subsidy type', () => {
     render(
-      <NavigateToCoursewareWrapper shouldUpgradeUserEnrollment />,
+      <NavigateToCoursewareWrapper
+        subsidyAccessPolicy={MOCK_SUBSIDY_LEARNER_CREDIT}
+        shouldUpgradeUserEnrollment
+      />,
     );
     expect(screen.getByTestId('upgrade-navigate-to-courseware')).toBeInTheDocument();
     expect(UpgradeAndNavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        userSubsidyApplicableToCourse: MOCK_SUBSIDY_LEARNER_CREDIT,
+        subsidyAccessPolicy: MOCK_SUBSIDY_LEARNER_CREDIT,
         contentKey: MOCK_COURSE_RUN_KEY,
-        courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: mockUpgradeCallbacks.onUpgradeClick,
         onUpgradeSuccess: mockUpgradeCallbacks.onUpgradeSuccess,
         onUpgradeError: mockUpgradeCallbacks.onUpgradeError,

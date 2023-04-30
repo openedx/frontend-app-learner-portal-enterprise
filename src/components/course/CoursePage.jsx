@@ -90,17 +90,14 @@ const CoursePage = () => {
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
-    data: subsidyAccessPolicyRedeemability,
+    redeemableSubsidyAccessPolicy,
+    redeemabilityPerContentKey,
+    isPolicyRedemptionEnabled,
   } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
-    isEnabled: isEMETRedemptionEnabled,
+    isQueryEnabled: isEMETRedemptionEnabled,
   });
-  const {
-    redeemableSubsidyAccessPolicy,
-    redeemabilityPerContentKey,
-  } = subsidyAccessPolicyRedeemability || {};
-  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
   const onSubscriptionLicenseForCourseValidationError = useCallback(

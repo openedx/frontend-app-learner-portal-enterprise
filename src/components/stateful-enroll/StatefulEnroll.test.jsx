@@ -43,12 +43,16 @@ const mockCallbackProps = {
 
 const MOCK_COURSE_RUN_KEY = 'course-v1:edX+S2023+1T2023';
 const MOCK_TRANSACTION_UUID = 'test-transaction-uuid';
+const MOCK_SUBSIDY_ACCESS_POLICY = {
+  policyRedemptionUrl: 'http://policy-redemption.url',
+};
 
 const StatefulEnrollWrapper = (props) => (
   <QueryClientProvider client={queryClient}>
     <IntlProvider locale="en">
       <StatefulEnroll
         contentKey={MOCK_COURSE_RUN_KEY}
+        subsidyAccessPolicy={MOCK_SUBSIDY_ACCESS_POLICY}
         {...mockCallbackProps}
         {...props}
       />
@@ -76,6 +80,7 @@ describe('StatefulEnroll', () => {
       expect.objectContaining({
         userId: MOCK_USER_ID,
         contentKey: MOCK_COURSE_RUN_KEY,
+        policyRedemptionUrl: MOCK_SUBSIDY_ACCESS_POLICY.policyRedemptionUrl,
       }),
     );
   };

@@ -766,7 +766,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
 
   const baseArgs = {
     enterpriseUuid: 'test-enterprise-uuid',
-    isEnabled: true,
+    isQueryEnabled: true,
   };
   const argsWithCourseRunKeys = {
     ...baseArgs,
@@ -778,7 +778,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   };
   const argsWithDisabledFeature = {
     ...baseArgs,
-    isEnabled: false,
+    isQueryEnabled: false,
   };
 
   beforeEach(() => {
@@ -858,15 +858,12 @@ describe('useUserSubsidyApplicableToCourse', () => {
     const mockRedeemablePolicy = {
       perLearnerEnrollmentLimit: null,
       perLearnerSpendLimit: null,
-      policyRedemptionUrl: 'http://policy.redemption.url',
+      policyRedemptionUrl: 'http://policy-redemption.url',
     };
     const argsWithRedeemablePolicy = {
       ...baseArgs,
       isPolicyRedemptionEnabled: true,
-      subsidyAccessPolicyRedeemabilityData: [{
-        canRedeem: true,
-        redeemableSubsidyAccessPolicy: mockRedeemablePolicy,
-      }],
+      redeemableSubsidyAccessPolicy: mockRedeemablePolicy,
     };
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithRedeemablePolicy));
     expect(result.current.subsidyType).toEqual(LEARNER_CREDIT_SUBSIDY_TYPE);
