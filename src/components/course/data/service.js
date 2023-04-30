@@ -160,6 +160,11 @@ export default class CourseService {
     });
   }
 
+  fetchCourseReviews() {
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/course_review/${this.courseKey}/`;
+    return this.cachedAuthenticatedHttpClient.get(url);
+  }
+
   /**
    * Service method to determine whether the authenticated user can redeem the specified course run(s).
    *
@@ -167,7 +172,7 @@ export default class CourseService {
    * @param {array} courseRunKeys List of course run keys.
    * @returns Camel-cased object of response data from the can-redeem API endpoint.
    */
-  async fetchCanRedeem({
+  fetchCanRedeem({
     courseRunKeys,
   }) {
     const queryParams = new URLSearchParams();
@@ -175,12 +180,6 @@ export default class CourseService {
       queryParams.append('content_key', courseRunKey);
     });
     const url = `${this.config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/enterprise-customer/${this.enterpriseUuid}/can-redeem/`;
-    const response = await this.authenticatedHttpClient.get(`${url}?${queryParams.toString()}`);
-    return camelCaseObject(response.data);
-  }
-
-  fetchCourseReviews() {
-    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/course_review/${this.courseKey}/`;
-    return this.cachedAuthenticatedHttpClient.get(url);
+    return this.authenticatedHttpClient.get(`${url}?${queryParams.toString()}`);
   }
 }

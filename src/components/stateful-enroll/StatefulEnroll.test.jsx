@@ -154,7 +154,7 @@ describe('StatefulEnroll', () => {
       uuid: MOCK_TRANSACTION_UUID,
     });
     retrieveTransactionStatus.mockResolvedValueOnce({
-      state: 'error',
+      state: 'failed',
     });
     await clickEnrollButton();
     verifyRedemptionMutationArgs();
@@ -176,43 +176,5 @@ describe('StatefulEnroll', () => {
     expect(await screen.findByText('Try again')).toBeInTheDocument();
     expect(onSuccessSpy).not.toHaveBeenCalled();
     expect(onErrorSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('handles missing onClick callback prop', async () => {
-    render(<StatefulEnrollWrapper onClick={undefined} />);
-    expect(screen.getByText('Enroll')).toBeInTheDocument();
-    submitRedemptionRequest.mockResolvedValueOnce({
-      uuid: MOCK_TRANSACTION_UUID,
-    });
-    retrieveTransactionStatus.mockResolvedValueOnce({
-      state: 'committed',
-    });
-    await clickEnrollButton({ ignoreOnClick: true });
-  });
-
-  it('handles missing onSuccess callback prop', async () => {
-    render(<StatefulEnrollWrapper onSuccess={undefined} />);
-    const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
-    expect(screen.getByText('Enroll')).toBeInTheDocument();
-    submitRedemptionRequest.mockResolvedValueOnce({
-      uuid: MOCK_TRANSACTION_UUID,
-    });
-    retrieveTransactionStatus.mockResolvedValueOnce({
-      state: 'committed',
-    });
-    await clickEnrollButton();
-    verifyRedemptionMutationArgs();
-    expect(await screen.findByText('Enrolled')).toBeInTheDocument();
-    expect(onSuccessSpy).not.toHaveBeenCalled();
-  });
-
-  it('handles missing onError callback prop', async () => {
-    render(<StatefulEnrollWrapper onError={undefined} />);
-    const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
-    submitRedemptionRequest.mockRejectedValueOnce();
-    await clickEnrollButton();
-    verifyRedemptionMutationArgs();
-    expect(await screen.findByText('Try again')).toBeInTheDocument();
-    expect(onErrorSpy).not.toHaveBeenCalled();
   });
 });

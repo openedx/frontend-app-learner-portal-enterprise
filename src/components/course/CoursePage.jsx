@@ -6,8 +6,9 @@ import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
 } from '@edx/paragon';
+import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { hasFeatureFlagEnabled, sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import CourseService from './data/service';
 import { MainContent, Sidebar } from '../layout';
@@ -86,17 +87,19 @@ const CoursePage = () => {
     isLoadingCourseData,
   } = useAllCourseData({ courseService, activeCatalogs });
 
+  const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
     data: accessPolicyRedemptionEligibilityData,
   } = useCheckAccessPolicyRedemptionEligibility({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+    isEnabled: isEMETRedemptionEnabled,
   });
   const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
 
   const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
-  const onValidateSubscriptionLicenseForCourseError = useCallback(
+  const onSubscriptionLicenseForCourseValidationError = useCallback(
     (error) => setValidateLicenseForCourseError(error),
     [],
   );
@@ -109,7 +112,7 @@ const CoursePage = () => {
     couponCodes,
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
-    onValidateSubscriptionLicenseForCourseError,
+    onSubscriptionLicenseForCourseValidationError,
   });
 
   const error = fetchCourseDataError || validateLicenseForCourseError;
