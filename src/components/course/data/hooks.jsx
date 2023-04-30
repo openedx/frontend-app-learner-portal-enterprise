@@ -582,6 +582,7 @@ export const useUserSubsidyApplicableToCourse = ({
   onSubscriptionLicenseForCourseValidationError,
 }) => {
   const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
+  const [legacyUserSubsidyApplicableToCourse, setLegacyUserSubsidyApplicableToCourse] = useState();
 
   useEffect(() => {
     if (!courseData) {
@@ -596,9 +597,12 @@ export const useUserSubsidyApplicableToCourse = ({
       courseDetails,
     } = courseData;
 
+    let hasEMETRedeemability = false;
+
     // If course can be redeemed with EMET system, return
     // the redeemable subsidy access policy.
     if (isPolicyRedemptionEnabled && redeemableSubsidyAccessPolicy) {
+      hasEMETRedeemability = true;
       setUserSubsidyApplicableToCourse({
         discountType: 'percentage',
         discountValue: 100,
@@ -607,7 +611,6 @@ export const useUserSubsidyApplicableToCourse = ({
         perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
         policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
       });
-      return;
     }
 
     // Otherwise, fallback to existing legacy subsidies.
@@ -621,7 +624,9 @@ export const useUserSubsidyApplicableToCourse = ({
         try {
           // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
           const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
-          licenseApplicableToCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
+          if (fetchLicenseSubsidyResponse) {
+            licenseApplicableToCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
+          }
         } catch (error) {
           logError(error);
           if (onSubscriptionLicenseForCourseValidationError) {
@@ -642,7 +647,10 @@ export const useUserSubsidyApplicableToCourse = ({
           coursePrice,
         }),
       });
-      setUserSubsidyApplicableToCourse(subsidy);
+      if (!hasEMETRedeemability) {
+        setUserSubsidyApplicableToCourse(subsidy);
+      }
+      setLegacyUserSubsidyApplicableToCourse(subsidy);
     };
     retrieveApplicableSubsidy();
   }, [
@@ -657,5 +665,8 @@ export const useUserSubsidyApplicableToCourse = ({
     isPolicyRedemptionEnabled,
   ]);
 
-  return userSubsidyApplicableToCourse;
+  return useMemo(() => ({
+    userSubsidyApplicableToCourse,
+    legacyUserSubsidyApplicableToCourse,
+  }), [userSubsidyApplicableToCourse, legacyUserSubsidyApplicableToCourse]);
 };

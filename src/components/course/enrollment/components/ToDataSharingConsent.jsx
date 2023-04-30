@@ -1,13 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { Hyperlink } from '@edx/paragon';
 
 import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
 } from '../../data/hooks';
-import { enrollLinkClass } from '../constants';
 import { EnrollButtonCta } from '../common';
 import { CourseContext } from '../../CourseContextProvider';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -36,13 +33,12 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
   return (
     <EnrollButtonCta
       enrollLabel={enrollLabel}
-      as={Hyperlink}
-      className={classNames('btn btn-primary btn-brand-primary d-block', enrollLinkClass)}
-      destination={enrollmentUrl}
+      href={enrollmentUrl}
       onClick={(e) => {
         analyticsHandler(e);
         optimizelyHandler(e);
       }}
+      block
     />
   );
 };

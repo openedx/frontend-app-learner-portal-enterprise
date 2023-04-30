@@ -127,9 +127,13 @@ export function getActiveCourseRun(course) {
 }
 
 export function getAvailableCourseRuns(course) {
-  return course.courseRuns.filter(
-    courseRun => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
-  );
+  return course.courseRuns
+    .filter((courseRun) => (
+      courseRun.isMarketable
+      && courseRun.isEnrollable
+      && !isArchived(courseRun)
+    ))
+    .sort((a, b) => new Date(b.start) - new Date(a.start));
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {

@@ -102,7 +102,7 @@ const CourseHeader = () => {
             {isPolicyRedemptionEnabled && <CourseRunCards />}
             {catalog.containsContentItems && (
               <>
-                {!isPolicyRedemptionEnabled && <CourseRunCards.Deprecated />}
+                {!isPolicyRedemptionEnabled && <CourseRunCards />}
                 <SubsidyRequestButton />
               </>
             )}

@@ -39,25 +39,25 @@ const EnrollAction = ({
 }) => {
   switch (enrollmentType) {
     case TO_COURSEWARE_PAGE: // scenario 1: already enrolled
-        return (
-          <ToCoursewarePage
-            enrollLabel={enrollLabel}
-            enrollmentUrl={enrollmentUrl}
-            userEnrollment={userEnrollment}
-            subscriptionLicense={subscriptionLicense}
-          />
-        );
+      return (
+        <ToCoursewarePage
+          enrollLabel={enrollLabel}
+          enrollmentUrl={enrollmentUrl}
+          userEnrollment={userEnrollment}
+          subscriptionLicense={subscriptionLicense}
+        />
+      );
       case VIEW_ON_DASHBOARD: // scenario 2: already enrolled
-          return <ViewOnDashboard enrollLabel={enrollLabel} />;
+        return <ViewOnDashboard enrollLabel={enrollLabel} />;
       case ENROLL_DISABLED: // scenario 3 and 4: no enrollment possible
         return <EnrollBtnDisabled enrollLabel={enrollLabel} />;
       case TO_DATASHARING_CONSENT:
-          return (
-            <ToDataSharingConsentPage
-              enrollLabel={enrollLabel}
-              enrollmentUrl={enrollmentUrl}
-            />
-          );
+        return (
+          <ToDataSharingConsentPage
+            enrollLabel={enrollLabel}
+            enrollmentUrl={enrollmentUrl}
+          />
+        );
       case TO_ECOM_BASKET:
           return (
             <ToEcomBasketPage
@@ -67,7 +67,8 @@ const EnrollAction = ({
             />
           );
       case HIDE_BUTTON:
-      default: return null;
+      default:
+        return null;
   }
 };
 

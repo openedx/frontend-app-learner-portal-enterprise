@@ -1,6 +1,5 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import moment from 'moment';
 import {
   Card,
@@ -9,11 +8,7 @@ import {
 import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
 import EnrollAction from '../../enrollment/EnrollAction';
-import { enrollButtonTypes } from '../../enrollment/constants';
-import {
-  COURSE_AVAILABILITY_MAP,
-  LICENSE_SUBSIDY_TYPE,
-} from '../../data/constants';
+import { COURSE_AVAILABILITY_MAP } from '../../data/constants';
 import {
   isUserEntitledForCourse,
   isCourseSelfPaced,
@@ -22,7 +17,6 @@ import {
   findUserEnrollmentForCourseRun,
   hasCourseStarted,
   findHighestLevelSeatSku,
-  numberWithPrecision,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
 
@@ -30,31 +24,12 @@ import { useSubsidyDataForCourse } from '../../enrollment/hooks';
 import {
   useCourseEnrollmentUrl,
   useUserHasSubsidyRequestForCourse,
-  useCoursePriceForUserSubsidy,
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
-
-const LicenseSubsidyPriceText = ({
-  courseRun,
-  userSubsidyApplicableToCourse,
-}) => {
-  const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    activeCourseRun: courseRun, userSubsidyApplicableToCourse,
-  });
-
-  return (
-    <div className="mt-2" data-testid="subsidy-license-price-text">
-      <del>
-        <span className="sr-only">Priced reduced from:</span>${numberWithPrecision(coursePrice.list)} {currency}
-      </del>
-      <span>{' '}included in your subscription</span>
-    </div>
-  );
-};
 
 const CourseRunCard = ({
   userEntitlements,
@@ -96,6 +71,7 @@ const CourseRunCard = ({
   const {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
+    legacyUserSubsidyApplicableToCourse,
     hasCouponCodeForCourse,
   } = useSubsidyDataForCourse();
 
@@ -110,7 +86,7 @@ const CourseRunCard = ({
     location,
     sku,
     subscriptionLicense,
-    userSubsidyApplicableToCourse,
+    userSubsidyApplicableToCourse: userSubsidyApplicableToCourse || legacyUserSubsidyApplicableToCourse,
   });
 
   const enrollmentType = determineEnrollmentType({
@@ -220,33 +196,12 @@ const CourseRunCard = ({
     courseRun,
   ]);
 
-  const shouldShowLicenseSubsidyPriceText = (
-    !courseRunArchived
-    && !enterpriseConfig.hideCourseOriginalPrice
-    && enrollmentType === enrollButtonTypes.TO_DATASHARING_CONSENT
-    && userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE
-  );
-
   return (
     <Card>
-      <Card.Section
-        className="d-flex flex-column align-items-center justify-content-between"
-      >
-        <div className={classNames(
-          'text-center',
-          {
-            'mb-3.5': enrollmentType !== enrollButtonTypes.HIDE_BUTTON,
-          },
-        )}
-        >
+      <Card.Section>
+        <div className="text-center">
           <div className="h4 mb-0">{heading}</div>
-          <div className="small">{subHeading}</div>
-          {shouldShowLicenseSubsidyPriceText && (
-            <LicenseSubsidyPriceText
-              courseRun={courseRun}
-              userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-            />
-          )}
+          <p className="small">{subHeading}</p>
         </div>
         {!courseRunArchived && (
           <EnrollAction
@@ -284,27 +239,6 @@ CourseRunCard.propTypes = {
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
-};
-
-LicenseSubsidyPriceText.propTypes = {
-  courseRun: PropTypes.shape({
-    availability: PropTypes.string.isRequired,
-    isEnrollable: PropTypes.bool.isRequired,
-    pacingType: PropTypes.string.isRequired,
-    courseUuid: PropTypes.string.isRequired,
-    enrollmentCount: PropTypes.number,
-    start: PropTypes.string.isRequired,
-    key: PropTypes.string.isRequired,
-    seats: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-    firstEnrollablePaidSeatPrice: PropTypes.number,
-  }).isRequired,
-  userSubsidyApplicableToCourse: PropTypes.shape({
-    discountType: PropTypes.string.isRequired,
-    discountValue: PropTypes.number.isRequired,
-    expirationDate: PropTypes.string.isRequired,
-    startDate: PropTypes.string.isRequired,
-    subsidyId: PropTypes.string.isRequired,
-  }).isRequired,
 };
 
 export default CourseRunCard;

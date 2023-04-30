@@ -13,8 +13,6 @@ import {
   COURSE_MODES_MAP,
   COURSE_AVAILABILITY_MAP,
   COURSE_PACING_MAP,
-  LICENSE_SUBSIDY_TYPE,
-  CURRENCY_USD,
 } from '../../data/constants';
 import CourseRunCard from '../CourseRunCard';
 import { CourseContextProvider } from '../../CourseContextProvider';
@@ -22,7 +20,6 @@ import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
-import * as utils from '../../enrollment/utils';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
@@ -58,11 +55,6 @@ const selfPacedCourseWithoutLicenseSubsidy = {
     seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
   },
   catalog: { catalogList: [] },
-};
-
-const selfPacedCourseWithLicenseSubsidy = {
-  ...selfPacedCourseWithoutLicenseSubsidy,
-  userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
 };
 
 const baseSubsidyRequestCatalogsApplicableToCourse = new Set();
@@ -267,25 +259,5 @@ describe('<CourseRunCard.Deprecated />', () => {
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('You are enrolled')).toBeInTheDocument();
     expect(screen.getByText('View course')).toBeInTheDocument();
-  });
-
-  test('user see the struck out price message in the card', () => {
-    jest.spyOn(utils, 'determineEnrollmentType').mockImplementation(() => enrollButtonTypes.TO_DATASHARING_CONSENT);
-    subsidyRequestsHooks.useCoursePriceForUserSubsidy.mockReturnValueOnce([{ list: 100 }, CURRENCY_USD]);
-    const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
-    const courseRun = generateCourseRun({
-      start: courseRunStart,
-      enrollmentCount: 1000,
-    });
-    renderCard({
-      courseRun,
-      courseInitState: selfPacedCourseWithLicenseSubsidy,
-    });
-
-    const element = screen.queryByTestId('subsidy-license-price-text');
-    expect(element).toBeInTheDocument();
-    expect(element.innerHTML).toEqual(
-      '<del><span class="sr-only">Priced reduced from:</span>$100.00 USD</del><span> included in your subscription</span>',
-    );
   });
 });

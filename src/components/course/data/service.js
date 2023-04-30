@@ -142,11 +142,16 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
-  fetchUserLicenseSubsidy(courseKey = this.activeCourseRun.key) {
+  fetchUserLicenseSubsidy(courseKey = this.activeCourseRun?.key) {
+    if (!courseKey) {
+      return undefined;
+    }
+
     const queryParams = new URLSearchParams({
       enterprise_customer_uuid: this.enterpriseUuid,
       course_key: courseKey,
     });
+
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url).catch(error => {
       const httpErrorStatus = error.customAttributes?.httpErrorStatus;

@@ -89,7 +89,6 @@ const EnrollModal = ({
       body={<div><p>{enrollText}</p></div>}
       buttons={[
         <Button
-          className="btn-brand-primary"
           href={enrollmentUrl}
           onClick={handleEnroll}
         >

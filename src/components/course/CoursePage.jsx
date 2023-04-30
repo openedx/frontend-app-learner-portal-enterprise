@@ -105,7 +105,10 @@ const CoursePage = () => {
     [],
   );
 
-  const userSubsidyApplicableToCourse = useUserSubsidyApplicableToCourse({
+  const {
+    userSubsidyApplicableToCourse,
+    legacyUserSubsidyApplicableToCourse,
+  } = useUserSubsidyApplicableToCourse({
     courseData,
     redeemableSubsidyAccessPolicy,
     isPolicyRedemptionEnabled,
@@ -148,6 +151,7 @@ const CoursePage = () => {
         userEnrollments,
         userEntitlements,
         userSubsidyApplicableToCourse,
+        legacyUserSubsidyApplicableToCourse,
         catalog,
         courseReviews,
         algoliaSearchParams,
@@ -161,6 +165,7 @@ const CoursePage = () => {
     },
     [
       userSubsidyApplicableToCourse,
+      legacyUserSubsidyApplicableToCourse,
       isLoadingCourseData,
       isLoadingAccessPolicyRedemptionStatus,
       courseData,

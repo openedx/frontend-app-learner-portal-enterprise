@@ -851,7 +851,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
 
   it('handles null course data', () => {
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithMissingCourse));
-    expect(result.current).toBeUndefined();
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      legacyUserSubsidyApplicableToCourse: undefined,
+    });
   });
 
   it('handles course data with redeemable subsidy access policy', async () => {
@@ -866,7 +869,12 @@ describe('useUserSubsidyApplicableToCourse', () => {
       redeemableSubsidyAccessPolicy: mockRedeemablePolicy,
     };
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithRedeemablePolicy));
-    expect(result.current.subsidyType).toEqual(LEARNER_CREDIT_SUBSIDY_TYPE);
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      }),
+      legacyUserSubsidyApplicableToCourse: undefined,
+    });
   });
 
   it('does not have redeemable subsidy access policy and catalog(s) does not contain course', () => {
@@ -881,7 +889,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
       },
     };
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse(args));
-    expect(result.current).toBeUndefined();
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      legacyUserSubsidyApplicableToCourse: undefined,
+    });
   });
 
   it('finds applicable subscription license', async () => {
@@ -904,7 +915,14 @@ describe('useUserSubsidyApplicableToCourse', () => {
       applicableEnterpriseOffer: undefined,
     });
 
-    expect(result.current.subsidyType).toEqual(LICENSE_SUBSIDY_TYPE);
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: LICENSE_SUBSIDY_TYPE,
+      }),
+      legacyUserSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: LICENSE_SUBSIDY_TYPE,
+      }),
+    });
   });
 
   it('finds applicable coupon code', async () => {
@@ -934,7 +952,14 @@ describe('useUserSubsidyApplicableToCourse', () => {
       applicableCouponCode: mockCouponCode,
     });
 
-    expect(result.current.subsidyType).toEqual(COUPON_CODE_SUBSIDY_TYPE);
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+      }),
+      legacyUserSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+      }),
+    });
   });
 
   it('finds applicable enterprise offer', () => {
@@ -967,6 +992,13 @@ describe('useUserSubsidyApplicableToCourse', () => {
       coursePrice: mockCoursePrice,
     });
 
-    expect(result.current.subsidyType).toEqual(ENTERPRISE_OFFER_SUBSIDY_TYPE);
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      }),
+      legacyUserSubsidyApplicableToCourse: expect.objectContaining({
+        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      }),
+    });
   });
 });
