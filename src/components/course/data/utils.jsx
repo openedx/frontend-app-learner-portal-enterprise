@@ -290,7 +290,7 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  return null;
+  return undefined;
 };
 
 export const createEnrollFailureUrl = ({ courseRunKey, location }) => {
