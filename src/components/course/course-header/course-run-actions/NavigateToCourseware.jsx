@@ -39,11 +39,7 @@ NavigateToCourseware.propTypes = {
   onUpgradeClick: PropTypes.func.isRequired,
   onUpgradeSuccess: PropTypes.func.isRequired,
   onUpgradeError: PropTypes.func.isRequired,
-  subsidyAccessPolicy: PropTypes.shape(),
-};
-
-NavigateToCourseware.defaultProps = {
-  subsidyAccessPolicy: undefined,
+  subsidyAccessPolicy: PropTypes.shape().isRequired,
 };
 
 export default NavigateToCourseware;
