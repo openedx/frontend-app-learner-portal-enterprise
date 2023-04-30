@@ -20,7 +20,7 @@ import {
   useCoursePriceForUserSubsidy,
   useExtractAndRemoveSearchParamsFromURL,
   useCourseSubjects,
-  useChecksubsidyAccessPolicyRedeemability,
+  useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
 } from '../hooks';
 import {
@@ -757,7 +757,7 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
   });
 });
 
-describe('useChecksubsidyAccessPolicyRedeemability', () => {
+describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   const wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient}>
       {children}
@@ -791,7 +791,7 @@ describe('useChecksubsidyAccessPolicyRedeemability', () => {
     argsWithoutCourseRunKeys,
   ])('handles disabled query (%s)', (args) => {
     const { result } = renderHook(
-      () => useChecksubsidyAccessPolicyRedeemability(args),
+      () => useCheckSubsidyAccessPolicyRedeemability(args),
       { wrapper },
     );
     expect(result.current.isInitialLoading).toBeDefined();
@@ -806,7 +806,7 @@ describe('useChecksubsidyAccessPolicyRedeemability', () => {
 
   it('makes actual query to check redemption eligilibity', async () => {
     const { result } = renderHook(
-      () => useChecksubsidyAccessPolicyRedeemability(argsWithCourseRunKeys),
+      () => useCheckSubsidyAccessPolicyRedeemability(argsWithCourseRunKeys),
       { wrapper },
     );
     expect(result.current.isInitialLoading).toBeDefined();

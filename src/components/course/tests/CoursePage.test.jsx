@@ -28,7 +28,7 @@ jest.mock('../data/hooks', () => ({
     subsidyType: mockLearnerCreditSubsidyType,
     policyRedemptionUrl: 'http://example.com/policy-redemption-url',
   })),
-  useChecksubsidyAccessPolicyRedeemability: jest.fn(() => ({
+  useCheckSubsidyAccessPolicyRedeemability: jest.fn(() => ({
     isInitialLoading: false,
     data: [],
   })),

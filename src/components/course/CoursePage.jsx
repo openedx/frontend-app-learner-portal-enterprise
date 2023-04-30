@@ -21,7 +21,7 @@ import CourseSidebar from './CourseSidebar';
 import {
   useAllCourseData,
   useExtractAndRemoveSearchParamsFromURL,
-  useChecksubsidyAccessPolicyRedeemability,
+  useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
 } from './data/hooks';
 import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
@@ -91,7 +91,7 @@ const CoursePage = () => {
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
     data: subsidyAccessPolicyRedeemability,
-  } = useChecksubsidyAccessPolicyRedeemability({
+  } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
     isEnabled: isEMETRedemptionEnabled,
