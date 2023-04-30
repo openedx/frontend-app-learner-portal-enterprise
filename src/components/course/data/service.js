@@ -170,16 +170,15 @@ export default class CourseService {
    *
    * @param {object} args
    * @param {array} courseRunKeys List of course run keys.
-   * @returns Camel-cased object of response data from the can-redeem API endpoint.
+   * @returns Promise for get request from the authenticated http client.
    */
-  fetchCanRedeem({
-    courseRunKeys,
-  }) {
+  fetchCanRedeem({ courseRunKeys }) {
     const queryParams = new URLSearchParams();
     courseRunKeys.forEach((courseRunKey) => {
       queryParams.append('content_key', courseRunKey);
     });
     const url = `${this.config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/enterprise-customer/${this.enterpriseUuid}/can-redeem/`;
-    return this.authenticatedHttpClient.get(`${url}?${queryParams.toString()}`);
+    const urlWithParams = `${url}?${queryParams.toString()}`;
+    return this.authenticatedHttpClient.get(urlWithParams);
   }
 }
