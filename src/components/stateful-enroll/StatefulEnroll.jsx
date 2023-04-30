@@ -40,6 +40,7 @@ const messages = defineMessages({
  */
 const StatefulEnroll = ({
   contentKey,
+  subsidyAccessPolicy,
   labels,
   variant,
   onClick,
@@ -105,6 +106,7 @@ const StatefulEnroll = ({
     redemptionMutation.mutate({
       userId: getAuthenticatedUser().id,
       contentKey,
+      policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
     });
   };
 
@@ -121,6 +123,9 @@ const StatefulEnroll = ({
 
 StatefulEnroll.propTypes = {
   contentKey: PropTypes.string.isRequired,
+  subsidyAccessPolicy: PropTypes.shape({
+    policyRedemptionUrl: PropTypes.string.isRequired,
+  }).isRequired,
   variant: PropTypes.string,
   labels: PropTypes.shape({
     default: PropTypes.string,

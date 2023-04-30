@@ -13,13 +13,21 @@ import CourseRunCard from './CourseRunCard';
 /* istanbul ignore next */
 const CourseRunCards = () => {
   const { state: courseData } = useContext(CourseContext);
-  const { availableCourseRuns } = courseData;
+  const { availableCourseRuns, redeemabilityPerContentKey } = courseData;
 
   return (
     <CardGrid columnSizes={{ sm: 12, lg: 5 }}>
-      {availableCourseRuns.map((courseRun) => (
-        <CourseRunCard key={courseRun.uuid} courseRun={courseRun} />
-      ))}
+      {availableCourseRuns.map((courseRun) => {
+        const redeemabilityForContentKey = redeemabilityPerContentKey.find(r => r.contentKey === courseRun.key);
+        const redeemableSubsidyAccessPolicy = redeemabilityForContentKey?.redeemableSubsidyAccessPolicy;
+        return (
+          <CourseRunCard
+            key={courseRun.uuid}
+            courseRun={courseRun}
+            subsidyAccessPolicy={redeemableSubsidyAccessPolicy}
+          />
+        );
+      })}
     </CardGrid>
   );
 };

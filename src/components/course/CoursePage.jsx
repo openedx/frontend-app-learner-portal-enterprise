@@ -24,7 +24,7 @@ import {
   useCheckAccessPolicyRedemptionEligibility,
   useUserSubsidyApplicableToCourse,
 } from './data/hooks';
-import { getActiveCourseRun, getAvailableCourseRuns, checkPolicyRedemptionEnabled } from './data/utils';
+import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
@@ -90,22 +90,27 @@ const CoursePage = () => {
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
-    data: accessPolicyRedemptionEligibilityData,
+    data: accessPolicyRedemptionEligibility,
   } = useCheckAccessPolicyRedemptionEligibility({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
     isEnabled: isEMETRedemptionEnabled,
   });
-  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
+  const {
+    redeemableSubsidyAccessPolicy,
+    redeemabilityPerContentKey,
+  } = accessPolicyRedemptionEligibility || {};
+  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
   const onSubscriptionLicenseForCourseValidationError = useCallback(
     (error) => setValidateLicenseForCourseError(error),
     [],
   );
+
   const userSubsidyApplicableToCourse = useUserSubsidyApplicableToCourse({
     courseData,
-    accessPolicyRedemptionEligibilityData,
+    redeemableSubsidyAccessPolicy,
     isPolicyRedemptionEnabled,
     subscriptionLicense,
     courseService,
@@ -154,6 +159,7 @@ const CoursePage = () => {
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
         isPolicyRedemptionEnabled,
+        redeemabilityPerContentKey,
       };
     },
     [
@@ -165,6 +171,7 @@ const CoursePage = () => {
       courseReviews,
       algoliaSearchParams,
       isPolicyRedemptionEnabled,
+      redeemabilityPerContentKey,
     ],
   );
 

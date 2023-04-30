@@ -12,16 +12,16 @@ import useRedemptionStatus from './useRedemptionStatus';
  * the is a redeemable subsidy applicable to the course.
  * @param {object} args
  * @param {object} args.userEnrollment The user's existing enrollment, with a ``mode`` property.
- * @param {object} args.userSubsidyApplicableToCourse A redeemable subsidy applicable to the course.
+ * @param {object} args.subsidyAccessPolicy A redeemable subsidy applicable to the course.
  * @returns True if the user's enrollment should be upgraded, false otherwise.
  */
 const checkUserEnrollmentUpgradeEligibility = ({
   userEnrollment,
-  userSubsidyApplicableToCourse,
+  subsidyAccessPolicy,
 }) => {
   const isAutoUpgradeEnabled = !!getConfig().FEATURE_ENABLE_EMET_AUTO_UPGRADE_ENROLLMENT_MODE;
   const isAuditEnrollment = userEnrollment.mode === COURSE_MODES_MAP.AUDIT;
-  const canUpgrade = !!userSubsidyApplicableToCourse;
+  const canUpgrade = !!subsidyAccessPolicy;
   return isAutoUpgradeEnabled && isAuditEnrollment && canUpgrade;
 };
 
@@ -32,7 +32,7 @@ const checkUserEnrollmentUpgradeEligibility = ({
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
  * @param {string} args.courseRunUrl The course run url to navigate to courseware.
  * @param {string} args.contentKey The course run key.
- * @param {string} args.userSubsidyApplicableToCourse The redeemable subsidy applicable to the course, if any.
+ * @param {string} args.subsidyAccessPolicy The redeemable subsidy applicable to the course, if any.
  * @returns A JSX element to render as the CTA for the course run.
  */
 const useCourseRunCardAction = ({
@@ -40,7 +40,7 @@ const useCourseRunCardAction = ({
   userEnrollment,
   courseRunUrl,
   contentKey,
-  userSubsidyApplicableToCourse,
+  subsidyAccessPolicy,
 }) => {
   const {
     redemptionStatus,
@@ -52,7 +52,7 @@ const useCourseRunCardAction = ({
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
       userEnrollment,
-      userSubsidyApplicableToCourse,
+      subsidyAccessPolicy,
     });
     return (
       <Stack gap={2}>
@@ -60,7 +60,7 @@ const useCourseRunCardAction = ({
           shouldUpgradeUserEnrollment={shouldUpgradeUserEnrollment}
           contentKey={contentKey}
           courseRunUrl={courseRunUrl}
-          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+          subsidyAccessPolicy={subsidyAccessPolicy}
           onUpgradeClick={handleRedeemClick}
           onUpgradeSuccess={handleRedeemSuccess}
           onUpgradeError={handleRedeemError}
@@ -73,10 +73,10 @@ const useCourseRunCardAction = ({
     );
   }
 
-  // TODO: pass redeemable access policy API url (if any) so it knows which policy to redeem against
   return (
     <Stack gap={2}>
       <StatefulEnroll
+        subsidyAccessPolicy={subsidyAccessPolicy}
         contentKey={contentKey}
         onClick={handleRedeemClick}
         onSuccess={handleRedeemSuccess}

@@ -559,7 +559,7 @@ export const useCheckAccessPolicyRedemptionEligibility = ({
 
 export const useUserSubsidyApplicableToCourse = ({
   courseData,
-  accessPolicyRedemptionEligibilityData,
+  redeemableSubsidyAccessPolicy,
   isPolicyRedemptionEnabled,
   subscriptionLicense,
   courseService,
@@ -583,18 +583,16 @@ export const useUserSubsidyApplicableToCourse = ({
       courseDetails,
     } = courseData;
 
-    // If course can be redeemed with EMET system, return the redeemable subsidy
-    // access policy.
-    if (isPolicyRedemptionEnabled) {
-      const firstRedeemableCourseRun = accessPolicyRedemptionEligibilityData.find(policy => policy.canRedeem);
-      const redeemablePolicyForCourseRun = firstRedeemableCourseRun.redeemableSubsidyAccessPolicy;
+    // If course can be redeemed with EMET system, return
+    // the redeemable subsidy access policy.
+    if (isPolicyRedemptionEnabled && redeemableSubsidyAccessPolicy) {
       setUserSubsidyApplicableToCourse({
         discountType: 'percentage',
         discountValue: 100,
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-        perLearnerEnrollmentLimit: redeemablePolicyForCourseRun.perLearnerEnrollmentLimit,
-        perLearnerSpendLimit: redeemablePolicyForCourseRun.perLearnerSpendLimit,
-        policyRedemptionUrl: redeemablePolicyForCourseRun.policyRedemptionUrl,
+        perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy.perLearnerEnrollmentLimit,
+        perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
+        policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
       });
       return;
     }
@@ -642,7 +640,7 @@ export const useUserSubsidyApplicableToCourse = ({
     couponCodes,
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
-    accessPolicyRedemptionEligibilityData,
+    redeemableSubsidyAccessPolicy,
     isPolicyRedemptionEnabled,
   ]);
 
