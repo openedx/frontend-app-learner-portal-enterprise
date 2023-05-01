@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
@@ -20,7 +20,12 @@ import {
   useCheckAccessPolicyRedemptionEligibility,
 } from './data/hooks';
 import {
-  getActiveCourseRun, getAvailableCourseRuns, linkToCourse, pathContainsCourseTypeSlug, checkPolicyRedemptionEnabled,
+  getActiveCourseRun,
+  getAvailableCourseRuns,
+  linkToCourse,
+  pathContainsCourseTypeSlug,
+  checkPolicyRedemptionEnabled,
+  getCourseTypeConfig,
 } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
@@ -40,6 +45,7 @@ const CoursePage = () => {
     },
   } = useEnterpriseCuration(enterpriseUUID);
   const { search } = useLocation();
+  const history = useHistory();
 
   const courseRunKey = useMemo(
     () => {
@@ -168,6 +174,7 @@ const CoursePage = () => {
   // Redirect if path does not contain course type
   if (
     initialState?.course?.courseType
+    && getCourseTypeConfig(initialState.course)
     && !pathContainsCourseTypeSlug(
       window.location.href,
       initialState.course.courseType,
@@ -178,7 +185,7 @@ const CoursePage = () => {
       enterpriseSlug,
       enterpriseUUID,
     );
-    window.location.replace(newUrl);
+    history.replace(newUrl);
   }
 
   const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;
