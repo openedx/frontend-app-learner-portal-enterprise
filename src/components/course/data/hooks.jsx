@@ -532,12 +532,14 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  *
  * @param {object} args
  * @param {array} args.courseRunKeys List of course run keys.
+ * @param {string} args.activeCourseRunKey The course run key of the advertised course run for the top-level course.
  * @param {string} args.enterpriseUuid Enterprise customer UUID.
  *
  * @returns An object containing the output from `useQuery`
  */
 export const useCheckSubsidyAccessPolicyRedeemability = ({
   courseRunKeys = [],
+  activeCourseRunKey,
   enterpriseUuid,
   isQueryEnabled,
 }) => {
@@ -550,16 +552,16 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
     return transformedResponse;
   };
 
+  const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
+
   const useQueryResult = useQuery({
     queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
-    enabled: (isQueryEnabled && courseRunKeys.length > 0),
+    enabled: isEnabled,
     queryFn: checkRedemptionEligiblity,
   });
 
-  const {
-    redeemableSubsidyAccessPolicy,
-    redeemabilityPerContentKey,
-  } = useQueryResult.data || {};
+  const redeemabilityPerContentKey = useQueryResult.data || [];
+  const redeemableSubsidyAccessPolicy = redeemabilityPerContentKey.find(r => r.contentKey === activeCourseRunKey);
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   return {

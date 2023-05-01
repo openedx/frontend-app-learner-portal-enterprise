@@ -96,6 +96,7 @@ const CoursePage = () => {
   } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+    activeCourseRunKey: courseService.activeCourseRun?.key,
     isQueryEnabled: isEMETRedemptionEnabled,
   });
 

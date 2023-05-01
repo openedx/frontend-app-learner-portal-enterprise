@@ -126,14 +126,19 @@ export function getActiveCourseRun(course) {
   return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
 }
 
+/**
+ * Returns list of available that are marketable, enrollable, and not archived.
+ *
+ * @param {object} course
+ * @returns List of course runs.
+ */
 export function getAvailableCourseRuns(course) {
   return course.courseRuns
     .filter((courseRun) => (
       courseRun.isMarketable
       && courseRun.isEnrollable
       && !isArchived(courseRun)
-    ))
-    .sort((a, b) => new Date(b.start) - new Date(a.start));
+    ));
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
