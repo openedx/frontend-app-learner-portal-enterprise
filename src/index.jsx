@@ -48,6 +48,8 @@ initialize({
         FEATURE_CONTENT_HIGHLIGHTS: process.env.FEATURE_CONTENT_HIGHLIGHTS || null,
         EXPERIMENT_4_ID: process.env.EXPERIMENT_4_ID || null,
         EXPERIMENT_4_VARIANT_1_ID: process.env.EXPERIMENT_4_VARIANT_1_ID || null,
+        EXPERIMENT_5_ID: process.env.EXPERIMENT_5_ID || null,
+        EXPERIMENT_5_VARIANT_1_ID: process.env.EXPERIMENT_5_VARIANT_1_ID || null,
       });
     },
   },

@@ -1,6 +1,7 @@
 import React from 'react';
-
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
+
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -356,6 +357,36 @@ export const pathContainsCourseTypeSlug = (path, courseType) => {
   return false;
 };
 
+/**
+ * Determines whether the subsidy access policy redemption feature is enabled
+ * based on a feature flag and whether any course runs are redeemable as determined
+ * by the `can-redeem` API response.
+ *
+ * Allows a temporary "?feature=ENABLE_EMET_REDEMPTION" query parameter to force
+ * enable subsidy access policy redemption (e.g., if the `FEATURE_ENABLE_EMET_REDEMPTION`
+ * feature flag is disabled).
+ *
+ * @param {object} args
+ * @param {array} args.accessPolicyRedemptionEligibilityData List of objects, each containing a `canRedeem` boolean.
+ * @returns True if the feature is enabled and at least one course run is redeemable.
+ */
+export const checkPolicyRedemptionEnabled = ({
+  accessPolicyRedemptionEligibilityData = [],
+}) => {
+  if (hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION')) {
+    // Always enable the policy redemption feature when enabled via query parameter.
+    return true;
+  }
+  const canRedeemAccessPolicy = accessPolicyRedemptionEligibilityData.some(({ canRedeem }) => canRedeem === true);
+  const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
+
+  // Enable EMET access policy redemption when the feature is enabled and there is a redeemable access policy.
+  if (isFeatureEnabled && canRedeemAccessPolicy) {
+    return true;
+  }
+  return false;
+};
+
 export const courseUsesEntitlementPricing = (course) => {
   const courseTypeConfig = getCourseTypeConfig(course);
   if (courseTypeConfig) {
@@ -381,3 +412,5 @@ export function linkToCourse(course, slug) {
   }
   return `${baseUrl}${query}`;
 }
+
+export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);

@@ -15,12 +15,14 @@ export const SUBSIDY_DISCOUNT_TYPE_MAP = {
 export const LICENSE_SUBSIDY_TYPE = 'license';
 export const COUPON_CODE_SUBSIDY_TYPE = 'couponCode';
 export const ENTERPRISE_OFFER_SUBSIDY_TYPE = 'enterpriseOffer';
+export const LEARNER_CREDIT_SUBSIDY_TYPE = 'learnerCredit';
 
 export const PROMISE_FULFILLED = 'fulfilled';
 
 export const CURRENCY_USD = 'USD';
 
 export const COURSE_AVAILABILITY_MAP = {
+  CURRENT: 'Current',
   UPCOMING: 'Upcoming',
   STARTING_SOON: 'Starting Soon',
   ARCHIVED: 'Archived',
@@ -48,6 +50,13 @@ export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization’s subscription 
                                     + ' You have already requested access to all courses.';
 export const UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education';
 export const PAID_EXECUTIVE_EDUCATION = 'paid-executive-education';
+
+export const REVIEW_SECTION_CONTENT = {
+  DEMAND_AND_GROWTH: 'demand-and-growth',
+  AVERAGE_RATING: 'average-rating',
+  CONFIDENT_LEARNERS: 'confident-learners',
+  MOST_COMMON_GOAL_LEARNERS: 'most-common-goal-learners',
+};
 
 // TODO: Put logo in external repository and link to it with internal config
 export const COURSE_TYPE_PARTNER_LOGOS = {

@@ -10,13 +10,17 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
 import { CourseContextProvider } from './CourseContextProvider';
-import CourseHeader from './CourseHeader';
+import CourseHeader from './course-header/CourseHeader';
 import CourseMainContent from './CourseMainContent';
 import CourseSidebar from './CourseSidebar';
 
-import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
 import {
-  getActiveCourseRun, getAvailableCourseRuns, linkToCourse, pathContainsCourseTypeSlug,
+  useAllCourseData,
+  useExtractAndRemoveSearchParamsFromURL,
+  useCheckAccessPolicyRedemptionEligibility,
+} from './data/hooks';
+import {
+  getActiveCourseRun, getAvailableCourseRuns, linkToCourse, pathContainsCourseTypeSlug, checkPolicyRedemptionEnabled,
 } from './data/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
@@ -67,7 +71,11 @@ const CoursePage = () => {
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const {
-    courseData, courseRecommendations, fetchError, isLoading,
+    courseData,
+    courseRecommendations,
+    courseReviews,
+    fetchError,
+    isLoadingCourseData,
   } = useAllCourseData({
     courseKey,
     enterpriseConfig,
@@ -79,9 +87,20 @@ const CoursePage = () => {
     activeCatalogs,
   });
 
+  const {
+    isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
+    data: accessPolicyRedemptionEligibilityData,
+  } = useCheckAccessPolicyRedemptionEligibility({
+    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+  });
+  const isPolicyRedemptionEnabled = checkPolicyRedemptionEnabled({ accessPolicyRedemptionEligibilityData });
+
   const initialState = useMemo(
     () => {
-      if (isLoading || !courseData || !courseRecommendations) {
+      const isLoadingAny = (
+        isLoadingCourseData || isLoadingAccessPolicyRedemptionStatus
+      );
+      if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
       }
       const {
@@ -102,21 +121,31 @@ const CoursePage = () => {
         userEntitlements,
         userSubsidyApplicableToCourse,
         catalog,
+        courseReviews,
         algoliaSearchParams,
         courseRecommendations: {
           allRecommendations: allRecommendations?.slice(0, 3),
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
+        isPolicyRedemptionEnabled,
       };
     },
-    [isLoading, courseData, courseRecommendations, algoliaSearchParams],
+    [
+      isLoadingCourseData,
+      isLoadingAccessPolicyRedemptionStatus,
+      courseData,
+      courseRecommendations,
+      courseReviews,
+      algoliaSearchParams,
+      isPolicyRedemptionEnabled,
+    ],
   );
 
   if (fetchError) {
     return <ErrorPage message={fetchError.message} />;
   }
 
-  if (isLoading || !initialState) {
+  if (!initialState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />

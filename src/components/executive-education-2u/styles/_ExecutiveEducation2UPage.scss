@@ -1,28 +1,27 @@
-.course-summary {
-  .course-details {
-    line-height: 2em;
-  }
-}
-.registration-summary {
-  .registration-details {
-    line-height: 2em;
-  }
-}
-
 .exec-ed-registration-page {
   display: flex;
   flex: 1;
   background-color: $light-200;
-}
 
-.vertical {
-  border-right: 1px solid $gray-200;
-}
-
-.text-black-color {
-  color: black;
-}
-
-.text-underline {
-  text-decoration: underline;
+  .course-summary {
+    .course-details {
+      line-height: 2rem;
+    }
+  }
+  .registration-summary {
+    .registration-details {
+      line-height: 2rem;
+    }
+  }
+  .vertical {
+    border-right: 1px solid $gray-200;
+  }
+  
+  .text-black-color {
+    color: black;
+  }
+  
+  .text-underline {
+    text-decoration: underline;
+  }  
 }

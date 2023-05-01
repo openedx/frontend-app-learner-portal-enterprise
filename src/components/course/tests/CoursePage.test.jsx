@@ -16,6 +16,10 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 jest.mock('../data/hooks', () => ({
+  useCheckAccessPolicyRedemptionEligibility: jest.fn(() => ({
+    isInitialLoading: false,
+    data: [],
+  })),
   useAllCourseData: jest.fn(() => ({
     isLoading: false,
     courseData: {
@@ -89,6 +93,15 @@ jest.mock('../data/hooks', () => ({
           title: 'Test Course 2',
         },
       ],
+    },
+    courseReviews: {
+      course_key: 'test-course-key1',
+      reviews_count: 345,
+      avg_course_rating: '2.23',
+      confident_learners_percentage: '22.00',
+      most_common_goal: 'Job advancement',
+      most_common_goal_learners_percentage: '33.00',
+      total_enrollments: 4444,
     },
   })),
   useExtractAndRemoveSearchParamsFromURL: jest.fn(() => ({

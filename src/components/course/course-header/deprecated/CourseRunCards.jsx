@@ -3,7 +3,7 @@ import {
   CardGrid,
 } from '@edx/paragon';
 
-import { CourseContext } from './CourseContextProvider';
+import { CourseContext } from '../../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
 
 const CourseRunCards = () => {
