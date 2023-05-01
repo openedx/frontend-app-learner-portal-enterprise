@@ -770,6 +770,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   };
   const argsWithCourseRunKeys = {
     ...baseArgs,
+    activeCourseRunKey: mockCourseRunKey,
     courseRunKeys: [mockCourseRunKey],
   };
   const argsWithoutCourseRunKeys = {
