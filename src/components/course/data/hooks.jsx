@@ -572,6 +572,27 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   };
 };
 
+/**
+ * Given the state of a user's redeemable subsidy access policy and/or other subsidies, determine
+ * which subsidy, if any, is applicable to the course.
+ *
+ * Returns both `userSubsidyApplicableToCourse` and `legacyUserSubsidyApplicableToCourse` in order to be
+ * backwards-compatible with pre-EMET subsidies.
+ *
+ * @param {object} args
+ * @param {object} args.courseData Metadata about the course.
+ * @param {object} args.redeemableSubsidyAccessPolicy Metadata about the redeemability subsidy access policy, if any.
+ * @param {boolean} args.isPolicyRedemptionEnabled Whether there is a redeemable subsidy access policy.
+ * @param {object} args.subscriptionLicense Metadata pertaining to learner's subscription license, if any.
+ * @param {object} args.courseService Instance of the CourseService.
+ * @param {array} args.couponCodes List of assigned coupon codes, if any.
+ * @param {boolean} args.canEnrollWithEnterpriseOffers Whether enterprise offers are usable for the enterprise.
+ * @param {array} args.enterpriseOffers List of enterprise offers, if any.
+ * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
+ *  license validation error.
+ *
+ * @returns An object containing `userSubsidyApplicableToCourse` and `legacyUserSubsidyApplicableToCourse`.
+ */
 export const useUserSubsidyApplicableToCourse = ({
   courseData,
   redeemableSubsidyAccessPolicy,
