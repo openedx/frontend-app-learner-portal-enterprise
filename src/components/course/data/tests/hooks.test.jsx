@@ -122,9 +122,9 @@ describe('useAllCourseData', () => {
     await waitForNextUpdate();
     expect(result.current.courseData).toEqual(mockCourseData);
 
-    expect(mockCourseService.fetchAllCourseData).toHaveBeenCalled();
-    expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalled();
-    expect(mockCourseService.fetchCourseReviews).toHaveBeenCalled();
+    expect(mockCourseService.fetchAllCourseData).toHaveBeenCalledTimes(1);
+    expect(mockCourseService.fetchAllCourseRecommendations).toHaveBeenCalledTimes(1);
+    expect(mockCourseService.fetchCourseReviews).toHaveBeenCalledTimes(1);
 
     expect(result.current.courseRecommendations).toEqual(camelCaseObject(mockCourseRecommendations));
   });

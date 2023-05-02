@@ -3,6 +3,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { EVENT_NAMES } from './constants';
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 
 export default class CourseService {
@@ -41,7 +42,7 @@ export default class CourseService {
     if (!this.activeCourseRun) {
       sendEnterpriseTrackEvent(
         this.enterpriseUuid,
-        'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
+        EVENT_NAMES.missingActiveCourseRun,
         { course_key: this.courseKey },
       );
     }

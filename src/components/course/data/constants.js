@@ -55,3 +55,7 @@ export const REVIEW_SECTION_CONTENT = {
   CONFIDENT_LEARNERS: 'confident-learners',
   MOST_COMMON_GOAL_LEARNERS: 'most-common-goal-learners',
 };
+
+export const EVENT_NAMES = {
+  missingActiveCourseRun: 'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
+};

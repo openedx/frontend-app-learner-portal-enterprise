@@ -152,6 +152,8 @@ export const mockUserLicenseSubsidy = {
   discountValue: 100,
 };
 
+export const mockEnterpriseUUID = 'enterprise-uuid';
+export const mockCourseKey = 'course-key';
 export const mockCourseService = {
   fetchAllCourseData: jest.fn(() => mockCourseData),
   fetchAllCourseRecommendations: jest.fn(() => mockCourseRecommendations),
@@ -159,8 +161,8 @@ export const mockCourseService = {
   fetchCourseReviews: jest.fn(() => mockCourseReviews),
   fetchUserLicenseSubsidy: jest.fn().mockResolvedValue({ data: mockUserLicenseSubsidy }),
   fetchCanRedeem: jest.fn().mockResolvedValue({ data: mockCanRedeemData }),
-  courseKey: 'course-key',
-  enterpriseUuid: 'enterprise-uuid',
+  courseKey: mockCourseKey,
+  enterpriseUuid: mockEnterpriseUUID,
   activeCourseRun: {
     firstEnrollablePaidSeatPrice: 100,
   },
@@ -169,6 +171,10 @@ export const mockCourseServiceUninitialized = {
   ...mockCourseService,
   courseKey: undefined,
   enterpriseUuid: undefined,
+  activeCourseRun: undefined,
+};
+export const mockCourseServiceNoActiveCourseRun = {
+  ...mockCourseService,
   activeCourseRun: undefined,
 };
 
