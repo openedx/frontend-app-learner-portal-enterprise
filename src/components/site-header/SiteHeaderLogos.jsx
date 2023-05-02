@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useRouteMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
+import { Stack } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 
@@ -11,14 +12,12 @@ const SiteHeaderLogos = () => {
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
 
   let mainLogo = (
-    <div className="d-flex">
-      <img
-        className="d-block logo"
-        src={enterpriseConfig.branding.logo || edXLogo}
-        alt={`${enterpriseConfig.name} logo`}
-        data-testid="header-logo-image-id"
-      />
-    </div>
+    <img
+      className="logo"
+      src={enterpriseConfig.branding.logo || edXLogo}
+      alt={`${enterpriseConfig.name} logo`}
+      data-testid="header-logo-image-id"
+    />
   );
 
   if (!enterpriseConfig.disableSearch) {
@@ -30,17 +29,20 @@ const SiteHeaderLogos = () => {
   }
 
   return (
-    <>
+    <Stack direction="horizontal" gap={3} className="mr-lg-3">
       {mainLogo}
       {courseTypePartnerLogo && (
-        <img
-          className="d-block pl-2 partner-header-logo logo-right"
-          src={courseTypePartnerLogo}
-          alt="partner-header-logo"
-          data-testid="partner-header-logo-image-id"
-        />
+        <>
+          <div className="vertical-divider" />
+          <img
+            className="logo"
+            src={courseTypePartnerLogo}
+            alt="partner-header-logo"
+            data-testid="partner-header-logo-image-id"
+          />
+        </>
       )}
-    </>
+    </Stack>
   );
 };
 
