@@ -1,33 +1,20 @@
 @import './Menu.scss';
 
+$header-logo-height-desktop: 1.75rem;
+$header-logo-height-mobile: 1.5rem;
+
 .site-header-mobile,
 .site-header-desktop {
   background: $white;
   position: relative;
   z-index: 1000;
 
-  .logo {
-    margin-right: 1rem;
-  }
-
   .dropdown-item a {
     text-decoration: none;
   }
 
-  a.logo img {
-      max-height: 50px;
-  }
-
-  .logo-right {
+  .vertical-divider {
     border-left: 1px solid $gray-200;
-  }
-
-  .partner-header-logo {
-    width: 70px;
-
-    @include media-breakpoint-up(md) {
-      width: 120px;
-    }
   }
 }
 
@@ -40,8 +27,9 @@
       background-color: $component-active-bg;
     }
   }
-  img {
-    height: 1.5rem;
+  .logo,
+  .vertical-divider {
+    height: $header-logo-height-mobile;
   }
   .icon-button {
     display: inline-flex;
@@ -62,22 +50,14 @@
 }
 
 .site-header-desktop {
-  @extend .border-bottom;
+  border-bottom: 1px solid $gray-200;
   background: $white;
   .nav-link {
     text-decoration: none;
   }
-  .logo {
-    display: block;
-    box-sizing: content-box;
-    position: relative;
-    top: -.05em;
-    height: 1.75rem;
-    padding: 1rem 0;
-    img {
-      display: block;
-      height: 100%;
-    }
+  .logo,
+  .vertical-divider {
+    height: $header-logo-height-desktop;
   }
   .main-nav {
     .nav-link {
