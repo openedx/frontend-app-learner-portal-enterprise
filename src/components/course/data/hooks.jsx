@@ -650,6 +650,9 @@ export const useUserSubsidyApplicableToCourse = ({
         }),
       });
       if (!hasEMETRedeemability) {
+        // If course cannot be redeemed through a subsidy access policy, set the applicable
+        // pre-EMET subsidy as `userSubsidyApplicableToCourse`. This conditional avoids
+        // overwriting `userSubsidyApplicableToCourse` when it has already been set.
         setUserSubsidyApplicableToCourse(subsidy);
       }
       setLegacyUserSubsidyApplicableToCourse(subsidy);
