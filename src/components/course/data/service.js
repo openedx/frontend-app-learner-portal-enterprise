@@ -1,6 +1,7 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 
@@ -35,8 +36,15 @@ export default class CourseService {
 
     const courseData = camelCaseObject(courseDataRaw);
     const courseDetails = courseData[0];
-    // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
+
+    if (!this.activeCourseRun) {
+      sendEnterpriseTrackEvent(
+        this.enterpriseUuid,
+        'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
+        { course_key: this.courseKey },
+      );
+    }
 
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.

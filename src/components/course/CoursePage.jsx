@@ -8,7 +8,7 @@ import {
 } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import { hasFeatureFlagEnabled, sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import CourseService from './data/service';
 import { MainContent, Sidebar } from '../layout';
@@ -191,15 +191,7 @@ const CoursePage = () => {
   }
 
   // If there isn't an active course run we don't show the course at all
-  // TODO: ensure this event is only dispatched once.
   if (!initialState.activeCourseRun) {
-    sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
-      'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
-      {
-        course_key: courseKey,
-      },
-    );
     return <NotFoundPage />;
   }
 
