@@ -820,9 +820,9 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       }),
     );
 
-    const checkRedemptionEligiblity = useQuery.mock.calls[0][0].queryFn;
-    const eligibility = await checkRedemptionEligiblity();
-    expect(eligibility).toEqual(camelCaseObject(mockCanRedeemData));
+    const checkRedeemability = useQuery.mock.calls[0][0].queryFn;
+    const redeemability = await checkRedeemability();
+    expect(redeemability).toEqual(camelCaseObject(mockCanRedeemData));
   });
 });
 

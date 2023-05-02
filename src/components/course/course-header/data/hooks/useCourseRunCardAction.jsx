@@ -9,10 +9,10 @@ import useRedemptionStatus from './useRedemptionStatus';
 
 /**
  * Checks whether the user's existing enrollment should be upgraded based on its mode and whether
- * the is a redeemable subsidy applicable to the course.
+ * there is a redeemable subsidy access policy applicable to the course.
  * @param {object} args
  * @param {object} args.userEnrollment The user's existing enrollment, with a ``mode`` property.
- * @param {object} args.subsidyAccessPolicy A redeemable subsidy applicable to the course.
+ * @param {object} args.subsidyAccessPolicy A redeemable subsidy access policy applicable to the course.
  * @returns True if the user's enrollment should be upgraded, false otherwise.
  */
 const checkUserEnrollmentUpgradeEligibility = ({
@@ -32,7 +32,7 @@ const checkUserEnrollmentUpgradeEligibility = ({
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
  * @param {string} args.courseRunUrl The course run url to navigate to courseware.
  * @param {string} args.contentKey The course run key.
- * @param {string} args.subsidyAccessPolicy The redeemable subsidy applicable to the course, if any.
+ * @param {string} args.subsidyAccessPolicy The redeemable subsidy access policy applicable to the course, if any.
  * @returns A JSX element to render as the CTA for the course run.
  */
 const useCourseRunCardAction = ({
