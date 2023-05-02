@@ -383,7 +383,7 @@ export const getCourseRunPrice = ({
   firstEnrollablePaidSeatPrice,
 }) => {
   if (courseUsesEntitlementPricing(courseDetails)) {
-    return getEntitlementPrice(courseDetails?.entitlements) || {};
+    return getEntitlementPrice(courseDetails?.entitlements);
   }
   if (firstEnrollablePaidSeatPrice) {
     return firstEnrollablePaidSeatPrice;
