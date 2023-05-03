@@ -44,7 +44,7 @@ const CoursePage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseUUID);
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
   const history = useHistory();
 
   const courseRunKey = useMemo(
@@ -176,14 +176,13 @@ const CoursePage = () => {
     initialState?.course?.courseType
     && getCourseTypeConfig(initialState.course)
     && !pathContainsCourseTypeSlug(
-      window.location.href,
+      pathname,
       initialState.course.courseType,
     )
   ) {
     const newUrl = linkToCourse(
       initialState?.course,
       enterpriseSlug,
-      enterpriseUUID,
     );
     history.replace(newUrl);
   }
