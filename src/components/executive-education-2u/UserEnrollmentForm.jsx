@@ -210,6 +210,7 @@ const UserEnrollmentForm = ({
                           placeholder="mm/dd/yyyy"
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          max={new Date().toISOString().split('T')[0]} // only allow before or on today's date
                         />
                         {errors.dateOfBirth && isFormSubmitted && (
                           <Form.Control.Feedback type="invalid">
