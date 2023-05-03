@@ -534,7 +534,7 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  * @param {array} args.courseRunKeys List of course run keys.
  * @param {string} args.activeCourseRunKey The course run key of the advertised course run for the top-level course.
  * @param {string} args.enterpriseUuid Enterprise customer UUID.
- * @param {string} args.isQueryEnabled Whether the API request to ``can-redeem`` should be made)
+ * @param {string} args.isQueryEnabled Whether the API request to ``can-redeem`` should be made
  *
  * @returns An object containing the output from `useQuery`, plus the following:
  * - `isPolicyRedemptionEnabled`: Whether there is a redeemable subsidy access policy.
