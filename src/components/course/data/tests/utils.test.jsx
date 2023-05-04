@@ -2,11 +2,23 @@ import moment from 'moment';
 import { ENTERPRISE_OFFER_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
 import {
-  courseUsesEntitlementPricing, findCouponCodeForCourse, findEnterpriseOfferForCourse, getSubsidyToApplyForCourse,
+  courseUsesEntitlementPricing,
+  findCouponCodeForCourse,
+  findEnterpriseOfferForCourse,
+  getSubsidyToApplyForCourse,
+  linkToCourse,
+  pathContainsCourseTypeSlug,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
-  getConfig: () => ({ COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE: ['entitlement_course'] }),
+  getConfig: () => ({
+    COURSE_TYPE_CONFIG: {
+      entitlement_course: {
+        pathSlug: 'executive-education-2u',
+        usesEntitlementListPrice: true,
+      },
+    },
+  }),
 }));
 
 describe('findCouponCodeForCourse', () => {
@@ -187,11 +199,53 @@ describe('courseUsesEntitlementPricing', () => {
     courseType: 'non_entitlement_course',
   };
 
-  it('Returns true when course type included in COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE', () => {
+  it('Returns true when course type included in COURSE_TYPE_CONFIG usesEntitlementListPrice is true', () => {
     expect(courseUsesEntitlementPricing(mockEntitlementCourse)).toEqual(true);
   });
 
-  it('Returns false when course type not included in COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE', () => {
+  it('Returns false when course type not included in COURSE_TYPE_CONFIG', () => {
     expect(courseUsesEntitlementPricing(mockNonEntitlementCourse)).toEqual(false);
+  });
+});
+
+describe('pathContainsCourseTypeSlug', () => {
+  it('returns true with matching course type slug', () => {
+    expect(pathContainsCourseTypeSlug('/testenterprise/executive-education-2u/course/mock_entitlement_course', 'entitlement_course')).toEqual(true);
+  });
+
+  it('returns false without matching course type slug', () => {
+    expect(pathContainsCourseTypeSlug('/testenterprise/executive-education-2u/course/mock_entitlement_course', 'non_entitlement_course')).toEqual(false);
+  });
+});
+
+describe('linkToCourse', () => {
+  const slug = 'testenterprise';
+  const mockEntitlementCourse = {
+    key: 'mock_entitlement_course',
+    courseType: 'entitlement_course',
+  };
+
+  const mockNonEntitlementCourse = {
+    key: 'mock_non_entitlement_course',
+    courseType: 'non_entitlement_course',
+  };
+
+  const mockQueryQbjectIdCourse = {
+    key: 'mock_query_object_id_course',
+    courseType: 'doesntmatter',
+    queryId: 'testqueryid',
+    objectId: 'testobjectid',
+  };
+
+  it('returns url with course type slug', () => {
+    expect(linkToCourse(mockEntitlementCourse, slug)).toEqual('/testenterprise/executive-education-2u/course/mock_entitlement_course');
+  });
+
+  it('returns url without course type slug', () => {
+    expect(linkToCourse(mockNonEntitlementCourse, slug)).toEqual('/testenterprise/course/mock_non_entitlement_course');
+  });
+
+  it('returns url with course queryId, objectId', () => {
+    expect(linkToCourse(mockQueryQbjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
   });
 });

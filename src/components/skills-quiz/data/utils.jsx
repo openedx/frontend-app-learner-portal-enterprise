@@ -1,7 +1,5 @@
 // get common skills between a course/program and the job selected by the learner
 // here content can either be a course or a program
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { fetchSkillsId, postSkillsGoalsAndJobsUserSelected } from './service';
 import {
@@ -44,24 +42,6 @@ export function sortSkillsWithSignificance(job) {
 export function sortSkillsCoursesWithCourseCount(coursesWithSkill) {
   return coursesWithSkill.sort((a, b) => (
     (a.value.length < b.value.length) ? 1 : -1));
-}
-
-export function linkToCourse(course, slug, enterpriseUUID) {
-  if (!Object.keys(course).length) {
-    return '#';
-  }
-  const queryParams = new URLSearchParams();
-  if (course.queryId && course.objectId) {
-    queryParams.set('queryId', course.queryId);
-    queryParams.set('objectId', course.objectId);
-  }
-  const { userId } = getAuthenticatedUser();
-  sendEnterpriseTrackEvent(
-    enterpriseUUID,
-    'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
-    { userId, enterprise: slug, selectedCourse: course.key },
-  );
-  return `/${slug}/course/${course.key}?${queryParams.toString()}`;
 }
 
 export const saveSkillsGoalsAndJobsUserSelected = async (goal, skills, currentJobRole, interestedJobs) => {
