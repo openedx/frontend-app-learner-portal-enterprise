@@ -4,8 +4,10 @@ import { useHistory } from 'react-router-dom';
 import Truncate from 'react-truncate';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
-import getCommonSkills, { linkToCourse } from './data/utils';
-import { shortenString } from '../course/data/utils';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import getCommonSkills from './data/utils';
+import { linkToCourse, shortenString } from '../course/data/utils';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
@@ -35,7 +37,14 @@ const CourseCard = ({
     if (isLoading) {
       return;
     }
-    history.push(linkToCourse(course, slug, uuid));
+    const { userId } = getAuthenticatedUser();
+    sendEnterpriseTrackEvent(
+      uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
+      { userId, enterprise: slug, selectedCourse: course.key },
+    );
+
+    history.push(linkToCourse(course, slug));
   };
 
   return (

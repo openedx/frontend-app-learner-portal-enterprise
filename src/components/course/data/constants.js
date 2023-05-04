@@ -1,3 +1,5 @@
+import GetSmarterLogo from '../../../assets/icons/getsmarter-header-icon.svg';
+
 export const SET_COURSE_RUN = 'SET_COURSE_RUN';
 
 export const COURSE_PACING_MAP = {
@@ -58,4 +60,9 @@ export const REVIEW_SECTION_CONTENT = {
 
 export const EVENT_NAMES = {
   missingActiveCourseRun: 'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
+};
+
+// TODO: Put logo in external repository and link to it with internal config
+export const COURSE_TYPE_PARTNER_LOGOS = {
+  'executive-education-2u': GetSmarterLogo,
 };

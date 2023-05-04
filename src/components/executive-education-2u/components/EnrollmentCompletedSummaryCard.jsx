@@ -15,8 +15,8 @@ const EnrollmentCompletedSummaryCard = () => {
             <img
               className="d-block"
               src={GetSmarterLogo}
-              alt="getsmarter-logo"
-              data-testid="getsmarter-logo-image-id"
+              alt="partner-header-logo"
+              data-testid="partner-header-logo-image-id"
             />
           </Card.Section>
         </Col>

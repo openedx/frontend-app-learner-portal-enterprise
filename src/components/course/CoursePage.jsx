@@ -1,7 +1,7 @@
 import React, {
   useCallback, useContext, useMemo, useState,
 } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
@@ -24,7 +24,14 @@ import {
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
 } from './data/hooks';
-import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
+import {
+  getActiveCourseRun,
+  getAvailableCourseRuns,
+  linkToCourse,
+  pathContainsCourseTypeSlug,
+  getCourseTypeConfig,
+} from './data/utils';
+
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseRecommendations from './CourseRecommendations';
@@ -34,8 +41,7 @@ import { useSearchCatalogs } from '../search/data/hooks';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 
 const CoursePage = () => {
-  const { search } = useLocation();
-  const { courseKey } = useParams();
+  const { enterpriseSlug, courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
   const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
   const {
@@ -52,6 +58,8 @@ const CoursePage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseUUID);
+  const { pathname, search } = useLocation();
+  const history = useHistory();
 
   const courseRunKey = useMemo(
     () => {
@@ -74,10 +82,10 @@ const CoursePage = () => {
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
   const courseService = useMemo(() => new CourseService({
-    enterpriseUuid: enterpriseConfig?.uuid,
+    enterpriseUuid: enterpriseUUID,
     courseKey,
     courseRunKey,
-  }), [courseKey, courseRunKey, enterpriseConfig?.uuid]);
+  }), [courseKey, courseRunKey, enterpriseUUID]);
 
   const {
     courseData,
@@ -193,6 +201,22 @@ const CoursePage = () => {
   // If there isn't an active course run we don't show the course at all
   if (!initialState.activeCourseRun) {
     return <NotFoundPage />;
+  }
+
+  // Redirect if path does not contain course type
+  if (
+    initialState?.course?.courseType
+    && getCourseTypeConfig(initialState.course)
+    && !pathContainsCourseTypeSlug(
+      pathname,
+      initialState.course.courseType,
+    )
+  ) {
+    const newUrl = linkToCourse(
+      initialState?.course,
+      enterpriseSlug,
+    );
+    history.replace(newUrl);
   }
 
   const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;
