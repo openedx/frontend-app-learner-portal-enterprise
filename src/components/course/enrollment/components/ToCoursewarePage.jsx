@@ -1,13 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { Hyperlink } from '@edx/paragon';
 
 import { EnrollButtonCta } from '../common';
 import { shouldUpgradeUserEnrollment } from '../../data/utils';
 import { useTrackSearchConversionClickHandler } from '../../data/hooks';
-
-import { enrollLinkClass } from '../constants';
 
 /**
  * Renders a hyperlink to the course info url (or enrollment url)
@@ -30,10 +26,9 @@ const ToCoursewarePage = ({
   return (
     <EnrollButtonCta
       enrollLabel={enrollLabel}
-      className={classNames('btn btn-primary btn-brand-primary d-block', enrollLinkClass)}
-      destination={landingUrl}
-      as={Hyperlink}
+      href={landingUrl}
       onClick={handleClick}
+      block
     />
   );
 };

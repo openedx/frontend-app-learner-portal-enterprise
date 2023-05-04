@@ -2,7 +2,6 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
@@ -10,13 +9,21 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import { initialCourseState } from '../../../utils/tests';
 import CoursePage from '../CoursePage';
 import { useAllCourseData } from '../data/hooks';
+import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
+import { mockCourseService } from './constants';
 
-jest.mock('@edx/frontend-enterprise-utils', () => ({
-  ...jest.requireActual('@edx/frontend-enterprise-utils'),
-  sendEnterpriseTrackEvent: jest.fn(),
+jest.mock('../data/service', () => ({
+  __esModule: true,
+  default: jest.fn(() => mockCourseService),
 }));
 jest.mock('../data/hooks', () => ({
-  useCheckAccessPolicyRedemptionEligibility: jest.fn(() => ({
+  useUserSubsidyApplicableToCourse: jest.fn(() => ({
+    discountType: 'percentage',
+    discountValue: 100,
+    subsidyType: mockLearnerCreditSubsidyType,
+    policyRedemptionUrl: 'http://example.com/policy-redemption-url',
+  })),
+  useCheckSubsidyAccessPolicyRedeemability: jest.fn(() => ({
     isInitialLoading: false,
     data: [],
   })),
@@ -77,7 +84,6 @@ jest.mock('../data/hooks', () => ({
           certificate: 'https://example.com/certificate.pdf',
         },
       },
-      userSubsidyApplicableToCourse: true,
       catalog: {
         name: 'Test Catalog',
       },
@@ -143,8 +149,7 @@ const updatedInitialCourseStateDefined = {
 };
 
 describe('CoursePage', () => {
-  // This test increases coverage by 80% from the previous 0%
-  it('renders the component with 404 <NotFoundPage />, sends track event', async () => {
+  it('renders the component with 404 <NotFoundPage />', async () => {
     const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
     const mockLocation = { search: '?course_run_key=test-course-run-key' };
     const mockParams = { courseKey: 'test-course-key' };
@@ -174,6 +179,5 @@ describe('CoursePage', () => {
       </AppContext.Provider>,
     );
     expect(useAllCourseData).toHaveBeenCalledTimes(1);
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
   });
 });

@@ -97,7 +97,7 @@ describe('useCourseRunCardAction', () => {
     expect(NavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         shouldUpgradeUserEnrollment: false,
-        userSubsidyApplicableToCourse: undefined,
+        subsidyAccessPolicy: undefined,
         contentKey: MOCK_COURSE_RUN_KEY,
         courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: expect.any(Function),
@@ -113,7 +113,7 @@ describe('useCourseRunCardAction', () => {
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       contentKey: MOCK_COURSE_RUN_KEY,
-      userSubsidyApplicableToCourse: undefined,
+      subsidyAccessPolicy: undefined,
     });
 
     // expected components exists
@@ -124,7 +124,7 @@ describe('useCourseRunCardAction', () => {
     expect(NavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         shouldUpgradeUserEnrollment: false,
-        userSubsidyApplicableToCourse: undefined,
+        subsidyAccessPolicy: undefined,
         contentKey: MOCK_COURSE_RUN_KEY,
         courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: expect.any(Function),
@@ -150,7 +150,7 @@ describe('useCourseRunCardAction', () => {
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       contentKey: MOCK_COURSE_RUN_KEY,
-      userSubsidyApplicableToCourse: MOCK_REDEEMABLE_SUBSIDY,
+      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
 
     // expected components exists
@@ -161,7 +161,7 @@ describe('useCourseRunCardAction', () => {
     expect(NavigateToCourseware.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         shouldUpgradeUserEnrollment: true,
-        userSubsidyApplicableToCourse: MOCK_REDEEMABLE_SUBSIDY,
+        subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
         contentKey: MOCK_COURSE_RUN_KEY,
         courseRunUrl: MOCK_COURSE_RUN_URL,
         onUpgradeClick: expect.any(Function),

@@ -3,13 +3,19 @@ import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import CourseService from '../service';
-import { TEST_RECOMMENDATION_DATA, FILTERED_RECOMMENDATIONS, REVIEW_DATA } from '../../tests/constants';
+import {
+  TEST_RECOMMENDATION_DATA,
+  FILTERED_RECOMMENDATIONS,
+  REVIEW_DATA,
+  mockCanRedeemData,
+} from '../../tests/constants';
 
 // config
 const APP_CONFIG = {
   USE_API_CACHE: true,
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
   ENTERPRISE_CATALOG_API_BASE_URL: 'http://localhost:18160',
+  ENTERPRISE_ACCESS_BASE_URL: 'http://localhost:18270',
 };
 
 // test data
@@ -21,6 +27,8 @@ const COURSE_RUN_KEY = 'edX+DemoX_2022';
 const RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/taxonomy/api/v1/course_recommendations/${COURSE_KEY}/`;
 const FILTER_RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/filter_content_items/`;
 const REVIEW_API_ENDPOINT = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_review/${COURSE_KEY}/`;
+const canRedeemParams = new URLSearchParams({ content_key: COURSE_RUN_KEY });
+const CAN_REDEEM_ENDPOINT = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/enterprise-customer/${ENTERPRISE_UUID}/can-redeem/?${canRedeemParams.toString()}`;
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
@@ -28,6 +36,7 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 axiosMock.onGet(RECOMMENDATION_API_ENDPOINT).reply(200, TEST_RECOMMENDATION_DATA);
 axiosMock.onPost(FILTER_RECOMMENDATION_API_ENDPOINT).reply(200, FILTERED_RECOMMENDATIONS);
 axiosMock.onGet(REVIEW_API_ENDPOINT).reply(200, REVIEW_DATA);
+axiosMock.onGet(CAN_REDEEM_ENDPOINT).reply(200, mockCanRedeemData);
 
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: () => (APP_CONFIG),
@@ -36,6 +45,7 @@ jest.mock('@edx/frontend-platform/config', () => ({
 describe('CourseService', () => {
   beforeEach(() => {
     axiosMock.resetHistory();
+    jest.clearAllMocks();
   });
 
   it('fetches course recommendations for the passed course key', async () => {
@@ -76,5 +86,16 @@ describe('CourseService', () => {
     const response = await courseService.fetchCourseReviews();
     expect(axiosMock.history.get[0].url).toBe(REVIEW_API_ENDPOINT);
     expect(response.data).toEqual(REVIEW_DATA);
+  });
+
+  it('fetches subsidy access policy redeemability for content keys', async () => {
+    const courseService = new CourseService({
+      enterpriseUuid: ENTERPRISE_UUID,
+      courseKey: COURSE_KEY,
+      courseRunKey: COURSE_RUN_KEY,
+    });
+    const response = await courseService.fetchCanRedeem({ courseRunKeys: [COURSE_RUN_KEY] });
+    expect(axiosMock.history.get[0].url).toBe(CAN_REDEEM_ENDPOINT);
+    expect(response.data).toEqual(mockCanRedeemData);
   });
 });

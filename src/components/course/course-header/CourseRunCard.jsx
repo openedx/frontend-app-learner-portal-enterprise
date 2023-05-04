@@ -13,13 +13,12 @@ import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
  * to enroll in the course run or navigate to courseware.
  */
 /* istanbul ignore next */
-const CourseRunCard = ({ courseRun }) => {
+const CourseRunCard = ({
+  courseRun,
+  subsidyAccessPolicy,
+}) => {
   const { state: courseData } = useContext(CourseContext);
-  const {
-    userEnrollments,
-    userSubsidyApplicableToCourse,
-  } = courseData;
-
+  const { userEnrollments } = courseData;
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
     userEnrollments,
     key: courseRun.key,
@@ -31,7 +30,7 @@ const CourseRunCard = ({ courseRun }) => {
     action,
   } = useCourseRunCardData({
     courseRun,
-    userSubsidyApplicableToCourse,
+    subsidyAccessPolicy,
     userEnrollment: userEnrollmentForCourseRun,
     courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
   });
@@ -57,6 +56,7 @@ CourseRunCard.propTypes = {
     pacingType: PropTypes.string,
     enrollmentCount: PropTypes.number,
   }).isRequired,
+  subsidyAccessPolicy: PropTypes.shape().isRequired,
 };
 
 /* istanbul ignore next */

@@ -1,5 +1,4 @@
 import React from 'react';
-import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
 
 import {
@@ -127,10 +126,19 @@ export function getActiveCourseRun(course) {
   return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
 }
 
+/**
+ * Returns list of available that are marketable, enrollable, and not archived.
+ *
+ * @param {object} course
+ * @returns List of course runs.
+ */
 export function getAvailableCourseRuns(course) {
-  return course.courseRuns.filter(
-    courseRun => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
-  );
+  return course.courseRuns
+    .filter((courseRun) => (
+      courseRun.isMarketable
+      && courseRun.isEnrollable
+      && !isArchived(courseRun)
+    ));
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
@@ -287,7 +295,7 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  return null;
+  return undefined;
 };
 
 export const createEnrollFailureUrl = ({ courseRunKey, location }) => {
@@ -341,36 +349,6 @@ export const createEnrollWithCouponCodeUrl = ({
   return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
 };
 
-/**
- * Determines whether the subsidy access policy redemption feature is enabled
- * based on a feature flag and whether any course runs are redeemable as determined
- * by the `can-redeem` API response.
- *
- * Allows a temporary "?feature=ENABLE_EMET_REDEMPTION" query parameter to force
- * enable subsidy access policy redemption (e.g., if the `FEATURE_ENABLE_EMET_REDEMPTION`
- * feature flag is disabled).
- *
- * @param {object} args
- * @param {array} args.accessPolicyRedemptionEligibilityData List of objects, each containing a `canRedeem` boolean.
- * @returns True if the feature is enabled and at least one course run is redeemable.
- */
-export const checkPolicyRedemptionEnabled = ({
-  accessPolicyRedemptionEligibilityData = [],
-}) => {
-  if (hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION')) {
-    // Always enable the policy redemption feature when enabled via query parameter.
-    return true;
-  }
-  const canRedeemAccessPolicy = accessPolicyRedemptionEligibilityData.some(({ canRedeem }) => canRedeem === true);
-  const isFeatureEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION;
-
-  // Enable EMET access policy redemption when the feature is enabled and there is a redeemable access policy.
-  if (isFeatureEnabled && canRedeemAccessPolicy) {
-    return true;
-  }
-  return false;
-};
-
 export const courseUsesEntitlementPricing = (course) => {
   const courseTypes = getConfig().COURSE_TYPES_WITH_ENTITLEMENT_LIST_PRICE;
   if (courseTypes) {
@@ -379,4 +357,44 @@ export const courseUsesEntitlementPricing = (course) => {
   return false;
 };
 
+/**
+ * Determines the first entitlement price from a list of entitlements.
+ *
+ * @param {*} entitlements List of course entitlements
+ * @returns Price gleaned from entitlements
+ */
+export function getEntitlementPrice(entitlements) {
+  if (entitlements?.length) {
+    return Number(entitlements[0].price);
+  }
+  return undefined;
+}
+
+/**
+ * Determines the price for a course run.
+ *
+ * @param {object} args
+ * @param {object} args.courseDetails Object containing course type and entitlements properties.
+ * @param {number} args.firstEnrollablePaidSeatPrice Price of first enrollable paid seat.
+ * @returns Price for the course run.
+ */
+export const getCourseRunPrice = ({
+  courseDetails,
+  firstEnrollablePaidSeatPrice,
+}) => {
+  if (courseUsesEntitlementPricing(courseDetails)) {
+    return getEntitlementPrice(courseDetails?.entitlements);
+  }
+  if (firstEnrollablePaidSeatPrice) {
+    return firstEnrollablePaidSeatPrice;
+  }
+  return undefined;
+};
+
+/**
+ * Transforms a value into a float with 2 decimal places.
+ *
+ * @param {*} value
+ * @returns Casts value to a float and fixes it to 2 decimal places.
+ */
 export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);
