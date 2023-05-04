@@ -565,7 +565,8 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   });
 
   const redeemabilityPerContentKey = useQueryResult.data || [];
-  const redeemableSubsidyAccessPolicy = redeemabilityPerContentKey.find(r => r.contentKey === activeCourseRunKey);
+  const redeemabilityForActiveCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === activeCourseRunKey);
+  const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   return {
