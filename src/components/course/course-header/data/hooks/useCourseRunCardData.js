@@ -10,14 +10,14 @@ import useCourseRunCardAction from './useCourseRunCardAction';
  *  start date, pacing type, and enrollment count.
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
  * @param {string} args.courseRunUrl The URL to the course run coureware page.
- * @param {object} args.userSubsidyApplicableToCourse A redeemable subsidy applicable to the course, if any.
+ * @param {object} args.subsidyAccessPolicy A redeemable subsidy access policy applicable to the course, if any.
  * @returns An object containing the `heading, `subHeading`, and `action` data needed to render the `CourseRunCard`.
  */
 const useCourseRunCardData = ({
   courseRun,
   userEnrollment,
   courseRunUrl,
-  userSubsidyApplicableToCourse,
+  subsidyAccessPolicy,
 }) => {
   const {
     key: contentKey,
@@ -44,7 +44,7 @@ const useCourseRunCardData = ({
     userEnrollment,
     courseRunUrl,
     contentKey,
-    userSubsidyApplicableToCourse,
+    subsidyAccessPolicy,
   });
 
   return {

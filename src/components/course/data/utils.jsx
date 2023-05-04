@@ -1,7 +1,7 @@
 import React from 'react';
-import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { getConfig } from '@edx/frontend-platform';
 
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -127,10 +127,19 @@ export function getActiveCourseRun(course) {
   return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
 }
 
+/**
+ * Returns list of available that are marketable, enrollable, and not archived.
+ *
+ * @param {object} course
+ * @returns List of course runs.
+ */
 export function getAvailableCourseRuns(course) {
-  return course.courseRuns.filter(
-    courseRun => courseRun.isMarketable && courseRun.isEnrollable && !isArchived(courseRun),
-  );
+  return course.courseRuns
+    .filter((courseRun) => (
+      courseRun.isMarketable
+      && courseRun.isEnrollable
+      && !isArchived(courseRun)
+    ));
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
@@ -287,7 +296,7 @@ export const getSubsidyToApplyForCourse = ({
     };
   }
 
-  return null;
+  return undefined;
 };
 
 export const createEnrollFailureUrl = ({ courseRunKey, location }) => {
@@ -413,4 +422,44 @@ export function linkToCourse(course, slug) {
   return `${baseUrl}${query}`;
 }
 
+/**
+ * Determines the first entitlement price from a list of entitlements.
+ *
+ * @param {*} entitlements List of course entitlements
+ * @returns Price gleaned from entitlements
+ */
+export function getEntitlementPrice(entitlements) {
+  if (entitlements?.length) {
+    return Number(entitlements[0].price);
+  }
+  return undefined;
+}
+
+/**
+ * Determines the price for a course run.
+ *
+ * @param {object} args
+ * @param {object} args.courseDetails Object containing course type and entitlements properties.
+ * @param {number} args.firstEnrollablePaidSeatPrice Price of first enrollable paid seat.
+ * @returns Price for the course run.
+ */
+export const getCourseRunPrice = ({
+  courseDetails,
+  firstEnrollablePaidSeatPrice,
+}) => {
+  if (courseUsesEntitlementPricing(courseDetails)) {
+    return getEntitlementPrice(courseDetails?.entitlements);
+  }
+  if (firstEnrollablePaidSeatPrice) {
+    return firstEnrollablePaidSeatPrice;
+  }
+  return undefined;
+};
+
+/**
+ * Transforms a value into a float with 2 decimal places.
+ *
+ * @param {*} value
+ * @returns Casts value to a float and fixes it to 2 decimal places.
+ */
 export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);

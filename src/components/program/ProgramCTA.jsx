@@ -104,8 +104,13 @@ const ProgramCTA = () => {
       </FormattedMessage>
 
       <div className="program-details-btn">
-        <Dropdown className="enroll-btn btn btn-brand w-100" id="program-details-dropdown">
-          <Dropdown.Toggle variant="inverse-primary" as="div" id="dropdown-basic" style={{ cursor: 'pointer' }}>
+        <Dropdown className="enroll-btn btn btn-brand w-100">
+          <Dropdown.Toggle
+            variant="inverse-primary"
+            as="div"
+            id="program-details-dropdown"
+            style={{ cursor: 'pointer' }}
+          >
             View Course Details
           </Dropdown.Toggle>
           <Dropdown.Menu>

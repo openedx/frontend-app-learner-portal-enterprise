@@ -22,7 +22,7 @@ import { ExecutiveEducation2UPage } from '../executive-education-2u';
 import { ToastsProvider, Toasts } from '../Toasts';
 import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
 
-// Create a client
+// Create a query client for @tanstack/react-query
 const queryClient = new QueryClient({
   refetchOnWindowFocus: false,
 });

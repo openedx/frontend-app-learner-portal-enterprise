@@ -58,6 +58,10 @@ export const REVIEW_SECTION_CONTENT = {
   MOST_COMMON_GOAL_LEARNERS: 'most-common-goal-learners',
 };
 
+export const EVENT_NAMES = {
+  missingActiveCourseRun: 'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
+};
+
 // TODO: Put logo in external repository and link to it with internal config
 export const COURSE_TYPE_PARTNER_LOGOS = {
   'executive-education-2u': GetSmarterLogo,

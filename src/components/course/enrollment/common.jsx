@@ -10,11 +10,9 @@ const EnrollButtonWrapper = ({
   children,
   ...props
 }) => (
-  <div>
-    <Component {...props}>
-      {children}
-    </Component>
-  </div>
+  <Component {...props}>
+    {children}
+  </Component>
 );
 
 EnrollButtonWrapper.propTypes = {

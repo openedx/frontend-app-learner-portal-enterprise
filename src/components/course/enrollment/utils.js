@@ -50,15 +50,3 @@ export function determineEnrollmentType({
   // which takes care of redemption.
   return TO_ECOM_BASKET;
 }
-
-/**
- *
- * @param {*} entitlements List of course entitlements
- * @returns Price gleaned from entitlements
- */
-export function getEntitlementPrice(entitlements) {
-  if (entitlements?.length) {
-    return Number(entitlements[0].price);
-  }
-  return undefined;
-}

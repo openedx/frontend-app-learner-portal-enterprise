@@ -18,7 +18,10 @@ const GoalDropdown = () => {
 
   return (
     <Dropdown>
-      <Dropdown.Toggle variant="outline-primary" id="dropdown-basic">
+      <Dropdown.Toggle
+        variant="outline-primary"
+        id="skills-quiz-goal-dropdown-toggle"
+      >
         {goal}
       </Dropdown.Toggle>
       <Dropdown.Menu>

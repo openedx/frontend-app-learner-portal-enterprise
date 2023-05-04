@@ -251,6 +251,7 @@ class BaseCourseCard extends Component {
               src={MoreVert}
               iconAs={Icon}
               alt={`course settings for ${title}`}
+              id="course-enrollment-card-settings-dropdown-toggle"
             />
             <Dropdown.Menu>
               {menuItems.map(menuItem => (

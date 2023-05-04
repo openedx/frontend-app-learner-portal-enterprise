@@ -16,7 +16,8 @@ const BASE_COURSE_STATE = {
     start: '2020-02-12T10:00:00Z',
     isEnrollable: false,
   },
-  userSubsidyApplicableToCourse: null,
+  userSubsidyApplicableToCourse: undefined,
+  legacyUserSubsidyApplicableToCourse: undefined,
   course: {},
   userEnrollments: [],
   userEntitlements: [],
@@ -117,6 +118,7 @@ describe('useSubsidyDataForCourse', () => {
       couponCodes: [],
       subscriptionLicense,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
+      legacyUserSubsidyApplicableToCourse: BASE_COURSE_STATE.legacyUserSubsidyApplicableToCourse,
     };
     const { result } = renderHook(() => useSubsidyDataForCourse(), { wrapper: ContextWrapper });
     expect(result.current).toStrictEqual(expected);
@@ -134,6 +136,7 @@ describe('useSubsidyDataForCourse', () => {
       subscriptionLicense,
       couponCodes,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
+      legacyUserSubsidyApplicableToCourse: BASE_COURSE_STATE.legacyUserSubsidyApplicableToCourse,
     };
     const initialUserSubsidyState = {
       subscriptionLicense,

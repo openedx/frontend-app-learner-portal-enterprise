@@ -1,11 +1,9 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 import { useSubsidyDataForCourse } from '../hooks';
 import EnrollModal from '../../EnrollModal';
 
-import { enrollLinkClass } from '../constants';
 import { EnrollButtonCta } from '../common';
 import { CourseContext } from '../../CourseContextProvider';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -54,8 +52,8 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
     <>
       <EnrollButtonCta
         enrollLabel={enrollLabel}
-        className={classNames('d-block', enrollLinkClass)}
         onClick={() => setIsModalOpen(true)}
+        block
       />
       <EnrollModal
         isModalOpen={isModalOpen}

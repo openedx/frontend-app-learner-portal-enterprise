@@ -186,7 +186,7 @@ describe('getSubsidyToApplyForCourse', () => {
       applicableEnterpriseOffer: undefined,
     });
 
-    expect(subsidyToApply).toBeNull();
+    expect(subsidyToApply).toBeUndefined();
   });
 });
 
