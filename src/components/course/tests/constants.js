@@ -136,13 +136,15 @@ export const mockCourseRecommendations = {
 };
 export const mockCourseReviews = [];
 export const mockCourseRunKey = 'course-v1:edX+DemoX+1T2023';
+export const mockRedeemableSubsidyAccessPolicy = {
+  uuid: 'test-subsidy-access-policy-uuid',
+};
 export const mockCanRedeemData = [{
-  [mockCourseRunKey]: {
-    can_redeem: true,
-    redeemable_subsidy_access_policy: {},
-    has_redeemed: false,
-    redemptions: [],
-  },
+  content_key: mockCourseRunKey,
+  can_redeem: true,
+  redeemable_subsidy_access_policy: mockRedeemableSubsidyAccessPolicy,
+  has_redeemed: false,
+  redemptions: [],
 }];
 export const mockSubscriptionLicense = {
   uuid: 'test-subscription-uuid',

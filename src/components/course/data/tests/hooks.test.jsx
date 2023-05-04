@@ -47,6 +47,7 @@ import {
   mockCanRedeemData,
   mockSubscriptionLicense,
   mockUserLicenseSubsidy,
+  mockRedeemableSubsidyAccessPolicy,
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
@@ -806,11 +807,20 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   });
 
   it('makes actual query to check redemption eligilibity', async () => {
+    useQuery.mockReturnValue({
+      data: camelCaseObject(mockCanRedeemData),
+      isInitialLoading: false,
+    });
+
     const { result } = renderHook(
       () => useCheckSubsidyAccessPolicyRedeemability(argsWithCourseRunKeys),
       { wrapper },
     );
+
     expect(result.current.isInitialLoading).toBeDefined();
+    expect(result.current.isPolicyRedemptionEnabled).toBeTruthy();
+    expect(result.current.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
+    expect(result.current.redeemabilityPerContentKey).toBeDefined();
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
