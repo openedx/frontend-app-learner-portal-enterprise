@@ -1,7 +1,7 @@
 // get common skills between a course/program and the job selected by the learner
 // here content can either be a course or a program
 
-import { fetchSkillsId, postSkillsGoalsAndJobsUserSelected } from './service';
+import { postSkillsGoalsAndJobsUserSelected } from './service';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS,
   DROPDOWN_OPTION_CHANGE_CAREERS_LABEL,
@@ -44,11 +44,9 @@ export function sortSkillsCoursesWithCourseCount(coursesWithSkill) {
     (a.value.length < b.value.length) ? 1 : -1));
 }
 
-export const saveSkillsGoalsAndJobsUserSelected = async (goal, skills, currentJobRole, interestedJobs) => {
-  const { data: { results } } = await fetchSkillsId(skills);
-  const skillsId = results?.map(({ id }) => id);
+export const saveSkillsGoalsAndJobsUserSelected = async (goal, currentJobRole, interestedJobs) => {
   const interestedJobsId = interestedJobs?.map(({ id }) => id);
   const currentJobRoleId = currentJobRole?.map(({ id }) => id);
   const goalLabel = goalLabels(goal);
-  postSkillsGoalsAndJobsUserSelected(goalLabel, skillsId, interestedJobsId, currentJobRoleId);
+  postSkillsGoalsAndJobsUserSelected(goalLabel, interestedJobsId, currentJobRoleId);
 };
