@@ -152,14 +152,18 @@ describe('<SkillsQuizStepper />', () => {
       dispatch: () => null,
     };
 
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+    };
+
     renderWithRouter(
       <AppContext.Provider value={defaultAppState}>
         <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
             <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
                 <SkillsQuizStepper />
-              </SkillsContextProvider>
+              </SkillsContext.Provider>
             </SearchContext.Provider>
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
