@@ -73,8 +73,9 @@ const SkillsQuizStepper = () => {
 
   const history = useHistory();
 
-  const goalExceptImproveAndJobSelected = checkValidGoalAndJobSelected(goal, jobs, false);
-  const improveGoalAndCurrentJobSelected = checkValidGoalAndJobSelected(goal, currentJob, true);
+  const goalNotDefault = goal !== GOAL_DROPDOWN_DEFAULT_OPTION;
+  const goalExceptImproveAndJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, jobs, false);
+  const improveGoalAndCurrentJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, currentJob, true);
   const canContinueToRecommendedCourses = goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
 
   const closeSkillsQuiz = () => {
