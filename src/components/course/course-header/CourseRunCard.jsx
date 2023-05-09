@@ -1,24 +1,26 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Card } from '@edx/paragon';
-import { CourseContext } from '../CourseContextProvider';
 
+import { CourseContext } from '../CourseContextProvider';
 import { findUserEnrollmentForCourseRun } from '../data/utils';
 import { useCourseRunCardData } from './data';
 
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
+import CourseRunCardStatus from './CourseRunCardStatus';
 
 /**
  * React component that displays information about the course run and provides a CTA to allow the learner
  * to enroll in the course run or navigate to courseware.
  */
-/* istanbul ignore next */
 const CourseRunCard = ({
   courseRun,
   subsidyAccessPolicy,
+  missingUserSubsidyReason,
 }) => {
   const { state: courseData } = useContext(CourseContext);
   const { userEnrollments } = courseData;
+
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
     userEnrollments,
     key: courseRun.key,
@@ -44,6 +46,7 @@ const CourseRunCard = ({
           {action}
         </div>
       </Card.Section>
+      <CourseRunCardStatus missingUserSubsidyReason={missingUserSubsidyReason} />
     </Card>
   );
 };
@@ -56,7 +59,13 @@ CourseRunCard.propTypes = {
     pacingType: PropTypes.string,
     enrollmentCount: PropTypes.number,
   }).isRequired,
-  subsidyAccessPolicy: PropTypes.shape().isRequired,
+  subsidyAccessPolicy: PropTypes.shape(),
+  missingUserSubsidyReason: PropTypes.shape(),
+};
+
+CourseRunCard.defaultProps = {
+  subsidyAccessPolicy: undefined,
+  missingUserSubsidyReason: undefined,
 };
 
 /* istanbul ignore next */

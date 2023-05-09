@@ -18,6 +18,7 @@ const CourseRunCards = () => {
     redeemabilityPerContentKey,
     userEntitlements,
     userEnrollments,
+    missingUserSubsidyReason,
     course: { key },
     catalog: { catalogList },
   } = courseData;
@@ -27,12 +28,14 @@ const CourseRunCards = () => {
       {availableCourseRuns.map((courseRun) => {
         const redeemabilityForContentKey = redeemabilityPerContentKey.find(r => r.contentKey === courseRun.key);
         const redeemableSubsidyAccessPolicy = redeemabilityForContentKey?.redeemableSubsidyAccessPolicy;
-        if (redeemableSubsidyAccessPolicy) {
+
+        if (redeemableSubsidyAccessPolicy || missingUserSubsidyReason?.userMessage) {
           return (
             <CourseRunCard
               key={courseRun.uuid}
               courseRun={courseRun}
               subsidyAccessPolicy={redeemableSubsidyAccessPolicy}
+              missingUserSubsidyReason={missingUserSubsidyReason}
             />
           );
         }
@@ -45,6 +48,7 @@ const CourseRunCards = () => {
             catalogList={catalogList}
             userEntitlements={userEntitlements}
             subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
+            missingUserSubsidyReason={missingUserSubsidyReason}
           />
         );
       })}

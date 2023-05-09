@@ -43,7 +43,10 @@ import { useEnterpriseCuration } from '../search/content-highlights/data';
 const CoursePage = () => {
   const { enterpriseSlug, courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
-  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
+  const {
+    uuid: enterpriseUUID,
+    adminUsers: enterpriseAdminUsers,
+  } = enterpriseConfig;
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -101,6 +104,7 @@ const CoursePage = () => {
     redeemableSubsidyAccessPolicy,
     redeemabilityPerContentKey,
     isPolicyRedemptionEnabled,
+    missingSubsidyAccessPolicyReasons,
   } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
@@ -116,7 +120,7 @@ const CoursePage = () => {
 
   const {
     userSubsidyApplicableToCourse,
-    legacyUserSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
   } = useUserSubsidyApplicableToCourse({
     courseData,
     redeemableSubsidyAccessPolicy,
@@ -127,6 +131,8 @@ const CoursePage = () => {
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
     onSubscriptionLicenseForCourseValidationError,
+    missingSubsidyAccessPolicyReasons,
+    enterpriseAdminUsers,
   });
 
   const error = fetchCourseDataError || validateLicenseForCourseError;
@@ -160,7 +166,7 @@ const CoursePage = () => {
         userEnrollments,
         userEntitlements,
         userSubsidyApplicableToCourse,
-        legacyUserSubsidyApplicableToCourse,
+        missingUserSubsidyReason,
         catalog,
         courseReviews,
         algoliaSearchParams,
@@ -174,7 +180,7 @@ const CoursePage = () => {
     },
     [
       userSubsidyApplicableToCourse,
-      legacyUserSubsidyApplicableToCourse,
+      missingUserSubsidyReason,
       isLoadingCourseData,
       isLoadingAccessPolicyRedemptionStatus,
       courseData,

@@ -1,5 +1,5 @@
 import { getConfig } from '@edx/frontend-platform';
-import { Stack } from '@edx/paragon';
+import { Stack, Button } from '@edx/paragon';
 
 import StatefulEnroll from '../../../../stateful-enroll';
 import { COURSE_MODES_MAP } from '../../../data/constants';
@@ -71,6 +71,10 @@ const useCourseRunCardAction = ({
         />
       </Stack>
     );
+  }
+
+  if (!subsidyAccessPolicy) {
+    return <Button disabled block>Enroll</Button>;
   }
 
   return (

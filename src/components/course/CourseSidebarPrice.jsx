@@ -75,6 +75,9 @@ const CourseSidebarPrice = () => {
   // Case 3: No subsidies found
   if (!hasDiscountedPrice) {
     const { catalogList } = courseData.catalog;
+
+    // TODO: avoid iterating through `enterpriseOffers` here as the relevant enterprise offer
+    // was already determined via `findEnterpriseOfferForCourse` and exposes through `userSubsidyApplicationToCourse`.
     const hasOfferWithInsufficientBalance = canEnrollWithEnterpriseOffers && enterpriseOffers.find(
       (enterpriseOffer) => {
         const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);

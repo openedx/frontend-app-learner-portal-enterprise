@@ -1,5 +1,5 @@
 import { enrollButtonTypes } from './constants';
-import { LICENSE_SUBSIDY_TYPE } from '../data/constants';
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../data/constants';
 
 const {
   ENROLL_DISABLED,
@@ -16,11 +16,9 @@ const {
 export function determineEnrollmentType({
   subsidyData: {
     userSubsidyApplicableToCourse,
-    enrollmentUrl,
     subsidyRequestConfiguration,
   } = {},
   isUserEnrolled,
-  isEnrollable,
   isCourseStarted,
   userHasSubsidyRequestForCourse,
   subsidyRequestCatalogsApplicableToCourse,
@@ -29,24 +27,30 @@ export function determineEnrollmentType({
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
 
-  if (userHasSubsidyRequestForCourse) { return HIDE_BUTTON; }
-
   // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
-  if (
+  const userCanRequestSubsidyForCourse = (
     subsidyRequestConfiguration?.subsidyRequestsEnabled
     && subsidyRequestCatalogsApplicableToCourse.size > 0
     && !userSubsidyApplicableToCourse
-  ) {
+  );
+  if (userHasSubsidyRequestForCourse || userCanRequestSubsidyForCourse) {
     return HIDE_BUTTON;
   }
 
-  if (!(isEnrollable && enrollmentUrl)) { return ENROLL_DISABLED; }
+  if (!userSubsidyApplicableToCourse) {
+    return ENROLL_DISABLED;
+  }
 
-  if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
+  if (userSubsidyApplicableToCourse.subsidyType === LICENSE_SUBSIDY_TYPE) {
     return TO_DATASHARING_CONSENT;
   }
 
   // If the user has a coupon code or an enterprise offer, we will redirect them to the checkout page
   // which takes care of redemption.
-  return TO_ECOM_BASKET;
+  const ecommerceSubsidyTypes = [COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE];
+  if (ecommerceSubsidyTypes.includes(userSubsidyApplicableToCourse.subsidyType)) {
+    return TO_ECOM_BASKET;
+  }
+
+  return ENROLL_DISABLED;
 }

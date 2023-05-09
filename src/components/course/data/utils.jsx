@@ -1,7 +1,8 @@
 import React from 'react';
 import { getConfig } from '@edx/frontend-platform';
-
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
+import { Button, Hyperlink } from '@edx/paragon';
+
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -11,8 +12,8 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   ENROLLMENT_FAILED_QUERY_PARAM,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
+  DISABLED_ENROLL_REASON_TYPES,
 } from './constants';
-
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
 import VerifiedSvgIcon from '../../../assets/icons/verified.svg';
@@ -21,7 +22,6 @@ import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
-import { offerHasBookingsLimit } from '../../enterprise-user-subsidy/enterprise-offers/data/utils';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -150,73 +150,198 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
 }
 
 /**
+ * Determines the sort order of two enterprise offers based on the
+ * remaining balance for the user. Returns -1 if the first offer should
+ * be prioritized, 1 if the second offer should be prioritized, and 0 if
+ * there is no difference in priority.
+ *
+ * @param {object} args
+ * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
+ * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
+ *
+ * @returns The sort comparison value.
+ */
+export const compareRemainingBalanceForUser = ({ firstOffer, secondOffer }) => {
+  const firstOfferRemainingBalanceForUser = firstOffer.remainingBalanceForUser;
+  const secondOfferRemainingBalanceForUser = secondOffer.remainingBalanceForUser;
+
+  if (firstOfferRemainingBalanceForUser && secondOfferRemainingBalanceForUser) {
+    if (firstOfferRemainingBalanceForUser < secondOfferRemainingBalanceForUser) {
+      return -1;
+    }
+    if (firstOfferRemainingBalanceForUser >= secondOfferRemainingBalanceForUser) {
+      return 1;
+    }
+  }
+  if (!firstOfferRemainingBalanceForUser && secondOfferRemainingBalanceForUser) {
+    return -1;
+  }
+  if (firstOfferRemainingBalanceForUser && !secondOfferRemainingBalanceForUser) {
+    return 1;
+  }
+  return 0;
+};
+
+/**
+ * Determines the sort order of two enterprise offers based on the
+ * remaining balance for the offer. Returns -1 if the first offer should
+ * be prioritized, 1 if the second offer should be prioritized, and 0 if
+ * there is no difference in priority.
+ *
+ * @param {object} args
+ * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
+ * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
+ *
+ * @returns The sort comparison value.
+ */
+export const compareRemainingBalance = ({ firstOffer, secondOffer }) => {
+  const firstOfferRemainingBalance = firstOffer.remainingBalance;
+  const secondOfferRemainingBalance = secondOffer.remainingBalance;
+  if (firstOfferRemainingBalance && secondOfferRemainingBalance) {
+    if (firstOfferRemainingBalance < secondOfferRemainingBalance) {
+      return -1;
+    }
+    if (firstOfferRemainingBalance >= secondOfferRemainingBalance) {
+      return 1;
+    }
+  }
+  if (!firstOfferRemainingBalance && secondOfferRemainingBalance) {
+    return -1;
+  }
+  if (firstOfferRemainingBalance && !secondOfferRemainingBalance) {
+    return 1;
+  }
+  return 0;
+};
+
+/**
+ * Determines the sort order of two enterprise offers based on the
+ * remaining applications for the offer. Returns -1 if the first offer should
+ * be prioritized, 1 if the second offer should be prioritized, and 0 if
+ * there is no difference in priority.
+ *
+ * @param {object} args
+ * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
+ * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
+ *
+ * @returns The sort comparison value.
+ */
+export const compareRemainingApplications = ({ firstOffer, secondOffer }) => {
+  const firstOfferRemainingApplications = firstOffer.remainingApplications;
+  const secondOfferRemainingApplications = secondOffer.remainingApplications;
+  if (firstOfferRemainingApplications && secondOfferRemainingApplications) {
+    if (firstOfferRemainingApplications < secondOfferRemainingApplications) {
+      return -1;
+    }
+    if (firstOfferRemainingApplications >= secondOfferRemainingApplications) {
+      return 1;
+    }
+  }
+  if (!firstOfferRemainingApplications && secondOfferRemainingApplications) {
+    return -1;
+  }
+  if (firstOfferRemainingApplications && !secondOfferRemainingApplications) {
+    return 1;
+  }
+  return 0;
+};
+
+/**
+ * Determines the sort order of two enterprise offers based on the
+ * remaining applications for the user. Returns -1 if the first offer should
+ * be prioritized, 1 if the second offer should be prioritized, and 0 if
+ * there is no difference in priority.
+ *
+ * @param {object} args
+ * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
+ * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
+ *
+ * @returns The sort comparison value.
+ */
+export const compareRemainingApplicationsForUser = ({ firstOffer, secondOffer }) => {
+  const firstOfferRemainingApplicationsForUser = firstOffer.remainingApplicationsForUser;
+  const secondOfferRemainingApplicationsForUser = secondOffer.remainingApplicationsForUser;
+  if (firstOfferRemainingApplicationsForUser && secondOfferRemainingApplicationsForUser) {
+    if (firstOfferRemainingApplicationsForUser < secondOfferRemainingApplicationsForUser) {
+      return -1;
+    }
+    if (firstOfferRemainingApplicationsForUser >= secondOfferRemainingApplicationsForUser) {
+      return 1;
+    }
+  }
+  if (!firstOfferRemainingApplicationsForUser && secondOfferRemainingApplicationsForUser) {
+    return -1;
+  }
+  if (firstOfferRemainingApplicationsForUser && !secondOfferRemainingApplicationsForUser) {
+    return 1;
+  }
+  return 0;
+};
+
+/**
  * Returns an applicable enterprise offer to the specified enterprise catalogs, if one exists, with the
  * following prioritization:
  *   - Offer with no bookings limit (global or user)
  *   - Offer with user bookings limit
  *   - Offer with global bookings limit
+ *   - Offer with user enrollment limit
+ *   - Offer with global enrollment limit
  *
  * @param {array} enterpriseOffers List of enterprise offers available for the enterprise customer.
- * @param {array} catalogList List of enterprise catalog UUIDs associated with a given course.
  * @param {number} coursePrice The price of the course.
  *
  * @returns An object containing the metadata for the enterprise offer, if any, most applicable for
- * the specified enterporise catalog uuids and course price.
+ * the specified enterprise catalog uuids and course price.
  */
 export const findEnterpriseOfferForCourse = ({
-  enterpriseOffers, catalogList = [], coursePrice,
+  enterpriseOffers,
+  catalogsWithCourse,
+  coursePrice,
 }) => {
   if (!coursePrice) {
     return undefined;
   }
 
-  const applicableEnterpriseOffers = enterpriseOffers.filter((enterpriseOffer) => {
-    const {
-      remainingBalance,
-      remainingBalanceForUser,
-    } = enterpriseOffer;
-    const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
-    if (!isCourseInCatalog) {
-      return false;
-    }
-    if (offerHasBookingsLimit(enterpriseOffer)) {
-      if (remainingBalance !== null && remainingBalance < coursePrice) {
+  const orderedEnterpriseOffers = enterpriseOffers
+    .filter((enterpriseOffer) => {
+      const isCourseInCatalog = catalogsWithCourse.includes(enterpriseOffer.enterpriseCatalogUuid);
+      if (!isCourseInCatalog) {
         return false;
       }
+      return true;
+    })
+    .sort((a, b) => {
+      const isFirstOfferRedeemable = a.disabledEnrollReasonType === null;
+      const isSecondOfferRedeemable = b.disabledEnrollReasonType === null;
+      const firstOffer = a.enterpriseOffer;
+      const secondOffer = b.enterpriseOffer;
 
-      if (remainingBalanceForUser !== null && remainingBalanceForUser < coursePrice) {
-        return false;
+      let comparison = 0;
+
+      if (isFirstOfferRedeemable && isSecondOfferRedeemable) {
+        comparison = compareRemainingApplications({ firstOffer, secondOffer });
+        comparison = compareRemainingApplicationsForUser({ firstOffer, secondOffer });
+        comparison = compareRemainingBalance({ firstOffer, secondOffer });
+        comparison = compareRemainingBalanceForUser({ firstOffer, secondOffer });
       }
-    }
-    return true;
-  });
+      if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
+        comparison = -1;
+      }
+      if (!isFirstOfferRedeemable && isSecondOfferRedeemable) {
+        comparison = 1;
+      }
 
-  // use offer that has no bookings limit
-  const enterpriseOfferWithoutBookingsLimit = applicableEnterpriseOffers.find(offer => !offerHasBookingsLimit(offer));
-  if (enterpriseOfferWithoutBookingsLimit) {
-    return enterpriseOfferWithoutBookingsLimit;
-  }
+      return comparison;
+    });
 
-  // use offer that has largest remaining balance for user
-  const enterpriseOfferWithUserBookingsLimit = applicableEnterpriseOffers
-    .filter(offer => offer.remainingBalanceForUser)
-    .sort((a, b) => b.remainingBalanceForUser - a.remainingBalanceForUser)[0];
-
-  if (enterpriseOfferWithUserBookingsLimit) {
-    return enterpriseOfferWithUserBookingsLimit;
-  }
-
-  // use offer with largest remaining balance overall
-  const enterpriseOfferWithBookingsLimit = applicableEnterpriseOffers
-    .sort((a, b) => b.remainingBalance - a.remainingBalance)[0];
-
-  return enterpriseOfferWithBookingsLimit;
+  return orderedEnterpriseOffers[0];
 };
 
 const getBestCourseMode = (courseModes) => {
   const {
     VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, AUDIT, HONOR,
   } = COURSE_MODES_MAP;
+
   // Returns the 'highest' course mode available.
   // Modes are ranked ['verified', 'professional', 'no-id-professional', 'audit', 'honor']
   if (courseModes.includes(VERIFIED)) {
@@ -463,3 +588,61 @@ export const getCourseRunPrice = ({
  * @returns Casts value to a float and fixes it to 2 decimal places.
  */
 export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);
+
+/**
+ * TODO
+ */
+export const getMissingSubsidyReasonActions = ({
+  reasonType,
+  enterpriseAdminUsers,
+}) => {
+  const hasLimitsLearnMoreCTA = [
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
+  ].includes(reasonType);
+  const hasOrganizationNoFundsCTA = [
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+  ].includes(reasonType);
+
+  if (hasLimitsLearnMoreCTA) {
+    return (
+      <Button
+        as={Hyperlink}
+        // TODO: we don't yet have a destination for this link
+        destination="https://edx.org"
+        target="_blank"
+        size="sm"
+        block
+      >
+        Learn more
+      </Button>
+    );
+  }
+
+  if (hasOrganizationNoFundsCTA) {
+    if (enterpriseAdminUsers?.length === 0) {
+      return null;
+    }
+
+    const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+
+    return (
+      <Button
+        // TODO: this should be a mailto link. See https://github.com/openedx/paragon/issues/2278
+        as={Hyperlink}
+        destination={`mailto:${adminEmails}`}
+        target="_blank"
+        size="sm"
+        block
+      >
+        Contact administrator
+      </Button>
+    );
+  }
+
+  return null;
+};
