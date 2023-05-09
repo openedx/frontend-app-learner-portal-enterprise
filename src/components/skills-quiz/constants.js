@@ -65,4 +65,4 @@ export const SKILLS_QUIZ_SEARCH_PAGE_MESSAGE = 'Let edX be your guide. We combin
 export const HITS_PER_PAGE = 500;
 export const LOADING_NO_OF_CARDS = 9;
 
-export const JOB_DESCRIPTION_DISCLAIMER = 'This job discription has been created by an artificial intelligence, and should be reviewed carefully.';
+export const JOB_DESCRIPTION_DISCLAIMER = 'This job description has been created by an artificial intelligence, and should be reviewed carefully.';
