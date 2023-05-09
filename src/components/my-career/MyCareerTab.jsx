@@ -1,11 +1,13 @@
 import React, { useContext } from 'react';
 
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { useLearnerSkillQuiz } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
 import AddJobRole from './AddJobRole';
 import VisualizeCareer from './VisualizeCareer';
 import { getSkillQuiz } from './data/utils';
+import { SEARCH_FACET_FILTERS } from '../search/constants';
 
 const MyCareerTab = () => {
   const { authenticatedUser } = useContext(AppContext);
@@ -32,7 +34,9 @@ const MyCareerTab = () => {
   return (!skillQuiz) ? (
     <AddJobRole />
   ) : (
-    <VisualizeCareer jobId={skillQuiz.currentJob} />
+    <SearchData searchFacetFilters={SEARCH_FACET_FILTERS}>
+      <VisualizeCareer jobId={skillQuiz.currentJob} />
+    </SearchData>
   );
 };
 
