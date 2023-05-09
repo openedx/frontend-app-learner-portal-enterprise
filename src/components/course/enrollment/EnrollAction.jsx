@@ -8,6 +8,7 @@ import ToDataSharingConsentPage from './components/ToDataSharingConsent';
 import ToEcomBasketPage from './components/ToEcomBasketPage';
 
 import { enrollButtonTypes } from './constants';
+import ToExecutiveEducation2UEnrollment from './components/ToExecutiveEducation2UEnrollment';
 
 const {
   TO_COURSEWARE_PAGE,
@@ -16,6 +17,7 @@ const {
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
   HIDE_BUTTON,
+  TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT,
 } = enrollButtonTypes;
 
 /**
@@ -55,6 +57,12 @@ const EnrollAction = ({
         return (
           <ToDataSharingConsentPage
             enrollLabel={enrollLabel}
+            enrollmentUrl={enrollmentUrl}
+          />
+        );
+      case TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT:
+        return (
+          <ToExecutiveEducation2UEnrollment
             enrollmentUrl={enrollmentUrl}
           />
         );

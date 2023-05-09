@@ -22,6 +22,7 @@ import {
   useCourseSubjects,
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
+  useTrackSearchConversionClickHandlerLocalUrl,
 } from '../hooks';
 import {
   getCourseRunPrice,
@@ -82,6 +83,17 @@ jest.mock('../utils', () => ({
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
 }));
+
+const mockUseHistoryPush = jest.fn();
+const mockUseHistoryReplace = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockUseHistoryPush,
+    replace: mockUseHistoryReplace,
+  }),
+}
+));
 
 jest.useFakeTimers();
 
@@ -485,6 +497,67 @@ describe('useTrackSearchConversionClickHandler', () => {
   });
 });
 
+describe('useTrackSearchConversionClickHandlerLocalUrl', () => {
+  const mockEventName = 'edx.ui.enterprise.learner_portal.fake_event';
+  const basicProps = {
+    href: 'http://example.com',
+    eventName: mockEventName,
+  };
+
+  const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
+  const mockCourseState = {
+    activeCourseRun: { key: 'course-run-key' },
+    algoliaSearchParams: {
+      queryId: 'algolia-query-id',
+      objectId: 'algolia-object-id',
+    },
+  };
+  const wrapper = ({ children }) => (
+    <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
+      <CourseContext.Provider value={{ state: mockCourseState }}>
+        {children}
+      </CourseContext.Provider>
+    </AppContext.Provider>
+  );
+
+  beforeAll(() => {
+    createGlobalLocationMock();
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('sends segment event and redirects', async () => {
+    const { result, waitFor } = renderHook(
+      () => useTrackSearchConversionClickHandlerLocalUrl(basicProps),
+      { wrapper },
+    );
+
+    const outputClickHandler = result.current;
+    outputClickHandler();
+
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
+      mockEnterpriseConfig.uuid,
+      mockEventName,
+      {
+        products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
+        index: getConfig().ALGOLIA_INDEX_NAME,
+        queryID: mockCourseState.algoliaSearchParams.queryId,
+        courseKey: mockCourseState.activeCourseRun.key,
+      },
+    );
+
+    jest.runAllTimers();
+
+    await waitFor(() => {
+      expect(mockUseHistoryPush).toHaveBeenCalledTimes(1);
+      expect(mockUseHistoryPush).toHaveBeenCalledWith(basicProps.href);
+    });
+  });
+});
+
 describe('useCourseSubjects', () => {
   it('handles null course', async () => {
     const { result } = renderHook(() => useCourseSubjects());
@@ -755,6 +828,8 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
     );
     expect(screen.getByText('Query ID: 123')).toBeTruthy();
     expect(screen.getByText('Object ID: abc')).toBeTruthy();
+    expect(mockUseHistoryReplace).toHaveBeenCalledTimes(1);
+    expect(mockUseHistoryReplace).toHaveBeenCalledWith({ search: '' });
   });
 });
 
