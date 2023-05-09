@@ -569,7 +569,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 
   const redeemabilityPerContentKey = useQueryResult.data || [];
   const redeemabilityForActiveCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === activeCourseRunKey);
-  const missingSubsidyAccessPolicyReasons = redeemabilityForActiveCourseRun?.reasons;
+  const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
   const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
@@ -578,7 +578,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
     isPolicyRedemptionEnabled,
     redeemableSubsidyAccessPolicy,
     redeemabilityPerContentKey,
-    missingSubsidyAccessPolicyReasons,
+    missingSubsidyAccessPolicyReason,
   };
 };
 
@@ -613,11 +613,9 @@ export const useUserSubsidyApplicableToCourse = ({
   canEnrollWithEnterpriseOffers,
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
-  missingSubsidyAccessPolicyReasons,
+  missingSubsidyAccessPolicyReason,
   enterpriseAdminUsers: fallbackAdminUsers,
 }) => {
-  const missingSubsidyAccessPolicyReason = missingSubsidyAccessPolicyReasons?.[0];
-
   const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
   const [missingUserSubsidyReason, setMissingUserSubsidyReason] = useState();
 

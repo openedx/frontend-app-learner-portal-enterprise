@@ -104,7 +104,7 @@ const CoursePage = () => {
     redeemableSubsidyAccessPolicy,
     redeemabilityPerContentKey,
     isPolicyRedemptionEnabled,
-    missingSubsidyAccessPolicyReasons,
+    missingSubsidyAccessPolicyReason,
   } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
@@ -131,7 +131,7 @@ const CoursePage = () => {
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
     onSubscriptionLicenseForCourseValidationError,
-    missingSubsidyAccessPolicyReasons,
+    missingSubsidyAccessPolicyReason,
     enterpriseAdminUsers,
   });
 
