@@ -26,7 +26,7 @@ const CourseRunCards = () => {
   return (
     <CardGrid
       columnSizes={{ sm: 12, lg: 5 }}
-      disableEqualHeight
+      hasEqualColumnHeights={false}
     >
       {availableCourseRuns.map((courseRun) => {
         const redeemabilityForContentKey = redeemabilityPerContentKey.find(r => r.contentKey === courseRun.key);
