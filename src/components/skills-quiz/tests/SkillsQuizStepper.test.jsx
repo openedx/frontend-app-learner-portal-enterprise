@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -152,14 +152,18 @@ describe('<SkillsQuizStepper />', () => {
       dispatch: () => null,
     };
 
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+    };
+
     renderWithRouter(
       <AppContext.Provider value={defaultAppState}>
         <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
             <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
                 <SkillsQuizStepper />
-              </SkillsContextProvider>
+              </SkillsContext.Provider>
             </SearchContext.Provider>
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
@@ -195,14 +199,17 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
     expect(screen.getByText('Continue').disabled).toBeFalsy();
   });
-
-  it('checks continue is disabled when improvement option is selected and current job not selected', () => {
+  it('check continue is enable while some jobs are selectd and working correctly', () => {
     const searchContext = {
-      refinements: {},
+      refinements: { current_job: ['test-current-job'] },
+      industry_names: ['Retail Trade'],
       dispatch: () => null,
     };
+
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+      dispatch: () => null,
+      props: { heading: 'Top Skills for the Job', skills: [], industrySkills: [] },
     };
 
     renderWithRouter(
@@ -219,8 +226,12 @@ describe('<SkillsQuizStepper />', () => {
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
     );
+
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
-    expect(screen.getByText('Continue').disabled).toBeTruthy();
+    expect(screen.getByText('Continue').disabled).toBeFalsy();
+    const continueButton = screen.getByText('Continue');
+    fireEvent.click(continueButton);
+    expect(screen.getByText('Continue').disabled).toBeFalsy();
   });
 
   it('checks no other dropdown is rendered until correct goal is selected', () => {

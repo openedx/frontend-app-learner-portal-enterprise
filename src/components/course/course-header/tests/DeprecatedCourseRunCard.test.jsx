@@ -7,23 +7,19 @@ import {
   renderWithRouter,
   initialAppState,
   initialCourseState,
-} from '../../../utils/tests';
+} from '../../../../utils/tests';
 
 import {
   COURSE_MODES_MAP,
   COURSE_AVAILABILITY_MAP,
   COURSE_PACING_MAP,
-  LICENSE_SUBSIDY_TYPE,
-  CURRENCY_USD,
-} from '../data/constants';
+} from '../../data/constants';
 import CourseRunCard from '../CourseRunCard';
-import { CourseContextProvider } from '../CourseContextProvider';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import * as subsidyRequestsHooks from '../data/hooks';
-import { enrollButtonTypes } from '../enrollment/constants';
-import * as utils from '../enrollment/utils';
-import * as optimizelyUtils from '../../../utils/optimizely';
+import { CourseContextProvider } from '../../CourseContextProvider';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import * as subsidyRequestsHooks from '../../data/hooks';
+import { enrollButtonTypes } from '../../enrollment/constants';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = moment().format();
@@ -31,9 +27,9 @@ const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
 
-jest.mock('../../../config');
+jest.mock('../../../../config');
 
-jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
+jest.mock('../../enrollment/EnrollAction', () => function EnrollAction({ enrollLabel, enrollmentType }) {
   return (
     <>
       <span>{enrollLabel}</span>
@@ -41,7 +37,7 @@ jest.mock('../enrollment/EnrollAction', () => function EnrollAction({ enrollLabe
     </>
   );
 });
-jest.mock('../data/hooks', () => ({
+jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
   useCatalogsForSubsidyRequests: jest.fn(() => []),
@@ -59,11 +55,6 @@ const selfPacedCourseWithoutLicenseSubsidy = {
     seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
   },
   catalog: { catalogList: [] },
-};
-
-const selfPacedCourseWithLicenseSubsidy = {
-  ...selfPacedCourseWithoutLicenseSubsidy,
-  userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
 };
 
 const baseSubsidyRequestCatalogsApplicableToCourse = new Set();
@@ -114,7 +105,7 @@ const renderCard = ({
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <CourseContextProvider initialState={courseInitState}>
-            <CourseRunCard
+            <CourseRunCard.Deprecated
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
@@ -129,7 +120,7 @@ const renderCard = ({
   );
 };
 
-describe('<CourseRunCard/>', () => {
+describe('<CourseRunCard.Deprecated />', () => {
   test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();
@@ -268,26 +259,5 @@ describe('<CourseRunCard/>', () => {
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('You are enrolled')).toBeInTheDocument();
     expect(screen.getByText('View course')).toBeInTheDocument();
-  });
-
-  test('user see the struck out price message in the card', () => {
-    jest.spyOn(utils, 'determineEnrollmentType').mockImplementation(() => enrollButtonTypes.TO_DATASHARING_CONSENT);
-    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
-    subsidyRequestsHooks.useCoursePriceForUserSubsidy.mockReturnValueOnce([{ list: 100 }, CURRENCY_USD]);
-    const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
-    const courseRun = generateCourseRun({
-      start: courseRunStart,
-      enrollmentCount: 1000,
-    });
-    renderCard({
-      courseRun,
-      courseInitState: selfPacedCourseWithLicenseSubsidy,
-    });
-
-    const element = screen.queryByTestId('subsidy-license-price-text');
-    expect(element).toBeInTheDocument();
-    expect(element.innerHTML).toEqual(
-      '<del><span class="sr-only">Priced reduced from:</span>$100.00 USD</del><span> included in your subscription</span>',
-    );
   });
 });

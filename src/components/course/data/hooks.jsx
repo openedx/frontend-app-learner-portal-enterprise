@@ -6,8 +6,10 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useQuery } from '@tanstack/react-query';
 
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
@@ -22,6 +24,8 @@ import {
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
+  getEntitlementPrice,
+  getCourseRunPrice,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -30,6 +34,7 @@ import {
   ENROLLMENT_FAILED_QUERY_PARAM,
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
@@ -38,109 +43,60 @@ import { pushEvent, EVENTS } from '../../../utils/optimizely';
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
 
 export function useAllCourseData({
-  courseKey,
-  enterpriseConfig,
-  courseRunKey,
-  subscriptionLicense,
-  couponCodes,
-  enterpriseOffers,
-  canEnrollWithEnterpriseOffers,
+  courseService,
   activeCatalogs,
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [courseData, setCourseData] = useState();
   const [courseRecommendations, setCourseRecommendations] = useState();
+  const [courseReviews, setCourseReviews] = useState();
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!courseKey || !enterpriseConfig) {
+      if (!courseService.courseKey || !courseService.enterpriseUuid) {
         return;
       }
       setIsLoading(true);
 
-      const courseService = new CourseService({
-        enterpriseUuid: enterpriseConfig.uuid,
-        courseKey,
-        courseRunKey,
-      });
-
       try {
         const data = await courseService.fetchAllCourseData();
-
-        const {
-          catalog: {
-            containsContentItems,
-            catalogList: catalogsWithCourse,
-          },
-        } = data;
-
-        let userSubsidyApplicableToCourse = null;
-
-        if (containsContentItems) {
-          let licenseForCourse = null;
-
-          if (subscriptionLicense) {
-            // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
-            try {
-              const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
-              licenseForCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
-            } catch (error) {
-              logError(error);
-              setFetchError(error);
-            }
-          }
-
-          const { firstEnrollablePaidSeatPrice } = courseService.activeCourseRun || {};
-
-          userSubsidyApplicableToCourse = getSubsidyToApplyForCourse({
-            applicableSubscriptionLicense: licenseForCourse,
-            applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
-            applicableEnterpriseOffer: findEnterpriseOfferForCourse({
-              enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
-              catalogList: catalogsWithCourse,
-              coursePrice: firstEnrollablePaidSeatPrice,
-            }),
-          });
-        }
-
-        setCourseData({
-          ...data,
-          userSubsidyApplicableToCourse,
-        });
+        setCourseData(camelCaseObject(data));
       } catch (error) {
         logError(error);
         setFetchError(error);
       }
 
       try {
+        const response = await courseService.fetchCourseReviews();
+        setCourseReviews(camelCaseObject(response.data));
+      } catch (error) {
+        logError(error);
+        setCourseReviews(undefined);
+      }
+
+      try {
         const data = await courseService.fetchAllCourseRecommendations(activeCatalogs);
-        setCourseRecommendations(data);
+        setCourseRecommendations(camelCaseObject(data));
       } catch (error) {
         logError(error);
         setCourseRecommendations([]);
       }
+
       setIsLoading(false);
     };
     fetchData();
-  }, [
-    activeCatalogs,
-    canEnrollWithEnterpriseOffers,
-    couponCodes,
-    courseKey,
-    courseRunKey,
-    enterpriseConfig,
-    enterpriseOffers,
-    subscriptionLicense,
-  ]);
+  }, [courseService, activeCatalogs]);
 
   return {
-    courseData: camelCaseObject(courseData),
-    courseRecommendations: camelCaseObject(courseRecommendations),
+    courseData,
+    courseRecommendations,
+    courseReviews,
     fetchError,
     isLoading,
   };
 }
+
 // TODO: Refactor away from useEffect useState
 export function useCourseSubjects(course) {
   const [subjects, setSubjects] = useState([]);
@@ -259,17 +215,17 @@ export function useCoursePacingType(courseRun) {
  * @param {object} args Arguments.
  * @param {Object} args.activeCourseRun course run info
  * @param {Object} args.userSubsidyApplicableToCourse Usersubsidy
+ * @param {Object} args.courseEntitlements Course Entitlements
  *
  * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
  */
 export const useCoursePriceForUserSubsidy = ({
-  activeCourseRun, userSubsidyApplicableToCourse,
+  activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements,
 }) => {
   const currency = CURRENCY_USD;
-
   const coursePrice = useMemo(
     () => {
-      const listPrice = activeCourseRun.firstEnrollablePaidSeatPrice;
+      const listPrice = activeCourseRun?.firstEnrollablePaidSeatPrice || getEntitlementPrice(courseEntitlements);
 
       if (!listPrice) {
         return null;
@@ -308,7 +264,7 @@ export const useCoursePriceForUserSubsidy = ({
       // Case 2: No subsidy available for course
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidyApplicableToCourse],
+    [activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements],
   );
 
   return [coursePrice, currency];
@@ -473,15 +429,12 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;
-      if (!queryId || !objectId) {
-        return;
-      }
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
       // behavior to allow enough time for the async analytics event call to resolve.
       if (href) {
         e.preventDefault();
         setTimeout(() => {
-          global.location.href = href;
+          global.location.assign(href);
         }, CLICK_DELAY_MS);
       }
       sendEnterpriseTrackEvent(
@@ -502,30 +455,6 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
 };
 
 /**
- * Returns a function to be used as a click handler that emits an optimizely license subsidy enrollment click event.
- *
- * @returns Click handler function for clicks on enrollment buttons when a learner possesses a license subsidy.
- */
-export const useOptimizelyLicenseSubsidyEnrollmentClickHandler = ({ href, courseRunKey }) => {
-  const handleClick = useCallback(
-    (e) => {
-      // If tracking is on a link with an external href destination, we must intentionally delay the default click
-      // behavior to allow enough time for the async analytics event call to resolve.
-      if (href) {
-        e.preventDefault();
-        setTimeout(() => {
-          global.location.href = href;
-        }, CLICK_DELAY_MS);
-      }
-      pushEvent(EVENTS.LICENSE_SUBSIDY_ENROLLMENT_CLICK, { courseKey: courseRunKey });
-    },
-    [courseRunKey, href],
-  );
-
-  return handleClick;
-};
-
-/**
  * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
  *
  * @returns Click handler function for clicks on enrollment buttons.
@@ -540,7 +469,7 @@ export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, course
       if (href) {
         e.preventDefault();
         setTimeout(() => {
-          global.location.href = href;
+          global.location.assign(href);
         }, CLICK_DELAY_MS);
       }
       pushEvent(EVENTS.ENROLLMENT_CLICK, { courseKey: courseRunKey });
@@ -596,3 +525,179 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
     requestsBySubsidyType,
   ]);
 }
+
+/**
+ * Makes an API request to enterprise-access's `can-redeem` endpoint to return
+ * a redeemable subsidy, if any, for each course run key provided.
+ *
+ * @param {object} args
+ * @param {array} args.courseRunKeys List of course run keys.
+ * @param {string} args.activeCourseRunKey The course run key of the advertised course run for the top-level course.
+ * @param {string} args.enterpriseUuid Enterprise customer UUID.
+ * @param {string} args.isQueryEnabled Whether the API request to ``can-redeem`` should be made
+ *
+ * @returns An object containing the output from `useQuery`, plus the following:
+ * - `isPolicyRedemptionEnabled`: Whether there is a redeemable subsidy access policy.
+ * - `redeemableSubsidyAccessPolicy`: The redeemable subsidy access policy, if any.
+ * - `redeemabilityPerContentKey`: An array of objects containing the redeemability status for each course run key.
+ */
+export const useCheckSubsidyAccessPolicyRedeemability = ({
+  courseRunKeys = [],
+  activeCourseRunKey,
+  enterpriseUuid,
+  isQueryEnabled,
+}) => {
+  const { id: lmsUserId } = getAuthenticatedUser();
+
+  const checkRedemptionEligiblity = async () => {
+    const courseService = new CourseService({ enterpriseUuid });
+    const response = await courseService.fetchCanRedeem({ courseRunKeys });
+    const transformedResponse = camelCaseObject(response.data);
+    return transformedResponse;
+  };
+
+  const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
+
+  const useQueryResult = useQuery({
+    queryKey: ['can-user-redeem-course', lmsUserId, ...courseRunKeys],
+    enabled: isEnabled,
+    queryFn: checkRedemptionEligiblity,
+  });
+
+  const redeemabilityPerContentKey = useQueryResult.data || [];
+  const redeemabilityForActiveCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === activeCourseRunKey);
+  const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
+  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
+
+  return {
+    ...useQueryResult,
+    isPolicyRedemptionEnabled,
+    redeemableSubsidyAccessPolicy,
+    redeemabilityPerContentKey,
+  };
+};
+
+/**
+ * Given the state of a user's redeemable subsidy access policy and/or other subsidies, determine
+ * which subsidy, if any, is applicable to the course.
+ *
+ * Returns both `userSubsidyApplicableToCourse` and `legacyUserSubsidyApplicableToCourse` in order to be
+ * backwards-compatible with pre-EMET subsidies.
+ *
+ * @param {object} args
+ * @param {object} args.courseData Metadata about the course.
+ * @param {object} args.redeemableSubsidyAccessPolicy Metadata about the redeemability subsidy access policy, if any.
+ * @param {boolean} args.isPolicyRedemptionEnabled Whether there is a redeemable subsidy access policy.
+ * @param {object} args.subscriptionLicense Metadata pertaining to learner's subscription license, if any.
+ * @param {object} args.courseService Instance of the CourseService.
+ * @param {array} args.couponCodes List of assigned coupon codes, if any.
+ * @param {boolean} args.canEnrollWithEnterpriseOffers Whether enterprise offers are usable for the enterprise.
+ * @param {array} args.enterpriseOffers List of enterprise offers, if any.
+ * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
+ *  license validation error.
+ *
+ * @returns An object containing `userSubsidyApplicableToCourse` and `legacyUserSubsidyApplicableToCourse`.
+ */
+export const useUserSubsidyApplicableToCourse = ({
+  courseData,
+  redeemableSubsidyAccessPolicy,
+  isPolicyRedemptionEnabled,
+  subscriptionLicense,
+  courseService,
+  couponCodes,
+  canEnrollWithEnterpriseOffers,
+  enterpriseOffers,
+  onSubscriptionLicenseForCourseValidationError,
+}) => {
+  const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
+  const [legacyUserSubsidyApplicableToCourse, setLegacyUserSubsidyApplicableToCourse] = useState();
+
+  useEffect(() => {
+    if (!courseData) {
+      return;
+    }
+
+    const {
+      catalog: {
+        containsContentItems,
+        catalogList: catalogsWithCourse,
+      },
+      courseDetails,
+    } = courseData;
+
+    let hasEMETRedeemability = false;
+
+    // If course can be redeemed with EMET system, return
+    // the redeemable subsidy access policy.
+    if (isPolicyRedemptionEnabled && redeemableSubsidyAccessPolicy) {
+      hasEMETRedeemability = true;
+      setUserSubsidyApplicableToCourse({
+        discountType: 'percentage',
+        discountValue: 100,
+        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+        perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy.perLearnerEnrollmentLimit,
+        perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
+        policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
+      });
+    }
+
+    // Otherwise, fallback to existing legacy subsidies.
+    if (!containsContentItems) {
+      return;
+    }
+
+    const retrieveApplicableSubsidy = async () => {
+      let licenseApplicableToCourse;
+      if (subscriptionLicense) {
+        try {
+          // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+          const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
+          if (fetchLicenseSubsidyResponse) {
+            licenseApplicableToCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
+          }
+        } catch (error) {
+          logError(error);
+          if (onSubscriptionLicenseForCourseValidationError) {
+            onSubscriptionLicenseForCourseValidationError(error);
+          }
+        }
+      }
+      const coursePrice = getCourseRunPrice({
+        courseDetails,
+        firstEnrollablePaidSeatPrice: courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice,
+      });
+      const subsidy = getSubsidyToApplyForCourse({
+        applicableSubscriptionLicense: licenseApplicableToCourse,
+        applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
+        applicableEnterpriseOffer: findEnterpriseOfferForCourse({
+          enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
+          catalogList: catalogsWithCourse,
+          coursePrice,
+        }),
+      });
+      if (!hasEMETRedeemability) {
+        // If course cannot be redeemed through a subsidy access policy, set the applicable
+        // pre-EMET subsidy as `userSubsidyApplicableToCourse`. This conditional avoids
+        // overwriting `userSubsidyApplicableToCourse` when it has already been set.
+        setUserSubsidyApplicableToCourse(subsidy);
+      }
+      setLegacyUserSubsidyApplicableToCourse(subsidy);
+    };
+    retrieveApplicableSubsidy();
+  }, [
+    courseService,
+    courseData,
+    onSubscriptionLicenseForCourseValidationError,
+    subscriptionLicense,
+    couponCodes,
+    canEnrollWithEnterpriseOffers,
+    enterpriseOffers,
+    redeemableSubsidyAccessPolicy,
+    isPolicyRedemptionEnabled,
+  ]);
+
+  return useMemo(() => ({
+    userSubsidyApplicableToCourse,
+    legacyUserSubsidyApplicableToCourse,
+  }), [userSubsidyApplicableToCourse, legacyUserSubsidyApplicableToCourse]);
+};

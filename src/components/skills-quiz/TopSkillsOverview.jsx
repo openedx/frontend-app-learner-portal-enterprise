@@ -8,6 +8,7 @@ import { SkillsContext } from './SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
 import SelectedJobSkills from './SelectedJobSkills';
 import SimilarJobs from './SimilarJobs';
+import JobDescriptions from './JobDescriptions';
 
 const getJobSkills = (job) => {
   const jobSkills = job[0]?.skills?.sort((a, b) => (
@@ -95,6 +96,16 @@ const TopSkillsOverview = ({ index }) => {
           </Card.Section>
           <Card.Section>
             <div className="row skill-overview-body">
+              {currentJobDetails && selectedJobDetails
+                && (
+                  <JobDescriptions
+                    currentJobID={currentJobDetails?.[0].external_id}
+                    futureJobID={selectedJobDetails?.[0].external_id}
+                    currentJobDescription={currentJobDetails?.[0].description}
+                    futureJobDescription={selectedJobDetails?.[0].description}
+                    goal={goal}
+                  />
+                )}
               <div
                 className={goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0 ? 'col-6' : 'full-max-width'}
               >

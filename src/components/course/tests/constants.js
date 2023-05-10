@@ -111,3 +111,73 @@ export const FILTERED_RECOMMENDATIONS = {
     'edX+DemoX2',
   ],
 };
+
+export const REVIEW_DATA = [
+  {
+    course_key: 'edX+DemoX',
+    reviews_count: 345,
+    avg_course_rating: '2.23',
+    confident_learners_percentage: '22.00',
+    most_common_goal: 'Job advancement',
+    most_common_goal_learners_percentage: '33.00',
+    total_enrollments: 4444,
+  },
+];
+
+export const mockCourseData = {
+  catalog: {
+    containsContentItems: true,
+    catalogList: ['catalog-1'],
+  },
+};
+export const mockCourseRecommendations = {
+  all_recommendations: ['edX+DemoX'],
+  same_partner_recommendations: ['edX+DemoX'],
+};
+export const mockCourseReviews = [];
+export const mockCourseRunKey = 'course-v1:edX+DemoX+1T2023';
+export const mockRedeemableSubsidyAccessPolicy = {
+  uuid: 'test-subsidy-access-policy-uuid',
+};
+export const mockCanRedeemData = [{
+  content_key: mockCourseRunKey,
+  can_redeem: true,
+  redeemable_subsidy_access_policy: mockRedeemableSubsidyAccessPolicy,
+  has_redeemed: false,
+  redemptions: [],
+}];
+export const mockSubscriptionLicense = {
+  uuid: 'test-subscription-uuid',
+};
+export const mockUserLicenseSubsidy = {
+  discountType: 'percentage',
+  discountValue: 100,
+};
+
+export const mockEnterpriseUUID = 'enterprise-uuid';
+export const mockCourseKey = 'course-key';
+export const mockCourseService = {
+  fetchAllCourseData: jest.fn(() => mockCourseData),
+  fetchAllCourseRecommendations: jest.fn(() => mockCourseRecommendations),
+  fetchFilteredRecommendations: jest.fn(() => mockCourseRecommendations),
+  fetchCourseReviews: jest.fn(() => mockCourseReviews),
+  fetchUserLicenseSubsidy: jest.fn().mockResolvedValue({ data: mockUserLicenseSubsidy }),
+  fetchCanRedeem: jest.fn().mockResolvedValue({ data: mockCanRedeemData }),
+  courseKey: mockCourseKey,
+  enterpriseUuid: mockEnterpriseUUID,
+  activeCourseRun: {
+    firstEnrollablePaidSeatPrice: 100,
+  },
+};
+export const mockCourseServiceUninitialized = {
+  ...mockCourseService,
+  courseKey: undefined,
+  enterpriseUuid: undefined,
+  activeCourseRun: undefined,
+};
+export const mockCourseServiceNoActiveCourseRun = {
+  ...mockCourseService,
+  activeCourseRun: undefined,
+};
+
+export const mockLmsUserId = 3;

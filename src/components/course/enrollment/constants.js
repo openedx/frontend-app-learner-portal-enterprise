@@ -8,5 +8,3 @@ const enrollButtonTypesLocal = {
 };
 
 export const enrollButtonTypes = Object.freeze(enrollButtonTypesLocal);
-
-export const enrollLinkClass = 'btn-block';

@@ -2,7 +2,6 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
@@ -10,18 +9,67 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import { initialCourseState } from '../../../utils/tests';
 import CoursePage from '../CoursePage';
 import { useAllCourseData } from '../data/hooks';
+import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
+import { mockCourseService } from './constants';
+
+const mockUseHistoryReplace = jest.fn();
+const mockGetActiveCourseRun = jest.fn();
+
+jest.mock('../data/utils', () => ({
+  ...jest.requireActual('../data/utils'),
+  getActiveCourseRun: () => mockGetActiveCourseRun(),
+}));
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    pathname: '/test-enterprise-uuid/course/test-course-key',
+  }),
+  useHistory: () => ({
+    replace: mockUseHistoryReplace,
+  }),
+  useParams: () => ({ enterpriseSlug: 'test-enterprise-uuid', courseKey: 'test-course-key' }),
+}));
+
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: () => ({
+    COURSE_TYPE_CONFIG: {
+      'executive-education-2u': {
+        pathSlug: 'executive-education-2u',
+      },
+    },
+  }),
+}));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
+
+jest.mock('../data/service', () => ({
+  __esModule: true,
+  default: jest.fn(() => mockCourseService),
+}));
 jest.mock('../data/hooks', () => ({
+  ...jest.requireActual('../data/hooks'),
+  useUserSubsidyApplicableToCourse: jest.fn(() => ({
+    discountType: 'percentage',
+    discountValue: 100,
+    subsidyType: mockLearnerCreditSubsidyType,
+    policyRedemptionUrl: 'http://example.com/policy-redemption-url',
+  })),
+  useCheckSubsidyAccessPolicyRedeemability: jest.fn(() => ({
+    isInitialLoading: false,
+    data: [],
+  })),
   useAllCourseData: jest.fn(() => ({
     isLoading: false,
     courseData: {
       courseDetails: {
         key: 'test-course-key',
         title: 'Test Course',
+        courseType: 'executive-education-2u',
+        programs: [],
         shortDescription: 'A short description of the test course',
         fullDescription: 'A full description of the test course',
         image: {
@@ -73,7 +121,6 @@ jest.mock('../data/hooks', () => ({
           certificate: 'https://example.com/certificate.pdf',
         },
       },
-      userSubsidyApplicableToCourse: true,
       catalog: {
         name: 'Test Catalog',
       },
@@ -89,6 +136,15 @@ jest.mock('../data/hooks', () => ({
           title: 'Test Course 2',
         },
       ],
+    },
+    courseReviews: {
+      course_key: 'test-course-key1',
+      reviews_count: 345,
+      avg_course_rating: '2.23',
+      confident_learners_percentage: '22.00',
+      most_common_goal: 'Job advancement',
+      most_common_goal_learners_percentage: '33.00',
+      total_enrollments: 4444,
     },
   })),
   useExtractAndRemoveSearchParamsFromURL: jest.fn(() => ({
@@ -130,8 +186,7 @@ const updatedInitialCourseStateDefined = {
 };
 
 describe('CoursePage', () => {
-  // This test increases coverage by 80% from the previous 0%
-  it('renders the component with 404 <NotFoundPage />, sends track event', async () => {
+  it('renders the component with 404 <NotFoundPage />', async () => {
     const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
     const mockLocation = { search: '?course_run_key=test-course-run-key' };
     const mockParams = { courseKey: 'test-course-key' };
@@ -161,6 +216,38 @@ describe('CoursePage', () => {
       </AppContext.Provider>,
     );
     expect(useAllCourseData).toHaveBeenCalledTimes(1);
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('Redirects to using course type slug if path does not include it', async () => {
+    mockGetActiveCourseRun.mockImplementation(() => ({ staff: [] }));
+    const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
+    const mockLocation = { search: '?course_run_key=test-course-run-key', pathname: '/test-enterprise-uuid/course/test-course-key' };
+    const mockParams = { courseKey: 'test-course-key' };
+    const initialCourseEnrollmentsState = {
+      courseEnrollmentsByStatus: {
+        inProgress: [],
+        upcoming: [],
+        completed: [],
+        savedForLater: [],
+        requested: [],
+      },
+    };
+
+    render(
+      <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+            <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+              <CourseContextProvider initialState={updatedInitialCourseStateDefined}>
+                <MemoryRouter>
+                  <CoursePage location={mockLocation} match={{ params: mockParams }} />
+                </MemoryRouter>
+              </CourseContextProvider>
+            </CourseEnrollmentsContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>,
+    );
+    expect(mockUseHistoryReplace).toHaveBeenCalledWith('/test-enterprise-uuid/executive-education-2u/course/test-course-key');
   });
 });

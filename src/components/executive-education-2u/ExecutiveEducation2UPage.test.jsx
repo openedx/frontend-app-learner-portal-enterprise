@@ -10,14 +10,78 @@ import {
   useActiveQueryParams,
   useExecutiveEducation2UContentMetadata,
 } from './data';
+import { CURRENCY_USD, PAID_EXECUTIVE_EDUCATION } from '../course/data/constants';
 
 const mockReceiptPageUrl = 'https://edx.org';
+const courseTitle = 'edX Demonstration Course';
+
+const courseData = {
+  key: 'test-course-key',
+  title: courseTitle,
+  shortDescription: 'A short description of the test course',
+  fullDescription: 'A full description of the test course',
+  image: {
+    src: 'https://example.com/test-course-image.jpg',
+  },
+  start: '2022-01-01T00:00:00Z',
+  end: '2022-12-31T23:59:59Z',
+  courseRuns: [
+    {
+      uuid: 'course-run-1',
+      key: 'test-course-run-key',
+      title: 'Test Course Run',
+      start: '2022-01-01T00:00:00Z',
+      end: '2022-12-31T23:59:59Z',
+      enrollmentStart: '2022-01-01T00:00:00Z',
+      enrollmentEnd: '2022-12-31T23:59:59Z',
+      seatTypes: [
+        {
+          type: 'verified',
+          price: 199.99,
+          currency: 'USD',
+        },
+      ],
+      instructors: [
+        {
+          key: 'instructor-1',
+          name: 'Instructor 1',
+          bio: 'Instructor 1 bio',
+          image: {
+            src: 'https://example.com/instructor-1.jpg',
+          },
+        },
+      ],
+      pacingType: 'self_paced',
+    },
+  ],
+  advertisedCourseRunUuid: 'test-course-run-key',
+  owners: [],
+  organizationShortCodeOverride: 'Test Organization',
+  organizationLogoOverrideUrl: 'https://example.com/test.jpeg',
+  entitlements: [
+    {
+      mode: PAID_EXECUTIVE_EDUCATION,
+      price: '100.00',
+      currency: CURRENCY_USD,
+    },
+  ],
+};
 
 jest.mock('./data');
 jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
   logError: jest.fn(),
 }));
+
+const mockedPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockedPush,
+  }),
+  useLocation: jest.fn(),
+}));
+
 jest.mock('./UserEnrollmentForm', () => function MockUserEnrollmentForm({ productSKU, onCheckoutSuccess }) {
   return (
     <div data-testid="user-enrollment-form-component">
@@ -42,6 +106,8 @@ const initialAppContextValue = {
     name: 'Test Enterprise',
     slug: enterpriseSlug,
     enableExecutiveEducation2UFulfillment: true,
+    enableDataSharingConsent: true,
+    adminUsers: [],
   },
 };
 
@@ -74,10 +140,9 @@ describe('ExecutiveEducation2UPage', () => {
   });
 
   it('does not render page when `enableExecutiveEducation2UFulfillment` is true and required query params are not provided', async () => {
-    const courseTitle = 'edX Demonstration Course';
     useExecutiveEducation2UContentMetadata.mockReturnValue({
       isLoading: false,
-      contentMetadata: { title: courseTitle },
+      contentMetadata: courseData,
     });
     const searchParams = new URLSearchParams();
     useActiveQueryParams.mockImplementation(() => searchParams);
@@ -87,10 +152,9 @@ describe('ExecutiveEducation2UPage', () => {
   });
 
   it('renders page when `enableExecutiveEducation2UFulfillment` is true and required query params are provided', () => {
-    const courseTitle = 'edX Demonstration Course';
     useExecutiveEducation2UContentMetadata.mockReturnValue({
       isLoading: false,
-      contentMetadata: { title: courseTitle },
+      contentMetadata: courseData,
     });
     const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid', sku: 'ABC123' });
     useActiveQueryParams.mockImplementation(() => searchParams);
@@ -105,9 +169,9 @@ describe('ExecutiveEducation2UPage', () => {
     expect(screen.getByTestId('user-enrollment-form-component')).toBeInTheDocument();
   });
 
-  it('renders page with loading states when fetching content metadata', () => {
+  it('renders page with loading states when fetching content metadata', async () => {
     useExecutiveEducation2UContentMetadata.mockReturnValue({
-      isLoading: true,
+      isLoadingContentMetadata: true,
       contentMetadata: undefined,
     });
     const searchParams = new URLSearchParams({ course_uuid: 'test-course-uuid', sku: 'ABC123' });
@@ -116,8 +180,8 @@ describe('ExecutiveEducation2UPage', () => {
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
 
-    expect(screen.getByTestId('loading-skeleton-page-title')).toBeInTheDocument();
-    expect(screen.getByTestId('loading-skeleton-text-blurb')).toBeInTheDocument();
+    expect(await screen.getByTestId('loading-skeleton-page-title')).toBeInTheDocument();
+    expect(await screen.getByTestId('loading-skeleton-text-blurb')).toBeInTheDocument();
   });
 
   it('renders error page with failure_reason message and http_referrer when fetching content metadata fails', () => {
@@ -135,7 +199,7 @@ describe('ExecutiveEducation2UPage', () => {
 
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
-    expect(screen.getByText('Return to your learning platform')).toBeInTheDocument();
+    expect(screen.getByText('Helpful link:')).toBeInTheDocument();
     expect(screen.getByText('No offer is available to cover this course.')).toBeInTheDocument();
   });
 
@@ -149,12 +213,51 @@ describe('ExecutiveEducation2UPage', () => {
       sku: 'ABC123',
       failure_reason: 'no_offer_with_enough_balance',
     });
+    const failureReason = 'You don’t have access to this course because your organization '
+                          + 'doesn’t have enough funds. Please contact your edX administrator '
+                          + 'to resolve the error and provide you access to this content.';
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.getByText('Helpful link:')).toBeInTheDocument();
+    expect(screen.getByText(failureReason)).toBeInTheDocument();
+  });
+
+  it('renders error page with valid user balance failure message', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({
+      course_uuid: 'test-course-uuid',
+      sku: 'ABC123',
+      failure_reason: 'no_offer_with_enough_user_balance',
+    });
     useActiveQueryParams.mockImplementation(() => searchParams);
 
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
     expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
-    expect(screen.getByText('Your organization doesn’t have sufficient balance to cover this course.')).toBeInTheDocument();
+    expect(screen.getByText('Your enrollment was not completed! You have already spent your personal budget for enrollments.')).toBeInTheDocument();
+  });
+
+  it('renders error page with valid no remaining applications failure message', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({
+      course_uuid: 'test-course-uuid',
+      sku: 'ABC123',
+      failure_reason: 'no_offer_with_remaining_applications',
+    });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
+    expect(screen.getByText('Your enrollment was not completed! You have reached your maximum number of allowed enrollments.')).toBeInTheDocument();
   });
 
   it('renders error page with invalid failure_reason', () => {
@@ -171,8 +274,30 @@ describe('ExecutiveEducation2UPage', () => {
 
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
-    expect(screen.queryByText('Return to your learning platform')).not.toBeInTheDocument();
-    expect(screen.getByText('An error has occured.')).toBeInTheDocument();
+    expect(screen.queryByText('Return to dashboard')).not.toBeInTheDocument();
+    expect(screen.getByText('An error has occurred.')).toBeInTheDocument();
+  });
+
+  it('renders error page with system error and clicks on return button', () => {
+    useExecutiveEducation2UContentMetadata.mockReturnValue({
+      isLoading: false,
+      contentMetadata: undefined,
+    });
+    const searchParams = new URLSearchParams({
+      course_uuid: 'test-course-uuid',
+      sku: 'ABC123',
+      failure_reason: 'system_error',
+      http_referer: 'https://edx.org',
+    });
+    useActiveQueryParams.mockImplementation(() => searchParams);
+
+    renderWithRouter(<ExecutiveEducation2UPageWrapper />);
+    expect(screen.queryByText('404')).not.toBeInTheDocument();
+    expect(screen.getByText('System Error has occurred.')).toBeInTheDocument();
+
+    const returnButton = screen.getByText('Return to dashboard');
+    expect(returnButton).toBeInTheDocument();
+    userEvent.click(returnButton);
   });
 
   it('handles form submission success', () => {
@@ -191,7 +316,9 @@ describe('ExecutiveEducation2UPage', () => {
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     userEvent.click(screen.getByText('Mock submit enrollment form'));
 
-    expect(locationAssignMock).toHaveBeenCalledTimes(1);
-    expect(locationAssignMock).toHaveBeenCalledWith(mockReceiptPageUrl);
+    expect(mockedPush).toHaveBeenCalledTimes(1);
+    expect(mockedPush).toHaveBeenCalledWith(
+      { pathname: `/${enterpriseSlug}/executive-education-2u/enrollment-completed`, state: { data: {} } },
+    );
   });
 });

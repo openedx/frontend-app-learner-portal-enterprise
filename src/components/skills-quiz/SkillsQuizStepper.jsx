@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable object-curly-newline */
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import {
@@ -69,13 +68,14 @@ const SkillsQuizStepper = () => {
     dispatch: skillsDispatch,
   } = useContext(SkillsContext);
   const { refinements } = useContext(SearchContext);
-  const { skill_names: skills, name: jobs, current_job: currentJob } = refinements;
+  const { name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig } = useContext(AppContext);
 
   const history = useHistory();
 
-  const goalExceptImproveAndJobSelected = checkValidGoalAndJobSelected(goal, jobs, false);
-  const improveGoalAndCurrentJobSelected = checkValidGoalAndJobSelected(goal, currentJob, true);
+  const goalNotDefault = goal !== GOAL_DROPDOWN_DEFAULT_OPTION;
+  const goalExceptImproveAndJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, jobs, false);
+  const improveGoalAndCurrentJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, currentJob, true);
   const canContinueToRecommendedCourses = goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
 
   const closeSkillsQuiz = () => {
@@ -87,13 +87,8 @@ const SkillsQuizStepper = () => {
     );
   };
 
-  const selectedSkills = useMemo(
-    () => skills?.map(skill => ({ title: skill, metadata: { title: skill } })) || [],
-    [skills],
-  );
-
   const flipToRecommendedCourses = () => {
-    saveSkillsGoalsAndJobsUserSelected(goal, skills, currentJobRole, interestedJobs);
+    saveSkillsGoalsAndJobsUserSelected(goal, currentJobRole, interestedJobs);
     // show  courses if learner has selected skills or jobs.
     if (goalExceptImproveAndJobSelected) {
       // verify if selectedJob is still checked and within first 3 jobs else
@@ -134,29 +129,19 @@ const SkillsQuizStepper = () => {
     );
   }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
 
-  const [skillsVisible, setSkillsVisible] = useState(false);
+  // will be true if goal changed not because of first render.
+  const [industryAndJobsDropdownsVisible, setIndustryAndJobsDropdownsVisible] = useState(false);
 
   useEffect(() => {
     if (goal !== GOAL_DROPDOWN_DEFAULT_OPTION) {
-      setSkillsVisible(true);
-    }
-
-    if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
-      setIsStudentChecked(false);
+      setIndustryAndJobsDropdownsVisible(true);
+    } else {
+      if (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
+        setIsStudentChecked(false);
+      }
+      setIndustryAndJobsDropdownsVisible(false);
     }
   }, [goal]);
-
-  // will be true if goal or skills changed not because of first render, if link shared and there are more than one
-  // selected skills, or if skillsVisible variable is ever been true for once.
-  const [jobsDropdownsVisible, setJobsDropdownsVisible] = useState(false);
-
-  useEffect(() => {
-    if (skillsVisible) {
-      setJobsDropdownsVisible(true);
-    } else {
-      setJobsDropdownsVisible(false);
-    }
-  }, [skillsVisible, selectedSkills]);
 
   useEffect(() => {
     const fetchLearnerCourseEnrollments = async () => {
@@ -208,7 +193,7 @@ const SkillsQuizStepper = () => {
                 <div className="mt-2">
                   <GoalDropdown />
                 </div>
-                {jobsDropdownsVisible && (
+                {industryAndJobsDropdownsVisible && (
                   <div>
                     <InstantSearch
                       indexName={config.ALGOLIA_INDEX_NAME_JOBS}
@@ -247,17 +232,17 @@ const SkillsQuizStepper = () => {
                                 <SearchJobDropdown />
                               </div>
                             </>
-                          ) : null }
+                          ) : null}
                       </div>
                     </InstantSearch>
                   </div>
                 )}
-                {jobsDropdownsVisible && (
+                {industryAndJobsDropdownsVisible && (
                   <>
                     {goalExceptImproveAndJobSelected
-                      ? <SearchJobCard index={jobIndex} /> : null }
+                      ? <SearchJobCard index={jobIndex} /> : null}
                     {improveGoalAndCurrentJobSelected
-                      ? <SearchCurrentJobCard index={jobIndex} /> : null }
+                      ? <SearchCurrentJobCard index={jobIndex} /> : null}
                   </>
                 )}
               </div>
@@ -272,7 +257,7 @@ const SkillsQuizStepper = () => {
                 </div>
                 <TopSkillsOverview index={jobIndex} />
                 <div>
-                  {(selectedJob || skills || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
+                  {(selectedJob || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
                     <Stack gap={4}>
                       <SearchCourseCard index={courseIndex} />
                       <SearchProgramCard index={courseIndex} />

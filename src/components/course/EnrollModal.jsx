@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from '@edx/paragon';
+import { Button, Modal } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -88,14 +88,13 @@ const EnrollModal = ({
       title={titleText}
       body={<div><p>{enrollText}</p></div>}
       buttons={[
-        <a
-          className="btn btn-primary btn-brand-primary"
+        <Button
           href={enrollmentUrl}
           onClick={handleEnroll}
         >
           {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
           {buttonText}
-        </a>,
+        </Button>,
       ]}
       onClose={() => setIsModalOpen(false)}
     />

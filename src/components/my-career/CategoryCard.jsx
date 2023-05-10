@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import {
   Card,
   Button,
-  Chip,
   useToggle,
 } from '@edx/paragon';
 import LevelBars from './LevelBars';
@@ -22,9 +21,7 @@ const CategoryCard = ({ topCategory }) => {
   const filterRenderableSkills = (skills) => {
     const renderableSkills = [];
     for (let i = 0; i < skills.length; i += 1) {
-      if (skills[i].score) {
-        renderableSkills.push(skills[i]);
-      }
+      renderableSkills.push(skills[i]);
     }
     return renderableSkills;
   };
@@ -73,7 +70,7 @@ const CategoryCard = ({ topCategory }) => {
         <div className="skill-level-details-row">
           {renderableSkills.slice(i, i + 3).map((skill) => (
             <div className="skill-detail" data-testid="skill-name">
-              <LevelBars skillLevel={skill.level} />
+              <LevelBars skillLevel={skill.score ? skill.score : 0} />
               {skill.name}
             </div>
           ))}
@@ -88,9 +85,9 @@ const CategoryCard = ({ topCategory }) => {
       <Card.Header className="category-name-section" title={topCategory.name} />
       <Card.Section className="category-skill-chips-section">
         {skillsSubcategories.map((skillsSubcategory) => (
-          <Chip data-testid="skill-category-chip" onClick={() => handleSubcategoryClick(skillsSubcategory)}>
+          <Button variant="light" size="sm" className="mr-1 mb-1" data-testid="skill-category-chip" onClick={() => handleSubcategoryClick(skillsSubcategory)}>
             {skillsSubcategory.name}
-          </Chip>
+          </Button>
         ))}
       </Card.Section>
       {subcategorySkills && showSkills && (

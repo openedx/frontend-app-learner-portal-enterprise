@@ -3,7 +3,7 @@ import {
   sortSkillsCoursesWithCourseCount,
   saveSkillsGoalsAndJobsUserSelected,
 } from '../utils';
-import { postSkillsGoalsAndJobsUserSelected, fetchSkillsId } from '../service';
+import { postSkillsGoalsAndJobsUserSelected } from '../service';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS,
   DROPDOWN_OPTION_CHANGE_CAREERS_LABEL,
@@ -49,14 +49,10 @@ describe('returnGoalLabel', () => {
 
 describe('saveSkillsGoalsAndJobsUserSelected', () => {
   test('save skills, goals and jobs user selected', async () => {
-    fetchSkillsId.mockImplementation(() => Promise.resolve({ data: { skills: ['skill-1', 'skill-2'] } }));
-    const skills = ['skill-1', 'skill-2'];
     const goals = ['goal-1', 'goal-2'];
     const jobs = ['job-1', 'job-2'];
-    await saveSkillsGoalsAndJobsUserSelected(skills, goals, jobs);
+    await saveSkillsGoalsAndJobsUserSelected(goals, jobs);
 
-    expect(fetchSkillsId).toHaveBeenCalledTimes(1);
-    expect(fetchSkillsId).toHaveBeenCalledWith(goals);
     expect(postSkillsGoalsAndJobsUserSelected).toHaveBeenCalledTimes(1);
   });
 });

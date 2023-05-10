@@ -64,3 +64,5 @@ export const MAX_VISIBLE_SKILLS_PROGRAM = 3;
 export const SKILLS_QUIZ_SEARCH_PAGE_MESSAGE = 'Let edX be your guide. We combine the educational expertise of the world\'s leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals.';
 export const HITS_PER_PAGE = 500;
 export const LOADING_NO_OF_CARDS = 9;
+
+export const JOB_DESCRIPTION_DISCLAIMER = 'This job description has been created by an artificial intelligence, and should be reviewed carefully.';

@@ -3,15 +3,17 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
-import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
+import { CourseContextProvider } from '../../CourseContextProvider';
+import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
-import { COURSE_PACING_MAP } from '../data/constants';
-import { TEST_OWNER } from './data/constants';
-import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { COURSE_PACING_MAP } from '../../data/constants';
+import { TEST_OWNER } from '../../tests/data/constants';
+import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import * as optimizelyUtils from '../../../../utils/optimizely';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -24,7 +26,7 @@ useLocation.mockImplementation(() => ({
 jest.mock('../CourseRunCards', () => function CourseRunCards() {
   return <p>Cards</p>;
 });
-jest.mock('../SubsidyRequestButton', () => function SubsidyRequestButton() {
+jest.mock('../../SubsidyRequestButton', () => function SubsidyRequestButton() {
   return <p>SubsidyRequestButton</p>;
 });
 
@@ -101,6 +103,15 @@ describe('<CourseHeader />', () => {
       containsContentItems: true,
       catalogList: ['catalog-uuid'],
     },
+    courseReviews: {
+      course_key: 'test-course-run-key',
+      reviewsCount: 345,
+      avgCourseRating: 3,
+      confidentLearnersPercentage: 33,
+      mostCommonGoal: 'Job advancement',
+      mostCommonGoalLearnersPercentage: 34,
+      totalEnrollments: 4444,
+    },
   };
   const initialUserSubsidyState = {
     subscriptionLicense: {
@@ -150,7 +161,8 @@ describe('<CourseHeader />', () => {
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
-  test('renders course run cards button', () => {
+  test('renders course reviews section', () => {
+    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
@@ -158,7 +170,66 @@ describe('<CourseHeader />', () => {
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
-    expect(screen.queryByText('Cards')).toBeInTheDocument();
+
+    expect(screen.queryByText('average rating')).toBeInTheDocument();
+    expect(screen.queryByText('learners took this course in the last 12 months')).toBeInTheDocument();
+    expect(screen.getByText('for this course on a 5-star scale')).toBeInTheDocument();
+  });
+
+  test('renders course reviews section and change the review information content', () => {
+    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
+    render(
+      <CourseHeaderWrapper
+        initialAppState={initialAppState}
+        initialCourseState={initialCourseState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    userEvent.click(screen.queryByTestId('average-rating'));
+    expect(screen.getByText('learners have rated this course in a post completion survey.', { exact: false })).toBeInTheDocument();
+    userEvent.click(screen.queryByTestId('confident-learners'));
+    expect(screen.getByText('that the learning they did in the course will help them reach their goals.', { exact: false })).toBeInTheDocument();
+    userEvent.click(screen.queryByTestId('most-common-goal-learners'));
+    expect(screen.getByText('We asked learners who enrolled in this course to choose the reason for taking it.', { exact: false })).toBeInTheDocument();
+    userEvent.click(screen.queryByTestId('demand-and-growth'));
+    expect(screen.getByText('learners took this course in the past year.')).toBeInTheDocument();
+  });
+
+  test('does not renders course reviews section', () => {
+    const courseStateWithNoCourseReviews = {
+      ...initialCourseState,
+      courseReviews: null,
+    };
+    render(
+      <CourseHeaderWrapper
+        initialAppState={initialAppState}
+        initialCourseState={courseStateWithNoCourseReviews}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    expect(screen.queryByText('average rating')).not.toBeInTheDocument();
+    expect(screen.queryByText('learners took this course in the last 12 months')).not.toBeInTheDocument();
+  });
+
+  test('does not renders course reviews section if course not part of catalog', () => {
+    const courseStateWithNoCourseReviews = {
+      ...initialCourseState,
+      catalog: {
+        containsContentItems: false,
+        catalogList: [],
+      },
+    };
+    render(
+      <CourseHeaderWrapper
+        initialAppState={initialAppState}
+        initialCourseState={courseStateWithNoCourseReviews}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+
+    expect(screen.queryByText('average rating')).not.toBeInTheDocument();
+    expect(screen.queryByText('learners took this course in the last 12 months')).not.toBeInTheDocument();
   });
 
   test('renders course image', () => {

@@ -8,30 +8,46 @@ import {
 } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 
-import { CourseContext } from './CourseContextProvider';
-import CourseSkills from './CourseSkills';
-import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from './CourseEnrollmentFailedAlert';
+import { CourseContext } from '../CourseContextProvider';
+import CourseSkills from '../CourseSkills';
+import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import CourseRunCards from './CourseRunCards';
 
 import {
   getDefaultProgram,
   formatProgramType,
-} from './data/utils';
-import { useCoursePartners } from './data/hooks';
-import LicenseRequestedAlert from './LicenseRequestedAlert';
-import SubsidyRequestButton from './SubsidyRequestButton';
+} from '../data/utils';
+import { useCoursePartners } from '../data/hooks';
+import LicenseRequestedAlert from '../LicenseRequestedAlert';
+import SubsidyRequestButton from '../SubsidyRequestButton';
+import CourseReview from '../CourseReview';
+
+import { isExperimentVariant } from '../../../utils/optimizely';
+import CoursePreview from './CoursePreview';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state } = useContext(CourseContext);
-  const { course, catalog } = state;
+  const {
+    course,
+    catalog,
+    courseReviews,
+    isPolicyRedemptionEnabled,
+  } = state;
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
     () => getDefaultProgram(course.programs),
     [course],
   );
+  const config = getConfig();
+  const isExperimentVariationA = isExperimentVariant(
+    config.EXPERIMENT_5_ID,
+    config.EXPERIMENT_5_VARIANT_1_ID,
+  );
+  const hasSufficientReviewCount = courseReviews?.reviewsCount >= 5;
 
   return (
     <div className="course-header">
@@ -84,10 +100,24 @@ const CourseHeader = () => {
               />
             )}
             {course.skills?.length > 0 && <CourseSkills />}
+            {isPolicyRedemptionEnabled && <CourseRunCards />}
+            {catalog.containsContentItems && (
+              <>
+                {!isPolicyRedemptionEnabled && <CourseRunCards />}
+                <SubsidyRequestButton />
+              </>
+            )}
+          </Col>
+          <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
+            <CoursePreview
+              previewImage={course?.image?.src || course?.video?.image}
+              previewVideoURL={course?.video?.src}
+            />
+          </Col>
+          <Col xs={12} lg={12}>
             {catalog.containsContentItems ? (
               <>
-                <CourseRunCards />
-                <SubsidyRequestButton />
+                {hasSufficientReviewCount && isExperimentVariationA && <CourseReview />}
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.
@@ -100,11 +130,6 @@ const CourseHeader = () => {
               </p>
             )}
           </Col>
-          {course.image?.src && (
-            <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
-              <img src={course.image.src} alt="course preview" className="w-100" />
-            </Col>
-          )}
         </Row>
       </Container>
     </div>

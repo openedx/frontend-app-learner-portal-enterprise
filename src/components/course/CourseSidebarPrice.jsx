@@ -9,7 +9,7 @@ import {
   useCoursePriceForUserSubsidy,
 } from './data/hooks';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
+import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import ContactAdminMailto from '../contact-admin-mailto';
 import { offerHasBookingsLimit } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
@@ -22,11 +22,11 @@ export const INSUFFICIENT_ENTERPRISE_OFFER_BALANCE = 'Your organization doesn\'t
 const CourseSidebarPrice = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const { state: courseData } = useContext(CourseContext);
-  const { activeCourseRun, userSubsidyApplicableToCourse } = courseData;
+  const { course, activeCourseRun, userSubsidyApplicableToCourse } = courseData;
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    activeCourseRun, userSubsidyApplicableToCourse,
+    courseEntitlements: course?.entitlements, activeCourseRun, userSubsidyApplicableToCourse,
   });
 
   const {
@@ -98,8 +98,9 @@ const CourseSidebarPrice = () => {
     );
   }
 
-  const discountedPriceMessage = userSubsidyApplicableToCourse?.subsidyType
-   === ENTERPRISE_OFFER_SUBSIDY_TYPE ? COVERED_BY_ENTERPRISE_OFFER_MESSAGE : `Sponsored by ${enterpriseConfig.name}`;
+  const learnerCreditSubsidyTypes = [ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE];
+  const shouldShowLearnerCreditMessage = learnerCreditSubsidyTypes.includes(userSubsidyApplicableToCourse?.subsidyType);
+  const discountedPriceMessage = shouldShowLearnerCreditMessage ? COVERED_BY_ENTERPRISE_OFFER_MESSAGE : `Sponsored by ${enterpriseConfig.name}`;
 
   // Case 4: subsidy found
   const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;

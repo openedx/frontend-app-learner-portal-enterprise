@@ -10,9 +10,10 @@ import DOMPurify from 'dompurify';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
 import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
+import { linkToCourse } from '../course/data/utils';
 
 const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).map((node, index) => {
-  const nodePageLink = node.contentType === 'course' ? `/${slug}/course/${node.key}` : `/${slug}/program/${node.uuid}`;
+  const nodePageLink = node.contentType === 'course' ? linkToCourse(node, slug) : `/${slug}/program/${node.uuid}`;
   const buttonText = node.contentType === 'course' ? 'Course Details' : 'Program Details';
   const rowKey = node.contentType === 'course' ? node.key : node.uuid;
 

@@ -71,7 +71,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
 
   if (isLoading) {
     return (
-      <Container>
+      <Container className="py-5">
         <LoadingSpinner screenReaderText="loading course enrollments" />
       </Container>
     );
