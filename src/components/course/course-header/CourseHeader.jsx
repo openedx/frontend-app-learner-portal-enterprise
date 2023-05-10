@@ -25,6 +25,7 @@ import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
 
 import { isExperimentVariant } from '../../../utils/optimizely';
+import CoursePreview from './CoursePreview';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -108,7 +109,10 @@ const CourseHeader = () => {
             )}
           </Col>
           <Col xs={12} lg={{ span: 4, offset: 1 }} className="mt-3 mt-lg-0">
-            <img src={course.image.src} alt="course preview" className="w-100" />
+            <CoursePreview
+              previewImage={course?.image?.src || course?.video?.image}
+              previewVideoURL={course?.video?.src}
+            />
           </Col>
           <Col xs={12} lg={12}>
             {catalog.containsContentItems ? (
