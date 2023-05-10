@@ -24,7 +24,10 @@ const CourseRunCards = () => {
   } = courseData;
 
   return (
-    <CardGrid columnSizes={{ sm: 12, lg: 5 }}>
+    <CardGrid
+      columnSizes={{ sm: 12, lg: 5 }}
+      disableEqualHeight
+    >
       {availableCourseRuns.map((courseRun) => {
         const redeemabilityForContentKey = redeemabilityPerContentKey.find(r => r.contentKey === courseRun.key);
         const redeemableSubsidyAccessPolicy = redeemabilityForContentKey?.redeemableSubsidyAccessPolicy;

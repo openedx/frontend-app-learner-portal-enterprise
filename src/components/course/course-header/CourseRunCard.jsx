@@ -46,7 +46,10 @@ const CourseRunCard = ({
           {action}
         </div>
       </Card.Section>
-      <CourseRunCardStatus missingUserSubsidyReason={missingUserSubsidyReason} />
+      <CourseRunCardStatus
+        isUserEnrolled={!!userEnrollmentForCourseRun}
+        missingUserSubsidyReason={missingUserSubsidyReason}
+      />
     </Card>
   );
 };

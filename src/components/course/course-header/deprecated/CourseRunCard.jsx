@@ -74,7 +74,6 @@ const CourseRunCard = ({
   const {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
-    missingUserSubsidyReasonType,
     hasCouponCodeForCourse,
   } = useSubsidyDataForCourse();
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
@@ -218,7 +217,10 @@ const CourseRunCard = ({
           />
         )}
       </Card.Section>
-      <CourseRunCardStatus missingUserSubsidyReason={missingUserSubsidyReason} />
+      <CourseRunCardStatus
+        isUserEnrolled={!!userEnrollment}
+        missingUserSubsidyReason={missingUserSubsidyReason}
+      />
     </Card>
   );
 };
@@ -244,6 +246,11 @@ CourseRunCard.propTypes = {
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
+  missingUserSubsidyReason: PropTypes.shape(),
+};
+
+CourseRunCard.defaultProps = {
+  missingUserSubsidyReason: undefined,
 };
 
 export default CourseRunCard;

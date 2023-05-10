@@ -608,6 +608,13 @@ export const getMissingSubsidyReasonActions = ({
     DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
   ].includes(reasonType);
 
+  console.log('getMissingSubsidyReasonActions', {
+    hasLimitsLearnMoreCTA,
+    hasOrganizationNoFundsCTA,
+    enterpriseAdminUsers,
+    reasonType,
+  });
+
   if (hasLimitsLearnMoreCTA) {
     return (
       <Button
@@ -630,9 +637,11 @@ export const getMissingSubsidyReasonActions = ({
 
     const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
 
+    console.log('hello?!', adminEmails);
+
     return (
       <Button
-        // TODO: this should be a mailto link. See https://github.com/openedx/paragon/issues/2278
+        // TODO: Potentially switch to using MailtoLink here. See https://github.com/openedx/paragon/issues/2278
         as={Hyperlink}
         destination={`mailto:${adminEmails}`}
         target="_blank"

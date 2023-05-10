@@ -13,19 +13,22 @@ import { DISABLED_ENROLL_REASON_TYPES } from '../data/constants';
  *  3. Enterprise has an offer but the learner has exceeded their per-learner enrollment limit.
  *  4. Enterprise/learner has no subsidy available whatsoever (no license, no code, no offer).
  *
+ * Does not display if there is no valid user message for the reason, or if the user is already enrolled.
+ *
  * @param {object} args
  * @param {object} args.missingUserSubsidyReason An object containing a reason slug and user
+ * @param {object} args.isUserEnrolled Whether the learner is already enrolled in the course run.
  *   message for why there is no redeemable subsidy for the course.
  *
  * @returns Card.Status component with appropriate message and actions.
  */
-const CourseRunCardStatus = ({ missingUserSubsidyReason }) => {
+const CourseRunCardStatus = ({ missingUserSubsidyReason, isUserEnrolled }) => {
   const missingUserSubsidyReasonType = missingUserSubsidyReason?.reason;
   const missingUserSubsidyReasonUserMessage = missingUserSubsidyReason?.userMessage;
   const missingUserSubsidyReasonActions = missingUserSubsidyReason?.actions;
 
   const hasValidReason = !!(missingUserSubsidyReasonType && missingUserSubsidyReasonUserMessage);
-  if (!hasValidReason) {
+  if (isUserEnrolled || !hasValidReason) {
     return null;
   }
 
@@ -47,6 +50,7 @@ const CourseRunCardStatus = ({ missingUserSubsidyReason }) => {
 };
 
 CourseRunCardStatus.propTypes = {
+  isUserEnrolled: PropTypes.bool,
   missingUserSubsidyReason: PropTypes.shape({
     reason: PropTypes.oneOf(Object.values(DISABLED_ENROLL_REASON_TYPES)),
     userMessage: PropTypes.string,
@@ -55,6 +59,7 @@ CourseRunCardStatus.propTypes = {
 };
 
 CourseRunCardStatus.defaultProps = {
+  isUserEnrolled: false,
   missingUserSubsidyReason: undefined,
 };
 
