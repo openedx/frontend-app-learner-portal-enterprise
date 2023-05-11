@@ -30,8 +30,8 @@ describe('findCouponCodeForCourse', () => {
   }];
 
   test('returns valid index if coupon code catalog is in catalog list', () => {
-    const catalogList = ['cats', 'bears'];
-    expect(findCouponCodeForCourse(couponCodes, catalogList)).toEqual(couponCodes[0]);
+    const catalogsWithCourse = ['cats', 'bears'];
+    expect(findCouponCodeForCourse(couponCodes, catalogsWithCourse)).toEqual(couponCodes[0]);
   });
 
   test('returns undefined if catalog list is empty', () => {
@@ -41,28 +41,22 @@ describe('findCouponCodeForCourse', () => {
 
 describe('findEnterpriseOfferForCourse', () => {
   const enterpriseOffers = [
-    {
-      enterpriseCatalogUuid: 'cats',
-    },
-    {
-      enterpriseCatalogUuid: 'horses',
-    },
-    {
-      enterpriseCatalogUuid: 'cats',
-    },
+    { enterpriseCatalogUuid: 'cats' },
+    { enterpriseCatalogUuid: 'horses' },
+    { enterpriseCatalogUuid: 'cats' },
   ];
 
   it('returns undefined if there is no course price', () => {
-    const catalogList = ['cats', 'bears'];
+    const catalogsWithCourse = ['cats', 'bears'];
     expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogList,
+      enterpriseOffers, catalogsWithCourse,
     })).toBeUndefined();
   });
 
   it('returns undefined if there is no enterprise offer for the course', () => {
-    const catalogList = ['pigs'];
+    const catalogsWithCourse = ['pigs'];
     expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogList, coursePrice: 100,
+      enterpriseOffers, catalogsWithCourse, coursePrice: 100,
     })).toBeUndefined();
   });
 
@@ -73,12 +67,12 @@ describe('findEnterpriseOfferForCourse', () => {
     ])('returns the enterprise offer with a valid catalog that has remaining balance >= course price', (
       offerType,
     ) => {
-      const catalogList = ['cats', 'bears'];
+      const catalogsWithCourse = ['cats', 'bears'];
       expect(findEnterpriseOfferForCourse({
         enterpriseOffers: enterpriseOffers.map(offer => ({
           ...offer, offerType, remainingBalance: 100,
         })),
-        catalogList,
+        catalogsWithCourse,
         coursePrice: 100,
       })).toStrictEqual({
         ...enterpriseOffers[2],
@@ -95,12 +89,12 @@ describe('findEnterpriseOfferForCourse', () => {
     ])('returns the enterprise offer with a valid catalog', (
       offerType,
     ) => {
-      const catalogList = ['cats', 'bears'];
+      const catalogsWithCourse = ['cats', 'bears'];
       expect(findEnterpriseOfferForCourse({
         enterpriseOffers: enterpriseOffers.map(offer => ({
           ...offer, offerType, maxGlobalApplications: 100,
         })),
-        catalogList,
+        catalogsWithCourse,
         coursePrice: 100,
       })).toStrictEqual({
         ...enterpriseOffers[2],

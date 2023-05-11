@@ -10,14 +10,10 @@ import {
 } from './data/hooks';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
-import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
-import ContactAdminMailto from '../contact-admin-mailto';
-import { offerHasBookingsLimit } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
 export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
 export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'This course can be purchased with your organization\'s learner credit';
-export const INSUFFICIENT_ENTERPRISE_OFFER_BALANCE = 'Your organization doesn\'t have enough learner credit remaining.';
 
 const CourseSidebarPrice = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -26,16 +22,13 @@ const CourseSidebarPrice = () => {
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    courseEntitlements: course?.entitlements, activeCourseRun, userSubsidyApplicableToCourse,
+    courseEntitlements: course?.entitlements,
+    activeCourseRun,
+    userSubsidyApplicableToCourse,
   });
 
-  const {
-    enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
-  } = useContext(UserSubsidyContext);
-
   if (!coursePrice) {
-    return <Skeleton height={24} />;
+    return <Skeleton containerTestId="course-price-skeleton" height={24} />;
   }
 
   const originalPriceDisplay = numberWithPrecision(coursePrice.list);
@@ -74,28 +67,10 @@ const CourseSidebarPrice = () => {
 
   // Case 3: No subsidies found
   if (!hasDiscountedPrice) {
-    const { catalogList } = courseData.catalog;
-
-    const hasOfferWithInsufficientBalance = canEnrollWithEnterpriseOffers && enterpriseOffers.find(
-      (enterpriseOffer) => {
-        const isCourseInCatalog = catalogList.includes(enterpriseOffer.enterpriseCatalogUuid);
-        const hasInsufficientBalance = offerHasBookingsLimit(enterpriseOffer)
-          && enterpriseOffer.remainingBalance < coursePrice.list;
-
-        return isCourseInCatalog && hasInsufficientBalance;
-      },
-    );
-
     return (
-      <>
-        <span className="d-block">${originalPriceDisplay} {currency}</span>
-        {hasOfferWithInsufficientBalance && (
-          <small data-testid="insufficient-offer-balance-text">
-            {INSUFFICIENT_ENTERPRISE_OFFER_BALANCE}{' '}
-            <ContactAdminMailto /> to learn more.
-          </small>
-        )}
-      </>
+      <span className="d-block">
+        ${originalPriceDisplay} {currency}
+      </span>
     );
   }
 

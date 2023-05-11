@@ -12,8 +12,6 @@ import {
   SUBSIDY_DISCOUNT_TYPE_MAP,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../data/constants';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { ENTERPRISE_OFFER_TYPE } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -90,25 +88,17 @@ const defaultSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
-const defaultUserSubsidyState = {
-  enterpriseOffers: [],
-  canEnrollWithEnterpriseOffers: false,
-};
-
 const SidebarWithContext = ({
   initialAppState = appStateWithOrigPriceHidden,
   subsidyRequestsState = defaultSubsidyRequestsState,
   initialCourseState,
-  initialUserSubsidyState = defaultUserSubsidyState,
 }) => (
   <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
-        <CourseContextProvider initialState={initialCourseState}>
-          <CourseSidebarPrice />
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
+    <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
+      <CourseContextProvider initialState={initialCourseState}>
+        <CourseSidebarPrice />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
   </AppContext.Provider>
 );
 
@@ -126,8 +116,8 @@ describe('<CourseSidebarPrice/> ', () => {
           }}
         />,
       );
-      expect(screen.getByText(/\$7.50 USD/));
-      expect(screen.getByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' ')));
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+      expect(screen.getByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' '))).toBeInTheDocument();
       expect(screen.getByTestId('browse-and-request-pricing')).toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
@@ -153,138 +143,11 @@ describe('<CourseSidebarPrice/> ', () => {
             ...BASE_COURSE_STATE,
             userSubsidyApplicableToCourse: mockEnterpriseOfferSubsidy,
           }}
-          initialUserSubsidyState={{
-            ...defaultUserSubsidyState,
-            enterpriseOffers: [mockEnterpriseOfferSubsidy],
-            canEnrollWithEnterpriseOffers: true,
-          }}
         />,
       );
       expect(screen.getByText('Priced reduced from:')).toBeInTheDocument();
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
       expect(screen.getByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).toBeInTheDocument();
-    });
-
-    test.each([
-      ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
-      ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-    ])('Display insufficient enterprise offer balance message', (offerType) => {
-      const mockEnterpriseOffer = {
-        discountValue: 100,
-        discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
-        enterpriseCatalogUuid: 'test-catalog-uuid',
-        remainingBalance: 1,
-        offerType,
-      };
-      const mockEnterpriseOfferSubsidy = {
-        ...mockEnterpriseOffer,
-        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-      };
-      render(
-        <SidebarWithContext
-          initialAppState={appStateWithOrigPriceShowing}
-          initialCourseState={{
-            ...BASE_COURSE_STATE,
-            userSubsidyApplicableToCourse: undefined,
-          }}
-          initialUserSubsidyState={{
-            ...defaultUserSubsidyState,
-            enterpriseOffers: [mockEnterpriseOfferSubsidy],
-            canEnrollWithEnterpriseOffers: true,
-          }}
-        />,
-      );
-      expect(screen.getByTestId('insufficient-offer-balance-text')).toBeInTheDocument();
-    });
-
-    describe('Does not display insufficient enterprise offer balance message', () => {
-      test('When offer has no bookings limit', () => {
-        const mockEnterpriseOffer = {
-          discountValue: 100,
-          discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
-          enterpriseCatalogUuid: 'test-catalog-uuid',
-          maxDiscount: null,
-          maxUserDiscount: null,
-          remainingBalance: null,
-          offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-        };
-        const mockEnterpriseOfferSubsidy = {
-          ...mockEnterpriseOffer,
-          subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-        };
-        render(
-          <SidebarWithContext
-            initialAppState={appStateWithOrigPriceShowing}
-            initialCourseState={{
-              ...BASE_COURSE_STATE,
-              userSubsidyApplicableToCourse: undefined,
-            }}
-            initialUserSubsidyState={{
-              ...defaultUserSubsidyState,
-              enterpriseOffers: [mockEnterpriseOfferSubsidy],
-              canEnrollWithEnterpriseOffers: true,
-            }}
-          />,
-        );
-        expect(screen.queryByTestId('insufficient-offer-balance-text')).not.toBeInTheDocument();
-      });
-
-      test('When canEnrollWithEnterpriseOffers = false', () => {
-        const mockEnterpriseOffer = {
-          discountValue: 100,
-          discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
-          enterpriseCatalogUuid: 'test-catalog-uuid',
-          maxDiscount: 1000,
-          maxUserDiscount: null,
-          remainingBalance: 0,
-          offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-        };
-        render(
-          <SidebarWithContext
-            initialAppState={appStateWithOrigPriceShowing}
-            initialCourseState={{
-              ...BASE_COURSE_STATE,
-              userSubsidyApplicableToCourse: undefined,
-            }}
-            initialUserSubsidyState={{
-              ...defaultUserSubsidyState,
-              enterpriseOffers: [mockEnterpriseOffer],
-              canEnrollWithEnterpriseOffers: false,
-            }}
-          />,
-        );
-        expect(screen.queryByTestId('insufficient-offer-balance-text')).not.toBeInTheDocument();
-        expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      });
-
-      test('When there are no enterprise offers with the correct catalog with remaining balance < course price', () => {
-        const mockEnterpriseOffer = {
-          discountValue: 100,
-          discountType: SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toUpperCase(),
-          enterpriseCatalogUuid: 'wrong-catalog-uuid',
-          remainingBalance: 0,
-          maxDiscount: 1000,
-          maxUserDiscount: null,
-          offerType: ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-        };
-
-        render(
-          <SidebarWithContext
-            initialAppState={appStateWithOrigPriceShowing}
-            initialCourseState={{
-              ...BASE_COURSE_STATE,
-              userSubsidyApplicableToCourse: undefined,
-            }}
-            initialUserSubsidyState={{
-              ...defaultUserSubsidyState,
-              enterpriseOffers: [mockEnterpriseOffer],
-              canEnrollWithEnterpriseOffers: true,
-            }}
-          />,
-        );
-        expect(screen.queryByTestId('insufficient-offer-balance-text')).not.toBeInTheDocument();
-        expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      });
     });
   });
 
@@ -301,7 +164,7 @@ describe('<CourseSidebarPrice/> ', () => {
     test('subscription license subsidy, shows no price, correct message', () => {
       render(<SidebarWithContext initialCourseState={courseStateWithLicenseSubsidy} />);
       expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
-      expect(screen.getByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE));
+      expect(screen.getByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
     });
     test('coupon code 100% subsidy, shows no price, correct message', () => {
@@ -311,15 +174,15 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.getByText(SPONSORED_BY_TEXT));
+      expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
     });
     test('coupon code non-full subsidy, shows discounted price only, correct message', () => {
       render(<SidebarWithContext
         initialCourseState={courseStatePartialCouponCodeSubsidy}
       />);
-      expect(screen.getByText(/\$0.75 USD/));
+      expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.getByText(SPONSORED_BY_TEXT));
+      expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
     });
   });
 
@@ -330,29 +193,41 @@ describe('<CourseSidebarPrice/> ', () => {
         initialAppState={appStateWithOrigPriceShowing}
         initialCourseState={courseStateWithNoCodesNoLicenseSubsidy}
       />);
-      expect(screen.getByText(/\$7.50 USD/));
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     });
     test('subscription license subsidy, shows orig crossed out price, correct message', () => {
       render(<SidebarWithContext
         initialAppState={appStateWithOrigPriceShowing}
         initialCourseState={courseStateWithLicenseSubsidy}
       />);
-      expect(screen.getByText(/\$7.50 USD/));
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     });
     test('coupon code 100% subsidy, shows orig price, correct message', () => {
       render(<SidebarWithContext
         initialAppState={appStateWithOrigPriceShowing}
         initialCourseState={courseStateFullCouponCodeSubsidy}
       />);
-      expect(screen.getByText(/\$7.50 USD/));
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
     });
     test('coupon code non-full subsidy, shows orig and discounted price only, correct message', () => {
       render(<SidebarWithContext
         initialAppState={appStateWithOrigPriceShowing}
         initialCourseState={courseStatePartialCouponCodeSubsidy}
       />);
-      expect(screen.getByText(/\$7.50 USD/));
-      expect(screen.getByText(/\$0.75 USD/));
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+      expect(screen.getByText(/\$0.75 USD/)).toBeInTheDocument();
     });
+  });
+
+  test('renders skeleton loading state if no course price is specified', () => {
+    render(<SidebarWithContext
+      initialCourseState={{
+        ...BASE_COURSE_STATE,
+        activeCourseRun: {
+          firstEnrollablePaidSeatPrice: null,
+        },
+      }}
+    />);
+    expect(screen.getByTestId('course-price-skeleton')).toBeInTheDocument();
   });
 });

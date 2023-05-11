@@ -238,7 +238,7 @@ describe('<CourseRunCard.Deprecated />', () => {
     const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
-    expect(screen.getByText(enrollButtonTypes.TO_ECOM_BASKET)).toBeInTheDocument();
+    expect(screen.getByText(enrollButtonTypes.ENROLL_DISABLED)).toBeInTheDocument();
   });
 
   test('User is enrolled, and course not started', () => {

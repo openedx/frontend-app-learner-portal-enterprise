@@ -145,6 +145,7 @@ export const mockCanRedeemData = [{
   redeemable_subsidy_access_policy: mockRedeemableSubsidyAccessPolicy,
   has_redeemed: false,
   redemptions: [],
+  reasons: [],
 }];
 export const mockSubscriptionLicense = {
   uuid: 'test-subscription-uuid',

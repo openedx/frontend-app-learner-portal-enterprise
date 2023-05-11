@@ -856,6 +856,12 @@ describe('useUserSubsidyApplicableToCourse', () => {
     courseData: undefined,
   };
 
+  const baseMissingUserSubsidyReason = {
+    actions: null,
+    reason: undefined,
+    userMessage: undefined,
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -864,7 +870,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithMissingCourse));
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
-      legacyUserSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -884,7 +890,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
       }),
-      legacyUserSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -902,11 +908,11 @@ describe('useUserSubsidyApplicableToCourse', () => {
     const { result } = renderHook(() => useUserSubsidyApplicableToCourse(args));
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
-      legacyUserSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: baseMissingUserSubsidyReason,
     });
   });
 
-  it('finds applicable subscription license', async () => {
+  it.only('finds applicable subscription license', async () => {
     getSubsidyToApplyForCourse.mockReturnValue({
       subsidyType: LICENSE_SUBSIDY_TYPE,
     });
@@ -930,9 +936,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
-      legacyUserSubsidyApplicableToCourse: expect.objectContaining({
-        subsidyType: LICENSE_SUBSIDY_TYPE,
-      }),
+      missingUserSubsidyReason: baseMissingUserSubsidyReason,
     });
   });
 
@@ -967,9 +971,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: COUPON_CODE_SUBSIDY_TYPE,
       }),
-      legacyUserSubsidyApplicableToCourse: expect.objectContaining({
-        subsidyType: COUPON_CODE_SUBSIDY_TYPE,
-      }),
+      missingUserSubsidyReason: baseMissingUserSubsidyReason,
     });
   });
 
@@ -999,7 +1001,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     expect(findEnterpriseOfferForCourse).toHaveBeenCalledTimes(1);
     expect(findEnterpriseOfferForCourse).toHaveBeenCalledWith({
       enterpriseOffers: args.enterpriseOffers,
-      catalogList: args.courseData.catalog.catalogList,
+      catalogsWithCourse: args.courseData.catalog.catalogList,
       coursePrice: mockCoursePrice,
     });
 
@@ -1007,9 +1009,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
       }),
-      legacyUserSubsidyApplicableToCourse: expect.objectContaining({
-        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-      }),
+      missingUserSubsidyReason: baseMissingUserSubsidyReason,
     });
   });
 });

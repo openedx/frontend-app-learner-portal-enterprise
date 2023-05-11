@@ -74,7 +74,7 @@ const useCourseRunCardAction = ({
   }
 
   if (!subsidyAccessPolicy) {
-    return <Button disabled block>Enroll</Button>;
+    return <Button data-testid="disabled-enroll-missing-subsidy-access-policy" disabled block>Enroll</Button>;
   }
 
   return (

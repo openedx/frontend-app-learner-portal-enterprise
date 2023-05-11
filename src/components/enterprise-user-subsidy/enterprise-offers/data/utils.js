@@ -7,10 +7,12 @@ import {
 } from './constants';
 
 export const offerHasBookingsLimit = offer => (
-  offer.maxDiscount !== null || offer.maxUserDiscount !== null
+  // requires loose equality check to account for both null and undefined
+  offer.maxDiscount != null || offer.maxUserDiscount != null
 );
 export const offerHasEnrollmentsLimit = offer => (
-  offer.maxGlobalApplications !== null || offer.maxUserApplications !== null
+  // requires loose equality check to account for both null and undefined
+  offer.maxGlobalApplications != null || offer.maxUserApplications != null
 );
 
 export const getOfferType = (offer) => {

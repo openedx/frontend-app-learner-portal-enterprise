@@ -19,6 +19,7 @@ export function determineEnrollmentType({
     subsidyRequestConfiguration,
   } = {},
   isUserEnrolled,
+  isEnrollable,
   isCourseStarted,
   userHasSubsidyRequestForCourse,
   subsidyRequestCatalogsApplicableToCourse,
@@ -37,7 +38,7 @@ export function determineEnrollmentType({
     return HIDE_BUTTON;
   }
 
-  if (!userSubsidyApplicableToCourse) {
+  if (!isEnrollable || !userSubsidyApplicableToCourse) {
     return ENROLL_DISABLED;
   }
 

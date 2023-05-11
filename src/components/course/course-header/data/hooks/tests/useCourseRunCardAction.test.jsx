@@ -56,13 +56,26 @@ describe('useCourseRunCardAction', () => {
     jest.clearAllMocks();
   });
 
-  it('returns stateful enroll if user is not yet enrolled', () => {
+  it('returns disabled enroll button if user is not yet enrolled and does not have a subsidy access policy', () => {
     const { getByTestId } = renderUseCourseRunCardActionHook({
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       contentKey: MOCK_COURSE_RUN_KEY,
-      userSubsidyApplicableToCourse: undefined,
+      subsidyAccessPolicy: undefined,
+    });
+
+    // expected disabled button exists
+    expect(getByTestId('disabled-enroll-missing-subsidy-access-policy')).toBeInTheDocument();
+  });
+
+  it('returns stateful enroll if user is not yet enrolled and has a subsidy access policy', () => {
+    const { getByTestId } = renderUseCourseRunCardActionHook({
+      isUserEnrolled: false,
+      userEnrollment: undefined,
+      courseRunUrl: MOCK_COURSE_RUN_URL,
+      contentKey: MOCK_COURSE_RUN_KEY,
+      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
 
     // expected components exists
@@ -86,7 +99,7 @@ describe('useCourseRunCardAction', () => {
       userEnrollment: MOCK_ENROLLMENT_VERIFIED,
       courseRunUrl: MOCK_COURSE_RUN_URL,
       contentKey: MOCK_COURSE_RUN_KEY,
-      userSubsidyApplicableToCourse: undefined,
+      subsidyAccessPolicy: undefined,
     });
 
     // expected components exists

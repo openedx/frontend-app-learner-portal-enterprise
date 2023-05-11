@@ -1,3 +1,4 @@
+import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 import { enrollButtonTypes } from '../constants';
 
 import { determineEnrollmentType } from '../utils';
@@ -9,70 +10,67 @@ const {
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
 } = enrollButtonTypes;
+
+const baseArgs = {
+  isUserEnrolled: false,
+  isEnrollable: true,
+  isCourseStarted: true,
+  subsidyData: {
+    userSubsidyApplicableToCourse: null,
+  },
+};
+
 describe('determineEnrollmentType correctly resolves enrollment type', () => {
   test('resolves user-enrolled, course-started to "to courseware page" type', () => {
-    expect(determineEnrollmentType({
+    const args = {
+      ...baseArgs,
       isUserEnrolled: true,
-      isCourseStarted: true,
-    })).toBe(TO_COURSEWARE_PAGE);
+    };
+    expect(determineEnrollmentType(args)).toBe(TO_COURSEWARE_PAGE);
   });
   test('resolves user-enrolled case to "view on dashboard" page type', () => {
-    expect(determineEnrollmentType({
+    const args = {
+      ...baseArgs,
       isUserEnrolled: true,
       isCourseStarted: false,
-    })).toBe(VIEW_ON_DASHBOARD);
+    };
+    expect(determineEnrollmentType(args)).toBe(VIEW_ON_DASHBOARD);
   });
   test('resolves unenrollable case to disabled enroll button', () => {
-    expect(determineEnrollmentType({
-      isUserEnrolled: false,
+    const args = {
+      ...baseArgs,
       isEnrollable: false,
-    })).toBe(ENROLL_DISABLED);
-  });
-  test('resolves valid subscription, valid subsidy to datasharing consent page', () => {
-    expect(determineEnrollmentType({
-      isUserEnrolled: false,
-      isEnrollable: true,
       subsidyData: {
-        subscriptionLicense: { uuid: 'test' },
-        userSubsidyApplicableToCourse: {
-          subsidyType: 'license',
-        },
-        enrollmentUrl: 'http://test',
+        ...baseArgs.subsidyData,
+        userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
       },
-    })).toBe(TO_DATASHARING_CONSENT);
+    };
+    expect(determineEnrollmentType(args)).toBe(ENROLL_DISABLED);
   });
-  test('resolves valid subscription, no subsidy, to ecom basket page', () => {
-    expect(determineEnrollmentType({
-      isUserEnrolled: false,
-      isEnrollable: true,
-      subsidyData: {
-        subscriptionLicense: { uuid: 'test' },
-        userSubsidyApplicableToCourse: null,
-        enrollmentUrl: 'http://test',
-      },
-    })).toBe(TO_ECOM_BASKET);
+  test('no subsidy, show disabled enroll button', () => {
+    expect(determineEnrollmentType(baseArgs)).toBe(ENROLL_DISABLED);
   });
-  test('resolves invalid subscription, code not available, to ecom basket page', () => {
-    expect(determineEnrollmentType({
-      isUserEnrolled: false,
-      isEnrollable: true,
+  test('license subsidy, show data sharing consent button', () => {
+    const args = {
+      ...baseArgs,
       subsidyData: {
-        subscriptionLicense: null,
-        userSubsidyApplicableToCourse: null,
-        enrollmentUrl: 'http://test',
+        ...baseArgs.subsidyData,
+        userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
       },
-    })).toBe(TO_ECOM_BASKET);
+    };
+    expect(determineEnrollmentType(args)).toBe(TO_DATASHARING_CONSENT);
   });
-  test('resolves invalid subscription, code available, to ecom basket page', () => {
-    expect(determineEnrollmentType({
-      isUserEnrolled: false,
-      isEnrollable: true,
+  test.each([
+    { subsidyType: COUPON_CODE_SUBSIDY_TYPE },
+    { subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE },
+  ])('ecommerce-based subsidy available (%s), show ecom basket button', ({ subsidyType }) => {
+    const args = {
+      ...baseArgs,
       subsidyData: {
-        subscriptionLicense: null,
-        userSubsidyApplicableToCourse: null,
-        enrollmentUrl: 'http://test',
-        hasCouponCodeForCourse: true,
+        ...baseArgs.subsidyData,
+        userSubsidyApplicableToCourse: { subsidyType },
       },
-    })).toBe(TO_ECOM_BASKET);
+    };
+    expect(determineEnrollmentType(args)).toBe(TO_ECOM_BASKET);
   });
 });

@@ -74,7 +74,6 @@ const CourseRunCard = ({
   const {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
-    hasCouponCodeForCourse,
   } = useSubsidyDataForCourse();
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
@@ -95,9 +94,7 @@ const CourseRunCard = ({
 
   const enrollmentType = determineEnrollmentType({
     subsidyData: {
-      subscriptionLicense,
       userSubsidyApplicableToCourse,
-      hasCouponCodeForCourse,
       subsidyRequestConfiguration,
     },
     userHasSubsidyRequestForCourse,

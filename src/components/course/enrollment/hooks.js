@@ -62,27 +62,16 @@ export function useSubsidyDataForCourse() {
   const {
     state: {
       userSubsidyApplicableToCourse,
-      missingUserSubsidyReasonType,
     },
   } = useContext(CourseContext);
   const {
     subscriptionLicense,
-    couponCodes: { couponCodes, couponCodesCount },
-    enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
-    hasLowEnterpriseOffersBalance,
-    hasNoEnterpriseOffersBalance,
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
 
   return {
-    subscriptionLicense,
     userSubsidyApplicableToCourse,
-    missingUserSubsidyReasonType,
-    couponCodes,
     couponCodesCount,
-    canEnrollWithEnterpriseOffers,
-    enterpriseOffers,
-    hasLowEnterpriseOffersBalance,
-    hasNoEnterpriseOffersBalance,
+    subscriptionLicense,
   };
 }

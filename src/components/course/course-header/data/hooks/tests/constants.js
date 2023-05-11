@@ -12,7 +12,14 @@ export const MOCK_ENROLLMENT_VERIFIED = { mode: 'verified' };
 
 export const MOCK_ENROLLMENT_AUDIT = { mode: 'audit' };
 
-export const MOCK_REDEEMABLE_SUBSIDY = {};
+export const MOCK_REDEEMABLE_SUBSIDY = {
+  active: true,
+  policyType: 'PerLearnerSpendCreditAccessPolicy',
+  spendLimit: null,
+  perLearnerSpendLimit: null,
+  perLearnerEnrollmentLimit: null,
+  policyRedemptionUrl: 'http://policy-redemption.url',
+};
 
 export const MOCK_COURSE_RUN = {
   uuid: uuidv4(),
