@@ -9,16 +9,18 @@ const SelectedJobSkills = ({ heading, skills, industrySkills }) => {
   return (
     <div>
       <h4> {heading} </h4>
-      {skills?.map(skill => (
-        <Badge
-          key={skill.name}
-          className="skill-badge"
-          variant={industryNames?.length > 0 && industrySkills?.includes(skill.name) ? 'dark' : 'light'}
-          data-testid="top-skills-badge"
-        >
-          {skill.name}
-        </Badge>
-      ))}
+      <div className="d-flex flex-wrap">
+        {skills?.map(skill => (
+          <Badge
+            key={skill.name}
+            className="skill-badge"
+            variant={industryNames?.length > 0 && industrySkills?.includes(skill.name) ? 'dark' : 'light'}
+            data-testid="top-skills-badge"
+          >
+            {skill.name}
+          </Badge>
+        ))}
+      </div>
     </div>
   );
 };
