@@ -38,6 +38,7 @@ export const COURSE_MODES_MAP = {
   NO_ID_PROFESSIONAL: 'no-id-professional',
   AUDIT: 'audit',
   HONOR: 'honor',
+  PAID_EXECUTIVE_EDUCATION: 'paid-executive-education',
 };
 
 export const ENROLLMENT_FAILED_QUERY_PARAM = 'enrollment_failed';

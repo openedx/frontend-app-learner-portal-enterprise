@@ -16,6 +16,7 @@ import {
   findUserEnrollmentForCourseRun,
   hasCourseStarted,
   findHighestLevelSeatSku,
+  pathContainsCourseTypeSlug,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
 import { useSubsidyDataForCourse } from '../../enrollment/hooks';
@@ -82,6 +83,8 @@ const CourseRunCard = ({
     [seats],
   );
 
+  const isExecEdCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
+
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
     key,
@@ -90,6 +93,8 @@ const CourseRunCard = ({
     sku,
     subscriptionLicense,
     userSubsidyApplicableToCourse,
+    courseUuid: courseRun.courseUuid,
+    isExecEdCourse,
   });
 
   const enrollmentType = determineEnrollmentType({
@@ -102,6 +107,7 @@ const CourseRunCard = ({
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
+    isExecEdCourse,
   });
 
   const courseRunArchived = isArchived(courseRun);

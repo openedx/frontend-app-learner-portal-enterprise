@@ -3,6 +3,7 @@ import { Stack, Button } from '@edx/paragon';
 
 import StatefulEnroll from '../../../../stateful-enroll';
 import { COURSE_MODES_MAP } from '../../../data/constants';
+import ToExecutiveEducation2UEnrollment from '../../../enrollment/components/ToExecutiveEducation2UEnrollment';
 import { NavigateToCourseware } from '../../course-run-actions';
 import RedemptionStatusText from '../../RedemptionStatusText';
 import useRedemptionStatus from './useRedemptionStatus';
@@ -31,6 +32,7 @@ const checkUserEnrollmentUpgradeEligibility = ({
  * @param {boolean} args.isUserEnrolled Whether the user is already enrolled in the course run.
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
  * @param {string} args.courseRunUrl The course run url to navigate to courseware.
+ * @param {string} args.courseTypeEnrollmentUrl The url to navigate to the course enrollment page
  * @param {string} args.contentKey The course run key.
  * @param {string} args.subsidyAccessPolicy The redeemable subsidy access policy applicable to the course, if any.
  * @returns A JSX element to render as the CTA for the course run.
@@ -39,6 +41,7 @@ const useCourseRunCardAction = ({
   isUserEnrolled,
   userEnrollment,
   courseRunUrl,
+  courseTypeEnrollmentUrl,
   contentKey,
   subsidyAccessPolicy,
 }) => {
@@ -70,6 +73,11 @@ const useCourseRunCardAction = ({
           isUpgrading={shouldUpgradeUserEnrollment}
         />
       </Stack>
+    );
+  }
+  if (courseTypeEnrollmentUrl) {
+    return (
+      <ToExecutiveEducation2UEnrollment enrollmentUrl={courseTypeEnrollmentUrl} />
     );
   }
 
