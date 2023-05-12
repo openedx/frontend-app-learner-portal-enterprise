@@ -38,6 +38,7 @@ import {
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
+import { getExecutiveEducation2UEnrollmentUrl } from '../enrollment/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -301,6 +302,8 @@ export const useCourseEnrollmentUrl = ({
   location,
   sku,
   userSubsidyApplicableToCourse,
+  courseUuid,
+  isExecEdCourse,
 }) => {
   const config = getConfig();
   const baseQueryParams = useMemo(() => {
@@ -352,6 +355,14 @@ export const useCourseEnrollmentUrl = ({
         return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
       }
 
+      if (isExecEdCourse) {
+        return getExecutiveEducation2UEnrollmentUrl({
+          enterpriseSlug: enterpriseConfig.slug,
+          courseUuid,
+          sku: sku.sku,
+        });
+      }
+
       // This enrollment url will automatically apply enterprise offers
       return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
     },
@@ -364,6 +375,9 @@ export const useCourseEnrollmentUrl = ({
       config.LMS_BASE_URL,
       courseRunKey,
       enterpriseConfig.uuid,
+      enterpriseConfig.slug,
+      courseUuid,
+      isExecEdCourse,
     ],
   );
 
@@ -449,6 +463,46 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
       );
     },
     [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey],
+  );
+
+  return handleClick;
+};
+
+/**
+ * Returns a function to be used as a click handler that emits an analytics event for a
+ * search conversion via ``sendEnterpriseTrackEvent``. when used on a local hyperlink
+ *
+ * @param {object} args
+ * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
+ * @param {string} args.eventName Name of the event
+ *
+ * @returns Click handler function for clicks on buttons
+ *  */
+export const useTrackSearchConversionClickHandlerLocalUrl = ({ href, eventName }) => {
+  const history = useHistory();
+  const {
+    state: {
+      activeCourseRun: { key: courseKey },
+      algoliaSearchParams,
+    },
+  } = useContext(CourseContext);
+  const { enterpriseConfig } = useContext(AppContext);
+  const handleClick = useCallback(
+    () => {
+      const { queryId, objectId } = algoliaSearchParams;
+      history.push(href);
+      sendEnterpriseTrackEvent(
+        enterpriseConfig.uuid,
+        eventName,
+        {
+          products: [{ objectID: objectId }],
+          index: getConfig().ALGOLIA_INDEX_NAME,
+          queryID: queryId,
+          courseKey,
+        },
+      );
+    },
+    [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey, history],
   );
 
   return handleClick;

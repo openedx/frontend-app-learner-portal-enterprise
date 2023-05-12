@@ -1,7 +1,12 @@
+import { AppContext } from '@edx/frontend-platform/react';
+import { useContext, useMemo } from 'react';
 import { COURSE_AVAILABILITY_MAP } from '../../../data/constants';
 import useCourseRunCardHeading from './useCourseRunCardHeading';
 import useCourseRunCardSubHeading from './useCourseRunCardSubHeading';
 import useCourseRunCardAction from './useCourseRunCardAction';
+import { getExecutiveEducation2UEnrollmentUrl } from '../../../enrollment/utils';
+import { CourseContext } from '../../../CourseContextProvider';
+import { findHighestLevelEntitlementSku } from '../../../data/utils';
 
 /**
  * Gathers the data needed to render the `CourseRunCard` component.
@@ -28,6 +33,23 @@ const useCourseRunCardData = ({
   } = courseRun;
   const isCourseRunCurrent = availability === COURSE_AVAILABILITY_MAP.CURRENT;
   const isUserEnrolled = !!userEnrollment;
+  const { enterpriseConfig } = useContext(AppContext);
+  const {
+    state: {
+      course: {
+        entitlements,
+      },
+    },
+  } = useContext(CourseContext);
+  const sku = useMemo(
+    () => findHighestLevelEntitlementSku(entitlements),
+    [entitlements],
+  );
+  const courseTypeEnrollmentUrl = getExecutiveEducation2UEnrollmentUrl({
+    enterpriseSlug: enterpriseConfig.slug,
+    courseUuid: courseRun.courseUuid,
+    sku,
+  });
 
   const heading = useCourseRunCardHeading({
     isCourseRunCurrent,
@@ -43,6 +65,7 @@ const useCourseRunCardData = ({
     isUserEnrolled,
     userEnrollment,
     courseRunUrl,
+    courseTypeEnrollmentUrl,
     contentKey,
     subsidyAccessPolicy,
   });

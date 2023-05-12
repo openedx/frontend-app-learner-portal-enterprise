@@ -10,6 +10,23 @@ import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  useContext: jest.fn(() => ({
+    state: {
+      course: {
+        entitlements: {
+          mode: 'paid-executive-education',
+          price: '820.00',
+          currency: 'USD',
+          sku: '821D85D',
+          expires: null,
+        },
+      },
+    },
+  })),
+}));
+
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
@@ -249,6 +266,7 @@ describe('useCourseEnrollments', () => {
           subscriptionLicense: undefined,
           couponCodes: [mockCouponCode],
         };
+
         const { result, waitForNextUpdate } = renderHook(() => useCourseUpgradeData(args));
 
         expect(result.current.isLoading).toEqual(true);
