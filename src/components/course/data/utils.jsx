@@ -177,6 +177,7 @@ export const compareOffersByProperty = ({ firstOffer, secondOffer, property }) =
  * Returns an applicable enterprise offer to the specified enterprise catalogs, if one exists, with the
  * following prioritization:
  *   - Offer with no bookings limit (global or user)
+ *   - Offer with no applications limit (global or user)
  *   - Offer with user bookings limit
  *   - Offer with global bookings limit
  *   - Offer with user enrollment limit
