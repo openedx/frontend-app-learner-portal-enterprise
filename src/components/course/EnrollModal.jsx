@@ -31,8 +31,9 @@ export const MODAL_TEXTS = {
 
 const getModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, courseRunPrice }) => {
   const { HAS_COUPON_CODE, HAS_ENTERPRISE_OFFER } = MODAL_TEXTS;
+  const { subsidyType } = userSubsidyApplicableToCourse || {};
 
-  if (userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
+  if (subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
       buttonText: HAS_COUPON_CODE.button,
@@ -41,7 +42,7 @@ const getModalTexts = ({ userSubsidyApplicableToCourse, couponCodesCount, course
     };
   }
 
-  if (userSubsidyApplicableToCourse?.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
+  if (subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
     return {
       paymentRequiredForCourse: false,
       buttonText: HAS_ENTERPRISE_OFFER.button,
