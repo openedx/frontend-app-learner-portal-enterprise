@@ -14,7 +14,7 @@
     "@edx/frontend-enterprise-logistration": "^3.0.0",
     "@edx/frontend-enterprise-utils": "^3.0.0",
     "@edx/frontend-platform": "^4.2.0",
-    "@edx/paragon": "20.28.1",
+    "@edx/paragon": "^20.31.1",
     "@fortawesome/fontawesome-svg-core": "1.2.32",
     "@fortawesome/free-brands-svg-icons": "5.15.1",
     "@fortawesome/free-regular-svg-icons": "5.15.1",
