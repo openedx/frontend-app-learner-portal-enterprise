@@ -38,6 +38,7 @@ import {
   LEARNER_CREDIT_SUBSIDY_TYPE,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   DISABLED_ENROLL_USER_MESSAGES,
+  DISABLED_ENROLL_REASON_TYPES,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 import { getExecutiveEducation2UEnrollmentUrl } from '../enrollment/utils';
@@ -689,7 +690,6 @@ export const useUserSubsidyApplicableToCourse = ({
     } = courseData;
 
     let applicableUserSubsidy;
-    let noApplicableUserSubsidyReasonType;
 
     const enterpriseAdminUsers = (
       missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
@@ -764,6 +764,7 @@ export const useUserSubsidyApplicableToCourse = ({
         }),
       });
     } else {
+      const noApplicableUserSubsidyReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
       setMissingUserSubsidyReason({
         reason: noApplicableUserSubsidyReasonType,
         userMessage: DISABLED_ENROLL_USER_MESSAGES[noApplicableUserSubsidyReasonType],

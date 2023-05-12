@@ -221,7 +221,7 @@ const CourseRunCard = ({
         )}
       </Card.Section>
       <CourseRunCardStatus
-        isUserEnrolled={!!userEnrollment}
+        isUserEnrolled={isUserEnrolled}
         missingUserSubsidyReason={missingUserSubsidyReason}
       />
     </Card>

@@ -165,19 +165,11 @@ export const compareOffersByProperty = ({ firstOffer, secondOffer, property }) =
   const firstOfferValue = firstOffer[property];
   const secondOfferValue = secondOffer[property];
   if (firstOfferValue && secondOfferValue) {
-    if (firstOfferValue < secondOfferValue) {
-      return -1;
-    }
-    if (firstOfferValue >= secondOfferValue) {
-      return 1;
-    }
+    if (firstOfferValue < secondOfferValue) { return -1; }
+    if (firstOfferValue >= secondOfferValue) { return 1; }
   }
-  if (!firstOfferValue && secondOfferValue) {
-    return -1;
-  }
-  if (firstOfferValue && !secondOfferValue) {
-    return 1;
-  }
+  if (!firstOfferValue && secondOfferValue) { return -1; }
+  if (firstOfferValue && !secondOfferValue) { return 1; }
   return 0;
 };
 
@@ -496,7 +488,12 @@ export const getCourseRunPrice = ({
 export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);
 
 /**
- * TODO
+ * Determines which CTA button, if any, should be displayed for a given
+ * missing subsidy reason.
+ *
+ * @param {object} args
+ * @param {string} args.reasonType Reason type for the missing subsidy.
+ * @param {array} args.enterpriseAdminUsers List of enterprise admin users.
  */
 export const getMissingSubsidyReasonActions = ({
   reasonType,

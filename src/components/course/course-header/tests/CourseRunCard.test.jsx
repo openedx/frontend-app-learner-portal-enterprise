@@ -33,7 +33,6 @@ const CourseRunCardWrapper = (props) => {
       course: {
         entitlements: [],
       },
-      // courseData: {},
     },
   };
   return (
