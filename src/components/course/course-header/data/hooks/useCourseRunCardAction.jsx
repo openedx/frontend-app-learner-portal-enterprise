@@ -75,14 +75,15 @@ const useCourseRunCardAction = ({
       </Stack>
     );
   }
+
+  if (!subsidyAccessPolicy) {
+    return <Button data-testid="disabled-enroll-missing-subsidy-access-policy" disabled block>Enroll</Button>;
+  }
+
   if (courseTypeEnrollmentUrl) {
     return (
       <ToExecutiveEducation2UEnrollment enrollmentUrl={courseTypeEnrollmentUrl} />
     );
-  }
-
-  if (!subsidyAccessPolicy) {
-    return <Button data-testid="disabled-enroll-missing-subsidy-access-policy" disabled block>Enroll</Button>;
   }
 
   return (
