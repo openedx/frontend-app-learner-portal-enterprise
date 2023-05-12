@@ -1,3 +1,4 @@
+import isNil from 'lodash.isnil';
 import {
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
@@ -7,12 +8,10 @@ import {
 } from './constants';
 
 export const offerHasBookingsLimit = offer => (
-  // requires loose equality check to account for both null and undefined
-  offer.maxDiscount != null || offer.maxUserDiscount != null
+  !isNil(offer.maxDiscount) || !isNil(offer.maxUserDiscount)
 );
 export const offerHasEnrollmentsLimit = offer => (
-  // requires loose equality check to account for both null and undefined
-  offer.maxGlobalApplications != null || offer.maxUserApplications != null
+  !isNil(offer.maxGlobalApplications) || !isNil(offer.maxUserApplications)
 );
 
 export const getOfferType = (offer) => {
