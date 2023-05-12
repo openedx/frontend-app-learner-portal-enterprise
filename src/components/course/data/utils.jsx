@@ -1,5 +1,5 @@
 import React from 'react';
-import { getConfig } from '@edx/frontend-platform';
+import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink } from '@edx/paragon';
 
@@ -512,11 +512,11 @@ export const getMissingSubsidyReasonActions = ({
   ].includes(reasonType);
 
   if (hasLimitsLearnMoreCTA) {
+    ensureConfig(['LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL']);
     return (
       <Button
         as={Hyperlink}
-        // TODO: we don't yet have a destination for this link
-        destination="https://edx.org"
+        destination={getConfig().LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL}
         target="_blank"
         size="sm"
         block

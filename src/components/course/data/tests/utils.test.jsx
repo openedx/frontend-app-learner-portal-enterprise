@@ -245,7 +245,7 @@ describe('linkToCourse', () => {
   });
 });
 
-describe('compareRemainingBalanceForUser', () => {
+describe('compareOffersByProperty', () => {
   it('returns 0 with incorrect inputs, or no other conditional matches', () => {
     const firstOffer = {};
     const secondOffer = {};
