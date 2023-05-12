@@ -4,8 +4,6 @@ import '@testing-library/jest-dom/extend-expect';
 
 import CourseRunCard from '../CourseRunCard';
 import { CourseContext } from '../../CourseContextProvider';
-import { findUserEnrollmentForCourseRun } from '../../data/utils';
-import { useCourseRunCardData } from '../data';
 
 jest.mock('../../data/utils', () => ({
   ...jest.requireActual('../../data/utils'),
