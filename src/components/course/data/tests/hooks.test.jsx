@@ -36,6 +36,8 @@ import {
   COUPON_CODE_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  DISABLED_ENROLL_REASON_TYPES,
+  REASON_USER_MESSAGES,
 } from '../constants';
 import {
   mockCourseService,
@@ -876,10 +878,20 @@ describe('useUserSubsidyApplicableToCourse', () => {
     courseData: undefined,
   };
 
-  const baseMissingUserSubsidyReason = {
-    actions: null,
+  const expectedTransformedEmptyMissingUserSubsidyReason = {
     reason: undefined,
     userMessage: undefined,
+    actions: null,
+  };
+  const missingUserSubsidyReason = {
+    reason: DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
+    userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
+    metadata: { enterpriseAdministrators: ['edx@example.com'] },
+  };
+  const expectedTransformedMissingUserSubsidyReason = {
+    reason: DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
+    userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
+    actions: expect.any(Object),
   };
 
   beforeEach(() => {
@@ -931,7 +943,22 @@ describe('useUserSubsidyApplicableToCourse', () => {
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
-      missingUserSubsidyReason: baseMissingUserSubsidyReason,
+      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
+    });
+  });
+
+  it('does not have redeemable subsidy access policy and has missing subsidy access policy user message', async () => {
+    const args = {
+      ...baseArgs,
+      missingSubsidyAccessPolicyReason: missingUserSubsidyReason,
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: expectedTransformedMissingUserSubsidyReason,
     });
   });
 
@@ -959,7 +986,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: baseMissingUserSubsidyReason,
+      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
     });
   });
 
@@ -996,7 +1023,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: COUPON_CODE_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: baseMissingUserSubsidyReason,
+      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
     });
   });
 
@@ -1036,7 +1063,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: baseMissingUserSubsidyReason,
+      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
     });
   });
 });

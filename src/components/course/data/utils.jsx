@@ -151,7 +151,7 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
 
 /**
  * Determines the sort order of two enterprise offers based on the
- * remaining balance for the user. Returns -1 if the first offer should
+ * specified property for the user. Returns -1 if the first offer should
  * be prioritized, 1 if the second offer should be prioritized, and 0 if
  * there is no difference in priority.
  *
@@ -161,118 +161,21 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
  *
  * @returns The sort comparison value.
  */
-export const compareRemainingBalanceForUser = ({ firstOffer, secondOffer }) => {
-  const firstOfferRemainingBalanceForUser = firstOffer.remainingBalanceForUser;
-  const secondOfferRemainingBalanceForUser = secondOffer.remainingBalanceForUser;
-
-  if (firstOfferRemainingBalanceForUser && secondOfferRemainingBalanceForUser) {
-    if (firstOfferRemainingBalanceForUser < secondOfferRemainingBalanceForUser) {
+export const compareOffersByProperty = ({ firstOffer, secondOffer, property }) => {
+  const firstOfferValue = firstOffer[property];
+  const secondOfferValue = secondOffer[property];
+  if (firstOfferValue && secondOfferValue) {
+    if (firstOfferValue < secondOfferValue) {
       return -1;
     }
-    if (firstOfferRemainingBalanceForUser >= secondOfferRemainingBalanceForUser) {
+    if (firstOfferValue >= secondOfferValue) {
       return 1;
     }
   }
-  if (!firstOfferRemainingBalanceForUser && secondOfferRemainingBalanceForUser) {
+  if (!firstOfferValue && secondOfferValue) {
     return -1;
   }
-  if (firstOfferRemainingBalanceForUser && !secondOfferRemainingBalanceForUser) {
-    return 1;
-  }
-  return 0;
-};
-
-/**
- * Determines the sort order of two enterprise offers based on the
- * remaining balance for the offer. Returns -1 if the first offer should
- * be prioritized, 1 if the second offer should be prioritized, and 0 if
- * there is no difference in priority.
- *
- * @param {object} args
- * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
- * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
- *
- * @returns The sort comparison value.
- */
-export const compareRemainingBalance = ({ firstOffer, secondOffer }) => {
-  const firstOfferRemainingBalance = firstOffer.remainingBalance;
-  const secondOfferRemainingBalance = secondOffer.remainingBalance;
-  if (firstOfferRemainingBalance && secondOfferRemainingBalance) {
-    if (firstOfferRemainingBalance < secondOfferRemainingBalance) {
-      return -1;
-    }
-    if (firstOfferRemainingBalance >= secondOfferRemainingBalance) {
-      return 1;
-    }
-  }
-  if (!firstOfferRemainingBalance && secondOfferRemainingBalance) {
-    return -1;
-  }
-  if (firstOfferRemainingBalance && !secondOfferRemainingBalance) {
-    return 1;
-  }
-  return 0;
-};
-
-/**
- * Determines the sort order of two enterprise offers based on the
- * remaining applications for the offer. Returns -1 if the first offer should
- * be prioritized, 1 if the second offer should be prioritized, and 0 if
- * there is no difference in priority.
- *
- * @param {object} args
- * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
- * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
- *
- * @returns The sort comparison value.
- */
-export const compareRemainingApplications = ({ firstOffer, secondOffer }) => {
-  const firstOfferRemainingApplications = firstOffer.remainingApplications;
-  const secondOfferRemainingApplications = secondOffer.remainingApplications;
-  if (firstOfferRemainingApplications && secondOfferRemainingApplications) {
-    if (firstOfferRemainingApplications < secondOfferRemainingApplications) {
-      return -1;
-    }
-    if (firstOfferRemainingApplications >= secondOfferRemainingApplications) {
-      return 1;
-    }
-  }
-  if (!firstOfferRemainingApplications && secondOfferRemainingApplications) {
-    return -1;
-  }
-  if (firstOfferRemainingApplications && !secondOfferRemainingApplications) {
-    return 1;
-  }
-  return 0;
-};
-
-/**
- * Determines the sort order of two enterprise offers based on the
- * remaining applications for the user. Returns -1 if the first offer should
- * be prioritized, 1 if the second offer should be prioritized, and 0 if
- * there is no difference in priority.
- *
- * @param {object} args
- * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
- * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
- *
- * @returns The sort comparison value.
- */
-export const compareRemainingApplicationsForUser = ({ firstOffer, secondOffer }) => {
-  const firstOfferRemainingApplicationsForUser = firstOffer.remainingApplicationsForUser;
-  const secondOfferRemainingApplicationsForUser = secondOffer.remainingApplicationsForUser;
-  if (firstOfferRemainingApplicationsForUser && secondOfferRemainingApplicationsForUser) {
-    if (firstOfferRemainingApplicationsForUser < secondOfferRemainingApplicationsForUser) {
-      return -1;
-    }
-    if (firstOfferRemainingApplicationsForUser >= secondOfferRemainingApplicationsForUser) {
-      return 1;
-    }
-  }
-  if (!firstOfferRemainingApplicationsForUser && secondOfferRemainingApplicationsForUser) {
-    return -1;
-  }
-  if (firstOfferRemainingApplicationsForUser && !secondOfferRemainingApplicationsForUser) {
+  if (firstOfferValue && !secondOfferValue) {
     return 1;
   }
   return 0;
@@ -319,10 +222,10 @@ export const findEnterpriseOfferForCourse = ({
       let comparison = 0;
 
       if (isFirstOfferRedeemable && isSecondOfferRedeemable) {
-        comparison = compareRemainingApplications({ firstOffer, secondOffer });
-        comparison = compareRemainingApplicationsForUser({ firstOffer, secondOffer });
-        comparison = compareRemainingBalance({ firstOffer, secondOffer });
-        comparison = compareRemainingBalanceForUser({ firstOffer, secondOffer });
+        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingApplications' });
+        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingApplicationsForUser' });
+        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingBalance' });
+        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingBalanceForUser' });
       }
       if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
         comparison = -1;

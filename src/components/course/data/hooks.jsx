@@ -638,7 +638,7 @@ export const useUserSubsidyApplicableToCourse = ({
     let noApplicableUserSubsidyReasonType;
 
     const enterpriseAdminUsers = (
-      missingSubsidyAccessPolicyReason?.metadata.enterpriseAdministrators || fallbackAdminUsers
+      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
     );
 
     // if course can be redeemed with EMET system, return
