@@ -1,3 +1,5 @@
+import { DISABLED_ENROLL_REASON_TYPES, REASON_USER_MESSAGES } from '../data/constants';
+
 export const TEST_RECOMMENDATION_DATA = {
   all_recommendations: [
     {
@@ -139,14 +141,21 @@ export const mockCourseRunKey = 'course-v1:edX+DemoX+1T2023';
 export const mockRedeemableSubsidyAccessPolicy = {
   uuid: 'test-subsidy-access-policy-uuid',
 };
-export const mockCanRedeemData = [{
+export const mockCanRedeemReasonActionTestId = 'fake-can-redeem-reason-actions';
+export const mockCanRedeemReason = {
+  reason: DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
+  userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
+  actions: undefined,
+};
+export const mockCanRedeemForContentKey = {
   content_key: mockCourseRunKey,
   can_redeem: true,
   redeemable_subsidy_access_policy: mockRedeemableSubsidyAccessPolicy,
   has_redeemed: false,
   redemptions: [],
   reasons: [],
-}];
+};
+export const mockCanRedeemData = [mockCanRedeemForContentKey];
 export const mockSubscriptionLicense = {
   uuid: 'test-subscription-uuid',
 };

@@ -9,6 +9,7 @@ const {
   ENROLL_DISABLED,
   TO_DATASHARING_CONSENT,
   TO_ECOM_BASKET,
+  HIDE_BUTTON,
 } = enrollButtonTypes;
 
 const baseArgs = {
@@ -17,7 +18,10 @@ const baseArgs = {
   isCourseStarted: true,
   subsidyData: {
     userSubsidyApplicableToCourse: null,
+    subsidyRequestConfiguration: null,
   },
+  userHasSubsidyRequestForCourse: false,
+  subsidyRequestCatalogsApplicableToCourse: new Set(),
 };
 
 describe('determineEnrollmentType correctly resolves enrollment type', () => {
@@ -72,5 +76,29 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
       },
     };
     expect(determineEnrollmentType(args)).toBe(TO_ECOM_BASKET);
+  });
+  test('user has subsidy request for course, hide enroll button', () => {
+    const args = {
+      ...baseArgs,
+      subsidyData: {
+        ...baseArgs.subsidyData,
+        subsidyRequestConfiguration: { subsidyRequestsEnabled: true },
+      },
+      subsidyRequestCatalogsApplicableToCourse: new Set(['test-catalog']),
+    };
+    expect(determineEnrollmentType(args)).toBe(HIDE_BUTTON);
+  });
+  test.each([
+    { hasSubsidyData: true },
+    { hasSubsidyData: false },
+  ])('falls back to a disabled enroll button (%s)', ({ hasSubsidyData }) => {
+    const args = {
+      ...baseArgs,
+      subsidyData: hasSubsidyData ? {
+        ...baseArgs.subsidyData,
+        userSubsidyApplicableToCourse: { subsidyType: 'unknown' },
+      } : undefined,
+    };
+    expect(determineEnrollmentType(args)).toBe(ENROLL_DISABLED);
   });
 });

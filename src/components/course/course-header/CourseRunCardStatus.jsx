@@ -34,10 +34,6 @@ const CourseRunCardStatus = ({ missingUserSubsidyReason, isUserEnrolled }) => {
 
   return (
     <Card.Status
-      // TODO: this `className` shouldn't be needed, since the d-flex was removed in
-      // the paragon code. just not coming through here for some reason... remove once
-      // https://github.com/openedx/paragon/pull/2272 merges and Paragon is upgraded.
-      className="d-block"
       variant="primary"
       icon={Lock}
       actions={missingUserSubsidyReasonActions}

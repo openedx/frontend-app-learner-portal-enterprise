@@ -48,6 +48,8 @@ import {
   mockSubscriptionLicense,
   mockUserLicenseSubsidy,
   mockRedeemableSubsidyAccessPolicy,
+  mockCanRedeemReason,
+  mockCanRedeemForContentKey,
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
@@ -806,9 +808,22 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     );
   });
 
-  it('makes actual query to check redemption eligilibity', async () => {
+  it.each([
+    { hasMissingSubsidy: false },
+    { hasMissingSubsidy: true },
+  ])('makes query to check redemption eligilibity (%s)', async ({ hasMissingSubsidy }) => {
+    let queryData;
+    if (hasMissingSubsidy) {
+      queryData = camelCaseObject([{
+        ...mockCanRedeemForContentKey,
+        reasons: [mockCanRedeemReason],
+      }]);
+    } else {
+      queryData = camelCaseObject(mockCanRedeemData);
+    }
+
     useQuery.mockReturnValue({
-      data: camelCaseObject(mockCanRedeemData),
+      data: queryData,
       isInitialLoading: false,
     });
 
@@ -818,9 +833,14 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     );
 
     expect(result.current.isInitialLoading).toBeDefined();
-    expect(result.current.isPolicyRedemptionEnabled).toBeTruthy();
-    expect(result.current.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
     expect(result.current.redeemabilityPerContentKey).toBeDefined();
+    if (!hasMissingSubsidy) {
+      expect(result.current.isPolicyRedemptionEnabled).toBeTruthy();
+      expect(result.current.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
+    }
+    if (hasMissingSubsidy) {
+      expect(result.current.missingSubsidyAccessPolicyReason).toBeDefined();
+    }
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -894,7 +914,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('does not have redeemable subsidy access policy and catalog(s) does not contain course', () => {
+  it('does not have redeemable subsidy access policy and catalog(s) does not contain course', async () => {
     const args = {
       ...baseArgs,
       courseData: {
@@ -905,14 +925,17 @@ describe('useUserSubsidyApplicableToCourse', () => {
         },
       },
     };
-    const { result } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+
+    await waitForNextUpdate();
+
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: baseMissingUserSubsidyReason,
     });
   });
 
-  it.only('finds applicable subscription license', async () => {
+  it('finds applicable subscription license', async () => {
     getSubsidyToApplyForCourse.mockReturnValue({
       subsidyType: LICENSE_SUBSIDY_TYPE,
     });
@@ -958,7 +981,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       ...baseArgs,
       couponCodes: [mockCouponCode],
     };
-    const { result } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
     expect(findCouponCodeForCourse).toHaveBeenCalledTimes(1);
     expect(findCouponCodeForCourse).toHaveBeenCalledWith(args.couponCodes, args.courseData.catalog.catalogList);
@@ -966,6 +989,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
     expect(getSubsidyToApplyForCourse).toHaveBeenCalledWith({
       applicableCouponCode: mockCouponCode,
     });
+
+    await waitForNextUpdate();
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
@@ -975,7 +1000,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it('finds applicable enterprise offer', () => {
+  it('finds applicable enterprise offer', async () => {
     const mockEnterpriseOffer = {
       catalog: mockCatalogUUID,
       code: 'test-coupon-code',
@@ -996,7 +1021,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       canEnrollWithEnterpriseOffers: true,
       enterpriseOffers: [mockEnterpriseOffer],
     };
-    const { result } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
     expect(findEnterpriseOfferForCourse).toHaveBeenCalledTimes(1);
     expect(findEnterpriseOfferForCourse).toHaveBeenCalledWith({
@@ -1004,6 +1029,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
       catalogsWithCourse: args.courseData.catalog.catalogList,
       coursePrice: mockCoursePrice,
     });
+
+    await waitForNextUpdate();
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({

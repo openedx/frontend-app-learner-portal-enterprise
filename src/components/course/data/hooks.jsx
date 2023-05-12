@@ -733,12 +733,6 @@ export const useUserSubsidyApplicableToCourse = ({
     fallbackAdminUsers,
   ]);
 
-  console.log('useUserSubsidyApplicableToCourse', {
-    userSubsidyApplicableToCourse,
-    missingSubsidyAccessPolicyReason,
-    missingUserSubsidyReason,
-  });
-
   return useMemo(() => ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
