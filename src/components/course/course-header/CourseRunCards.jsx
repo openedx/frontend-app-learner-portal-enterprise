@@ -24,7 +24,7 @@ const CourseRunCards = () => {
 
   return (
     <CardGrid
-      columnSizes={{ sm: 12, lg: 5 }}
+      columnSizes={{ xs: 12, md: 6, lg: 5 }}
       hasEqualColumnHeights={false}
     >
       {availableCourseRuns.map((courseRun) => {
