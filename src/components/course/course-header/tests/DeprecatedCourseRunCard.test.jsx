@@ -14,7 +14,7 @@ import {
   COURSE_AVAILABILITY_MAP,
   COURSE_PACING_MAP,
 } from '../../data/constants';
-import CourseRunCard from '../CourseRunCard';
+import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
@@ -105,7 +105,7 @@ const renderCard = ({
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <CourseContextProvider initialCourseState={courseInitState}>
-            <CourseRunCard.Deprecated
+            <CourseRunCardDeprecated
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
@@ -120,7 +120,7 @@ const renderCard = ({
   );
 };
 
-describe('<CourseRunCard.Deprecated />', () => {
+describe('<DeprecatedCourseRunCard />', () => {
   test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();

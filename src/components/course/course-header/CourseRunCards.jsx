@@ -3,6 +3,7 @@ import { CardGrid } from '@edx/paragon';
 
 import { CourseContext } from '../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
+import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 
 /**
  * Displays a grid of `CourseRunCard` components, where each `CourseRunCard` represents
@@ -41,7 +42,7 @@ const CourseRunCards = () => {
           );
         }
         return (
-          <CourseRunCard.Deprecated
+          <DeprecatedCourseRunCard
             key={courseRun.uuid}
             courseKey={key}
             userEnrollments={userEnrollments}

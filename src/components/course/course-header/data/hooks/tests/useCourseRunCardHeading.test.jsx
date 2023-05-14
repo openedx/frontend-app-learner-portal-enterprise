@@ -94,4 +94,20 @@ describe('useCourseRunCardHeading', () => {
     // assert shown start date matches the above mocked current date
     expect(result.current).toEqual('Course started');
   });
+
+  it('handles current, instructor-led, unenrolled course run', () => {
+    const { result } = renderHook(
+      () => useCourseRunCardHeading({
+        isCourseRunCurrent: true,
+        isUserEnrolled: false,
+        courseRun: {
+          pacingType: 'instructor_led',
+          start: MOCK_COURSE_RUN_START,
+        },
+      }),
+      { wrapper },
+    );
+    // assert shown start date matches the above mocked current date
+    expect(result.current).toEqual('Started Apr 20');
+  });
 });

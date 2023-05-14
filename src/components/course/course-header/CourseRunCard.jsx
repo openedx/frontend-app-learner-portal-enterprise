@@ -5,8 +5,6 @@ import { Card } from '@edx/paragon';
 import { CourseContext } from '../CourseContextProvider';
 import { findUserEnrollmentForCourseRun } from '../data/utils';
 import { useCourseRunCardData } from './data';
-
-import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
 import CourseRunCardStatus from './CourseRunCardStatus';
 
 /**
@@ -71,8 +69,5 @@ CourseRunCard.propTypes = {
 CourseRunCard.defaultProps = {
   subsidyAccessPolicy: undefined,
 };
-
-/* istanbul ignore next */
-CourseRunCard.Deprecated = DeprecatedCourseRunCard;
 
 export default CourseRunCard;
