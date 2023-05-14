@@ -2,6 +2,7 @@ import React from 'react';
 import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink } from '@edx/paragon';
+import isNil from 'lodash.isnil';
 
 import {
   COURSE_AVAILABILITY_MAP,
@@ -170,7 +171,7 @@ export const compareOffersByProperty = ({ firstOffer, secondOffer, property }) =
   }
   if (!firstOfferValue && secondOfferValue) { return -1; }
   if (firstOfferValue && !secondOfferValue) { return 1; }
-  return 0;
+  return undefined;
 };
 
 /**
@@ -214,17 +215,22 @@ export const findEnterpriseOfferForCourse = ({
 
       let comparison = 0;
 
+      // TODO: verify this comparison logic
       if (isFirstOfferRedeemable && isSecondOfferRedeemable) {
         comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingApplications' });
         comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingApplicationsForUser' });
         comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingBalance' });
         comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingBalanceForUser' });
-      }
-      if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
+      } else if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
         comparison = -1;
-      }
-      if (!isFirstOfferRedeemable && isSecondOfferRedeemable) {
+      } else if (!isFirstOfferRedeemable && isSecondOfferRedeemable) {
         comparison = 1;
+      } else {
+        comparison = 0;
+      }
+
+      if (isNil(comparison)) {
+        comparison = 0;
       }
 
       return comparison;
@@ -317,6 +323,12 @@ export const getSubsidyToApplyForCourse = ({
       endDate: applicableEnterpriseOffer.endDatetime,
       offerType: applicableEnterpriseOffer.offerType,
       subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      maxUserDiscount: applicableEnterpriseOffer.maxUserDiscount,
+      maxUserApplications: applicableEnterpriseOffer.maxUserApplications,
+      remainingBalance: applicableEnterpriseOffer.remainingBalance,
+      remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
+      remainingApplications: applicableEnterpriseOffer.remainingApplications,
+      remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
     };
   }
 

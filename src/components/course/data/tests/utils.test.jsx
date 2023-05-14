@@ -250,7 +250,7 @@ describe('compareOffersByProperty', () => {
     const firstOffer = {};
     const secondOffer = {};
     const result = compareOffersByProperty({ firstOffer, secondOffer });
-    expect(result).toEqual(0);
+    expect(result).toEqual(undefined);
   });
 
   it.each([

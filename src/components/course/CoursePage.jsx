@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useContext, useMemo, useState,
+  useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import { useLocation, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -23,6 +23,7 @@ import {
   useExtractAndRemoveSearchParamsFromURL,
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
+  useCoursePriceForUserSubsidy,
 } from './data/hooks';
 import {
   getActiveCourseRun,
@@ -30,6 +31,7 @@ import {
   linkToCourse,
   pathContainsCourseTypeSlug,
   getCourseTypeConfig,
+  getEntitlementPrice,
 } from './data/utils';
 
 import NotFoundPage from '../NotFoundPage';
@@ -118,31 +120,13 @@ const CoursePage = () => {
     [],
   );
 
-  const {
-    userSubsidyApplicableToCourse,
-    missingUserSubsidyReason,
-  } = useUserSubsidyApplicableToCourse({
-    courseData,
-    redeemableSubsidyAccessPolicy,
-    isPolicyRedemptionEnabled,
-    subscriptionLicense,
-    courseService,
-    couponCodes,
-    canEnrollWithEnterpriseOffers,
-    enterpriseOffers,
-    onSubscriptionLicenseForCourseValidationError,
-    missingSubsidyAccessPolicyReason,
-    enterpriseAdminUsers,
-  });
-
+  const isLoadingAny = (
+    isLoadingCourseData || isLoadingAccessPolicyRedemptionStatus
+  );
   const error = fetchCourseDataError || validateLicenseForCourseError;
 
-  const initialState = useMemo(
+  const courseState = useMemo(
     () => {
-      const isLoadingAny = (
-        isLoadingCourseData || isLoadingAccessPolicyRedemptionStatus
-      );
-
       // If we're still loading any data, or if we don't have any course data, we
       // don't have enough data to render the page so return undefined to keep rendering
       // a loading spinner.
@@ -165,8 +149,6 @@ const CoursePage = () => {
         availableCourseRuns: getAvailableCourseRuns(courseDetails),
         userEnrollments,
         userEntitlements,
-        userSubsidyApplicableToCourse,
-        missingUserSubsidyReason,
         catalog,
         courseReviews,
         algoliaSearchParams,
@@ -174,29 +156,67 @@ const CoursePage = () => {
           allRecommendations: allRecommendations?.slice(0, 3),
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
-        isPolicyRedemptionEnabled,
-        redeemabilityPerContentKey,
       };
     },
     [
-      userSubsidyApplicableToCourse,
-      missingUserSubsidyReason,
-      isLoadingCourseData,
-      isLoadingAccessPolicyRedemptionStatus,
+      isLoadingAny,
       courseData,
       courseRecommendations,
       courseReviews,
       algoliaSearchParams,
-      isPolicyRedemptionEnabled,
-      redeemabilityPerContentKey,
     ],
   );
+
+  const {
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+  } = useUserSubsidyApplicableToCourse({
+    courseData,
+    redeemableSubsidyAccessPolicy,
+    isPolicyRedemptionEnabled,
+    subscriptionLicense,
+    courseService,
+    couponCodes,
+    canEnrollWithEnterpriseOffers,
+    enterpriseOffers,
+    onSubscriptionLicenseForCourseValidationError,
+    missingSubsidyAccessPolicyReason,
+    enterpriseAdminUsers,
+    courseListPrice: (
+      courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
+      || getEntitlementPrice(courseState?.course?.entitlements)
+    ),
+  });
+
+  const [coursePrice, currency] = useCoursePriceForUserSubsidy({
+    courseEntitlements: courseState?.course?.entitlements,
+    activeCourseRun: courseState?.activeCourseRun,
+    userSubsidyApplicableToCourse,
+  });
+
+  useEffect(() => {
+    // Redirect if path does not contain course type
+    if (
+      courseState?.course?.courseType
+      && getCourseTypeConfig(courseState.course)
+      && !pathContainsCourseTypeSlug(
+        pathname,
+        courseState.course.courseType,
+      )
+    ) {
+      const newUrl = linkToCourse(
+        courseState.course,
+        enterpriseSlug,
+      );
+      history.replace(newUrl);
+    }
+  }, [enterpriseSlug, history, courseState, pathname]);
 
   if (error) {
     return <ErrorPage message={error.message} />;
   }
 
-  if (!initialState) {
+  if (!courseState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />
@@ -205,33 +225,25 @@ const CoursePage = () => {
   }
 
   // If there isn't an active course run we don't show the course at all
-  if (!initialState.activeCourseRun) {
+  if (!courseState.activeCourseRun) {
     return <NotFoundPage />;
   }
 
-  // Redirect if path does not contain course type
-  if (
-    initialState?.course?.courseType
-    && getCourseTypeConfig(initialState.course)
-    && !pathContainsCourseTypeSlug(
-      pathname,
-      initialState.course.courseType,
-    )
-  ) {
-    const newUrl = linkToCourse(
-      initialState?.course,
-      enterpriseSlug,
-    );
-    history.replace(newUrl);
-  }
-
-  const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `${courseState.course.title} - ${enterpriseConfig.name}`;
 
   return (
     <>
       <Helmet title={PAGE_TITLE} />
       <CourseEnrollmentsContextProvider>
-        <CourseContextProvider initialState={initialState}>
+        <CourseContextProvider
+          initialCourseState={courseState}
+          missingUserSubsidyReason={missingUserSubsidyReason}
+          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+          isPolicyRedemptionEnabled={isPolicyRedemptionEnabled}
+          redeemabilityPerContentKey={redeemabilityPerContentKey}
+          coursePrice={coursePrice}
+          currency={currency}
+        >
           <CourseHeader />
           <Container size="lg" className="py-5">
             <Row>

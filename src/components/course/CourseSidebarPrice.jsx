@@ -5,9 +5,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from './CourseContextProvider';
 import { numberWithPrecision } from './data/utils';
-import {
-  useCoursePriceForUserSubsidy,
-} from './data/hooks';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 
@@ -17,15 +14,12 @@ export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'This course can be purchased
 
 const CourseSidebarPrice = () => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { state: courseData } = useContext(CourseContext);
-  const { course, activeCourseRun, userSubsidyApplicableToCourse } = courseData;
-  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
-
-  const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    courseEntitlements: course?.entitlements,
-    activeCourseRun,
+  const {
     userSubsidyApplicableToCourse,
-  });
+    coursePrice,
+    currency,
+  } = useContext(CourseContext);
+  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   if (!coursePrice) {
     return <Skeleton containerTestId="course-price-skeleton" height={24} />;

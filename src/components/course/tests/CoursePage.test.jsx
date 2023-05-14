@@ -205,7 +205,7 @@ describe('CoursePage', () => {
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
             <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-              <CourseContextProvider initialState={updatedInitialCourseStateDefined}>
+              <CourseContextProvider initialCourseState={updatedInitialCourseStateDefined}>
                 <MemoryRouter>
                   <CoursePage location={mockLocation} match={{ params: mockParams }} />
                 </MemoryRouter>
@@ -238,7 +238,7 @@ describe('CoursePage', () => {
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
             <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-              <CourseContextProvider initialState={updatedInitialCourseStateDefined}>
+              <CourseContextProvider initialCourseState={updatedInitialCourseStateDefined}>
                 <MemoryRouter>
                   <CoursePage location={mockLocation} match={{ params: mockParams }} />
                 </MemoryRouter>

@@ -60,9 +60,7 @@ export function useEnrollData() {
  */
 export function useSubsidyDataForCourse() {
   const {
-    state: {
-      userSubsidyApplicableToCourse,
-    },
+    userSubsidyApplicableToCourse,
   } = useContext(CourseContext);
   const {
     subscriptionLicense,

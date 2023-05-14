@@ -16,10 +16,13 @@ import CourseRunCardStatus from './CourseRunCardStatus';
 const CourseRunCard = ({
   courseRun,
   subsidyAccessPolicy,
-  missingUserSubsidyReason,
 }) => {
-  const { state: courseData } = useContext(CourseContext);
-  const { userEnrollments } = courseData;
+  const {
+    state: {
+      userEnrollments,
+    },
+    missingUserSubsidyReason,
+  } = useContext(CourseContext);
 
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
     userEnrollments,
@@ -63,12 +66,10 @@ CourseRunCard.propTypes = {
     enrollmentCount: PropTypes.number,
   }).isRequired,
   subsidyAccessPolicy: PropTypes.shape(),
-  missingUserSubsidyReason: PropTypes.shape(),
 };
 
 CourseRunCard.defaultProps = {
   subsidyAccessPolicy: undefined,
-  missingUserSubsidyReason: undefined,
 };
 
 /* istanbul ignore next */

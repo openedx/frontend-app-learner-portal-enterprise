@@ -29,13 +29,14 @@ import CoursePreview from './CoursePreview';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { state } = useContext(CourseContext);
   const {
-    course,
-    catalog,
-    courseReviews,
+    state: {
+      course,
+      catalog,
+      courseReviews,
+    },
     isPolicyRedemptionEnabled,
-  } = state;
+  } = useContext(CourseContext);
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(

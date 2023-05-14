@@ -47,7 +47,7 @@ const ContextWrapper = ({
 }) => (
   <UserSubsidyContext.Provider value={initialUserSubsidyState}>
     <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-      <CourseContextProvider initialState={initialCourseState}>
+      <CourseContextProvider initialCourseState={initialCourseState}>
         {children}
       </CourseContextProvider>
     </SubsidyRequestsContext.Provider>

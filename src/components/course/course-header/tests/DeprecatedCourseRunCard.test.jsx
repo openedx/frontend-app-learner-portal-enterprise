@@ -104,7 +104,7 @@ const renderCard = ({
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <CourseContextProvider initialState={courseInitState}>
+          <CourseContextProvider initialCourseState={courseInitState}>
             <CourseRunCard.Deprecated
               catalogList={['foo']}
               userEntitlements={userEntitlements}

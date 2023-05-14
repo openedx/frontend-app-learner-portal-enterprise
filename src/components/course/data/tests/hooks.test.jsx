@@ -39,6 +39,7 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
   REASON_USER_MESSAGES,
+  DISABLED_ENROLL_USER_MESSAGES,
 } from '../constants';
 import {
   mockCourseService,
@@ -878,7 +879,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     expect(result.current.isInitialLoading).toBeDefined();
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['can-user-redeem-course', mockLmsUserId],
+        queryKey: ['policy-can-redeem-course', { courseRunKeys: [], lmsUserId: mockLmsUserId }],
         enabled: false,
         queryFn: expect.any(Function),
       }),
@@ -919,16 +920,20 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       expect(result.current.missingSubsidyAccessPolicyReason).toBeDefined();
     }
 
+    const expectQueryKey = ['policy-can-redeem-course', { lmsUserId: mockLmsUserId, courseRunKeys: argsWithCourseRunKeys.courseRunKeys }];
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['can-user-redeem-course', mockLmsUserId, ...argsWithCourseRunKeys.courseRunKeys],
+        queryKey: expectQueryKey,
         enabled: true,
         queryFn: expect.any(Function),
       }),
     );
 
     const checkRedeemability = useQuery.mock.calls[0][0].queryFn;
-    const redeemability = await checkRedeemability();
+    const redeemability = await checkRedeemability({
+      enterpriseUuid: argsWithCourseRunKeys.enterpriseUuid,
+      queryKey: expectQueryKey,
+    });
     expect(redeemability).toEqual(camelCaseObject(mockCanRedeemData));
   });
 });
@@ -951,12 +956,6 @@ describe('useUserSubsidyApplicableToCourse', () => {
   const argsWithMissingCourse = {
     ...baseArgs,
     courseData: undefined,
-  };
-
-  const expectedTransformedEmptyMissingUserSubsidyReason = {
-    reason: undefined,
-    userMessage: undefined,
-    actions: null,
   };
   const missingUserSubsidyReason = {
     reason: DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
@@ -1004,6 +1003,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
   it('does not have redeemable subsidy access policy and catalog(s) does not contain course', async () => {
     const args = {
       ...baseArgs,
+      enterpriseAdminUsers: [],
       courseData: {
         ...baseArgs.courseData,
         catalog: {
@@ -1018,7 +1018,11 @@ describe('useUserSubsidyApplicableToCourse', () => {
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
-      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+        userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG],
+        actions: null,
+      },
     });
   });
 
@@ -1061,7 +1065,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -1098,7 +1102,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: COUPON_CODE_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -1138,7 +1142,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: expectedTransformedEmptyMissingUserSubsidyReason,
+      missingUserSubsidyReason: undefined,
     });
   });
 });

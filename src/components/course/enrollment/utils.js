@@ -1,5 +1,9 @@
 import { enrollButtonTypes } from './constants';
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../data/constants';
+import {
+  COUPON_CODE_SUBSIDY_TYPE,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+} from '../data/constants';
 
 const {
   ENROLL_DISABLED,
@@ -24,7 +28,7 @@ export function determineEnrollmentType({
   isCourseStarted,
   userHasSubsidyRequestForCourse,
   subsidyRequestCatalogsApplicableToCourse,
-  isExecEdCourse,
+  isExecutiveEducation2UCourse,
 }) {
   if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
@@ -48,7 +52,7 @@ export function determineEnrollmentType({
     return TO_DATASHARING_CONSENT;
   }
 
-  if (isExecEdCourse) {
+  if (isExecutiveEducation2UCourse) {
     return TO_EXECUTIVE_EDUCATION_2U_ENROLLMENT;
   }
 
@@ -63,10 +67,19 @@ export function determineEnrollmentType({
 }
 
 // TODO: See if we can make this generic, not linked to Exec Ed
-export function getExecutiveEducation2UEnrollmentUrl({ enterpriseSlug, courseUuid, sku }) {
+export function getExecutiveEducation2UEnrollmentUrl({
+  enterpriseSlug,
+  courseRunUuid,
+  entitlementProductSku,
+  isExecutiveEducation2UCourse,
+}) {
+  if (!isExecutiveEducation2UCourse) {
+    return undefined;
+  }
+
   const execEdEnrollParams = new URLSearchParams({
-    course_uuid: courseUuid,
-    sku,
+    course_uuid: courseRunUuid,
+    sku: entitlementProductSku,
   });
   return `/${enterpriseSlug}/executive-education-2u/?${execEdEnrollParams.toString()}`;
 }

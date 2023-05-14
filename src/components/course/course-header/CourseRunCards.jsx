@@ -10,18 +10,17 @@ import CourseRunCard from './CourseRunCard';
  */
 const CourseRunCards = () => {
   const {
-    state: courseData,
+    state: {
+      availableCourseRuns,
+      userEntitlements,
+      userEnrollments,
+      course: { key },
+      catalog: { catalogList },
+    },
     subsidyRequestCatalogsApplicableToCourse,
-  } = useContext(CourseContext);
-  const {
-    availableCourseRuns,
-    redeemabilityPerContentKey,
-    userEntitlements,
-    userEnrollments,
     missingUserSubsidyReason,
-    course: { key },
-    catalog: { catalogList },
-  } = courseData;
+    redeemabilityPerContentKey,
+  } = useContext(CourseContext);
 
   return (
     <CardGrid
@@ -38,7 +37,6 @@ const CourseRunCards = () => {
               key={courseRun.uuid}
               courseRun={courseRun}
               subsidyAccessPolicy={redeemableSubsidyAccessPolicy}
-              missingUserSubsidyReason={missingUserSubsidyReason}
             />
           );
         }

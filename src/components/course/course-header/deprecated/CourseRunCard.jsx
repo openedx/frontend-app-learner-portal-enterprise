@@ -83,7 +83,7 @@ const CourseRunCard = ({
     [seats],
   );
 
-  const isExecEdCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
+  const isExecutiveEducation2uCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
 
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
@@ -94,7 +94,7 @@ const CourseRunCard = ({
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     courseUuid: courseRun.courseUuid,
-    isExecEdCourse,
+    isExecutiveEducation2uCourse,
   });
 
   const enrollmentType = determineEnrollmentType({
@@ -107,7 +107,7 @@ const CourseRunCard = ({
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
-    isExecEdCourse,
+    isExecutiveEducation2uCourse,
   });
 
   const courseRunArchived = isArchived(courseRun);
