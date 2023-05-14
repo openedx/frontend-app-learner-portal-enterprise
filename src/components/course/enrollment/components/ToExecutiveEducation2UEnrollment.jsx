@@ -1,10 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from '@edx/paragon';
+import { Link } from 'react-router-dom';
 
-import { Stack } from '@edx/paragon';
-import { EnrollButtonCta } from '../common';
-import { useTrackSearchConversionClickHandlerLocalUrl } from '../../data/hooks';
+import { useTrackSearchConversionClickHandlerLocal } from '../../data/hooks';
 import { EVENT_NAMES } from '../constants';
+
+const ButtonAsLink = ({ children, ...props }) => (
+  <Button as={Link} {...props}>
+    {children}
+  </Button>
+);
+
+ButtonAsLink.propTypes = {
+  children: PropTypes.node.isRequired,
+  to: PropTypes.string.isRequired,
+};
 
 /**
  * Renders a hyperlink to the ExecutiveEducation2UPage
@@ -12,18 +23,19 @@ import { EVENT_NAMES } from '../constants';
 const ToExecutiveEducation2UEnrollment = ({
   enrollmentUrl,
 }) => {
-  const handleSearchConversionStart = useTrackSearchConversionClickHandlerLocalUrl({
-    href: enrollmentUrl,
+  const handleSearchConversionStart = useTrackSearchConversionClickHandlerLocal({
     eventName: EVENT_NAMES.clickedToEnrollPage,
   });
 
   return (
-    <Stack>
-      <EnrollButtonCta
-        enrollLabel="Enroll"
-        onClick={handleSearchConversionStart}
-      />
-    </Stack>
+    <Button
+      as={ButtonAsLink}
+      to={enrollmentUrl}
+      onClick={handleSearchConversionStart}
+      block
+    >
+      Enroll
+    </Button>
   );
 };
 

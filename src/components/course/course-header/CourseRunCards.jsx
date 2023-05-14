@@ -14,7 +14,7 @@ const CourseRunCards = () => {
       availableCourseRuns,
       userEntitlements,
       userEnrollments,
-      course: { key },
+      course: { key, entitlements: courseEntitlements },
       catalog: { catalogList },
     },
     subsidyRequestCatalogsApplicableToCourse,
@@ -49,6 +49,7 @@ const CourseRunCards = () => {
             catalogList={catalogList}
             userEntitlements={userEntitlements}
             subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
+            courseEntitlements={courseEntitlements}
             missingUserSubsidyReason={missingUserSubsidyReason}
           />
         );

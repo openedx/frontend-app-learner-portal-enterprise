@@ -251,8 +251,10 @@ const getBestCourseMode = (courseModes) => {
   return bestCourseMode || null;
 };
 
+/**
+ * Returns the first seat found from the preferred course mode.
+ */
 export function findHighestLevelSkuByEntityModeType(seatsOrEntitlements, getModeType) {
-  /** Returns the first seat found from the preferred course mode */
   const courseModes = seatsOrEntitlements.map(getModeType);
   const courseMode = getBestCourseMode(courseModes);
   if (courseMode) {
@@ -261,20 +263,31 @@ export function findHighestLevelSkuByEntityModeType(seatsOrEntitlements, getMode
   return null;
 }
 
+/**
+ * Returns the first seat found from the preferred course type
+ */
 export function findHighestLevelSeatSku(seats) {
-  /** Returns the first seat found from the preferred course type */
   if (!seats || seats.length <= 0) {
     return null;
   }
   return findHighestLevelSkuByEntityModeType(seats, seat => seat.type);
 }
 
+/**
+ * Returns the first entitlement found from the preferred course mode
+ */
 export function findHighestLevelEntitlementSku(entitlements) {
-  /** Returns the first entitlement found from the preferred course mode */
   if (!entitlements || entitlements.length <= 0) {
     return null;
   }
   return findHighestLevelSkuByEntityModeType(entitlements, entitlement => entitlement.mode);
+}
+
+/**
+ * Returns the first seat or entitlement found from the preferred course mode.
+ */
+export function findHighestLevelSku({ courseEntitlements, seats }) {
+  return findHighestLevelSeatSku(seats) || findHighestLevelEntitlementSku(courseEntitlements);
 }
 
 export function shouldUpgradeUserEnrollment({

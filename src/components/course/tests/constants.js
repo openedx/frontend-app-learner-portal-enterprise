@@ -145,7 +145,6 @@ export const mockCanRedeemReasonActionTestId = 'fake-can-redeem-reason-actions';
 export const mockCanRedeemReason = {
   reason: DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
   userMessage: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
-  actions: undefined,
 };
 export const mockCanRedeemForContentKey = {
   content_key: mockCourseRunKey,

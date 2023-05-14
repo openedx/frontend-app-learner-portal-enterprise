@@ -363,8 +363,8 @@ export const useCourseEnrollmentUrl = ({
       if (isExecutiveEducation2UCourse) {
         return getExecutiveEducation2UEnrollmentUrl({
           enterpriseSlug: enterpriseConfig.slug,
-          courseRunUuid: courseUuid,
-          sku: sku.sku,
+          courseUuid,
+          entitlementProductSku: sku,
           isExecutiveEducation2UCourse: true,
         });
       }
@@ -484,8 +484,7 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
  *
  * @returns Click handler function for clicks on buttons
  *  */
-export const useTrackSearchConversionClickHandlerLocalUrl = ({ href, eventName }) => {
-  const history = useHistory();
+export const useTrackSearchConversionClickHandlerLocal = ({ eventName }) => {
   const {
     state: {
       activeCourseRun: { key: courseKey },
@@ -496,7 +495,6 @@ export const useTrackSearchConversionClickHandlerLocalUrl = ({ href, eventName }
   const handleClick = useCallback(
     () => {
       const { queryId, objectId } = algoliaSearchParams;
-      history.push(href);
       sendEnterpriseTrackEvent(
         enterpriseConfig.uuid,
         eventName,
@@ -508,7 +506,7 @@ export const useTrackSearchConversionClickHandlerLocalUrl = ({ href, eventName }
         },
       );
     },
-    [algoliaSearchParams, href, enterpriseConfig, eventName, courseKey, history],
+    [algoliaSearchParams, enterpriseConfig, eventName, courseKey],
   );
 
   return handleClick;
@@ -586,12 +584,37 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
   ]);
 }
 
-const checkRedemptionEligiblity = async ({ enterpriseUuid, queryKey }) => {
+/**
+ * Calls the can-redeem API endpoint in the enterprise-access service to determine if the user is eligible to redeem
+ * the course runs for the course being viewed.
+ *
+ * @param {object} args
+ * @param {string} args.enterpriseUuid The UUID of the enterprise customer
+ * @param {string} args.activeCourseRunKey The advertised course run key, e.g. 'course-v1:edX+DemoX+Demo_Course'
+ * @param {string} args.queryKey Query key for the call to `useQuery`, used to pass in the course run keys.
+ *
+ * @returns {object} {
+ *  isPolicyRedemptionEnabled,
+ *  redeemabilityPerContentKey,
+ *  redeemableSubsidyAccessPolicy,
+ *  missingSubsidyAccessPolicyReason
+ * }
+ */
+const checkRedemptionEligiblity = async ({ enterpriseUuid, activeCourseRunKey, queryKey }) => {
   const { courseRunKeys } = queryKey[1];
   const courseService = new CourseService({ enterpriseUuid });
   const response = await courseService.fetchCanRedeem({ courseRunKeys });
   const transformedResponse = camelCaseObject(response.data);
-  return transformedResponse;
+  const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
+  const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
+  const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
+  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
+  return {
+    isPolicyRedemptionEnabled,
+    redeemabilityPerContentKey: transformedResponse,
+    redeemableSubsidyAccessPolicy,
+    missingSubsidyAccessPolicyReason,
+  };
 };
 
 /**
@@ -604,10 +627,11 @@ const checkRedemptionEligiblity = async ({ enterpriseUuid, queryKey }) => {
  * @param {string} args.enterpriseUuid Enterprise customer UUID.
  * @param {string} args.isQueryEnabled Whether the API request to ``can-redeem`` should be made
  *
- * @returns An object containing the output from `useQuery`, plus the following:
+ * @returns {object} The output from `useQuery`, plus the following:
  * - `isPolicyRedemptionEnabled`: Whether there is a redeemable subsidy access policy.
  * - `redeemableSubsidyAccessPolicy`: The redeemable subsidy access policy, if any.
  * - `redeemabilityPerContentKey`: An array of objects containing the redeemability status for each course run key.
+ * - `missingSubsidyAccessPolicyReason`: The reason why the subsidy access policy is not redeemable, if any.
  */
 export const useCheckSubsidyAccessPolicyRedeemability = ({
   courseRunKeys = [],
@@ -618,25 +642,11 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   const { id: lmsUserId } = getAuthenticatedUser();
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
 
-  const useQueryResult = useQuery({
+  return useQuery({
     queryKey: ['policy-can-redeem-course', { lmsUserId, courseRunKeys }],
     enabled: isEnabled,
-    queryFn: async args => checkRedemptionEligiblity({ enterpriseUuid, ...args }),
+    queryFn: async args => checkRedemptionEligiblity({ enterpriseUuid, activeCourseRunKey, ...args }),
   });
-
-  const redeemabilityPerContentKey = useQueryResult.data || [];
-  const redeemabilityForActiveCourseRun = redeemabilityPerContentKey.find(r => r.contentKey === activeCourseRunKey);
-  const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
-  const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
-  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
-
-  return {
-    ...useQueryResult,
-    isPolicyRedemptionEnabled,
-    redeemableSubsidyAccessPolicy,
-    redeemabilityPerContentKey,
-    missingSubsidyAccessPolicyReason,
-  };
 };
 
 /**

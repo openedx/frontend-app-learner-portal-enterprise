@@ -30,8 +30,6 @@ const useCourseRunCardData = ({
   const {
     key: contentKey,
     availability,
-    start,
-    pacingType,
     enrollmentCount,
   } = courseRun;
   const isCourseRunCurrent = availability === COURSE_AVAILABILITY_MAP.CURRENT;
@@ -44,21 +42,21 @@ const useCourseRunCardData = ({
       },
     },
   } = useContext(CourseContext);
+
   const entitlementProductSku = useMemo(
     () => findHighestLevelEntitlementSku(entitlements),
     [entitlements],
   );
   const courseTypeEnrollmentUrl = getExecutiveEducation2UEnrollmentUrl({
     enterpriseSlug: enterpriseConfig.slug,
-    courseRunUuid: courseRun.courseUuid,
+    courseUuid: courseRun.courseUuid,
     entitlementProductSku,
     isExecutiveEducation2UCourse: pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u'),
   });
 
   const heading = useCourseRunCardHeading({
     isCourseRunCurrent,
-    pacingType,
-    start,
+    courseRun,
     isUserEnrolled,
   });
   const subHeading = useCourseRunCardSubHeading({

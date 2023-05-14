@@ -15,7 +15,7 @@ import {
   isArchived,
   findUserEnrollmentForCourseRun,
   hasCourseStarted,
-  findHighestLevelSeatSku,
+  findHighestLevelSku,
   pathContainsCourseTypeSlug,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
@@ -31,6 +31,7 @@ const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
 
 const CourseRunCard = ({
+  courseEntitlements,
   userEntitlements,
   courseRun,
   userEnrollments,
@@ -79,11 +80,11 @@ const CourseRunCard = ({
   const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const sku = useMemo(
-    () => findHighestLevelSeatSku(seats),
-    [seats],
+    () => findHighestLevelSku({ seats, courseEntitlements }),
+    [seats, courseEntitlements],
   );
 
-  const isExecutiveEducation2uCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
+  const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
 
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
@@ -94,7 +95,7 @@ const CourseRunCard = ({
     subscriptionLicense,
     userSubsidyApplicableToCourse,
     courseUuid: courseRun.courseUuid,
-    isExecutiveEducation2uCourse,
+    isExecutiveEducation2UCourse,
   });
 
   const enrollmentType = determineEnrollmentType({
@@ -107,7 +108,7 @@ const CourseRunCard = ({
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
-    isExecutiveEducation2uCourse,
+    isExecutiveEducation2UCourse,
   });
 
   const courseRunArchived = isArchived(courseRun);
@@ -246,6 +247,9 @@ CourseRunCard.propTypes = {
     isRevoked: PropTypes.bool.isRequired,
     courseRunId: PropTypes.string.isRequired,
     mode: PropTypes.string.isRequired,
+  })).isRequired,
+  courseEntitlements: PropTypes.arrayOf(PropTypes.shape({
+    sku: PropTypes.string.isRequired,
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,

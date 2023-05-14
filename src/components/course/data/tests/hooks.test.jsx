@@ -22,7 +22,7 @@ import {
   useCourseSubjects,
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
-  useTrackSearchConversionClickHandlerLocalUrl,
+  useTrackSearchConversionClickHandlerLocal,
 } from '../hooks';
 import {
   getCourseRunPrice,
@@ -214,10 +214,10 @@ describe('useCourseEnrollmentUrl', () => {
       uuid: 'foo',
     },
     courseRunKey: 'bar',
+    courseUuid: 'course-uuid',
     couponCodes: [mockCouponCode],
     sku: 'xkcd',
     location: { search: 'foo' },
-
   };
   // just skip the coupon codes here to ensure we process absence correctly
   const noCouponCodesEnrollmentInputs = {
@@ -225,6 +225,7 @@ describe('useCourseEnrollmentUrl', () => {
       uuid: 'foo',
     },
     courseRunKey: 'bar',
+    courseUuid: 'course-uuid',
     sku: 'xkcd',
     catalogList: ['bears'],
     location: { search: 'foo' },
@@ -305,6 +306,19 @@ describe('useCourseEnrollmentUrl', () => {
         ...noCouponCodesEnrollmentInputs,
       }));
       expect(result.current.includes('failure_url'));
+    });
+  });
+  describe('executive education-2u course type', () => {
+    test('handles executive education-2u course type', () => {
+      const mockSku = 'ABC123';
+      const { result } = renderHook(() => useCourseEnrollmentUrl({
+        ...noLicenseEnrollmentInputs,
+        isExecutiveEducation2UCourse: true,
+        sku: mockSku,
+      }));
+      expect(result.current).toContain('executive-education-2u');
+      expect(result.current).toContain(`course_uuid=${noLicenseEnrollmentInputs.courseUuid}`);
+      expect(result.current).toContain(`sku=${mockSku}`);
     });
   });
 });
@@ -502,7 +516,7 @@ describe('useTrackSearchConversionClickHandler', () => {
   });
 });
 
-describe('useTrackSearchConversionClickHandlerLocalUrl', () => {
+describe('useTrackSearchConversionClickHandlerLocal', () => {
   const mockEventName = 'edx.ui.enterprise.learner_portal.fake_event';
   const basicProps = {
     href: 'http://example.com',
@@ -534,8 +548,8 @@ describe('useTrackSearchConversionClickHandlerLocalUrl', () => {
   });
 
   it('sends segment event and redirects', async () => {
-    const { result, waitFor } = renderHook(
-      () => useTrackSearchConversionClickHandlerLocalUrl(basicProps),
+    const { result } = renderHook(
+      () => useTrackSearchConversionClickHandlerLocal(basicProps),
       { wrapper },
     );
 
@@ -553,13 +567,6 @@ describe('useTrackSearchConversionClickHandlerLocalUrl', () => {
         courseKey: mockCourseState.activeCourseRun.key,
       },
     );
-
-    jest.runAllTimers();
-
-    await waitFor(() => {
-      expect(mockUseHistoryPush).toHaveBeenCalledTimes(1);
-      expect(mockUseHistoryPush).toHaveBeenCalledWith(basicProps.href);
-    });
   });
 });
 
@@ -748,6 +755,23 @@ describe('useCoursePriceForUserSubsidy', () => {
     expect(coursePrice).toEqual({ list: 100, discounted: 90 });
   });
 
+  it('should return the correct course price when a user subsidy is applicable with unknown discount type', () => {
+    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const userSubsidyApplicableToCourse = {
+      discountType: 'unknown',
+      discountValue: 100,
+      expirationDate: '2025-12-31',
+      startDate: '2020-01-01',
+      subsidyId: '123',
+    };
+    const { result } = renderHook(() => useCoursePriceForUserSubsidy({
+      activeCourseRun,
+      userSubsidyApplicableToCourse,
+    }));
+    const [coursePrice] = result.current;
+    expect(coursePrice).toEqual({ list: 100, discounted: 100 });
+  });
+
   it('should return the correct course price when a user subsidy is applicable with absolute discount', () => {
     const activeCourseRun = { firstEnrollablePaidSeatPrice: 150 };
     const userSubsidyApplicableToCourse = {
@@ -802,7 +826,8 @@ describe('useCoursePriceForUserSubsidy', () => {
     const [, currency] = result.current;
     expect(currency).toEqual('USD');
   });
-  it('should return null if no list price is', () => {
+
+  it('should return null if no list price is specified', () => {
     const activeCourseRun = {};
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
@@ -892,12 +917,24 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   ])('makes query to check redemption eligilibity (%s)', async ({ hasMissingSubsidy }) => {
     let queryData;
     if (hasMissingSubsidy) {
-      queryData = camelCaseObject([{
-        ...mockCanRedeemForContentKey,
-        reasons: [mockCanRedeemReason],
-      }]);
+      queryData = camelCaseObject({
+        isPolicyRedemptionEnabled: false,
+        redeemabilityPerContentKey: [{
+          ...mockCanRedeemForContentKey,
+          can_redeem: false,
+          redeemable_subsidy_access_policy: null,
+          reasons: [mockCanRedeemReason],
+        }],
+        redeemableSubsidyAccessPolicy: undefined,
+        missingSubsidyAccessPolicyReason: mockCanRedeemReason,
+      });
     } else {
-      queryData = camelCaseObject(mockCanRedeemData);
+      queryData = camelCaseObject({
+        isPolicyRedemptionEnabled: true,
+        redeemabilityPerContentKey: mockCanRedeemData,
+        redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
+        missingSubsidyAccessPolicyReason: undefined,
+      });
     }
 
     useQuery.mockReturnValue({
@@ -911,13 +948,13 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     );
 
     expect(result.current.isInitialLoading).toBeDefined();
-    expect(result.current.redeemabilityPerContentKey).toBeDefined();
+    expect(result.current.data.redeemabilityPerContentKey).toBeDefined();
     if (!hasMissingSubsidy) {
-      expect(result.current.isPolicyRedemptionEnabled).toBeTruthy();
-      expect(result.current.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
+      expect(result.current.data.isPolicyRedemptionEnabled).toBeTruthy();
+      expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
     }
     if (hasMissingSubsidy) {
-      expect(result.current.missingSubsidyAccessPolicyReason).toBeDefined();
+      expect(result.current.data.missingSubsidyAccessPolicyReason).toBeDefined();
     }
 
     const expectQueryKey = ['policy-can-redeem-course', { lmsUserId: mockLmsUserId, courseRunKeys: argsWithCourseRunKeys.courseRunKeys }];
@@ -934,7 +971,12 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       enterpriseUuid: argsWithCourseRunKeys.enterpriseUuid,
       queryKey: expectQueryKey,
     });
-    expect(redeemability).toEqual(camelCaseObject(mockCanRedeemData));
+    expect(redeemability).toEqual(camelCaseObject({
+      isPolicyRedemptionEnabled: true,
+      redeemabilityPerContentKey: mockCanRedeemData,
+      redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
+      missingSubsidyAccessPolicyReason: undefined,
+    }));
   });
 });
 

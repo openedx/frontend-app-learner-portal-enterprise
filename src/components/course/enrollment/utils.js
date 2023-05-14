@@ -69,7 +69,7 @@ export function determineEnrollmentType({
 // TODO: See if we can make this generic, not linked to Exec Ed
 export function getExecutiveEducation2UEnrollmentUrl({
   enterpriseSlug,
-  courseRunUuid,
+  courseUuid,
   entitlementProductSku,
   isExecutiveEducation2UCourse,
 }) {
@@ -78,7 +78,7 @@ export function getExecutiveEducation2UEnrollmentUrl({
   }
 
   const execEdEnrollParams = new URLSearchParams({
-    course_uuid: courseRunUuid,
+    course_uuid: courseUuid,
     sku: entitlementProductSku,
   });
   return `/${enterpriseSlug}/executive-education-2u/?${execEdEnrollParams.toString()}`;
