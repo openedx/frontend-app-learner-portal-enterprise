@@ -40,6 +40,142 @@ describe('findCouponCodeForCourse', () => {
   });
 });
 
+describe.only('[NEW] findEnterpriseOfferForCourse', () => {
+  const coursePrice = 100;
+  const enterpriseCatalogUuid = 'test-enterprise-catalog-uuid';
+  const catalogsWithCourse = [enterpriseCatalogUuid];
+  const offerNoLimit = {
+    enterpriseCatalogUuid,
+  };
+  const offerRemainingBalanceNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+  };
+  const offerNotEnoughRemainingBalanceNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 50,
+  };
+  const offerNoRemainingBalanceNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 0,
+  };
+  const offerRemainingBalanceForUserNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+    remainingBalanceForUser: 200,
+  };
+  const offerNotEnoughRemainingBalanceForUserNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+    remainingBalanceForUser: 50,
+  };
+  const offerNoRemainingBalanceForUserNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+    remainingBalanceForUser: 0,
+  };
+
+  const offerRemainingApplicationsNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplications: 10,
+  };
+  const offerNoRemainingApplicationsNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplicationsForUser: 0,
+  };
+  const offerRemainingApplicationsForUserNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplications: 10,
+    remainingApplicationsForUser: 1,
+  };
+  const offerNoRemainingApplicationsForUserNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplications: 10,
+    remainingApplicationsForUser: 0,
+  };
+
+  it('returns offer with no limit first', () => {
+    const enterpriseOffers = [
+      offerNotEnoughRemainingBalanceForUserNoApplications,
+      offerNoRemainingBalanceNoApplications,
+      offerRemainingBalanceNoApplications,
+      offerRemainingBalanceForUserNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+      offerNoLimit,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerNoLimit);
+  });
+
+  it('returns offer with remaining balance for user first', () => {
+    const enterpriseOffers = [
+      offerNotEnoughRemainingBalanceForUserNoApplications,
+      offerNoRemainingBalanceNoApplications,
+      offerRemainingBalanceNoApplications,
+      offerRemainingBalanceForUserNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingBalanceForUserNoApplications);
+  });
+
+  it('returns offer with remaining balance first', () => {
+    const enterpriseOffers = [
+      offerNotEnoughRemainingBalanceForUserNoApplications,
+      offerNoRemainingBalanceNoApplications,
+      offerRemainingBalanceNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingBalanceNoApplications);
+  });
+
+  it('returns offer with remaining applications for user first', () => {
+    const enterpriseOffers = [
+      offerNoRemainingBalanceNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingApplicationsForUserNoBalance);
+  });
+});
+
 describe('findEnterpriseOfferForCourse', () => {
   const enterpriseOffers = [
     { enterpriseCatalogUuid: 'cats' },

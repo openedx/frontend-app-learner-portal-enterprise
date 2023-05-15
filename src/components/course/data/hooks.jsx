@@ -626,6 +626,7 @@ const checkRedemptionEligiblity = async ({ enterpriseUuid, activeCourseRunKey, q
  * @param {string} args.activeCourseRunKey The course run key of the advertised course run for the top-level course.
  * @param {string} args.enterpriseUuid Enterprise customer UUID.
  * @param {string} args.isQueryEnabled Whether the API request to ``can-redeem`` should be made
+ * @param {string} args.queryOptions Optional query options to pass to `useQuery`
  *
  * @returns {object} The output from `useQuery`, plus the following:
  * - `isPolicyRedemptionEnabled`: Whether there is a redeemable subsidy access policy.
@@ -638,11 +639,13 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   activeCourseRunKey,
   enterpriseUuid,
   isQueryEnabled,
+  queryOptions,
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
 
   return useQuery({
+    ...queryOptions,
     queryKey: ['policy-can-redeem-course', { lmsUserId, courseRunKeys }],
     enabled: isEnabled,
     queryFn: async args => checkRedemptionEligiblity({ enterpriseUuid, activeCourseRunKey, ...args }),

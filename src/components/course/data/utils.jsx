@@ -174,11 +174,79 @@ export const compareOffersByProperty = ({ firstOffer, secondOffer, property }) =
   return undefined;
 };
 
+const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
+  let hasRemainingBalance = true;
+  let hasRemainingBalanceForUser = true;
+  let hasRemainingApplications = true;
+  let hasRemainingApplicationsForUser = true;
+
+  if (!isNil(offer.remainingBalance)) {
+    hasRemainingBalance = offer.remainingBalance >= coursePrice;
+  }
+  if (!isNil(offer.remainingBalanceForUser)) {
+    hasRemainingBalanceForUser = offer.remainingBalanceForUser >= coursePrice;
+  }
+  if (!isNil(offer.remainingApplications)) {
+    hasRemainingApplications = offer.remainingApplications > 0;
+  }
+  if (!isNil(offer.remainingApplicationsForUser)) {
+    hasRemainingApplicationsForUser = offer.remainingApplicationsForUser > 0;
+  }
+
+  return [
+    hasRemainingBalance,
+    hasRemainingBalanceForUser,
+    hasRemainingApplications,
+    hasRemainingApplicationsForUser,
+  ].every(value => value === true);
+};
+
+/**
+ * TODO:
+ * @param {*} param0
+ * @returns
+ */
+export const compareRedeemableOffers = ({ firstOffer: a, secondOffer: b }) => {
+  const aBalance = a.remainingBalanceForUser ?? a.remainingBalance ?? null;
+  const bBalance = b.remainingBalanceForUser ?? b.remainingBalance ?? null;
+  const bothHaveBalance = !isNil(aBalance) && !isNil(bBalance);
+
+  const aApplications = a.remainingApplicationsForUser ?? a.remainingApplications ?? null;
+  const bApplications = b.remainingApplicationsForUser ?? b.remainingApplications ?? null;
+  const bothHaveApplications = !isNil(aApplications) && !isNil(bApplications);
+
+  let priority = 0;
+
+  // check balances
+  if (isNil(aBalance) && !isNil(bBalance)) {
+    priority -= 1;
+  } else if (!isNil(aBalance) && isNil(bBalance)) {
+    priority += 1;
+  } else if (bothHaveBalance && aBalance < bBalance) {
+    priority -= 1;
+  } else if (bothHaveBalance && aBalance > bBalance) {
+    priority += 1;
+  }
+
+  // check applications
+  if (isNil(aApplications) && !isNil(bApplications)) {
+    priority -= 1;
+  } else if (!isNil(aApplications) && isNil(bApplications)) {
+    priority += 1;
+  } else if (bothHaveApplications && aApplications < bApplications) {
+    priority -= 1;
+  } else if (bothHaveApplications && aApplications > bApplications) {
+    priority += 1;
+  }
+
+  return priority; // default case: no changes in sorting order
+};
+
 /**
  * Returns an applicable enterprise offer to the specified enterprise catalogs, if one exists, with the
  * following prioritization:
- *   - Offer with no bookings limit (global or user)
- *   - Offer with no applications limit (global or user)
+ *   - Offer with no bookings limit
+ *   - Offer with no applications limit
  *   - Offer with user bookings limit
  *   - Offer with global bookings limit
  *   - Offer with user enrollment limit
@@ -207,34 +275,29 @@ export const findEnterpriseOfferForCourse = ({
       }
       return true;
     })
-    .sort((a, b) => {
-      const isFirstOfferRedeemable = a.disabledEnrollReasonType === null;
-      const isSecondOfferRedeemable = b.disabledEnrollReasonType === null;
-      const firstOffer = a.enterpriseOffer;
-      const secondOffer = b.enterpriseOffer;
+    .sort((firstOffer, secondOffer) => {
+      const isFirstOfferRedeemable = isOfferRedeemableForCourse({ offer: firstOffer, coursePrice });
+      const isSecondOfferRedeemable = isOfferRedeemableForCourse({ offer: secondOffer, coursePrice });
 
-      let comparison = 0;
+      if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
+        // prioritize the first offer
+        return -1;
+      }
 
-      // TODO: verify this comparison logic
+      if (!isFirstOfferRedeemable && isSecondOfferRedeemable) {
+        // prioritize the second offer
+        return 1;
+      }
+
       if (isFirstOfferRedeemable && isSecondOfferRedeemable) {
-        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingApplications' });
-        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingApplicationsForUser' });
-        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingBalance' });
-        comparison = compareOffersByProperty({ firstOffer, secondOffer, property: 'remainingBalanceForUser' });
-      } else if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
-        comparison = -1;
-      } else if (!isFirstOfferRedeemable && isSecondOfferRedeemable) {
-        comparison = 1;
-      } else {
-        comparison = 0;
+        // priorize the offer based on its remaining (user|global) balance and remaining (user|global) applications
+        return compareRedeemableOffers({ firstOffer, secondOffer });
       }
 
-      if (isNil(comparison)) {
-        comparison = 0;
-      }
-
-      return comparison;
+      return 0;
     });
+
+  console.log('[findEnterpriseOfferForCourse]', orderedEnterpriseOffers);
 
   return orderedEnterpriseOffers[0];
 };
