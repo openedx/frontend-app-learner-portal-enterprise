@@ -151,29 +151,14 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
 }
 
 /**
- * Determines the sort order of two enterprise offers based on the
- * specified property for the user. Returns -1 if the first offer should
- * be prioritized, 1 if the second offer should be prioritized, and 0 if
- * there is no difference in priority.
+ * Determines whether an enterprise offer may be applied
+ * to a course given the course price and its remaining spend/balance.
  *
  * @param {object} args
- * @param {object} args.firstOffer An enterprise offer to compare with the second offer.
- * @param {object} args.secondOffer An enterprise offer to compare with the first offer.
- *
- * @returns The sort comparison value.
+ * @param {object} args.offer An enterprise offer.
+ * @param {number} args.coursePrice The price of the course.
+ * @returns Whether the offer is redeemable for the course.
  */
-export const compareOffersByProperty = ({ firstOffer, secondOffer, property }) => {
-  const firstOfferValue = firstOffer[property];
-  const secondOfferValue = secondOffer[property];
-  if (firstOfferValue && secondOfferValue) {
-    if (firstOfferValue < secondOfferValue) { return -1; }
-    if (firstOfferValue >= secondOfferValue) { return 1; }
-  }
-  if (!firstOfferValue && secondOfferValue) { return -1; }
-  if (firstOfferValue && !secondOfferValue) { return 1; }
-  return undefined;
-};
-
 const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
   let hasRemainingBalance = true;
   let hasRemainingBalanceForUser = true;
@@ -202,9 +187,15 @@ const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
 };
 
 /**
- * TODO:
- * @param {*} param0
- * @returns
+ * Compares two redeemable enterprise offers, and makes a choice
+ * about which one is preferred. Prefers offers without no limits,
+ * less spend (> $0), and less applications (> 0) remaining.
+ *
+ * @param {object} args
+ * @param {object} args.firstOffer First redeemable offer to compare.
+ * @param {object} args.secondOffer Second redeemable offer to compare.
+ *
+ * @returns A sort comparison value, e.g. -1, 0, or 1.
  */
 export const compareRedeemableOffers = ({ firstOffer: a, secondOffer: b }) => {
   const aBalance = a.remainingBalanceForUser ?? a.remainingBalance ?? null;

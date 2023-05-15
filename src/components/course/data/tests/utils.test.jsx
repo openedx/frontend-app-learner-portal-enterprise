@@ -2,7 +2,6 @@ import moment from 'moment';
 import { ENTERPRISE_OFFER_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
 import {
-  compareOffersByProperty,
   courseUsesEntitlementPricing,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
@@ -378,55 +377,5 @@ describe('linkToCourse', () => {
 
   it('returns url with course queryId, objectId', () => {
     expect(linkToCourse(mockQueryQbjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
-  });
-});
-
-describe('compareOffersByProperty', () => {
-  it('returns 0 with incorrect inputs, or no other conditional matches', () => {
-    const firstOffer = {};
-    const secondOffer = {};
-    const result = compareOffersByProperty({ firstOffer, secondOffer });
-    expect(result).toEqual(undefined);
-  });
-
-  it.each([
-    {
-      firstOfferValue: 50,
-      secondOfferValue: 100,
-      property: 'remainingBalanceForUser',
-      expectedResult: -1,
-    },
-    {
-      firstOfferValue: 100,
-      secondOfferValue: 50,
-      property: 'remainingBalanceForUser',
-      expectedResult: 1,
-    },
-    {
-      firstOfferValue: undefined,
-      secondOfferValue: 100,
-      property: 'remainingBalanceForUser',
-      expectedResult: -1,
-    },
-    {
-      firstOfferValue: 100,
-      secondOfferValue: undefined,
-      property: 'remainingBalanceForUser',
-      expectedResult: 1,
-    },
-  ])('returns expected result with the given inputs: %s', ({
-    firstOfferValue,
-    secondOfferValue,
-    property,
-    expectedResult,
-  }) => {
-    const firstOffer = {
-      [property]: firstOfferValue,
-    };
-    const secondOffer = {
-      [property]: secondOfferValue,
-    };
-    const result = compareOffersByProperty({ firstOffer, secondOffer, property });
-    expect(result).toEqual(expectedResult);
   });
 });
