@@ -288,8 +288,6 @@ export const findEnterpriseOfferForCourse = ({
       return 0;
     });
 
-  console.log('[findEnterpriseOfferForCourse]', orderedEnterpriseOffers);
-
   return orderedEnterpriseOffers[0];
 };
 
