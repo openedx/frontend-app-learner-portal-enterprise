@@ -188,7 +188,7 @@ const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
 
 /**
  * Compares two redeemable enterprise offers, and makes a choice
- * about which one is preferred. Prefers offers without no limits,
+ * about which one is preferred. Prefers offers without limits,
  * less spend (> $0), and less applications (> 0) remaining.
  *
  * @param {object} args
