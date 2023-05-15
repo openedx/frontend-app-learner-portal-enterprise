@@ -1,5 +1,4 @@
 import moment from 'moment';
-import { ENTERPRISE_OFFER_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
 import {
   courseUsesEntitlementPricing,
@@ -39,7 +38,7 @@ describe('findCouponCodeForCourse', () => {
   });
 });
 
-describe.only('[NEW] findEnterpriseOfferForCourse', () => {
+describe('findEnterpriseOfferForCourse', () => {
   const coursePrice = 100;
   const enterpriseCatalogUuid = 'test-enterprise-catalog-uuid';
   const catalogsWithCourse = [enterpriseCatalogUuid];
@@ -73,7 +72,6 @@ describe.only('[NEW] findEnterpriseOfferForCourse', () => {
     remainingBalance: 500,
     remainingBalanceForUser: 0,
   };
-
   const offerRemainingApplicationsNoBalance = {
     enterpriseCatalogUuid,
     remainingApplications: 10,
@@ -92,6 +90,24 @@ describe.only('[NEW] findEnterpriseOfferForCourse', () => {
     remainingApplications: 10,
     remainingApplicationsForUser: 0,
   };
+
+  it('returns undefined with no course price', () => {
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers: [offerRemainingBalanceForUserNoApplications],
+      catalogsWithCourse,
+      coursePrice: undefined,
+    });
+    expect(result).toEqual(undefined);
+  });
+
+  it('returns undefined with no enterprise offers', () => {
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers: [],
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(undefined);
+  });
 
   it('returns offer with no limit first', () => {
     const enterpriseOffers = [
@@ -172,72 +188,6 @@ describe.only('[NEW] findEnterpriseOfferForCourse', () => {
       coursePrice,
     });
     expect(result).toEqual(offerRemainingApplicationsForUserNoBalance);
-  });
-});
-
-describe('findEnterpriseOfferForCourse', () => {
-  const enterpriseOffers = [
-    { enterpriseCatalogUuid: 'cats' },
-    { enterpriseCatalogUuid: 'horses' },
-    { enterpriseCatalogUuid: 'cats' },
-  ];
-
-  it('returns undefined if there is no course price', () => {
-    const catalogsWithCourse = ['cats', 'bears'];
-    expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogsWithCourse,
-    })).toBeUndefined();
-  });
-
-  it('returns undefined if there is no enterprise offer for the course', () => {
-    const catalogsWithCourse = ['pigs'];
-    expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogsWithCourse, coursePrice: 100,
-    })).toBeUndefined();
-  });
-
-  describe('offerType = (BOOKINGS_LIMIT || BOOKINGS_AND_ENROLLMENTS_LIMIT)', () => {
-    it.each([
-      ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-      ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
-    ])('returns the enterprise offer with a valid catalog that has remaining balance >= course price', (
-      offerType,
-    ) => {
-      const catalogsWithCourse = ['cats', 'bears'];
-      expect(findEnterpriseOfferForCourse({
-        enterpriseOffers: enterpriseOffers.map(offer => ({
-          ...offer, offerType, remainingBalance: 100,
-        })),
-        catalogsWithCourse,
-        coursePrice: 100,
-      })).toStrictEqual({
-        ...enterpriseOffers[2],
-        offerType,
-        remainingBalance: 100,
-      });
-    });
-  });
-
-  describe('offerType = (NO_LIMIT || ENROLLMENTS_LIMIT)', () => {
-    it.each([
-      ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-      ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
-    ])('returns the enterprise offer with a valid catalog', (
-      offerType,
-    ) => {
-      const catalogsWithCourse = ['cats', 'bears'];
-      expect(findEnterpriseOfferForCourse({
-        enterpriseOffers: enterpriseOffers.map(offer => ({
-          ...offer, offerType, maxGlobalApplications: 100,
-        })),
-        catalogsWithCourse,
-        coursePrice: 100,
-      })).toStrictEqual({
-        ...enterpriseOffers[2],
-        offerType,
-        maxGlobalApplications: 100,
-      });
-    });
   });
 });
 
