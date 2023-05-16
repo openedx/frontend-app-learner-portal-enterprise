@@ -190,3 +190,32 @@ export const mockCourseServiceNoActiveCourseRun = {
 };
 
 export const mockLmsUserId = 3;
+
+export const mockTransactionResponse = {
+  uuid: '095be615-a8ad-4c33-8e9c-c7612fbf6c9f',
+  state: 'created',
+  idempotencyKey: 'string',
+  lmsUserId: 2147483648,
+  contentKey: 'course-v1:edX+CTL.SC2x+1T2023',
+  quantity: 922,
+  unit: 'usd_cents',
+  fulfillmentIdentifier: 'string',
+  subsidyAccessPolicyUuid: '6efa2ddf-c05a-408d-81ff-3068e850cea0',
+  transactionUuid: '12345678-9000-0000-0000-98765432101',
+};
+
+export const mockRedemptionResponse = {
+  uuid: 'the-transaction-uuid',
+  state: 'committed',
+  idempotencyKey: 'the-idempotency-key',
+  lmsUserId: 54321,
+  contentKey: 'demox_1234+2T2023',
+  quantity: 19900,
+  unit: 'USD_CENTS',
+  referenceId: 1234,
+  referenceType: 'enterprise_fufillment_source_uuid',
+  subsidyAccessPolicyUuid: 'a-policy-uuid',
+  created: 'created-datetime',
+  modified: 'modified-datetime',
+  reversals: [],
+};
