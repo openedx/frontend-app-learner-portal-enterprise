@@ -40,25 +40,27 @@ const initialSubsidyRequestsState = {
 
 const TEST_CATALOG_UUID = 'test-catalog-uuid';
 const initialCourseState = {
-  state: {
-    course: {
-      key: mockCourseKey,
-      courseRunKeys: [mockCourseRunKey],
-    },
-    catalog: { containsContentItems: true, catalogList: [TEST_CATALOG_UUID] },
-    userEnrollments: [],
-    userSubsidyApplicableToCourse: undefined,
+  course: {
+    key: mockCourseKey,
+    courseRunKeys: [mockCourseRunKey],
   },
+  catalog: { containsContentItems: true, catalogList: [TEST_CATALOG_UUID] },
+  userEnrollments: [],
+};
+
+const defaultCourseContextValue = {
+  state: initialCourseState,
+  userSubsidyApplicableToCourse: undefined,
   subsidyRequestCatalogsApplicableToCourse: new Set([TEST_CATALOG_UUID]),
 };
 
 const SubsidyRequestButtonWrapper = ({
   subsidyRequestsState = {},
-  courseState = {},
+  courseContextValue = defaultCourseContextValue,
 }) => (
   <ToastsContext.Provider value={initialToastsState}>
     <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
-      <CourseContext.Provider value={{ ...initialCourseState, ...courseState }}>
+      <CourseContext.Provider value={{ state: initialCourseState, ...courseContextValue }}>
         <SubsidyRequestButton />
       </CourseContext.Provider>
     </SubsidyRequestsContext.Provider>
@@ -90,8 +92,8 @@ describe('<SubsidyRequestButton />', () => {
   it('should not render button if course is not applicable to catalogs for configured subsidy request type', () => {
     render(
       <SubsidyRequestButtonWrapper
-        courseState={{
-          ...initialCourseState,
+        courseContextValue={{
+          ...defaultCourseContextValue,
           subsidyRequestCatalogsApplicableToCourse: new Set(),
         }}
       />,
@@ -102,9 +104,10 @@ describe('<SubsidyRequestButton />', () => {
   it('should not render button if the user is already enrolled in the course', () => {
     render(
       <SubsidyRequestButtonWrapper
-        courseState={{
+        courseContextValue={{
+          ...defaultCourseContextValue,
           state: {
-            ...initialCourseState.state,
+            ...defaultCourseContextValue.state,
             userEnrollments: [
               {
                 isEnrollmentActive: true,
@@ -122,12 +125,10 @@ describe('<SubsidyRequestButton />', () => {
   it('should not render button if the user has an applicable subsidy', () => {
     render(
       <SubsidyRequestButtonWrapper
-        courseState={{
-          state: {
-            ...initialCourseState.state,
-            userSubsidyApplicableToCourse: {
-              discount: 100,
-            },
+        courseContextValue={{
+          ...defaultCourseContextValue,
+          userSubsidyApplicableToCourse: {
+            discount: 100,
           },
         }}
       />,
@@ -147,12 +148,10 @@ describe('<SubsidyRequestButton />', () => {
             }],
           },
         }}
-        courseState={{
-          state: {
-            ...initialCourseState.state,
-            userSubsidyApplicableToCourse: {
-              discount: 100,
-            },
+        contextContextValue={{
+          ...defaultCourseContextValue,
+          userSubsidyApplicableToCourse: {
+            discount: 100,
           },
         }}
       />,
