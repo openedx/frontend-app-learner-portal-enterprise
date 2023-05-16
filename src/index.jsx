@@ -51,6 +51,8 @@ initialize({
         EXPERIMENT_4_VARIANT_1_ID: process.env.EXPERIMENT_4_VARIANT_1_ID || null,
         EXPERIMENT_5_ID: process.env.EXPERIMENT_5_ID || null,
         EXPERIMENT_5_VARIANT_1_ID: process.env.EXPERIMENT_5_VARIANT_1_ID || null,
+        FEATURE_ENABLE_EMET_REDEMPTION: process.env.FEATURE_ENABLE_EMET_REDEMPTION || null,
+        ENTERPRISE_SUBSIDY_BASE_URL: process.env.ENTERPRISE_SUBSIDY_BASE_URL || null,
       });
     },
   },
