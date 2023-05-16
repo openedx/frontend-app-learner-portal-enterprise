@@ -270,13 +270,6 @@ export const findEnterpriseOfferForCourse = ({
       const isFirstOfferRedeemable = isOfferRedeemableForCourse({ offer: firstOffer, coursePrice });
       const isSecondOfferRedeemable = isOfferRedeemableForCourse({ offer: secondOffer, coursePrice });
 
-      console.log({
-        firstOffer,
-        secondOffer,
-        isFirstOfferRedeemable,
-        isSecondOfferRedeemable,
-      });
-
       if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
         // prioritize the first offer
         return -1;
