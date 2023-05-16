@@ -1,5 +1,4 @@
 import moment from 'moment';
-import { ENTERPRISE_OFFER_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
 import {
   courseUsesEntitlementPricing,
@@ -30,8 +29,8 @@ describe('findCouponCodeForCourse', () => {
   }];
 
   test('returns valid index if coupon code catalog is in catalog list', () => {
-    const catalogList = ['cats', 'bears'];
-    expect(findCouponCodeForCourse(couponCodes, catalogList)).toEqual(couponCodes[0]);
+    const catalogsWithCourse = ['cats', 'bears'];
+    expect(findCouponCodeForCourse(couponCodes, catalogsWithCourse)).toEqual(couponCodes[0]);
   });
 
   test('returns undefined if catalog list is empty', () => {
@@ -40,74 +39,222 @@ describe('findCouponCodeForCourse', () => {
 });
 
 describe('findEnterpriseOfferForCourse', () => {
-  const enterpriseOffers = [
-    {
-      enterpriseCatalogUuid: 'cats',
-    },
-    {
-      enterpriseCatalogUuid: 'horses',
-    },
-    {
-      enterpriseCatalogUuid: 'cats',
-    },
-  ];
+  const coursePrice = 100;
+  const enterpriseCatalogUuid = 'test-enterprise-catalog-uuid';
+  const catalogsWithCourse = [enterpriseCatalogUuid];
+  const offerNoLimit = {
+    enterpriseCatalogUuid,
+  };
+  const offerRemainingBalanceNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+  };
+  const offerNotEnoughRemainingBalanceNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 50,
+  };
+  const offerNoRemainingBalanceNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 0,
+  };
+  const offerRemainingBalanceForUserNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+    remainingBalanceForUser: 200,
+  };
+  const offerNotEnoughRemainingBalanceForUserNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+    remainingBalanceForUser: 50,
+  };
+  const offerNoRemainingBalanceForUserNoApplications = {
+    enterpriseCatalogUuid,
+    remainingBalance: 500,
+    remainingBalanceForUser: 0,
+  };
+  const offerRemainingApplicationsNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplications: 10,
+  };
+  const offerNoRemainingApplicationsNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplicationsForUser: 0,
+  };
+  const offerRemainingApplicationsForUserNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplications: 10,
+    remainingApplicationsForUser: 1,
+  };
+  const offerNoRemainingApplicationsForUserNoBalance = {
+    enterpriseCatalogUuid,
+    remainingApplications: 10,
+    remainingApplicationsForUser: 0,
+  };
 
-  it('returns undefined if there is no course price', () => {
-    const catalogList = ['cats', 'bears'];
-    expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogList,
-    })).toBeUndefined();
-  });
-
-  it('returns undefined if there is no enterprise offer for the course', () => {
-    const catalogList = ['pigs'];
-    expect(findEnterpriseOfferForCourse({
-      enterpriseOffers, catalogList, coursePrice: 100,
-    })).toBeUndefined();
-  });
-
-  describe('offerType = (BOOKINGS_LIMIT || BOOKINGS_AND_ENROLLMENTS_LIMIT)', () => {
-    it.each([
-      ENTERPRISE_OFFER_TYPE.BOOKINGS_LIMIT,
-      ENTERPRISE_OFFER_TYPE.BOOKINGS_AND_ENROLLMENTS_LIMIT,
-    ])('returns the enterprise offer with a valid catalog that has remaining balance >= course price', (
-      offerType,
-    ) => {
-      const catalogList = ['cats', 'bears'];
-      expect(findEnterpriseOfferForCourse({
-        enterpriseOffers: enterpriseOffers.map(offer => ({
-          ...offer, offerType, remainingBalance: 100,
-        })),
-        catalogList,
-        coursePrice: 100,
-      })).toStrictEqual({
-        ...enterpriseOffers[2],
-        offerType,
-        remainingBalance: 100,
-      });
+  it('returns undefined with no course price', () => {
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers: [offerRemainingBalanceForUserNoApplications],
+      catalogsWithCourse,
+      coursePrice: undefined,
     });
+    expect(result).toEqual(undefined);
   });
 
-  describe('offerType = (NO_LIMIT || ENROLLMENTS_LIMIT)', () => {
-    it.each([
-      ENTERPRISE_OFFER_TYPE.NO_LIMIT,
-      ENTERPRISE_OFFER_TYPE.ENROLLMENTS_LIMIT,
-    ])('returns the enterprise offer with a valid catalog', (
-      offerType,
-    ) => {
-      const catalogList = ['cats', 'bears'];
-      expect(findEnterpriseOfferForCourse({
-        enterpriseOffers: enterpriseOffers.map(offer => ({
-          ...offer, offerType, maxGlobalApplications: 100,
-        })),
-        catalogList,
-        coursePrice: 100,
-      })).toStrictEqual({
-        ...enterpriseOffers[2],
-        offerType,
-        maxGlobalApplications: 100,
-      });
+  it('returns undefined with no enterprise offers', () => {
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers: [],
+      catalogsWithCourse,
+      coursePrice,
     });
+    expect(result).toEqual(undefined);
+  });
+
+  it('returns undefined with no enterprise offers associated with catalog containing course', () => {
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers: [{ enterpriseCatalogUuid: 'not-in-catalog' }],
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(undefined);
+  });
+
+  it('returns offer with no limit first', () => {
+    const enterpriseOffers = [
+      offerNotEnoughRemainingBalanceForUserNoApplications,
+      offerNoRemainingBalanceNoApplications,
+      offerRemainingBalanceNoApplications,
+      offerRemainingBalanceForUserNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+      offerNoLimit,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerNoLimit);
+  });
+
+  it('returns offer with remaining balance for user first', () => {
+    const enterpriseOffers = [
+      offerNotEnoughRemainingBalanceForUserNoApplications,
+      offerNoRemainingBalanceNoApplications,
+      offerRemainingBalanceNoApplications,
+      offerRemainingBalanceForUserNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerRemainingApplicationsForUserNoBalance,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingBalanceForUserNoApplications);
+  });
+
+  it('returns offer with remaining balance first', () => {
+    const enterpriseOffers = [
+      offerNotEnoughRemainingBalanceForUserNoApplications,
+      offerNoRemainingBalanceNoApplications,
+      offerRemainingBalanceNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingBalanceNoApplications);
+  });
+
+  it('returns offer with remaining applications for user first', () => {
+    const enterpriseOffers = [
+      offerNoRemainingBalanceNoApplications,
+      offerNoRemainingApplicationsNoBalance,
+      offerNotEnoughRemainingBalanceNoApplications,
+      offerRemainingApplicationsNoBalance,
+      offerNoRemainingApplicationsForUserNoBalance,
+      offerNoRemainingBalanceForUserNoApplications,
+      offerRemainingApplicationsForUserNoBalance,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingApplicationsForUserNoBalance);
+  });
+
+  it('returns the redeemable enterprise offer', () => {
+    const enterpriseOffers = [
+      offerRemainingBalanceNoApplications,
+      offerNoRemainingBalanceNoApplications,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingBalanceNoApplications);
+  });
+
+  it('returns enterprise offer with null balance before enterprise offer with null balance', () => {
+    const enterpriseOffers = [
+      offerNoLimit,
+      offerRemainingBalanceNoApplications,
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerNoLimit);
+  });
+
+  it('returns enterprise offer with less remaining balance', () => {
+    const enterpriseOffers = [
+      offerRemainingBalanceNoApplications,
+      {
+        ...offerRemainingBalanceNoApplications,
+        remainingBalance: 800,
+      },
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingBalanceNoApplications);
+  });
+
+  it('returns enterprise offer with less remaining applications', () => {
+    const enterpriseOffers = [
+      offerRemainingApplicationsNoBalance,
+      {
+        ...offerRemainingApplicationsNoBalance,
+        remainingApplications: 50,
+      },
+    ];
+    const result = findEnterpriseOfferForCourse({
+      enterpriseOffers,
+      catalogsWithCourse,
+      coursePrice,
+    });
+    expect(result).toEqual(offerRemainingApplicationsNoBalance);
   });
 });
 

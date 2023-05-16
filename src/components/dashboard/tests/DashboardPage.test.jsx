@@ -125,7 +125,7 @@ const DashboardWithContext = ({
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <CourseContextProvider initialState={initialCourseState}>
+          <CourseContextProvider initialCourseState={initialCourseState}>
             <DashboardPage />
           </CourseContextProvider>
         </SubsidyRequestsContext.Provider>

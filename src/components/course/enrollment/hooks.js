@@ -60,21 +60,16 @@ export function useEnrollData() {
  */
 export function useSubsidyDataForCourse() {
   const {
-    state: {
-      userSubsidyApplicableToCourse,
-      legacyUserSubsidyApplicableToCourse,
-    },
+    userSubsidyApplicableToCourse,
   } = useContext(CourseContext);
   const {
     subscriptionLicense,
-    couponCodes: { couponCodes, couponCodesCount },
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
 
   return {
-    subscriptionLicense,
     userSubsidyApplicableToCourse,
-    legacyUserSubsidyApplicableToCourse,
-    couponCodes,
     couponCodesCount,
+    subscriptionLicense,
   };
 }

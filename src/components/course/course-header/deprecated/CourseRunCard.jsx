@@ -1,13 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import {
-  Card,
-} from '@edx/paragon';
-
+import { Card } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
+
 import EnrollAction from '../../enrollment/EnrollAction';
+import CourseRunCardStatus from '../CourseRunCardStatus';
 import { COURSE_AVAILABILITY_MAP } from '../../data/constants';
 import {
   isUserEntitledForCourse,
@@ -16,11 +15,10 @@ import {
   isArchived,
   findUserEnrollmentForCourseRun,
   hasCourseStarted,
-  findHighestLevelSeatSku,
+  findHighestLevelSku,
   pathContainsCourseTypeSlug,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
-
 import { useSubsidyDataForCourse } from '../../enrollment/hooks';
 import {
   useCourseEnrollmentUrl,
@@ -33,11 +31,13 @@ const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
 
 const CourseRunCard = ({
+  courseEntitlements,
   userEntitlements,
   courseRun,
   userEnrollments,
   courseKey,
   subsidyRequestCatalogsApplicableToCourse,
+  missingUserSubsidyReason,
 }) => {
   const {
     availability,
@@ -51,36 +51,41 @@ const CourseRunCard = ({
   } = courseRun;
 
   const location = useLocation();
-
   const { enterpriseConfig } = useContext(AppContext);
+  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
     [start],
   );
 
-  const userEnrollment = useMemo(
-    () => findUserEnrollmentForCourseRun({ userEnrollments, key }),
+  const {
+    userEnrollment,
+    isUserEnrolled,
+  } = useMemo(
+    () => {
+      const foundEnrollment = findUserEnrollmentForCourseRun({ userEnrollments, key });
+      return {
+        userEnrollment: foundEnrollment,
+        isUserEnrolled: !!foundEnrollment,
+      };
+    },
     [userEnrollments, key],
   );
-
-  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
-  const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
-
-  const isUserEnrolled = !!userEnrollment;
 
   const {
     subscriptionLicense,
     userSubsidyApplicableToCourse,
-    legacyUserSubsidyApplicableToCourse,
-    hasCouponCodeForCourse,
   } = useSubsidyDataForCourse();
+  const userHasSubsidyRequestForCourse = useUserHasSubsidyRequestForCourse(courseKey);
 
   const sku = useMemo(
-    () => findHighestLevelSeatSku(seats),
-    [seats],
+    () => findHighestLevelSku({ seats, courseEntitlements }),
+    [seats, courseEntitlements],
   );
-  const isExecEdCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
+
+  const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
+
   const enrollmentUrl = useCourseEnrollmentUrl({
     enterpriseConfig,
     key,
@@ -88,17 +93,14 @@ const CourseRunCard = ({
     location,
     sku,
     subscriptionLicense,
-    userSubsidyApplicableToCourse: userSubsidyApplicableToCourse || legacyUserSubsidyApplicableToCourse,
+    userSubsidyApplicableToCourse,
     courseUuid: courseRun.courseUuid,
-    isExecEdCourse,
+    isExecutiveEducation2UCourse,
   });
 
   const enrollmentType = determineEnrollmentType({
     subsidyData: {
-      subscriptionLicense,
       userSubsidyApplicableToCourse,
-      enrollmentUrl,
-      hasCouponCodeForCourse,
       subsidyRequestConfiguration,
     },
     userHasSubsidyRequestForCourse,
@@ -106,7 +108,7 @@ const CourseRunCard = ({
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
-    isExecEdCourse,
+    isExecutiveEducation2UCourse,
   });
 
   const courseRunArchived = isArchived(courseRun);
@@ -219,6 +221,10 @@ const CourseRunCard = ({
           />
         )}
       </Card.Section>
+      <CourseRunCardStatus
+        isUserEnrolled={isUserEnrolled}
+        missingUserSubsidyReason={missingUserSubsidyReason}
+      />
     </Card>
   );
 };
@@ -242,8 +248,16 @@ CourseRunCard.propTypes = {
     courseRunId: PropTypes.string.isRequired,
     mode: PropTypes.string.isRequired,
   })).isRequired,
+  courseEntitlements: PropTypes.arrayOf(PropTypes.shape({
+    sku: PropTypes.string.isRequired,
+  })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
+  missingUserSubsidyReason: PropTypes.shape(),
+};
+
+CourseRunCard.defaultProps = {
+  missingUserSubsidyReason: undefined,
 };
 
 export default CourseRunCard;

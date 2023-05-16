@@ -18,7 +18,7 @@ import {
 
 jest.mock('../../../../../stateful-enroll', () => jest.fn(() => <div data-testid="stateful-enroll" />));
 jest.mock('../../../RedemptionStatusText', () => jest.fn(() => <div data-testid="redemption-status-text" />));
-jest.mock('../../../RedemptionStatusText', () => jest.fn(() => <div data-testid="redemption-status-text" />));
+jest.mock('../../../../enrollment/components/ToExecutiveEducation2UEnrollment', () => jest.fn(() => <div data-testid="to-executive-education-2u" />));
 jest.mock('../../../course-run-actions', () => ({
   NavigateToCourseware: jest.fn(() => <div data-testid="navigate-to-courseware" />),
 }));
@@ -56,13 +56,41 @@ describe('useCourseRunCardAction', () => {
     jest.clearAllMocks();
   });
 
-  it('returns stateful enroll if user is not yet enrolled', () => {
+  it('returns disabled enroll button if user is not yet enrolled and does not have a subsidy access policy', () => {
     const { getByTestId } = renderUseCourseRunCardActionHook({
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
+      courseTypeEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      userSubsidyApplicableToCourse: undefined,
+      subsidyAccessPolicy: undefined,
+    });
+
+    // expected disabled button exists
+    expect(getByTestId('disabled-enroll-missing-subsidy-access-policy')).toBeInTheDocument();
+  });
+
+  it('returns button link to course route for the given course type', () => {
+    const { getByTestId } = renderUseCourseRunCardActionHook({
+      isUserEnrolled: false,
+      userEnrollment: undefined,
+      courseRunUrl: MOCK_COURSE_RUN_URL,
+      courseTypeEnrollmentUrl: '/enterprise-slug/executive-education-2u',
+      contentKey: MOCK_COURSE_RUN_KEY,
+      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
+    });
+
+    expect(getByTestId('to-executive-education-2u')).toBeInTheDocument();
+  });
+
+  it('returns stateful enroll if user is not yet enrolled and has a subsidy access policy', () => {
+    const { getByTestId } = renderUseCourseRunCardActionHook({
+      isUserEnrolled: false,
+      userEnrollment: undefined,
+      courseRunUrl: MOCK_COURSE_RUN_URL,
+      courseTypeEnrollmentUrl: undefined,
+      contentKey: MOCK_COURSE_RUN_KEY,
+      subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
 
     // expected components exists
@@ -85,8 +113,9 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_VERIFIED,
       courseRunUrl: MOCK_COURSE_RUN_URL,
+      courseTypeEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
-      userSubsidyApplicableToCourse: undefined,
+      subsidyAccessPolicy: undefined,
     });
 
     // expected components exists
@@ -112,6 +141,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
+      courseTypeEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: undefined,
     });
@@ -149,6 +179,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
+      courseTypeEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });

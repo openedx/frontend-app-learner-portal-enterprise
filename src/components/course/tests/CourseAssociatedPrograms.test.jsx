@@ -28,7 +28,7 @@ const CourseAssociatedProgramsWithCourseContext = ({
 }) => (
   <AppContext.Provider value={INITIAL_APP_STATE}>
     <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-      <CourseContextProvider initialState={initialState}>
+      <CourseContextProvider initialCourseState={initialState}>
         <CourseAssociatedPrograms />
       </CourseContextProvider>
     </SubsidyRequestsContext.Provider>

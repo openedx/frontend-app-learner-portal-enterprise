@@ -24,7 +24,7 @@ const CourseContextProviderWrapper = ({
   children,
 }) => (
   <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
-    <CourseContextProvider initialState={initialCourseState}>
+    <CourseContextProvider initialCourseState={initialCourseState}>
       {children}
     </CourseContextProvider>
   </SubsidyRequestsContext.Provider>

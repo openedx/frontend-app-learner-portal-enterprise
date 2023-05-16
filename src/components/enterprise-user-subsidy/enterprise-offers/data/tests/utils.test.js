@@ -48,15 +48,11 @@ describe('offerHasBookingsLimit', () => {
 describe('offerHasEnrollmentsLimit', () => {
   test.each([
     {
-      offer: {
-        maxGlobalApplications: 3,
-      },
+      offer: { maxGlobalApplications: 3 },
       expectedResult: true,
     },
     {
-      offer: {
-        maxGlobalApplications: null,
-      },
+      offer: { maxGlobalApplications: null },
       expectedResult: false,
     },
   ])('should return true if offer has enrollments limit', (
@@ -286,10 +282,13 @@ describe('isOfferOutOfBalance', () => {
 describe('transformEnterpriseOffer', () => {
   const mockOffer = {
     maxDiscount: null,
-    maxGlobalApplications: null,
     maxUserDiscount: null,
+    maxGlobalApplications: null,
+    maxUserApplications: null,
     remainingBalance: null,
     remainingBalanceForUser: null,
+    remainingApplications: null,
+    remainingApplicationsForUser: null,
   };
 
   test.each([
@@ -299,9 +298,13 @@ describe('transformEnterpriseOffer', () => {
         ...mockOffer,
         offerType: ENTERPRISE_OFFER_TYPE.NO_LIMIT,
         maxDiscount: Number.MAX_VALUE,
+        maxUserDiscount: Number.MAX_VALUE,
         maxGlobalApplications: Number.MAX_VALUE,
+        maxUserApplications: Number.MAX_VALUE,
         remainingBalance: Number.MAX_VALUE,
         remainingBalanceForUser: Number.MAX_VALUE,
+        remainingApplications: Number.MAX_VALUE,
+        remainingApplicationsForUser: Number.MAX_VALUE,
         isLowOnBalance: false,
         isOutOfBalance: false,
       },

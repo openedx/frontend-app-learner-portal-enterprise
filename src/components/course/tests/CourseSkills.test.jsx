@@ -32,7 +32,7 @@ const CourseSkillsWithContext = ({
 }) => (
   <AppContext.Provider value={initialAppState}>
     <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-      <CourseContextProvider initialState={initialCourseState}>
+      <CourseContextProvider initialCourseState={initialCourseState}>
         <CourseSkills />
       </CourseContextProvider>
     </SubsidyRequestsContext.Provider>

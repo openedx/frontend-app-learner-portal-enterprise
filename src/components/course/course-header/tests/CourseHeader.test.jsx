@@ -59,7 +59,7 @@ const CourseHeaderWrapper = ({
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-          <CourseContextProvider initialState={initialCourseState}>
+          <CourseContextProvider initialCourseState={initialCourseState}>
             <CourseHeader />
           </CourseContextProvider>
         </CourseEnrollmentsContext.Provider>

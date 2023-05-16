@@ -12,9 +12,9 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
-const CreatedByWithCourseContext = ({ initialState = {} }) => (
+const CreatedByWithCourseContext = ({ initialCourseState = {} }) => (
   <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-    <CourseContextProvider initialState={initialState}>
+    <CourseContextProvider initialCourseState={initialCourseState}>
       <CreatedBy />
     </CourseContextProvider>
   </SubsidyRequestsContext.Provider>
@@ -52,14 +52,14 @@ describe('<CreatedBy />', () => {
   };
 
   test('renders partner info', () => {
-    render(<CreatedByWithCourseContext initialState={initialState} />);
+    render(<CreatedByWithCourseContext initialCourseState={initialState} />);
     initialState.course.owners.forEach((owner) => {
       expect(screen.queryByText(owner.name)).toBeInTheDocument();
     });
   });
 
   test('renders staff info', () => {
-    render(<CreatedByWithCourseContext initialState={initialState} />);
+    render(<CreatedByWithCourseContext initialCourseState={initialState} />);
     initialState.activeCourseRun.staff.forEach((staffMember) => {
       const fullName = `${staffMember.givenName} ${staffMember.familyName}`;
       expect(screen.queryByText(fullName)).toBeInTheDocument();

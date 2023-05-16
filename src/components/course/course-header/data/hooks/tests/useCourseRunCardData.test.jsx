@@ -34,6 +34,11 @@ const wrapper = ({ children }) => (
   </AppContext.Provider>
 );
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn().mockReturnValue({ pathname: '/enterpriseSlug/course/edX+DemoX' }),
+}));
+
 jest.mock('../useCourseRunCardHeading', () => jest.fn(() => 'Course started'));
 jest.mock('../useCourseRunCardSubHeading', () => jest.fn(() => 'You are enrolled'));
 jest.mock('../useCourseRunCardAction', () => jest.fn(() => <button type="button" data-testid="mock-cta">View course</button>));

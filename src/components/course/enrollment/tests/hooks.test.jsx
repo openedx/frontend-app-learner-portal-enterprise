@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { renderHook } from '@testing-library/react-hooks';
 
-import moment from 'moment';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
@@ -17,7 +16,7 @@ const BASE_COURSE_STATE = {
     isEnrollable: false,
   },
   userSubsidyApplicableToCourse: undefined,
-  legacyUserSubsidyApplicableToCourse: undefined,
+  missingUserSubsidyReasonType: undefined,
   course: {},
   userEnrollments: [],
   userEntitlements: [],
@@ -48,7 +47,7 @@ const ContextWrapper = ({
 }) => (
   <UserSubsidyContext.Provider value={initialUserSubsidyState}>
     <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-      <CourseContextProvider initialState={initialCourseState}>
+      <CourseContextProvider initialCourseState={initialCourseState}>
         {children}
       </CourseContextProvider>
     </SubsidyRequestsContext.Provider>
@@ -112,37 +111,29 @@ describe('useEnrollData', () => {
 });
 
 describe('useSubsidyDataForCourse', () => {
+  const baseExpectedResultWithoutSubsidy = {
+    couponCodesCount: 0,
+    subscriptionLicense,
+    userSubsidyApplicableToCourse: undefined,
+  };
   test('correctly extracts subsidy fields from UserSubsidyContext, absent coupon codes', () => {
-    const expected = {
-      couponCodesCount: 0,
-      couponCodes: [],
-      subscriptionLicense,
-      userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
-      legacyUserSubsidyApplicableToCourse: BASE_COURSE_STATE.legacyUserSubsidyApplicableToCourse,
-    };
-    const { result } = renderHook(() => useSubsidyDataForCourse(), { wrapper: ContextWrapper });
-    expect(result.current).toStrictEqual(expected);
+    const { result } = renderHook(
+      () => useSubsidyDataForCourse(),
+      { wrapper: ContextWrapper },
+    );
+    expect(result.current).toStrictEqual(baseExpectedResultWithoutSubsidy);
   });
   test('correctly extracts subsidy fields from UserSubsidyContext, with coupon codes', () => {
-    const couponCodes = [{
-      catalog: 'catalog-1',
-      discountValue: 10,
-      couponStartDate: moment().subtract(1, 'w').toISOString(),
-      couponEndDate: moment().add(8, 'w').toISOString(),
-    }];
-
+    const mockCouponCodesCount = 1;
     const expected = {
-      couponCodesCount: 1,
-      subscriptionLicense,
-      couponCodes,
+      ...baseExpectedResultWithoutSubsidy,
       userSubsidyApplicableToCourse: BASE_COURSE_STATE.userSubsidyApplicableToCourse,
-      legacyUserSubsidyApplicableToCourse: BASE_COURSE_STATE.legacyUserSubsidyApplicableToCourse,
+      couponCodesCount: mockCouponCodesCount,
     };
     const initialUserSubsidyState = {
       subscriptionLicense,
       couponCodes: {
-        couponCodes,
-        couponCodesCount: 1,
+        couponCodesCount: mockCouponCodesCount,
       },
     };
 
@@ -159,7 +150,10 @@ describe('useSubsidyDataForCourse', () => {
         {children}
       </ContextWrapper>
     );
-    const { result } = renderHook(() => useSubsidyDataForCourse(), { wrapper });
+    const { result } = renderHook(
+      () => useSubsidyDataForCourse(),
+      { wrapper },
+    );
     expect(result.current).toStrictEqual(expected);
   });
 });

@@ -14,7 +14,7 @@ import {
   COURSE_AVAILABILITY_MAP,
   COURSE_PACING_MAP,
 } from '../../data/constants';
-import CourseRunCard from '../CourseRunCard';
+import CourseRunCardDeprecated from '../deprecated/CourseRunCard';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
@@ -104,8 +104,8 @@ const renderCard = ({
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <CourseContextProvider initialState={courseInitState}>
-            <CourseRunCard.Deprecated
+          <CourseContextProvider initialCourseState={courseInitState}>
+            <CourseRunCardDeprecated
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
@@ -120,7 +120,7 @@ const renderCard = ({
   );
 };
 
-describe('<CourseRunCard.Deprecated />', () => {
+describe('<DeprecatedCourseRunCard />', () => {
   test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();
@@ -238,7 +238,7 @@ describe('<CourseRunCard.Deprecated />', () => {
     const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
-    expect(screen.getByText(enrollButtonTypes.TO_ECOM_BASKET)).toBeInTheDocument();
+    expect(screen.getByText(enrollButtonTypes.ENROLL_DISABLED)).toBeInTheDocument();
   });
 
   test('User is enrolled, and course not started', () => {

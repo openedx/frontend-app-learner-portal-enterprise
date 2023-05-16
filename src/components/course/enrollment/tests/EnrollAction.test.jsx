@@ -79,7 +79,7 @@ const renderEnrollAction = ({
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
           <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsRequestState}>
-            <CourseContextProvider initialState={courseInitState}>
+            <CourseContextProvider initialCourseState={courseInitState}>
               {enrollAction}
             </CourseContextProvider>
           </CourseEnrollmentsContext.Provider>
