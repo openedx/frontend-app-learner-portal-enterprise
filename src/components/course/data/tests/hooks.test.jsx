@@ -1068,6 +1068,36 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
+  it.each([
+    { enterpriseAdminUsers: [] },
+    { enterpriseAdminUsers: ['edx@example.com'] },
+  ])('does not have redeemable subsidy access policy and catalog(s) contains course (%s)', async ({ enterpriseAdminUsers }) => {
+    const args = {
+      ...baseArgs,
+      enterpriseAdminUsers,
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+
+    await waitForNextUpdate();
+
+    let expectedReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
+    let expectedAction = null;
+
+    if (enterpriseAdminUsers.length > 0) {
+      expectedReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+      expectedAction = expect.any(Object);
+    }
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: expectedReasonType,
+        userMessage: DISABLED_ENROLL_USER_MESSAGES[expectedReasonType],
+        actions: expectedAction,
+      },
+    });
+  });
+
   it('does not have redeemable subsidy access policy and has missing subsidy access policy user message', async () => {
     const args = {
       ...baseArgs,

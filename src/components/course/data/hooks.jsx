@@ -775,7 +775,12 @@ export const useUserSubsidyApplicableToCourse = ({
           }),
         });
       } else if (!applicableUserSubsidy) {
-        let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+        let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
+        if (enterpriseAdminUsers?.length > 0) {
+          reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+        }
+        // set reason type as content not in catalog if course is contained
+        // within any of the enterprise customer's catalog(s).
         if (!containsContentItems) {
           reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
         }
