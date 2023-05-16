@@ -72,7 +72,7 @@ export const REASON_USER_MESSAGES = {
   ORGANIZATION_NO_FUNDS: "You can't enroll right now because your organization doesn't have enough funds.",
   ORGANIZATION_NO_FUNDS_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough funds. Contact your administrator to request more.",
   LEARNER_LIMITS_REACHED: "You can't enroll right now because of limits set by your organization.",
-  CONTENT_NOT_IN_CATALOG: "You can't enroll right now because this course is not available through your organization.",
+  CONTENT_NOT_IN_CATALOG: "You can't enroll right now because this course is no longer available in your organization's catalog.",
 };
 export const DISABLED_ENROLL_REASON_TYPES = {
   POLICY_NOT_ACTIVE: 'policy_not_active',

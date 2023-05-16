@@ -31,15 +31,13 @@ const SubsidyRequestButton = () => {
     refreshSubsidyRequests,
   } = useContext(SubsidyRequestsContext);
 
-  const { state, subsidyRequestCatalogsApplicableToCourse } = useContext(CourseContext);
+  const { state, subsidyRequestCatalogsApplicableToCourse, userSubsidyApplicableToCourse } = useContext(CourseContext);
 
   const { course, userEnrollments } = state;
   const {
     key: courseKey,
     courseRunKeys,
   } = course;
-
-  const { userSubsidyApplicableToCourse } = state;
 
   /**
    * Check every course run to see if user is enrolled in any of them
