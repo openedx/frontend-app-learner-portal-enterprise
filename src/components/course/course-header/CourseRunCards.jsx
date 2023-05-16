@@ -29,7 +29,7 @@ const CourseRunCards = () => {
       hasEqualColumnHeights={false}
     >
       {availableCourseRuns.map((courseRun) => {
-        const redeemabilityForContentKey = redeemabilityPerContentKey.find(r => r.contentKey === courseRun.key);
+        const redeemabilityForContentKey = redeemabilityPerContentKey?.find(r => r.contentKey === courseRun.key);
         const redeemableSubsidyAccessPolicy = redeemabilityForContentKey?.redeemableSubsidyAccessPolicy;
 
         if (redeemableSubsidyAccessPolicy || missingUserSubsidyReason?.userMessage) {
