@@ -41,4 +41,15 @@ describe('<CourseRunCardStatus />', () => {
     expect(screen.getByText(mockMissingUserSubsidyReason.userMessage)).toBeInTheDocument();
     expect(screen.getByTestId(mockActionTestId)).toBeInTheDocument();
   });
+
+  test('does not render if the user can request a subsidy for the course', () => {
+    const props = {
+      ...baseProps,
+      missingUserSubsidyReason: mockMissingUserSubsidyReason,
+      userCanRequestSubsidyForCourse: true,
+    };
+    render(<CourseRunCardStatus {...props} />);
+    expect(screen.queryByText(mockMissingUserSubsidyReason.userMessage)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(mockActionTestId)).not.toBeInTheDocument();
+  });
 });

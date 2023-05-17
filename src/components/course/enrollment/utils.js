@@ -15,6 +15,20 @@ const {
   HIDE_BUTTON,
 } = enrollButtonTypes;
 
+/**
+ * Determines whether a user can request a subsidy for a course, by checking whether
+ * the subsidy request feautre is enabled, there are more than 1 subsidy request
+ * catalogs applicable to the course, and whether the learner already has a subsidy
+ * applicable to the course.
+ *
+ * @param {object} args
+ * @param {object} args.subsidyRequestConfiguration Contains a property whether subsidy requests are enabled
+ * @param {Set} args.subsidyRequestCatalogsApplicableToCourse Set representing the subsidy catalogs
+ *  applicable to the course
+ * @param {boolean} args.userSubsidyApplicableToCourse Subsidy applicable to the course
+ *
+ * @returns True if the user can request a subsidy for the course, false otherwise.
+ */
 export function canUserRequestSubsidyForCourse({
   subsidyRequestConfiguration,
   subsidyRequestCatalogsApplicableToCourse,
