@@ -15,31 +15,39 @@ const {
   HIDE_BUTTON,
 } = enrollButtonTypes;
 
+export function canUserRequestSubsidyForCourse({
+  subsidyRequestConfiguration,
+  subsidyRequestCatalogsApplicableToCourse,
+  userSubsidyApplicableToCourse,
+}) {
+  // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
+  if (!subsidyRequestConfiguration || !subsidyRequestCatalogsApplicableToCourse) {
+    return false;
+  }
+  return (
+    subsidyRequestConfiguration.subsidyRequestsEnabled
+    && subsidyRequestCatalogsApplicableToCourse.size > 0
+    && !userSubsidyApplicableToCourse
+  );
+}
+
 /**
  * The main logic to determine enrollment type (scenario).
  */
 export function determineEnrollmentType({
-  subsidyData: {
-    userSubsidyApplicableToCourse,
-    subsidyRequestConfiguration,
-  } = {},
+  subsidyData: { userSubsidyApplicableToCourse } = {},
   isUserEnrolled,
   isEnrollable,
   isCourseStarted,
   userHasSubsidyRequestForCourse,
-  subsidyRequestCatalogsApplicableToCourse,
   isExecutiveEducation2UCourse,
+  userCanRequestSubsidyForCourse,
 }) {
   if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
 
   // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
-  const userCanRequestSubsidyForCourse = (
-    subsidyRequestConfiguration?.subsidyRequestsEnabled
-    && subsidyRequestCatalogsApplicableToCourse.size > 0
-    && !userSubsidyApplicableToCourse
-  );
   if (userHasSubsidyRequestForCourse || userCanRequestSubsidyForCourse) {
     return HIDE_BUTTON;
   }

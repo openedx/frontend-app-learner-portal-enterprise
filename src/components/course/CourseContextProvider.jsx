@@ -31,25 +31,17 @@ export const CourseContextProvider = ({
   missingUserSubsidyReason,
   userSubsidyApplicableToCourse,
   redeemabilityPerContentKey,
+  subsidyRequestCatalogsApplicableToCourse,
+  userCanRequestSubsidyForCourse,
   coursePrice,
   currency,
 }) => {
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
   const [state, dispatch] = useReducer(reducer, initialCourseState);
-
-  const { catalog } = state;
-
-  const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
-    const catalogsContainingCourse = new Set(catalog.catalogList);
-    const subsidyRequestCatalogIntersection = new Set(
-      catalogsForSubsidyRequests.filter(el => catalogsContainingCourse.has(el)),
-    );
-    return subsidyRequestCatalogIntersection;
-  }, [catalog, catalogsForSubsidyRequests]);
 
   const value = useMemo(() => ({
     state,
     dispatch,
+    userCanRequestSubsidyForCourse,
     subsidyRequestCatalogsApplicableToCourse,
     isPolicyRedemptionEnabled,
     missingUserSubsidyReason,
@@ -59,6 +51,7 @@ export const CourseContextProvider = ({
     currency,
   }), [
     state,
+    userCanRequestSubsidyForCourse,
     subsidyRequestCatalogsApplicableToCourse,
     isPolicyRedemptionEnabled,
     missingUserSubsidyReason,

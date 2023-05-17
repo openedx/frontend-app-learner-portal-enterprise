@@ -19,16 +19,21 @@ import { DISABLED_ENROLL_REASON_TYPES } from '../data/constants';
  * @param {object} args.missingUserSubsidyReason An object containing a reason slug and user
  * @param {object} args.isUserEnrolled Whether the learner is already enrolled in the course run.
  *   message for why there is no redeemable subsidy for the course.
+ * @param {boolean} args.userCanRequestSubsidyForCourse Whether the user can request a subsidy for the course.
  *
  * @returns Card.Status component with appropriate message and actions.
  */
-const CourseRunCardStatus = ({ missingUserSubsidyReason, isUserEnrolled }) => {
+const CourseRunCardStatus = ({
+  missingUserSubsidyReason,
+  isUserEnrolled,
+  userCanRequestSubsidyForCourse,
+}) => {
   const missingUserSubsidyReasonType = missingUserSubsidyReason?.reason;
   const missingUserSubsidyReasonUserMessage = missingUserSubsidyReason?.userMessage;
   const missingUserSubsidyReasonActions = missingUserSubsidyReason?.actions;
 
   const hasValidReason = !!(missingUserSubsidyReasonType && missingUserSubsidyReasonUserMessage);
-  if (isUserEnrolled || !hasValidReason) {
+  if (isUserEnrolled || !hasValidReason || userCanRequestSubsidyForCourse) {
     return null;
   }
 
@@ -52,11 +57,13 @@ CourseRunCardStatus.propTypes = {
     userMessage: PropTypes.string,
     actions: PropTypes.node,
   }),
+  userCanRequestSubsidyForCourse: PropTypes.bool,
 };
 
 CourseRunCardStatus.defaultProps = {
   isUserEnrolled: false,
   missingUserSubsidyReason: undefined,
+  userCanRequestSubsidyForCourse: false,
 };
 
 export default CourseRunCardStatus;

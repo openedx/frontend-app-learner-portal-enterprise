@@ -25,7 +25,7 @@ import {
   useUserHasSubsidyRequestForCourse,
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
+import { CourseContext } from '../../CourseContextProvider';
 
 const DATE_FORMAT = 'MMM D';
 const DEFAULT_BUTTON_LABEL = 'Enroll';
@@ -52,7 +52,7 @@ const CourseRunCard = ({
 
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
-  const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
+  const { userCanRequestSubsidyForCourse } = useContext(CourseContext);
 
   const isCourseStarted = useMemo(
     () => hasCourseStarted(start),
@@ -99,16 +99,14 @@ const CourseRunCard = ({
   });
 
   const enrollmentType = determineEnrollmentType({
-    subsidyData: {
-      userSubsidyApplicableToCourse,
-      subsidyRequestConfiguration,
-    },
+    subsidyData: { userSubsidyApplicableToCourse },
     userHasSubsidyRequestForCourse,
     subsidyRequestCatalogsApplicableToCourse,
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
     isExecutiveEducation2UCourse,
+    userCanRequestSubsidyForCourse,
   });
 
   const courseRunArchived = isArchived(courseRun);
