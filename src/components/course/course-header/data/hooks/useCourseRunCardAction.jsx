@@ -35,6 +35,8 @@ const checkUserEnrollmentUpgradeEligibility = ({
  * @param {string} args.courseTypeEnrollmentUrl The url to navigate to the course enrollment page
  * @param {string} args.contentKey The course run key.
  * @param {string} args.subsidyAccessPolicy The redeemable subsidy access policy applicable to the course, if any.
+ * @param {boolean} args.userCanRequestSubsidyForCourse, Whether the user can request a subsidy for the course.
+ *
  * @returns A JSX element to render as the CTA for the course run.
  */
 const useCourseRunCardAction = ({
@@ -44,6 +46,7 @@ const useCourseRunCardAction = ({
   courseTypeEnrollmentUrl,
   contentKey,
   subsidyAccessPolicy,
+  userCanRequestSubsidyForCourse,
 }) => {
   const {
     redemptionStatus,
@@ -74,6 +77,13 @@ const useCourseRunCardAction = ({
         />
       </Stack>
     );
+  }
+
+  if (userCanRequestSubsidyForCourse) {
+    // User can request a subsidy for the course, but is not enrolled so
+    // hide the "Enroll" CTA in favor of the "Request enrollment" CTA below
+    // the course run cards.
+    return null;
   }
 
   if (!subsidyAccessPolicy) {

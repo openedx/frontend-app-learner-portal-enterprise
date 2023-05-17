@@ -18,7 +18,6 @@ const CourseRunCards = () => {
       course: { key, entitlements: courseEntitlements },
       catalog: { catalogList },
     },
-    subsidyRequestCatalogsApplicableToCourse,
     missingUserSubsidyReason,
     redeemabilityPerContentKey,
   } = useContext(CourseContext);
@@ -49,7 +48,6 @@ const CourseRunCards = () => {
             courseRun={courseRun}
             catalogList={catalogList}
             userEntitlements={userEntitlements}
-            subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
             courseEntitlements={courseEntitlements}
             missingUserSubsidyReason={missingUserSubsidyReason}
           />

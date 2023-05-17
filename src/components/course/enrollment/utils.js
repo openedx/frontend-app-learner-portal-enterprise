@@ -16,30 +16,53 @@ const {
 } = enrollButtonTypes;
 
 /**
+ * Determines whether a user can request a subsidy for a course, by checking whether
+ * the subsidy request feature is enabled, there are more than 1 subsidy request
+ * catalogs applicable to the course, and whether the learner already has a subsidy
+ * applicable to the course.
+ *
+ * @param {object} args
+ * @param {object} args.subsidyRequestConfiguration Contains a property whether subsidy requests are enabled
+ * @param {Set} args.subsidyRequestCatalogsApplicableToCourse Set representing the subsidy catalogs
+ *  applicable to the course
+ * @param {boolean} args.userSubsidyApplicableToCourse Subsidy applicable to the course
+ *
+ * @returns True if the user can request a subsidy for the course, false otherwise.
+ */
+export function canUserRequestSubsidyForCourse({
+  subsidyRequestConfiguration,
+  subsidyRequestCatalogsApplicableToCourse,
+  userSubsidyApplicableToCourse,
+}) {
+  // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
+  if (!subsidyRequestConfiguration || !subsidyRequestCatalogsApplicableToCourse) {
+    return false;
+  }
+  return (
+    subsidyRequestConfiguration.subsidyRequestsEnabled
+    && subsidyRequestCatalogsApplicableToCourse.size > 0
+    && !userSubsidyApplicableToCourse
+  );
+}
+
+/**
  * The main logic to determine enrollment type (scenario).
  */
 export function determineEnrollmentType({
-  subsidyData: {
-    userSubsidyApplicableToCourse,
-    subsidyRequestConfiguration,
-  } = {},
+  subsidyData: { userSubsidyApplicableToCourse } = {},
   isUserEnrolled,
   isEnrollable,
   isCourseStarted,
   userHasSubsidyRequestForCourse,
-  subsidyRequestCatalogsApplicableToCourse,
   isExecutiveEducation2UCourse,
+  userCanRequestSubsidyForCourse,
 }) {
   if (isUserEnrolled) {
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
 
-  // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
-  const userCanRequestSubsidyForCourse = (
-    subsidyRequestConfiguration?.subsidyRequestsEnabled
-    && subsidyRequestCatalogsApplicableToCourse.size > 0
-    && !userSubsidyApplicableToCourse
-  );
+  // Hide enroll button if learner can request a subsidy for the course, or
+  // already has an pending subsidy request for the course.
   if (userHasSubsidyRequestForCourse || userCanRequestSubsidyForCourse) {
     return HIDE_BUTTON;
   }

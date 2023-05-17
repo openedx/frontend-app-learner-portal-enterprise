@@ -201,4 +201,12 @@ describe('useCourseRunCardAction', () => {
       }),
     );
   });
+
+  it('returns null if user is not yet enrolled and can request a subsidy for the course', () => {
+    const { result } = renderUseCourseRunCardActionHook({
+      isUserEnrolled: false,
+      userCanRequestSubsidyForCourse: true,
+    });
+    expect(result.current).toBeNull();
+  });
 });

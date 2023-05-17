@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { Card } from '@edx/paragon';
 
 import { CourseContext } from '../CourseContextProvider';
@@ -20,6 +21,7 @@ const CourseRunCard = ({
       userEnrollments,
     },
     missingUserSubsidyReason,
+    userCanRequestSubsidyForCourse,
   } = useContext(CourseContext);
 
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
@@ -33,23 +35,29 @@ const CourseRunCard = ({
     action,
   } = useCourseRunCardData({
     courseRun,
-    subsidyAccessPolicy,
     userEnrollment: userEnrollmentForCourseRun,
     courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
+    userCanRequestSubsidyForCourse,
+    subsidyAccessPolicy,
   });
 
   return (
     <Card>
-      <Card.Section>
-        <div className="text-center">
-          <div className="h4 mb-0">{heading}</div>
-          <p className="small">{subHeading}</p>
-          {action}
-        </div>
+      <Card.Section className="text-center">
+        <div className="h4 mb-0">{heading}</div>
+        <p
+          className={classNames('small', {
+            'mb-0': userCanRequestSubsidyForCourse,
+          })}
+        >
+          {subHeading}
+        </p>
+        {action}
       </Card.Section>
       <CourseRunCardStatus
         isUserEnrolled={!!userEnrollmentForCourseRun}
         missingUserSubsidyReason={missingUserSubsidyReason}
+        userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
       />
     </Card>
   );

@@ -1,7 +1,7 @@
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 import { enrollButtonTypes } from '../constants';
 
-import { determineEnrollmentType } from '../utils';
+import { determineEnrollmentType, canUserRequestSubsidyForCourse } from '../utils';
 
 const {
   TO_COURSEWARE_PAGE,
@@ -12,19 +12,15 @@ const {
   HIDE_BUTTON,
 } = enrollButtonTypes;
 
-const baseArgs = {
-  isUserEnrolled: false,
-  isEnrollable: true,
-  isCourseStarted: true,
-  subsidyData: {
-    userSubsidyApplicableToCourse: null,
-    subsidyRequestConfiguration: null,
-  },
-  userHasSubsidyRequestForCourse: false,
-  subsidyRequestCatalogsApplicableToCourse: new Set(),
-};
+describe('determineEnrollmentType', () => {
+  const baseArgs = {
+    isUserEnrolled: false,
+    isEnrollable: true,
+    isCourseStarted: true,
+    subsidyData: { userSubsidyApplicableToCourse: null },
+    userHasSubsidyRequestForCourse: false,
+  };
 
-describe('determineEnrollmentType correctly resolves enrollment type', () => {
   test('resolves user-enrolled, course-started to "to courseware page" type', () => {
     const args = {
       ...baseArgs,
@@ -32,6 +28,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
     };
     expect(determineEnrollmentType(args)).toBe(TO_COURSEWARE_PAGE);
   });
+
   test('resolves user-enrolled case to "view on dashboard" page type', () => {
     const args = {
       ...baseArgs,
@@ -40,6 +37,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
     };
     expect(determineEnrollmentType(args)).toBe(VIEW_ON_DASHBOARD);
   });
+
   test('resolves unenrollable case to disabled enroll button', () => {
     const args = {
       ...baseArgs,
@@ -51,9 +49,11 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
     };
     expect(determineEnrollmentType(args)).toBe(ENROLL_DISABLED);
   });
+
   test('no subsidy, show disabled enroll button', () => {
     expect(determineEnrollmentType(baseArgs)).toBe(ENROLL_DISABLED);
   });
+
   test('license subsidy, show data sharing consent button', () => {
     const args = {
       ...baseArgs,
@@ -64,6 +64,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
     };
     expect(determineEnrollmentType(args)).toBe(TO_DATASHARING_CONSENT);
   });
+
   test.each([
     { subsidyType: COUPON_CODE_SUBSIDY_TYPE },
     { subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE },
@@ -77,6 +78,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
     };
     expect(determineEnrollmentType(args)).toBe(TO_ECOM_BASKET);
   });
+
   test('user has subsidy request for course, hide enroll button', () => {
     const args = {
       ...baseArgs,
@@ -84,10 +86,11 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
         ...baseArgs.subsidyData,
         subsidyRequestConfiguration: { subsidyRequestsEnabled: true },
       },
-      subsidyRequestCatalogsApplicableToCourse: new Set(['test-catalog']),
+      userCanRequestSubsidyForCourse: true,
     };
     expect(determineEnrollmentType(args)).toBe(HIDE_BUTTON);
   });
+
   test.each([
     { hasSubsidyData: true },
     { hasSubsidyData: false },
@@ -100,5 +103,55 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
       } : undefined,
     };
     expect(determineEnrollmentType(args)).toBe(ENROLL_DISABLED);
+  });
+});
+
+describe('canUserRequestSubsidyForCourse', () => {
+  const disabledSubsidyRequests = { subsidyRequestsEnabled: false };
+  const enabledSubsidyRequests = { subsidyRequestsEnabled: true };
+
+  test.each([
+    {
+      subsidyRequestConfiguration: undefined,
+      subsidyRequestCatalogsApplicableToCourse: undefined,
+      userSubsidyApplicableToCourse: undefined,
+      expected: false,
+    },
+    {
+      subsidyRequestConfiguration: enabledSubsidyRequests,
+      subsidyRequestCatalogsApplicableToCourse: undefined,
+      userSubsidyApplicableToCourse: undefined,
+      expected: false,
+    },
+    {
+      subsidyRequestConfiguration: disabledSubsidyRequests,
+      subsidyRequestCatalogsApplicableToCourse: new Set(['catalog-uuid']),
+      userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
+      expected: false,
+    },
+    {
+      subsidyRequestConfiguration: enabledSubsidyRequests,
+      subsidyRequestCatalogsApplicableToCourse: new Set(['catalog-uuid']),
+      userSubsidyApplicableToCourse: { subsidyType: LICENSE_SUBSIDY_TYPE },
+      expected: false,
+    },
+    {
+      subsidyRequestConfiguration: enabledSubsidyRequests,
+      subsidyRequestCatalogsApplicableToCourse: new Set(['catalog-uuid']),
+      userSubsidyApplicableToCourse: undefined,
+      expected: true,
+    },
+  ])('returns expected value with the provided inputs (%s)', ({
+    subsidyRequestConfiguration,
+    subsidyRequestCatalogsApplicableToCourse,
+    userSubsidyApplicableToCourse,
+    expected,
+  }) => {
+    const args = {
+      subsidyRequestConfiguration,
+      subsidyRequestCatalogsApplicableToCourse,
+      userSubsidyApplicableToCourse,
+    };
+    expect(canUserRequestSubsidyForCourse(args)).toEqual(expected);
   });
 });

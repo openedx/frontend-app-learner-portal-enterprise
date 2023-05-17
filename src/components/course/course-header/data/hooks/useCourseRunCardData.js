@@ -18,6 +18,7 @@ import { findHighestLevelEntitlementSku, pathContainsCourseTypeSlug } from '../.
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
  * @param {string} args.courseRunUrl The URL to the course run coureware page.
  * @param {object} args.subsidyAccessPolicy A redeemable subsidy access policy applicable to the course, if any.
+ * @param {boolean} args.userCanRequestSubsidyForCourse Whether the user can request a subsidy for the course.
  * @returns An object containing the `heading, `subHeading`, and `action` data needed to render the `CourseRunCard`.
  */
 const useCourseRunCardData = ({
@@ -25,6 +26,7 @@ const useCourseRunCardData = ({
   userEnrollment,
   courseRunUrl,
   subsidyAccessPolicy,
+  userCanRequestSubsidyForCourse,
 }) => {
   const location = useLocation();
   const {
@@ -70,6 +72,7 @@ const useCourseRunCardData = ({
     courseTypeEnrollmentUrl,
     contentKey,
     subsidyAccessPolicy,
+    userCanRequestSubsidyForCourse,
   });
 
   return {

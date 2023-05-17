@@ -33,6 +33,7 @@ import {
   getCourseTypeConfig,
   getEntitlementPrice,
 } from './data/utils';
+import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
@@ -56,7 +57,7 @@ const CoursePage = () => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
   } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+  const { catalogsForSubsidyRequests, subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   const {
     enterpriseCuration: {
@@ -215,6 +216,20 @@ const CoursePage = () => {
     }
   }, [enterpriseSlug, history, courseState, pathname]);
 
+  const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
+    const catalogsContainingCourse = new Set(courseState?.catalog?.catalogList);
+    const subsidyRequestCatalogIntersection = new Set(
+      catalogsForSubsidyRequests.filter(el => catalogsContainingCourse.has(el)),
+    );
+    return subsidyRequestCatalogIntersection;
+  }, [courseState?.catalog?.catalogList, catalogsForSubsidyRequests]);
+
+  const userCanRequestSubsidyForCourse = canUserRequestSubsidyForCourse({
+    subsidyRequestConfiguration,
+    subsidyRequestCatalogsApplicableToCourse,
+    userSubsidyApplicableToCourse,
+  });
+
   if (error) {
     return <ErrorPage message={error.message} />;
   }
@@ -244,6 +259,8 @@ const CoursePage = () => {
           userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
           isPolicyRedemptionEnabled={isPolicyRedemptionEnabled}
           redeemabilityPerContentKey={redeemabilityPerContentKey}
+          userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
+          subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
           coursePrice={coursePrice}
           currency={currency}
         >
