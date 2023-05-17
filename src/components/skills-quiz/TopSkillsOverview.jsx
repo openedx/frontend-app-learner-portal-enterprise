@@ -96,13 +96,13 @@ const TopSkillsOverview = ({ index }) => {
           </Card.Section>
           <Card.Section>
             <div className="row skill-overview-body">
-              {currentJobDetails && selectedJobDetails
+              {currentJobDetails?.length > 0 && selectedJobDetails?.length > 0
                 && (
                   <JobDescriptions
-                    currentJobID={currentJobDetails?.[0].external_id}
-                    futureJobID={selectedJobDetails?.[0].external_id}
-                    currentJobDescription={currentJobDetails?.[0].description}
-                    futureJobDescription={selectedJobDetails?.[0].description}
+                    currentJobID={currentJobDetails[0].external_id}
+                    futureJobID={selectedJobDetails[0].external_id}
+                    currentJobDescription={currentJobDetails[0].description}
+                    futureJobDescription={selectedJobDetails[0].description}
                     goal={goal}
                   />
                 )}
