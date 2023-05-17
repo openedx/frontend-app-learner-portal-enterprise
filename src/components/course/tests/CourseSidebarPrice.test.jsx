@@ -29,7 +29,7 @@ const appStateWithOrigPriceShowing = {
     hideCourseOriginalPrice: false,
   },
 };
-
+const mockCatalogUUID = 'test-catalog-uuid';
 const BASE_COURSE_STATE = {
   activeCourseRun: {
     firstEnrollablePaidSeatPrice: 7.50,
@@ -39,7 +39,7 @@ const BASE_COURSE_STATE = {
   userEntitlements: [],
   catalog: {
     containsContentItems: true,
-    catalogList: ['test-catalog-uuid'],
+    catalogList: [mockCatalogUUID],
   },
   courseRecommendations: {},
 };
@@ -59,6 +59,7 @@ const PARTIAL_COUPON_CODE_SUBSIDY = {
 const baseCourseContextProps = {
   initialCourseState: BASE_COURSE_STATE,
   userSubsidyApplicableToCourse: null,
+  subsidyRequestCatalogsApplicableToCourse: new Set([mockCatalogUUID]),
   coursePrice: { list: 7.5, discounted: 7.5 },
   currency: 'USD',
 };
@@ -108,7 +109,7 @@ const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
 
 describe('<CourseSidebarPrice/> ', () => {
   describe('Browse and Request', () => {
-    test('Display correct message when browse and request on and no subsidy', () => {
+    test('Display correct message when browse and request on and user has no subsidy', () => {
       render(
         <SidebarWithContext
           courseContextProps={baseCourseContextProps}
@@ -121,6 +122,26 @@ describe('<CourseSidebarPrice/> ', () => {
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
       expect(screen.getByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' '))).toBeInTheDocument();
       expect(screen.getByTestId('browse-and-request-pricing')).toBeInTheDocument();
+      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
+    });
+
+    test('Display correct message when browse and request on, course is included in subsidy request catalog(s), and user has no subsidy', () => {
+      render(
+        <SidebarWithContext
+          courseContextProps={{
+            ...baseCourseContextProps,
+            subsidyRequestCatalogsApplicableToCourse: new Set([]),
+          }}
+          subsidyRequestsState={{
+            ...defaultSubsidyRequestsState,
+            subsidyRequestConfiguration: { subsidyRequestsEnabled: true },
+          }}
+        />,
+      );
+      expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
+      expect(screen.queryByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' '))).not.toBeInTheDocument();
+      expect(screen.queryByTestId('browse-and-request-pricing')).not.toBeInTheDocument();
       expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
     });
