@@ -16,12 +16,8 @@ const baseArgs = {
   isUserEnrolled: false,
   isEnrollable: true,
   isCourseStarted: true,
-  subsidyData: {
-    userSubsidyApplicableToCourse: null,
-    subsidyRequestConfiguration: null,
-  },
+  subsidyData: { userSubsidyApplicableToCourse: null },
   userHasSubsidyRequestForCourse: false,
-  subsidyRequestCatalogsApplicableToCourse: new Set(),
 };
 
 describe('determineEnrollmentType correctly resolves enrollment type', () => {
@@ -84,7 +80,7 @@ describe('determineEnrollmentType correctly resolves enrollment type', () => {
         ...baseArgs.subsidyData,
         subsidyRequestConfiguration: { subsidyRequestsEnabled: true },
       },
-      subsidyRequestCatalogsApplicableToCourse: new Set(['test-catalog']),
+      userCanRequestSubsidyForCourse: true,
     };
     expect(determineEnrollmentType(args)).toBe(HIDE_BUTTON);
   });

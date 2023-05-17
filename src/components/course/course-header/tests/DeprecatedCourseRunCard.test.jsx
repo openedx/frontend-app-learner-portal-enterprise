@@ -49,15 +49,12 @@ const defaultCourse = initialCourseState({});
 
 const selfPacedCourseWithoutLicenseSubsidy = {
   ...defaultCourse,
-  userSubsidyApplicableToCourse: null,
   activeCourseRun: {
     ...defaultCourse.activeCourseRun,
     seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
   },
   catalog: { catalogList: [] },
 };
-
-const baseSubsidyRequestCatalogsApplicableToCourse = new Set();
 
 const generateCourseRun = ({
   availability = COURSE_AVAILABILITY_MAP.STARTING_SOON,
@@ -81,6 +78,7 @@ const generateCourseRun = ({
 const renderCard = ({
   courseRun,
   userEntitlements = [],
+  courseEntitlements = [],
   userEnrollments = [],
   courseInitState = selfPacedCourseWithoutLicenseSubsidy,
   initialUserSubsidyState = {
@@ -97,21 +95,26 @@ const renderCard = ({
     isLoading: false,
     catalogsForSubsidyRequests: [],
   },
-  subsidyRequestCatalogsApplicableToCourse = baseSubsidyRequestCatalogsApplicableToCourse,
+  userSubsidyApplicableToCourse = undefined,
+  userCanRequestSubsidyForCourse = false,
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
     <AppContext.Provider value={INITIAL_APP_STATE}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <CourseContextProvider initialCourseState={courseInitState}>
+          <CourseContextProvider
+            initialCourseState={courseInitState}
+            userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+            userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
+          >
             <CourseRunCardDeprecated
               catalogList={['foo']}
               userEntitlements={userEntitlements}
               userEnrollments={userEnrollments}
               courseRun={courseRun}
               courseKey={COURSE_ID}
-              subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
+              courseEntitlements={courseEntitlements}
             />
           </CourseContextProvider>
         </UserSubsidyContext.Provider>
@@ -209,7 +212,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     renderCard({
       courseRun,
       initialUserSubsidyState: noUserSubsidyState,
-      subsidyRequestCatalogsApplicableToCourse: new Set(['test-catalog-uuid']),
+      userCanRequestSubsidyForCourse: true,
     });
     const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();

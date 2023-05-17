@@ -47,7 +47,8 @@ export function determineEnrollmentType({
     return isCourseStarted ? TO_COURSEWARE_PAGE : VIEW_ON_DASHBOARD;
   }
 
-  // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
+  // Hide enroll button if learner can request a subsidy for the course, or
+  // already has an pending subsidy request for the course.
   if (userHasSubsidyRequestForCourse || userCanRequestSubsidyForCourse) {
     return HIDE_BUTTON;
   }

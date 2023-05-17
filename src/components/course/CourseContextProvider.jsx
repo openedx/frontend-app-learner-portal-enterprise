@@ -1,5 +1,5 @@
 import React, {
-  createContext, useReducer, useMemo, useContext,
+  createContext, useReducer, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -11,7 +11,6 @@ import {
   LICENSE_SUBSIDY_TYPE,
   SET_COURSE_RUN,
 } from './data/constants';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 export const CourseContext = createContext();
 
@@ -114,6 +113,8 @@ CourseContextProvider.propTypes = {
       }),
     })),
   })),
+  subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set),
+  userCanRequestSubsidyForCourse: PropTypes.bool,
   coursePrice: PropTypes.shape({
     list: PropTypes.number,
     discounted: PropTypes.number,
@@ -126,6 +127,8 @@ CourseContextProvider.defaultProps = {
   missingUserSubsidyReason: undefined,
   userSubsidyApplicableToCourse: undefined,
   redeemabilityPerContentKey: undefined,
+  subsidyRequestCatalogsApplicableToCourse: undefined,
+  userCanRequestSubsidyForCourse: false,
   coursePrice: undefined,
   currency: undefined,
 };

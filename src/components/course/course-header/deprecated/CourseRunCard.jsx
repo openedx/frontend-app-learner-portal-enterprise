@@ -36,7 +36,6 @@ const CourseRunCard = ({
   courseRun,
   userEnrollments,
   courseKey,
-  subsidyRequestCatalogsApplicableToCourse,
   missingUserSubsidyReason,
 }) => {
   const {
@@ -101,7 +100,6 @@ const CourseRunCard = ({
   const enrollmentType = determineEnrollmentType({
     subsidyData: { userSubsidyApplicableToCourse },
     userHasSubsidyRequestForCourse,
-    subsidyRequestCatalogsApplicableToCourse,
     isUserEnrolled,
     isEnrollable,
     isCourseStarted,
@@ -250,7 +248,6 @@ CourseRunCard.propTypes = {
     sku: PropTypes.string.isRequired,
   })).isRequired,
   userEntitlements: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set).isRequired,
   missingUserSubsidyReason: PropTypes.shape(),
 };
 
