@@ -17,7 +17,7 @@ const {
 
 /**
  * Determines whether a user can request a subsidy for a course, by checking whether
- * the subsidy request feautre is enabled, there are more than 1 subsidy request
+ * the subsidy request feature is enabled, there are more than 1 subsidy request
  * catalogs applicable to the course, and whether the learner already has a subsidy
  * applicable to the course.
  *
