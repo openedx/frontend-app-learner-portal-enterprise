@@ -17,6 +17,7 @@ import {
   hasCourseStarted,
   findHighestLevelSku,
   pathContainsCourseTypeSlug,
+  getEntitlementPrice,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
 import { useSubsidyDataForCourse } from '../../enrollment/hooks';
@@ -213,7 +214,7 @@ const CourseRunCard = ({
             enrollmentUrl={enrollmentUrl}
             userEnrollment={userEnrollment}
             subscriptionLicense={subscriptionLicense}
-            courseRunPrice={courseRun?.firstEnrollablePaidSeatPrice}
+            courseRunPrice={courseRun?.firstEnrollablePaidSeatPrice || getEntitlementPrice(courseEntitlements)}
           />
         )}
       </Card.Section>
