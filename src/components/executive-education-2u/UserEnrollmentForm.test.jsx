@@ -290,4 +290,47 @@ describe('UserEnrollmentForm', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
   });
+
+  it('handle error 422 where course was already enrolled in', async () => {
+    const mockCheckoutAlreadyEnrolledResponse = {
+      message: 'Axios Error: User has already purchased the product.',
+      customAttributes: {
+        httpErrorStatus: 422,
+      },
+    };
+    checkoutExecutiveEducation2U.mockResolvedValueOnce(mockCheckoutAlreadyEnrolledResponse);
+    const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
+    Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
+
+    render(<UserEnrollmentFormWrapper />);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
+    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    userEvent.click(screen.getByLabelText(termsLabelText));
+    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+    userEvent.click(screen.getByText('Confirm registration'));
+
+    // disabled while submitting
+    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+
+    await waitFor(() => {
+      expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
+      expect(checkoutExecutiveEducation2U).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sku: mockProductSKU,
+          userDetails: {
+            dateOfBirth: mockDateOfBirth,
+            firstName: mockFirstName,
+            lastName: mockLastName,
+          },
+          termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(mockTermsAcceptedAt).toISOString()),
+          dataShareConsent: true,
+        }),
+      );
+    });
+    expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
+
+    // disabled after submitting
+    expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
+  });
 });
