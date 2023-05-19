@@ -28,15 +28,7 @@ export async function checkoutExecutiveEducation2U(options = {}) {
   const payload = {
     ...snakeCaseObject(options),
   };
-  try {
-    const res = await getAuthenticatedHttpClient().post(url, payload);
-    const result = camelCaseObject(res.data);
-    return result;
-  } catch (err) {
-    const { message, customAttributes: { httpErrorStatus } } = err;
-    if (httpErrorStatus === 422 && message.includes('User has already purchased the product.')) {
-      return message;
-    }
-    throw err;
-  }
+  const res = await getAuthenticatedHttpClient().post(url, payload);
+  const result = camelCaseObject(res.data);
+  return result;
 }
