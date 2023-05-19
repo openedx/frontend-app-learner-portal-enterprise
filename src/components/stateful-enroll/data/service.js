@@ -1,6 +1,5 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getConfig } from '@edx/frontend-platform/config';
 
 /**
  * Makes an API request to retrieve the most recent payload for the
@@ -10,12 +9,8 @@ import { getConfig } from '@edx/frontend-platform/config';
  * @param {string} args.transactionUUID The uuid (primary key) of the subsidy from which transactions should be listed.
  * @returns The payload for the specified transaction.
  */
-export const retrieveTransactionStatus = async ({ transactionUUID }) => {
-  const config = getConfig();
-
-  const url = `${config.ENTERPRISE_SUBSIDY_BASE_URL}/api/v1/transactions/${transactionUUID}/`;
-  const response = await getAuthenticatedHttpClient().get(url);
-
+export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }) => {
+  const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
 };
 
