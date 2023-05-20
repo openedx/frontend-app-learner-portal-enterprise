@@ -118,14 +118,14 @@ let mockLocation = {
 const DashboardWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
-  initialCourseState = defaultCourseState,
+  courseState = defaultCourseState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <CourseContextProvider initialCourseState={initialCourseState}>
+          <CourseContextProvider courseState={courseState}>
             <DashboardPage />
           </CourseContextProvider>
         </SubsidyRequestsContext.Provider>

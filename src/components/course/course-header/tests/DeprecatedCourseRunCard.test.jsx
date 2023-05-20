@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import {
   renderWithRouter,
   initialAppState,
-  initialCourseState,
+  mockCourseState,
 } from '../../../../utils/tests';
 
 import {
@@ -45,7 +45,7 @@ jest.mock('../../data/hooks', () => ({
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
-const defaultCourse = initialCourseState({});
+const defaultCourse = mockCourseState({});
 
 const selfPacedCourseWithoutLicenseSubsidy = {
   ...defaultCourse,
@@ -80,7 +80,7 @@ const renderCard = ({
   userEntitlements = [],
   courseEntitlements = [],
   userEnrollments = [],
-  courseInitState = selfPacedCourseWithoutLicenseSubsidy,
+  courseState = selfPacedCourseWithoutLicenseSubsidy,
   initialUserSubsidyState = {
     subscriptionLicense: null,
     couponCodes: {
@@ -104,7 +104,7 @@ const renderCard = ({
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <CourseContextProvider
-            initialCourseState={courseInitState}
+            courseState={courseState}
             userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
             userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
           >

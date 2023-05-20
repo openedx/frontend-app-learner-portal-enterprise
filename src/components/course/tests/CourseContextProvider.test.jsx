@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { CourseContextProvider, CourseContext } from '../CourseContextProvider';
 
-const baseInitialCourseState = {
+const baseCourseState = {
   course: {},
   activeCourseRun: {},
   userEnrollments: [],
@@ -15,11 +15,11 @@ const baseInitialCourseState = {
 const CourseContextProviderWrapper = ({
   subsidyRequestCatalogsApplicableToCourse = new Set(),
   userCanRequestSubsidyForCourse = false,
-  initialCourseState = baseInitialCourseState,
+  courseState = baseCourseState,
   children,
 }) => (
   <CourseContextProvider
-    initialCourseState={initialCourseState}
+    courseState={courseState}
     subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
     userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
   >
@@ -47,14 +47,14 @@ describe('<CourseContextProvider>', () => {
   ])('has 1 catalog for configured subsidy type applicable to course', ({ canRequestEnrollment }) => {
     const testCatalogUUID = 'test-catalog-uuid';
     const courseState = {
-      ...baseInitialCourseState,
+      ...baseCourseState,
       catalog: { catalogList: [testCatalogUUID] },
     };
     const requestCatalogsForCourse = canRequestEnrollment ? [testCatalogUUID] : [];
     render(
       <CourseContextProviderWrapper
         subsidyRequestCatalogsApplicableToCourse={new Set(requestCatalogsForCourse)}
-        initialCourseState={courseState}
+        courseState={courseState}
         userCanRequestSubsidyForCourse={canRequestEnrollment}
       >
         <CourseContext.Consumer>
