@@ -125,7 +125,7 @@ describe('<CourseSkills />', () => {
 
   test('renders tooltip text only till maximum cutoff value when skill description is too long', async () => {
     // set a skill description greater than description cutoff limit
-    const defaultCourseState = {
+    const newCourseState = {
       ...courseState,
       course: {
         ...courseState.course,
@@ -141,14 +141,14 @@ describe('<CourseSkills />', () => {
     renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
-        courseState={defaultCourseState}
+        courseState={newCourseState}
       />,
     );
-    const { skills } = courseState.course;
+    const { skills } = newCourseState.course;
     const maxVisibleDesc = shortenString(skills[0].description, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR);
     await act(async () => {
       fireEvent.mouseOver(screen.getByText(skills[0].name));
     });
-    expect(await screen.queryByText(maxVisibleDesc)).toBeVisible();
+    expect(await screen.findByText(maxVisibleDesc)).toBeVisible();
   });
 });
