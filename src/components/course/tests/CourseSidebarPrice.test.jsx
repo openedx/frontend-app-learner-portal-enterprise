@@ -57,7 +57,7 @@ const PARTIAL_COUPON_CODE_SUBSIDY = {
 };
 
 const baseCourseContextProps = {
-  initialCourseState: BASE_COURSE_STATE,
+  courseState: BASE_COURSE_STATE,
   userSubsidyApplicableToCourse: null,
   subsidyRequestCatalogsApplicableToCourse: new Set([mockCatalogUUID]),
   coursePrice: { list: 7.5, discounted: 7.5 },
@@ -163,7 +163,7 @@ describe('<CourseSidebarPrice/> ', () => {
         <SidebarWithContext
           initialAppState={appStateWithOrigPriceShowing}
           courseContextProps={{
-            initialCourseState: BASE_COURSE_STATE,
+            courseState: BASE_COURSE_STATE,
             userSubsidyApplicableToCourse: mockEnterpriseOfferSubsidy,
             coursePrice: { list: 7.5, discounted: 0 },
             currency: 'USD',

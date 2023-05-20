@@ -1,7 +1,9 @@
 import React, {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useLocation, useParams, useHistory } from 'react-router-dom';
+import {
+  useLocation, useParams, useHistory,
+} from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
@@ -254,7 +256,7 @@ const CoursePage = () => {
       <Helmet title={PAGE_TITLE} />
       <CourseEnrollmentsContextProvider>
         <CourseContextProvider
-          initialCourseState={courseState}
+          courseState={courseState}
           missingUserSubsidyReason={missingUserSubsidyReason}
           userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
           isPolicyRedemptionEnabled={isPolicyRedemptionEnabled}

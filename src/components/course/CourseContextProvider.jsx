@@ -1,6 +1,4 @@
-import React, {
-  createContext, useReducer, useMemo,
-} from 'react';
+import React, { createContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -9,23 +7,13 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
-  SET_COURSE_RUN,
 } from './data/constants';
 
 export const CourseContext = createContext();
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case SET_COURSE_RUN:
-      return { ...state, activeCourseRun: action.payload };
-    default:
-      return state;
-  }
-};
-
 export const CourseContextProvider = ({
   children,
-  initialCourseState,
+  courseState,
   isPolicyRedemptionEnabled,
   missingUserSubsidyReason,
   userSubsidyApplicableToCourse,
@@ -35,11 +23,8 @@ export const CourseContextProvider = ({
   coursePrice,
   currency,
 }) => {
-  const [state, dispatch] = useReducer(reducer, initialCourseState);
-
   const value = useMemo(() => ({
-    state,
-    dispatch,
+    state: courseState,
     userCanRequestSubsidyForCourse,
     subsidyRequestCatalogsApplicableToCourse,
     isPolicyRedemptionEnabled,
@@ -49,7 +34,7 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
   }), [
-    state,
+    courseState,
     userCanRequestSubsidyForCourse,
     subsidyRequestCatalogsApplicableToCourse,
     isPolicyRedemptionEnabled,
@@ -69,7 +54,7 @@ export const CourseContextProvider = ({
 
 CourseContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
-  initialCourseState: PropTypes.shape({
+  courseState: PropTypes.shape({
     course: PropTypes.shape({}).isRequired,
     activeCourseRun: PropTypes.shape({}).isRequired,
     userEnrollments: PropTypes.arrayOf(PropTypes.shape({
