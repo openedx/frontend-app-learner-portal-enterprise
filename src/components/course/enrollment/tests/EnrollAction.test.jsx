@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import {
   renderWithRouter,
   initialAppState,
-  initialCourseState,
+  mockCourseState,
 } from '../../../../utils/tests';
 import { COURSE_MODES_MAP } from '../../data/constants';
 import EnrollAction from '../EnrollAction';
@@ -40,7 +40,7 @@ const {
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
-const selfPacedCourseWithLicenseSubsidy = initialCourseState({});
+const selfPacedCourseWithLicenseSubsidy = mockCourseState({});
 const verifiedTrackEnrollment = {
   mode: COURSE_MODES_MAP.VERIFIED,
   isActive: true,
@@ -58,7 +58,7 @@ const EnrollLabel = (props) => (
 );
 const renderEnrollAction = ({
   enrollAction,
-  courseInitState = selfPacedCourseWithLicenseSubsidy,
+  courseState = selfPacedCourseWithLicenseSubsidy,
   initialUserSubsidyState = {
     subscriptionLicense,
     couponCodes: {
@@ -79,7 +79,7 @@ const renderEnrollAction = ({
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
           <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsRequestState}>
-            <CourseContextProvider initialCourseState={courseInitState}>
+            <CourseContextProvider courseState={courseState}>
               {enrollAction}
             </CourseContextProvider>
           </CourseEnrollmentsContext.Provider>

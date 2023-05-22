@@ -40,14 +40,14 @@ const baseUserSubsidyState = {
 };
 
 const ContextWrapper = ({
-  initialCourseState,
+  courseState,
   initialSubsidyRequestContextValue,
   initialUserSubsidyState,
   children,
 }) => (
   <UserSubsidyContext.Provider value={initialUserSubsidyState}>
     <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-      <CourseContextProvider initialCourseState={initialCourseState}>
+      <CourseContextProvider courseState={courseState}>
         {children}
       </CourseContextProvider>
     </SubsidyRequestsContext.Provider>
@@ -55,14 +55,14 @@ const ContextWrapper = ({
 );
 
 ContextWrapper.propTypes = {
-  initialCourseState: PropTypes.shape(),
+  courseState: PropTypes.shape(),
   initialSubsidyRequestContextValue: PropTypes.shape(),
   initialUserSubsidyState: PropTypes.shape(),
   children: PropTypes.node.isRequired,
 };
 
 ContextWrapper.defaultProps = {
-  initialCourseState: BASE_COURSE_STATE,
+  courseState: BASE_COURSE_STATE,
   initialSubsidyRequestContextValue: baseSubsidyRequestContextValue,
   initialUserSubsidyState: baseUserSubsidyState,
 };
@@ -100,7 +100,7 @@ describe('useEnrollData', () => {
 
     // Needed to render our hook with context initialized
     const wrapper = ({ children }) => (
-      <ContextWrapper initialCourseState={courseState}>
+      <ContextWrapper courseState={courseState}>
         {children}
       </ContextWrapper>
     );
@@ -144,7 +144,7 @@ describe('useSubsidyDataForCourse', () => {
     // Needed to render our hook with context initialized
     const wrapper = ({ children }) => (
       <ContextWrapper
-        initialCourseState={courseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       >
         {children}

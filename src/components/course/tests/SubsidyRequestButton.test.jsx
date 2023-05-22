@@ -39,7 +39,7 @@ const initialSubsidyRequestsState = {
 };
 
 const TEST_CATALOG_UUID = 'test-catalog-uuid';
-const initialCourseState = {
+const courseState = {
   course: {
     key: mockCourseKey,
     courseRunKeys: [mockCourseRunKey],
@@ -49,7 +49,7 @@ const initialCourseState = {
 };
 
 const defaultCourseContextValue = {
-  state: initialCourseState,
+  state: courseState,
   userSubsidyApplicableToCourse: undefined,
   subsidyRequestCatalogsApplicableToCourse: new Set([TEST_CATALOG_UUID]),
 };
@@ -60,7 +60,7 @@ const SubsidyRequestButtonWrapper = ({
 }) => (
   <ToastsContext.Provider value={initialToastsState}>
     <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
-      <CourseContext.Provider value={{ state: initialCourseState, ...courseContextValue }}>
+      <CourseContext.Provider value={{ state: courseState, ...courseContextValue }}>
         <SubsidyRequestButton />
       </CourseContext.Provider>
     </SubsidyRequestsContext.Provider>
