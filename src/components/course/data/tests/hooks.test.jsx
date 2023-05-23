@@ -739,7 +739,7 @@ describe('CoursePacingType', () => {
 
 describe('useCoursePriceForUserSubsidy', () => {
   it('should return the correct course price when a user subsidy is applicable with percentage discount', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const listPrice = 100;
     const userSubsidyApplicableToCourse = {
       discountType: 'percentage',
       discountValue: 10,
@@ -748,7 +748,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       subsidyId: '123',
     };
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      activeCourseRun,
+      listPrice,
       userSubsidyApplicableToCourse,
     }));
     const [coursePrice] = result.current;
@@ -756,7 +756,7 @@ describe('useCoursePriceForUserSubsidy', () => {
   });
 
   it('should return the correct course price when a user subsidy is applicable with unknown discount type', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const listPrice = 100;
     const userSubsidyApplicableToCourse = {
       discountType: 'unknown',
       discountValue: 100,
@@ -765,7 +765,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       subsidyId: '123',
     };
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      activeCourseRun,
+      listPrice,
       userSubsidyApplicableToCourse,
     }));
     const [coursePrice] = result.current;
@@ -773,7 +773,7 @@ describe('useCoursePriceForUserSubsidy', () => {
   });
 
   it('should return the correct course price when a user subsidy is applicable with absolute discount', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 150 };
+    const listPrice = 150;
     const userSubsidyApplicableToCourse = {
       discountType: 'absolute',
       discountValue: 10,
@@ -782,7 +782,7 @@ describe('useCoursePriceForUserSubsidy', () => {
       subsidyId: '123',
     };
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      activeCourseRun,
+      listPrice,
       userSubsidyApplicableToCourse,
     }));
     const [coursePrice] = result.current;
@@ -790,10 +790,10 @@ describe('useCoursePriceForUserSubsidy', () => {
   });
 
   it('should return the correct course price when a user subsidy is not applicable', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const listPrice = 100;
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      activeCourseRun,
+      listPrice,
       userSubsidyApplicableToCourse,
     }));
     const [coursePrice] = result.current;
@@ -801,15 +801,11 @@ describe('useCoursePriceForUserSubsidy', () => {
   });
 
   it('should return the correct course price for exec ed course', () => {
-    const execEdCourseEntitlements = [{
-      price: 200,
-    }];
+    const listPrice = 200;
 
-    const activeCourseRun = { };
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      courseEntitlements: execEdCourseEntitlements,
-      activeCourseRun,
+      listPrice,
       userSubsidyApplicableToCourse,
     }));
     const [coursePrice] = result.current;
@@ -817,10 +813,10 @@ describe('useCoursePriceForUserSubsidy', () => {
   });
 
   it('should return the correct currency', () => {
-    const activeCourseRun = { firstEnrollablePaidSeatPrice: 100 };
+    const listPrice = 100;
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      activeCourseRun,
+      listPrice,
       userSubsidyApplicableToCourse,
     }));
     const [, currency] = result.current;
@@ -828,10 +824,8 @@ describe('useCoursePriceForUserSubsidy', () => {
   });
 
   it('should return null if no list price is specified', () => {
-    const activeCourseRun = {};
     const userSubsidyApplicableToCourse = null;
     const { result } = renderHook(() => useCoursePriceForUserSubsidy({
-      activeCourseRun,
       userSubsidyApplicableToCourse,
     }));
     const [coursePrice] = result.current;
