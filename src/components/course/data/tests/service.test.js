@@ -110,7 +110,8 @@ describe('CourseService', () => {
   });
 
   it('fetches transaction status', async () => {
-    const response = await retrieveTransactionStatus({ transactionUUID: TRANSACTION_UUID });
+    const transactionStatusApiUrl = TRANSACTION_ENDPOINT;
+    const response = await retrieveTransactionStatus({ transactionStatusApiUrl });
     expect(axiosMock.history.get[0].url).toBe(TRANSACTION_ENDPOINT);
     expect(response).toEqual(mockTransactionResponse);
   });

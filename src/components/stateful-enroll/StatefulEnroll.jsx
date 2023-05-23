@@ -50,7 +50,7 @@ const StatefulEnroll = ({
 }) => {
   const intl = useIntl();
   const [enrollButtonState, setEnrollButtonState] = useState('default');
-  const [transactionUUID, setTransactionUUID] = useState();
+  const [transactionStatusApiUrl, setTransactionStatusApiUrl] = useState();
 
   const buttonLabels = {
     default: intl.formatMessage(messages.buttonLabelEnroll),
@@ -73,7 +73,7 @@ const StatefulEnroll = ({
       setEnrollButtonState('pending');
     },
     onSuccess: (transaction) => {
-      setTransactionUUID(transaction.uuid);
+      setTransactionStatusApiUrl(transaction.transactionStatusApiUrl);
     },
     onError: () => {
       handleRedemptionError();
@@ -82,7 +82,7 @@ const StatefulEnroll = ({
 
   useTransactionStatus({
     contentKey,
-    transactionUUID,
+    transactionStatusApiUrl,
     onSuccess: (transaction) => {
       if (transaction.state === 'committed') {
         setEnrollButtonState('complete');

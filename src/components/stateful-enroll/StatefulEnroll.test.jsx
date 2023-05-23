@@ -42,10 +42,10 @@ const mockCallbackProps = {
 };
 
 const MOCK_COURSE_RUN_KEY = 'course-v1:edX+S2023+1T2023';
-const MOCK_TRANSACTION_UUID = 'test-transaction-uuid';
 const MOCK_SUBSIDY_ACCESS_POLICY = {
   policyRedemptionUrl: 'http://policy-redemption.url',
 };
+const MOCK_TRANSACTION_STATUS_API_URL = 'http://transaction-status.url';
 
 const StatefulEnrollWrapper = (props) => (
   <QueryClientProvider client={queryClient}>
@@ -106,7 +106,7 @@ describe('StatefulEnroll', () => {
     const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
     const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
     submitRedemptionRequest.mockResolvedValueOnce({
-      uuid: MOCK_TRANSACTION_UUID,
+      transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
     });
     retrieveTransactionStatus.mockResolvedValueOnce({
       state: 'committed',
@@ -128,7 +128,7 @@ describe('StatefulEnroll', () => {
     const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
     const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
     submitRedemptionRequest.mockResolvedValueOnce({
-      uuid: MOCK_TRANSACTION_UUID,
+      transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
     });
     retrieveTransactionStatus.mockResolvedValueOnce({
       state: 'pending',
@@ -156,7 +156,7 @@ describe('StatefulEnroll', () => {
     const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
     const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
     submitRedemptionRequest.mockResolvedValueOnce({
-      uuid: MOCK_TRANSACTION_UUID,
+      transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
     });
     retrieveTransactionStatus.mockResolvedValueOnce({
       state: 'failed',
@@ -173,7 +173,7 @@ describe('StatefulEnroll', () => {
     const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
     const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
     submitRedemptionRequest.mockResolvedValueOnce({
-      uuid: MOCK_TRANSACTION_UUID,
+      transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
     });
     retrieveTransactionStatus.mockRejectedValueOnce();
     await clickEnrollButton();
