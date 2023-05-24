@@ -37,7 +37,7 @@ const VisualizeCareer = ({ jobId }) => {
 
   return (
     <div className="py-5 row">
-      <div className="my-career-column col-xs-10 col-lg-6">
+      <div className="ml-2.5 col-xs-10 col-lg-6">
         <div className="align-items-center">
           <Row>
             <ActionRow>
@@ -57,7 +57,7 @@ const VisualizeCareer = ({ jobId }) => {
           </Row>
           {skillCategories && (
             <>
-              <Row className="action-row">
+              <Row className="mt-4.5">
                 <ActionRow>
                   <p>My Career Chart</p>
                   <ActionRow.Spacer />
@@ -92,7 +92,7 @@ const VisualizeCareer = ({ jobId }) => {
             </Row>
           )}
           {skillCategories && (
-            <Row className="skills-category-card-section">
+            <Row className="mt-5">
               {skillCategories.map((category) => (
                 <CategoryCard key={category.id} topCategory={category} />
               ))}

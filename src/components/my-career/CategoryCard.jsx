@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import PropTypes from 'prop-types';
 import {
@@ -6,7 +6,10 @@ import {
   Button,
   useToggle,
 } from '@edx/paragon';
+import { getConfig } from '@edx/frontend-platform/config';
+import algoliasearch from 'algoliasearch/lite';
 import LevelBars from './LevelBars';
+import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -17,6 +20,18 @@ const CategoryCard = ({ topCategory }) => {
   const [showSkills, setShowSkillsOn, , toggleShowSkills] = useToggle(false);
   const [showAll, setShowAllOn, setShowAllOff, toggleShowAll] = useToggle(false);
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
+
+  const config = getConfig();
+  const courseIndex = useMemo(
+    () => {
+      const client = algoliasearch(
+        config.ALGOLIA_APP_ID,
+        config.ALGOLIA_SEARCH_API_KEY,
+      );
+      return client.initIndex(config.ALGOLIA_INDEX_NAME);
+    },
+    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
+  );
 
   const filterRenderableSkills = (skills) => {
     const renderableSkills = [];
@@ -81,50 +96,63 @@ const CategoryCard = ({ topCategory }) => {
   };
 
   return (
-    <Card className="skills-category-card">
-      <Card.Header className="category-name-section" title={topCategory.name} />
-      <Card.Section className="category-skill-chips-section">
+    <Card className="mb-4.5">
+      <Card.Header className="mt-n3" title={topCategory.name} />
+      <Card.Section>
         {skillsSubcategories.map((skillsSubcategory) => (
-          <Button variant="light" size="sm" className="mr-1 mb-1" data-testid="skill-category-chip" onClick={() => handleSubcategoryClick(skillsSubcategory)}>
+          <Button
+            variant="light"
+            size="sm"
+            className="mr-1 mb-1"
+            data-testid="skill-category-chip"
+            onClick={() => handleSubcategoryClick(skillsSubcategory)}
+          >
             {skillsSubcategory.name}
           </Button>
         ))}
       </Card.Section>
       {subcategorySkills && showSkills && (
-        <Card.Section className="skill-details-section">
-          <>
-            <div>
-              <h5>{subCategoryName} Skills</h5>
-            </div>
-            <div>
-              {renderSkillsWithLevelsChunk(subcategorySkills)}
-            </div>
-          </>
+        <Card.Section className="mt-n3">
+          <div>
+            <h5>{subCategoryName} Skills</h5>
+          </div>
+          <div>
+            {renderSkillsWithLevelsChunk(subcategorySkills)}
+          </div>
         </Card.Section>
       )}
       {subcategorySkills && subCategorySkillsLength > 3 && (
-        <Card.Footer>
-          <Button
-            variant="link"
-            className="mb-1 mb-sm-0 skill-details-section-button"
-            onClick={() => {
-              handleShowAllClick();
-            }}
-            testid="show-all-less-button"
-          >
-            {showAll && !showLess && (
-              <span>Show ({subCategorySkillsLength}) &gt;</span>
-            )}
-            {!showAll && showLess && (
-              <span>Show Less</span>
-            )}
-            {
-              !showAll && !showLess && (
-                null)
-            }
-          </Button>
-        </Card.Footer>
+        <Button
+          variant="link"
+          className="mb-1 mt-n4 justify-content-end"
+          onClick={() => {
+            handleShowAllClick();
+          }}
+          testid="show-all-less-button"
+        >
+          {showAll && !showLess && (
+            <span>Show ({subCategorySkillsLength}) &gt;</span>
+          )}
+          {!showAll && showLess && (
+            <span>Show Less</span>
+          )}
+          {
+            !showAll && !showLess && (
+              null)
+          }
+        </Button>
       )}
+      <Card.Section>
+        {showSkills && subcategorySkills && (
+          <div className="skill-details-recommended-courses">
+            <SkillsRecommendationCourses
+              index={courseIndex}
+              subCategoryName={subCategoryName}
+              subCategorySkills={subcategorySkills.map((skill) => skill.name)}
+            />
+          </div>
+        )}
+      </Card.Section>
     </Card>
   );
 };
