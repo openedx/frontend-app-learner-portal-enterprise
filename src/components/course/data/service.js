@@ -191,7 +191,7 @@ export default class CourseService {
     courseRunKeys.forEach((courseRunKey) => {
       queryParams.append('content_key', courseRunKey);
     });
-    const url = `${this.config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/enterprise-customer/${this.enterpriseUuid}/can-redeem/`;
+    const url = `${this.config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${this.enterpriseUuid}/can-redeem/`;
     const urlWithParams = `${url}?${queryParams.toString()}`;
     return this.authenticatedHttpClient.get(urlWithParams);
   }

@@ -34,9 +34,9 @@ const RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/taxono
 const FILTER_RECOMMENDATION_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${ENTERPRISE_UUID}/filter_content_items/`;
 const REVIEW_API_ENDPOINT = `${APP_CONFIG.DISCOVERY_API_BASE_URL}/api/v1/course_review/${COURSE_KEY}/`;
 const canRedeemParams = new URLSearchParams({ content_key: COURSE_RUN_KEY });
-const CAN_REDEEM_ENDPOINT = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/enterprise-customer/${ENTERPRISE_UUID}/can-redeem/?${canRedeemParams.toString()}`;
+const CAN_REDEEM_ENDPOINT = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${ENTERPRISE_UUID}/can-redeem/?${canRedeemParams.toString()}`;
 const TRANSACTION_ENDPOINT = `${APP_CONFIG.ENTERPRISE_SUBSIDY_BASE_URL}/api/v1/transactions/${TRANSACTION_UUID}/`;
-const REDEEM_ENDPOINT = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/${POLICY_UUID}/redeem/`;
+const REDEEM_ENDPOINT = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/${POLICY_UUID}/redeem/`;
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
@@ -117,7 +117,7 @@ describe('CourseService', () => {
   });
 
   it('fetches redemption request', async () => {
-    const policyRedemptionUrl = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy/87654321-9000-0000-0000-123456789101/redeem/`;
+    const policyRedemptionUrl = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/87654321-9000-0000-0000-123456789101/redeem/`;
     const userId = mockTransactionResponse.user_id;
     const contentKey = mockTransactionResponse.content_key;
     const requestBody = {

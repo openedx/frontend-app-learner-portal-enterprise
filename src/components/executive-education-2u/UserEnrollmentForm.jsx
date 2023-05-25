@@ -8,7 +8,7 @@ import {
   Form as FormikForm,
 } from 'formik';
 import { AppContext } from '@edx/frontend-platform/react';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import moment from 'moment/moment';
@@ -33,7 +33,10 @@ const UserEnrollmentForm = ({
   productSKU,
   onCheckoutSuccess,
 }) => {
-  const { enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent } } = useContext(AppContext);
+  const {
+    enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
+    authenticatedUser: { id: userId },
+  } = useContext(AppContext);
   const config = getConfig();
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [isEnrollmentSubmitted, setIsEnrollmentSubmitted] = useState(false);
@@ -73,8 +76,18 @@ const UserEnrollmentForm = ({
   };
 
   const handleFormSubmit = async (values, { setSubmitting }) => {
+    const onSuccess = async () => {
+      await sendEnterpriseTrackEventWithDelay(
+        enterpriseId,
+        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
+      );
+
+      setIsEnrollmentSubmitted(true);
+      onCheckoutSuccess();
+    };
+
     try {
-      const result = await checkoutExecutiveEducation2U({
+      await checkoutExecutiveEducation2U({
         sku: productSKU,
         userDetails: {
           firstName: values.firstName,
@@ -85,16 +98,16 @@ const UserEnrollmentForm = ({
         ...(enableDataSharingConsent ? { dataShareConsent: !!values.dataSharingConsent } : {}),
       });
 
-      await sendEnterpriseTrackEventWithDelay(
-        enterpriseId,
-        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
-      );
-
-      setIsEnrollmentSubmitted(true);
-      onCheckoutSuccess(result);
+      await onSuccess();
     } catch (error) {
-      setFormSubmissionError(error);
-      logError(error);
+      const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
+      if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
+        logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
+        await onSuccess();
+      } else {
+        setFormSubmissionError(error);
+        logError(error);
+      }
     } finally {
       setSubmitting(false);
     }
