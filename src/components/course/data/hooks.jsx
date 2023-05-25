@@ -25,7 +25,6 @@ import {
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
-  getEntitlementPrice,
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
 } from './utils';
@@ -219,20 +218,17 @@ export function useCoursePacingType(courseRun) {
 /**
  * Determines course price based on userSubsidy and course info.
  * @param {object} args Arguments.
- * @param {Object} args.activeCourseRun course run info
- * @param {Object} args.userSubsidyApplicableToCourse Usersubsidy
- * @param {Object} args.courseEntitlements Course Entitlements
+ * @param {Object} args.userSubsidyApplicableToCourse User subsidy
+ * @param {Object} args.listPrice List price for course
  *
- * @returns {Object} { activeCourseRun, userSubsidyApplicableToCourse }
+ * @returns {Object} { [{list: number, discounted: number}, currency: string] }
  */
 export const useCoursePriceForUserSubsidy = ({
-  activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements,
+  userSubsidyApplicableToCourse, listPrice,
 }) => {
   const currency = CURRENCY_USD;
   const coursePrice = useMemo(
     () => {
-      const listPrice = activeCourseRun?.firstEnrollablePaidSeatPrice || getEntitlementPrice(courseEntitlements);
-
       if (!listPrice) {
         return null;
       }
@@ -270,14 +266,13 @@ export const useCoursePriceForUserSubsidy = ({
       // Case 2: No subsidy available for course
       return onlyListPrice;
     },
-    [activeCourseRun, userSubsidyApplicableToCourse, courseEntitlements],
+    [userSubsidyApplicableToCourse, listPrice],
   );
 
   return [coursePrice, currency];
 };
 
 useCoursePriceForUserSubsidy.propTypes = {
-  activeCourseRun: PropTypes.shape({}).isRequired,
   userSubsidyApplicableToCourse: PropTypes.shape({
     discountType: PropTypes.string.isRequired,
     discountValue: PropTypes.number.isRequired,
@@ -285,6 +280,7 @@ useCoursePriceForUserSubsidy.propTypes = {
     startDate: PropTypes.string.isRequired,
     subsidyId: PropTypes.string.isRequired,
   }).isRequired,
+  listPrice: PropTypes.number,
 };
 
 /**

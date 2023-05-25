@@ -173,6 +173,10 @@ const CoursePage = () => {
     ],
   );
 
+  const courseListPrice = subsidyAccessPolicyRedeemabilityData?.coursePrice
+  || courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
+  || getEntitlementPrice(courseState?.course?.entitlements);
+
   const {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
@@ -188,16 +192,12 @@ const CoursePage = () => {
     onSubscriptionLicenseForCourseValidationError,
     missingSubsidyAccessPolicyReason,
     enterpriseAdminUsers,
-    courseListPrice: (
-      courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
-      || getEntitlementPrice(courseState?.course?.entitlements)
-    ),
+    courseListPrice,
   });
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
-    courseEntitlements: courseState?.course?.entitlements,
-    activeCourseRun: courseState?.activeCourseRun,
     userSubsidyApplicableToCourse,
+    listPrice: courseListPrice,
   });
 
   useEffect(() => {
