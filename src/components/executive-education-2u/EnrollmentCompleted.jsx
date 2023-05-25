@@ -14,17 +14,19 @@ const EnrollmentCompleted = () => {
     return <Redirect to={`/${enterpriseConfig.slug}`} />;
   }
   return (
-    <Container size="lg" className="py-5">
-      <Helmet>
-        <title>Enrollment Completed</title>
-      </Helmet>
-      <h2 className="mb-3">Congratulations, you have completed your enrollment for your online course</h2>
-      <CourseSummaryCard
-        courseMetadata={location.state.data}
-        enrollmentCompleted
-      />
-      <EnrollmentCompletedSummaryCard />
-    </Container>
+    <div className="fill-vertical-space page-light-bg">
+      <Container size="lg" className="py-5">
+        <Helmet>
+          <title>Enrollment Completed</title>
+        </Helmet>
+        <h2 className="mb-3">Congratulations, you have completed your enrollment for your online course</h2>
+        <CourseSummaryCard
+          courseMetadata={location.state.data}
+          enrollmentCompleted
+        />
+        <EnrollmentCompletedSummaryCard />
+      </Container>
+    </div>
   );
 };
 
