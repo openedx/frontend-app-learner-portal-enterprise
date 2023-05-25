@@ -22,6 +22,7 @@ export const CourseContextProvider = ({
   userCanRequestSubsidyForCourse,
   coursePrice,
   currency,
+  canOnlyViewHighlightSets,
 }) => {
   const value = useMemo(() => ({
     state: courseState,
@@ -33,6 +34,7 @@ export const CourseContextProvider = ({
     redeemabilityPerContentKey,
     coursePrice,
     currency,
+    canOnlyViewHighlightSets,
   }), [
     courseState,
     userCanRequestSubsidyForCourse,
@@ -43,6 +45,7 @@ export const CourseContextProvider = ({
     redeemabilityPerContentKey,
     coursePrice,
     currency,
+    canOnlyViewHighlightSets,
   ]);
 
   return (
@@ -105,6 +108,7 @@ CourseContextProvider.propTypes = {
     discounted: PropTypes.number,
   }),
   currency: PropTypes.string,
+  canOnlyViewHighlightSets: PropTypes.bool,
 };
 
 CourseContextProvider.defaultProps = {
@@ -116,4 +120,5 @@ CourseContextProvider.defaultProps = {
   userCanRequestSubsidyForCourse: false,
   coursePrice: undefined,
   currency: undefined,
+  canOnlyViewHighlightSets: false,
 };

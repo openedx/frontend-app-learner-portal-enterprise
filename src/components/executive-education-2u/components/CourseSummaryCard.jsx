@@ -28,7 +28,7 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => (
               </Col>
             </Row>
           </Col>
-          <Col xs={12} lg={{ span: 4, offset: 0 }}>
+          <Col xs={12} lg={4}>
             <div className="course-details">
               <Row className="align-items-center">
                 <Col className="small font-weight-light text-gray-500 justify-content-start">{enrollmentCompleted ? 'Start date:' : 'Available start date:'}</Col>

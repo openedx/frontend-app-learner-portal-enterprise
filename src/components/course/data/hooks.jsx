@@ -2,6 +2,7 @@ import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -27,6 +28,7 @@ import {
   findEnterpriseOfferForCourse,
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
+  getCourseOrganizationDetails,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -40,9 +42,10 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   DISABLED_ENROLL_REASON_TYPES,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  DATE_FORMAT,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
-import { getExecutiveEducation2UEnrollmentUrl } from '../enrollment/utils';
+import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -357,7 +360,7 @@ export const useCourseEnrollmentUrl = ({
       }
 
       if (isExecutiveEducation2UCourse) {
-        return getExecutiveEducation2UEnrollmentUrl({
+        return getExternalCourseEnrollmentUrl({
           enterpriseSlug: enterpriseConfig.slug,
           courseUuid,
           entitlementProductSku: sku,
@@ -873,4 +876,28 @@ export const useUserSubsidyApplicableToCourse = ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
   }), [userSubsidyApplicableToCourse, missingUserSubsidyReason]);
+};
+
+export const useMinimalCourseMetadata = () => {
+  const {
+    state: {
+      activeCourseRun,
+      course,
+    },
+    coursePrice,
+    currency,
+  } = useContext(CourseContext);
+  const organizationDetails = getCourseOrganizationDetails(course);
+  const courseMetadata = {
+    organizationImage: organizationDetails.organizationLogo,
+    organizationName: organizationDetails.organizationName,
+    title: course.title,
+    startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
+    duration: activeCourseRun ? `${activeCourseRun.weeksToComplete} Week${activeCourseRun.weeksToComplete <= 1 ? '' : 's'}` : '-',
+    priceDetails: {
+      price: coursePrice.list,
+      currency,
+    },
+  };
+  return courseMetadata;
 };

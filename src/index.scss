@@ -8,6 +8,7 @@
 $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome";
 
+@import "./components/layout/styles/Layout";
 @import "./components/course/styles/CourseHeader";
 @import "./components/course/styles/CourseReview";
 @import "./components/course/styles/CourseSidebar";

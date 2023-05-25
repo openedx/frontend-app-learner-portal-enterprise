@@ -625,3 +625,19 @@ export const getMissingSubsidyReasonActions = ({
 
   return null;
 };
+
+export const getCourseOrganizationDetails = (courseData) => {
+  const organizationDetails = {};
+  if (courseData?.organizationShortCodeOverride) {
+    organizationDetails.organizationName = courseData.organizationShortCodeOverride;
+  } else {
+    organizationDetails.organizationName = courseData?.owners[0]?.name;
+  }
+  if (courseData?.organizationLogoOverrideUrl) {
+    organizationDetails.organizationLogo = courseData.organizationLogoOverrideUrl;
+  } else {
+    organizationDetails.organizationLogo = courseData?.owners[0]?.logoImageUrl;
+  }
+
+  return organizationDetails;
+};
