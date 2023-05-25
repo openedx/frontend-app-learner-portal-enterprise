@@ -44,7 +44,7 @@ export const initialAppState = ({
  * e.g. <CourseContext.Provider />
  * Returns a self-paced course with a license subsidy, by default.
  */
-export const initialCourseState = ({
+export const mockCourseState = ({
   pacingType = 'self-paced',
   userSubsidyApplicableToCourse = { subsidyType: 'license' },
 }) => ({

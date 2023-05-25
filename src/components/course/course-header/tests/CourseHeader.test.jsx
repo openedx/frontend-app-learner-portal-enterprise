@@ -51,7 +51,7 @@ const defaultCourseEnrollmentsState = {
 const CourseHeaderWrapper = ({
   initialAppState = {},
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
-  initialCourseState = {},
+  courseState = {},
   initialUserSubsidyState = {},
   initialSubsidyRequestsState = defaultSubsidyRequestsState,
 }) => (
@@ -59,7 +59,7 @@ const CourseHeaderWrapper = ({
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
       <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
         <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-          <CourseContextProvider initialCourseState={initialCourseState}>
+          <CourseContextProvider courseState={courseState}>
             <CourseHeader />
           </CourseContextProvider>
         </CourseEnrollmentsContext.Provider>
@@ -74,7 +74,7 @@ describe('<CourseHeader />', () => {
       slug: 'test-enterprise-slug',
     },
   };
-  const initialCourseState = {
+  const courseState = {
     course: {
       subjects: [{
         name: 'Test Subject 1',
@@ -127,36 +127,36 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
     expect(screen.queryByText('Find a Course')).toBeInTheDocument();
-    expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryAllByText(courseState.course.title)[0]).toBeInTheDocument();
   });
 
   test('does not render breadcrumb when search is disabled for customer', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={{ enterpriseConfig: { disableSearch: true } }}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
     expect(screen.queryByText('Find a Course')).toBeFalsy();
-    expect(screen.queryAllByText(initialCourseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryAllByText(courseState.course.title)[0]).toBeInTheDocument();
   });
 
   test('renders course title and short description', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
 
-    const { title, shortDescription } = initialCourseState.course;
+    const { title, shortDescription } = courseState.course;
     expect(screen.queryAllByText(title)[1]).toBeInTheDocument();
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
@@ -166,7 +166,7 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
@@ -181,7 +181,7 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
@@ -197,13 +197,13 @@ describe('<CourseHeader />', () => {
 
   test('does not renders course reviews section', () => {
     const courseStateWithNoCourseReviews = {
-      ...initialCourseState,
+      ...courseState,
       courseReviews: null,
     };
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={courseStateWithNoCourseReviews}
+        courseState={courseStateWithNoCourseReviews}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
@@ -214,7 +214,7 @@ describe('<CourseHeader />', () => {
 
   test('does not renders course reviews section if course not part of catalog', () => {
     const courseStateWithNoCourseReviews = {
-      ...initialCourseState,
+      ...courseState,
       catalog: {
         containsContentItems: false,
         catalogList: [],
@@ -223,7 +223,7 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={courseStateWithNoCourseReviews}
+        courseState={courseStateWithNoCourseReviews}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
@@ -236,7 +236,7 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
@@ -248,18 +248,18 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
 
-    const partner = initialCourseState.course.owners[0];
+    const partner = courseState.course.owners[0];
     expect(screen.queryByAltText(`${partner.name} logo`)).toBeInTheDocument();
   });
 
   test('renders not in catalog messaging', () => {
     const courseStateWithNoCatalog = {
-      ...initialCourseState,
+      ...courseState,
       catalog: {
         containsContentItems: false,
         catalogList: [],
@@ -269,7 +269,7 @@ describe('<CourseHeader />', () => {
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
-        initialCourseState={courseStateWithNoCatalog}
+        courseState={courseStateWithNoCatalog}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
@@ -294,7 +294,7 @@ describe('<CourseHeader />', () => {
       render(
         <CourseHeaderWrapper
           initialAppState={initialAppState}
-          initialCourseState={initialCourseState}
+          courseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
@@ -321,7 +321,7 @@ describe('<CourseHeader />', () => {
       render(
         <CourseHeaderWrapper
           initialAppState={initialAppState}
-          initialCourseState={initialCourseState}
+          courseState={courseState}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
@@ -332,9 +332,9 @@ describe('<CourseHeader />', () => {
 
   describe('renders program messaging', () => {
     const courseStateWithProgramType = (type) => ({
-      ...initialCourseState,
+      ...courseState,
       course: {
-        ...initialCourseState.course,
+        ...courseState.course,
         programs: [{
           type,
         }],
@@ -347,7 +347,7 @@ describe('<CourseHeader />', () => {
       render(
         <CourseHeaderWrapper
           initialAppState={initialAppState}
-          initialCourseState={courseStateWithProgramType(micromasters)}
+          courseState={courseStateWithProgramType(micromasters)}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
@@ -362,7 +362,7 @@ describe('<CourseHeader />', () => {
       render(
         <CourseHeaderWrapper
           initialAppState={initialAppState}
-          initialCourseState={courseStateWithProgramType(profCert)}
+          courseState={courseStateWithProgramType(profCert)}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );

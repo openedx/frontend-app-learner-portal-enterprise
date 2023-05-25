@@ -64,5 +64,6 @@ dist/
 .idea
 .vscode
 
-# Emacs temp files
+# Emacs
 *~
+.projectile

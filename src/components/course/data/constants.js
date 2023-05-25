@@ -1,7 +1,5 @@
 import GetSmarterLogo from '../../../assets/icons/getsmarter-header-icon.svg';
 
-export const SET_COURSE_RUN = 'SET_COURSE_RUN';
-
 export const COURSE_PACING_MAP = {
   SELF_PACED: 'self_paced',
   INSTRUCTOR_PACED: 'instructor_paced',

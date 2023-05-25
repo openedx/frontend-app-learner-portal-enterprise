@@ -6,7 +6,7 @@ import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-en
 import { CourseContextProvider } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
-import { initialCourseState } from '../../../utils/tests';
+import { mockCourseState } from '../../../utils/tests';
 import CoursePage from '../CoursePage';
 import { useAllCourseData } from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
@@ -168,9 +168,9 @@ const initialSubsidyRequestsState = {
   },
   catalogsForSubsidyRequests: ['test-catalog-subsidy-requests', 'course-run-1'],
 };
-const initialCourseStateDefined = initialCourseState({});
-const updatedInitialCourseStateDefined = {
-  ...initialCourseStateDefined,
+const courseStateDefined = mockCourseState({});
+const updatedCourseStateDefined = {
+  ...courseStateDefined,
   catalog: {
     catalogList: ['test-catalog-subsidy-requests'],
   },
@@ -205,7 +205,7 @@ describe('CoursePage', () => {
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
             <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-              <CourseContextProvider initialCourseState={updatedInitialCourseStateDefined}>
+              <CourseContextProvider courseState={updatedCourseStateDefined}>
                 <MemoryRouter>
                   <CoursePage location={mockLocation} match={{ params: mockParams }} />
                 </MemoryRouter>
@@ -238,7 +238,7 @@ describe('CoursePage', () => {
         <UserSubsidyContext.Provider value={initialUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
             <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-              <CourseContextProvider initialCourseState={updatedInitialCourseStateDefined}>
+              <CourseContextProvider courseState={updatedCourseStateDefined}>
                 <MemoryRouter>
                   <CoursePage location={mockLocation} match={{ params: mockParams }} />
                 </MemoryRouter>

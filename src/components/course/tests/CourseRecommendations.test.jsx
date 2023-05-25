@@ -41,7 +41,7 @@ const course = {
   owners: [TEST_OWNER],
 };
 
-const initialCourseState = {
+const defaultCourseState = {
   state: {
     course: {
       owners: [TEST_OWNER],
@@ -55,7 +55,7 @@ const initialCourseState = {
 
 const CourseRecommendationsWithContext = () => (
   <AppContext.Provider value={initialAppState}>
-    <CourseContext.Provider value={initialCourseState}>
+    <CourseContext.Provider value={defaultCourseState}>
       <CourseRecommendations />
     </CourseContext.Provider>
   </AppContext.Provider>

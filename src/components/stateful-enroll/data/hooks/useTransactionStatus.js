@@ -16,8 +16,7 @@ import { retrieveTransactionStatus } from '../service';
  * @returns
  */
 const useTransactionStatus = ({
-  contentKey,
-  transactionUUID,
+  transactionStatusApiUrl,
   onSuccess,
   onError,
 }) => {
@@ -34,13 +33,13 @@ const useTransactionStatus = ({
   };
 
   const checkTransactionStatus = async () => {
-    const response = await retrieveTransactionStatus({ transactionUUID, contentKey });
+    const response = await retrieveTransactionStatus({ transactionStatusApiUrl });
     return response;
   };
 
   return useQuery({
-    queryKey: ['transaction-status', transactionUUID],
-    enabled: !!transactionUUID,
+    queryKey: ['transaction-status', transactionStatusApiUrl],
+    enabled: !!transactionStatusApiUrl,
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
     onSuccess,
