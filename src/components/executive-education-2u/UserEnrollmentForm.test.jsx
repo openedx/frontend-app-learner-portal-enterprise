@@ -19,6 +19,11 @@ const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
 const mockOnCheckoutSuccess = jest.fn();
 
+const mockLogInfo = jest.fn();
+jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
+  logInfo: (msg) => mockLogInfo(msg),
+}));
 jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
@@ -32,6 +37,7 @@ const initialAppContextValue = {
     enableExecutiveEducation2UFulfillment: true,
     enableDataSharingConsent: true,
   },
+  authenticatedUser: { id: 1 },
 };
 
 const UserEnrollmentFormWrapper = ({
@@ -130,6 +136,9 @@ describe('UserEnrollmentForm', () => {
         ...initialAppContextValue.enterpriseConfig,
         enableDataSharingConsent: false,
       },
+      authenticatedUser: {
+        ...initialAppContextValue.authenticatedUser,
+      },
     };
 
     render(
@@ -145,10 +154,6 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('handles successful form submission', async () => {
-    const mockCheckoutResponse = {
-      receiptPageUrl: 'https://edx.org',
-    };
-    checkoutExecutiveEducation2U.mockResolvedValueOnce(mockCheckoutResponse);
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
@@ -179,27 +184,21 @@ describe('UserEnrollmentForm', () => {
       );
     });
     expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
-    expect(mockOnCheckoutSuccess).toHaveBeenCalledWith(
-      expect.objectContaining({
-        receiptPageUrl: mockCheckoutResponse.receiptPageUrl,
-      }),
-    );
 
     // disabled after submitting
     expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('handles successful form submission with data sharing consent disabled', async () => {
-    const mockCheckoutResponse = {
-      receiptPageUrl: 'https://edx.org',
-    };
-    checkoutExecutiveEducation2U.mockResolvedValueOnce(mockCheckoutResponse);
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
     const appContext = {
       enterpriseConfig: {
         ...initialAppContextValue.enterpriseConfig,
         enableDataSharingConsent: false,
+      },
+      authenticatedUser: {
+        ...initialAppContextValue.authenticatedUser,
       },
     };
     render(<UserEnrollmentFormWrapper appContextValue={appContext} />);
@@ -228,21 +227,12 @@ describe('UserEnrollmentForm', () => {
       );
     });
     expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
-    expect(mockOnCheckoutSuccess).toHaveBeenCalledWith(
-      expect.objectContaining({
-        receiptPageUrl: mockCheckoutResponse.receiptPageUrl,
-      }),
-    );
 
     // disabled after submitting
     expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('handles age related errors during form submission', async () => {
-    const mockCheckoutResponse = {
-      receiptPageUrl: 'https://edx.org',
-    };
-    checkoutExecutiveEducation2U.mockResolvedValueOnce(mockCheckoutResponse);
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
@@ -289,5 +279,50 @@ describe('UserEnrollmentForm', () => {
     // ensure error alert is visible
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
+  });
+
+  it('handle error 422 where course was already enrolled in', async () => {
+    const mockCheckoutAlreadyEnrolledResponse = {
+      message: 'Axios Error: User has already purchased the product.',
+      customAttributes: {
+        httpErrorStatus: 422,
+      },
+    };
+    checkoutExecutiveEducation2U.mockRejectedValueOnce(mockCheckoutAlreadyEnrolledResponse);
+    const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
+    Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
+
+    render(<UserEnrollmentFormWrapper />);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
+    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    userEvent.click(screen.getByLabelText(termsLabelText));
+    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+    userEvent.click(screen.getByText('Confirm registration'));
+
+    // disabled while submitting
+    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+
+    await waitFor(() => {
+      expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
+    });
+    expect(checkoutExecutiveEducation2U).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sku: mockProductSKU,
+        userDetails: {
+          dateOfBirth: mockDateOfBirth,
+          firstName: mockFirstName,
+          lastName: mockLastName,
+        },
+        termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(mockTermsAcceptedAt).toISOString()),
+        dataShareConsent: true,
+      }),
+    );
+    expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
+    expect(mockLogInfo).toHaveBeenCalledTimes(1);
+    expect(mockLogInfo).toHaveBeenCalledWith('test-enterprise-uuid user 1 has already purchased course ABC123.');
+
+    // disabled after submitting
+    expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 });
