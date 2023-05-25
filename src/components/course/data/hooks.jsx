@@ -25,7 +25,6 @@ import {
   findCouponCodeForCourse,
   getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
-  getEntitlementPrice,
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
 } from './utils';
