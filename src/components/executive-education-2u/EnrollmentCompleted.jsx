@@ -10,19 +10,19 @@ import EnrollmentCompletedSummaryCard from './components/EnrollmentCompletedSumm
 const EnrollmentCompleted = () => {
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
-  // if (!location.state?.data) {
-  //   return <Redirect to={`/${enterpriseConfig.slug}`} />;
-  // }
+  if (!location.state?.data) {
+    return <Redirect to={`/${enterpriseConfig.slug}`} />;
+  }
   return (
     <Container size="lg" className="py-5">
       <Helmet>
         <title>Enrollment Completed</title>
       </Helmet>
       <h2 className="mb-3">Congratulations, you have completed your enrollment for your online course</h2>
-      {/* <CourseSummaryCard
+      <CourseSummaryCard
         courseMetadata={location.state.data}
         enrollmentCompleted
-      /> */}
+      />
       <EnrollmentCompletedSummaryCard />
     </Container>
   );
