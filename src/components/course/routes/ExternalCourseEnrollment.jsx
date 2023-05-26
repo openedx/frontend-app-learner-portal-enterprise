@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   Container, Col, Row,
 } from '@edx/paragon';
@@ -12,7 +12,6 @@ import { useMinimalCourseMetadata } from '../data/hooks';
 
 const ExternalCourseEnrollment = () => {
   const history = useHistory();
-  const routeMatch = useRouteMatch();
   const {
     state: {
       courseEntitlementProductSku,
