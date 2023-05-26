@@ -23,6 +23,7 @@ import {
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
   useTrackSearchConversionClickHandlerLocal,
+  useMinimalCourseMetadata,
 } from '../hooks';
 import {
   getCourseRunPrice,
@@ -1240,5 +1241,151 @@ describe('useUserSubsidyApplicableToCourse', () => {
       }),
       missingUserSubsidyReason: undefined,
     });
+  });
+});
+
+describe.only('useMinimalCourseMetadata', () => {
+  const mockOrgName = 'https://fake-logo.url';
+  const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockWeeksToComplete = 8;
+  const mockListPrice = 100;
+  const mockCurrency = 'USD';
+  const mockCourseTitle = 'Test Course Title';
+  const baseCourseContextValue = {
+    state: {
+      course: {
+        title: mockCourseTitle,
+        organizationShortCodeOverride: undefined,
+        organizationLogoOverrideUrl: undefined,
+        owners: [{ name: mockOrgName, logoImageUrl: mockLogoImageUrl }],
+      },
+      activeCourseRun: {
+        start: '2023-04-20T12:00:00Z',
+        weeksToComplete: mockWeeksToComplete,
+      },
+    },
+    coursePrice: { list: mockListPrice, discount: 0 },
+    currency: mockCurrency,
+  };
+  const Wrapper = ({
+    courseContextValue = baseCourseContextValue,
+    children,
+  }) => (
+    <CourseContext.Provider value={courseContextValue}>
+      {children}
+    </CourseContext.Provider>
+  );
+
+  it('should return the correct base course metadata', () => {
+    const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        organizationImage: mockLogoImageUrl,
+        organizationName: mockOrgName,
+        title: mockCourseTitle,
+        startDate: 'Apr 20, 2023',
+        duration: `${mockWeeksToComplete} Weeks`,
+        priceDetails: {
+          price: mockListPrice,
+          currency: mockCurrency,
+        },
+      }),
+    );
+  });
+
+  it('should handle empty activeCourseRun', () => {
+    const args = {
+      ...baseCourseContextValue,
+      state: {
+        ...baseCourseContextValue.state,
+        activeCourseRun: undefined,
+      },
+    };
+    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
+
+    const { result } = renderHook(
+      () => useMinimalCourseMetadata(),
+      { wrapper: CustomWrapper },
+    );
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        organizationImage: mockLogoImageUrl,
+        organizationName: mockOrgName,
+        title: mockCourseTitle,
+        startDate: undefined,
+        duration: '-',
+        priceDetails: {
+          price: mockListPrice,
+          currency: mockCurrency,
+        },
+      }),
+    );
+  });
+
+  it('should handle when weeksToComplete is only 1', () => {
+    const args = {
+      ...baseCourseContextValue,
+      state: {
+        ...baseCourseContextValue.state,
+        activeCourseRun: {
+          ...baseCourseContextValue.state.activeCourseRun,
+          weeksToComplete: 1,
+        },
+      },
+    };
+    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
+
+    const { result } = renderHook(
+      () => useMinimalCourseMetadata(),
+      { wrapper: CustomWrapper },
+    );
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        organizationImage: mockLogoImageUrl,
+        organizationName: mockOrgName,
+        title: mockCourseTitle,
+        startDate: 'Apr 20, 2023',
+        duration: '1 Week',
+        priceDetails: {
+          price: mockListPrice,
+          currency: mockCurrency,
+        },
+      }),
+    );
+  });
+
+  it('should handle organization short code and logo overrides', () => {
+    const mockOrgShortCode = 'Test Shortcode Override';
+    const mockOrgLogoUrl = 'https://fake-logo-override.url';
+    const args = {
+      ...baseCourseContextValue,
+      state: {
+        ...baseCourseContextValue.state,
+        course: {
+          ...baseCourseContextValue.state.course,
+          organizationShortCodeOverride: mockOrgShortCode,
+          organizationLogoOverrideUrl: mockOrgLogoUrl,
+        },
+      },
+    };
+    const CustomWrapper = (props) => <Wrapper courseContextValue={args} {...props} />;
+
+    const { result } = renderHook(
+      () => useMinimalCourseMetadata(),
+      { wrapper: CustomWrapper },
+    );
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        organizationImage: mockOrgLogoUrl,
+        organizationName: mockOrgShortCode,
+        title: mockCourseTitle,
+        startDate: 'Apr 20, 2023',
+        duration: '8 Weeks',
+        priceDetails: {
+          price: mockListPrice,
+          currency: mockCurrency,
+        },
+      }),
+    );
   });
 });

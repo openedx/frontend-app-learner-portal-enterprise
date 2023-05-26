@@ -12,7 +12,7 @@ import { useMinimalCourseMetadata } from '../data/hooks';
 
 const ExternalCourseEnrollment = () => {
   const history = useHistory();
-  const { url } = useRouteMatch();
+  const routeMatch = useRouteMatch();
   const {
     state: {
       courseEntitlementProductSku,
@@ -21,7 +21,7 @@ const ExternalCourseEnrollment = () => {
   const courseMetadata = useMinimalCourseMetadata();
 
   const handleCheckoutSuccess = () => {
-    history.push(`${url}/complete`);
+    history.push(`${routeMatch.url}/complete`);
   };
 
   return (

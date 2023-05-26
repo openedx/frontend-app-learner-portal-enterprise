@@ -897,11 +897,18 @@ export const useMinimalCourseMetadata = () => {
     return duration;
   };
 
+  const getStartDate = () => {
+    if (!activeCourseRun) {
+      return undefined;
+    }
+    return moment(activeCourseRun?.start).format(DATE_FORMAT);
+  };
+
   const courseMetadata = {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
-    startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
+    startDate: getStartDate(),
     duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,
