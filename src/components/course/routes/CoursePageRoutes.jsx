@@ -1,5 +1,6 @@
 import React from 'react';
-import { Switch, Route, useRouteMatch } from 'react-router-dom';
+import { Switch, useRouteMatch } from 'react-router-dom';
+import { PageRoute } from '@edx/frontend-platform/react';
 
 import CourseAbout from './CourseAbout';
 import ExternalCourseEnrollment from './ExternalCourseEnrollment';
@@ -9,9 +10,9 @@ const CoursePageRoutes = () => {
   const { path: baseCoursePageRoutePath } = useRouteMatch();
   return (
     <Switch>
-      <Route exact path={baseCoursePageRoutePath} component={CourseAbout} />
-      <Route exact path={`${baseCoursePageRoutePath}/enroll`} component={ExternalCourseEnrollment} />
-      <Route exact path={`${baseCoursePageRoutePath}/enroll/complete`} component={ExternalCourseEnrollmentConfirmation} />
+      <PageRoute exact path={baseCoursePageRoutePath} component={CourseAbout} />
+      <PageRoute exact path={`${baseCoursePageRoutePath}/enroll`} component={ExternalCourseEnrollment} />
+      <PageRoute exact path={`${baseCoursePageRoutePath}/enroll/complete`} component={ExternalCourseEnrollmentConfirmation} />
     </Switch>
   );
 };
