@@ -3,8 +3,17 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentForm';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
+
+const mockHistoryPush = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: mockHistoryPush,
+  }),
+}));
 
 jest.mock('../../data/hooks', () => ({
   ...jest.requireActual('../../data/hooks'),
@@ -58,7 +67,11 @@ const ExternalCourseEnrollmentWrapper = ({
 );
 
 describe('ExternalCourseEnrollment', () => {
-  it('renders', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders and handles checkout success', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper />);
     expect(screen.getByText('Your registration(s)')).toBeInTheDocument();
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
@@ -69,5 +82,14 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Registration summary:')).toBeInTheDocument();
     expect(screen.getByText('Registration total:')).toBeInTheDocument();
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
+    expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        onCheckoutSuccess: expect.any(Function),
+        productSKU: 'test-sku',
+      }),
+    );
+    UserEnrollmentForm.mock.calls[0][0].onCheckoutSuccess();
+    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+    expect(mockHistoryPush).toHaveBeenCalledWith('complete');
   });
 });

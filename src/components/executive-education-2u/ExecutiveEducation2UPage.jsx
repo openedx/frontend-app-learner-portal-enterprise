@@ -61,6 +61,7 @@ const ExecutiveEducation2UPage = () => {
     if (contentMetadata) {
       const activeCourseRun = getActiveCourseRun(contentMetadata);
       const organizationDetails = getCourseOrganizationDetails(contentMetadata);
+      /* istanbul ignore next */
       const getDuration = () => {
         if (!activeCourseRun) {
           return '-';

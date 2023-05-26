@@ -21,7 +21,7 @@ const ExternalCourseEnrollment = () => {
   const courseMetadata = useMinimalCourseMetadata();
 
   const handleCheckoutSuccess = () => {
-    history.push(`${routeMatch.url}/complete`);
+    history.push('complete');
   };
 
   return (
