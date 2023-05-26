@@ -28,7 +28,7 @@ const useStatefullEnroll = ({
     },
   });
 
-  useTransactionStatus({
+  const transactionStatusResult = useTransactionStatus({
     contentKey,
     transaction,
     onSuccess: (newTransaction) => {
@@ -53,12 +53,24 @@ const useStatefullEnroll = ({
   };
 
   return {
-    mutate: (opts) => {
-      redemptionMutation.mutate(mutationArgs, { ...opts });
+    mutate: ({ onSubmit, ...opts }) => {
+      redemptionMutation.mutate(mutationArgs, {
+        onSuccess: (newTransaction) => {
+          setTransaction(newTransaction);
+          if (onSuccess) {
+            onSuccess(newTransaction);
+          }
+        },
+        ...opts,
+      });
     },
-    mutateAsync: async (opts) => {
-      const mutation = await redemptionMutation.mutateAsync(mutationArgs, { ...opts });
-      return mutation;
+    mutateAsync: async ({ onSubmit, ...opts }) => {
+      await redemptionMutation.mutateAsync(mutationArgs, {
+        onSuccess: async () => {
+
+        },
+        ...opts,
+      });
     },
   };
 };

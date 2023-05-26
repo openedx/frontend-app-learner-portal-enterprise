@@ -99,6 +99,8 @@ const UserEnrollmentForm = ({
     onCheckoutSuccess();
   };
 
+  console.log('[UserEnrollmentForm]', userSubsidyApplicableToCourse);
+
   const handleFormSubmit = async (values, { setSubmitting }) => {
     setIsFormSubmitted(true);
 

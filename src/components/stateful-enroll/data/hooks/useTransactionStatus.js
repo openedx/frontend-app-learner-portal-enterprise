@@ -39,7 +39,7 @@ const useTransactionStatus = ({
 
   return useQuery({
     queryKey: ['transactions', transaction?.uuid],
-    enabled: !!transaction,
+    enabled: false,
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
     onSuccess,
