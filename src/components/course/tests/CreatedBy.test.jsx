@@ -67,4 +67,17 @@ describe('<CreatedBy />', () => {
       expect(screen.queryByText(staffMember.position.organizationName)).toBeInTheDocument();
     });
   });
+
+  test('handles missing partner info', () => {
+    const courseState = {
+      ...initialState,
+      course: {
+        ...initialState.course,
+        owners: [],
+      },
+      activeCourseRun: undefined,
+    }
+    const { container } = render(<CreatedByWithCourseContext courseState={courseState} />);
+    expect(container).toBeEmptyDOMElement();
+  });
 });

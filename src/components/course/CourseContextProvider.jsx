@@ -59,7 +59,7 @@ CourseContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
   courseState: PropTypes.shape({
     course: PropTypes.shape({}).isRequired,
-    activeCourseRun: PropTypes.shape({}).isRequired,
+    activeCourseRun: PropTypes.shape(),
     userEnrollments: PropTypes.arrayOf(PropTypes.shape({
       isEnrollmentActive: PropTypes.bool.isRequired,
       isRevoked: PropTypes.bool.isRequired,
