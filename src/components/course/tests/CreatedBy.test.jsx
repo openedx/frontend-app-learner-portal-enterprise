@@ -76,7 +76,7 @@ describe('<CreatedBy />', () => {
         owners: [],
       },
       activeCourseRun: undefined,
-    }
+    };
     const { container } = render(<CreatedByWithCourseContext courseState={courseState} />);
     expect(container).toBeEmptyDOMElement();
   });
