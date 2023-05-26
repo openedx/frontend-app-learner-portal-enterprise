@@ -28,14 +28,16 @@ const useStatefullEnroll = ({
     },
   });
 
-  const transactionStatusResult = useTransactionStatus({
+  const {
+    refetch: refetchTransactionStatus,
+  } = useTransactionStatus({
     contentKey,
     transaction,
     onSuccess: (newTransaction) => {
       if (newTransaction.state === 'committed') {
-        // if (onSuccess) {
-        //   onSuccess(newTransaction);
-        // }
+        if (onSuccess) {
+          onSuccess(newTransaction);
+        }
       }
       if (newTransaction.state === 'failed') {
         handleRedemptionError();
@@ -56,7 +58,6 @@ const useStatefullEnroll = ({
     mutate: ({ onSubmit, ...opts }) => {
       redemptionMutation.mutate(mutationArgs, {
         onSuccess: (newTransaction) => {
-          setTransaction(newTransaction);
           if (onSuccess) {
             onSuccess(newTransaction);
           }
@@ -66,8 +67,8 @@ const useStatefullEnroll = ({
     },
     mutateAsync: async ({ onSubmit, ...opts }) => {
       await redemptionMutation.mutateAsync(mutationArgs, {
-        onSuccess: async () => {
-
+        onSuccess: async (newTransaction) => {
+          
         },
         ...opts,
       });
