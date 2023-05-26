@@ -90,22 +90,13 @@ export function determineEnrollmentType({
   return ENROLL_DISABLED;
 }
 
-// TODO: See if we can make this generic, not linked to Exec Ed
 export function getExternalCourseEnrollmentUrl({
-  courseUuid,
-  entitlementProductSku,
-  currentRoutePath,
+  currentRouteUrl,
 }) {
-  const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(currentRoutePath, 'executive-education-2u');
-
+  // TODO: See if we can make this generic, not linked to Exec Ed
+  const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(currentRouteUrl, 'executive-education-2u');
   if (!isExecutiveEducation2UCourse) {
     return undefined;
   }
-
-  // const execEdEnrollParams = new URLSearchParams({
-  //   course_uuid: courseUuid,
-  //   sku: entitlementProductSku,
-  // });
-
-  return `${currentRoutePath}/enroll`;
+  return `${currentRouteUrl}/enroll`;
 }

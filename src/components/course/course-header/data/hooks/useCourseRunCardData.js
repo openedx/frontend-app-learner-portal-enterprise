@@ -1,4 +1,3 @@
-import { useContext, useMemo } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
 import { COURSE_AVAILABILITY_MAP } from '../../../data/constants';
@@ -6,8 +5,6 @@ import useCourseRunCardHeading from './useCourseRunCardHeading';
 import useCourseRunCardSubHeading from './useCourseRunCardSubHeading';
 import useCourseRunCardAction from './useCourseRunCardAction';
 import { getExternalCourseEnrollmentUrl } from '../../../enrollment/utils';
-import { CourseContext } from '../../../CourseContextProvider';
-import { findHighestLevelEntitlementSku } from '../../../data/utils';
 
 /**
  * Gathers the data needed to render the `CourseRunCard` component.
@@ -35,21 +32,8 @@ const useCourseRunCardData = ({
   } = courseRun;
   const isCourseRunCurrent = availability === COURSE_AVAILABILITY_MAP.CURRENT;
   const isUserEnrolled = !!userEnrollment;
-  const {
-    state: {
-      course: {
-        entitlements,
-      },
-    },
-  } = useContext(CourseContext);
-  const entitlementProductSku = useMemo(
-    () => findHighestLevelEntitlementSku(entitlements),
-    [entitlements],
-  );
   const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
-    courseUuid: courseRun.courseUuid,
-    entitlementProductSku,
-    currentRoutePath: routeMatch.url,
+    currentRouteUrl: routeMatch.url,
   });
 
   // Get and return course run card data for display

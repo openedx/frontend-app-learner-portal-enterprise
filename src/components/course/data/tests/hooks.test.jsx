@@ -5,7 +5,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useRouteMatch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import {
   useCourseEnrollmentUrl,
@@ -66,6 +66,12 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedUser: jest.fn(() => ({ id: mockLmsUserId })),
 }));
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(() => ({
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  })),
+}));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
@@ -97,6 +103,7 @@ jest.mock('react-router-dom', () => ({
     push: mockUseHistoryPush,
     replace: mockUseHistoryReplace,
   }),
+  useRouteMatch: jest.fn(),
 }
 ));
 
@@ -238,6 +245,14 @@ describe('useCourseEnrollmentUrl', () => {
     },
   };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useRouteMatch.mockReturnValue({
+      path: '/:enterpriseSlug/course/:courseKey',
+      url: '/enterprise-slug/course/edX+DemoX',
+    });
+  });
+
   describe('subscription license', () => {
     test('returns an lms url to DSC for enrollment with a license', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseEnrollmentInputs));
@@ -309,6 +324,22 @@ describe('useCourseEnrollmentUrl', () => {
     });
   });
   describe('executive education-2u course type', () => {
+    const mockCourseKey = 'edX+DemoX';
+    beforeEach(() => {
+      jest.clearAllMocks();
+      getConfig.mockReturnValue({
+        COURSE_TYPE_CONFIG: {
+          'executive-education-2u': {
+            pathSlug: 'executive-education-2u',
+            usesEntitlementListPrice: true,
+          },
+        },
+      });
+      useRouteMatch.mockReturnValue({
+        path: '/:enterpriseSlug/:courseType/course/:courseKey',
+        url: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
+      });
+    });
     test('handles executive education-2u course type', () => {
       const mockSku = 'ABC123';
       const { result } = renderHook(() => useCourseEnrollmentUrl({
@@ -316,9 +347,8 @@ describe('useCourseEnrollmentUrl', () => {
         isExecutiveEducation2UCourse: true,
         sku: mockSku,
       }));
-      expect(result.current).toContain('executive-education-2u');
-      expect(result.current).toContain(`course_uuid=${noLicenseEnrollmentInputs.courseUuid}`);
-      expect(result.current).toContain(`sku=${mockSku}`);
+      expect(result.current).toContain(`/executive-education-2u/course/${mockCourseKey}/enroll`);
+      expect(result.current).toContain(mockCourseKey);
     });
   });
 });

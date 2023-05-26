@@ -1,7 +1,7 @@
 import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
@@ -306,9 +306,9 @@ export const useCourseEnrollmentUrl = ({
   location,
   sku,
   userSubsidyApplicableToCourse,
-  courseUuid,
   isExecutiveEducation2UCourse,
 }) => {
+  const routeMatch = useRouteMatch();
   const config = getConfig();
   const baseQueryParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -360,12 +360,10 @@ export const useCourseEnrollmentUrl = ({
       }
 
       if (isExecutiveEducation2UCourse) {
-        return getExternalCourseEnrollmentUrl({
-          enterpriseSlug: enterpriseConfig.slug,
-          courseUuid,
-          entitlementProductSku: sku,
-          isExecutiveEducation2UCourse: true,
+        const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
+          currentRouteUrl: routeMatch.url,
         });
+        return externalCourseEnrollmentUrl;
       }
 
       // This enrollment url will automatically apply enterprise offers
@@ -380,9 +378,8 @@ export const useCourseEnrollmentUrl = ({
       config.LMS_BASE_URL,
       courseRunKey,
       enterpriseConfig.uuid,
-      enterpriseConfig.slug,
-      courseUuid,
       isExecutiveEducation2UCourse,
+      routeMatch.url,
     ],
   );
 

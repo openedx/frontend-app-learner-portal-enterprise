@@ -61,7 +61,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
-      courseTypeEnrollmentUrl: undefined,
+      externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: undefined,
     });
@@ -75,7 +75,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
-      courseTypeEnrollmentUrl: '/enterprise-slug/executive-education-2u',
+      externalCourseEnrollmentUrl: '/enterprise-slug/executive-education-2u',
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
@@ -88,7 +88,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: false,
       userEnrollment: undefined,
       courseRunUrl: MOCK_COURSE_RUN_URL,
-      courseTypeEnrollmentUrl: undefined,
+      externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });
@@ -113,7 +113,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_VERIFIED,
       courseRunUrl: MOCK_COURSE_RUN_URL,
-      courseTypeEnrollmentUrl: undefined,
+      externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: undefined,
     });
@@ -141,7 +141,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
-      courseTypeEnrollmentUrl: undefined,
+      externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: undefined,
     });
@@ -179,7 +179,7 @@ describe('useCourseRunCardAction', () => {
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
       courseRunUrl: MOCK_COURSE_RUN_URL,
-      courseTypeEnrollmentUrl: undefined,
+      externalCourseEnrollmentUrl: undefined,
       contentKey: MOCK_COURSE_RUN_KEY,
       subsidyAccessPolicy: MOCK_REDEEMABLE_SUBSIDY,
     });

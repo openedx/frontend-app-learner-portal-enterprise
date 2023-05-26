@@ -3,7 +3,6 @@ import { Redirect, useLocation } from 'react-router-dom';
 import { Container } from '@edx/paragon';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
-import PropTypes from 'prop-types';
 import CourseSummaryCard from './components/CourseSummaryCard';
 import EnrollmentCompletedSummaryCard from './components/EnrollmentCompletedSummaryCard';
 
@@ -28,24 +27,6 @@ const EnrollmentCompleted = () => {
       </Container>
     </div>
   );
-};
-
-EnrollmentCompleted.propTypes = {
-  location: PropTypes.shape({
-    state: PropTypes.shape({
-      data: PropTypes.shape({
-        organizationImage: PropTypes.string.isRequired,
-        organizationName: PropTypes.string.isRequired,
-        title: PropTypes.string.isRequired,
-        startDate: PropTypes.string.isRequired,
-        duration: PropTypes.string.isRequired,
-        priceDetails: PropTypes.shape({
-          price: PropTypes.number.isRequired,
-          currency: PropTypes.string.isRequired,
-        }),
-      }),
-    }).isRequired,
-  }).isRequired,
 };
 
 export default EnrollmentCompleted;

@@ -14,7 +14,7 @@ The entry point to these routes was solely from a redirect from the ecommerce se
 
 However, these routes are now linked to from the `/:enterpriseSlug/course/:courseKey` route when the learner has a redeemable subsidy for the externally hosted course. This change to the user flow, where the entry point to the page is now from the course about page in this micro-frontend (MFE), means that we are now making an API call to fetch course metadata on the `/:enterpriseSlug/course/:courseKey` route as well as the `/:enterpriseSlug/:courseType` route unnecessarily.
 
-We also need to migrate the enrollment form used for externally hosted courses to utilize the new Enterprise subsidy access policy APIs for redemption, which includes the API call to the `can-redeem` API in enterprise-access This API call is currently used on the `CoursePage` to understand whether the learner has a user subsidy applicable the course (i.e., covers the cost of the course).
+We also need to migrate the enrollment form used for externally hosted courses to utilize the new Enterprise subsidy access policy APIs for redemption, which includes the API call to the `can-redeem` API in enterprise-access. This API call is currently used on the `CoursePage` to understand whether the learner has a user subsidy applicable to the course (e.g., covers the cost of the course).
 
 ## Decision
 
