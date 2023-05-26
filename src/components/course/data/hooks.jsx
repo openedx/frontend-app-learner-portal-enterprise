@@ -885,12 +885,24 @@ export const useMinimalCourseMetadata = () => {
     currency,
   } = useContext(CourseContext);
   const organizationDetails = getCourseOrganizationDetails(course);
+
+  const getDuration = () => {
+    if (!activeCourseRun) {
+      return '-';
+    }
+    let duration = `${activeCourseRun.weeksToComplete} Week`;
+    if (activeCourseRun.weeksToComplete > 1) {
+      duration += 's';
+    }
+    return duration;
+  };
+
   const courseMetadata = {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
     startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
-    duration: activeCourseRun ? `${activeCourseRun.weeksToComplete} Week${activeCourseRun.weeksToComplete <= 1 ? '' : 's'}` : '-',
+    duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,
       currency,

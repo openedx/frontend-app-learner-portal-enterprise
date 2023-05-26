@@ -61,12 +61,22 @@ const ExecutiveEducation2UPage = () => {
     if (contentMetadata) {
       const activeCourseRun = getActiveCourseRun(contentMetadata);
       const organizationDetails = getCourseOrganizationDetails(contentMetadata);
+      const getDuration = () => {
+        if (!activeCourseRun) {
+          return '-';
+        }
+        let duration = `${activeCourseRun.weeksToComplete} Week`;
+        if (activeCourseRun.weeksToComplete > 1) {
+          duration += 's';
+        }
+        return duration;
+      };
       return {
         organizationImage: organizationDetails.organizationLogo,
         organizationName: organizationDetails.organizationName,
         title: contentMetadata.title,
         startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
-        duration: activeCourseRun ? `${activeCourseRun.weeksToComplete} Week${activeCourseRun.weeksToComplete <= 1 ? '' : 's'}` : '-',
+        duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
       };
     }
