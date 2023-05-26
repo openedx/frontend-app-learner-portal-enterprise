@@ -19,12 +19,15 @@ import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
 import CoursesTabComponent from './main-content/CoursesTabComponent';
 import { MyCareerTab } from '../my-career';
 import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { IntegrationWarningModal } from '../integration-warning-modal';
+import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 
 const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-
+  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
   const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
@@ -79,6 +82,8 @@ const DashboardPage = () => {
             </Tab>
           )}
         </Tabs>
+        {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
+        {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
       </Container>
     </>
   );

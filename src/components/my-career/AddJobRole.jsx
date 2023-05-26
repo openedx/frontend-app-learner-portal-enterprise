@@ -4,11 +4,8 @@ import {
   Alert, Row, breakpoints, MediaQuery, Hyperlink, Icon, useToggle,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { IntegrationWarningModal } from '../integration-warning-modal';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardSidebar } from '../dashboard/sidebar';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import SubscriptionExpirationModal from '../dashboard/SubscriptionExpirationModal';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
 import { LICENSE_ACTIVATION_MESSAGE } from '../dashboard/data/constants';
@@ -16,12 +13,9 @@ import { LICENSE_ACTIVATION_MESSAGE } from '../dashboard/data/constants';
 import SkillsQuizImage from '../../assets/images/skills-quiz/skills-quiz.png';
 
 const AddJobRole = () => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const { state } = useLocation();
   const history = useHistory();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
-
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
@@ -89,12 +83,6 @@ const AddJobRole = () => {
             ) : null)}
           </MediaQuery>
         </CourseEnrollmentsContextProvider>
-        <IntegrationWarningModal
-          isOpen={enterpriseConfig.showIntegrationWarning}
-        />
-        {subscriptionPlan && showExpirationNotifications && (
-          <SubscriptionExpirationModal />
-        )}
       </Row>
     </>
   );

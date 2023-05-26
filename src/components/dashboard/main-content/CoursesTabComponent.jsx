@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   useToggle,
@@ -7,24 +7,17 @@ import {
   MediaQuery,
   breakpoints,
 } from '@edx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseEnrollmentsContextProvider } from './course-enrollments';
-import { IntegrationWarningModal } from '../../integration-warning-modal';
 import { MainContent, Sidebar } from '../../layout';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../../course/CourseEnrollmentFailedAlert';
 import DashboardMainContent from './DashboardMainContent';
 import { DashboardSidebar } from '../sidebar';
-import SubscriptionExpirationModal from '../SubscriptionExpirationModal';
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 
 const CoursesTabComponent = ({ canOnlyViewHighlightSets }) => {
   const { state } = useLocation();
-  const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
-
   return (
     <>
       <Alert
@@ -50,8 +43,6 @@ const CoursesTabComponent = ({ canOnlyViewHighlightSets }) => {
             ) : null)}
           </MediaQuery>
         </CourseEnrollmentsContextProvider>
-        <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
-        {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
       </Row>
     </>
   );
