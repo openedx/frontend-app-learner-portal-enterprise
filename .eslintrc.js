@@ -1,24 +1,29 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const { getBaseConfig } = require('@edx/frontend-build');
+const { createConfig } = require('@edx/frontend-build');
 
-const config = getBaseConfig('eslint');
-
-config.overrides = [
-  {
-    files: ['*.test.js', '*.test.jsx'],
-    rules: {
-      'react/prop-types': 'off',
-      'react/jsx-no-constructed-context-values': 'off',
+const config = createConfig('eslint', {
+  extends: [
+    '@edx/eslint-config',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
+  ],
+  overrides: [
+    {
+      files: ['*.test.js', '*.test.jsx'],
+      rules: {
+        'react/prop-types': 'off',
+        'react/jsx-no-constructed-context-values': 'off',
+      },
     },
+  ],
+  rules: {
+    // Temporarily update the 'indent' and 'template-curly-spacing' rules
+    // since they are causing eslint to fail for no apparent reason since
+    // upgrading @edx/frontend-build from v3 to v5:
+    //  - TypeError: Cannot read property 'range' of null
+    indent: ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchCase'] }],
+    'template-curly-spacing': 'off',
+    'import/prefer-default-export': 'off',
   },
-];
-
-// Temporarily update the 'indent' and 'template-curly-spacing' rules
-// since they are causing eslint to fail for no apparent reason since
-// upgrading @edx/frontend-build from v3 to v5:
-//  - TypeError: Cannot read property 'range' of null
-config.rules.indent = ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchCase'] }];
-config.rules['template-curly-spacing'] = 'off';
-config.rules['import/prefer-default-export'] = 'off';
+});
 
 module.exports = config;

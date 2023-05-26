@@ -16,7 +16,7 @@ const useRedemptionStatus = () => {
   };
 
   const handleRedeemSuccess = (transaction) => {
-    queryClient.invalidateQueries({ queryKey: ['can-user-redeem-course'] });
+    queryClient.invalidateQueries({ queryKey: ['policy'] });
     setRedemptionStatus('success');
 
     // redirect to courseware

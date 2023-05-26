@@ -6,11 +6,12 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
  * specified transaction UUID.
  *
  * @param {object} args
- * @param {string} args.transactionUUID The uuid (primary key) of the subsidy from which transactions should be listed.
+ * @param {string} args.transaction Metadata about a transaction containing a uuid (primary
+ *  key) of the subsidy from which transactions should be listed.
  * @returns The payload for the specified transaction.
  */
-export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }) => {
-  const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
+export const retrieveTransactionStatus = async ({ transaction }) => {
+  const response = await getAuthenticatedHttpClient().get(transaction.transactionStatusApiUrl);
   return camelCaseObject(response.data);
 };
 

@@ -16,30 +16,30 @@ import { retrieveTransactionStatus } from '../service';
  * @returns
  */
 const useTransactionStatus = ({
-  transactionStatusApiUrl,
+  transaction,
   onSuccess,
   onError,
 }) => {
-  const shouldPollTransactionState = (responseData) => {
-    const transactionState = responseData?.state;
+  const shouldPollTransactionState = (response) => {
+    const transactionState = response?.state;
     return transactionState === 'pending';
   };
 
-  const getRefetchInterval = (responseData) => {
-    if (shouldPollTransactionState(responseData)) {
+  const getRefetchInterval = (response) => {
+    if (shouldPollTransactionState(response)) {
       return 1000;
     }
     return false;
   };
 
   const checkTransactionStatus = async () => {
-    const response = await retrieveTransactionStatus({ transactionStatusApiUrl });
+    const response = await retrieveTransactionStatus({ transaction });
     return response;
   };
 
   return useQuery({
-    queryKey: ['transaction-status', transactionStatusApiUrl],
-    enabled: !!transactionStatusApiUrl,
+    queryKey: ['transactions', transaction?.uuid],
+    enabled: !!transaction,
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
     onSuccess,
