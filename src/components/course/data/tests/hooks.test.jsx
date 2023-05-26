@@ -1244,7 +1244,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 });
 
-describe.only('useMinimalCourseMetadata', () => {
+describe('useMinimalCourseMetadata', () => {
   const mockOrgName = 'https://fake-logo.url';
   const mockLogoImageUrl = 'https://fake-logo.url';
   const mockWeeksToComplete = 8;
