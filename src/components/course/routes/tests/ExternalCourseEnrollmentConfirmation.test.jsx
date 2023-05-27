@@ -55,6 +55,5 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('What happens next?')).toBeInTheDocument();
     expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
     expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
-    screen.debug();
   });
 });
