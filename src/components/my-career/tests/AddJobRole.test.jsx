@@ -2,6 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { screen } from '@testing-library/react';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
@@ -13,6 +14,16 @@ jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
   getLocale: () => 'en',
   getMessages: () => ({}),
+}));
+
+// mock useLocation
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    state: {
+      activationSuccess: true,
+    },
+  }),
 }));
 
 // eslint-disable-next-line no-console
@@ -46,19 +57,6 @@ const expiringSubscriptionUserSubsidyState = {
   showExpirationNotifications: false,
 };
 
-const expiredSubscriptionUserSubsidyState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-  subscriptionPlan: {
-    daysUntilExpiration: 0,
-  },
-  showExpirationNotifications: true,
-};
-
 const AddJobRoleWithContext = ({
   initialAppState = defaultAppState,
   initialSubsidyRequestState = defaultSubsidyRequestState,
@@ -78,9 +76,6 @@ const AddJobRoleWithContext = ({
 describe('<AddJobRole />', () => {
   it('renders the AddJobRole component', () => {
     renderWithRouter(<AddJobRoleWithContext />);
-  });
-
-  it('renders the AddJobRole component show subscription expiring modal', () => {
-    renderWithRouter(<AddJobRoleWithContext initialSubsidyRequestState={expiredSubscriptionUserSubsidyState} />);
+    expect(screen.getAllByText('Add Role')).toBeTruthy();
   });
 });

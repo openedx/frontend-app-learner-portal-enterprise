@@ -74,11 +74,9 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
     },
     [filters, index, skillsFacetFilter],
   );
-
   if (hitCount === 0) {
     return null;
   }
-
   return (
     <div>
       <h5 className="mb-3 mt-n4">More courses that teach you {subCategoryName} Skills</h5>

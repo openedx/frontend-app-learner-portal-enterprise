@@ -3,6 +3,8 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { renderWithRouter } from '../../../utils/tests';
@@ -130,11 +132,31 @@ const SkillsRecommendationCoursesWithContext = ({
 );
 
 describe('<SkillsRecommendationCourses />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders the SkillsRecommendationCourses component with recommendations', () => {
     renderWithRouter(<SkillsRecommendationCoursesWithContext />);
+    TEST_SKILLS.forEach(async (skill) => {
+      await waitFor(() => expect(screen.getByText(skill)).toBeInTheDocument());
+    });
+    userEvent.click(screen.getByText('Show more courses'));
   });
 
   it('renders the SkillsRecommendationCourses component without recommendations', () => {
-    renderWithRouter(<SkillsRecommendationCoursesWithContext subCategorySkills={[]} />);
+    const emptyIndex = {
+      indexName: 'test-index-name',
+      search: jest.fn().mockImplementation(() => Promise.resolve({
+        hits: [],
+        nbHits: 0,
+      })),
+    };
+
+    renderWithRouter(<SkillsRecommendationCoursesWithContext index={emptyIndex} subCategorySkills={[]} subCategoryName="" />);
+    TEST_SKILLS.forEach(async (skill) => {
+      await waitFor(() => expect(screen.getByText(skill)).not.toBeInTheDocument());
+    });
+    expect(screen.queryByText('More courses that teach you ', { exact: true })).not.toBeInTheDocument();
   });
 });
