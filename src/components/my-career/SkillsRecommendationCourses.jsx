@@ -79,7 +79,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
   }
   return (
     <div>
-      {subCategoryName && <h5 className="mb-3 mt-n4">More courses that teach you {subCategoryName} Skills</h5>}
+      <h5 className="mb-3 mt-n4">More courses that teach you {subCategoryName} Skills</h5>
       <CardGrid>
         {courses.map(course => (
           <SearchCourseCard

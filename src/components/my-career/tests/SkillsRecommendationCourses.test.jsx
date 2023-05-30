@@ -157,6 +157,6 @@ describe('<SkillsRecommendationCourses />', () => {
     TEST_SKILLS.forEach(async (skill) => {
       await waitFor(() => expect(screen.getByText(skill)).not.toBeInTheDocument());
     });
-    expect(screen.queryByText('More courses that teach you ', { exact: false })).not.toBeInTheDocument();
+    expect(screen.queryByText('More courses that teach you ', { exact: true })).not.toBeInTheDocument();
   });
 });
