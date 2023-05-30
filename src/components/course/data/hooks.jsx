@@ -1,7 +1,8 @@
 import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -27,6 +28,7 @@ import {
   findEnterpriseOfferForCourse,
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
+  getCourseOrganizationDetails,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -40,9 +42,10 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   DISABLED_ENROLL_REASON_TYPES,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  DATE_FORMAT,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
-import { getExecutiveEducation2UEnrollmentUrl } from '../enrollment/utils';
+import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -146,8 +149,6 @@ export function useCoursePartners(course) {
 export function useCourseRunWeeksToComplete(courseRun) {
   let weeksToComplete;
   let label;
-
-  // consolidated logic for weeksToComplete and label
   if (courseRun?.weeksToComplete >= 0) {
     weeksToComplete = courseRun.weeksToComplete;
     if (courseRun.weeksToComplete === 1) {
@@ -156,61 +157,38 @@ export function useCourseRunWeeksToComplete(courseRun) {
       label = 'weeks';
     }
   }
-
   return [weeksToComplete, label];
 }
 
-// TODO: Refactor away from useEffect useState
 export function useCourseTranscriptLanguages(courseRun) {
-  const [languages, setLanguages] = useState([]);
-  const [label, setLabel] = useState(undefined);
-
-  useEffect(() => {
-    if (courseRun && courseRun.transcriptLanguages) {
-      setLanguages(courseRun.transcriptLanguages);
-      if (courseRun.transcriptLanguages.length > 1) {
-        setLabel('Video Transcripts');
-      } else {
-        setLabel('Video Transcript');
-      }
+  let languages = [];
+  let label;
+  if (courseRun?.transcriptLanguages) {
+    languages = courseRun.transcriptLanguages;
+    if (courseRun.transcriptLanguages.length > 1) {
+      label = 'Video Transcripts';
+    } else {
+      label = 'Video Transcript';
     }
-  }, [courseRun]);
+  }
 
   return [languages, label];
 }
-
-// TODO: Refactor away from useEffect useState
 export function useCoursePacingType(courseRun) {
-  const [pacingType, setPacingType] = useState();
+  let pacingType;
+  let pacingTypeContent;
 
-  useEffect(
-    () => {
-      if (isCourseSelfPaced(courseRun.pacingType)) {
-        setPacingType(COURSE_PACING_MAP.SELF_PACED);
-      }
+  if (isCourseSelfPaced(courseRun?.pacingType)) {
+    pacingType = COURSE_PACING_MAP.SELF_PACED;
+  } else if (isCourseInstructorPaced(courseRun?.pacingType)) {
+    pacingType = COURSE_PACING_MAP.INSTRUCTOR_PACED;
+  }
 
-      if (isCourseInstructorPaced(courseRun.pacingType)) {
-        setPacingType(COURSE_PACING_MAP.INSTRUCTOR_PACED);
-      }
-    },
-    [courseRun],
-  );
-
-  // TODO: Refactor away from useEffect useState
-  const pacingTypeContent = useMemo(
-    () => {
-      if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
-        return 'Instructor-led on a course schedule';
-      }
-
-      if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
-        return 'Self-paced on your time';
-      }
-
-      return undefined;
-    },
-    [pacingType],
-  );
+  if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
+    pacingTypeContent = 'Instructor-led on a course schedule';
+  } else if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
+    pacingTypeContent = 'Self-paced on your time';
+  }
 
   return [pacingType, pacingTypeContent];
 }
@@ -303,9 +281,9 @@ export const useCourseEnrollmentUrl = ({
   location,
   sku,
   userSubsidyApplicableToCourse,
-  courseUuid,
   isExecutiveEducation2UCourse,
 }) => {
+  const routeMatch = useRouteMatch();
   const config = getConfig();
   const baseQueryParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -357,12 +335,10 @@ export const useCourseEnrollmentUrl = ({
       }
 
       if (isExecutiveEducation2UCourse) {
-        return getExecutiveEducation2UEnrollmentUrl({
-          enterpriseSlug: enterpriseConfig.slug,
-          courseUuid,
-          entitlementProductSku: sku,
-          isExecutiveEducation2UCourse: true,
+        const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
+          currentRouteUrl: routeMatch.url,
         });
+        return externalCourseEnrollmentUrl;
       }
 
       // This enrollment url will automatically apply enterprise offers
@@ -377,9 +353,8 @@ export const useCourseEnrollmentUrl = ({
       config.LMS_BASE_URL,
       courseRunKey,
       enterpriseConfig.uuid,
-      enterpriseConfig.slug,
-      courseUuid,
       isExecutiveEducation2UCourse,
+      routeMatch.url,
     ],
   );
 
@@ -873,4 +848,47 @@ export const useUserSubsidyApplicableToCourse = ({
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
   }), [userSubsidyApplicableToCourse, missingUserSubsidyReason]);
+};
+
+export const useMinimalCourseMetadata = () => {
+  const {
+    state: {
+      activeCourseRun,
+      course,
+    },
+    coursePrice,
+    currency,
+  } = useContext(CourseContext);
+  const organizationDetails = getCourseOrganizationDetails(course);
+
+  const getDuration = () => {
+    if (!activeCourseRun) {
+      return '-';
+    }
+    let duration = `${activeCourseRun.weeksToComplete} Week`;
+    if (activeCourseRun.weeksToComplete > 1) {
+      duration += 's';
+    }
+    return duration;
+  };
+
+  const getStartDate = () => {
+    if (!activeCourseRun) {
+      return undefined;
+    }
+    return moment(activeCourseRun?.start).format(DATE_FORMAT);
+  };
+
+  const courseMetadata = {
+    organizationImage: organizationDetails.organizationLogo,
+    organizationName: organizationDetails.organizationName,
+    title: course.title,
+    startDate: getStartDate(),
+    duration: getDuration(),
+    priceDetails: {
+      price: coursePrice.list,
+      currency,
+    },
+  };
+  return courseMetadata;
 };

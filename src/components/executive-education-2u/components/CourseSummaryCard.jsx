@@ -12,23 +12,19 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => (
   >
     <Card.Body>
       <Card.Header
-        title={(
-          <Image
-            src={courseMetadata.organizationImage}
-          />
-        )}
+        title={<Image src={courseMetadata.organizationImage} />}
       />
       <Card.Section>
         <Row>
           <Col xs={12} lg={{ span: 8, offset: 0 }} className="vertical">
             <Row>
               <Col xs={12} lg={{ span: 8, offset: 0 }}>
-                <p className="small font-weight-light text-gray-500">{ courseMetadata.organizationName }</p>
-                <p>{ courseMetadata.title }</p>
+                <p className="small font-weight-light text-gray-500">{courseMetadata.organizationName}</p>
+                <p>{courseMetadata.title}</p>
               </Col>
             </Row>
           </Col>
-          <Col xs={12} lg={{ span: 4, offset: 0 }}>
+          <Col xs={12} lg={4}>
             <div className="course-details">
               <Row className="align-items-center">
                 <Col className="small font-weight-light text-gray-500 justify-content-start">{enrollmentCompleted ? 'Start date:' : 'Available start date:'}</Col>

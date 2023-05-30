@@ -1,14 +1,10 @@
-import { AppContext } from '@edx/frontend-platform/react';
-import { useContext, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 
 import { COURSE_AVAILABILITY_MAP } from '../../../data/constants';
 import useCourseRunCardHeading from './useCourseRunCardHeading';
 import useCourseRunCardSubHeading from './useCourseRunCardSubHeading';
 import useCourseRunCardAction from './useCourseRunCardAction';
-import { getExecutiveEducation2UEnrollmentUrl } from '../../../enrollment/utils';
-import { CourseContext } from '../../../CourseContextProvider';
-import { findHighestLevelEntitlementSku, pathContainsCourseTypeSlug } from '../../../data/utils';
+import { getExternalCourseEnrollmentUrl } from '../../../enrollment/utils';
 
 /**
  * Gathers the data needed to render the `CourseRunCard` component.
@@ -28,7 +24,7 @@ const useCourseRunCardData = ({
   subsidyAccessPolicy,
   userCanRequestSubsidyForCourse,
 }) => {
-  const location = useLocation();
+  const routeMatch = useRouteMatch();
   const {
     key: contentKey,
     availability,
@@ -36,26 +32,11 @@ const useCourseRunCardData = ({
   } = courseRun;
   const isCourseRunCurrent = availability === COURSE_AVAILABILITY_MAP.CURRENT;
   const isUserEnrolled = !!userEnrollment;
-  const { enterpriseConfig } = useContext(AppContext);
-  const {
-    state: {
-      course: {
-        entitlements,
-      },
-    },
-  } = useContext(CourseContext);
-
-  const entitlementProductSku = useMemo(
-    () => findHighestLevelEntitlementSku(entitlements),
-    [entitlements],
-  );
-  const courseTypeEnrollmentUrl = getExecutiveEducation2UEnrollmentUrl({
-    enterpriseSlug: enterpriseConfig.slug,
-    courseUuid: courseRun.courseUuid,
-    entitlementProductSku,
-    isExecutiveEducation2UCourse: pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u'),
+  const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
+    currentRouteUrl: routeMatch.url,
   });
 
+  // Get and return course run card data for display
   const heading = useCourseRunCardHeading({
     isCourseRunCurrent,
     courseRun,
@@ -69,7 +50,7 @@ const useCourseRunCardData = ({
     isUserEnrolled,
     userEnrollment,
     courseRunUrl,
-    courseTypeEnrollmentUrl,
+    externalCourseEnrollmentUrl,
     contentKey,
     subsidyAccessPolicy,
     userCanRequestSubsidyForCourse,

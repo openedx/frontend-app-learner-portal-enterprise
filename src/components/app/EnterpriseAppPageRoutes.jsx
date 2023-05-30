@@ -23,7 +23,7 @@ const EnterpriseAppPageRoutes = () => (
       component={SearchPage}
     />
     <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
-    <PageRoute exact path="/:enterpriseSlug/:courseType/course/:courseKey" component={CoursePage} />
+    <PageRoute path="/:enterpriseSlug/:courseType/course/:courseKey" component={CoursePage} />
     {features.ENABLE_PROGRAMS && (
       <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
     )}

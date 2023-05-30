@@ -8,8 +8,6 @@ import { SystemWideWarningBanner } from '../system-wide-banner';
 import { SiteHeader } from '../site-header';
 import { useStylesForCustomBrandColors } from './data/hooks';
 
-import './styles/Layout.scss';
-
 export const TITLE_TEMPLATE = '%s - edX';
 export const DEFAULT_TITLE = 'edX';
 
@@ -48,7 +46,7 @@ const Layout = ({ children }) => {
         </SystemWideWarningBanner>
       )}
       <SiteHeader />
-      <main id="content">
+      <main id="content" className="fill-vertical-space">
         {children}
       </main>
       <SiteFooter />

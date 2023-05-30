@@ -1,12 +1,11 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { CourseContextProvider } from '../CourseContextProvider';
+import '@testing-library/jest-dom/extend-expect';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
-import { mockCourseState } from '../../../utils/tests';
 import CoursePage from '../CoursePage';
 import { useAllCourseData } from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
@@ -50,6 +49,7 @@ jest.mock('../data/service', () => ({
   __esModule: true,
   default: jest.fn(() => mockCourseService),
 }));
+
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
   useUserSubsidyApplicableToCourse: jest.fn(() => ({
@@ -107,6 +107,7 @@ jest.mock('../data/hooks', () => ({
           },
         ],
         advertisedCourseRunUuid: 'test-course-run-key',
+        cardImageUrl: { src: 'http://example.com/test-card-image.jpg' },
       },
       userEnrollments: {
         'test-course-run-key': {
@@ -150,7 +151,32 @@ jest.mock('../data/hooks', () => ({
   useExtractAndRemoveSearchParamsFromURL: jest.fn(() => ({
     courseRunKey: 'test-course-run-key',
   })),
+  useEnterpriseCuration: jest.fn(() => ({
+    enterpriseCuration: {
+      canOnlyViewHighlightSets: false,
+    },
+  })),
+  useSearchCatalogs: jest.fn(() => []),
+  useCoursePriceForUserSubsidy: jest.fn(() => [{ list: 100, discount: 0 }, 'USD']),
 }));
+
+jest.mock('../../dashboard/main-content/course-enrollments', () => ({
+  CourseEnrollmentsContextProvider: jest.fn(({ children }) => (
+    <div data-testid="course-enrollments-context-provider">
+      {children}
+    </div>
+  )),
+}));
+
+jest.mock('../CourseContextProvider', () => ({
+  CourseContextProvider: jest.fn(({ children }) => (
+    <div data-testid="course-context-provider">
+      {children}
+    </div>
+  )),
+}));
+
+jest.mock('../routes/CoursePageRoutes', () => jest.fn(() => <div data-testid="course-page-routes" />));
 
 const initialUserSubsidyState = {
   subscriptionLicense: {
@@ -168,86 +194,36 @@ const initialSubsidyRequestsState = {
   },
   catalogsForSubsidyRequests: ['test-catalog-subsidy-requests', 'course-run-1'],
 };
-const courseStateDefined = mockCourseState({});
-const updatedCourseStateDefined = {
-  ...courseStateDefined,
-  catalog: {
-    catalogList: ['test-catalog-subsidy-requests'],
-  },
-  userEnrollments: [{
-    isEnrollmentActive: true,
-    isRevoked: false,
-    courseRunId: 'test-course-run-key',
-    mode: 'verified',
-    courseDetails: {
-      title: 'test-course-details',
-    },
-  }],
-};
+
+const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
+const mockLocation = { search: '?course_run_key=test-course-run-key' };
+const mockParams = { courseKey: 'test-course-key' };
+
+const CoursePageWrapper = () => (
+  <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <MemoryRouter>
+          <CoursePage location={mockLocation} match={{ params: mockParams }} />
+        </MemoryRouter>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
+  </AppContext.Provider>
+);
 
 describe('CoursePage', () => {
   it('renders the component with 404 <NotFoundPage />', async () => {
-    const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
-    const mockLocation = { search: '?course_run_key=test-course-run-key' };
-    const mockParams = { courseKey: 'test-course-key' };
-    const initialCourseEnrollmentsState = {
-      courseEnrollmentsByStatus: {
-        inProgress: [],
-        upcoming: [],
-        completed: [],
-        savedForLater: [],
-        requested: [],
-      },
-    };
-
-    render(
-      <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-            <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-              <CourseContextProvider courseState={updatedCourseStateDefined}>
-                <MemoryRouter>
-                  <CoursePage location={mockLocation} match={{ params: mockParams }} />
-                </MemoryRouter>
-              </CourseContextProvider>
-            </CourseEnrollmentsContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
-    );
+    render(<CoursePageWrapper />);
     expect(useAllCourseData).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
 
   it('Redirects to using course type slug if path does not include it', async () => {
     mockGetActiveCourseRun.mockImplementation(() => ({ staff: [] }));
-    const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
-    const mockLocation = { search: '?course_run_key=test-course-run-key', pathname: '/test-enterprise-uuid/course/test-course-key' };
-    const mockParams = { courseKey: 'test-course-key' };
-    const initialCourseEnrollmentsState = {
-      courseEnrollmentsByStatus: {
-        inProgress: [],
-        upcoming: [],
-        completed: [],
-        savedForLater: [],
-        requested: [],
-      },
-    };
-
-    render(
-      <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-            <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-              <CourseContextProvider courseState={updatedCourseStateDefined}>
-                <MemoryRouter>
-                  <CoursePage location={mockLocation} match={{ params: mockParams }} />
-                </MemoryRouter>
-              </CourseContextProvider>
-            </CourseEnrollmentsContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
-    );
+    render(<CoursePageWrapper />);
     expect(mockUseHistoryReplace).toHaveBeenCalledWith('/test-enterprise-uuid/executive-education-2u/course/test-course-key');
+    expect(screen.getByTestId('course-enrollments-context-provider')).toBeInTheDocument();
+    expect(screen.getByTestId('course-context-provider')).toBeInTheDocument();
+    expect(screen.getByTestId('course-page-routes')).toBeInTheDocument();
   });
 });

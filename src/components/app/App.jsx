@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
@@ -26,6 +26,7 @@ import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
 const queryClient = new QueryClient();
 
 const App = () => {
+  // hotjar initialization
   useEffect(() => {
     if (process.env.HOTJAR_APP_ID) {
       try {
@@ -48,6 +49,9 @@ const App = () => {
           <ToastsProvider>
             <Toasts />
             <Switch>
+              {/* always remove trailing slashes from any route */}
+              <Redirect from="/:url*(/+)" to={global.location.pathname.slice(0, -1)} />
+              {/* page routes for the app */}
               <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
               <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
               <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />

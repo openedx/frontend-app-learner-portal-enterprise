@@ -116,7 +116,7 @@ const CourseSidebar = () => {
           <CourseSidebarListItem
             icon={faCertificate}
             label="Level"
-            content={course.levelType}
+            content={activeCourseRun.levelType}
           />
         )}
         {activeCourseRun.contentLanguage && (

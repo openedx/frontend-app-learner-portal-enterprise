@@ -32,7 +32,7 @@ const checkUserEnrollmentUpgradeEligibility = ({
  * @param {boolean} args.isUserEnrolled Whether the user is already enrolled in the course run.
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
  * @param {string} args.courseRunUrl The course run url to navigate to courseware.
- * @param {string} args.courseTypeEnrollmentUrl The url to navigate to the course enrollment page
+ * @param {string} args.externalCourseEnrollmentUrl The url to navigate to the course enrollment page
  * @param {string} args.contentKey The course run key.
  * @param {string} args.subsidyAccessPolicy The redeemable subsidy access policy applicable to the course, if any.
  * @param {boolean} args.userCanRequestSubsidyForCourse, Whether the user can request a subsidy for the course.
@@ -43,7 +43,7 @@ const useCourseRunCardAction = ({
   isUserEnrolled,
   userEnrollment,
   courseRunUrl,
-  courseTypeEnrollmentUrl,
+  externalCourseEnrollmentUrl,
   contentKey,
   subsidyAccessPolicy,
   userCanRequestSubsidyForCourse,
@@ -90,9 +90,9 @@ const useCourseRunCardAction = ({
     return <Button data-testid="disabled-enroll-missing-subsidy-access-policy" disabled block>Enroll</Button>;
   }
 
-  if (courseTypeEnrollmentUrl) {
+  if (externalCourseEnrollmentUrl) {
     return (
-      <ToExecutiveEducation2UEnrollment enrollmentUrl={courseTypeEnrollmentUrl} />
+      <ToExecutiveEducation2UEnrollment enrollmentUrl={externalCourseEnrollmentUrl} />
     );
   }
 

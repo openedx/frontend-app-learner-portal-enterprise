@@ -7,12 +7,13 @@ import './styles/VerifiedCertPitch.scss';
 
 const VerifiedCertPitchIcon = ({ icon }) => (
   <div className="icon d-flex bg-info mr-3 p-2 align-items-center justify-content-center">
+    {/* TODO: font-awesome is deprecated; replace with similar icon from `@edx/paragon/icons` */}
     <FontAwesomeIcon className="text-white" icon={icon} />
   </div>
 );
 
 VerifiedCertPitchIcon.propTypes = {
-  icon: PropTypes.shape({}).isRequired,
+  icon: PropTypes.shape().isRequired,
 };
 
 const VerifiedCertPitch = () => (

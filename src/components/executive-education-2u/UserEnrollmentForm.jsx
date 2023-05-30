@@ -97,7 +97,6 @@ const UserEnrollmentForm = ({
         termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
         ...(enableDataSharingConsent ? { dataShareConsent: !!values.dataSharingConsent } : {}),
       });
-
       await onSuccess();
     } catch (error) {
       const httpErrorStatus = error?.customAttributes?.httpErrorStatus;

@@ -5,21 +5,14 @@ import {
   useLocation, useParams, useHistory,
 } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import {
-  breakpoints, Container, Row, MediaQuery,
-} from '@edx/paragon';
+import { Container } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import CourseService from './data/service';
-import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
 import { CourseContextProvider } from './CourseContextProvider';
-import CourseHeader from './course-header/CourseHeader';
-import CourseMainContent from './CourseMainContent';
-import CourseSidebar from './CourseSidebar';
-
 import {
   useAllCourseData,
   useExtractAndRemoveSearchParamsFromURL,
@@ -34,16 +27,16 @@ import {
   pathContainsCourseTypeSlug,
   getCourseTypeConfig,
   getEntitlementPrice,
+  findHighestLevelEntitlementSku,
 } from './data/utils';
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
-
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
-import CourseRecommendations from './CourseRecommendations';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { useSearchCatalogs } from '../search/data/hooks';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
+import CoursePageRoutes from './routes/CoursePageRoutes';
 
 const CoursePage = () => {
   const { enterpriseSlug, courseKey } = useParams();
@@ -139,16 +132,14 @@ const CoursePage = () => {
       if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
       }
-
       const {
         courseDetails,
         userEnrollments,
         userEntitlements,
         catalog,
       } = courseData;
-
       const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
-
+      const courseEntitlementProductSku = findHighestLevelEntitlementSku(courseDetails.entitlements);
       return {
         course: courseDetails,
         activeCourseRun: getActiveCourseRun(courseDetails),
@@ -162,6 +153,7 @@ const CoursePage = () => {
           allRecommendations: allRecommendations?.slice(0, 3),
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
+        courseEntitlementProductSku,
       };
     },
     [
@@ -265,23 +257,9 @@ const CoursePage = () => {
           subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
           coursePrice={coursePrice}
           currency={currency}
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
         >
-          <CourseHeader />
-          <Container size="lg" className="py-5">
-            <Row>
-              <MainContent>
-                <CourseMainContent />
-              </MainContent>
-              <MediaQuery minWidth={breakpoints.large.minWidth}>
-                {matches => matches && (
-                  <Sidebar>
-                    <CourseSidebar />
-                  </Sidebar>
-                )}
-              </MediaQuery>
-              {canOnlyViewHighlightSets === false && <CourseRecommendations />}
-            </Row>
-          </Container>
+          <CoursePageRoutes />
         </CourseContextProvider>
       </CourseEnrollmentsContextProvider>
     </>

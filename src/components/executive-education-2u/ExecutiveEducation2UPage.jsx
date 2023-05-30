@@ -26,7 +26,7 @@ import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from '
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const activeQueryParams = useActiveQueryParams();
-  const { push } = useHistory();
+  const history = useHistory();
 
   const isExecEd2UFulfillmentEnabled = useMemo(() => {
     const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
@@ -61,12 +61,23 @@ const ExecutiveEducation2UPage = () => {
     if (contentMetadata) {
       const activeCourseRun = getActiveCourseRun(contentMetadata);
       const organizationDetails = getCourseOrganizationDetails(contentMetadata);
+      /* istanbul ignore next */
+      const getDuration = () => {
+        if (!activeCourseRun) {
+          return '-';
+        }
+        let duration = `${activeCourseRun.weeksToComplete} Week`;
+        if (activeCourseRun.weeksToComplete > 1) {
+          duration += 's';
+        }
+        return duration;
+      };
       return {
         organizationImage: organizationDetails.organizationLogo,
         organizationName: organizationDetails.organizationName,
         title: contentMetadata.title,
         startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
-        duration: activeCourseRun ? `${activeCourseRun.weeksToComplete} Week${activeCourseRun.weeksToComplete <= 1 ? '' : 's'}` : '-',
+        duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
       };
     }
@@ -74,7 +85,7 @@ const ExecutiveEducation2UPage = () => {
   }, [contentMetadata]);
 
   const handleCheckoutSuccess = () => {
-    push({
+    history.push({
       pathname: `/${enterpriseConfig.slug}/executive-education-2u/enrollment-completed`,
       state: {
         data: courseMetadata,
@@ -89,7 +100,7 @@ const ExecutiveEducation2UPage = () => {
   }
 
   return (
-    <div className="exec-ed-registration-page">
+    <div className="fill-vertical-space page-light-bg">
       <Container size="lg" className="py-5">
         <Helmet>
           <title>{pageTitle}</title>

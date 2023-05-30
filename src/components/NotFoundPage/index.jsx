@@ -13,7 +13,7 @@ const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
   }
 
   return (
-    <Container size="lg" className="mt-3">
+    <Container size="lg" className="mt-3" data-testid="not-found-page">
       <Helmet title={PAGE_TITLE} />
       <div className="text-center py-5">
         <h1>404</h1>

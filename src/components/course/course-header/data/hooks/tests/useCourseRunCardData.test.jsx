@@ -36,7 +36,7 @@ const wrapper = ({ children }) => (
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn().mockReturnValue({ pathname: '/enterpriseSlug/course/edX+DemoX' }),
+  useRouteMatch: jest.fn().mockReturnValue({ url: '/test-enterprise/course/edX+DemoX' }),
 }));
 
 jest.mock('../useCourseRunCardHeading', () => jest.fn(() => 'Course started'));

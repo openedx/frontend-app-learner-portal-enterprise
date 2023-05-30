@@ -4,6 +4,7 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
 } from '../data/constants';
+import { pathContainsCourseTypeSlug } from '../data/utils';
 
 const {
   ENROLL_DISABLED,
@@ -89,20 +90,13 @@ export function determineEnrollmentType({
   return ENROLL_DISABLED;
 }
 
-// TODO: See if we can make this generic, not linked to Exec Ed
-export function getExecutiveEducation2UEnrollmentUrl({
-  enterpriseSlug,
-  courseUuid,
-  entitlementProductSku,
-  isExecutiveEducation2UCourse,
+export function getExternalCourseEnrollmentUrl({
+  currentRouteUrl,
 }) {
+  // TODO: See if we can make this generic, not linked to Exec Ed
+  const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(currentRouteUrl, 'executive-education-2u');
   if (!isExecutiveEducation2UCourse) {
     return undefined;
   }
-
-  const execEdEnrollParams = new URLSearchParams({
-    course_uuid: courseUuid,
-    sku: entitlementProductSku,
-  });
-  return `/${enterpriseSlug}/executive-education-2u/?${execEdEnrollParams.toString()}`;
+  return `${currentRouteUrl}/enroll`;
 }
