@@ -149,8 +149,6 @@ export function useCoursePartners(course) {
 export function useCourseRunWeeksToComplete(courseRun) {
   let weeksToComplete;
   let label;
-
-  // consolidated logic for weeksToComplete and label
   if (courseRun?.weeksToComplete >= 0) {
     weeksToComplete = courseRun.weeksToComplete;
     if (courseRun.weeksToComplete === 1) {
@@ -159,61 +157,38 @@ export function useCourseRunWeeksToComplete(courseRun) {
       label = 'weeks';
     }
   }
-
   return [weeksToComplete, label];
 }
 
-// TODO: Refactor away from useEffect useState
 export function useCourseTranscriptLanguages(courseRun) {
-  const [languages, setLanguages] = useState([]);
-  const [label, setLabel] = useState(undefined);
-
-  useEffect(() => {
-    if (courseRun && courseRun.transcriptLanguages) {
-      setLanguages(courseRun.transcriptLanguages);
-      if (courseRun.transcriptLanguages.length > 1) {
-        setLabel('Video Transcripts');
-      } else {
-        setLabel('Video Transcript');
-      }
+  let languages = [];
+  let label;
+  if (courseRun?.transcriptLanguages) {
+    languages = courseRun.transcriptLanguages;
+    if (courseRun.transcriptLanguages.length > 1) {
+      label = 'Video Transcripts';
+    } else {
+      label = 'Video Transcript';
     }
-  }, [courseRun]);
+  }
 
   return [languages, label];
 }
-
-// TODO: Refactor away from useEffect useState
 export function useCoursePacingType(courseRun) {
-  const [pacingType, setPacingType] = useState();
+  let pacingType;
+  let pacingTypeContent;
 
-  useEffect(
-    () => {
-      if (isCourseSelfPaced(courseRun.pacingType)) {
-        setPacingType(COURSE_PACING_MAP.SELF_PACED);
-      }
+  if (isCourseSelfPaced(courseRun?.pacingType)) {
+    pacingType = COURSE_PACING_MAP.SELF_PACED;
+  } else if (isCourseInstructorPaced(courseRun?.pacingType)) {
+    pacingType = COURSE_PACING_MAP.INSTRUCTOR_PACED;
+  }
 
-      if (isCourseInstructorPaced(courseRun.pacingType)) {
-        setPacingType(COURSE_PACING_MAP.INSTRUCTOR_PACED);
-      }
-    },
-    [courseRun],
-  );
-
-  // TODO: Refactor away from useEffect useState
-  const pacingTypeContent = useMemo(
-    () => {
-      if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
-        return 'Instructor-led on a course schedule';
-      }
-
-      if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
-        return 'Self-paced on your time';
-      }
-
-      return undefined;
-    },
-    [pacingType],
-  );
+  if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
+    pacingTypeContent = 'Instructor-led on a course schedule';
+  } else if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
+    pacingTypeContent = 'Self-paced on your time';
+  }
 
   return [pacingType, pacingTypeContent];
 }
