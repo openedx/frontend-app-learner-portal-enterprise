@@ -63,7 +63,6 @@ const StatefulEnroll = ({
       setButtonState('pending');
     },
     onSuccess: (transaction) => {
-      console.log('onSuccess', transaction);
       setButtonState('complete');
       if (onSuccess) {
         onSuccess(transaction);
@@ -72,7 +71,6 @@ const StatefulEnroll = ({
   });
 
   const handleEnrollButtonClick = () => {
-    console.log('handleEnrollButtonClick', contentKey);
     if (onClick) {
       onClick();
     }

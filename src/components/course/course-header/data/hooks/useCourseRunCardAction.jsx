@@ -55,11 +55,6 @@ const useCourseRunCardAction = ({
     handleRedeemError,
   } = useRedemptionStatus({ contentKey });
 
-  console.log('[useCourseRunCardAction]', {
-    contentKey,
-    redemptionStatus,
-  });
-
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
       userEnrollment,

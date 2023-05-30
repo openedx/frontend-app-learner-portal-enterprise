@@ -687,11 +687,6 @@ export const useUserSubsidyApplicableToCourse = ({
 
     let applicableUserSubsidy;
 
-    console.log('[useUserSubsidyApplicableToCourse] courseData', {
-      isPolicyRedemptionEnabled,
-      redeemableSubsidyAccessPolicy,
-    });
-
     // if course can be redeemed with EMET system, return
     // the redeemable subsidy access policy.
     if (isPolicyRedemptionEnabled && redeemableSubsidyAccessPolicy) {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import {
   submitRedemptionRequest,
@@ -29,9 +29,9 @@ const useStatefullEnroll = ({
   contentKey,
   subsidyAccessPolicy,
   onSuccess,
+  onError,
   onRedeem,
 }) => {
-  const queryClient = useQueryClient();
   const [transaction, setTransaction] = useState();
 
   const redemptionMutation = useMutation({
@@ -44,55 +44,47 @@ const useStatefullEnroll = ({
     },
   });
 
+  const handleSuccess = async (newTransaction) => {
+    setTransaction(newTransaction);
+    if (newTransaction.state === 'committed') {
+      if (onSuccess) {
+        await onSuccess(newTransaction);
+      }
+    }
+  };
+
+  const handleError = (error) => {
+    if (onError) {
+      onError(error);
+    }
+  };
+
   useQuery({
     queryKey: ['policy', 'transactions', transaction],
     enabled: shouldPollTransactionState(transaction),
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,
-    onSuccess: async (newTransaction) => {
-      if (newTransaction.state === 'committed') {
-        if (onSuccess) {
-          await onSuccess(newTransaction);
-        }
-      } else {
-        setTransaction(newTransaction);
-      }
-    },
+    onSuccess: handleSuccess,
+    onError: handleError,
   });
 
-  const redeem = () => {
+  const redeem = ({ metadata } = {}) => {
     const makeRedemption = async () => {
       await redemptionMutation.mutateAsync({
         userId: getAuthenticatedUser().id,
         contentKey,
         policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
+        metadata,
       }, {
-        onSuccess: async (newTransaction) => {
-          if (newTransaction.state === 'committed') {
-            if (onSuccess) {
-              await onSuccess(newTransaction);
-            }
-          } else {
-            setTransaction(newTransaction);
-          }
-        },
-        onError: (error) => {
-          console.log('[useStatefulEnroll] error', error);
-        },
+        onSuccess: handleSuccess,
+        onError: handleError,
       });
     };
     makeRedemption();
   };
 
-  // const isLoading = (
-  //   redemptionMutation.isLoading || transactionQuery.isLoading
-  // );
-
   return {
     redeem,
-    // isLoading,
-    // redemptionMutation,
-    // transactionQuery,
   };
 };
 

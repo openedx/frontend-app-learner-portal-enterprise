@@ -18,6 +18,8 @@ import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './
 import useStatefullEnroll from '../stateful-enroll/data/hooks/useStatefullEnroll';
 import { CourseContext } from '../course/CourseContextProvider';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { snakeCaseObject } from '@edx/frontend-platform';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
@@ -68,6 +70,11 @@ const UserEnrollmentForm = ({
     contentKey: activeCourseRun.key,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
     onSuccess: handleFormSubmissionSuccess,
+    onError: (error) => {
+      setFormSubmissionError(error);
+      setEnrollButtonState('error');
+      logError(error);
+    },
   });
 
   const handleFormValidation = (values) => {
@@ -104,14 +111,17 @@ const UserEnrollmentForm = ({
   };
 
   const handleLearnerCreditFormSubmit = async (values) => {
-    const userDetails = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      dateOfBirth: values.dateOfBirth,
-    };
+    const userDetails = snakeCaseObject({
+      geagFirstName: values.firstName,
+      geagLastName: values.lastName,
+      geagEmail: getAuthenticatedUser().email,
+      geagDateOfBirth: values.dateOfBirth,
+      geagTermsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+      geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+    });
     try {
       setEnrollButtonState('pending');
-      await redeem();
+      await redeem({ metadata: userDetails });
     } catch (error) {
       setFormSubmissionError(error);
       logError(error);
@@ -350,6 +360,7 @@ const UserEnrollmentForm = ({
                 default: 'Confirm registration',
                 pending: 'Confirming registration...',
                 complete: 'Registration confirmed',
+                error: 'Try again',
               }}
               state={enrollButtonState}
             />
