@@ -12,6 +12,7 @@ const initialAppContextValue = {
   enterpriseConfig: {
     name: 'Test Enterprise',
     slug: enterpriseSlug,
+    orgId: enterpriseSlug,
   },
 };
 const mockBaseLocationMetadata = {
@@ -39,6 +40,7 @@ jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => ({
     GETSMARTER_STUDENT_TC_URL: 'https://example.url',
+    GETSMARTER_LEARNER_DASHBOARD_URL: 'https://getsmarter.example.com/account',
   })),
 }));
 
@@ -64,5 +66,11 @@ describe('EnrollmentCompleted', () => {
     expect(screen.getByText('test org')).toBeInTheDocument();
     expect(screen.getByText(8)).toBeInTheDocument();
     expect(screen.getByText('Start date:')).toBeInTheDocument();
+  });
+  it('renders get smarter learner dashboard URL on enrollment.', () => {
+    renderWithRouter(<EnrollmentCompletedWrapper />);
+    expect(
+      screen.getByRole('link', { name: 'GetSmarter learner dashboard' }),
+    ).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-enterprise-slug');
   });
 });
