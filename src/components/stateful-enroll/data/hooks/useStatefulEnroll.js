@@ -25,7 +25,7 @@ const checkTransactionStatus = async ({ queryKey }) => {
   return retrieveTransactionStatus({ transactionStatusApiUrl });
 };
 
-const useStatefullEnroll = ({
+const useStatefulEnroll = ({
   contentKey,
   subsidyAccessPolicy,
   onSuccess,
@@ -92,4 +92,4 @@ const useStatefullEnroll = ({
   };
 };
 
-export default useStatefullEnroll;
+export default useStatefulEnroll;

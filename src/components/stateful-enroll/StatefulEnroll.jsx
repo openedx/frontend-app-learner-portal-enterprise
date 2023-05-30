@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { StatefulButton } from '@edx/paragon';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
-import { useStatefullEnroll } from './data';
+import { useStatefulEnroll } from './data';
 
 const messages = defineMessages({
   buttonLabelEnroll: {
@@ -56,7 +56,7 @@ const StatefulEnroll = ({
     ...labels,
   };
 
-  const { redeem } = useStatefullEnroll({
+  const { redeem } = useStatefulEnroll({
     contentKey,
     subsidyAccessPolicy,
     onRedeem: () => {
@@ -66,6 +66,12 @@ const StatefulEnroll = ({
       setButtonState('complete');
       if (onSuccess) {
         onSuccess(transaction);
+      }
+    },
+    onError: (error) => {
+      setButtonState('error');
+      if (onError) {
+        onError(error);
       }
     },
   });

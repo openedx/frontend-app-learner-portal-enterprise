@@ -1,15 +1,15 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import StatefulEnroll from './StatefulEnroll';
-import { useStatefullEnroll } from './data';
+import { useStatefulEnroll } from './data';
 
 const mockRedeem = jest.fn();
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
-  useStatefullEnroll: jest.fn(() => ({ redeem: mockRedeem })),
+  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
 }));
 
 const mockCallbackProps = {
@@ -22,7 +22,6 @@ const MOCK_COURSE_RUN_KEY = 'course-v1:edX+S2023+1T2023';
 const MOCK_SUBSIDY_ACCESS_POLICY = {
   policyRedemptionUrl: 'http://policy-redemption.url',
 };
-const MOCK_TRANSACTION_STATUS_API_URL = 'http://transaction-status.url';
 
 const StatefulEnrollWrapper = (props) => (
   <IntlProvider locale="en">
@@ -36,36 +35,30 @@ const StatefulEnrollWrapper = (props) => (
 );
 
 describe('StatefulEnroll', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  const clickEnrollButton = async (options = {}) => {
+  const clickEnrollButton = async () => {
+    expect(useStatefulEnroll).toHaveBeenCalledTimes(1);
     const enrollBtn = screen.getByText('Enroll');
     userEvent.click(enrollBtn);
-    if (!options.ignoreOnClick) {
-      const onClickSpy = jest.spyOn(mockCallbackProps, 'onClick');
-      expect(onClickSpy).toHaveBeenCalledTimes(1);
-    }
+    const onClickSpy = jest.spyOn(mockCallbackProps, 'onClick');
+    expect(onClickSpy).toHaveBeenCalledTimes(1);
+    expect(mockRedeem).toHaveBeenCalledTimes(1);
+    // kick off the `onRedeem` callback function passed to `useStatefulEnroll`
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onRedeem();
+    });
     expect(await screen.findByText('Enrolling...')).toBeInTheDocument();
   };
-
-  // const verifyRedemptionMutationArgs = () => {
-  //   expect(submitRedemptionRequest).toHaveBeenCalledWith(
-  //     expect.objectContaining({
-  //       userId: MOCK_USER_ID,
-  //       contentKey: MOCK_COURSE_RUN_KEY,
-  //       policyRedemptionUrl: MOCK_SUBSIDY_ACCESS_POLICY.policyRedemptionUrl,
-  //     }),
-  //   );
-  // };
 
   it('should render with default "Enroll" label', () => {
     render(<StatefulEnrollWrapper />);
     expect(screen.getByText('Enroll')).toBeInTheDocument();
   });
 
-  it('should allow the button labels to be overriden', () => {
+  it('should allow the button labels to be overridden', () => {
     render(
       <StatefulEnrollWrapper
         labels={{
@@ -76,18 +69,18 @@ describe('StatefulEnroll', () => {
     expect(screen.getByText('Hello world')).toBeInTheDocument();
   });
 
-  it.only('should handle successful enrollment', async () => {
+  it('should handle successful enrollment', async () => {
     render(<StatefulEnrollWrapper />);
     const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
     const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
-    // submitRedemptionRequest.mockResolvedValueOnce({
-    //   transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
-    // });
-    // retrieveTransactionStatus.mockResolvedValueOnce({
-    //   state: 'committed',
-    // });
     await clickEnrollButton();
-    // verifyRedemptionMutationArgs();
+
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onSuccess({
+        state: 'committed',
+      });
+    });
+
     expect(await screen.findByText('Enrolled')).toBeInTheDocument();
     expect(onSuccessSpy).toHaveBeenCalledTimes(1);
     expect(onSuccessSpy).toHaveBeenCalledWith(
@@ -98,61 +91,16 @@ describe('StatefulEnroll', () => {
     expect(onErrorSpy).not.toHaveBeenCalled();
   });
 
-  it('should handle transaction status pending', async () => {
+  it('should handle redemption error', async () => {
     render(<StatefulEnrollWrapper />);
     const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
     const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
-    // submitRedemptionRequest.mockResolvedValueOnce({
-    //   transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
-    // });
-    // retrieveTransactionStatus.mockResolvedValueOnce({
-    //   state: 'pending',
-    // });
     await clickEnrollButton();
-    // verifyRedemptionMutationArgs();
-    expect(onSuccessSpy).not.toHaveBeenCalled();
-    expect(onErrorSpy).not.toHaveBeenCalled();
-  });
 
-  it('should handle redemption mutation request error', async () => {
-    render(<StatefulEnrollWrapper />);
-    const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
-    const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
-    // submitRedemptionRequest.mockRejectedValueOnce();
-    await clickEnrollButton();
-    // verifyRedemptionMutationArgs();
-    expect(await screen.findByText('Try again')).toBeInTheDocument();
-    expect(onSuccessSpy).not.toHaveBeenCalled();
-    expect(onErrorSpy).toHaveBeenCalledTimes(1);
-  });
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onError(new Error('oh noes!'));
+    });
 
-  it('should handle transaction status error', async () => {
-    render(<StatefulEnrollWrapper />);
-    const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
-    const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
-    // submitRedemptionRequest.mockResolvedValueOnce({
-    //   transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
-    // });
-    // retrieveTransactionStatus.mockResolvedValueOnce({
-    //   state: 'failed',
-    // });
-    await clickEnrollButton();
-    // verifyRedemptionMutationArgs();
-    expect(await screen.findByText('Try again')).toBeInTheDocument();
-    expect(onSuccessSpy).not.toHaveBeenCalled();
-    expect(onErrorSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('should handle transaction status request error', async () => {
-    render(<StatefulEnrollWrapper />);
-    const onSuccessSpy = jest.spyOn(mockCallbackProps, 'onSuccess');
-    const onErrorSpy = jest.spyOn(mockCallbackProps, 'onError');
-    // submitRedemptionRequest.mockResolvedValueOnce({
-    //   transactionStatusApiUrl: MOCK_TRANSACTION_STATUS_API_URL,
-    // });
-    // retrieveTransactionStatus.mockRejectedValueOnce();
-    await clickEnrollButton();
-    // verifyRedemptionMutationArgs();
     expect(await screen.findByText('Try again')).toBeInTheDocument();
     expect(onSuccessSpy).not.toHaveBeenCalled();
     expect(onErrorSpy).toHaveBeenCalledTimes(1);

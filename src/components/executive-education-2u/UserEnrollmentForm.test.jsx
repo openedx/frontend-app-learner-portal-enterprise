@@ -1,13 +1,19 @@
 import React from 'react';
-import { screen, render, waitFor } from '@testing-library/react';
+import {
+  screen, render, waitFor, act,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import moment from 'moment/moment';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
+import { CourseContext } from '../course/CourseContextProvider';
+import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
+import { useStatefulEnroll } from '../stateful-enroll/data';
 
 const termsLabelText = 'I agree to GetSmarter\'s Terms and Conditions for Students';
 const dataSharingConsentLabelText = 'I have read and accepted GetSmarter\'s data sharing consent';
@@ -17,17 +23,31 @@ const mockFirstName = 'John';
 const mockLastName = 'Doe';
 const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
+const mockEmail = 'edx@example.com';
 const mockOnCheckoutSuccess = jest.fn();
 
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  getAuthenticatedUser: () => ({ id: 1, email: mockEmail }),
+}));
+
 const mockLogInfo = jest.fn();
+const mockLogError = jest.fn();
 jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
   logInfo: (msg) => mockLogInfo(msg),
+  logError: (msg) => mockLogError(msg),
 }));
 jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
   checkoutExecutiveEducation2U: jest.fn(),
+}));
+
+const mockRedeem = jest.fn();
+jest.mock('../stateful-enroll/data', () => ({
+  ...jest.requireActual('../stateful-enroll/data'),
+  useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
 }));
 
 const initialAppContextValue = {
@@ -40,26 +60,40 @@ const initialAppContextValue = {
   authenticatedUser: { id: 1 },
 };
 
+const baseCourseContextValue = {
+  state: {
+    activeCourseRun: {
+      key: 'course-v1:edX+DemoX+Demo_Course',
+    },
+  },
+  userSubsidyApplicableToCourse: {
+    subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+  },
+};
+
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
+  courseContextValue = baseCourseContextValue,
   enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <UserEnrollmentForm
-        enterpriseId={enterpriseId}
-        productSKU={productSKU}
-        onCheckoutSuccess={onCheckoutSuccess}
-      />
+      <CourseContext.Provider value={courseContextValue}>
+        <UserEnrollmentForm
+          enterpriseId={enterpriseId}
+          productSKU={productSKU}
+          onCheckoutSuccess={onCheckoutSuccess}
+        />
+      </CourseContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
 
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   it('has course enrollment information section and handles validation', async () => {
@@ -146,14 +180,18 @@ describe('UserEnrollmentForm', () => {
     );
 
     // form fields
-    expect(await screen.queryByLabelText(dataSharingConsentLabelText)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByLabelText(dataSharingConsentLabelText)).not.toBeInTheDocument();
+    });
 
     // validation
     userEvent.click(screen.getByText('Confirm registration'));
-    expect(await screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
+    });
   });
 
-  it('handles successful form submission', async () => {
+  it('handles successful form submission with subsidy access policy redemption', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
@@ -164,29 +202,36 @@ describe('UserEnrollmentForm', () => {
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByText('Confirm registration'));
-
-    // disabled while submitting
-    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
-
     await waitFor(() => {
-      expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
-      expect(checkoutExecutiveEducation2U).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sku: mockProductSKU,
-          userDetails: {
-            dateOfBirth: mockDateOfBirth,
-            firstName: mockFirstName,
-            lastName: mockLastName,
-          },
-          termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(mockTermsAcceptedAt).toISOString()),
-          dataShareConsent: true,
-        }),
-      );
+      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
     });
-    expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
+    expect(mockRedeem).toHaveBeenCalledTimes(1);
+    expect(mockRedeem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: snakeCaseObject({
+          geagFirstName: mockFirstName,
+          geagLastName: mockLastName,
+          geagEmail: mockEmail,
+          geagDateOfBirth: mockDateOfBirth,
+          geagTermsAcceptedAt: mockTermsAcceptedAt,
+          geagDataShareConsent: true,
+        }),
+      }),
+    );
+
+    // simulate `useStatefulEnroll` calling `onSuccess` arg
+    const newTransaction = { state: 'committed' };
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onSuccess(newTransaction);
+    });
 
     // disabled after submitting
     expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
+
+    await waitFor(() => {
+      expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
+      expect(mockOnCheckoutSuccess).toHaveBeenCalledWith(newTransaction);
+    });
   });
 
   it('handles successful form submission with data sharing consent disabled', async () => {
@@ -209,27 +254,33 @@ describe('UserEnrollmentForm', () => {
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByText('Confirm registration'));
 
-    // disabled while submitting
-    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    await waitFor(() => {
+      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    });
+    expect(mockRedeem).toHaveBeenCalledTimes(1);
+    expect(mockRedeem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: snakeCaseObject({
+          geagFirstName: mockFirstName,
+          geagLastName: mockLastName,
+          geagEmail: mockEmail,
+          geagDateOfBirth: mockDateOfBirth,
+          geagTermsAcceptedAt: mockTermsAcceptedAt,
+          geagDataShareConsent: undefined,
+        }),
+      }),
+    );
+
+    // simulate `useStatefulEnroll` calling `onSuccess` arg
+    const newTransaction = { state: 'committed' };
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onSuccess(newTransaction);
+    });
 
     await waitFor(() => {
-      expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
-      expect(checkoutExecutiveEducation2U).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sku: mockProductSKU,
-          userDetails: {
-            dateOfBirth: mockDateOfBirth,
-            firstName: mockFirstName,
-            lastName: mockLastName,
-          },
-          termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(mockTermsAcceptedAt).toISOString()),
-        }),
-      );
+      expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
+      expect(mockOnCheckoutSuccess).toHaveBeenCalledWith(newTransaction);
     });
-    expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
-
-    // disabled after submitting
-    expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('handles age related errors during form submission', async () => {
@@ -259,7 +310,6 @@ describe('UserEnrollmentForm', () => {
   it('handles network error with form submission', async () => {
     const mockError = new Error('oh noes');
     Date.now = jest.fn(() => new Date().valueOf());
-    checkoutExecutiveEducation2U.mockRejectedValueOnce(mockError);
     render(<UserEnrollmentFormWrapper />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
@@ -269,19 +319,29 @@ describe('UserEnrollmentForm', () => {
     userEvent.click(screen.getByText('Confirm registration'));
 
     // disabled while submitting
-    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    await waitFor(() => {
+      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    // simulate `useStatefulEnroll` calling `onError` arg
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onError(mockError);
+    });
 
     await waitFor(() => {
       // no longer disabled after submitting
-      expect(screen.getByText('Confirm registration').closest('button')).toHaveAttribute('aria-disabled', 'false');
+      expect(screen.getByText('Try again').closest('button')).toHaveAttribute('aria-disabled', 'false');
     });
+
+    expect(mockLogError).toHaveBeenCalledTimes(1);
+    expect(mockLogError).toHaveBeenCalledWith(mockError);
 
     // ensure error alert is visible
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
   });
 
-  it('handle error 422 where course was already enrolled in', async () => {
+  it('handle error 422 where course was already enrolled in with legacy enterprise offers', async () => {
     const mockCheckoutAlreadyEnrolledResponse = {
       message: 'Axios Error: User has already purchased the product.',
       customAttributes: {
@@ -292,7 +352,13 @@ describe('UserEnrollmentForm', () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
-    render(<UserEnrollmentFormWrapper />);
+    const courseContextValue = {
+      ...baseCourseContextValue,
+      userSubsidyApplicableToCourse: {
+        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
+      },
+    };
+    render(<UserEnrollmentFormWrapper courseContextValue={courseContextValue} />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
@@ -301,7 +367,9 @@ describe('UserEnrollmentForm', () => {
     userEvent.click(screen.getByText('Confirm registration'));
 
     // disabled while submitting
-    expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    await waitFor(() => {
+      expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
+    });
 
     await waitFor(() => {
       expect(checkoutExecutiveEducation2U).toHaveBeenCalledTimes(1);
@@ -318,9 +386,12 @@ describe('UserEnrollmentForm', () => {
         dataShareConsent: true,
       }),
     );
-    expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
-    expect(mockLogInfo).toHaveBeenCalledTimes(1);
-    expect(mockLogInfo).toHaveBeenCalledWith('test-enterprise-uuid user 1 has already purchased course ABC123.');
+
+    await waitFor(() => {
+      expect(mockLogInfo).toHaveBeenCalledTimes(1);
+      expect(mockLogInfo).toHaveBeenCalledWith('test-enterprise-uuid user 1 has already purchased course ABC123.');
+      expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
+    });
 
     // disabled after submitting
     expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');

@@ -7,6 +7,7 @@ import {
   Formik,
   Form as FormikForm,
 } from 'formik';
+import isNil from 'lodash.isnil';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -17,7 +18,7 @@ import moment from 'moment/moment';
 import reactStringReplace from 'react-string-replace';
 
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
-import useStatefullEnroll from '../stateful-enroll/data/hooks/useStatefullEnroll';
+import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 
@@ -55,7 +56,8 @@ const UserEnrollmentForm = ({
   const [enrollButtonState, setEnrollButtonState] = useState('default');
 
   const handleFormSubmissionSuccess = async (newTransaction) => {
-    if (!newTransaction || newTransaction?.state !== 'committed') {
+    // If a transaction is passed, it must be in the 'committed' state to proceed
+    if (!isNil(newTransaction) && newTransaction.state !== 'committed') {
       return;
     }
     setEnrollButtonState('complete');
@@ -66,7 +68,7 @@ const UserEnrollmentForm = ({
     onCheckoutSuccess(newTransaction);
   };
 
-  const { redeem } = useStatefullEnroll({
+  const { redeem } = useStatefulEnroll({
     contentKey: activeCourseRun.key,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
     onSuccess: handleFormSubmissionSuccess,
@@ -78,6 +80,10 @@ const UserEnrollmentForm = ({
   });
 
   const handleFormValidation = (values) => {
+    if (!isFormSubmitted) {
+      setIsFormSubmitted(true);
+    }
+
     const errors = {};
     const is18YearsOld = moment().diff(moment(values.dateOfBirth), 'years') >= 18;
 
@@ -107,6 +113,7 @@ const UserEnrollmentForm = ({
         { errors },
       );
     }
+
     return errors;
   };
 
@@ -120,7 +127,6 @@ const UserEnrollmentForm = ({
       geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
     });
     try {
-      setEnrollButtonState('pending');
       await redeem({ metadata: userDetails });
     } catch (error) {
       setFormSubmissionError(error);
@@ -130,7 +136,6 @@ const UserEnrollmentForm = ({
 
   const handleLegacyFormSubmit = async (values) => {
     try {
-      setEnrollButtonState('pending');
       await checkoutExecutiveEducation2U({
         sku: productSKU,
         userDetails: {
@@ -155,7 +160,7 @@ const UserEnrollmentForm = ({
   };
 
   const handleFormSubmit = async (values) => {
-    setIsFormSubmitted(true);
+    setEnrollButtonState('pending');
     if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
       await handleLearnerCreditFormSubmit(values);
     } else {
@@ -166,11 +171,11 @@ const UserEnrollmentForm = ({
   return (
     <Formik
       initialValues={{
-        firstName: 'A',
-        lastName: 'B',
-        dateOfBirth: '1945-03-05',
-        studentTermsAndConditions: true,
-        dataSharingConsent: true,
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '',
+        studentTermsAndConditions: false,
+        dataSharingConsent: false,
       }}
       validateOnChange={isFormSubmitted}
       validateOnBlur={isFormSubmitted}
