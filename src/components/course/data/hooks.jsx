@@ -582,10 +582,12 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
   const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
   const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
-  const fallbackSubsidyAccessPolicy = transformedResponse.find(
+  const otherSubsidyAccessPolicy = transformedResponse.find(
     r => r.redeemableSubsidyAccessPolicy,
   )?.redeemableSubsidyAccessPolicy;
-  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || fallbackSubsidyAccessPolicy;
+  // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
+  // redeemable subsidy access policy for any of the content keys.
+  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   return {

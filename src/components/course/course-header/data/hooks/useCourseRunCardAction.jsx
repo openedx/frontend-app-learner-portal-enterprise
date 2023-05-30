@@ -53,7 +53,7 @@ const useCourseRunCardAction = ({
     handleRedeemClick,
     handleRedeemSuccess,
     handleRedeemError,
-  } = useRedemptionStatus({ contentKey });
+  } = useRedemptionStatus();
 
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({

@@ -10,6 +10,8 @@ import {
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import moment from 'moment/moment';
 import reactStringReplace from 'react-string-replace';
@@ -18,8 +20,6 @@ import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './
 import useStatefullEnroll from '../stateful-enroll/data/hooks/useStatefullEnroll';
 import { CourseContext } from '../course/CourseContextProvider';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { snakeCaseObject } from '@edx/frontend-platform';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',

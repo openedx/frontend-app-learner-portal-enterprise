@@ -70,15 +70,19 @@ const useStatefullEnroll = ({
 
   const redeem = ({ metadata } = {}) => {
     const makeRedemption = async () => {
-      await redemptionMutation.mutateAsync({
-        userId: getAuthenticatedUser().id,
-        contentKey,
-        policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
-        metadata,
-      }, {
-        onSuccess: handleSuccess,
-        onError: handleError,
-      });
+      try {
+        await redemptionMutation.mutateAsync({
+          userId: getAuthenticatedUser().id,
+          contentKey,
+          policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
+          metadata,
+        }, {
+          onSuccess: handleSuccess,
+          onError: handleError,
+        });
+      } catch (error) {
+        handleError(error);
+      }
     };
     makeRedemption();
   };
