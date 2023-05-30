@@ -6,13 +6,29 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
  * specified transaction UUID.
  *
  * @param {object} args
- * @param {string} args.transaction Metadata about a transaction containing a uuid (primary
- *  key) of the subsidy from which transactions should be listed.
+ * @param {string} args.transactionStatusApiUrl API url to retrieve the transaction status.
  * @returns The payload for the specified transaction.
  */
-export const retrieveTransactionStatus = async ({ transaction }) => {
-  const response = await getAuthenticatedHttpClient().get(transaction.transactionStatusApiUrl);
+export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }) => {
+  const response = await getAuthenticatedHttpClient().get(transactionStatusApiUrl);
   return camelCaseObject(response.data);
+
+  // const requestBody = {
+  //   transactionStatusApiUrl,
+  //   state: Math.random() > 0.5 ? 'committed' : 'pending',
+  //   // state: 'pending',
+  //   uuid: Math.random(),
+  //   coursewareUrl: 'http://localhost:2000/course/course-v1:edX+CTL.SC2x+1T2023a/home',
+  // };
+  // const response = await fetch('https://httpbin.org/post', {
+  //   method: 'POST',
+  //   body: JSON.stringify(requestBody),
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  // });
+  // const result = await response.json();
+  // return camelCaseObject(result.json);
 };
 
 /**
@@ -30,8 +46,25 @@ export const submitRedemptionRequest = async ({ policyRedemptionUrl, userId, con
     lms_user_id: userId,
     content_key: contentKey,
   };
-
   const { data } = await getAuthenticatedHttpClient().post(policyRedemptionUrl, requestBody);
-
   return camelCaseObject(data);
+
+  // const requestBody = {
+  //   lms_user_id: userId,
+  //   content_key: contentKey,
+  //   // deleteme
+  //   uuid: Math.random(),
+  //   state: 'pending',
+  //   policyRedemptionUrl,
+  //   coursewareUrl: 'http://localhost:2000/course/course-v1:edX+CTL.SC2x+1T2023a/home',
+  // };
+  // const data = await fetch('https://httpbin.org/post', {
+  //   method: 'POST',
+  //   body: JSON.stringify(requestBody),
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  // });
+  // const result = await data.json();
+  // return camelCaseObject(result.json);
 };

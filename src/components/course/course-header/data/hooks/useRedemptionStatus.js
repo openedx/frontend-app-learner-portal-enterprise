@@ -12,7 +12,7 @@ const useRedemptionStatus = () => {
   const [redemptionStatus, setRedemptionStatus] = useState();
 
   const handleRedeemClick = () => {
-    setRedemptionStatus();
+    setRedemptionStatus(undefined);
   };
 
   const handleRedeemSuccess = (transaction) => {

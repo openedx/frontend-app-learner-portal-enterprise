@@ -20,7 +20,7 @@ const ExternalCourseEnrollment = () => {
   const courseMetadata = useMinimalCourseMetadata();
 
   const handleCheckoutSuccess = () => {
-    history.push('complete');
+    history.push('enroll/complete');
   };
 
   return (

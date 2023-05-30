@@ -581,7 +581,11 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
 
   const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
-  const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
+  const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
+  const fallbackSubsidyAccessPolicy = transformedResponse.find(
+    r => r.redeemableSubsidyAccessPolicy,
+  )?.redeemableSubsidyAccessPolicy;
+  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || fallbackSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
 
   return {
@@ -682,6 +686,11 @@ export const useUserSubsidyApplicableToCourse = ({
     } = courseData;
 
     let applicableUserSubsidy;
+
+    console.log('[useUserSubsidyApplicableToCourse] courseData', {
+      isPolicyRedemptionEnabled,
+      redeemableSubsidyAccessPolicy,
+    });
 
     // if course can be redeemed with EMET system, return
     // the redeemable subsidy access policy.

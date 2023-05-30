@@ -112,6 +112,7 @@ const CoursePage = () => {
     isPolicyRedemptionEnabled,
     missingSubsidyAccessPolicyReason,
   } = subsidyAccessPolicyRedeemabilityData || {};
+  console.log('subsidyAccessPolicyRedeemabilityData', subsidyAccessPolicyRedeemabilityData);
 
   const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
   const onSubscriptionLicenseForCourseValidationError = useCallback(

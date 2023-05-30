@@ -49,12 +49,25 @@ const UserEnrollmentForm = ({
   } = useContext(CourseContext);
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [isEnrollmentSubmitted, setIsEnrollmentSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
+  const [enrollButtonState, setEnrollButtonState] = useState('default');
 
-  const { mutateAsync } = useStatefullEnroll({
+  const handleFormSubmissionSuccess = async (newTransaction) => {
+    if (!newTransaction || newTransaction?.state !== 'committed') {
+      return;
+    }
+    setEnrollButtonState('complete');
+    await sendEnterpriseTrackEventWithDelay(
+      enterpriseId,
+      'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
+    );
+    onCheckoutSuccess(newTransaction);
+  };
+
+  const { redeem } = useStatefullEnroll({
     contentKey: activeCourseRun.key,
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
+    onSuccess: handleFormSubmissionSuccess,
   });
 
   const handleFormValidation = (values) => {
@@ -90,72 +103,64 @@ const UserEnrollmentForm = ({
     return errors;
   };
 
-  const handleFormSubmissionSuccess = async () => {
-    await sendEnterpriseTrackEventWithDelay(
-      enterpriseId,
-      'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
-    );
-    setIsEnrollmentSubmitted(true);
-    onCheckoutSuccess();
+  const handleLearnerCreditFormSubmit = async (values) => {
+    const userDetails = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      dateOfBirth: values.dateOfBirth,
+    };
+    try {
+      setEnrollButtonState('pending');
+      await redeem();
+    } catch (error) {
+      setFormSubmissionError(error);
+      logError(error);
+    }
   };
 
-  console.log('[UserEnrollmentForm]', userSubsidyApplicableToCourse);
-
-  const handleFormSubmit = async (values, { setSubmitting }) => {
-    setIsFormSubmitted(true);
-
-    // EMET
-    if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
-      try {
-        await mutateAsync();
+  const handleLegacyFormSubmit = async (values) => {
+    try {
+      setEnrollButtonState('pending');
+      await checkoutExecutiveEducation2U({
+        sku: productSKU,
+        userDetails: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          dateOfBirth: values.dateOfBirth,
+        },
+        termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+        dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+      });
+      await handleFormSubmissionSuccess();
+    } catch (error) {
+      const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
+      if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
+        logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
         await handleFormSubmissionSuccess();
-      } catch (error) {
+      } else {
         setFormSubmissionError(error);
         logError(error);
       }
-    } else {
-      // legacy
-      try {
-        await checkoutExecutiveEducation2U({
-          sku: productSKU,
-          userDetails: {
-            firstName: values.firstName,
-            lastName: values.lastName,
-            dateOfBirth: values.dateOfBirth,
-          },
-          termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
-          dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
-        });
-        await handleFormSubmissionSuccess();
-      } catch (error) {
-        const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
-        if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
-          logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
-          await handleFormSubmissionSuccess();
-        } else {
-          setFormSubmissionError(error);
-          logError(error);
-        }
-      }
     }
-    setSubmitting(false);
   };
 
-  const getButtonState = (isSubmitting) => {
-    if (isEnrollmentSubmitted) {
-      return 'complete';
+  const handleFormSubmit = async (values) => {
+    setIsFormSubmitted(true);
+    if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
+      await handleLearnerCreditFormSubmit(values);
+    } else {
+      await handleLegacyFormSubmit(values);
     }
-    return isSubmitting ? 'pending' : 'default';
   };
 
   return (
     <Formik
       initialValues={{
-        firstName: '',
-        lastName: '',
-        dateOfBirth: '',
-        studentTermsAndConditions: false,
-        dataSharingConsent: false,
+        firstName: 'A',
+        lastName: 'B',
+        dateOfBirth: '1945-03-05',
+        studentTermsAndConditions: true,
+        dataSharingConsent: true,
       }}
       validateOnChange={isFormSubmitted}
       validateOnBlur={isFormSubmitted}
@@ -167,7 +172,6 @@ const UserEnrollmentForm = ({
         errors,
         handleChange,
         handleBlur,
-        isSubmitting,
       }) => (
         <FormikForm className={className}>
           <Card
@@ -347,7 +351,7 @@ const UserEnrollmentForm = ({
                 pending: 'Confirming registration...',
                 complete: 'Registration confirmed',
               }}
-              state={getButtonState(isSubmitting)}
+              state={enrollButtonState}
             />
           </div>
         </FormikForm>

@@ -20,9 +20,12 @@ const CourseRunCard = ({
     state: {
       userEnrollments,
     },
+    userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
     userCanRequestSubsidyForCourse,
   } = useContext(CourseContext);
+
+  console.log('CourseRunCard', userSubsidyApplicableToCourse);
 
   const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
     userEnrollments,
