@@ -46,9 +46,9 @@ describe('StatefulEnroll', () => {
     const onClickSpy = jest.spyOn(mockCallbackProps, 'onClick');
     expect(onClickSpy).toHaveBeenCalledTimes(1);
     expect(mockRedeem).toHaveBeenCalledTimes(1);
-    // kick off the `onRedeem` callback function passed to `useStatefulEnroll`
+    // kick off the `onBeginRedeem` callback function passed to `useStatefulEnroll`
     act(() => {
-      useStatefulEnroll.mock.calls[0][0].onRedeem();
+      useStatefulEnroll.mock.calls[0][0].onBeginRedeem();
     });
     expect(await screen.findByText('Enrolling...')).toBeInTheDocument();
   };

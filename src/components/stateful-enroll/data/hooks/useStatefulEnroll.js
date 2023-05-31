@@ -20,7 +20,7 @@ const getRefetchInterval = (response) => {
 };
 
 const checkTransactionStatus = async ({ queryKey }) => {
-  const transaction = queryKey[1];
+  const transaction = queryKey[2];
   const { transactionStatusApiUrl } = transaction;
   return retrieveTransactionStatus({ transactionStatusApiUrl });
 };
@@ -30,15 +30,15 @@ const useStatefulEnroll = ({
   subsidyAccessPolicy,
   onSuccess,
   onError,
-  onRedeem,
+  onBeginRedeem,
 }) => {
   const [transaction, setTransaction] = useState();
 
   const redemptionMutation = useMutation({
     mutationFn: submitRedemptionRequest,
     onMutate: () => {
-      if (onRedeem) {
-        onRedeem();
+      if (onBeginRedeem) {
+        onBeginRedeem();
       }
       setTransaction(undefined);
     },

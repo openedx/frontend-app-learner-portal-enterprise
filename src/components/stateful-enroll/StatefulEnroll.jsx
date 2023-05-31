@@ -59,7 +59,7 @@ const StatefulEnroll = ({
   const { redeem } = useStatefulEnroll({
     contentKey,
     subsidyAccessPolicy,
-    onRedeem: () => {
+    onBeginRedeem: () => {
       setButtonState('pending');
     },
     onSuccess: (transaction) => {
