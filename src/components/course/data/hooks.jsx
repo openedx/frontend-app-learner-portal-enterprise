@@ -571,15 +571,25 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  *  missingSubsidyAccessPolicyReason
  * }
  */
-const checkRedemptionEligiblity = async ({ enterpriseUuid, activeCourseRunKey, queryKey }) => {
-  const { courseRunKeys } = queryKey[1];
+const checkRedemptionEligibility = async ({ queryKey }) => {
+  const enterpriseUuid = queryKey[1];
+  const { courseRunKeys, activeCourseRunKey } = queryKey[3];
+
   const courseService = new CourseService({ enterpriseUuid });
   const response = await courseService.fetchCanRedeem({ courseRunKeys });
   const transformedResponse = camelCaseObject(response.data);
+
   const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
-  const redeemableSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
+  const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
+  const otherSubsidyAccessPolicy = transformedResponse.find(
+    r => r.redeemableSubsidyAccessPolicy,
+  )?.redeemableSubsidyAccessPolicy;
+  // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
+  // redeemable subsidy access policy for any of the content keys.
+  const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
   const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
+
   return {
     isPolicyRedemptionEnabled,
     redeemabilityPerContentKey: transformedResponse,
@@ -617,9 +627,9 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 
   return useQuery({
     ...queryOptions,
-    queryKey: ['policy-can-redeem-course', { lmsUserId, courseRunKeys }],
+    queryKey: ['policy', enterpriseUuid, 'can-redeem', { lmsUserId, courseRunKeys, activeCourseRunKey }],
     enabled: isEnabled,
-    queryFn: async args => checkRedemptionEligiblity({ enterpriseUuid, activeCourseRunKey, ...args }),
+    queryFn: checkRedemptionEligibility,
   });
 };
 

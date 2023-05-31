@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { StatefulButton } from '@edx/paragon';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
-import {
-  useRedemptionMutation,
-  useTransactionStatus,
-} from './data';
+import { useStatefulEnroll } from './data';
 
 const messages = defineMessages({
   buttonLabelEnroll: {
@@ -49,8 +45,7 @@ const StatefulEnroll = ({
   ...props
 }) => {
   const intl = useIntl();
-  const [enrollButtonState, setEnrollButtonState] = useState('default');
-  const [transactionStatusApiUrl, setTransactionStatusApiUrl] = useState();
+  const [buttonState, setButtonState] = useState('default');
 
   const buttonLabels = {
     default: intl.formatMessage(messages.buttonLabelEnroll),
@@ -61,60 +56,38 @@ const StatefulEnroll = ({
     ...labels,
   };
 
-  const handleRedemptionError = () => {
-    setEnrollButtonState('error');
-    if (onError) {
-      onError();
-    }
-  };
-
-  const redemptionMutation = useRedemptionMutation({
-    onMutate: () => {
-      setEnrollButtonState('pending');
-    },
-    onSuccess: (transaction) => {
-      setTransactionStatusApiUrl(transaction.transactionStatusApiUrl);
-    },
-    onError: () => {
-      handleRedemptionError();
-    },
-  });
-
-  useTransactionStatus({
+  const { redeem } = useStatefulEnroll({
     contentKey,
-    transactionStatusApiUrl,
+    subsidyAccessPolicy,
+    onBeginRedeem: () => {
+      setButtonState('pending');
+    },
     onSuccess: (transaction) => {
-      if (transaction.state === 'committed') {
-        setEnrollButtonState('complete');
-        if (onSuccess) {
-          onSuccess(transaction);
-        }
-      }
-      if (transaction.state === 'failed') {
-        handleRedemptionError();
+      setButtonState('complete');
+      if (onSuccess) {
+        onSuccess(transaction);
       }
     },
-    onError: () => {
-      handleRedemptionError();
+    onError: (error) => {
+      setButtonState('error');
+      if (onError) {
+        onError(error);
+      }
     },
   });
 
-  const handleEnrollButtonClick = (e) => {
+  const handleEnrollButtonClick = () => {
     if (onClick) {
-      onClick(e);
+      onClick();
     }
-    redemptionMutation.mutate({
-      userId: getAuthenticatedUser().id,
-      contentKey,
-      policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
-    });
+    redeem();
   };
 
   return (
     <StatefulButton
       labels={buttonLabels}
       variant={variant}
-      state={enrollButtonState}
+      state={buttonState}
       onClick={handleEnrollButtonClick}
       {...props}
     />

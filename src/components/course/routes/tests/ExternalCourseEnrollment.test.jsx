@@ -90,6 +90,6 @@ describe('ExternalCourseEnrollment', () => {
     );
     UserEnrollmentForm.mock.calls[0][0].onCheckoutSuccess();
     expect(mockHistoryPush).toHaveBeenCalledTimes(1);
-    expect(mockHistoryPush).toHaveBeenCalledWith('complete');
+    expect(mockHistoryPush).toHaveBeenCalledWith('enroll/complete');
   });
 });

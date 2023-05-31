@@ -929,7 +929,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     expect(result.current.isInitialLoading).toBeDefined();
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['policy-can-redeem-course', { courseRunKeys: [], lmsUserId: mockLmsUserId }],
+        queryKey: ['policy', baseArgs.enterpriseUuid, 'can-redeem', { activeCourseRunKey: undefined, courseRunKeys: [], lmsUserId: mockLmsUserId }],
         enabled: false,
         queryFn: expect.any(Function),
       }),
@@ -982,7 +982,11 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       expect(result.current.data.missingSubsidyAccessPolicyReason).toBeDefined();
     }
 
-    const expectQueryKey = ['policy-can-redeem-course', { lmsUserId: mockLmsUserId, courseRunKeys: argsWithCourseRunKeys.courseRunKeys }];
+    const expectQueryKey = ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
+      activeCourseRunKey: argsWithCourseRunKeys.courseRunKeys[0],
+      lmsUserId: mockLmsUserId,
+      courseRunKeys: argsWithCourseRunKeys.courseRunKeys,
+    }];
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: expectQueryKey,

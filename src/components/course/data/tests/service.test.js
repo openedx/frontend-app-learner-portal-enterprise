@@ -123,6 +123,7 @@ describe('CourseService', () => {
     const requestBody = {
       lms_user_id: userId,
       content_key: contentKey,
+      metadata: {},
     };
     const response = await submitRedemptionRequest({ policyRedemptionUrl, userId, contentKey });
     expect(axiosMock.history.post[0].url).toBe(REDEEM_ENDPOINT);

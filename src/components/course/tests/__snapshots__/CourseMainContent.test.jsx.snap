@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExternalCourseEnrollment renders and matches snapshot 1`] = `
+Array [
+  <div
+    className="mb-5"
+  >
+    <div
+      data-testid="course-sidebar"
+    />
+  </div>,
+  <div
+    data-testid="preview-expand"
+  >
+    <div
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>Test Description</p>",
+        }
+      }
+    />
+  </div>,
+  <div
+    className="mb-5"
+  >
+    <h3>
+      Sponsored by
+    </h3>
+    <div
+      className="row no-gutters mt-3"
+    >
+      <div
+        className="col-lg-6 mb-3"
+      >
+        <div
+          className="mb-2"
+        >
+          <a
+            aria-hidden="true"
+            href="https://test.org/https://test.org"
+            rel="noopener noreferrer"
+            tabIndex="-1"
+            target="_blank"
+          >
+            <img
+              alt="Test Sponsor logo"
+              src="https://test.org/logo.png"
+            />
+          </a>
+        </div>
+        <a
+          className="pgn__hyperlink default-link standalone-link"
+          href="https://test.org/https://test.org"
+          onClick={[Function]}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Test Sponsor
+          <span
+            className="pgn__hyperlink__external-icon"
+            title="Opens in a new tab"
+          >
+            <span
+              className="pgn__icon"
+              style={
+                Object {
+                  "height": "1em",
+                  "width": "1em",
+                }
+              }
+            >
+              <svg
+                aria-hidden={true}
+                fill="none"
+                focusable={false}
+                height={24}
+                role="img"
+                viewBox="0 0 24 24"
+                width={24}
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 19H5V5h7V3H3v18h18v-9h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span
+                className="sr-only"
+              >
+                in a new tab
+              </span>
+            </span>
+          </span>
+        </a>
+      </div>
+    </div>
+    <p>
+      The production of this course would not have been possible without the generous contributions of 
+      Test Sponsor
+      .
+    </p>
+  </div>,
+  <div
+    data-testid="preview-expand"
+  >
+    <div
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>Test Outcome</p>",
+        }
+      }
+    />
+  </div>,
+  <div
+    data-testid="preview-expand"
+  >
+    <div
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>Test Syllabus</p>",
+        }
+      }
+    />
+  </div>,
+  <div
+    data-testid="created-by"
+  />,
+  <div
+    data-testid="verified-cert-pitch"
+  />,
+  <div
+    className="mb-5"
+  >
+    <h3>
+      Learner testimonials
+    </h3>
+    <div
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>Test Testimonials</p>",
+        }
+      }
+    />
+  </div>,
+  <div
+    className="mb-5"
+  >
+    <h3>
+      Frequently asked questions
+    </h3>
+    <div
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>Test FAQ</p>",
+        }
+      }
+    />
+  </div>,
+  <div
+    className="mb-5"
+  >
+    <div
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>Test Additional Information</p>",
+        }
+      }
+    />
+  </div>,
+  <div
+    className="mb-5"
+  >
+    <h3>
+      Who can take this course?
+    </h3>
+    <p>
+      Unfortunately, learners from one or more of the following countries or regions will not be able to register for this course: Iran, Cuba and the Crimea region of Ukraine. While edX has sought licenses from the U.S. Office of Foreign Assets Control (OFAC) to offer our courses to learners in these countries and regions, the licenses we have truly regrets that U.S. sanctions prevent us from offering all of our courses to received are not broad enough to allow us to offer this course in all locations. EdX everyone, no matter where they live.
+    </p>
+  </div>,
+]
+`;

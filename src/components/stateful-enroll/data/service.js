@@ -6,7 +6,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
  * specified transaction UUID.
  *
  * @param {object} args
- * @param {string} args.transactionUUID The uuid (primary key) of the subsidy from which transactions should be listed.
+ * @param {string} args.transactionStatusApiUrl API url to retrieve the transaction status.
  * @returns The payload for the specified transaction.
  */
 export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }) => {
@@ -22,15 +22,21 @@ export const retrieveTransactionStatus = async ({ transactionStatusApiUrl }) => 
  * @param {string} args.policyRedemptionUrl The URL to submit the redemption request to.
  * @param {string} args.userId The user ID of the user to submit the redemption request for.
  * @param {string} args.contentKey The content key (course run key) to submit the redemption request for.
+ * @param {Object} [args.metadata] Optional metadata to include in the redemption request.
+ *
  * @returns Payload from the redemption request.
  */
-export const submitRedemptionRequest = async ({ policyRedemptionUrl, userId, contentKey }) => {
+export const submitRedemptionRequest = async ({
+  policyRedemptionUrl,
+  userId,
+  contentKey,
+  metadata = {},
+}) => {
   const requestBody = {
     lms_user_id: userId,
     content_key: contentKey,
+    metadata,
   };
-
   const { data } = await getAuthenticatedHttpClient().post(policyRedemptionUrl, requestBody);
-
   return camelCaseObject(data);
 };

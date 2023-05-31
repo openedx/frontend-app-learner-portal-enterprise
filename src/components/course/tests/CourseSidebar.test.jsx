@@ -93,7 +93,6 @@ const CourseSidebarWrapper = ({
 describe('CourseSidebarWrapper', () => {
   it('renders', () => {
     render(<CourseSidebarWrapper />);
-    screen.debug();
 
     // length
     expect(CourseSidebarListItem).toHaveBeenCalledWith(

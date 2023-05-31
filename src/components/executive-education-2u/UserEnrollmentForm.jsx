@@ -7,14 +7,20 @@ import {
   Formik,
   Form as FormikForm,
 } from 'formik';
+import isNil from 'lodash.isnil';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import moment from 'moment/moment';
 import reactStringReplace from 'react-string-replace';
 
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
+import { useStatefulEnroll } from '../stateful-enroll/data';
+import { CourseContext } from '../course/CourseContextProvider';
+import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
@@ -33,16 +39,51 @@ const UserEnrollmentForm = ({
   productSKU,
   onCheckoutSuccess,
 }) => {
+  const config = getConfig();
   const {
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { id: userId },
   } = useContext(AppContext);
-  const config = getConfig();
+  const {
+    state: {
+      activeCourseRun,
+    },
+    userSubsidyApplicableToCourse,
+  } = useContext(CourseContext);
+
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [isEnrollmentSubmitted, setIsEnrollmentSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
+  const [enrollButtonState, setEnrollButtonState] = useState('default');
+
+  const handleFormSubmissionSuccess = async (newTransaction) => {
+    // If a transaction is passed, it must be in the 'committed' state to proceed
+    if (!isNil(newTransaction) && newTransaction.state !== 'committed') {
+      return;
+    }
+    setEnrollButtonState('complete');
+    await sendEnterpriseTrackEventWithDelay(
+      enterpriseId,
+      'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
+    );
+    onCheckoutSuccess(newTransaction);
+  };
+
+  const { redeem } = useStatefulEnroll({
+    contentKey: activeCourseRun.key,
+    subsidyAccessPolicy: userSubsidyApplicableToCourse,
+    onSuccess: handleFormSubmissionSuccess,
+    onError: (error) => {
+      setFormSubmissionError(error);
+      setEnrollButtonState('error');
+      logError(error);
+    },
+  });
 
   const handleFormValidation = (values) => {
+    if (!isFormSubmitted) {
+      setIsFormSubmitted(true);
+    }
+
     const errors = {};
     const is18YearsOld = moment().diff(moment(values.dateOfBirth), 'years') >= 18;
 
@@ -72,20 +113,28 @@ const UserEnrollmentForm = ({
         { errors },
       );
     }
+
     return errors;
   };
 
-  const handleFormSubmit = async (values, { setSubmitting }) => {
-    const onSuccess = async () => {
-      await sendEnterpriseTrackEventWithDelay(
-        enterpriseId,
-        'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
-      );
+  const handleLearnerCreditFormSubmit = async (values) => {
+    const userDetails = snakeCaseObject({
+      geagFirstName: values.firstName,
+      geagLastName: values.lastName,
+      geagEmail: getAuthenticatedUser().email,
+      geagDateOfBirth: values.dateOfBirth,
+      geagTermsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+      geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+    });
+    try {
+      await redeem({ metadata: userDetails });
+    } catch (error) {
+      setFormSubmissionError(error);
+      logError(error);
+    }
+  };
 
-      setIsEnrollmentSubmitted(true);
-      onCheckoutSuccess();
-    };
-
+  const handleLegacyFormSubmit = async (values) => {
     try {
       await checkoutExecutiveEducation2U({
         sku: productSKU,
@@ -95,20 +144,27 @@ const UserEnrollmentForm = ({
           dateOfBirth: values.dateOfBirth,
         },
         termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
-        ...(enableDataSharingConsent ? { dataShareConsent: !!values.dataSharingConsent } : {}),
+        dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
       });
-      await onSuccess();
+      await handleFormSubmissionSuccess();
     } catch (error) {
       const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
       if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
         logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
-        await onSuccess();
+        await handleFormSubmissionSuccess();
       } else {
         setFormSubmissionError(error);
         logError(error);
       }
-    } finally {
-      setSubmitting(false);
+    }
+  };
+
+  const handleFormSubmit = async (values) => {
+    setEnrollButtonState('pending');
+    if (userSubsidyApplicableToCourse.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE) {
+      await handleLearnerCreditFormSubmit(values);
+    } else {
+      await handleLegacyFormSubmit(values);
     }
   };
 
@@ -131,208 +187,191 @@ const UserEnrollmentForm = ({
         errors,
         handleChange,
         handleBlur,
-        handleSubmit,
-        isSubmitting,
-      }) => {
-        const getButtonState = () => {
-          if (isEnrollmentSubmitted) {
-            return 'complete';
-          }
-          return isSubmitting ? 'pending' : 'default';
-        };
-
-        return (
-          <FormikForm
-            className={className}
-            onSubmit={(e) => {
-              handleSubmit(e);
-              setIsFormSubmitted(true);
-            }}
+      }) => (
+        <FormikForm className={className}>
+          <Card
+            className="mb-4 registration-summary"
+            orientation="horizontal"
           >
-            <Card
-              className="mb-4 registration-summary"
-              orientation="horizontal"
-            >
-              <Card.Body>
-                <Card.Section>
-                  <h3>Course enrollment information</h3>
-                  <br />
-                  <Alert
-                    variant="danger"
-                    className="mb-4.5"
-                    show={!!formSubmissionError}
-                    onClose={() => setFormSubmissionError(undefined)}
-                    dismissible
-                  >
-                    <p>
-                      An error occurred while sharing your course enrollment information. Please try again.
-                    </p>
-                  </Alert>
+            <Card.Body>
+              <Card.Section>
+                <h3 className="mb-2">Course enrollment information</h3>
+                <Alert
+                  variant="danger"
+                  className="mb-4.5"
+                  show={!!formSubmissionError}
+                  onClose={() => setFormSubmissionError(undefined)}
+                  dismissible
+                >
+                  <p>
+                    An error occurred while sharing your course enrollment information. Please try again.
+                  </p>
+                </Alert>
 
-                  <Row className="mb-4">
-                    <Col xs={12} lg={6}>
-                      <Form.Group
-                        isInvalid={!!errors.firstName}
-                        className="mb-4.5 mb-lg-0"
-                      >
-                        <Form.Control
-                          value={values.firstName}
-                          floatingLabel="First name *"
-                          name="firstName"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                        {errors.firstName && isFormSubmitted && (
-                          <Form.Control.Feedback type="invalid">
-                            {errors.firstName}
-                          </Form.Control.Feedback>
-                        )}
-                      </Form.Group>
-                    </Col>
-                    <Col xs={12} lg={6}>
-                      <Form.Group
-                        isInvalid={!!errors.lastName}
-                      >
-                        <Form.Control
-                          value={values.lastName}
-                          floatingLabel="Last name *"
-                          name="lastName"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                        {errors.lastName && isFormSubmitted && (
-                          <Form.Control.Feedback type="invalid">
-                            {errors.lastName}
-                          </Form.Control.Feedback>
-                        )}
-                      </Form.Group>
-                    </Col>
-                  </Row>
+                <Row className="mb-4">
+                  <Col xs={12} lg={6}>
+                    <Form.Group
+                      isInvalid={!!errors.firstName}
+                      className="mb-4.5 mb-lg-0"
+                    >
+                      <Form.Control
+                        value={values.firstName}
+                        floatingLabel="First name *"
+                        name="firstName"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.firstName && isFormSubmitted && (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.firstName}
+                        </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+                  </Col>
+                  <Col xs={12} lg={6}>
+                    <Form.Group
+                      isInvalid={!!errors.lastName}
+                    >
+                      <Form.Control
+                        value={values.lastName}
+                        floatingLabel="Last name *"
+                        name="lastName"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.lastName && isFormSubmitted && (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.lastName}
+                        </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-                  <Row className="mb-4">
-                    <Col xs={12} lg={12}>
-                      <Form.Group
-                        isInvalid={!!errors.dateOfBirth}
-                      >
-                        <Form.Control
-                          type="date"
-                          value={values.dateOfBirth}
-                          floatingLabel="Date of birth *"
-                          name="dateOfBirth"
-                          placeholder="mm/dd/yyyy"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          max={new Date().toISOString().split('T')[0]} // only allow before or on today's date
-                        />
-                        {errors.dateOfBirth && isFormSubmitted && (
-                          <Form.Control.Feedback type="invalid">
-                            {
-                              reactStringReplace(
-                                errors.dateOfBirth,
-                                'privacy@getsmarter.com',
-                                (match) => (
-                                  <MailtoLink to={match}>{match}</MailtoLink>
-                                ),
-                              )
-                            }
-                          </Form.Control.Feedback>
-                        )}
-                      </Form.Group>
-                    </Col>
-                  </Row>
+                <Row className="mb-4">
+                  <Col xs={12} lg={12}>
+                    <Form.Group
+                      isInvalid={!!errors.dateOfBirth}
+                    >
+                      <Form.Control
+                        type="date"
+                        value={values.dateOfBirth}
+                        floatingLabel="Date of birth *"
+                        name="dateOfBirth"
+                        placeholder="mm/dd/yyyy"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        max={new Date().toISOString().split('T')[0]} // only allow before or on today's date
+                      />
+                      {errors.dateOfBirth && isFormSubmitted && (
+                        <Form.Control.Feedback type="invalid">
+                          {
+                            reactStringReplace(
+                              errors.dateOfBirth,
+                              'privacy@getsmarter.com',
+                              (match) => (
+                                <MailtoLink to={match}>{match}</MailtoLink>
+                              ),
+                            )
+                          }
+                        </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-                  {enableDataSharingConsent && (
-                    <Row>
-                      <Col>
-                        <Form.Group>
-                          <div className="d-flex align-items-center">
-                            <CheckboxControl
-                              className="flex-shrink-0"
-                              checked={values.dataSharingConsent}
-                              name="dataSharingConsent"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              aria-label="I have read and accepted GetSmarter's data sharing consent"
-                            />
-                            <span aria-hidden>I have read and accepted GetSmarter&apos;s data sharing consent.</span>
-                          </div>
-                          <div className="small font-italic">
-                            I acknowledge that information about my participation in the course will be shared with my
-                            employer or funding entity, including my name, assessments of my performance such as grades,
-                            and any perceived risk to my completion of the course.
-                          </div>
-                          {errors.dataSharingConsent && (
-                            <Form.Control.Feedback type="invalid">
-                              {errors.dataSharingConsent}
-                            </Form.Control.Feedback>
-                          )}
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  )}
+                {enableDataSharingConsent && (
                   <Row>
                     <Col>
                       <Form.Group>
                         <div className="d-flex align-items-center">
                           <CheckboxControl
                             className="flex-shrink-0"
-                            checked={values.studentTermsAndConditions}
-                            name="studentTermsAndConditions"
+                            checked={values.dataSharingConsent}
+                            name="dataSharingConsent"
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            aria-label="I agree to GetSmarter's Terms and Conditions for Students"
+                            aria-label="I have read and accepted GetSmarter's data sharing consent"
                           />
-                          <span aria-hidden>
-                            I have read and accepted GetSmarter&apos;s{' '}
-                            <Hyperlink
-                              destination={config.GETSMARTER_STUDENT_TC_URL}
-                              target="_blank"
-                              onClick={() => {
-                                sendEnterpriseTrackEvent(
-                                  enterpriseId,
-                                  'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
-                                );
-                              }}
-                            >
-                              Terms and Conditions
-                            </Hyperlink>
-                            &nbsp;for Students
-                          </span>
+                          <span aria-hidden>I have read and accepted GetSmarter&apos;s data sharing consent.</span>
                         </div>
-                        {errors.studentTermsAndConditions && (
+                        <div className="small font-italic">
+                          I acknowledge that information about my participation in the course will be shared with my
+                          employer or funding entity, including my name, assessments of my performance such as grades,
+                          and any perceived risk to my completion of the course.
+                        </div>
+                        {errors.dataSharingConsent && (
                           <Form.Control.Feedback type="invalid">
-                            {errors.studentTermsAndConditions}
+                            {errors.dataSharingConsent}
                           </Form.Control.Feedback>
                         )}
                       </Form.Group>
                     </Col>
                   </Row>
-                  <Row className="mb-4">
-                    <Col xs={12} lg={8}>
-                      <p className="small">
-                        *Required
-                      </p>
-                    </Col>
-                  </Row>
-                </Card.Section>
-              </Card.Body>
-            </Card>
+                )}
+                <Row>
+                  <Col>
+                    <Form.Group>
+                      <div className="d-flex align-items-center">
+                        <CheckboxControl
+                          className="flex-shrink-0"
+                          checked={values.studentTermsAndConditions}
+                          name="studentTermsAndConditions"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          aria-label="I agree to GetSmarter's Terms and Conditions for Students"
+                        />
+                        <span aria-hidden>
+                          I have read and accepted GetSmarter&apos;s{' '}
+                          <Hyperlink
+                            destination={config.GETSMARTER_STUDENT_TC_URL}
+                            target="_blank"
+                            onClick={() => {
+                              sendEnterpriseTrackEvent(
+                                enterpriseId,
+                                'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
+                              );
+                            }}
+                          >
+                            Terms and Conditions
+                          </Hyperlink>
+                          &nbsp;for Students
+                        </span>
+                      </div>
+                      {errors.studentTermsAndConditions && (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.studentTermsAndConditions}
+                        </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-4">
+                  <Col xs={12} lg={8}>
+                    <p className="small">
+                      *Required
+                    </p>
+                  </Col>
+                </Row>
+              </Card.Section>
+            </Card.Body>
+          </Card>
 
-            <div className="d-flex justify-content-end">
-              <StatefulButton
-                type="submit"
-                variant="primary"
-                labels={{
-                  default: 'Confirm registration',
-                  pending: 'Confirming registration...',
-                  complete: 'Registration confirmed',
-                }}
-                state={getButtonState()}
-              />
-            </div>
-          </FormikForm>
-        );
-      }}
+          <div className="d-flex justify-content-end">
+            <StatefulButton
+              type="submit"
+              variant="primary"
+              labels={{
+                default: 'Confirm registration',
+                pending: 'Confirming registration...',
+                complete: 'Registration confirmed',
+                error: 'Try again',
+              }}
+              state={enrollButtonState}
+            />
+          </div>
+        </FormikForm>
+      )}
     </Formik>
   );
 };
