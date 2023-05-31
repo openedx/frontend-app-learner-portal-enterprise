@@ -1,11 +1,11 @@
 import { renderHook, act } from '@testing-library/react-hooks';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import useStatefulEnroll from './useStatefulEnroll';
 import {
   submitRedemptionRequest,
   retrieveTransactionStatus,
 } from '../service';
-import { useMutation, useQuery } from '@tanstack/react-query';
 
 const mockMutateAsync = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -42,18 +42,16 @@ describe('useStatefulEnroll', () => {
       });
     }
 
-    const { result } = renderHook(() =>
-      useStatefulEnroll({
-        contentKey: 'content_key',
-        subsidyAccessPolicy: {
-          policyRedemptionUrl: 'policy_redemption_url',
-        },
-        onSuccess,
-        onError,
-        onBeginRedeem,
-        ...options,
-      })
-    );
+    const { result } = renderHook(() => useStatefulEnroll({
+      contentKey: 'content_key',
+      subsidyAccessPolicy: {
+        policyRedemptionUrl: 'policy_redemption_url',
+      },
+      onSuccess,
+      onError,
+      onBeginRedeem,
+      ...options,
+    }));
 
     const { redeem } = result.current;
     await redeem({ metadata });
@@ -75,7 +73,7 @@ describe('useStatefulEnroll', () => {
     { state: 'pending', isSuccess: false, metadata: undefined },
     { state: 'committed', isSuccess: true, metadata: { example: true } },
   ])('should call redemptionMutation.mutateAsync on redeem (%s)', async ({ state: mockState, isSuccess, metadata }) => {
-    await renderUseStatefulEnroll({ metadata});
+    await renderUseStatefulEnroll({ metadata });
 
     const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
     await act(() => onSuccessHandler({ state: mockState }));
@@ -125,6 +123,17 @@ describe('useStatefulEnroll', () => {
     expect(onBeginRedeem).toHaveBeenCalledTimes(1);
   });
 
+  test('passes submitRedemptionRequest as the mutationFn', async () => {
+    await renderUseStatefulEnroll();
+    expect(useMutation).toHaveBeenCalledTimes(1);
+    expect(useMutation).toHaveBeenCalledWith({
+      mutationFn: submitRedemptionRequest,
+      onMutate: expect.any(Function),
+    });
+    useMutation.mock.calls[0][0].mutationFn();
+    expect(submitRedemptionRequest).toHaveBeenCalledTimes(1);
+  });
+
   test('should call retrieveTransactionStatus on checkTransactionStatus', async () => {
     await renderUseStatefulEnroll();
 
@@ -132,7 +141,6 @@ describe('useStatefulEnroll', () => {
       state: 'pending',
       transactionStatusApiUrl: 'transaction_status_api_url',
     };
-
 
     const onSuccessHandler = mockMutateAsync.mock.calls[0][1].onSuccess;
     await act(() => onSuccessHandler(mockTransaction));
@@ -151,11 +159,13 @@ describe('useStatefulEnroll', () => {
 
     // use the second call to useQuery to get the queryFn
     const useQueryArgs = useQuery.mock.calls[1][0];
-    const queryFn = useQueryArgs.queryFn;
-    await queryFn({  queryKey: useQueryArgs.queryKey });
+    const { queryFn } = useQueryArgs;
+    await queryFn({ queryKey: useQueryArgs.queryKey });
 
     expect(retrieveTransactionStatus).toHaveBeenCalledTimes(1);
-    expect(retrieveTransactionStatus).toHaveBeenCalledWith({ transactionStatusApiUrl: mockTransaction.transactionStatusApiUrl });
+    expect(retrieveTransactionStatus).toHaveBeenCalledWith({
+      transactionStatusApiUrl: mockTransaction.transactionStatusApiUrl,
+    });
   });
 
   test.each([
@@ -178,11 +188,9 @@ describe('useStatefulEnroll', () => {
       enabled: false,
     });
 
-
-
     // use the second call to useQuery to get the refetchInterval
     const useQueryArgs = useQuery.mock.calls[0][0];
-    const refetchInterval = useQueryArgs.refetchInterval;
+    const { refetchInterval } = useQueryArgs;
     expect(refetchInterval(mockTransaction)).toEqual(expected);
   });
 
