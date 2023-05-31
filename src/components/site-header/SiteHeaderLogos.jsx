@@ -29,7 +29,7 @@ const SiteHeaderLogos = () => {
   }
 
   return (
-    <Stack direction="horizontal" gap={3} className="mr-lg-3">
+    <Stack direction="horizontal" gap={3} className="mr-md-3">
       {mainLogo}
       {courseTypePartnerLogo && (
         <>
