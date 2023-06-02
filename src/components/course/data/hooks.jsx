@@ -282,6 +282,7 @@ export const useCourseEnrollmentUrl = ({
   sku,
   userSubsidyApplicableToCourse,
   isExecutiveEducation2UCourse,
+  isUserEnrolled,
 }) => {
   const routeMatch = useRouteMatch();
   const config = getConfig();
@@ -337,6 +338,7 @@ export const useCourseEnrollmentUrl = ({
       if (isExecutiveEducation2UCourse) {
         const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
           currentRouteUrl: routeMatch.url,
+          isUserEnrolled,
         });
         return externalCourseEnrollmentUrl;
       }
@@ -355,6 +357,7 @@ export const useCourseEnrollmentUrl = ({
       enterpriseConfig.uuid,
       isExecutiveEducation2UCourse,
       routeMatch.url,
+      isUserEnrolled,
     ],
   );
 
