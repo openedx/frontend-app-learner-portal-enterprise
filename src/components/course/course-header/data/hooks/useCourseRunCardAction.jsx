@@ -54,6 +54,7 @@ const useCourseRunCardAction = ({
     handleRedeemSuccess,
     handleRedeemError,
   } = useRedemptionStatus();
+  const shouldUseExternalCourseEnrollmentUrl = isUserEnrolled && externalCourseEnrollmentUrl;
 
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
@@ -65,7 +66,7 @@ const useCourseRunCardAction = ({
         <NavigateToCourseware
           shouldUpgradeUserEnrollment={shouldUpgradeUserEnrollment}
           contentKey={contentKey}
-          courseRunUrl={courseRunUrl}
+          courseRunUrl={shouldUseExternalCourseEnrollmentUrl ? externalCourseEnrollmentUrl : courseRunUrl}
           subsidyAccessPolicy={subsidyAccessPolicy}
           onUpgradeClick={handleRedeemClick}
           onUpgradeSuccess={handleRedeemSuccess}

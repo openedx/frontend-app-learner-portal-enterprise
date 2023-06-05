@@ -1,7 +1,7 @@
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 import { enrollButtonTypes } from '../constants';
 
-import { determineEnrollmentType, canUserRequestSubsidyForCourse } from '../utils';
+import { determineEnrollmentType, canUserRequestSubsidyForCourse, getExternalCourseEnrollmentUrl } from '../utils';
 
 const {
   TO_COURSEWARE_PAGE,
@@ -11,6 +11,17 @@ const {
   TO_ECOM_BASKET,
   HIDE_BUTTON,
 } = enrollButtonTypes;
+
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: () => ({
+    COURSE_TYPE_CONFIG: {
+      'executive-education-2u': {
+        pathSlug: 'executive-education-2u',
+      },
+    },
+  }),
+}));
 
 describe('determineEnrollmentType', () => {
   const baseArgs = {
@@ -153,5 +164,33 @@ describe('canUserRequestSubsidyForCourse', () => {
       userSubsidyApplicableToCourse,
     };
     expect(canUserRequestSubsidyForCourse(args)).toEqual(expected);
+  });
+});
+
+describe('getExternalCourseEnrollmentUrl', () => {
+  const testRouteUrl = 'https://www.test.com/executive-education-2u/path';
+
+  test('resolves to enrollment page if not already enrolled', () => {
+    const args = {
+      currentRouteUrl: testRouteUrl,
+      isUserEnrolled: false,
+    };
+    expect(getExternalCourseEnrollmentUrl(args)).toEqual('https://www.test.com/executive-education-2u/path/enroll');
+  });
+
+  test('resolves to enrolled page if already enrolled', () => {
+    const args = {
+      currentRouteUrl: testRouteUrl,
+      isUserEnrolled: true,
+    };
+    expect(getExternalCourseEnrollmentUrl(args)).toEqual('https://www.test.com/executive-education-2u/path/enroll/complete');
+  });
+
+  test('resolves to undefined if not an external course enrollment url', () => {
+    const args = {
+      currentRouteUrl: 'https://www.test.com/path',
+      isUserEnrolled: false,
+    };
+    expect(getExternalCourseEnrollmentUrl(args)).toBeUndefined();
   });
 });

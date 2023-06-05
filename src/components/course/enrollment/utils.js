@@ -92,11 +92,12 @@ export function determineEnrollmentType({
 
 export function getExternalCourseEnrollmentUrl({
   currentRouteUrl,
+  isUserEnrolled,
 }) {
   // TODO: See if we can make this generic, not linked to Exec Ed
   const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(currentRouteUrl, 'executive-education-2u');
   if (!isExecutiveEducation2UCourse) {
     return undefined;
   }
-  return `${currentRouteUrl}/enroll`;
+  return isUserEnrolled ? `${currentRouteUrl}/enroll/complete` : `${currentRouteUrl}/enroll`;
 }
