@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import ExternalCourseEnrollmentConfirmation from '../ExternalCourseEnrollmentConfirmation';
 import { CourseContext } from '../../CourseContextProvider';
@@ -32,12 +33,22 @@ const baseCourseContextValue = {
   },
 };
 
+const appContextValue = {
+  enterpriseConfig: {
+    name: 'Test Enterprise',
+    slug: 'test-enterprise',
+    orgId: 'test-enterprise',
+  },
+};
+
 const ExternalCourseEnrollmentConfirmationWrapper = ({
   courseContextValue = baseCourseContextValue,
 }) => (
-  <CourseContext.Provider value={courseContextValue}>
-    <ExternalCourseEnrollmentConfirmation />
-  </CourseContext.Provider>
+  <AppContext.Provider value={appContextValue}>
+    <CourseContext.Provider value={courseContextValue}>
+      <ExternalCourseEnrollmentConfirmation />
+    </CourseContext.Provider>
+  </AppContext.Provider>
 );
 
 describe('ExternalCourseEnrollment', () => {
