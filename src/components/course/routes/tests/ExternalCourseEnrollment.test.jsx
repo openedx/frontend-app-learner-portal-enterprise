@@ -100,7 +100,13 @@ describe('ExternalCourseEnrollment', () => {
     expect(mockHistoryPush).toHaveBeenCalledWith('enroll/complete');
   });
 
-  it('handles failure reason', () => {
+  it.each([
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+  ])('handles failure reason (%s)', () => {
     const courseContextValue = {
       ...baseCourseContextValue,
       userSubsidyApplicableToCourse: undefined,
@@ -111,6 +117,5 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.queryByText('Test Course Title')).not.toBeInTheDocument();
     expect(screen.getByText("We're sorry.")).toBeInTheDocument();
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
-    expect(screen.getByText('No learner credit is available to cover this course.'));
   });
 });

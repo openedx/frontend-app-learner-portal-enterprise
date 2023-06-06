@@ -7,7 +7,10 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import CoursePage from '../CoursePage';
-import { useAllCourseData } from '../data/hooks';
+import {
+  useAllCourseData,
+  useCheckSubsidyAccessPolicyRedeemability,
+} from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
 import { mockCourseService } from './constants';
 
@@ -225,5 +228,43 @@ describe('CoursePage', () => {
     expect(screen.getByTestId('course-enrollments-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-page-routes')).toBeInTheDocument();
+  });
+
+  it('does not retry if `can-redeem` returns a 404 or retry count reached 3', () => {
+    render(<CoursePageWrapper />);
+    expect(useCheckSubsidyAccessPolicyRedeemability).toHaveBeenCalled();
+    const mockCanRedeemCall = useCheckSubsidyAccessPolicyRedeemability.mock.calls[0][0];
+    expect(mockCanRedeemCall).toEqual(
+      expect.objectContaining({
+        queryOptions: {
+          retry: expect.any(Function),
+        },
+      }),
+    );
+    const queryOptionTestCases = [
+      {
+        retryCount: 0,
+        error: { customAttributes: { httpErrorStatus: 500 } },
+        expectedShouldRetry: true,
+      },
+      {
+        retryCount: 3,
+        error: { customAttributes: { httpErrorStatus: 500 } },
+        expectedShouldRetry: false,
+      },
+      {
+        retryCount: 0,
+        error: { customAttributes: { httpErrorStatus: 404 } },
+        expectedShouldRetry: false,
+      },
+    ];
+    queryOptionTestCases.forEach(({
+      retryCount,
+      error,
+      expectedShouldRetry,
+    }) => {
+      const shouldRetry = mockCanRedeemCall.queryOptions.retry(retryCount, error);
+      expect(shouldRetry).toBe(expectedShouldRetry);
+    });
   });
 });
