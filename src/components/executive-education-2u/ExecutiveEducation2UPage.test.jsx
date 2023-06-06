@@ -4,6 +4,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import ExecutiveEducation2UPage from './ExecutiveEducation2UPage';
 import {
@@ -11,7 +12,6 @@ import {
   useExecutiveEducation2UContentMetadata,
 } from './data';
 import { CURRENCY_USD, PAID_EXECUTIVE_EDUCATION } from '../course/data/constants';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 const mockReceiptPageUrl = 'https://edx.org';
 const courseTitle = 'edX Demonstration Course';
