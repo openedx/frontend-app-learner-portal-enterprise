@@ -599,7 +599,7 @@ export const getMissingSubsidyReasonActions = ({
         size="sm"
         block
       >
-        Learn more
+        Learn about limits
       </Button>
     );
   }
@@ -619,6 +619,7 @@ export const getMissingSubsidyReasonActions = ({
         block
       >
         Contact administrator
+        <span className="sr-only">about funds</span>
       </Button>
     );
   }
