@@ -19,7 +19,6 @@ import reactStringReplace from 'react-string-replace';
 
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
-import { CourseContext } from '../course/CourseContextProvider';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 
 export const formValidationMessages = {
@@ -38,18 +37,14 @@ const UserEnrollmentForm = ({
   className,
   productSKU,
   onCheckoutSuccess,
+  activeCourseRun,
+  userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
   const {
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { id: userId },
   } = useContext(AppContext);
-  const {
-    state: {
-      activeCourseRun,
-    },
-    userSubsidyApplicableToCourse,
-  } = useContext(CourseContext);
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
@@ -380,10 +375,17 @@ UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
   productSKU: PropTypes.string.isRequired,
   onCheckoutSuccess: PropTypes.func.isRequired,
+  activeCourseRun: PropTypes.shape({
+    key: PropTypes.string.isRequired,
+  }).isRequired,
+  userSubsidyApplicableToCourse: PropTypes.shape({
+    subsidyType: PropTypes.string,
+  }),
 };
 
 UserEnrollmentForm.defaultProps = {
   className: undefined,
+  userSubsidyApplicableToCourse: undefined,
 };
 
 export default UserEnrollmentForm;

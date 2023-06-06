@@ -12,6 +12,12 @@ const EnrollmentCompletedSummaryCard = () => {
     enterpriseConfig: { authOrgId },
   } = useContext(AppContext);
 
+  const externalDashboardQueryParams = new URLSearchParams({
+    org_id: authOrgId,
+  });
+  const externalDashboardQueryString = externalDashboardQueryParams ? `?${externalDashboardQueryParams.toString()}` : '';
+  const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
+
   return (
     <Card className="bg-light-500">
       <Row className="my-3">
@@ -31,10 +37,11 @@ const EnrollmentCompletedSummaryCard = () => {
             <div className="mb-3.5">
               <div className="mb-1.5 text-black-color">Notified by email</div>
               <div className="small mb-2 text-gray-500">
-                GetSmarter will email you when your course starts. Alternatively, you can visit your
-                <Hyperlink destination={config.GETSMARTER_LEARNER_DASHBOARD_URL + (authOrgId ? `?org_id=${authOrgId}` : '')}>
-                  &nbsp;GetSmarter learner dashboard
-                </Hyperlink> for course status updates.
+                GetSmarter will email you when your course starts. Alternatively, you can visit your{' '}
+                <Hyperlink destination={externalDashboardUrl}>
+                  GetSmarter learner dashboard
+                </Hyperlink>
+                {' '}for course status updates.
               </div>
             </div>
             <div className="mb-3.5">
