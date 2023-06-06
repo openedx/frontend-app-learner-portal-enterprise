@@ -11,6 +11,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { useQuery } from '@tanstack/react-query';
 
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
@@ -46,6 +47,7 @@ import {
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
+import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -904,4 +906,42 @@ export const useMinimalCourseMetadata = () => {
     },
   };
   return courseMetadata;
+};
+
+export const useExternalEnrollmentFailureReason = () => {
+  const intl = useIntl();
+  const {
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+  } = useContext(CourseContext);
+  return useMemo(() => {
+    if (userSubsidyApplicableToCourse) {
+      return {};
+    }
+    let reason;
+    const noSubsidyReasons = [
+      DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
+      DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+      DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    ];
+    const systemErrorReasons = [
+      DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+      DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    ];
+    if (!missingUserSubsidyReason || noSubsidyReasons.includes(missingUserSubsidyReason?.reason)) {
+      reason = 'no_offer_available';
+    } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY) {
+      reason = 'no_offer_with_enough_balance';
+    } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED) {
+      reason = 'no_offer_with_remaining_applications';
+    } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED) {
+      reason = 'no_offer_with_enough_user_balance';
+    } else if (systemErrorReasons.includes(missingUserSubsidyReason.reason)) {
+      reason = 'system_error';
+    }
+    return {
+      failureReason: reason,
+      failureMessage: createExecutiveEducationFailureMessage({ failureCode: reason, intl }),
+    };
+  }, [userSubsidyApplicableToCourse, missingUserSubsidyReason, intl]);
 };

@@ -4,6 +4,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import ExecutiveEducation2UPage from './ExecutiveEducation2UPage';
 import {
@@ -114,9 +115,11 @@ const initialAppContextValue = {
 const ExecutiveEducation2UPageWrapper = ({
   appContextValue = initialAppContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <ExecutiveEducation2UPage />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <ExecutiveEducation2UPage />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('ExecutiveEducation2UPage', () => {
@@ -200,7 +203,7 @@ describe('ExecutiveEducation2UPage', () => {
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     expect(screen.queryByText('404')).not.toBeInTheDocument();
     expect(screen.getByText('Helpful link:')).toBeInTheDocument();
-    expect(screen.getByText('No offer is available to cover this course.')).toBeInTheDocument();
+    expect(screen.getByText('No learner credit is available to cover this course.')).toBeInTheDocument();
   });
 
   it('renders error page with valid failure_reason message', () => {
@@ -213,8 +216,8 @@ describe('ExecutiveEducation2UPage', () => {
       sku: 'ABC123',
       failure_reason: 'no_offer_with_enough_balance',
     });
-    const failureReason = 'You don’t have access to this course because your organization '
-                          + 'doesn’t have enough funds. Please contact your edX administrator '
+    const failureReason = 'You don\'t have access to this course because your organization '
+                          + 'doesn\'t have enough funds. Please contact your edX administrator '
                           + 'to resolve the error and provide you access to this content.';
     useActiveQueryParams.mockImplementation(() => searchParams);
 

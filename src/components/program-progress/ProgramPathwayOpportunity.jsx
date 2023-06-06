@@ -19,7 +19,7 @@ const ProgramPathwayOpportunity = ({ pathways, title, pathwayClass }) => (
                   data-pathway-uuid={pathway.uuid}
                   data-pathway-name={pathway.name}
                 >
-                  Learn More
+                  Learn more
                 </Button>
               </a>
             </div>

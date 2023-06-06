@@ -11,7 +11,6 @@ import moment from 'moment/moment';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
-import { CourseContext } from '../course/CourseContextProvider';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 
@@ -60,33 +59,30 @@ const initialAppContextValue = {
   authenticatedUser: { id: 1 },
 };
 
-const baseCourseContextValue = {
-  state: {
-    activeCourseRun: {
-      key: 'course-v1:edX+DemoX+Demo_Course',
-    },
-  },
-  userSubsidyApplicableToCourse: {
-    subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-  },
+const mockActiveCourseRun = {
+  key: 'course-v1:edX+DemoX+Demo_Course',
+};
+const mockUserSubsidyApplicableToCourse = {
+  subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
 };
 
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
-  courseContextValue = baseCourseContextValue,
   enterpriseId = mockEnterpriseId,
   productSKU = mockProductSKU,
   onCheckoutSuccess = mockOnCheckoutSuccess,
+  activeCourseRun = mockActiveCourseRun,
+  userSubsidyApplicableToCourse = mockUserSubsidyApplicableToCourse,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <UserEnrollmentForm
-          enterpriseId={enterpriseId}
-          productSKU={productSKU}
-          onCheckoutSuccess={onCheckoutSuccess}
-        />
-      </CourseContext.Provider>
+      <UserEnrollmentForm
+        enterpriseId={enterpriseId}
+        productSKU={productSKU}
+        onCheckoutSuccess={onCheckoutSuccess}
+        activeCourseRun={activeCourseRun}
+        userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+      />
     </AppContext.Provider>
   </IntlProvider>
 );
@@ -352,13 +348,10 @@ describe('UserEnrollmentForm', () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
 
-    const courseContextValue = {
-      ...baseCourseContextValue,
-      userSubsidyApplicableToCourse: {
-        subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
-      },
+    const userSubsidyApplicableToCourse = {
+      subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
     };
-    render(<UserEnrollmentFormWrapper courseContextValue={courseContextValue} />);
+    render(<UserEnrollmentFormWrapper userSubsidyApplicableToCourse={userSubsidyApplicableToCourse} />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);

@@ -155,7 +155,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                         className="btn btn-outline-primary btn-xs-block mt-2 float-right"
                         href={courseAboutPageURL(course)}
                       >
-                        Enroll Now
+                        Enroll now
                       </a>
                     </>
                   )
@@ -200,7 +200,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                         className="btn btn-outline-primary btn-xs-block mt-2 float-right"
                         href={courseAboutPageURL(course)}
                       >
-                        Learn More
+                        Learn more
                       </a>
                     </>
                   )

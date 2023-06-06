@@ -79,6 +79,7 @@ const ExecutiveEducation2UPage = () => {
         startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
         duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
+        activeCourseRun,
       };
     }
     return {};
@@ -154,10 +155,11 @@ const ExecutiveEducation2UPage = () => {
               <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
             )}
 
-            {!isLoading && (
+            {(!isLoading && courseMetadata) && (
               <UserEnrollmentForm
                 productSKU={queryParams.sku}
                 onCheckoutSuccess={handleCheckoutSuccess}
+                activeCourseRun={courseMetadata.activeCourseRun}
               />
             )}
           </>

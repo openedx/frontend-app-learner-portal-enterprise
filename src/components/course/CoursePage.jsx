@@ -105,6 +105,15 @@ const CoursePage = () => {
     courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
     activeCourseRunKey: courseService.activeCourseRun?.key,
     isQueryEnabled: isEMETRedemptionEnabled,
+    queryOptions: {
+      retry: (failureCount, err) => {
+        // Retry max 3 times or if the error is 404 (not found)
+        if (failureCount === 3 || err?.customAttributes?.httpErrorStatus === 404) {
+          return false;
+        }
+        return true;
+      },
+    },
   });
   const {
     redeemableSubsidyAccessPolicy,

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { logError } from '@edx/frontend-platform/logging';
 
 import {
   submitRedemptionRequest,
@@ -69,6 +70,10 @@ const useStatefulEnroll = ({
   });
 
   const redeem = ({ metadata } = {}) => {
+    if (!subsidyAccessPolicy) {
+      logError('`redeem` was called but no subsidy access policy was given.');
+      return;
+    }
     const makeRedemption = async () => {
       try {
         await redemptionMutation.mutateAsync({
