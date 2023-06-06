@@ -9,7 +9,7 @@ import GetSmarterLogo from '../../../assets/icons/get-smarter-logo-black.svg';
 const EnrollmentCompletedSummaryCard = () => {
   const config = getConfig();
   const {
-    enterpriseConfig: { orgId },
+    enterpriseConfig: { authOrgId },
   } = useContext(AppContext);
 
   return (
@@ -32,7 +32,7 @@ const EnrollmentCompletedSummaryCard = () => {
               <div className="mb-1.5 text-black-color">Notified by email</div>
               <div className="small mb-2 text-gray-500">
                 GetSmarter will email you when your course starts. Alternatively, you can visit your
-                <Hyperlink destination={config.GETSMARTER_LEARNER_DASHBOARD_URL + (orgId ? `?org_id=${orgId}` : '')}>
+                <Hyperlink destination={config.GETSMARTER_LEARNER_DASHBOARD_URL + (authOrgId ? `?org_id=${authOrgId}` : '')}>
                   &nbsp;GetSmarter learner dashboard
                 </Hyperlink> for course status updates.
               </div>
