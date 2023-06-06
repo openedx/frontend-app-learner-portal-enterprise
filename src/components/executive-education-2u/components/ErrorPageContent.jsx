@@ -31,6 +31,8 @@ const ErrorPageContent = ({
 }) => {
   const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
 
+  const shouldShowHelpfulLink = showHelpfulLink(failureReason);
+
   return (
     <ErrorPage.Content className={classNames('text-center', className)}>
       <Row>
@@ -54,7 +56,7 @@ const ErrorPageContent = ({
           >
             {failureMessage}
           </p>
-          {httpReferrer && !showHelpfulLink(failureReason) && (
+          {httpReferrer && !shouldShowHelpfulLink && (
             <Button
               href={httpReferrer}
               iconBefore={ArrowBack}
@@ -71,7 +73,7 @@ const ErrorPageContent = ({
               Return to dashboard
             </Button>
           )}
-          {showHelpfulLink(failureReason) && (
+          {shouldShowHelpfulLink && (
             <div>
               <span className="executive-education-2u-error-link-description pr-2">
                 Helpful link:
