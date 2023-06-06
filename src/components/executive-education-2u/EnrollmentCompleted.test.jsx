@@ -12,7 +12,7 @@ const initialAppContextValue = {
   enterpriseConfig: {
     name: 'Test Enterprise',
     slug: enterpriseSlug,
-    orgId: enterpriseSlug,
+    authOrgId: enterpriseSlug,
   },
 };
 const mockBaseLocationMetadata = {
