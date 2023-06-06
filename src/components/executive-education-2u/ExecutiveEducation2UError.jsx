@@ -12,11 +12,9 @@ const messages = defineMessages({
   },
   noOfferWithEnoughBalance: {
     id: 'ExecutiveEducation2UError.noOfferWithEnoughBalance',
-    defaultMessage: `
-      You don't have access to this course because your organization
-      doesn't have enough funds. Please contact your edX administrator
-      to resolve the error and provide you access to this content.
-    `,
+    defaultMessage: 'You don\'t have access to this course because your organization '
+                    + 'doesn\'t have enough funds. Please contact your edX administrator '
+                    + 'to resolve the error and provide you access to this content.',
     description: 'Error message when no learner credit is available to cover this course.',
   },
   noOfferWithEnoughUserBalance: {
@@ -55,7 +53,7 @@ export const createExecutiveEducationFailureMessage = ({ failureCode, intl }) =>
 
 const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
   const intl = useIntl();
-  const failureMessage = createExecutiveEducationFailureMessage({ failureReason, intl });
+  const failureMessage = createExecutiveEducationFailureMessage({ failureCode: failureReason, intl });
   return (
     <ErrorPageContent
       failureReason={failureReason}

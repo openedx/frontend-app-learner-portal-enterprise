@@ -915,33 +915,33 @@ export const useExternalEnrollmentFailureReason = () => {
     missingUserSubsidyReason,
   } = useContext(CourseContext);
   return useMemo(() => {
-    let reason;
-    if (!userSubsidyApplicableToCourse) {
-      const noSubsidyReasons = [
-        DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
-        DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
-        DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
-      ];
-      const systemErrorReasons = [
-        DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
-        DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
-      ];
-      if (!missingUserSubsidyReason || noSubsidyReasons.includes(missingUserSubsidyReason?.reason)) {
-        reason = 'no_offer_available';
-      } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY) {
-        reason = 'no_offer_with_enough_balance';
-      } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED) {
-        reason = 'no_offer_with_remaining_applications';
-      } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED) {
-        reason = 'no_offer_with_enough_user_balance';
-      } else if (systemErrorReasons.includes(missingUserSubsidyReason.reason)) {
-        reason = 'system_error';
-      }
-      return {
-        failureReason: reason,
-        failureMessage: createExecutiveEducationFailureMessage({ failureCode: reason, intl }),
-      };
+    if (userSubsidyApplicableToCourse) {
+      return {};
     }
-    return {};
+    let reason;
+    const noSubsidyReasons = [
+      DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
+      DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+      DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    ];
+    const systemErrorReasons = [
+      DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+      DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    ];
+    if (!missingUserSubsidyReason || noSubsidyReasons.includes(missingUserSubsidyReason?.reason)) {
+      reason = 'no_offer_available';
+    } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY) {
+      reason = 'no_offer_with_enough_balance';
+    } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED) {
+      reason = 'no_offer_with_remaining_applications';
+    } else if (missingUserSubsidyReason.reason === DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED) {
+      reason = 'no_offer_with_enough_user_balance';
+    } else if (systemErrorReasons.includes(missingUserSubsidyReason.reason)) {
+      reason = 'system_error';
+    }
+    return {
+      failureReason: reason,
+      failureMessage: createExecutiveEducationFailureMessage({ failureCode: reason, intl }),
+    };
   }, [userSubsidyApplicableToCourse, missingUserSubsidyReason, intl]);
 };

@@ -1,11 +1,13 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentForm';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
+import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -45,12 +47,15 @@ const baseCourseContextValue = {
       organizationLogoOverrideUrl: 'https://test.org/logo.png',
     },
   },
+  userSubsidyApplicableToCourse: { subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE },
+  missingUserSubsidyReason: undefined,
 };
 
 const baseAppContextValue = {
   enterpriseConfig: {
     uuid: 'test-uuid',
     enableDataSharingConsent: true,
+    adminUsers: ['edx@example.com'],
   },
   authenticatedUser: { id: 3 },
 };
@@ -59,11 +64,13 @@ const ExternalCourseEnrollmentWrapper = ({
   courseContextValue = baseCourseContextValue,
   appContextValue = baseAppContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <CourseContext.Provider value={courseContextValue}>
-      <ExternalCourseEnrollment />
-    </CourseContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <CourseContext.Provider value={courseContextValue}>
+        <ExternalCourseEnrollment />
+      </CourseContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('ExternalCourseEnrollment', () => {
@@ -91,5 +98,19 @@ describe('ExternalCourseEnrollment', () => {
     UserEnrollmentForm.mock.calls[0][0].onCheckoutSuccess();
     expect(mockHistoryPush).toHaveBeenCalledTimes(1);
     expect(mockHistoryPush).toHaveBeenCalledWith('enroll/complete');
+  });
+
+  it('handles failure reason', () => {
+    const courseContextValue = {
+      ...baseCourseContextValue,
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS },
+    };
+    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+    expect(screen.queryByText('Your registration(s)')).not.toBeInTheDocument();
+    expect(screen.queryByText('Test Course Title')).not.toBeInTheDocument();
+    expect(screen.getByText("We're sorry.")).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
+    expect(screen.getByText('No learner credit is available to cover this course.'));
   });
 });
