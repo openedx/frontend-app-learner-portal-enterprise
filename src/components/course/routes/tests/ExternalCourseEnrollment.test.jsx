@@ -104,13 +104,16 @@ describe('ExternalCourseEnrollment', () => {
     DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
     DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
     DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
     DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
     DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
-  ])('handles failure reason (%s)', () => {
+  ])('handles failure reason (%s)', (failureReason) => {
     const courseContextValue = {
       ...baseCourseContextValue,
       userSubsidyApplicableToCourse: undefined,
-      missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS },
+      missingUserSubsidyReason: { reason: failureReason },
     };
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
     expect(screen.queryByText('Your registration(s)')).not.toBeInTheDocument();
