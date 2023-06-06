@@ -48,7 +48,7 @@ export const createExecutiveEducationFailureMessage = ({ failureCode, intl }) =>
     system_error: intl.formatMessage(messages.systemError),
     default: intl.formatMessage(messages.default),
   };
-  return failureCodeMessages[failureCode] ? failureCodeMessages[failureCode] : failureCodeMessages.default;
+  return failureCodeMessages[failureCode] ?? failureCodeMessages.default;
 };
 
 const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
