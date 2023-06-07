@@ -587,16 +587,20 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
   const otherSubsidyAccessPolicy = transformedResponse.find(
     r => r.redeemableSubsidyAccessPolicy,
   )?.redeemableSubsidyAccessPolicy;
+
+  const hasSuccessfulRedemption = transformedResponse.some(r => r.hasSuccessfulRedemption);
+
   // If there is a redeemable subsidy access policy for the active course run, use that. Otherwise, use any other
   // redeemable subsidy access policy for any of the content keys.
   const redeemableSubsidyAccessPolicy = preferredSubsidyAccessPolicy || otherSubsidyAccessPolicy;
-  const isPolicyRedemptionEnabled = !!redeemableSubsidyAccessPolicy;
+  const isPolicyRedemptionEnabled = hasSuccessfulRedemption || !!redeemableSubsidyAccessPolicy;
 
   return {
     isPolicyRedemptionEnabled,
     redeemabilityPerContentKey: transformedResponse,
     redeemableSubsidyAccessPolicy,
     missingSubsidyAccessPolicyReason,
+    hasSuccessfulRedemption,
   };
 };
 
@@ -691,16 +695,19 @@ export const useUserSubsidyApplicableToCourse = ({
 
     let applicableUserSubsidy;
 
-    // if course can be redeemed with EMET system, return
-    // the redeemable subsidy access policy.
-    if (isPolicyRedemptionEnabled && redeemableSubsidyAccessPolicy) {
+    // if course can be redeemed with a subsidy access policy, return `learnerCredit` subsidy type.
+    if (isPolicyRedemptionEnabled) {
+      // the enterprise-access `can-redeem` API returns `can_redeem: false` when a learner
+      // has already redeemed a course. This means the course page thinks the learner no
+      // longer has any subsidy available to spend. `isPolicyRedemptionEnabled` is true when
+      // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be null.
       applicableUserSubsidy = {
         discountType: 'percentage',
         discountValue: 100,
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-        perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy.perLearnerEnrollmentLimit,
-        perLearnerSpendLimit: redeemableSubsidyAccessPolicy.perLearnerSpendLimit,
-        policyRedemptionUrl: redeemableSubsidyAccessPolicy.policyRedemptionUrl,
+        perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
+        perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
+        policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
       };
     }
 
@@ -910,9 +917,10 @@ export const useExternalEnrollmentFailureReason = () => {
   const {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
+    hasSuccessfulRedemption,
   } = useContext(CourseContext);
   return useMemo(() => {
-    if (userSubsidyApplicableToCourse) {
+    if (userSubsidyApplicableToCourse || hasSuccessfulRedemption) {
       return {};
     }
     let reason;
@@ -940,5 +948,10 @@ export const useExternalEnrollmentFailureReason = () => {
       failureReason: reason,
       failureMessage: createExecutiveEducationFailureMessage({ failureCode: reason, intl }),
     };
-  }, [userSubsidyApplicableToCourse, missingUserSubsidyReason, intl]);
+  }, [
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+    intl,
+    hasSuccessfulRedemption,
+  ]);
 };

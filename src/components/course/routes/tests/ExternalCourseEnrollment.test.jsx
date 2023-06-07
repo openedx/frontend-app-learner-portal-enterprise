@@ -121,4 +121,23 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText("We're sorry.")).toBeInTheDocument();
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
   });
+
+  it('handles successful prior redemption', () => {
+    const courseContextValue = {
+      ...baseCourseContextValue,
+      userSubsidyApplicableToCourse: undefined,
+      hasSuccessfulRedemption: true,
+      missingUserSubsidyReason: { reason: DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY },
+    };
+    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+    expect(screen.getByText('Your registration(s)')).toBeInTheDocument();
+    expect(screen.getByText('Test Course Title')).toBeInTheDocument();
+    expect(screen.getByText('Available start date:')).toBeInTheDocument();
+    expect(screen.getByText('Course duration:')).toBeInTheDocument();
+    expect(screen.getByText('Course total:')).toBeInTheDocument();
+    expect(screen.getAllByText('$100.00 USD')).toHaveLength(2);
+    expect(screen.getByText('Registration summary:')).toBeInTheDocument();
+    expect(screen.getByText('Registration total:')).toBeInTheDocument();
+    expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
+  });
 });
