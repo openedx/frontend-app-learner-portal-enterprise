@@ -695,8 +695,12 @@ export const useUserSubsidyApplicableToCourse = ({
 
     let applicableUserSubsidy;
 
-    // if course can be redeemed with a subsidy access policy, return it as the subsidyType.
+    // if course can be redeemed with a subsidy access policy, return `learnerCredit` subsidy type.
     if (isPolicyRedemptionEnabled) {
+      // the enterprise-access `can-redeem` API returns `can_redeem: false` when a learner
+      // has already redeemed a course. This means the course page thinks the learner no
+      // longer has any subsidy available to spend. `isPolicyRedemptionEnabled` is true when
+      // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be null.
       applicableUserSubsidy = {
         discountType: 'percentage',
         discountValue: 100,
