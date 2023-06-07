@@ -937,29 +937,33 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   });
 
   it.each([
-    { hasMissingSubsidy: false },
-    { hasMissingSubsidy: true },
-  ])('makes query to check redemption eligilibity (%s)', async ({ hasMissingSubsidy }) => {
-    let queryData;
+    { hasMissingSubsidy: false, hasSuccessfulRedemption: false },
+    { hasMissingSubsidy: true, hasSuccessfulRedemption: false },
+    { hasMissingSubsidy: true, hasSuccessfulRedemption: true },
+  ])('makes query to check redemption eligilibity (%s)', async ({ hasMissingSubsidy, hasSuccessfulRedemption }) => {
+    // default to not-yet-redeemed, redeemable state
+    const queryData = {
+      hasSuccessfulRedemption: false,
+      isPolicyRedemptionEnabled: true,
+      redeemabilityPerContentKey: mockCanRedeemData,
+      redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
+      missingSubsidyAccessPolicyReason: null,
+    };
+
     if (hasMissingSubsidy) {
-      queryData = camelCaseObject({
-        isPolicyRedemptionEnabled: false,
-        redeemabilityPerContentKey: [{
-          ...mockCanRedeemForContentKey,
-          can_redeem: false,
-          redeemable_subsidy_access_policy: null,
-          reasons: [mockCanRedeemReason],
-        }],
-        redeemableSubsidyAccessPolicy: undefined,
-        missingSubsidyAccessPolicyReason: mockCanRedeemReason,
-      });
-    } else {
-      queryData = camelCaseObject({
-        isPolicyRedemptionEnabled: true,
-        redeemabilityPerContentKey: mockCanRedeemData,
-        redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
-        missingSubsidyAccessPolicyReason: undefined,
-      });
+      queryData.redeemableSubsidyAccessPolicy = null;
+      queryData.isPolicyRedemptionEnabled = false;
+      queryData.redeemabilityPerContentKey = [{
+        ...mockCanRedeemForContentKey,
+        can_redeem: false,
+        redeemable_subsidy_access_policy: null,
+        reasons: [mockCanRedeemReason],
+      }];
+      queryData.missingSubsidyAccessPolicyReason = mockCanRedeemReason;
+    }
+
+    if (hasSuccessfulRedemption) {
+      queryData.hasSuccessfulRedemption = true;
     }
 
     useQuery.mockReturnValue({
@@ -974,12 +978,18 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
 
     expect(result.current.isInitialLoading).toBeDefined();
     expect(result.current.data.redeemabilityPerContentKey).toBeDefined();
+
     if (!hasMissingSubsidy) {
       expect(result.current.data.isPolicyRedemptionEnabled).toBeTruthy();
       expect(result.current.data.redeemableSubsidyAccessPolicy).toEqual(mockRedeemableSubsidyAccessPolicy);
-    }
-    if (hasMissingSubsidy) {
+    } else {
       expect(result.current.data.missingSubsidyAccessPolicyReason).toBeDefined();
+    }
+
+    if (hasSuccessfulRedemption) {
+      expect(result.current.data.hasSuccessfulRedemption).toBeTruthy();
+    } else {
+      expect(result.current.data.hasSuccessfulRedemption).toBeFalsy();
     }
 
     const expectQueryKey = ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
@@ -1001,6 +1011,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       queryKey: expectQueryKey,
     });
     expect(redeemability).toEqual(camelCaseObject({
+      hasSuccessfulRedemption: false,
       isPolicyRedemptionEnabled: true,
       redeemabilityPerContentKey: mockCanRedeemData,
       redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
@@ -1012,6 +1023,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
 describe('useUserSubsidyApplicableToCourse', () => {
   const mockCatalogUUID = 'test-enterprise-catalog-uuid';
   const baseArgs = {
+    isPolicyRedemptionEnabled: false,
     courseService: mockCourseService,
     courseData: {
       catalog: {
