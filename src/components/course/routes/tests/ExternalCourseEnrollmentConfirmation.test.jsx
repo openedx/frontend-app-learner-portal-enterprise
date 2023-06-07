@@ -84,7 +84,6 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('$100.00 USD')).toBeInTheDocument();
     expect(screen.getByText('What happens next?')).toBeInTheDocument();
     expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
-    expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
   });
 
   it('handles failure reason', () => {
@@ -119,7 +118,6 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Course total:')).toBeInTheDocument();
     expect(screen.getByText('$100.00 USD')).toBeInTheDocument();
     expect(screen.getByText('What happens next?')).toBeInTheDocument();
-    expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
     expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
   });
 });
