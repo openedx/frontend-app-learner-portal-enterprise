@@ -455,6 +455,11 @@ describe('getAvailableCourseRuns', () => {
     expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(0);
     expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual([]);
   });
+  it('returns an empty array is courseRuns is not defined', () => {
+    sampleCourseRunData.courseData.courseRuns = undefined;
+    expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(0);
+    expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual([]);
+  });
 });
 describe('getAvailableCourseRunKeysFromCourseData', () => {
   const sampleCourseDataData = {
