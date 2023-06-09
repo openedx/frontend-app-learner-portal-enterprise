@@ -453,4 +453,9 @@ describe('getAvailableCourseRuns', () => {
       });
     }
   });
+  it('returns empty array if course runs are not available', () => {
+    sampleCourseRunData.courseData.courseRuns = [];
+    expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(0);
+    expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual([]);
+  });
 });
