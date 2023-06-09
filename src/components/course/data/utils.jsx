@@ -135,6 +135,9 @@ export function getActiveCourseRun(course) {
  * @returns List of course runs.
  */
 export function getAvailableCourseRuns(course) {
+  if (!course?.courseRuns) {
+    return [];
+  }
   return course.courseRuns
     .filter((courseRun) => (
       courseRun.isMarketable

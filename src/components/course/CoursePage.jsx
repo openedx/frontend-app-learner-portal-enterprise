@@ -95,14 +95,18 @@ const CoursePage = () => {
     courseReviews,
     isLoadingCourseData,
   } = useAllCourseData({ courseService, activeCatalogs });
-
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
+  
+  const validCourseRunKeys = courseData?.courseDetails.courseRuns 
+    ? getAvailableCourseRuns(courseData?.courseDetails).map(courseRun => courseRun.key)
+    : [];
+
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
     data: subsidyAccessPolicyRedeemabilityData,
   } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
-    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+    courseRunKeys: validCourseRunKeys,
     activeCourseRunKey: courseService.activeCourseRun?.key,
     isQueryEnabled: isEMETRedemptionEnabled,
     queryOptions: {
