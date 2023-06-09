@@ -6,6 +6,7 @@ import {
   courseUsesEntitlementPricing,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
+  getAvailableCourseRunKeysFromCourseData,
   getAvailableCourseRuns,
   getSubsidyToApplyForCourse,
   linkToCourse,
@@ -408,28 +409,24 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           isMarketable: true,
           isEnrollable: true,
-          // availability: 'Current',
         },
         {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: false,
           isEnrollable: true,
-          // availability: 'Current',
         },
         {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: true,
           isEnrollable: false,
-          // availability: 'Current',
         },
         {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
           isMarketable: false,
           isEnrollable: false,
-          // availability: 'Current',
         },
       ],
     },
@@ -457,5 +454,54 @@ describe('getAvailableCourseRuns', () => {
     sampleCourseRunData.courseData.courseRuns = [];
     expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(0);
     expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual([]);
+  });
+});
+describe('getAvailableCourseRunKeysFromCourseData', () => {
+  const sampleCourseDataData = {
+    courseData: {
+      courseDetails: {
+        courseRuns: [
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course',
+            title: 'Demo Course',
+            isMarketable: true,
+            isEnrollable: true,
+            availability: 'Current',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course',
+            title: 'Demo Course',
+            isMarketable: false,
+            isEnrollable: true,
+            availability: 'Upcoming',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course',
+            title: 'Demo Course',
+            isMarketable: true,
+            isEnrollable: false,
+            availability: 'Current',
+          },
+          {
+            key: 'course-v1:edX+DemoX+Demo_Course',
+            title: 'Demo Course',
+            isMarketable: false,
+            isEnrollable: false,
+            availability: 'Archived',
+          },
+        ],
+      },
+    },
+  };
+  it('returns array with available course run keys', () => {
+    const output = getAvailableCourseRunKeysFromCourseData(sampleCourseDataData.courseData);
+    expect(output.length).toEqual(1);
+    expect(output).toEqual(['course-v1:edX+DemoX+Demo_Course']);
+  });
+  it('returns empty array if course runs are not available', () => {
+    sampleCourseDataData.courseData.courseDetails = [];
+    const output = getAvailableCourseRunKeysFromCourseData(sampleCourseDataData.courseData);
+    expect(output.length).toEqual(0);
+    expect(output).toEqual([]);
   });
 });

@@ -20,6 +20,7 @@ const mockGetActiveCourseRun = jest.fn();
 jest.mock('../data/utils', () => ({
   ...jest.requireActual('../data/utils'),
   getActiveCourseRun: () => mockGetActiveCourseRun(),
+  getAvailableCourseRunKeysFromCourseData: () => ['test-course-key'],
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
