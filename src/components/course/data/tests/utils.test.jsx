@@ -1,9 +1,10 @@
 import moment from 'moment';
-import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
+import { COUPON_CODE_SUBSIDY_TYPE, COURSE_AVAILABILITY_MAP, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
 import {
   courseUsesEntitlementPricing,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
+  getAvailableCourseRuns,
   getSubsidyToApplyForCourse,
   linkToCourse,
   pathContainsCourseTypeSlug,
@@ -396,3 +397,53 @@ describe('linkToCourse', () => {
     expect(linkToCourse(mockQueryQbjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
   });
 });
+describe('getAvailableCourseRuns', () => {
+  const sampleCourseRunData = {
+    courseData: {
+      courseRuns: [
+        {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable: true,
+          isEnrollable: true,
+          availability: 'Current'
+        },
+                {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable : false,
+          isEnrollable: true,
+          availability: 'Current'
+        },
+                {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable : true,
+          isEnrollable: false,
+          availability: 'Current'
+        },
+                {
+          key: 'course-v1:edX+DemoX+Demo_Course',
+          title: 'Demo Course',
+          isMarketable : false,
+          isEnrollable: false,
+          availability: 'Current'
+        },
+      ]
+    }
+  }
+  it('returns object with available course runs', () => {
+    for(var i = 0; i < COURSE_AVAILABILITY_MAP.length; i++) {
+      sampleCourseRunData.courseData.courseRuns.forEach((courseRun) => {
+        courseRun.availability = COURSE_AVAILABILITY_MAP[i];
+        if(COURSE_AVAILABILITY_MAP[i] === 'Archived') {
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(0);
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual([]);
+        } else {
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(1);
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual(sampleCourseRunData.courseData.courseRuns.slice(0,1));
+        }
+      })
+    }
+  });
+})
