@@ -96,8 +96,8 @@ const CoursePage = () => {
     isLoadingCourseData,
   } = useAllCourseData({ courseService, activeCatalogs });
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
-  
-  const validCourseRunKeys = courseData?.courseDetails.courseRuns 
+
+  const validCourseRunKeys = courseData?.courseDetails.courseRuns
     ? getAvailableCourseRuns(courseData?.courseDetails).map(courseRun => courseRun.key)
     : [];
 
