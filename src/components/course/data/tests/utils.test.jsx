@@ -1,5 +1,7 @@
 import moment from 'moment';
-import { COUPON_CODE_SUBSIDY_TYPE, COURSE_AVAILABILITY_MAP, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../constants';
+import {
+  COUPON_CODE_SUBSIDY_TYPE, COURSE_AVAILABILITY_MAP, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE,
+} from '../constants';
 import {
   courseUsesEntitlementPricing,
   findCouponCodeForCourse,
@@ -406,44 +408,49 @@ describe('getAvailableCourseRuns', () => {
           title: 'Demo Course',
           isMarketable: true,
           isEnrollable: true,
-          availability: 'Current'
+          // availability: 'Current',
         },
-                {
+        {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
-          isMarketable : false,
+          isMarketable: false,
           isEnrollable: true,
-          availability: 'Current'
+          // availability: 'Current',
         },
-                {
+        {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
-          isMarketable : true,
+          isMarketable: true,
           isEnrollable: false,
-          availability: 'Current'
+          // availability: 'Current',
         },
-                {
+        {
           key: 'course-v1:edX+DemoX+Demo_Course',
           title: 'Demo Course',
-          isMarketable : false,
+          isMarketable: false,
           isEnrollable: false,
-          availability: 'Current'
+          // availability: 'Current',
         },
-      ]
-    }
-  }
+      ],
+    },
+  };
   it('returns object with available course runs', () => {
-    for(var i = 0; i < COURSE_AVAILABILITY_MAP.length; i++) {
+    for (let i = 0; i < COURSE_AVAILABILITY_MAP.length; i++) {
       sampleCourseRunData.courseData.courseRuns.forEach((courseRun) => {
+        // eslint-disable-next-line no-param-reassign
         courseRun.availability = COURSE_AVAILABILITY_MAP[i];
-        if(COURSE_AVAILABILITY_MAP[i] === 'Archived') {
-          expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(0);
-          expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual([]);
+        if (COURSE_AVAILABILITY_MAP[i] === 'Archived') {
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length)
+            .toEqual(0);
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData))
+            .toEqual([]);
         } else {
-          expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length).toEqual(1);
-          expect(getAvailableCourseRuns(sampleCourseRunData.courseData)).toEqual(sampleCourseRunData.courseData.courseRuns.slice(0,1));
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData).length)
+            .toEqual(1);
+          expect(getAvailableCourseRuns(sampleCourseRunData.courseData))
+            .toEqual(sampleCourseRunData.courseData.courseRuns.slice(0, 1));
         }
-      })
+      });
     }
   });
-})
+});
