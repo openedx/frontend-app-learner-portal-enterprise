@@ -1,24 +1,23 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
+import { Stack } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-
-import GetSmarterLogo from '../../assets/icons/getsmarter-logo.svg';
+import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 
 const SiteHeaderLogos = () => {
+  const courseTypeMatch = useRouteMatch('/:enterpriseSlug/:courseType');
+  const courseType = courseTypeMatch?.params?.courseType;
   const { enterpriseConfig } = useContext(AppContext);
-  const { pathname } = useLocation();
-  const isInExecutiveEducationPath = pathname.includes('executive-education-2u');
+  const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
 
   let mainLogo = (
-    <div className="d-flex">
-      <img
-        className="d-block logo"
-        src={enterpriseConfig.branding.logo || edXLogo}
-        alt={`${enterpriseConfig.name} logo`}
-        data-testid="header-logo-image-id"
-      />
-    </div>
+    <img
+      className="logo"
+      src={enterpriseConfig.branding.logo || edXLogo}
+      alt={`${enterpriseConfig.name} logo`}
+      data-testid="header-logo-image-id"
+    />
   );
 
   if (!enterpriseConfig.disableSearch) {
@@ -30,17 +29,20 @@ const SiteHeaderLogos = () => {
   }
 
   return (
-    <>
+    <Stack direction="horizontal" gap={3} className="mr-md-3">
       {mainLogo}
-      {isInExecutiveEducationPath && (
-        <img
-          className="d-block getsmarter-logo"
-          src={GetSmarterLogo}
-          alt="getsmarter-logo"
-          data-testid="getsmarter-logo-image-id"
-        />
+      {courseTypePartnerLogo && (
+        <>
+          <div className="vertical-divider" />
+          <img
+            className="logo"
+            src={courseTypePartnerLogo}
+            alt="partner-header-logo"
+            data-testid="partner-header-logo-image-id"
+          />
+        </>
       )}
-    </>
+    </Stack>
   );
 };
 

@@ -4,7 +4,7 @@ import React, {
 import {
   Button,
   Badge,
-  StatusAlert,
+  Alert,
   Skeleton,
   CardGrid,
 } from '@edx/paragon';
@@ -15,8 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { ZoomOut } from '@edx/paragon/icons';
 import PropTypes from 'prop-types';
 
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
@@ -30,17 +29,6 @@ import {
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-
-const renderDialog = () => (
-  <div className="lead d-flex align-items-center py-3">
-    <div className="mr-3">
-      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-    </div>
-    <p>
-      { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS }
-    </p>
-  </div>
-);
 
 const SkillsCourses = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -169,14 +157,16 @@ const SkillsCourses = ({ index }) => {
         </React.Fragment>
       ))}
       <div>
-        {hitCount === 0 && (
-          <StatusAlert
+        { hitCount === 0 && (
+          <Alert
             className="mt-4 mb-5"
-            alertType="info"
-            dialog={renderDialog()}
+            variant="info"
             dismissible={false}
-            open
-          />
+            icon={ZoomOut}
+            show
+          >
+            { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS }
+          </Alert>
         )}
       </div>
     </div>

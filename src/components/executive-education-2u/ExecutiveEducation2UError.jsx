@@ -1,58 +1,65 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
-import { ArrowBack } from '@edx/paragon/icons';
-import { Button, Col, Row } from '@edx/paragon';
-import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
+import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
-import {
-  ErrorPage,
-} from '../error-page';
+import ErrorPageContent from './components/ErrorPageContent';
+
+const messages = defineMessages({
+  noOfferAvailable: {
+    id: 'ExecutiveEducation2UError.noOfferAvailable',
+    defaultMessage: 'No learner credit is available to cover this course.',
+    description: 'Error message when no learner credit is available to cover this course.',
+  },
+  noOfferWithEnoughBalance: {
+    id: 'ExecutiveEducation2UError.noOfferWithEnoughBalance',
+    defaultMessage: 'You don\'t have access to this course because your organization '
+                    + 'doesn\'t have enough funds. Please contact your edX administrator '
+                    + 'to resolve the error and provide you access to this content.',
+    description: 'Error message when no learner credit is available to cover this course.',
+  },
+  noOfferWithEnoughUserBalance: {
+    id: 'ExecutiveEducation2UError.noOfferWithEnoughUserBalance',
+    defaultMessage: 'Your enrollment was not completed! You have already spent your personal budget for enrollments.',
+    description: 'Error message when no learner credit is available to cover this course.',
+  },
+  noOfferWithRemainingApplications: {
+    id: 'ExecutiveEducation2UError.noOfferWithRemainingApplications',
+    defaultMessage: 'Your enrollment was not completed! You have reached your maximum number of allowed enrollments.',
+    description: 'Error message when no learner credit is available to cover this course.',
+  },
+  systemError: {
+    id: 'ExecutiveEducation2UError.systemError',
+    defaultMessage: 'System Error has occurred.',
+    description: 'Error message when no learner credit is available to cover this course.',
+  },
+  default: {
+    id: 'ExecutiveEducation2UError.default',
+    defaultMessage: 'An error has occurred.',
+    description: 'Error message when no learner credit is available to cover this course.',
+  },
+});
+
+export const createExecutiveEducationFailureMessage = ({ failureCode, intl }) => {
+  const failureCodeMessages = {
+    no_offer_available: intl.formatMessage(messages.noOfferAvailable),
+    no_offer_with_enough_balance: intl.formatMessage(messages.noOfferWithEnoughBalance),
+    no_offer_with_enough_user_balance: intl.formatMessage(messages.noOfferWithEnoughUserBalance),
+    no_offer_with_remaining_applications: intl.formatMessage(messages.noOfferWithRemainingApplications),
+    system_error: intl.formatMessage(messages.systemError),
+    default: intl.formatMessage(messages.default),
+  };
+  return failureCodeMessages[failureCode] ?? failureCodeMessages.default;
+};
 
 const ExecutiveEducation2UError = ({ failureReason, httpReferrer }) => {
-  const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
-
-  const createExecutiveEducationFailureMessage = (failureCode) => {
-    const failureCodeMessages = {
-      no_offer_available: 'No offer is available to cover this course.',
-      no_offer_with_enough_balance: 'Your organization doesn’t have sufficient balance to cover this course.',
-      no_offer_with_enough_user_balance: 'You don’t have sufficient balance to cover this course.',
-      system_error: 'System Error has occured.',
-      default: 'An error has occured.',
-    };
-    return failureCodeMessages[failureCode] ? failureCodeMessages[failureCode] : failureCodeMessages.default;
-  };
+  const intl = useIntl();
+  const failureMessage = createExecutiveEducationFailureMessage({ failureCode: failureReason, intl });
   return (
-    <ErrorPage.Content className="mt-5 text-center">
-      <Row>
-        <Col xs={12} lg={{ span: 10, offset: 1 }}>
-          <ErrorPage.Title />
-          <ErrorPage.Subtitle>
-            {createExecutiveEducationFailureMessage(failureReason)}
-          </ErrorPage.Subtitle>
-          <p className="mb-6">
-            Please contact your edX administrator to resolve the error and gain access to this content.
-          </p>
-          {httpReferrer && (
-            <Button
-              href={httpReferrer}
-              iconBefore={ArrowBack}
-              variant="primary"
-              onClick={async (e) => {
-                e.preventDefault();
-                await sendEnterpriseTrackEventWithDelay(
-                  enterpriseId,
-                  'edx.ui.enterprise.learner_portal.executive_education.return_to_lms.clicked',
-                );
-                global.location.href = httpReferrer;
-              }}
-            >
-              Return to your learning platform
-            </Button>
-          )}
-        </Col>
-      </Row>
-    </ErrorPage.Content>
+    <ErrorPageContent
+      failureReason={failureReason}
+      failureMessage={failureMessage}
+      httpReferrer={httpReferrer}
+    />
   );
 };
 

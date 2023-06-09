@@ -1,7 +1,9 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { getConfig } from '@edx/frontend-platform/config';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { EVENT_NAMES } from './constants';
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
 
 export default class CourseService {
@@ -35,8 +37,15 @@ export default class CourseService {
 
     const courseData = camelCaseObject(courseDataRaw);
     const courseDetails = courseData[0];
-    // Get the user subsidy (by license, codes, or any other means) that the user may have for the active course run
     this.activeCourseRun = this.activeCourseRun || getActiveCourseRun(courseDetails);
+
+    if (!this.activeCourseRun) {
+      sendEnterpriseTrackEvent(
+        this.enterpriseUuid,
+        EVENT_NAMES.missingActiveCourseRun,
+        { course_key: this.courseKey },
+      );
+    }
 
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
@@ -142,11 +151,16 @@ export default class CourseService {
     return this.cachedAuthenticatedHttpClient.get(url);
   }
 
-  fetchUserLicenseSubsidy(courseKey = this.activeCourseRun.key) {
+  fetchUserLicenseSubsidy(courseKey = this.activeCourseRun?.key) {
+    if (!courseKey) {
+      return undefined;
+    }
+
     const queryParams = new URLSearchParams({
       enterprise_customer_uuid: this.enterpriseUuid,
       course_key: courseKey,
     });
+
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
     return this.cachedAuthenticatedHttpClient.get(url).catch(error => {
       const httpErrorStatus = error.customAttributes?.httpErrorStatus;
@@ -158,5 +172,27 @@ export default class CourseService {
       }
       throw error;
     });
+  }
+
+  fetchCourseReviews() {
+    const url = `${this.config.DISCOVERY_API_BASE_URL}/api/v1/course_review/${this.courseKey}/`;
+    return this.cachedAuthenticatedHttpClient.get(url);
+  }
+
+  /**
+   * Service method to determine whether the authenticated user can redeem the specified course run(s).
+   *
+   * @param {object} args
+   * @param {array} courseRunKeys List of course run keys.
+   * @returns Promise for get request from the authenticated http client.
+   */
+  fetchCanRedeem({ courseRunKeys }) {
+    const queryParams = new URLSearchParams();
+    courseRunKeys.forEach((courseRunKey) => {
+      queryParams.append('content_key', courseRunKey);
+    });
+    const url = `${this.config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${this.enterpriseUuid}/can-redeem/`;
+    const urlWithParams = `${url}?${queryParams.toString()}`;
+    return this.authenticatedHttpClient.get(urlWithParams);
   }
 }

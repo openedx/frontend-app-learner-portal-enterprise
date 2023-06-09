@@ -1,0 +1,23 @@
+.external-course-enrollment-page {
+  .course-summary {
+    .course-details {
+      line-height: 2rem;
+    }
+  }
+  .registration-summary {
+    .registration-details {
+      line-height: 2rem;
+    }
+  }
+  .vertical {
+    border-right: 1px solid $gray-200;
+  }
+  
+  .text-black-color {
+    color: black;
+  }
+  
+  .text-underline {
+    text-decoration: underline;
+  }  
+}

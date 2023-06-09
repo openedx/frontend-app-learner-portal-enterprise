@@ -1,15 +1,9 @@
-import {
-  useContext, useMemo, useEffect, useCallback,
-} from 'react';
+import { useContext, useMemo, useEffect } from 'react';
 import {
   SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
 } from '@edx/frontend-enterprise-catalog-search';
 import { features } from '../../../config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { pushEvent, EVENTS } from '../../../utils/optimizely';
-
-// How long to delay an event, so that we allow enough time for any async analytics event call to resolve
-const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
 
 export const useSearchCatalogs = ({
   subscriptionPlan,
@@ -20,7 +14,6 @@ export const useSearchCatalogs = ({
 }) => {
   const searchCatalogs = useMemo(() => {
     const catalogs = [];
-
     // Scope to catalogs from coupons, enterprise offers, or subscription plan associated with learner's license
     if (subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
       catalogs.push(subscriptionPlan.enterpriseCatalogUuid);
@@ -79,29 +72,4 @@ export const useDefaultSearchFilters = ({
   );
 
   return { filters };
-};
-
-/**
- * Returns a function to be used as a click handler emitting an optimizely event on course about page visit click event.
- *
- * @returns Click handler function for course about page visit click events.
- */
-export const useCourseAboutPageVisitClickHandler = ({ href, courseKey, enterpriseId }) => {
-  const handleClick = useCallback(
-    (e) => {
-      // If tracking is on a link with an external href destination, we must intentionally delay the default click
-      // behavior to allow enough time for the async analytics event call to resolve.
-      if (href) {
-        e.preventDefault();
-        setTimeout(() => {
-          global.location.href = href;
-        }, CLICK_DELAY_MS);
-      }
-      // Send the Optimizely event to track the course about page visit
-      pushEvent(EVENTS.COURSE_ABOUT_PAGE_CLICK, { courseKey, enterpriseId });
-    },
-    [href, courseKey, enterpriseId],
-  );
-
-  return handleClick;
 };

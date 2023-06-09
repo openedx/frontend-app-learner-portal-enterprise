@@ -8,7 +8,7 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import {
   DESIRED_JOB_FACET,
-  SKILLS_FACET,
+  INDUSTRY_FACET,
   CURRENT_JOB_FACET,
   GOAL_DROPDOWN_DEFAULT_OPTION,
   DROPDOWN_OPTION_GET_PROMOTED,
@@ -28,7 +28,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-const facetsToTest = [DESIRED_JOB_FACET, SKILLS_FACET, CURRENT_JOB_FACET];
+const facetsToTest = [DESIRED_JOB_FACET, INDUSTRY_FACET, CURRENT_JOB_FACET];
 describe('<SkillsQuizStepper />', () => {
   const defaultAppState = {
     enterpriseConfig: {
@@ -62,7 +62,7 @@ describe('<SkillsQuizStepper />', () => {
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/?skill_names=123' },
+      { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
     await act(async () => {

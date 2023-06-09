@@ -1,10 +1,11 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  screen, render, fireEvent, waitFor,
+  screen, render, waitFor,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramFAQ from '../ProgramFAQ';
@@ -71,9 +72,9 @@ describe('<ProgramFAQ />', () => {
     const questionB = screen.getByText('question b');
     expect(questionA).toBeInTheDocument();
     expect(questionB).toBeInTheDocument();
-    fireEvent.click(questionA);
+    userEvent.click(questionA);
     expect(screen.getByText('answer a')).toBeInTheDocument();
-    fireEvent.click(questionB);
+    userEvent.click(questionB);
     expect(screen.getByText('answer b')).toBeInTheDocument();
   });
 

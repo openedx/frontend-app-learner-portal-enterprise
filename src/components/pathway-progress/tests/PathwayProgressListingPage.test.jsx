@@ -2,11 +2,12 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  screen, render, act, fireEvent,
+  screen, render, act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import PathwayProgressListingPage from '../PathwayProgressListingPage';
 import { useInProgressPathwaysData } from '../data/hooks';
@@ -33,11 +34,18 @@ jest.mock('../data/hooks', () => ({
 const PathwayProgressListingWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
+  canOnlyViewHighlightSets = false,
+  pathwayProgressData = [],
+  pathwayFetchError = null,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <PathwayProgressListingPage />
+        <PathwayProgressListingPage
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          pathwayProgressData={pathwayProgressData}
+          pathwayFetchError={pathwayFetchError}
+        />
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
@@ -69,6 +77,7 @@ describe('<PathwayProgressListingPage />', () => {
         <PathwayProgressListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
+          pathwayProgressData={camelCaseObject(learnerPathwayData)}
         />,
       );
       expect(screen.getByText('test 1')).toBeInTheDocument();
@@ -83,6 +92,7 @@ describe('<PathwayProgressListingPage />', () => {
       <PathwayProgressListingWithContext
         initialAppState={initialAppState}
         initialUserSubsidyState={initialUserSubsidyState}
+        pathwayFetchError={{ message: 'This is a test message.' }}
       />,
     );
     expect(screen.getByTestId('error-page')).toBeInTheDocument();
@@ -113,9 +123,21 @@ describe('<PathwayProgressListingPage />', () => {
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
-      fireEvent.click(screen.getByText('Explore pathways'));
+      userEvent.click(screen.getByText('Explore pathways'));
       expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
       expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PATHWAY}`);
     });
+  });
+
+  it('does not render button when canOnlyViewHighlightSets is true', () => {
+    useInProgressPathwaysData.mockImplementation(() => ([camelCaseObject(learnerPathwayData), null]));
+    render(
+      <PathwayProgressListingWithContext
+        initialAppState={{ ...initialAppState, canOnlyViewHighlightSets: true }}
+        initialUserSubsidyState={initialUserSubsidyState}
+        canOnlyViewHighlightSets
+      />,
+    );
+    expect(screen.queryByText('Explore pathways')).not.toBeInTheDocument();
   });
 });

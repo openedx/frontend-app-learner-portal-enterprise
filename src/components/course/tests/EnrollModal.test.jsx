@@ -1,7 +1,8 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 
+import userEvent from '@testing-library/user-event';
 import EnrollModal, { MODAL_TEXTS } from '../EnrollModal';
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from '../data/constants';
 
@@ -20,13 +21,9 @@ describe('<EnrollModal />', () => {
     couponCodesCount: 0,
   };
 
-  it('displays the correct texts when user has no applicable subsidy', () => {
-    render(
-      <EnrollModal {...basicProps} />,
-    );
-    expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.title)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.body)).toBeInTheDocument();
-    expect(screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button)).toBeInTheDocument();
+  it('does not render when user has no applicable subsidy', () => {
+    const { container } = render(<EnrollModal {...basicProps} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('displays the correct texts when user has a coupon code for the course', () => {
@@ -69,10 +66,17 @@ describe('<EnrollModal />', () => {
     const mockHandleEnroll = jest.fn();
 
     render(
-      <EnrollModal {...basicProps} onEnroll={mockHandleEnroll} />,
+      <EnrollModal
+        {...basicProps}
+        onEnroll={mockHandleEnroll}
+        userSubsidyApplicableToCourse={{
+          subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+        }}
+        couponCodesCount={5}
+      />,
     );
-    const enrollButton = screen.getByText(MODAL_TEXTS.HAS_NO_SUBSIDY.button);
-    fireEvent.click(enrollButton);
+    const enrollButton = screen.getByText(MODAL_TEXTS.HAS_COUPON_CODE.button);
+    userEvent.click(enrollButton);
 
     expect(mockHandleEnroll).toHaveBeenCalled();
   });

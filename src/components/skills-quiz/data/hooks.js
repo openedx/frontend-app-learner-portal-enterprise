@@ -1,8 +1,13 @@
-import { useContext, useMemo } from 'react';
+import {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { logError } from '@edx/frontend-platform/logging';
 import { SkillsContext } from '../SkillsContextProvider';
 import { checkValidGoalAndJobSelected } from '../../utils/skills-quiz';
 import { sortSkillsWithSignificance } from './utils';
+import { fetchJobPathDescription } from './service';
+import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from '../constants';
 
 // eslint-disable-next-line import/prefer-default-export
 export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSignificanceOrder }) => {
@@ -70,4 +75,28 @@ export const useSelectedSkillsAndJobSkills = ({ getAllSkills, getAllSkillsWithSi
   }
 
   return skillsFromSelectedJob;
+};
+
+export const useJobPathDescription = ({ currentJobID, futureJobID, goal }) => {
+  const [jobPathDescription, setJobPathDescription] = useState(null);
+  const [isLoadingJobPathDescription, setIsLoadingJobPathDescription] = useState(false);
+
+  useEffect(() => {
+    const getJobPathDescription = async () => {
+      try {
+        setIsLoadingJobPathDescription(true);
+        const description = await fetchJobPathDescription(currentJobID, futureJobID);
+        setJobPathDescription(description);
+      } catch (error) {
+        logError(error);
+      } finally {
+        setIsLoadingJobPathDescription(false);
+      }
+    };
+    if (goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) {
+      getJobPathDescription();
+    }
+  }, [currentJobID, futureJobID, goal]);
+
+  return [isLoadingJobPathDescription, jobPathDescription];
 };

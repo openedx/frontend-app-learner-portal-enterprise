@@ -7,16 +7,18 @@ export const DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE_LABEL = 'improve_current_role'
 export const DROPDOWN_OPTION_OTHER = 'Other';
 export const DROPDOWN_OPTION_OTHER_LABEL = 'other';
 export const GOAL_DROPDOWN_DEFAULT_OPTION = 'Select a Goal';
+export const INDUSTRY_DROPDOWN_DEFAULT_OPTION = 'Not Specified';
 
 export const JOB_ATTRIBUTE_NAME = 'name';
+export const INDUSTRY_ATTRIBUTE_NAME = 'industry_names';
 
-export const SKILLS_FACET = {
-  attribute: 'skill_names',
-  title: 'I am interested in learning about',
-  facetValueType: 'array',
+export const INDUSTRY_FACET = {
+  attribute: INDUSTRY_ATTRIBUTE_NAME,
+  title: 'Industry I belong to',
+  facetValueType: 'single-item',
   typeaheadOptions: {
-    placeholder: 'Find a skill...',
-    ariaLabel: 'Type to find a skill',
+    placeholder: 'Find a an industry...',
+    ariaLabel: 'Type to find an industry',
     minLength: 3,
   },
 };
@@ -62,3 +64,5 @@ export const MAX_VISIBLE_SKILLS_PROGRAM = 3;
 export const SKILLS_QUIZ_SEARCH_PAGE_MESSAGE = 'Let edX be your guide. We combine the educational expertise of the world\'s leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals.';
 export const HITS_PER_PAGE = 500;
 export const LOADING_NO_OF_CARDS = 9;
+
+export const JOB_DESCRIPTION_DISCLAIMER = 'This job description has been created by an artificial intelligence, and should be reviewed carefully.';

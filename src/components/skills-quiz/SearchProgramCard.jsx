@@ -9,13 +9,11 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, StatusAlert, CardGrid, Stack,
+  Badge, Card, Icon, Alert, CardGrid, Stack,
 } from '@edx/paragon';
-import { Program } from '@edx/paragon/icons';
+import { Program, ZoomOut } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { SkillsContext } from './SkillsContextProvider';
 import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
@@ -34,17 +32,6 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   }
   return `/${slug}/program/${programUuid}`;
 };
-
-const renderDialog = () => (
-  <div className="lead d-flex align-items-center py-3">
-    <div className="mr-3">
-      <FontAwesomeIcon icon={faSearchMinus} size="2x" />
-    </div>
-    <p>
-      { NO_PROGRAMS_ALERT_MESSAGE }
-    </p>
-  </div>
-);
 
 const SearchProgramCard = ({ index }) => {
   const history = useHistory();
@@ -174,13 +161,15 @@ const SearchProgramCard = ({ index }) => {
 
   if (hitCount === 0) {
     return (
-      <StatusAlert
+      <Alert
         className="mt-4 mb-5"
-        alertType="info"
-        dialog={renderDialog()}
+        variant="info"
         dismissible={false}
-        open
-      />
+        icon={ZoomOut}
+        show
+      >
+        { NO_PROGRAMS_ALERT_MESSAGE }
+      </Alert>
     );
   }
 

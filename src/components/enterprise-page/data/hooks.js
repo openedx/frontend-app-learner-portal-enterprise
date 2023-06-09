@@ -45,6 +45,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             name,
             uuid,
             slug,
+            authOrgId,
             adminUsers,
             contactEmail,
             hideCourseOriginalPrice,
@@ -52,11 +53,13 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             identityProvider,
             enableLearnerPortalOffers,
             enableExecutiveEducation2UFulfillment,
+            enableDataSharingConsent,
           } = config;
           setEnterpriseConfig({
             name,
             uuid,
             slug,
+            authOrgId,
             adminUsers,
             contactEmail,
             hideCourseOriginalPrice,
@@ -74,6 +77,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             },
             enableLearnerPortalOffers,
             enableExecutiveEducation2UFulfillment,
+            enableDataSharingConsent,
           });
         } else {
           if (!config) {

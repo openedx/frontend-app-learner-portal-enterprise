@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  render, screen, fireEvent, act, waitFor,
+  render, screen, act, waitFor,
   within,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -10,6 +10,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import moment from 'moment';
+import userEvent from '@testing-library/user-event';
 import {
   createCourseEnrollmentWithStatus,
 } from './enrollment-testutils';
@@ -91,7 +92,7 @@ describe('Course enrollments', () => {
   it('generates course status update on move to in progress action', async () => {
     const { getByText } = renderEnrollmentsComponent();
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
+      userEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
     });
 
     // TODO This test only validates 'half way', we ideally want to update it to
@@ -105,7 +106,7 @@ describe('Course enrollments', () => {
   it('generates course status update on move to saved for later action', async () => {
     const { getByText } = renderEnrollmentsComponent();
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
+      userEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
     });
 
     expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);

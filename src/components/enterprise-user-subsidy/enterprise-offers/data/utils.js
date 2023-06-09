@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+import isNil from 'lodash.isnil';
 import {
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
@@ -7,8 +7,12 @@ import {
   ENTERPRISE_OFFER_TYPE,
 } from './constants';
 
-export const offerHasBookingsLimit = offer => offer.maxDiscount !== null || offer.maxUserDiscount !== null;
-export const offerHasEnrollmentsLimit = offer => offer.maxGlobalApplications !== null;
+export const offerHasBookingsLimit = offer => (
+  !isNil(offer.maxDiscount) || !isNil(offer.maxUserDiscount)
+);
+export const offerHasEnrollmentsLimit = offer => (
+  !isNil(offer.maxGlobalApplications) || !isNil(offer.maxUserApplications)
+);
 
 export const getOfferType = (offer) => {
   const hasBookingsLimit = offerHasBookingsLimit(offer);
@@ -68,10 +72,6 @@ export const transformEnterpriseOffer = (offer) => {
   const transformedOffer = {
     ...offer,
     offerType,
-    // Null equates to no limit for these values, use Number.MAX_VALUE so we don't
-    // have to do null checks in multiple places
-    maxDiscount: offer.maxDiscount,
-    maxGlobalApplications: offer.maxGlobalApplications,
     remainingBalance: offer.remainingBalance !== null
       ? parseFloat(offer.remainingBalance) : offer.remainingBalance,
     remainingBalanceForUser: offer.remainingBalanceForUser !== null
@@ -83,9 +83,14 @@ export const transformEnterpriseOffer = (offer) => {
   // applicability to a course
   if (offerType === ENTERPRISE_OFFER_TYPE.NO_LIMIT) {
     transformedOffer.maxDiscount = Number.MAX_VALUE;
-    transformedOffer.remainingBalance = Number.MAX_VALUE;
     transformedOffer.maxGlobalApplications = Number.MAX_VALUE;
+    transformedOffer.maxUserDiscount = Number.MAX_VALUE;
+    transformedOffer.maxUserApplications = Number.MAX_VALUE;
+    transformedOffer.remainingApplications = Number.MAX_VALUE;
+    transformedOffer.remainingBalance = Number.MAX_VALUE;
     transformedOffer.remainingBalanceForUser = Number.MAX_VALUE;
+    transformedOffer.remainingApplicationsForUser = Number.MAX_VALUE;
+    transformedOffer.remainingApplicationsForUser = Number.MAX_VALUE;
   }
 
   return {

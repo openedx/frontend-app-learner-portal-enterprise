@@ -1,32 +1,66 @@
-import React, { useContext, useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import React, {
+  useCallback, useContext, useEffect, useMemo, useState,
+} from 'react';
 import {
-  breakpoints, Container, Row, MediaQuery,
-} from '@edx/paragon';
+  useLocation, useParams, useHistory,
+} from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { Container } from '@edx/paragon';
+import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
-import { MainContent, Sidebar } from '../layout';
+import CourseService from './data/service';
 import { LoadingSpinner } from '../loading-spinner';
 import { CourseContextProvider } from './CourseContextProvider';
-import CourseHeader from './CourseHeader';
-import CourseMainContent from './CourseMainContent';
-import CourseSidebar from './CourseSidebar';
-
-import { useAllCourseData, useExtractAndRemoveSearchParamsFromURL } from './data/hooks';
-import { getActiveCourseRun, getAvailableCourseRuns } from './data/utils';
+import {
+  useAllCourseData,
+  useExtractAndRemoveSearchParamsFromURL,
+  useCheckSubsidyAccessPolicyRedeemability,
+  useUserSubsidyApplicableToCourse,
+  useCoursePriceForUserSubsidy,
+} from './data/hooks';
+import {
+  getActiveCourseRun,
+  getAvailableCourseRuns,
+  linkToCourse,
+  pathContainsCourseTypeSlug,
+  getCourseTypeConfig,
+  getEntitlementPrice,
+  findHighestLevelEntitlementSku,
+} from './data/utils';
+import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
-import CourseRecommendations from './CourseRecommendations';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { useSearchCatalogs } from '../search/data/hooks';
+import { useEnterpriseCuration } from '../search/content-highlights/data';
+import CoursePageRoutes from './routes/CoursePageRoutes';
 
 const CoursePage = () => {
-  const { courseKey } = useParams();
+  const { enterpriseSlug, courseKey } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
-  const { search } = useLocation();
+  const {
+    uuid: enterpriseUUID,
+    adminUsers: enterpriseAdminUsers,
+  } = enterpriseConfig;
+  const {
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    canEnrollWithEnterpriseOffers,
+  } = useContext(UserSubsidyContext);
+  const { catalogsForSubsidyRequests, subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
+
+  const {
+    enterpriseCuration: {
+      canOnlyViewHighlightSets,
+    },
+  } = useEnterpriseCuration(enterpriseUUID);
+  const { pathname, search } = useLocation();
+  const history = useHistory();
 
   const courseRunKey = useMemo(
     () => {
@@ -35,15 +69,6 @@ const CoursePage = () => {
     },
     [search],
   );
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
-  } = useContext(UserSubsidyContext);
-
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
   const activeCatalogs = useSearchCatalogs({
     subscriptionPlan,
@@ -57,57 +82,162 @@ const CoursePage = () => {
   // the URL query parameters and then remove it to keep the URLs clean.
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
-  const {
-    courseData, courseRecommendations, fetchError, isLoading,
-  } = useAllCourseData({
+  const courseService = useMemo(() => new CourseService({
+    enterpriseUuid: enterpriseUUID,
     courseKey,
-    enterpriseConfig,
     courseRunKey,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
-    activeCatalogs,
-  });
+  }), [courseKey, courseRunKey, enterpriseUUID]);
 
-  const initialState = useMemo(
+  const {
+    courseData,
+    courseRecommendations,
+    fetchError: fetchCourseDataError,
+    courseReviews,
+    isLoadingCourseData,
+  } = useAllCourseData({ courseService, activeCatalogs });
+
+  const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
+  const {
+    isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
+    data: subsidyAccessPolicyRedeemabilityData,
+  } = useCheckSubsidyAccessPolicyRedeemability({
+    enterpriseUuid: enterpriseUUID,
+    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+    activeCourseRunKey: courseService.activeCourseRun?.key,
+    isQueryEnabled: isEMETRedemptionEnabled,
+    queryOptions: {
+      retry: (failureCount, err) => {
+        // Retry max 3 times or if the error is 404 (not found)
+        if (failureCount === 3 || err?.customAttributes?.httpErrorStatus === 404) {
+          return false;
+        }
+        return true;
+      },
+    },
+  });
+  const {
+    redeemableSubsidyAccessPolicy,
+    redeemabilityPerContentKey,
+    isPolicyRedemptionEnabled,
+    missingSubsidyAccessPolicyReason,
+  } = subsidyAccessPolicyRedeemabilityData || {};
+
+  const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
+  const onSubscriptionLicenseForCourseValidationError = useCallback(
+    (error) => setValidateLicenseForCourseError(error),
+    [],
+  );
+
+  const isLoadingAny = (
+    isLoadingCourseData || isLoadingAccessPolicyRedemptionStatus
+  );
+  const error = fetchCourseDataError || validateLicenseForCourseError;
+
+  const courseState = useMemo(
     () => {
-      if (isLoading || !courseData || !courseRecommendations) {
+      // If we're still loading any data, or if we don't have any course data, we
+      // don't have enough data to render the page so return undefined to keep rendering
+      // a loading spinner.
+      if (isLoadingAny || !courseData || !courseRecommendations) {
         return undefined;
       }
       const {
         courseDetails,
         userEnrollments,
         userEntitlements,
-        userSubsidyApplicableToCourse,
         catalog,
       } = courseData;
-
       const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
-
+      const courseEntitlementProductSku = findHighestLevelEntitlementSku(courseDetails.entitlements);
       return {
         course: courseDetails,
         activeCourseRun: getActiveCourseRun(courseDetails),
         availableCourseRuns: getAvailableCourseRuns(courseDetails),
         userEnrollments,
         userEntitlements,
-        userSubsidyApplicableToCourse,
         catalog,
+        courseReviews,
         algoliaSearchParams,
         courseRecommendations: {
           allRecommendations: allRecommendations?.slice(0, 3),
           samePartnerRecommendations: samePartnerRecommendations?.slice(0, 3),
         },
+        courseEntitlementProductSku,
       };
     },
-    [isLoading, courseData, courseRecommendations, algoliaSearchParams],
+    [
+      isLoadingAny,
+      courseData,
+      courseRecommendations,
+      courseReviews,
+      algoliaSearchParams,
+    ],
   );
 
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
+  const courseListPrice = subsidyAccessPolicyRedeemabilityData?.coursePrice
+  || courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
+  || getEntitlementPrice(courseState?.course?.entitlements);
+
+  const {
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+  } = useUserSubsidyApplicableToCourse({
+    courseData,
+    redeemableSubsidyAccessPolicy,
+    isPolicyRedemptionEnabled,
+    subscriptionLicense,
+    courseService,
+    couponCodes,
+    canEnrollWithEnterpriseOffers,
+    enterpriseOffers,
+    onSubscriptionLicenseForCourseValidationError,
+    missingSubsidyAccessPolicyReason,
+    enterpriseAdminUsers,
+    courseListPrice,
+  });
+
+  const [coursePrice, currency] = useCoursePriceForUserSubsidy({
+    userSubsidyApplicableToCourse,
+    listPrice: courseListPrice,
+  });
+
+  useEffect(() => {
+    // Redirect if path does not contain course type
+    if (
+      courseState?.course?.courseType
+      && getCourseTypeConfig(courseState.course)
+      && !pathContainsCourseTypeSlug(
+        pathname,
+        courseState.course.courseType,
+      )
+    ) {
+      const newUrl = linkToCourse(
+        courseState.course,
+        enterpriseSlug,
+      );
+      history.replace(newUrl);
+    }
+  }, [enterpriseSlug, history, courseState, pathname]);
+
+  const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
+    const catalogsContainingCourse = new Set(courseState?.catalog?.catalogList);
+    const subsidyRequestCatalogIntersection = new Set(
+      catalogsForSubsidyRequests.filter(el => catalogsContainingCourse.has(el)),
+    );
+    return subsidyRequestCatalogIntersection;
+  }, [courseState?.catalog?.catalogList, catalogsForSubsidyRequests]);
+
+  const userCanRequestSubsidyForCourse = canUserRequestSubsidyForCourse({
+    subsidyRequestConfiguration,
+    subsidyRequestCatalogsApplicableToCourse,
+    userSubsidyApplicableToCourse,
+  });
+
+  if (error) {
+    return <ErrorPage message={error.message} />;
   }
 
-  if (isLoading || !initialState) {
+  if (!courseState) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading course" />
@@ -116,40 +246,29 @@ const CoursePage = () => {
   }
 
   // If there isn't an active course run we don't show the course at all
-  if (!initialState.activeCourseRun) {
-    sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
-      'edx.ui.enterprise.learner_portal.course.activeCourseRunNotFound',
-      {
-        course_key: courseKey,
-      },
-    );
+  if (!courseState.activeCourseRun) {
     return <NotFoundPage />;
   }
 
-  const PAGE_TITLE = `${initialState.course.title} - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `${courseState.course.title} - ${enterpriseConfig.name}`;
 
   return (
     <>
       <Helmet title={PAGE_TITLE} />
       <CourseEnrollmentsContextProvider>
-        <CourseContextProvider initialState={initialState}>
-          <CourseHeader />
-          <Container size="lg" className="py-5">
-            <Row>
-              <MainContent>
-                <CourseMainContent />
-              </MainContent>
-              <MediaQuery minWidth={breakpoints.large.minWidth}>
-                {matches => matches && (
-                  <Sidebar>
-                    <CourseSidebar />
-                  </Sidebar>
-                )}
-              </MediaQuery>
-              <CourseRecommendations />
-            </Row>
-          </Container>
+        <CourseContextProvider
+          courseState={courseState}
+          missingUserSubsidyReason={missingUserSubsidyReason}
+          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+          isPolicyRedemptionEnabled={isPolicyRedemptionEnabled}
+          redeemabilityPerContentKey={redeemabilityPerContentKey}
+          userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
+          subsidyRequestCatalogsApplicableToCourse={subsidyRequestCatalogsApplicableToCourse}
+          coursePrice={coursePrice}
+          currency={currency}
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+        >
+          <CoursePageRoutes />
         </CourseContextProvider>
       </CourseEnrollmentsContextProvider>
     </>

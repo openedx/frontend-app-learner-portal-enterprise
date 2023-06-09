@@ -5,6 +5,7 @@ import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCTA from '../ProgramCTA';
@@ -120,7 +121,7 @@ describe('<ProgramCTA />', () => {
 
     expect(screen.getByText('2 courses included in your enterprise catalog')).toBeInTheDocument();
     expect(screen.getByText('View Course Details')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('View Course Details'));
+    userEvent.click(screen.getByText('View Course Details'));
     fireEvent.click(screen.getByText('Test Course 1 Title'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       enterpriseUuid,

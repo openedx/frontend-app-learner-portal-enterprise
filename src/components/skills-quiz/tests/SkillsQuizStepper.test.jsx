@@ -1,11 +1,10 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import {
-  SearchContext, removeFromRefinementArray, deleteRefinementAction, SearchData,
-} from '@edx/frontend-enterprise-catalog-search';
+import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import {
@@ -17,10 +16,9 @@ import {
   DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
   GOAL_DROPDOWN_DEFAULT_OPTION,
   DROPDOWN_OPTION_CHANGE_CAREERS,
-  SKILLS_FACET,
+  INDUSTRY_FACET,
   CURRENT_JOB_FACET,
   DESIRED_JOB_FACET,
-  DROPDOWN_OPTION_GET_PROMOTED,
 } from '../constants';
 
 import edxLogo from '../images/edx-logo.svg';
@@ -99,6 +97,32 @@ describe('<SkillsQuizStepper />', () => {
     expect(image.src).toContain(edxLogo);
   });
 
+  it('checks track event is sent on close', () => {
+    const searchContext = {
+      refinements: {},
+      dispatch: () => null,
+    };
+
+    renderWithRouter(
+      <AppContext.Provider value={defaultAppState}>
+        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContextProvider>
+                <SkillsQuizStepper />
+              </SkillsContextProvider>
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>,
+      { route: '/test/skills-quiz/' },
+    );
+    const closeButton = screen.getByRole('button', { name: 'Close' });
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(2);
+    userEvent.click(closeButton);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(3);
+  });
+
   it('checks continue button is in disabled state initially', () => {
     const searchContext = {
       refinements: {},
@@ -128,14 +152,18 @@ describe('<SkillsQuizStepper />', () => {
       dispatch: () => null,
     };
 
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+    };
+
     renderWithRouter(
       <AppContext.Provider value={defaultAppState}>
         <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
             <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
                 <SkillsQuizStepper />
-              </SkillsContextProvider>
+              </SkillsContext.Provider>
             </SearchContext.Provider>
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
@@ -171,14 +199,17 @@ describe('<SkillsQuizStepper />', () => {
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
     expect(screen.getByText('Continue').disabled).toBeFalsy();
   });
-
-  it('checks continue is disabled when improvement option is selected and current job not selected', () => {
+  it('check continue is enable while some jobs are selectd and working correctly', () => {
     const searchContext = {
-      refinements: {},
+      refinements: { current_job: ['test-current-job'] },
+      industry_names: ['Retail Trade'],
       dispatch: () => null,
     };
+
     const skillsQuizContextInitialState = {
       state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+      dispatch: () => null,
+      props: { heading: 'Top Skills for the Job', skills: [], industrySkills: [] },
     };
 
     renderWithRouter(
@@ -195,8 +226,12 @@ describe('<SkillsQuizStepper />', () => {
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
     );
+
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
-    expect(screen.getByText('Continue').disabled).toBeTruthy();
+    expect(screen.getByText('Continue').disabled).toBeFalsy();
+    const continueButton = screen.getByText('Continue');
+    fireEvent.click(continueButton);
+    expect(screen.getByText('Continue').disabled).toBeFalsy();
   });
 
   it('checks no other dropdown is rendered until correct goal is selected', () => {
@@ -223,129 +258,36 @@ describe('<SkillsQuizStepper />', () => {
       { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    expect(screen.queryByText(SKILLS_FACET.title)).toBeNull();
     expect(screen.queryByText(CURRENT_JOB_FACET.title)).toBeNull();
     expect(screen.queryByText(DESIRED_JOB_FACET.title)).toBeNull();
   });
 
-  it('checks skills is rendered when goal is changed and job dropdowns are hidden still', async () => {
+  it('checks all dropdowns are shown when we have a goal selected', async () => {
     const searchContext = {
       refinements: {},
       dispatch: () => null,
     };
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
+    };
 
     renderWithRouter(
       <AppContext.Provider value={defaultAppState}>
         <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
           <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={searchContext}>
-              <SkillsContextProvider>
+            <SearchContext.Provider value={{ ...searchContext }}>
+              <SkillsContext.Provider value={skillsQuizContextInitialState}>
                 <SkillsQuizStepper />
-              </SkillsContextProvider>
+              </SkillsContext.Provider>
             </SearchContext.Provider>
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    userEvent.click(await screen.findByText(GOAL_DROPDOWN_DEFAULT_OPTION));
-    userEvent.click(await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED));
-
-    expect(screen.queryByText(SKILLS_FACET.title)).toBeInTheDocument();
-    expect(screen.queryByText(CURRENT_JOB_FACET.title)).toBeNull();
-    expect(screen.queryByText(DESIRED_JOB_FACET.title)).toBeNull();
-  });
-
-  it('checks all dropdowns are shown when we have goal and skills', async () => {
-    renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchData>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchData>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
-      { route: '/test/skills-quiz/?skill_names=xyz' },
-    );
-    userEvent.click(screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION));
-    userEvent.click(await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED));
-    expect(screen.getByText(SKILLS_FACET.title)).toBeInTheDocument();
+    expect(screen.getByText(INDUSTRY_FACET.title)).toBeInTheDocument();
     expect(screen.getByText(CURRENT_JOB_FACET.title)).toBeInTheDocument();
     expect(screen.getByText(DESIRED_JOB_FACET.title)).toBeInTheDocument();
-  });
-
-  it('Handles removal skill is handled correctly.', async () => {
-    const searchContext = {
-      refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
-      dispatch: () => null,
-    };
-
-    renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
-      { route: '/test/skills-quiz/' },
-    );
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    const goalDropdown = screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION);
-    userEvent.click(goalDropdown);
-    const getPromotedOption = await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED);
-    expect(getPromotedOption).toBeInTheDocument();
-    userEvent.click(getPromotedOption);
-
-    expect(await screen.findByText(SKILLS_FACET.title)).toBeInTheDocument();
-
-    // Remove the first selected skill.
-    userEvent.click(screen.getByTestId('test-skill-1').querySelector('[role="button"]'));
-    expect(removeFromRefinementArray.mock.calls.length).toBe(1);
-  });
-
-  it('Handles removal of the last skill is handled correctly.', async () => {
-    const searchContext = {
-      refinements: { skill_names: ['test-skill-1'] },
-      dispatch: () => null,
-    };
-
-    renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
-      { route: '/test/skills-quiz/' },
-    );
-
-    expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
-    const goalDropdown = screen.getByText(GOAL_DROPDOWN_DEFAULT_OPTION);
-    userEvent.click(goalDropdown);
-    const getPromotedOption = await screen.findByText(DROPDOWN_OPTION_GET_PROMOTED);
-    expect(getPromotedOption).toBeInTheDocument();
-    userEvent.click(getPromotedOption);
-
-    expect(await screen.findByText(SKILLS_FACET.title)).toBeInTheDocument();
-
-    // remove the last skill as well and make sure deleteRefinementAction is called.
-    userEvent.click(screen.getByTestId('test-skill-1').querySelector('[role="button"]'));
-    expect(deleteRefinementAction.mock.calls.length).toBe(1);
   });
 
   it('checks i am currently a student checkbox works correctly', async () => {
@@ -364,9 +306,8 @@ describe('<SkillsQuizStepper />', () => {
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/?skill_names=xyz' },
+      { route: '/test/skills-quiz/' },
     );
-    expect(await screen.findByText(SKILLS_FACET.title)).toBeInTheDocument();
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();
     userEvent.click(isStudentCheckbox);
@@ -390,7 +331,7 @@ describe('<SkillsQuizStepper />', () => {
           </SubsidyRequestsContext.Provider>
         </UserSubsidyContext.Provider>
       </AppContext.Provider>,
-      { route: '/test/skills-quiz/?skill_names=xyz' },
+      { route: '/test/skills-quiz/' },
     );
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();

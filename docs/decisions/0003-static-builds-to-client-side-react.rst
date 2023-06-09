@@ -35,7 +35,7 @@ Decision
 
 While it would be great if the Enterprise learner portal could take advantage of the benefits for using Gatsby (e.g., faster page loads), it does not make as much sense given the tradeoffs mentioned above. This is because the Enterprise learner portal relies mostly on dynamic data in such a way that would not allow us to realize the advantage of a statically rendered app. Additionally, the Enterprise learner portal does not have a requirement for supporting SEO best practices since it is used by existing customers (presumably with direct access to the URL) as opposed to a marketing site that will be crawled by search engine bots.
 
-That said, we will be migrating the Enterprise learner portal off of Gatsby and its multi-site build process / infrastructure. Instead, the Enterprise learner portal will become a standard client-side React application (microfrontend) that utilizes many of the recent advancements in the frontend ecosystem at edX (e.g., ``@edx/frontend-build``, ``@edx/frontend-platform``). In addition, the Enterprise learner portal will no longer rely on the shared UI components in ``@edx/frontend-learner-portal-base``.
+That said, we will be migrating the Enterprise learner portal off of Gatsby and its multi-site build process / infrastructure. Instead, the Enterprise learner portal will become a standard client-side React application (microfrontend) that utilizes many of the recent advancements in the frontend ecosystem at edX (e.g., ``@openedx/frontend-build``, ``@openedx/frontend-platform``). In addition, the Enterprise learner portal will no longer rely on the shared UI components in ``@openedx-unsupported/frontend-learner-portal-base``.
 
 ************
 Consequences
@@ -45,8 +45,8 @@ Consequences
     * That said, we will want to be intentional about how we do client-side data fetching to reduce the amount of perceived loading time for the user.
     * Additionally, any updates to the data by internal admins (e.g., the ECS team) will propogate immediately instead of needing to trigger a rebuild/redeploy.
 * The Enterprise learner portal will no longer use multi-site build process / infrastructure. Rather, the Enterprise learner portal will use the same build process and infrastructure as other standard microfrontends at edX.
-* The Enterprise learner portal will begin using ``@edx/frontend-build`` and ``@edx/frontend-platform`` to be in line with other microfrontends at edX and reduce common boilerplate.
-* Ownership of the ``gatsby-source-portal-designer`` Gatsby plugin and the ``@edx/frontend-learner-portal-base`` NPM package will be transitioned to the Programs engineering team(s).
+* The Enterprise learner portal will begin using ``@openedx/frontend-build`` and ``@openedx/frontend-platform`` to be in line with other microfrontends at edX and reduce common boilerplate.
+* Ownership of the ``gatsby-source-portal-designer`` Gatsby plugin and the ``@openedx-unsupported/frontend-learner-portal-base`` NPM package will be transitioned to the Programs engineering team(s).
 
 **********
 References
@@ -54,8 +54,8 @@ References
 
 * https://www.gatsbyjs.org/
 * https://github.com/edx/gatsby-source-portal-designer
-* https://github.com/edx/frontend-learner-portal-base
+* https://github.com/openedx-unsupported/frontend-learner-portal-base
 * https://dev.to/maniekm/when-not-to-use-gatsbyjs-oic
 * https://blog.jakoblind.no/gatsby-vs-next/
-* https://github.com/edx/frontend-platform
-* https://github.com/edx/frontend-build
+* https://github.com/openedx/frontend-platform
+* https://github.com/openedx/frontend-build

@@ -4,6 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import {
   Button, breakpoints, MediaQuery,
 } from '@edx/paragon';
+import PropTypes from 'prop-types';
 
 import { CourseEnrollments } from './course-enrollments';
 
@@ -11,7 +12,7 @@ import SupportInformation from '../sidebar/SupportInformation';
 import SubsidiesSummary from '../sidebar/SubsidiesSummary';
 import CourseRecommendations from './CourseRecommendations';
 
-const DashboardMainContent = () => {
+const DashboardMainContent = ({ canOnlyViewHighlightSets }) => {
   const {
     enterpriseConfig: {
       name,
@@ -19,7 +20,6 @@ const DashboardMainContent = () => {
       disableSearch,
     },
   } = useContext(AppContext);
-
   return (
     <>
       <MediaQuery maxWidth={breakpoints.medium.maxWidth}>
@@ -32,7 +32,7 @@ const DashboardMainContent = () => {
         {disableSearch ? (
           <p>
             You are not enrolled in any courses sponsored by {name}.
-            Reach out to your administrator for instructions on how to start learning learning with edX!
+            Reach out to your administrator for instructions on how to start learning with edX!
           </p>
         ) : (
           <>
@@ -49,7 +49,7 @@ const DashboardMainContent = () => {
             </Button>
 
             <br />
-            <CourseRecommendations />
+            {canOnlyViewHighlightSets === false && <CourseRecommendations />}
           </>
         )}
       </CourseEnrollments>
@@ -59,6 +59,14 @@ const DashboardMainContent = () => {
       </MediaQuery>
     </>
   );
+};
+
+DashboardMainContent.propTypes = {
+  canOnlyViewHighlightSets: PropTypes.bool,
+};
+
+DashboardMainContent.defaultProps = {
+  canOnlyViewHighlightSets: false,
 };
 
 export default DashboardMainContent;

@@ -7,7 +7,9 @@ import {
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
+import { useHistory } from 'react-router-dom';
 
+import moment from 'moment/moment';
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import {
@@ -15,20 +17,23 @@ import {
   useExecutiveEducation2UContentMetadata,
 } from './data';
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
+import CourseSummaryCard from './components/CourseSummaryCard';
+import RegistrationSummaryCard from './components/RegistrationSummaryCard';
+import { getActiveCourseRun } from '../course/data/utils';
+import { DATE_FORMAT } from '../program/ProgramCourses';
+import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from './utils';
 
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const activeQueryParams = useActiveQueryParams();
+  const history = useHistory();
 
   const isExecEd2UFulfillmentEnabled = useMemo(() => {
     const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
     return enterpriseConfig.enableExecutiveEducation2UFulfillment && hasRequiredQueryParams;
   }, [enterpriseConfig, activeQueryParams]);
 
-  const {
-    isLoading: isLoadingContentMetadata,
-    contentMetadata,
-  } = useExecutiveEducation2UContentMetadata({
+  const { isLoadingContentMetadata: isLoading, contentMetadata } = useExecutiveEducation2UContentMetadata({
     courseUUID: activeQueryParams.get('course_uuid'),
     isExecEd2UFulfillmentEnabled,
   });
@@ -45,15 +50,6 @@ const ExecutiveEducation2UPage = () => {
     }
   }, [activeQueryParams, enterpriseConfig]);
 
-  if (!isExecEd2UFulfillmentEnabled) {
-    return (
-      <NotFoundPage />
-    );
-  }
-
-  const isLoading = isLoadingContentMetadata;
-  const { name: enterpriseName } = enterpriseConfig;
-
   const pageTitle = 'Share course enrollment information';
   const queryParams = {
     failureReason: activeQueryParams.get('failure_reason'),
@@ -61,56 +57,115 @@ const ExecutiveEducation2UPage = () => {
     sku: activeQueryParams.get('sku'),
   };
 
-  const handleCheckoutSuccess = (response) => {
-    if (!response?.receiptPageUrl) {
-      logError('Unable to redirect to receipt page due to missing receipt page URL.');
-      return;
+  const courseMetadata = useMemo(() => {
+    if (contentMetadata) {
+      const activeCourseRun = getActiveCourseRun(contentMetadata);
+      const organizationDetails = getCourseOrganizationDetails(contentMetadata);
+      /* istanbul ignore next */
+      const getDuration = () => {
+        if (!activeCourseRun) {
+          return '-';
+        }
+        let duration = `${activeCourseRun.weeksToComplete} Week`;
+        if (activeCourseRun.weeksToComplete > 1) {
+          duration += 's';
+        }
+        return duration;
+      };
+      return {
+        organizationImage: organizationDetails.organizationLogo,
+        organizationName: organizationDetails.organizationName,
+        title: contentMetadata.title,
+        startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
+        duration: getDuration(),
+        priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
+        activeCourseRun,
+      };
     }
-    global.location.assign(response.receiptPageUrl);
+    return {};
+  }, [contentMetadata]);
+
+  const handleCheckoutSuccess = () => {
+    history.push({
+      pathname: `/${enterpriseConfig.slug}/executive-education-2u/enrollment-completed`,
+      state: {
+        data: courseMetadata,
+      },
+    });
   };
 
+  if (!isExecEd2UFulfillmentEnabled) {
+    return (
+      <NotFoundPage />
+    );
+  }
+
   return (
-    <Container size="lg" className="py-5">
-      <Helmet>
-        <title>{pageTitle}</title>
-      </Helmet>
-      {queryParams.failureReason && (
-        <ExecutiveEducation2UError
-          failureReason={queryParams.failureReason}
-          httpReferrer={queryParams.httpReferrer}
-        />
-      )}
-      {!queryParams.failureReason && (
-        <>
-          <h2 className="mb-3">
-            {isLoading ? (
-              <Skeleton containerTestId="loading-skeleton-page-title" />
-            ) : pageTitle}
-          </h2>
-          {(isLoading || !contentMetadata) ? (
-            <p>
-              <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
-            </p>
-          ) : (
-            <Row className="mb-4">
-              <Col xs={12} lg={10}>
-                <p>
-                  {enterpriseName} has partnered with edX and GetSmarter to offer you high-quality Executive Education
-                  courses. To access <strong>&quot;{contentMetadata.title}&quot;</strong>, you must (1) provide course
-                  enrollment data and (2) accept Terms and Conditions.
-                </p>
-              </Col>
-            </Row>
-          )}
-          {!isLoading && (
-            <UserEnrollmentForm
-              productSKU={queryParams.sku}
-              onCheckoutSuccess={handleCheckoutSuccess}
-            />
-          )}
-        </>
-      )}
-    </Container>
+    <div className="fill-vertical-space page-light-bg">
+      <Container size="lg" className="py-5">
+        <Helmet>
+          <title>{pageTitle}</title>
+        </Helmet>
+        {queryParams.failureReason && (
+          <ExecutiveEducation2UError
+            failureReason={queryParams.failureReason}
+            httpReferrer={queryParams.httpReferrer}
+          />
+        )}
+        {!queryParams.failureReason && (
+          <>
+            <h2 className="mb-3">
+              {isLoading || !contentMetadata ? (
+                <Skeleton containerTestId="loading-skeleton-page-title" />
+              ) : 'Your registration(s)'}
+            </h2>
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-text-blurb" />
+              </p>
+            ) : (
+              <Row className="mb-4">
+                <Col xs={12} lg={12}>
+                  <p className="small bg-light-500 p-3 rounded-lg">
+                    <strong>
+                      This is where you finalize your registration for an edX executive
+                      education course through GetSmarter.
+                    </strong>
+                    &nbsp; Please ensure that the course details below are correct and confirm using Learner
+                    Credit with a &quot;Confirm registration&quot; button.
+                    Your Learner Credit funds will be redeemed at this point.
+                  </p>
+                </Col>
+              </Row>
+            )}
+
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-course-summary" />
+              </p>
+            ) : (
+              <CourseSummaryCard courseMetadata={courseMetadata} />
+            )}
+
+            {(isLoading || !contentMetadata) ? (
+              <p>
+                <Skeleton count={3} containerTestId="loading-skeleton-course-summary" />
+              </p>
+            ) : (
+              <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
+            )}
+
+            {(!isLoading && courseMetadata) && (
+              <UserEnrollmentForm
+                productSKU={queryParams.sku}
+                onCheckoutSuccess={handleCheckoutSuccess}
+                activeCourseRun={courseMetadata.activeCourseRun}
+              />
+            )}
+          </>
+        )}
+      </Container>
+    </div>
   );
 };
 

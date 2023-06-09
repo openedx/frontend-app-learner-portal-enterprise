@@ -12,9 +12,9 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: [],
 };
 
-const CreatedByWithCourseContext = ({ initialState = {} }) => (
+const CreatedByWithCourseContext = ({ courseState = {} }) => (
   <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-    <CourseContextProvider initialState={initialState}>
+    <CourseContextProvider courseState={courseState}>
       <CreatedBy />
     </CourseContextProvider>
   </SubsidyRequestsContext.Provider>
@@ -52,19 +52,32 @@ describe('<CreatedBy />', () => {
   };
 
   test('renders partner info', () => {
-    render(<CreatedByWithCourseContext initialState={initialState} />);
+    render(<CreatedByWithCourseContext courseState={initialState} />);
     initialState.course.owners.forEach((owner) => {
       expect(screen.queryByText(owner.name)).toBeInTheDocument();
     });
   });
 
   test('renders staff info', () => {
-    render(<CreatedByWithCourseContext initialState={initialState} />);
+    render(<CreatedByWithCourseContext courseState={initialState} />);
     initialState.activeCourseRun.staff.forEach((staffMember) => {
       const fullName = `${staffMember.givenName} ${staffMember.familyName}`;
       expect(screen.queryByText(fullName)).toBeInTheDocument();
       expect(screen.queryByText(staffMember.position.title)).toBeInTheDocument();
       expect(screen.queryByText(staffMember.position.organizationName)).toBeInTheDocument();
     });
+  });
+
+  test('handles missing partner info', () => {
+    const courseState = {
+      ...initialState,
+      course: {
+        ...initialState.course,
+        owners: [],
+      },
+      activeCourseRun: undefined,
+    };
+    const { container } = render(<CreatedByWithCourseContext courseState={courseState} />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

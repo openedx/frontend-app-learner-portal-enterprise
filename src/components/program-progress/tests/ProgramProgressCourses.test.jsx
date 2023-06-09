@@ -365,7 +365,7 @@ describe('<ProgramProgressCourses />', () => {
     />);
     const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
     expect(screen.getByText(courseRunEnrollable[0].title)).toBeInTheDocument();
-    expect(screen.getByText('Enroll Now').closest('a')).toHaveAttribute('href', courseLink);
+    expect(screen.getByText('Enroll now').closest('a')).toHaveAttribute('href', courseLink);
   });
 
   it('displays the not started course with no course run available for enrollment', () => {
@@ -457,7 +457,7 @@ describe('<ProgramProgressCourses />', () => {
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();
     expect(screen.queryByText(courseRunDateNotEnrollable)).not.toBeInTheDocument();
     expect(screen.getByTestId('course-run-single-date')).toBeVisible();
-    expect(screen.getByText('Learn More').closest('a')).toHaveAttribute('href', courseLink1);
+    expect(screen.getByText('Learn more').closest('a')).toHaveAttribute('href', courseLink1);
   });
 
   it('displays the not started course with multiple course runs', () => {
@@ -534,7 +534,7 @@ describe('<ProgramProgressCourses />', () => {
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[1].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText(courseRunDateWithOutEnd)).toBeInTheDocument();
     expect(screen.getByText(courseRunDateWithEnd)).toBeInTheDocument();
-    expect(screen.getByText('Learn More').closest('a')).toHaveAttribute('href', courseLink1);
-    expect(screen.getByText('Enroll Now').closest('a')).toHaveAttribute('href', courseLink2);
+    expect(screen.getByText('Learn more').closest('a')).toHaveAttribute('href', courseLink1);
+    expect(screen.getByText('Enroll now').closest('a')).toHaveAttribute('href', courseLink2);
   });
 });

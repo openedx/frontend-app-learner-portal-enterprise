@@ -25,8 +25,8 @@ export function useLearnerPathwayProgressData(pathwayUUID) {
 }
 
 export function useInProgressPathwaysData(enterpriseUuid) {
-  const [pathwayProgressData, setPathwayProgressData] = useState();
-  const [fetchError, setFetchError] = useState();
+  const [pathwayProgressData, setPathwayProgressData] = useState([]);
+  const [pathwayFetchError, setPathwayFetchError] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,12 +36,12 @@ export function useInProgressPathwaysData(enterpriseUuid) {
           setPathwayProgressData(data.results);
         } catch (error) {
           logError(error);
-          setFetchError(error);
+          setPathwayFetchError(error);
         }
       }
       return undefined;
     };
     fetchData();
   }, [enterpriseUuid]);
-  return [camelCaseObject(pathwayProgressData), fetchError];
+  return [camelCaseObject(pathwayProgressData), pathwayFetchError];
 }

@@ -1,13 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { useTrackSearchConversionClickHandler } from '../../data/hooks';
 import { EnrollButtonCta } from '../common';
-
-import { enrollLinkClass } from '../constants';
 
 const ViewOnDashboard = ({ enrollLabel }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -19,7 +16,7 @@ const ViewOnDashboard = ({ enrollLabel }) => {
     <EnrollButtonCta
       enrollLabel={enrollLabel}
       as={Link}
-      className={classNames('btn btn-primary btn-brand-primary d-block', enrollLinkClass)}
+      className="btn btn-primary btn-block btn-brand-primary"
       to={`/${enterpriseConfig.slug}`}
       onClick={handleClick}
     />

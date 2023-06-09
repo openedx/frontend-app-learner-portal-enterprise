@@ -27,12 +27,12 @@ const baseSubsidyRequestContextValue = {
 
 const CourseSkillsWithContext = ({
   initialAppState,
-  initialCourseState,
+  courseState,
   initialSubsidyRequestContextValue,
 }) => (
   <AppContext.Provider value={initialAppState}>
     <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-      <CourseContextProvider initialState={initialCourseState}>
+      <CourseContextProvider courseState={courseState}>
         <CourseSkills />
       </CourseContextProvider>
     </SubsidyRequestsContext.Provider>
@@ -41,13 +41,13 @@ const CourseSkillsWithContext = ({
 
 CourseSkillsWithContext.propTypes = {
   initialAppState: PropTypes.shape(),
-  initialCourseState: PropTypes.shape(),
+  courseState: PropTypes.shape(),
   initialSubsidyRequestContextValue: PropTypes.shape(),
 };
 
 CourseSkillsWithContext.defaultProps = {
   initialAppState: {},
-  initialCourseState: {},
+  courseState: {},
   initialSubsidyRequestContextValue: baseSubsidyRequestContextValue,
 };
 
@@ -57,7 +57,7 @@ describe('<CourseSkills />', () => {
       slug: 'test-enterprise-slug',
     },
   };
-  const initialCourseState = {
+  const courseState = {
     ...baseCourseState,
     course: {
       skills: generateRandomSkills(MAX_VISIBLE_SKILLS),
@@ -68,32 +68,32 @@ describe('<CourseSkills />', () => {
     renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
       />,
     );
-    initialCourseState.course.skills.forEach((skill) => {
+    courseState.course.skills.forEach((skill) => {
       expect(screen.queryByText(skill.name)).toBeVisible();
     });
   });
 
   test('does not render more then max visible skills', () => {
     const skillsCount = MAX_VISIBLE_SKILLS + 2; // random number greater than limit
-    const courseState = {
-      ...initialCourseState,
+    const newCourseState = {
+      ...courseState,
       course: {
-        ...initialCourseState.course,
+        ...courseState.course,
         skills: generateRandomSkills(skillsCount),
       },
     };
     renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
-        initialCourseState={courseState}
+        courseState={newCourseState}
       />,
     );
 
-    const shownSkills = initialCourseState.course.skills.slice(0, MAX_VISIBLE_SKILLS);
-    const hiddenSkills = initialCourseState.course.skills.slice(MAX_VISIBLE_SKILLS, skillsCount);
+    const shownSkills = courseState.course.skills.slice(0, MAX_VISIBLE_SKILLS);
+    const hiddenSkills = courseState.course.skills.slice(MAX_VISIBLE_SKILLS, skillsCount);
 
     shownSkills.forEach((skill) => {
       expect(screen.queryByText(skill.name)).toBeVisible();
@@ -109,12 +109,12 @@ describe('<CourseSkills />', () => {
     renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
-        initialCourseState={initialCourseState}
+        courseState={courseState}
       />,
     );
     /* eslint-disable no-await-in-loop */
 
-    for (const skill of initialCourseState.course.skills) { // eslint-disable-line no-restricted-syntax
+    for (const skill of courseState.course.skills) { // eslint-disable-line no-restricted-syntax
       await act(async () => {
         fireEvent.mouseOver(screen.getByText(skill.name));
       });
@@ -125,10 +125,10 @@ describe('<CourseSkills />', () => {
 
   test('renders tooltip text only till maximum cutoff value when skill description is too long', async () => {
     // set a skill description greater than description cutoff limit
-    const courseState = {
-      ...initialCourseState,
+    const newCourseState = {
+      ...courseState,
       course: {
-        ...initialCourseState.course,
+        ...courseState.course,
         skills: [
           {
             name: 'Skill with long description',
@@ -141,14 +141,14 @@ describe('<CourseSkills />', () => {
     renderWithRouter(
       <CourseSkillsWithContext
         initialAppState={initialAppState}
-        initialCourseState={courseState}
+        courseState={newCourseState}
       />,
     );
-    const { skills } = courseState.course;
+    const { skills } = newCourseState.course;
     const maxVisibleDesc = shortenString(skills[0].description, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR);
     await act(async () => {
       fireEvent.mouseOver(screen.getByText(skills[0].name));
     });
-    expect(await screen.queryByText(maxVisibleDesc)).toBeVisible();
+    expect(await screen.findByText(maxVisibleDesc)).toBeVisible();
   });
 });

@@ -1,12 +1,13 @@
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import userEvent from '@testing-library/user-event';
 import {
   renderWithRouter,
   initialAppState,
-  initialCourseState,
+  mockCourseState,
 } from '../../../../utils/tests';
 import { COURSE_MODES_MAP } from '../../data/constants';
 import EnrollAction from '../EnrollAction';
@@ -39,7 +40,7 @@ const {
 } = enrollButtonTypes;
 
 const INITIAL_APP_STATE = initialAppState({});
-const selfPacedCourseWithLicenseSubsidy = initialCourseState({});
+const selfPacedCourseWithLicenseSubsidy = mockCourseState({});
 const verifiedTrackEnrollment = {
   mode: COURSE_MODES_MAP.VERIFIED,
   isActive: true,
@@ -57,7 +58,7 @@ const EnrollLabel = (props) => (
 );
 const renderEnrollAction = ({
   enrollAction,
-  courseInitState = selfPacedCourseWithLicenseSubsidy,
+  courseState = selfPacedCourseWithLicenseSubsidy,
   initialUserSubsidyState = {
     subscriptionLicense,
     couponCodes: {
@@ -78,7 +79,7 @@ const renderEnrollAction = ({
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
           <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsRequestState}>
-            <CourseContextProvider initialState={courseInitState}>
+            <CourseContextProvider courseState={courseState}>
               {enrollAction}
             </CourseContextProvider>
           </CourseEnrollmentsContext.Provider>
@@ -153,7 +154,6 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
         enrollLabel={<EnrollLabel enrollLabelText={enrollLabelText} />}
         enrollmentUrl={enrollmentUrl}
         courseRunPrice={100}
-        triggerLicenseSubsidyEvent
       />
     );
     renderEnrollAction({ enrollAction });
@@ -164,7 +164,7 @@ describe('scenarios user not yet enrolled, but eligible to enroll', () => {
     expect(actualUrl).toContain(`${enrollmentUrl}`);
 
     const enrollButton = screen.getByText(enrollLabelText);
-    fireEvent.click(enrollButton);
+    userEvent.click(enrollButton);
   });
   test('<ToEcomBasketPage /> is rendered if enrollmentType is TO_ECOM_BASKET', () => {
     const enrollAction = (

@@ -4,8 +4,14 @@
     min-height: 100vh;
 }
 
-#content {
+.page-light-bg {
+    background: $light-200;
+}
+
+.fill-vertical-space {
+    display: flex;
     flex: 1;
+    flex-direction: column;
 }
 
 footer a img {

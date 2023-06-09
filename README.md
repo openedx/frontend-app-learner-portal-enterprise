@@ -1,6 +1,6 @@
 # frontend-app-learner-portal-enterprise
 
-![Build Status](https://github.com/edx/frontend-app-learner-portal-enterprise/actions/workflows/ci.yml/badge.svg)
+![Build Status](https://github.com/openedx/frontend-app-learner-portal-enterprise/actions/workflows/ci.yml/badge.svg)
 
 ## Overview
 The edX learning platform's frontend for enterprise learners.
@@ -35,9 +35,9 @@ Now quickly check the .env.development file for which services are used by the a
 
 An enterprise portal will need a couple of roles: The Enterprise customer, and at least one learner account.
 
-Next we will setup a `test-enterprise` customer who will have learners associated with it (Details at [The Enterprise management commands](https://github.com/edx/edx-enterprise/blob/master/enterprise/management/commands/seed_enterprise_devstack_data.py#L47)):
+Next we will setup a `test-enterprise` customer who will have learners associated with it (Details at [The Enterprise management commands](https://github.com/openedx/edx-enterprise/blob/master/enterprise/management/commands/seed_enterprise_devstack_data.py#L47)):
 
- - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/edx/edx-platform/blob/0e2b612c1fb4f3e385f3004801aa5b5ed0221eda/lms/envs/devstack.py#L331). Set the flag `ENABLE_ENTERPRISE_INTEGRATION` to True if it isn't already
+ - Ensure the Enterprise Integration flag is enabled in devstack [see this link](https://github.com/openedx/edx-platform/blob/0e2b612c1fb4f3e385f3004801aa5b5ed0221eda/lms/envs/devstack.py#L331). Set the flag `ENABLE_ENTERPRISE_INTEGRATION` to True if it isn't already
  - From the devstack directory, restart lms using `make lms-restart` for applying changes
  - Seed test data:
    - Go into the lms shell:
@@ -96,7 +96,7 @@ For this, an easy way is to use the Studio! Usually at http://localhost:18010
 
 You need this, if you need to make changes to the API endpoints or anything else in edx-enterprise project
 
-We have edx-enterprise Django module running inside of the LMS (which is started by devstack). Refer to [Devstack Doc](https://github.com/edx/devstack) for details. This is what serves endpoints used by the application. To make changes, you will replace that available install of edx-enterprise with your local version
+We have edx-enterprise Django module running inside of the LMS (which is started by devstack). Refer to [Devstack Doc](https://github.com/openedx/devstack) for details. This is what serves endpoints used by the application. To make changes, you will replace that available install of edx-enterprise with your local version
 
 * Setup devstack if not already and at least have the `lms` service running. Typically cd'ing to the devstack folder, and running `make dev.up` or `make dev.nfs.up` will do it
 * Ensure you can browse to LMS at least, http://localhost:18000
@@ -104,7 +104,7 @@ We have edx-enterprise Django module running inside of the LMS (which is started
 * Sync edx-enterprise into the src/ folder of your work folder (e.g. ~/work/src/edx-enterprise)
 * Ensure this env var is set in your env for the docker mount to be located correctly, e.g.,: `DEVSTACK_WORKSPACE=/Users/$USER/work` , in your shell config file
 * Either start new shell or run `exec "$SHELL"` for changes to take effect in the shell
-* Start backend services needed (refer to .env.development file). Refer to [Devstack Doc](https://github.com/edx/devstack) for details
+* Start backend services needed (refer to .env.development file). Refer to [Devstack Doc](https://github.com/openedx/devstack) for details
 
 If all worked you should be able to navigate to http://localhost:18000/admin/enterprise/
 But wait, it won't work yet. As long as you get some reasonable response here, you are good (probably a login page).
@@ -207,7 +207,7 @@ TODO/WIP
 
 * edX
   * [Onboarding for devs](https://openedx.atlassian.net/wiki/spaces/ENG/pages/12550298/Developer+Onboarding)
-  * [Devstack Doc](https://github.com/edx/devstack)
+  * [Devstack Doc](https://github.com/openedx/devstack)
   * [Enterprise docs](https://openedx.atlassian.net/wiki/spaces/SOL/pages/997654609/Hitchhiker+s+Engineer+s+Guide+to+the+Enterprise+Ecosystem)
   *
 * External
