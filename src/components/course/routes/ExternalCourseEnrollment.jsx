@@ -10,6 +10,7 @@ import RegistrationSummaryCard from '../../executive-education-2u/components/Reg
 import UserEnrollmentForm from '../../executive-education-2u/UserEnrollmentForm';
 import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
+import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 const ExternalCourseEnrollment = () => {
   const history = useHistory();
@@ -20,6 +21,7 @@ const ExternalCourseEnrollment = () => {
     },
     userSubsidyApplicableToCourse,
   } = useContext(CourseContext);
+  const { courseEnrollmentsByStatus } = useContext(CourseEnrollmentsContext);
   const courseMetadata = useMinimalCourseMetadata();
 
   const {
@@ -62,6 +64,7 @@ const ExternalCourseEnrollment = () => {
                 onCheckoutSuccess={handleCheckoutSuccess}
                 activeCourseRun={activeCourseRun}
                 userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+                courseEnrollmentsByStatus={courseEnrollmentsByStatus}
               />
             </Col>
           </Row>

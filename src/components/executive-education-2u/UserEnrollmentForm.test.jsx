@@ -82,6 +82,7 @@ const UserEnrollmentFormWrapper = ({
         onCheckoutSuccess={onCheckoutSuccess}
         activeCourseRun={activeCourseRun}
         userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+        courseEnrollmentsByStatus={{}}
       />
     </AppContext.Provider>
   </IntlProvider>

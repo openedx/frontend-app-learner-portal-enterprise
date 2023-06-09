@@ -39,6 +39,7 @@ const UserEnrollmentForm = ({
   onCheckoutSuccess,
   activeCourseRun,
   userSubsidyApplicableToCourse,
+  courseEnrollmentsByStatus,
 }) => {
   const config = getConfig();
   const {
@@ -72,6 +73,7 @@ const UserEnrollmentForm = ({
       setEnrollButtonState('error');
       logError(error);
     },
+    courseEnrollmentsByStatus,
   });
 
   const handleFormValidation = (values) => {
@@ -381,11 +383,13 @@ UserEnrollmentForm.propTypes = {
   userSubsidyApplicableToCourse: PropTypes.shape({
     subsidyType: PropTypes.string,
   }),
+  courseEnrollmentsByStatus: PropTypes.shape({}),
 };
 
 UserEnrollmentForm.defaultProps = {
   className: undefined,
   userSubsidyApplicableToCourse: undefined,
+  courseEnrollmentsByStatus: {},
 };
 
 export default UserEnrollmentForm;

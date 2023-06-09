@@ -27,13 +27,13 @@ const ToEcomBasketPageWrapper = ({
       },
     },
   },
-  CourseEnrollmentsContextVAlue = {
+  CourseEnrollmentsContextValue = {
     courseEnrollmentsByStatus: {},
   },
   ...rest
 }) => (
   <CourseContext.Provider value={courseContextValue}>
-    <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextVAlue}>
+    <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextValue}>
       <ToEcomBasketPage
         {...rest}
       />,

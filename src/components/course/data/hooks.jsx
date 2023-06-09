@@ -405,13 +405,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
  *
  * @param {object} args
- * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
+ * @param {string} args.href (optional) If click handler is used on a hyperlink, this is the destination url.
  * @param {string} args.eventName Name of the event
  *
  * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
  * internal hyperlinks (e.g., using ``Link``).
  */
-export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
+export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const {
     state: {
       activeCourseRun: { key: courseKey },
@@ -448,49 +448,11 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
 };
 
 /**
- * Returns a function to be used as a click handler that emits an analytics event for a
- * search conversion via ``sendEnterpriseTrackEvent``. when used on a local hyperlink
- *
- * @param {object} args
- * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
- * @param {string} args.eventName Name of the event
- *
- * @returns Click handler function for clicks on buttons
- *  */
-export const useTrackSearchConversionClickHandlerLocal = ({ eventName }) => {
-  const {
-    state: {
-      activeCourseRun: { key: courseKey },
-      algoliaSearchParams,
-    },
-  } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
-  const handleClick = useCallback(
-    () => {
-      const { queryId, objectId } = algoliaSearchParams;
-      sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
-        eventName,
-        {
-          products: [{ objectID: objectId }],
-          index: getConfig().ALGOLIA_INDEX_NAME,
-          queryID: queryId,
-          courseKey,
-        },
-      );
-    },
-    [algoliaSearchParams, enterpriseConfig, eventName, courseKey],
-  );
-
-  return handleClick;
-};
-
-/**
  * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
  *
  * @returns Click handler function for clicks on enrollment buttons.
  */
-export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, courseEnrollmentsByStatus }) => {
+export const useOptimizelyEnrollmentClickHandler = ({ href = undefined, courseRunKey, courseEnrollmentsByStatus }) => {
   const enrollmentCountIsZero = Object.values(courseEnrollmentsByStatus).flat().length === 0;
 
   const handleClick = useCallback(
