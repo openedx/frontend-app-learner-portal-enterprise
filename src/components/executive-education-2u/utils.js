@@ -1,5 +1,7 @@
+import moment from 'moment';
 import { PAID_EXECUTIVE_EDUCATION } from '../course/data/constants';
 import { getActiveCourseRun } from '../course/data/utils';
+import { DATE_FORMAT } from '../program/ProgramCourses';
 
 const getCourseOrganizationDetails = (courseData) => {
   const organizationDetails = {};
@@ -40,4 +42,18 @@ const getExecutiveEducationCoursePrice = (courseData) => {
   return {};
 };
 
-export { getCourseOrganizationDetails, getExecutiveEducationCoursePrice };
+const getCourseStartDate = (contentMetadata, activeCourseRun) => {
+  let startDate;
+  if (contentMetadata?.additionalMetadata?.startDate) {
+    startDate = contentMetadata.additionalMetadata.startDate;
+  } else {
+    startDate = activeCourseRun?.start;
+  }
+  if (startDate) {
+    return moment(startDate).format(DATE_FORMAT);
+  }
+
+  return undefined;
+};
+
+export { getCourseOrganizationDetails, getExecutiveEducationCoursePrice, getCourseStartDate };

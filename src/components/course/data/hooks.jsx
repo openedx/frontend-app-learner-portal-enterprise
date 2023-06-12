@@ -2,7 +2,6 @@ import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -43,11 +42,11 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   DISABLED_ENROLL_REASON_TYPES,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  DATE_FORMAT,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
+import { getCourseStartDate } from '../../executive-education-2u/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -888,18 +887,11 @@ export const useMinimalCourseMetadata = () => {
     return duration;
   };
 
-  const getStartDate = () => {
-    if (!activeCourseRun) {
-      return undefined;
-    }
-    return moment(activeCourseRun?.start).format(DATE_FORMAT);
-  };
-
   const courseMetadata = {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
-    startDate: getStartDate(),
+    startDate: getCourseStartDate(course, activeCourseRun),
     duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,
