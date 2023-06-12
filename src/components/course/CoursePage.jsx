@@ -28,6 +28,7 @@ import {
   getCourseTypeConfig,
   getEntitlementPrice,
   findHighestLevelEntitlementSku,
+  getAvailableCourseRunKeysFromCourseData,
 } from './data/utils';
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 import NotFoundPage from '../NotFoundPage';
@@ -95,14 +96,16 @@ const CoursePage = () => {
     courseReviews,
     isLoadingCourseData,
   } = useAllCourseData({ courseService, activeCatalogs });
-
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
+
+  const validCourseRunKeys = getAvailableCourseRunKeysFromCourseData(courseData);
+
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
     data: subsidyAccessPolicyRedeemabilityData,
   } = useCheckSubsidyAccessPolicyRedeemability({
     enterpriseUuid: enterpriseUUID,
-    courseRunKeys: courseData?.courseDetails.courseRunKeys || [],
+    courseRunKeys: validCourseRunKeys,
     activeCourseRunKey: courseService.activeCourseRun?.key,
     isQueryEnabled: isEMETRedemptionEnabled,
     queryOptions: {

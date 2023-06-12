@@ -135,12 +135,28 @@ export function getActiveCourseRun(course) {
  * @returns List of course runs.
  */
 export function getAvailableCourseRuns(course) {
+  if (!course?.courseRuns) {
+    return [];
+  }
   return course.courseRuns
     .filter((courseRun) => (
       courseRun.isMarketable
       && courseRun.isEnrollable
       && !isArchived(courseRun)
     ));
+}
+
+/**
+ * Returns a filtered list of course run keys that are marketable, enrollable, and not archived.
+ *
+ * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
+ * @returns List of course run keys.
+*/
+export function getAvailableCourseRunKeysFromCourseData(courseData) {
+  if (!courseData?.courseDetails.courseRuns) {
+    return [];
+  }
+  return getAvailableCourseRuns(courseData?.courseDetails).map(courseRun => courseRun.key);
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {

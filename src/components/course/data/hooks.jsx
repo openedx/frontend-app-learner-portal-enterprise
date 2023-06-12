@@ -97,7 +97,6 @@ export function useAllCourseData({
     };
     fetchData();
   }, [courseService, activeCatalogs]);
-
   return {
     courseData,
     courseRecommendations,
@@ -580,7 +579,6 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
   const courseService = new CourseService({ enterpriseUuid });
   const response = await courseService.fetchCanRedeem({ courseRunKeys });
   const transformedResponse = camelCaseObject(response.data);
-
   const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
   const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
@@ -630,7 +628,6 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
-
   return useQuery({
     ...queryOptions,
     queryKey: ['policy', enterpriseUuid, 'can-redeem', { lmsUserId, courseRunKeys, activeCourseRunKey }],
