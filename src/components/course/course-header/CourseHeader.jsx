@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import {
   Breadcrumb,
@@ -9,6 +9,7 @@ import {
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { CourseContext } from '../CourseContextProvider';
 import CourseSkills from '../CourseSkills';
@@ -49,6 +50,25 @@ const CourseHeader = () => {
     config.EXPERIMENT_5_VARIANT_1_ID,
   );
   const hasSufficientReviewCount = courseReviews?.reviewsCount >= 5;
+  useEffect(() => {
+    if (hasSufficientReviewCount && isExperimentVariationA) {
+      sendEnterpriseTrackEvent(
+        enterpriseConfig.uuid,
+        'edx.ui.enterprise.learner_portal.course.viewedWithReviewsVariation',
+        {
+          course_key: course.key,
+        },
+      );
+    } else {
+      sendEnterpriseTrackEvent(
+        enterpriseConfig.uuid,
+        'edx.ui.enterprise.learner_portal.course.viewedWithoutReviewsVariation',
+        {
+          course_key: course.key,
+        },
+      );
+    }
+  }, [hasSufficientReviewCount, isExperimentVariationA, enterpriseConfig.uuid, course.key]);
 
   return (
     <div className="course-header">
