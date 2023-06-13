@@ -8,8 +8,4 @@ const enrollButtonTypesLocal = {
   HIDE_BUTTON: 'hide_button',
 };
 
-export const EVENT_NAMES = {
-  clickedToEnrollPage: 'edx.ui.enterprise.learner_portal.course.enroll_button.to_enroll.clicked',
-};
-
 export const enrollButtonTypes = Object.freeze(enrollButtonTypesLocal);

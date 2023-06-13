@@ -442,7 +442,7 @@ describe('useOptimizelyEnrollmentClickHandler', () => {
   const basicProps = {
     courseRunKey: 'courseRunKey',
     href: 'http://example.com',
-    courseEnrollmentsByStatus: {},
+    userEnrollments: [],
   };
 
   beforeAll(() => {

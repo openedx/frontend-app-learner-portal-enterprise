@@ -5,7 +5,6 @@ import '@testing-library/jest-dom/extend-expect';
 import * as hooks from '../hooks';
 import ToEcomBasketPage from '../components/ToEcomBasketPage';
 import { CourseContext } from '../../CourseContextProvider';
-import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 jest.mock('../common', () => ({
   __esModule: true,
@@ -25,19 +24,15 @@ const ToEcomBasketPageWrapper = ({
       activeCourseRun: {
         key: 'course-key',
       },
+      userEnrollments: [],
     },
-  },
-  CourseEnrollmentsContextValue = {
-    courseEnrollmentsByStatus: {},
   },
   ...rest
 }) => (
   <CourseContext.Provider value={courseContextValue}>
-    <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextValue}>
-      <ToEcomBasketPage
-        {...rest}
-      />,
-    </CourseEnrollmentsContext.Provider>
+    <ToEcomBasketPage
+      {...rest}
+    />,
   </CourseContext.Provider>
 );
 

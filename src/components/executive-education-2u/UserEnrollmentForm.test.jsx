@@ -13,6 +13,7 @@ import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { useStatefulEnroll } from '../stateful-enroll/data';
+import { CourseContext } from '../course/CourseContextProvider';
 
 const termsLabelText = 'I agree to GetSmarter\'s Terms and Conditions for Students';
 const dataSharingConsentLabelText = 'I have read and accepted GetSmarter\'s data sharing consent';
@@ -73,17 +74,23 @@ const UserEnrollmentFormWrapper = ({
   onCheckoutSuccess = mockOnCheckoutSuccess,
   activeCourseRun = mockActiveCourseRun,
   userSubsidyApplicableToCourse = mockUserSubsidyApplicableToCourse,
+  courseContextValue = {
+    state: {
+      userEnrollments: [],
+    },
+  },
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <UserEnrollmentForm
-        enterpriseId={enterpriseId}
-        productSKU={productSKU}
-        onCheckoutSuccess={onCheckoutSuccess}
-        activeCourseRun={activeCourseRun}
-        userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        courseEnrollmentsByStatus={{}}
-      />
+      <CourseContext.Provider value={courseContextValue}>
+        <UserEnrollmentForm
+          enterpriseId={enterpriseId}
+          productSKU={productSKU}
+          onCheckoutSuccess={onCheckoutSuccess}
+          activeCourseRun={activeCourseRun}
+          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+        />
+      </CourseContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );

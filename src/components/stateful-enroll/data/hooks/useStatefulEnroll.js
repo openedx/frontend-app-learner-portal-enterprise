@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 import { useTrackSearchConversionClickHandler, useOptimizelyEnrollmentClickHandler } from '../../../course/data/hooks';
-import { EVENT_NAMES } from '../../../course/enrollment/constants';
+import { EVENT_NAMES } from '../../../course/data/constants';
 
 import {
   submitRedemptionRequest,
@@ -34,15 +34,15 @@ const useStatefulEnroll = ({
   onSuccess,
   onError,
   onBeginRedeem,
-  courseEnrollmentsByStatus,
+  userEnrollments,
 }) => {
   const [transaction, setTransaction] = useState();
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler(
     contentKey,
-    courseEnrollmentsByStatus,
+    userEnrollments,
   );
   const searchHandler = useTrackSearchConversionClickHandler({
-    eventName: EVENT_NAMES.clickedToEnrollPage,
+    eventName: EVENT_NAMES.sucessfulEnrollment,
   });
   const redemptionMutation = useMutation({
     mutationFn: submitRedemptionRequest,

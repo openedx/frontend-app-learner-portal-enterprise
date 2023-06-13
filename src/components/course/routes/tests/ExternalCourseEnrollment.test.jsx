@@ -7,7 +7,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentForm';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
-import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 
 const mockHistoryPush = jest.fn();
@@ -61,21 +60,14 @@ const baseAppContextValue = {
   authenticatedUser: { id: 3 },
 };
 
-const ExternalCourseEnrollmentWrapper = (
-  {
-    courseContextValue = baseCourseContextValue,
-    appContextValue = baseAppContextValue,
-  },
-  CourseEnrollmentsContextValue = {
-    courseEnrollmentsByStatus: {},
-  },
-) => (
+const ExternalCourseEnrollmentWrapper = ({
+  courseContextValue = baseCourseContextValue,
+  appContextValue = baseAppContextValue,
+}) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
       <CourseContext.Provider value={courseContextValue}>
-        <CourseEnrollmentsContext.Provider value={CourseEnrollmentsContextValue}>
-          <ExternalCourseEnrollment />
-        </CourseEnrollmentsContext.Provider>
+        <ExternalCourseEnrollment />
       </CourseContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
