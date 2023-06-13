@@ -18,8 +18,8 @@ import {
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 import CourseSummaryCard from './components/CourseSummaryCard';
 import RegistrationSummaryCard from './components/RegistrationSummaryCard';
-import { getActiveCourseRun } from '../course/data/utils';
-import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice, getCourseStartDate } from './utils';
+import { getActiveCourseRun, getCourseStartDate } from '../course/data/utils';
+import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from './utils';
 
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -74,7 +74,7 @@ const ExecutiveEducation2UPage = () => {
         organizationImage: organizationDetails.organizationLogo,
         organizationName: organizationDetails.organizationName,
         title: contentMetadata.title,
-        startDate: getCourseStartDate(contentMetadata, activeCourseRun),
+        startDate: getCourseStartDate({ contentMetadata, activeCourseRun }),
         duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
         activeCourseRun,

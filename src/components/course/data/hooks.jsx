@@ -29,6 +29,7 @@ import {
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
   getCourseOrganizationDetails,
+  getCourseStartDate,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -46,7 +47,6 @@ import {
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
-import { getCourseStartDate } from '../../executive-education-2u/utils';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -891,7 +891,7 @@ export const useMinimalCourseMetadata = () => {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
-    startDate: getCourseStartDate(course, activeCourseRun),
+    startDate: getCourseStartDate({ contentMetadata: course, activeCourseRun }),
     duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,
