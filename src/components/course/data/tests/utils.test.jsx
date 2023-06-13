@@ -11,6 +11,7 @@ import {
   getSubsidyToApplyForCourse,
   linkToCourse,
   pathContainsCourseTypeSlug,
+  getCourseStartDate,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -19,6 +20,11 @@ jest.mock('@edx/frontend-platform/config', () => ({
       entitlement_course: {
         pathSlug: 'executive-education-2u',
         usesEntitlementListPrice: true,
+      },
+      'executive-education-2u': {
+        pathSlug: 'executive-education-2u',
+        usesEntitlementListPrice: true,
+        usesAdditionalMetadata: true,
       },
     },
   }),
@@ -400,6 +406,7 @@ describe('linkToCourse', () => {
     expect(linkToCourse(mockQueryQbjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
   });
 });
+
 describe('getAvailableCourseRuns', () => {
   const sampleCourseRunData = {
     courseData: {
@@ -508,5 +515,42 @@ describe('getAvailableCourseRunKeysFromCourseData', () => {
     const output = getAvailableCourseRunKeysFromCourseData(sampleCourseDataData.courseData);
     expect(output.length).toEqual(0);
     expect(output).toEqual([]);
+  });
+});
+
+describe('getCourseStartDate tests', () => {
+  it('Validate additionalMetadata gets priority in course start date calculation', async () => {
+    const startDate = getCourseStartDate({
+      contentMetadata: {
+        additionalMetadata: {
+          startDate: '2023-06-07T00:00:00Z',
+        },
+        courseType: 'executive-education-2u',
+      },
+      activeCourseRun: {
+        start: '2022-06-08T00:00:00Z',
+      },
+    });
+    expect(startDate).toMatch('Jun 7, 2023');
+  });
+
+  it('Validate active course run\'s start date is used when additionalMetadata is null.', async () => {
+    const startDate = getCourseStartDate({
+      contentMetadata: {
+        additionalMetadata: null,
+        courseType: 'executive-education-2u',
+      },
+      activeCourseRun: {
+        start: '2022-06-08T00:00:00Z',
+      },
+    });
+    expect(startDate).toMatch('Jun 8, 2022');
+  });
+
+  it('Validate getCourseDate handles empty data for course run and course metadata.', async () => {
+    const startDate = getCourseStartDate(
+      { contentMetadata: null, activeCourseRun: null },
+    );
+    expect(startDate).toBe(undefined);
   });
 });
