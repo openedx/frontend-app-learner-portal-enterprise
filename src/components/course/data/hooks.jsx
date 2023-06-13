@@ -2,7 +2,6 @@ import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -30,6 +29,7 @@ import {
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
   getCourseOrganizationDetails,
+  getCourseStartDate,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -43,7 +43,6 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   DISABLED_ENROLL_REASON_TYPES,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  DATE_FORMAT,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
@@ -97,7 +96,6 @@ export function useAllCourseData({
     };
     fetchData();
   }, [courseService, activeCatalogs]);
-
   return {
     courseData,
     courseRecommendations,
@@ -545,7 +543,6 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
   const courseService = new CourseService({ enterpriseUuid });
   const response = await courseService.fetchCanRedeem({ courseRunKeys });
   const transformedResponse = camelCaseObject(response.data);
-
   const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
   const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
@@ -595,7 +592,6 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
-
   return useQuery({
     ...queryOptions,
     queryKey: ['policy', enterpriseUuid, 'can-redeem', { lmsUserId, courseRunKeys, activeCourseRunKey }],
@@ -856,18 +852,11 @@ export const useMinimalCourseMetadata = () => {
     return duration;
   };
 
-  const getStartDate = () => {
-    if (!activeCourseRun) {
-      return undefined;
-    }
-    return moment(activeCourseRun?.start).format(DATE_FORMAT);
-  };
-
   const courseMetadata = {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
-    startDate: getStartDate(),
+    startDate: getCourseStartDate({ contentMetadata: course, activeCourseRun }),
     duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,
