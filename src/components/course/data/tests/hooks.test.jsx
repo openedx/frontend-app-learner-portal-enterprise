@@ -22,7 +22,6 @@ import {
   useCourseSubjects,
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
-  useTrackSearchConversionClickHandlerLocal,
   useMinimalCourseMetadata,
 } from '../hooks';
 import {
@@ -443,7 +442,7 @@ describe('useOptimizelyEnrollmentClickHandler', () => {
   const basicProps = {
     courseRunKey: 'courseRunKey',
     href: 'http://example.com',
-    courseEnrollmentsByStatus: {},
+    userEnrollments: [],
   };
 
   beforeAll(() => {
@@ -484,6 +483,10 @@ describe('useTrackSearchConversionClickHandler', () => {
   const mockEventName = 'edx.ui.enterprise.learner_portal.fake_event';
   const basicProps = {
     href: 'http://example.com',
+    eventName: mockEventName,
+  };
+
+  const noHrefProps = {
     eventName: mockEventName,
   };
 
@@ -545,47 +548,15 @@ describe('useTrackSearchConversionClickHandler', () => {
       expect(global.location.assign).toHaveBeenCalledWith(basicProps.href);
     });
   });
-});
 
-describe('useTrackSearchConversionClickHandlerLocal', () => {
-  const mockEventName = 'edx.ui.enterprise.learner_portal.fake_event';
-  const basicProps = {
-    href: 'http://example.com',
-    eventName: mockEventName,
-  };
-
-  const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
-  const mockCourseState = {
-    activeCourseRun: { key: 'course-run-key' },
-    algoliaSearchParams: {
-      queryId: 'algolia-query-id',
-      objectId: 'algolia-object-id',
-    },
-  };
-  const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-      <CourseContext.Provider value={{ state: mockCourseState }}>
-        {children}
-      </CourseContext.Provider>
-    </AppContext.Provider>
-  );
-
-  beforeAll(() => {
-    createGlobalLocationMock();
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('sends segment event and redirects', async () => {
+  it('sends segment event and redirects without href', async () => {
     const { result } = renderHook(
-      () => useTrackSearchConversionClickHandlerLocal(basicProps),
+      () => useTrackSearchConversionClickHandler(noHrefProps),
       { wrapper },
     );
 
     const outputClickHandler = result.current;
-    outputClickHandler();
+    outputClickHandler({ preventDefault: mockPreventDefault });
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(

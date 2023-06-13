@@ -49,6 +49,7 @@ axiosMock.onGet(TRANSACTION_ENDPOINT).reply(200, mockTransactionResponse);
 axiosMock.onPost(REDEEM_ENDPOINT).reply(200, mockRedemptionResponse);
 
 jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: () => (APP_CONFIG),
 }));
 
