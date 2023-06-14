@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   Container, Col, Row,
@@ -31,9 +31,11 @@ const ExternalCourseEnrollment = () => {
     history.push('enroll/complete');
   };
 
-  if (hasSuccessfulRedemption) {
-    history.push('enroll/complete');
-  }
+  useEffect(() => {
+    if (hasSuccessfulRedemption) {
+      history.push('enroll/complete');
+    }
+  }, [hasSuccessfulRedemption, history]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
