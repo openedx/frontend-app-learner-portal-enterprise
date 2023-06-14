@@ -20,6 +20,7 @@ import reactStringReplace from 'react-string-replace';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
+import { CourseContext } from '../course/CourseContextProvider';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
@@ -45,6 +46,11 @@ const UserEnrollmentForm = ({
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { id: userId },
   } = useContext(AppContext);
+  const {
+    state: {
+      userEnrollments,
+    },
+  } = useContext(CourseContext);
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [formSubmissionError, setFormSubmissionError] = useState();
@@ -72,6 +78,7 @@ const UserEnrollmentForm = ({
       setEnrollButtonState('error');
       logError(error);
     },
+    userEnrollments,
   });
 
   const handleFormValidation = (values) => {

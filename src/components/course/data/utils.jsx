@@ -4,6 +4,7 @@ import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink } from '@edx/paragon';
 import isNil from 'lodash.isnil';
 
+import moment from 'moment/moment';
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -14,6 +15,7 @@ import {
   ENROLLMENT_FAILED_QUERY_PARAM,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   DISABLED_ENROLL_REASON_TYPES,
+  DATE_FORMAT,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
@@ -135,12 +137,28 @@ export function getActiveCourseRun(course) {
  * @returns List of course runs.
  */
 export function getAvailableCourseRuns(course) {
+  if (!course?.courseRuns) {
+    return [];
+  }
   return course.courseRuns
     .filter((courseRun) => (
       courseRun.isMarketable
       && courseRun.isEnrollable
       && !isArchived(courseRun)
     ));
+}
+
+/**
+ * Returns a filtered list of course run keys that are marketable, enrollable, and not archived.
+ *
+ * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
+ * @returns List of course run keys.
+*/
+export function getAvailableCourseRunKeysFromCourseData(courseData) {
+  if (!courseData?.courseDetails.courseRuns) {
+    return [];
+  }
+  return getAvailableCourseRuns(courseData?.courseDetails).map(courseRun => courseRun.key);
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
@@ -641,4 +659,21 @@ export const getCourseOrganizationDetails = (courseData) => {
   }
 
   return organizationDetails;
+};
+
+export const getCourseStartDate = ({ contentMetadata, activeCourseRun }) => {
+  let startDate;
+  const courseTypeConfig = contentMetadata && getCourseTypeConfig(contentMetadata);
+
+  if (courseTypeConfig?.usesAdditionalMetadata && contentMetadata?.additionalMetadata) {
+    startDate = contentMetadata.additionalMetadata.startDate;
+  } else {
+    startDate = activeCourseRun?.start;
+  }
+
+  if (startDate) {
+    return moment(startDate).format(DATE_FORMAT);
+  }
+
+  return undefined;
 };
