@@ -1238,6 +1238,7 @@ describe('useMinimalCourseMetadata', () => {
   const mockListPrice = 100;
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
+  const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
   const baseCourseContextValue = {
     state: {
       course: {
@@ -1247,7 +1248,7 @@ describe('useMinimalCourseMetadata', () => {
         owners: [{ name: mockOrgName, logoImageUrl: mockLogoImageUrl }],
       },
       activeCourseRun: {
-        start: '2023-04-20T12:00:00Z',
+        start: mockCourseRunStartDate,
         weeksToComplete: mockWeeksToComplete,
       },
     },
@@ -1270,7 +1271,7 @@ describe('useMinimalCourseMetadata', () => {
         organizationImage: mockLogoImageUrl,
         organizationName: mockOrgName,
         title: mockCourseTitle,
-        startDate: 'Apr 20, 2023',
+        startDate: mockCourseRunStartDate,
         duration: `${mockWeeksToComplete} Weeks`,
         priceDetails: {
           price: mockListPrice,
@@ -1331,7 +1332,7 @@ describe('useMinimalCourseMetadata', () => {
         organizationImage: mockLogoImageUrl,
         organizationName: mockOrgName,
         title: mockCourseTitle,
-        startDate: 'Apr 20, 2023',
+        startDate: mockCourseRunStartDate,
         duration: '1 Week',
         priceDetails: {
           price: mockListPrice,
@@ -1366,7 +1367,7 @@ describe('useMinimalCourseMetadata', () => {
         organizationImage: mockOrgLogoUrl,
         organizationName: mockOrgShortCode,
         title: mockCourseTitle,
-        startDate: 'Apr 20, 2023',
+        startDate: mockCourseRunStartDate,
         duration: '8 Weeks',
         priceDetails: {
           price: mockListPrice,

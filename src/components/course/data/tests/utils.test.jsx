@@ -520,10 +520,11 @@ describe('getAvailableCourseRunKeysFromCourseData', () => {
 
 describe('getCourseStartDate tests', () => {
   it('Validate additionalMetadata gets priority in course start date calculation', async () => {
+    const mockAdditionalMetadataStartDate = '2023-06-10T12:00:00Z';
     const startDate = getCourseStartDate({
       contentMetadata: {
         additionalMetadata: {
-          startDate: '2023-06-10T12:00:00Z',
+          startDate: mockAdditionalMetadataStartDate,
         },
         courseType: 'executive-education-2u',
       },
@@ -531,20 +532,21 @@ describe('getCourseStartDate tests', () => {
         start: '2022-03-08T12:00:00Z',
       },
     });
-    expect(startDate).toMatch('Jun 10, 2023');
+    expect(startDate).toMatch(mockAdditionalMetadataStartDate);
   });
 
   it('Validate active course run\'s start date is used when additionalMetadata is null.', async () => {
+    const mockCourseRuStartDate = '2022-03-08T12:00:00Z';
     const startDate = getCourseStartDate({
       contentMetadata: {
         additionalMetadata: null,
         courseType: 'executive-education-2u',
       },
       courseRun: {
-        start: '2022-03-08T12:00:00Z',
+        start: mockCourseRuStartDate,
       },
     });
-    expect(startDate).toMatch('Mar 8, 2022');
+    expect(startDate).toMatch(mockCourseRuStartDate);
   });
 
   it('Validate getCourseDate handles empty data for course run and course metadata.', async () => {
