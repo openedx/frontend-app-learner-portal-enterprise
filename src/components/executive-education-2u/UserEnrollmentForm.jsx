@@ -17,7 +17,7 @@ import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@ed
 import moment from 'moment/moment';
 import reactStringReplace from 'react-string-replace';
 
-import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
+import { checkoutExecutiveEducation2U, isDuplicateOrder, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
@@ -50,10 +50,11 @@ const UserEnrollmentForm = ({
     state: {
       userEnrollments,
     },
+    formSubmissionError,
+    setFormSubmissionError,
   } = useContext(CourseContext);
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [formSubmissionError, setFormSubmissionError] = useState();
   const [enrollButtonState, setEnrollButtonState] = useState('default');
 
   const handleFormSubmissionSuccess = async (newTransaction) => {
@@ -198,18 +199,19 @@ const UserEnrollmentForm = ({
             <Card.Body>
               <Card.Section>
                 <h3 className="mb-2">Course enrollment information</h3>
-                <Alert
-                  variant="danger"
-                  className="mb-4.5"
-                  show={!!formSubmissionError}
-                  onClose={() => setFormSubmissionError(undefined)}
-                  dismissible
-                >
-                  <p>
-                    An error occurred while sharing your course enrollment information. Please try again.
-                  </p>
-                </Alert>
-
+                {formSubmissionError && !isDuplicateOrder(formSubmissionError) && (
+                  <Alert
+                    variant="danger"
+                    className="mb-4.5"
+                    show={!!formSubmissionError}
+                    onClose={() => setFormSubmissionError(undefined)}
+                    dismissible
+                  >
+                    <p>
+                      An error occurred while sharing your course enrollment information. Please try again.
+                    </p>
+                  </Alert>
+                )}
                 <Row className="mb-4">
                   <Col xs={12} lg={6}>
                     <Form.Group
@@ -367,9 +369,12 @@ const UserEnrollmentForm = ({
                 default: 'Confirm registration',
                 pending: 'Confirming registration...',
                 complete: 'Registration confirmed',
-                error: 'Try again',
+                error: formSubmissionError && formSubmissionError?.message?.includes('duplicate order')
+                  ? 'Confirm registration'
+                  : 'Try again',
               }}
               state={enrollButtonState}
+              disabled={formSubmissionError && formSubmissionError?.message?.includes('duplicate order')}
             />
           </div>
         </FormikForm>

@@ -1,4 +1,4 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -25,6 +25,8 @@ export const CourseContextProvider = ({
   currency,
   canOnlyViewHighlightSets,
 }) => {
+  const [formSubmissionError, setFormSubmissionError] = useState(null);
+
   const value = useMemo(() => ({
     state: courseState,
     userCanRequestSubsidyForCourse,
@@ -37,6 +39,8 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
+    formSubmissionError,
+    setFormSubmissionError,
   }), [
     courseState,
     userCanRequestSubsidyForCourse,
@@ -49,6 +53,8 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
+    formSubmissionError,
+    setFormSubmissionError,
   ]);
 
   return (
@@ -113,6 +119,8 @@ CourseContextProvider.propTypes = {
   }),
   currency: PropTypes.string,
   canOnlyViewHighlightSets: PropTypes.bool,
+  formSubmissionError: PropTypes.string,
+  setFormSubmissionError: PropTypes.func.isRequired,
 };
 
 CourseContextProvider.defaultProps = {
@@ -126,4 +134,5 @@ CourseContextProvider.defaultProps = {
   coursePrice: undefined,
   currency: undefined,
   canOnlyViewHighlightSets: false,
+  formSubmissionError: null,
 };

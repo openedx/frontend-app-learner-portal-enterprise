@@ -78,6 +78,8 @@ const UserEnrollmentFormWrapper = ({
     state: {
       userEnrollments: [],
     },
+    setFormSubmissionError: jest.fn(),
+    formSubmissionError: {},
   },
 }) => (
   <IntlProvider locale="en">
@@ -314,7 +316,17 @@ describe('UserEnrollmentForm', () => {
   it('handles network error with form submission', async () => {
     const mockError = new Error('oh noes');
     Date.now = jest.fn(() => new Date().valueOf());
-    render(<UserEnrollmentFormWrapper />);
+    const mockFormSubmissionValue = { message: 'oh noes' };
+
+    render(<UserEnrollmentFormWrapper
+      courseContextValue={{
+        state: {
+          userEnrollments: [],
+        },
+        setFormSubmissionError: jest.fn(),
+        formSubmissionError: mockFormSubmissionValue,
+      }}
+    />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
@@ -340,9 +352,11 @@ describe('UserEnrollmentForm', () => {
     expect(mockLogError).toHaveBeenCalledTimes(1);
     expect(mockLogError).toHaveBeenCalledWith(mockError);
 
-    // ensure error alert is visible
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
+    await waitFor(() => {
+      // ensure error alert is visible
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
+    });
   });
 
   it('handle error 422 where course was already enrolled in with legacy enterprise offers', async () => {

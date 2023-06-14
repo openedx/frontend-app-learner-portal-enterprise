@@ -1,9 +1,13 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
-  Container, Col, Row,
+  Alert, Button, Container, Col, Row,
 } from '@edx/paragon';
+import { CheckCircle } from '@edx/paragon/icons';
 
+import { getConfig } from '@edx/frontend-platform/config';
+import { AppContext } from '@edx/frontend-platform/react';
+import { isDuplicateOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import RegistrationSummaryCard from '../../executive-education-2u/components/RegistrationSummaryCard';
@@ -12,6 +16,7 @@ import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '..
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 
 const ExternalCourseEnrollment = () => {
+  const config = getConfig();
   const history = useHistory();
   const {
     state: {
@@ -20,13 +25,33 @@ const ExternalCourseEnrollment = () => {
     },
     userSubsidyApplicableToCourse,
     hasSuccessfulRedemption,
+    formSubmissionError,
   } = useContext(CourseContext);
+  const {
+    enterpriseConfig: { authOrgId },
+  } = useContext(AppContext);
+
   const courseMetadata = useMinimalCourseMetadata();
+
+  const externalDashboardQueryParams = new URLSearchParams({
+    org_id: authOrgId,
+  });
+
+  const externalDashboardQueryString = externalDashboardQueryParams ? `?${externalDashboardQueryParams.toString()}` : '';
+  const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
 
   const {
     failureReason,
     failureMessage,
   } = useExternalEnrollmentFailureReason();
+
+  const containerRef = useRef(null);
+  useEffect(() => {
+    if (isDuplicateOrder(formSubmissionError) && containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [formSubmissionError]);
+
   const handleCheckoutSuccess = () => {
     history.push('enroll/complete');
   };
@@ -52,15 +77,34 @@ const ExternalCourseEnrollment = () => {
               <h2 className="mb-3">
                 Your registration(s)
               </h2>
-              <p className="small bg-light-500 p-3 rounded-lg">
-                <strong>
-                  This is where you finalize your registration for an edX executive
-                  education course through GetSmarter.
-                </strong>
-                &nbsp; Please ensure that the course details below are correct and confirm using Learner
-                Credit with a &quot;Confirm registration&quot; button.
-                Your Learner Credit funds will be redeemed at this point.
-              </p>
+              {isDuplicateOrder(formSubmissionError) && (
+                <Alert
+                  variant="success"
+                  ref={containerRef}
+                  icon={CheckCircle}
+                  actions={[
+                    <Button href={externalDashboardUrl}>
+                      Go to dashboard
+                    </Button>,
+                  ]}
+                >
+                  <Alert.Heading>Already Enrolled</Alert.Heading>
+                  <p>
+                    You&apos;re already enrolled. Go to your GetSmarter dashboard to keep learning.
+                  </p>
+                </Alert>
+              )}
+              {!isDuplicateOrder(formSubmissionError) && (
+                <p className="small bg-light-500 p-3 rounded-lg">
+                  <strong>
+                    This is where you finalize your registration for an edX executive
+                    education course through GetSmarter.
+                  </strong>
+                  &nbsp; Please ensure that the course details below are correct and confirm using Learner
+                  Credit with a &quot;Confirm registration&quot; button.
+                  Your Learner Credit funds will be redeemed at this point.
+                </p>
+              )}
               <CourseSummaryCard courseMetadata={courseMetadata} />
               <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
               <UserEnrollmentForm
