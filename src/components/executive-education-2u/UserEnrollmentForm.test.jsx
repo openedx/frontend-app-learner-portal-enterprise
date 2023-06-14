@@ -412,11 +412,15 @@ describe('UserEnrollmentForm', () => {
     expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('handles duplicate order error form submission', async () => {
+  it('handles duplicate order with form submission', async () => {
     const mockError = new Error('duplicate order');
     Date.now = jest.fn(() => new Date().valueOf());
     const mockFormSubmissionValue = { message: 'duplicate order' };
 
+    jest.mock('./data', () => ({
+      ...jest.requireActual('./data'),
+      isDuplicateOrder: jest.fn(() => true),
+    }));
     render(<UserEnrollmentFormWrapper
       courseContextValue={{
         state: {
@@ -433,28 +437,17 @@ describe('UserEnrollmentForm', () => {
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByText('Confirm registration'));
 
-    // disabled while submitting
-    // await waitFor(() => {
-    //   expect(screen.getByText('Confirming registration...').closest('button')).toHaveAttribute('aria-disabled', 'true');
-    // });
-
     // simulate `useStatefulEnroll` calling `onError` arg
     act(() => {
       useStatefulEnroll.mock.calls[0][0].onError(mockError);
     });
 
-    // await waitFor(() => {
-    //   // still disabled after submitting
-    //   expect(screen.getByText('Try again').closest('button')).toHaveAttribute('aria-disabled', 'true');
-    // });
-
     expect(mockLogError).toHaveBeenCalledTimes(1);
     expect(mockLogError).toHaveBeenCalledWith(mockError);
 
     await waitFor(() => {
-      // ensure error alert is visible
-      expect(screen.getByRole('alert')).toBeInTheDocument();
-      expect(screen.getByText('You\'re already enrolled. Go to your GetSmarter dashboard to keep learning.', { exact: false })).toBeInTheDocument();
+      // ensure regular error alert is not visible
+      expect(screen.queryByText('An error occurred while sharing your course enrollment information')).not.toBeInTheDocument();
     });
   });
 });

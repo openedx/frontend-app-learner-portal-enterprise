@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react';
+import React from 'react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -38,6 +39,16 @@ jest.mock('../../data/hooks', () => ({
 jest.mock('../../../executive-education-2u/UserEnrollmentForm', () => jest.fn(() => (
   <div data-testid="user-enrollment-form" />
 )));
+
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  createRef: jest.fn(),
+}));
+
+jest.mock('../../../executive-education-2u/data', () => ({
+  ...jest.requireActual('../../../executive-education-2u/data'),
+  isDuplicateOrder: jest.fn(() => true),
+}));
 
 const baseCourseContextValue = {
   state: {
@@ -80,7 +91,9 @@ describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('renders and handles checkout success', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper />);
     expect(screen.getByText('Your registration(s)')).toBeInTheDocument();
@@ -152,5 +165,17 @@ describe('ExternalCourseEnrollment', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
 
     expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+  it('shows duplicate order alert', async () => {
+    const courseContextValue = {
+      ...baseCourseContextValue,
+      formSubmissionError: { message: 'duplicate order' },
+    };
+    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+    await waitFor(() => {
+      expect(screen.getByText('Already Enrolled')).toBeInTheDocument();
+      expect(screen.getByText('Go to your GetSmarter dashboard', { exact: false })).toBeInTheDocument();
+    });
+    const dashboardButton = screen.getByText('Go to dashboard');
+    expect(dashboardButton).toBeInTheDocument();
   });
 });

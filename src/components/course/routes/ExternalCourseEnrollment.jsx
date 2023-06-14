@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, createRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   Alert, Button, Container, Col, Row,
@@ -33,11 +33,12 @@ const ExternalCourseEnrollment = () => {
 
   const courseMetadata = useMinimalCourseMetadata();
 
-  const externalDashboardQueryParams = new URLSearchParams({
-    org_id: authOrgId,
-  });
+  const externalDashboardQueryParams = new URLSearchParams();
+  if (authOrgId) {
+    externalDashboardQueryParams.set('org', authOrgId);
+  }
 
-  const externalDashboardQueryString = externalDashboardQueryParams ? `?${externalDashboardQueryParams.toString()}` : '';
+  const externalDashboardQueryString = externalDashboardQueryParams.toString();
   const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
 
   const {
@@ -45,12 +46,13 @@ const ExternalCourseEnrollment = () => {
     failureMessage,
   } = useExternalEnrollmentFailureReason();
 
-  const containerRef = useRef(null);
+  const containerRef = createRef(null);
+
   useEffect(() => {
-    if (isDuplicateOrder(formSubmissionError) && containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (isDuplicateOrder(formSubmissionError) && containerRef?.current) {
+      containerRef?.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [formSubmissionError]);
+  }, [formSubmissionError, containerRef]);
 
   const handleCheckoutSuccess = () => {
     history.push('enroll/complete');
