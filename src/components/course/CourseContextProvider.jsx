@@ -25,7 +25,7 @@ export const CourseContextProvider = ({
   currency,
   canOnlyViewHighlightSets,
 }) => {
-  const [formSubmissionError, setFormSubmissionError] = useState(null);
+  const [externalCourseFormSubmissionError, setExternalCourseFormSubmissionError] = useState(null);
 
   const value = useMemo(() => ({
     state: courseState,
@@ -39,8 +39,8 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
-    formSubmissionError,
-    setFormSubmissionError,
+    externalCourseFormSubmissionError,
+    setExternalCourseFormSubmissionError,
   }), [
     courseState,
     userCanRequestSubsidyForCourse,
@@ -53,8 +53,7 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
-    formSubmissionError,
-    setFormSubmissionError,
+    externalCourseFormSubmissionError,
   ]);
 
   return (
@@ -119,8 +118,6 @@ CourseContextProvider.propTypes = {
   }),
   currency: PropTypes.string,
   canOnlyViewHighlightSets: PropTypes.bool,
-  formSubmissionError: PropTypes.string,
-  setFormSubmissionError: PropTypes.func.isRequired,
 };
 
 CourseContextProvider.defaultProps = {
@@ -134,5 +131,4 @@ CourseContextProvider.defaultProps = {
   coursePrice: undefined,
   currency: undefined,
   canOnlyViewHighlightSets: false,
-  formSubmissionError: null,
 };

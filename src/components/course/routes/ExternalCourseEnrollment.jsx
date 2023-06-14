@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, createRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
-  Alert, Button, Container, Col, Row,
+  Alert, Button, Container, Col, Hyperlink, Row,
 } from '@edx/paragon';
 import { CheckCircle } from '@edx/paragon/icons';
 
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
-import { isDuplicateOrder } from '../../executive-education-2u/data';
+import { isDuplicateExternalCourseOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import RegistrationSummaryCard from '../../executive-education-2u/components/RegistrationSummaryCard';
@@ -25,7 +25,7 @@ const ExternalCourseEnrollment = () => {
     },
     userSubsidyApplicableToCourse,
     hasSuccessfulRedemption,
-    formSubmissionError,
+    externalCourseFormSubmissionError,
   } = useContext(CourseContext);
   const {
     enterpriseConfig: { authOrgId },
@@ -38,8 +38,10 @@ const ExternalCourseEnrollment = () => {
     externalDashboardQueryParams.set('org', authOrgId);
   }
 
-  const externalDashboardQueryString = externalDashboardQueryParams.toString();
-  const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
+  let externalDashboardUrl = config.GETSMARTER_LEARNER_DASHBOARD_URL;
+  if (externalDashboardQueryParams.size > 0) {
+    externalDashboardUrl += `?${externalDashboardQueryParams.toString()}`;
+  }
 
   const {
     failureReason,
@@ -49,10 +51,10 @@ const ExternalCourseEnrollment = () => {
   const containerRef = createRef(null);
 
   useEffect(() => {
-    if (isDuplicateOrder(formSubmissionError) && containerRef?.current) {
+    if (isDuplicateExternalCourseOrder(externalCourseFormSubmissionError) && containerRef?.current) {
       containerRef?.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [formSubmissionError, containerRef]);
+  }, [externalCourseFormSubmissionError, containerRef]);
 
   const handleCheckoutSuccess = () => {
     history.push('enroll/complete');
@@ -79,24 +81,26 @@ const ExternalCourseEnrollment = () => {
               <h2 className="mb-3">
                 Your registration(s)
               </h2>
-              {isDuplicateOrder(formSubmissionError) && (
-                <Alert
-                  variant="success"
-                  ref={containerRef}
-                  icon={CheckCircle}
-                  actions={[
-                    <Button href={externalDashboardUrl}>
-                      Go to dashboard
-                    </Button>,
-                  ]}
-                >
-                  <Alert.Heading>Already Enrolled</Alert.Heading>
-                  <p>
-                    You&apos;re already enrolled. Go to your GetSmarter dashboard to keep learning.
-                  </p>
-                </Alert>
-              )}
-              {!isDuplicateOrder(formSubmissionError) && (
+              <Alert
+                variant="success"
+                ref={containerRef}
+                icon={CheckCircle}
+                show={
+                  externalCourseFormSubmissionError
+                  && isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)
+                }
+                actions={[
+                  <Button as={Hyperlink} target="_blank" destination={externalDashboardUrl}>
+                    Go to dashboard
+                  </Button>,
+                ]}
+              >
+                <Alert.Heading>Already Enrolled</Alert.Heading>
+                <p>
+                  You&apos;re already enrolled. Go to your GetSmarter dashboard to keep learning.
+                </p>
+              </Alert>
+              {!isDuplicateExternalCourseOrder(externalCourseFormSubmissionError) && (
                 <p className="small bg-light-500 p-3 rounded-lg">
                   <strong>
                     This is where you finalize your registration for an edX executive

@@ -323,8 +323,8 @@ describe('UserEnrollmentForm', () => {
         state: {
           userEnrollments: [],
         },
-        setFormSubmissionError: jest.fn(),
-        formSubmissionError: mockFormSubmissionValue,
+        setExternalCourseFormSubmissionError: jest.fn(),
+        externalCourseFormSubmissionError: mockFormSubmissionValue,
       }}
     />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
@@ -419,15 +419,15 @@ describe('UserEnrollmentForm', () => {
 
     jest.mock('./data', () => ({
       ...jest.requireActual('./data'),
-      isDuplicateOrder: jest.fn(() => true),
+      isDuplicateExternalCourseOrder: jest.fn(() => true),
     }));
     render(<UserEnrollmentFormWrapper
       courseContextValue={{
         state: {
           userEnrollments: [],
         },
-        setFormSubmissionError: jest.fn(),
-        formSubmissionError: mockFormSubmissionValue,
+        setExternalCourseFormSubmissionError: jest.fn(),
+        externalCourseFormSubmissionError: mockFormSubmissionValue,
       }}
     />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);

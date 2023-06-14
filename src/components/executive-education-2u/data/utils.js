@@ -5,4 +5,4 @@ export const toISOStringWithoutMilliseconds = (isoString) => {
   return `${isoString.split('.')[0]}Z`;
 };
 
-export const isDuplicateOrder = (formSubmissionError) => formSubmissionError?.message?.includes('duplicate order');
+export const isDuplicateExternalCourseOrder = (formSubmissionError) => formSubmissionError?.message?.includes('duplicate order');

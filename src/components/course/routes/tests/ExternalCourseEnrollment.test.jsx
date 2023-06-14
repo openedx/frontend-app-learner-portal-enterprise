@@ -47,7 +47,7 @@ jest.mock('react', () => ({
 
 jest.mock('../../../executive-education-2u/data', () => ({
   ...jest.requireActual('../../../executive-education-2u/data'),
-  isDuplicateOrder: jest.fn(() => true),
+  isDuplicateExternalCourseOrder: jest.fn(() => true),
 }));
 
 const baseCourseContextValue = {
@@ -165,6 +165,8 @@ describe('ExternalCourseEnrollment', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
 
     expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+  });
+
   it('shows duplicate order alert', async () => {
     const courseContextValue = {
       ...baseCourseContextValue,
