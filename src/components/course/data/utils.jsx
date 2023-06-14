@@ -661,14 +661,25 @@ export const getCourseOrganizationDetails = (courseData) => {
   return organizationDetails;
 };
 
-export const getCourseStartDate = ({ contentMetadata, activeCourseRun }) => {
+/**
+ * Determines the start date for the the course run, pulling the appropriate date
+ * from either `contentMetadata.additionalMetadata.startDate` or `courseRun.start`
+ * based on the course type configuration.
+ *
+ * @param {Object} args
+ * @param {Object} args.contentMetadata
+ * @param {Object} args.courseRun
+ *
+ * @returns {string|undefined} Formatted date if a start date was found; otherwise, undefined.
+ */
+export const getCourseStartDate = ({ contentMetadata, courseRun }) => {
   let startDate;
   const courseTypeConfig = contentMetadata && getCourseTypeConfig(contentMetadata);
 
   if (courseTypeConfig?.usesAdditionalMetadata && contentMetadata?.additionalMetadata) {
     startDate = contentMetadata.additionalMetadata.startDate;
   } else {
-    startDate = activeCourseRun?.start;
+    startDate = courseRun?.start;
   }
 
   if (startDate) {

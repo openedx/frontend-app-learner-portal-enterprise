@@ -18,6 +18,7 @@ const CourseRunCard = ({
 }) => {
   const {
     state: {
+      course,
       userEnrollments,
     },
     missingUserSubsidyReason,
@@ -34,6 +35,7 @@ const CourseRunCard = ({
     subHeading,
     action,
   } = useCourseRunCardData({
+    course,
     courseRun,
     userEnrollment: userEnrollmentForCourseRun,
     courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,

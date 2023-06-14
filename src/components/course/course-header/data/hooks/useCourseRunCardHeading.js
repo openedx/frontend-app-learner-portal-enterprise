@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
-import { hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
+import { getCourseStartDate, hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
 import { DATE_FORMAT } from '../constants';
 
 const messages = defineMessages({
@@ -26,16 +26,21 @@ const messages = defineMessages({
  * Determines the heading to display on the course run card.
  * @param {object} args
  * @param {boolean} args.isCourseRunCurrent Whether the course run is current.
+ * @param {object} args.course Data about the course for the course run card.
  * @param {object} args.courseRun Data about the course run for the course run card.
  * @param {boolean} args.isUserEnrolled Whether the user is already enrolled in the course run.
  * @returns {string} The heading to display on the course run card.
  */
 const useCourseRunCardHeading = ({
   isCourseRunCurrent,
+  course,
   courseRun,
   isUserEnrolled,
 }) => {
   const intl = useIntl();
+
+  const courseStartDate = getCourseStartDate({ contentMetadata: course, courseRun });
+
   if (isCourseRunCurrent) {
     if (isUserEnrolled) {
       return intl.formatMessage(messages.courseStarted);
@@ -48,15 +53,15 @@ const useCourseRunCardHeading = ({
         });
       }
       return intl.formatMessage(messages.courseStartedDate, {
-        startDate: moment(courseRun.start).format(DATE_FORMAT),
+        startDate: moment(courseStartDate).format(DATE_FORMAT),
       });
     }
     return intl.formatMessage(messages.courseStartedDate, {
-      startDate: moment(courseRun.start).format(DATE_FORMAT),
+      startDate: moment(courseStartDate).format(DATE_FORMAT),
     });
   }
   return intl.formatMessage(messages.courseStartDate, {
-    startDate: moment(courseRun.start).format(DATE_FORMAT),
+    startDate: moment(courseStartDate).format(DATE_FORMAT),
   });
 };
 

@@ -455,7 +455,7 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
  * @returns Click handler function for clicks on enrollment buttons.
  */
 export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, userEnrollments }) => {
-  const hasNoExistingEnrollments = userEnrollments.length === 0;
+  const hasNoExistingEnrollments = userEnrollments?.length === 0 || true;
   const handleClick = useCallback(
     (e) => {
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
@@ -856,7 +856,7 @@ export const useMinimalCourseMetadata = () => {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
-    startDate: getCourseStartDate({ contentMetadata: course, activeCourseRun }),
+    startDate: getCourseStartDate({ contentMetadata: course, courseRun: activeCourseRun }),
     duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,

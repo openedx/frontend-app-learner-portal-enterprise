@@ -74,7 +74,7 @@ const ExecutiveEducation2UPage = () => {
         organizationImage: organizationDetails.organizationLogo,
         organizationName: organizationDetails.organizationName,
         title: contentMetadata.title,
-        startDate: getCourseStartDate({ contentMetadata, activeCourseRun }),
+        startDate: getCourseStartDate({ contentMetadata, courseRun: activeCourseRun }),
         duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
         activeCourseRun,
