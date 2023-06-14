@@ -140,4 +140,14 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Registration total:')).toBeInTheDocument();
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
   });
+
+  it('handles a courserun that has already been enrolled', () => {
+    const courseContextValue = {
+      ...baseCourseContextValue,
+      hasSuccessfulRedemption: true,
+    };
+    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+
+    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+  });
 });
