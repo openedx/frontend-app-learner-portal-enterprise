@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import {
   Card, Image, Row, Col,
 } from '@edx/paragon';
+
 import { numberWithPrecision } from '../../course/data/utils';
+import { DATE_FORMAT } from '../../course/data/constants';
 
 const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => (
   <Card
@@ -28,7 +31,7 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => (
             <div className="course-details">
               <Row className="align-items-center">
                 <Col className="small font-weight-light text-gray-500 justify-content-start">{enrollmentCompleted ? 'Start date:' : 'Available start date:'}</Col>
-                <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{courseMetadata.startDate}</Row></Col>
+                <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{moment(courseMetadata.startDate).format(DATE_FORMAT)}</Row></Col>
               </Row>
               <Row className="align-items-center">
                 <Col className="small font-weight-light text-gray-500 justify-content-start">Course duration:</Col>
