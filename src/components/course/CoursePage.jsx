@@ -118,7 +118,7 @@ const CoursePage = () => {
       },
     },
   });
-  // Destructure hasSuccessfulRedemption
+
   const {
     redeemableSubsidyAccessPolicy,
     redeemabilityPerContentKey,
