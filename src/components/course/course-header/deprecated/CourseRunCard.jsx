@@ -17,6 +17,7 @@ import {
   hasCourseStarted,
   findHighestLevelSku,
   pathContainsCourseTypeSlug,
+  getCourseStartDate,
 } from '../../data/utils';
 import { formatStringAsNumber } from '../../../../utils/common';
 import { useSubsidyDataForCourse } from '../../enrollment/hooks';
@@ -43,7 +44,6 @@ const CourseRunCard = ({
     pacingType,
     courseUuid,
     enrollmentCount,
-    start,
     key,
     seats,
     isEnrollable,
@@ -51,11 +51,18 @@ const CourseRunCard = ({
 
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
-  const { userCanRequestSubsidyForCourse } = useContext(CourseContext);
+  const {
+    state: {
+      course,
+    },
+    userCanRequestSubsidyForCourse,
+  } = useContext(CourseContext);
+
+  const courseStartDate = getCourseStartDate({ contentMetadata: course, courseRun });
 
   const isCourseStarted = useMemo(
-    () => hasCourseStarted(start),
-    [start],
+    () => hasCourseStarted(courseStartDate),
+    [courseStartDate],
   );
 
   const {
@@ -133,12 +140,12 @@ const CourseRunCard = ({
     if (!isEnrollable) {
       if (
         (availability === COURSE_AVAILABILITY_MAP.UPCOMING || availability === COURSE_AVAILABILITY_MAP.STARTING_SOON)
-        && start
+        && courseStartDate
       ) {
         // Course will be available in the future
         return [
           'Coming soon',
-          `Enroll after ${moment(start).format(DATE_FORMAT)}`,
+          `Enroll after ${moment(courseStartDate).format(DATE_FORMAT)}`,
           DEFAULT_BUTTON_LABEL,
         ];
       }
@@ -154,7 +161,7 @@ const CourseRunCard = ({
       // User is enrolled
       return [
         !isCourseStarted
-          ? `Starts ${moment(start).format(DATE_FORMAT)}`
+          ? `Starts ${moment(courseStartDate).format(DATE_FORMAT)}`
           : 'Course started',
         'You are enrolled',
         'View course',
@@ -173,7 +180,7 @@ const CourseRunCard = ({
       ? `${formatStringAsNumber(enrollmentCount)} recently enrolled!`
       : 'Be the first to enroll!';
 
-    let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${moment(start).format(DATE_FORMAT)}`;
+    let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${moment(courseStartDate).format(DATE_FORMAT)}`;
 
     if (isCourseSelfPaced(pacingType)) {
       if (isCourseStarted) {
@@ -193,7 +200,7 @@ const CourseRunCard = ({
     courseUuid,
     enrollmentCount,
     isCourseStarted,
-    start,
+    courseStartDate,
     pacingType,
     availability,
     courseRun,
