@@ -30,6 +30,7 @@ import {
   getMissingSubsidyReasonActions,
   getCourseOrganizationDetails,
   getCourseStartDate,
+  getCourseTypeConfig,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -127,21 +128,35 @@ export function useCourseSubjects(course) {
   return { subjects, primarySubject };
 }
 
-// TODO: Refactor away from useEffect useState
 export function useCoursePartners(course) {
-  const [partners, setPartners] = useState([]);
-  const [label, setLabel] = useState('');
+  const partners = [];
+  let label = 'Institution';
 
-  useEffect(() => {
-    if (course?.owners) {
-      setPartners(course.owners);
-      if (course.owners.length > 1) {
-        setLabel('Institutions');
-      } else {
-        setLabel('Institution');
-      }
+  // TODO: this is the externally hosted course path
+  const courseTypeConfig = getCourseTypeConfig(course);
+  const usesOrganizationOverride = courseTypeConfig?.usesOrganizationOverride;
+  if (usesOrganizationOverride) {
+    const orgDetails = getCourseOrganizationDetails(course);
+    const result = [
+      [{
+        key: orgDetails.organizationName,
+        logoImageUrl: orgDetails.organizationLogo,
+        marketingUrl: orgDetails.organizationMarketingUrl,
+      }],
+      label,
+    ];
+    return result;
+  }
+
+  // TODO: this is the OCM course path.
+  if (course?.owners) {
+    course.owners.forEach((owner) => {
+      partners.push(owner);
+    });
+    if (course.owners.length > 1) {
+      label = 'Institutions';
     }
-  }, [course]);
+  }
 
   return [partners, label];
 }

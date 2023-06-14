@@ -655,6 +655,11 @@ export const getCourseOrganizationDetails = (courseData) => {
     organizationDetails.organizationLogo = courseData?.owners[0]?.logoImageUrl;
   }
 
+  const marketingUrl = courseData?.owners[0]?.marketingUrl;
+  if (marketingUrl) {
+    organizationDetails.organizationMarketingUrl = marketingUrl;
+  }
+
   return organizationDetails;
 };
 
