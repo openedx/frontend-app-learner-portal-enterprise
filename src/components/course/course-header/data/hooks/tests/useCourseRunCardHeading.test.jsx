@@ -12,6 +12,11 @@ jest.mock('../../../../data/utils', () => ({
   hasTimeToComplete: jest.fn().mockReturnValue(true),
 }));
 
+jest.mock('../../utils', () => ({
+  ...jest.requireActual('../../utils'),
+  getTodaysDate: jest.fn(() => new Date('2023-10-20')),
+}));
+
 const wrapper = ({ children }) => (
   <IntlProvider locale="en">{children}</IntlProvider>
 );

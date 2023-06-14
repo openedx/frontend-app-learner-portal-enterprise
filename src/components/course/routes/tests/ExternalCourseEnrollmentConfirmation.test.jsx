@@ -21,7 +21,7 @@ jest.mock('../../data/hooks', () => ({
     organizationImage: 'https://test.org/logo.png',
     organizationName: 'Test Org',
     title: 'Test Course Title',
-    startDate: 'March 5, 2023',
+    startDate: '2023-03-05',
     duration: '3 Weeks',
     priceDetails: {
       price: 100,
@@ -77,7 +77,7 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
     expect(screen.getByText('Start date:')).toBeInTheDocument();
-    expect(screen.getByText('March 5, 2023')).toBeInTheDocument();
+    expect(screen.getByText('Mar 5, 2023')).toBeInTheDocument();
     expect(screen.getByText('Course duration:')).toBeInTheDocument();
     expect(screen.getByText('3 Weeks')).toBeInTheDocument();
     expect(screen.getByText('Course total:')).toBeInTheDocument();
@@ -112,7 +112,7 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
     expect(screen.getByText('Start date:')).toBeInTheDocument();
-    expect(screen.getByText('March 5, 2023')).toBeInTheDocument();
+    expect(screen.getByText('Mar 5, 2023')).toBeInTheDocument();
     expect(screen.getByText('Course duration:')).toBeInTheDocument();
     expect(screen.getByText('3 Weeks')).toBeInTheDocument();
     expect(screen.getByText('Course total:')).toBeInTheDocument();
