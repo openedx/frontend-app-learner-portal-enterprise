@@ -19,6 +19,7 @@ const ExternalCourseEnrollment = () => {
       courseEntitlementProductSku,
     },
     userSubsidyApplicableToCourse,
+    hasSuccessfulRedemption,
   } = useContext(CourseContext);
   const courseMetadata = useMinimalCourseMetadata();
 
@@ -26,10 +27,13 @@ const ExternalCourseEnrollment = () => {
     failureReason,
     failureMessage,
   } = useExternalEnrollmentFailureReason();
-
   const handleCheckoutSuccess = () => {
     history.push('enroll/complete');
   };
+
+  if (hasSuccessfulRedemption) {
+    history.push('enroll/complete');
+  }
 
   return (
     <div className="fill-vertical-space page-light-bg">
