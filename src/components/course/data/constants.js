@@ -94,3 +94,4 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
 };
 
 export const DATE_FORMAT = 'MMM D, YYYY';
+export const ZERO_PRICE = 0.00;

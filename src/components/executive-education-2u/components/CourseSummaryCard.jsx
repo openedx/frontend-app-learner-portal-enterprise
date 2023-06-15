@@ -6,13 +6,19 @@ import {
 } from '@edx/paragon';
 
 import { numberWithPrecision } from '../../course/data/utils';
-import { DATE_FORMAT } from '../../course/data/constants';
+import { DATE_FORMAT, ZERO_PRICE } from '../../course/data/constants';
 
 const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
   let coursePrice = null;
-  const precisePrice = courseMetadata?.priceDetails?.price ? `$${numberWithPrecision(courseMetadata.priceDetails.price)} ${courseMetadata.priceDetails.currency}` : '-';
+  const precisePrice = courseMetadata?.priceDetails?.price ? `$${numberWithPrecision(
+    courseMetadata.priceDetails.price,
+  )} ${courseMetadata.priceDetails.currency}` : '-';
   if (enrollmentCompleted && courseMetadata?.priceDetails?.price) {
-    coursePrice = (<del>{precisePrice}</del>);
+    coursePrice = (
+      <><del>{precisePrice}</del>
+        ${numberWithPrecision(ZERO_PRICE)} {courseMetadata.priceDetails.currency}
+      </>
+    );
   } else {
     coursePrice = precisePrice;
   }
