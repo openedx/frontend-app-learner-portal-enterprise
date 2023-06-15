@@ -18,8 +18,11 @@ const initialAppContextValue = {
 const mockBaseLocationMetadata = {
   state: {
     data: {
-      organizationImage: 'test-image',
-      organizationName: 'test org',
+      organization: {
+        logoImgUrl: 'test-image',
+        name: 'test org',
+        marketingUrl: 'test-url',
+      },
       title: 'test-title',
       startDate: '2022-09-09',
       duration: '8',

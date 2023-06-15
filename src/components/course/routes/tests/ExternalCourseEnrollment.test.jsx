@@ -20,8 +20,11 @@ jest.mock('react-router-dom', () => ({
 jest.mock('../../data/hooks', () => ({
   ...jest.requireActual('../../data/hooks'),
   useMinimalCourseMetadata: () => ({
-    organizationImage: 'https://test.org/logo.png',
-    organizationName: 'Test Org',
+    organization: {
+      name: 'Test Org',
+      logoImgUrl: 'https://test.org/logo.png',
+      marketingUrl: 'https://test.org',
+    },
     title: 'Test Course Title',
     startDate: '2023-03-05',
     duration: '3 Weeks',

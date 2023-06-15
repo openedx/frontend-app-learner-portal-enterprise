@@ -72,10 +72,9 @@ const CourseHeader = () => {
               </div>
             )}
             {partners.length > 0 && (
-              <div className="mt-4 mb-2">
+              <div className="mt-4 mb-2 course-header__partner-logos">
                 {partners.map(partner => (
                   <a
-                    className="d-inline-block mr-4"
                     href={partner.marketingUrl}
                     key={partner.uuid}
                     target="_blank"
