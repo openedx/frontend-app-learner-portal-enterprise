@@ -128,6 +128,15 @@ export function useCourseSubjects(course) {
   return { subjects, primarySubject };
 }
 
+/**
+ * Determines the course partners associated with the course. Checks whether
+ * it should use the organization override or the `owners` property based on
+ * the course type configuration.
+ *
+ * @param {Object} course Metadata about the course.
+ *
+ * @returns {Array} An array of partners and a label for the partners, e.g. `[[{ name: 'edX' }], 'Institution']`.
+ */
 export function useCoursePartners(course) {
   const partners = [];
   let label = 'Institution';
