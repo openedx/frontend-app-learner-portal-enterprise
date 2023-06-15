@@ -29,6 +29,7 @@ import {
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getSubsidyToApplyForCourse,
+  getCourseTypeConfig,
 } from '../utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
@@ -93,6 +94,7 @@ jest.mock('../utils', () => ({
   getSubsidyToApplyForCourse: jest.fn(),
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
+  getCourseTypeConfig: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
@@ -609,34 +611,70 @@ describe('useCourseSubjects', () => {
 });
 
 describe('useCoursePartners', () => {
-  const CoursePartners = ({ course }) => {
-    const [partners, label] = useCoursePartners(course);
-
-    return (
-      <div>
-        <h2>{label}</h2>
-        <ul>
-          {partners.map((partner) => (
-            <li key={partner}>{partner}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
-  it('should set multiple partners and label correctly', async () => {
-    const course = { owners: ['Partner 1', 'Partner 2'] };
-    render(<CoursePartners course={course} />);
-
-    expect(screen.getByText('Partner 1')).toBeTruthy();
-    expect(screen.getByText('Partner 2')).toBeTruthy();
-    expect(screen.getByText('Institutions')).toBeTruthy();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
-  it('should set a single partners and label correctly', async () => {
-    const course = { owners: ['Partner 3'] };
-    render(<CoursePartners course={course} />);
 
-    expect(screen.getByText('Partner 3')).toBeTruthy();
-    expect(screen.getByText('Institution')).toBeTruthy();
+  it('should set multiple partners and label correctly', async () => {
+    const course = {
+      owners: [
+        { name: 'Partner 1', logoImageUrl: 'https://partner1.img' },
+        { name: 'Partner 2', logoImageUrl: 'https://partner2.img' },
+      ],
+    };
+    const { result } = renderHook(() => useCoursePartners(course));
+    expect(result.current[0]).toEqual([
+      { name: 'Partner 1', logoImageUrl: 'https://partner1.img' },
+      { name: 'Partner 2', logoImageUrl: 'https://partner2.img' },
+    ]);
+    expect(result.current[1]).toEqual('Institutions');
+  });
+
+  it('should set a single partners and label correctly', async () => {
+    const course = {
+      owners: [
+        { name: 'Partner 3', logoImageUrl: 'https://partner3.img' },
+      ],
+    };
+    const { result } = renderHook(() => useCoursePartners(course));
+    expect(result.current[0]).toEqual([
+      { name: 'Partner 3', logoImageUrl: 'https://partner3.img' },
+    ]);
+    expect(result.current[1]).toEqual('Institution');
+  });
+
+  it('should handle organization override based on course type config', () => {
+    getCourseTypeConfig.mockReturnValue({
+      usesOrganizationOverride: true,
+    });
+    const course = {
+      organizationShortCodeOverride: 'Partner 1 Override',
+      organizationLogoOverrideUrl: 'https://partner1-override.img',
+      owners: [
+        {
+          uuid: 'partner-1-uuid',
+          key: 'Partner1x',
+          name: 'Partner 1',
+          marketingUrl: 'https://partner1.marketing',
+        },
+        {
+          uuid: 'partner-2-uuid',
+          key: 'Partner2x',
+          name: 'Partner 2',
+          marketingUrl: 'https://partner2.marketing',
+        }],
+    };
+    const { result } = renderHook(() => useCoursePartners(course));
+    expect(result.current[0]).toEqual([
+      {
+        uuid: 'partner-1-uuid',
+        name: 'Partner 1 Override',
+        key: 'Partner1x',
+        logoImageUrl: 'https://partner1-override.img',
+        marketingUrl: 'https://partner1.marketing',
+      },
+    ]);
+    expect(result.current[1]).toEqual('Institution');
   });
 });
 
@@ -1233,8 +1271,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
 });
 
 describe('useMinimalCourseMetadata', () => {
-  const mockOrgName = 'https://fake-logo.url';
+  const mockOrgName = 'Fake Org Name';
   const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockOrgMarketingUrl = 'https://fake-mktg.url';
   const mockWeeksToComplete = 8;
   const mockListPrice = 100;
   const mockCurrency = 'USD';
@@ -1246,7 +1285,13 @@ describe('useMinimalCourseMetadata', () => {
         title: mockCourseTitle,
         organizationShortCodeOverride: undefined,
         organizationLogoOverrideUrl: undefined,
-        owners: [{ name: mockOrgName, logoImageUrl: mockLogoImageUrl }],
+        owners: [
+          {
+            name: mockOrgName,
+            logoImageUrl: mockLogoImageUrl,
+            marketingUrl: mockOrgMarketingUrl,
+          },
+        ],
       },
       activeCourseRun: {
         start: mockCourseRunStartDate,
@@ -1269,8 +1314,11 @@ describe('useMinimalCourseMetadata', () => {
     const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockLogoImageUrl,
-        organizationName: mockOrgName,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
         startDate: mockCourseRunStartDate,
         duration: `${mockWeeksToComplete} Weeks`,
@@ -1298,8 +1346,11 @@ describe('useMinimalCourseMetadata', () => {
     );
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockLogoImageUrl,
-        organizationName: mockOrgName,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
         startDate: undefined,
         duration: '-',
@@ -1330,8 +1381,11 @@ describe('useMinimalCourseMetadata', () => {
     );
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockLogoImageUrl,
-        organizationName: mockOrgName,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
         startDate: mockCourseRunStartDate,
         duration: '1 Week',
@@ -1365,8 +1419,11 @@ describe('useMinimalCourseMetadata', () => {
     );
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockOrgLogoUrl,
-        organizationName: mockOrgShortCode,
+        organization: {
+          name: mockOrgShortCode,
+          logoImgUrl: mockOrgLogoUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
         startDate: mockCourseRunStartDate,
         duration: '8 Weeks',

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
-  Card, Image, Row, Col,
+  Card, Image, Row, Col, Hyperlink,
 } from '@edx/paragon';
 
 import { numberWithPrecision } from '../../course/data/utils';
@@ -30,14 +30,18 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
     >
       <Card.Body>
         <Card.Header
-          title={<Image src={courseMetadata.organizationImage} />}
+          title={(
+            <Hyperlink destination={courseMetadata.organization.marketingUrl}>
+              <Image src={courseMetadata.organization.logoImgUrl} />
+            </Hyperlink>
+          )}
         />
         <Card.Section>
           <Row>
             <Col xs={12} lg={{ span: 8, offset: 0 }} className="vertical">
               <Row>
                 <Col xs={12} lg={{ span: 8, offset: 0 }}>
-                  <p className="small font-weight-light text-gray-500">{courseMetadata.organizationName}</p>
+                  <p className="small font-weight-light text-gray-500">{courseMetadata.organization.name}</p>
                   <p>{courseMetadata.title}</p>
                 </Col>
               </Row>
@@ -76,8 +80,11 @@ CourseSummaryCard.defaultProps = {
 CourseSummaryCard.propTypes = {
   enrollmentCompleted: PropTypes.bool,
   courseMetadata: PropTypes.shape({
-    organizationImage: PropTypes.string.isRequired,
-    organizationName: PropTypes.string.isRequired,
+    organization: PropTypes.shape({
+      name: PropTypes.string,
+      marketingUrl: PropTypes.string,
+      logoImgUrl: PropTypes.string,
+    }).isRequired,
     title: PropTypes.string.isRequired,
     startDate: PropTypes.string.isRequired,
     duration: PropTypes.string.isRequired,

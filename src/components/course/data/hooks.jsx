@@ -132,14 +132,17 @@ export function useCoursePartners(course) {
   const partners = [];
   let label = 'Institution';
 
-  // TODO: this is the externally hosted course path
+  // Determine whether this course should use the organization override (e.g., for some
+  // externally hosted courses) instead of relying on the `owners` property.
   const courseTypeConfig = getCourseTypeConfig(course);
   const usesOrganizationOverride = courseTypeConfig?.usesOrganizationOverride;
   if (usesOrganizationOverride) {
     const orgDetails = getCourseOrganizationDetails(course);
     const result = [
       [{
-        key: orgDetails.organizationName,
+        uuid: orgDetails.organizationUuid,
+        key: orgDetails.organizationKey,
+        name: orgDetails.organizationName,
         logoImageUrl: orgDetails.organizationLogo,
         marketingUrl: orgDetails.organizationMarketingUrl,
       }],
@@ -148,7 +151,8 @@ export function useCoursePartners(course) {
     return result;
   }
 
-  // TODO: this is the OCM course path.
+  // If the course type does not have a configuration to use the organization override described above,
+  // fallback to relying on the `owners` property for regular Open edX courses.
   if (course?.owners) {
     course.owners.forEach((owner) => {
       partners.push(owner);
@@ -157,7 +161,6 @@ export function useCoursePartners(course) {
       label = 'Institutions';
     }
   }
-
   return [partners, label];
 }
 
@@ -868,8 +871,11 @@ export const useMinimalCourseMetadata = () => {
   };
 
   const courseMetadata = {
-    organizationImage: organizationDetails.organizationLogo,
-    organizationName: organizationDetails.organizationName,
+    organization: {
+      logoImgUrl: organizationDetails.organizationLogo,
+      name: organizationDetails.organizationName,
+      marketingUrl: organizationDetails.organizationMarketingUrl,
+    },
     title: course.title,
     startDate: getCourseStartDate({ contentMetadata: course, courseRun: activeCourseRun }),
     duration: getDuration(),
