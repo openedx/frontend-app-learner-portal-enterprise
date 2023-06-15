@@ -1,25 +1,38 @@
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import {
-  ActionRow, Button, Hyperlink, Icon, Row, useToggle,
+  ActionRow, Button, Icon, Row, useToggle, TransitionReplace,
 } from '@edx/paragon';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { ErrorPage } from '@edx/frontend-platform/react';
 import { useLearnerSkillLevels } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
 import SpiderChart from './SpiderChart';
 import CategoryCard from './CategoryCard';
+import SearchJobRole from './SearchJobRole';
 
-const VisualizeCareer = ({ jobId }) => {
-  const {
-    enterpriseConfig: {
-      slug,
-    },
-  } = useContext(AppContext);
+const editIcon = () => (
+  <Icon className="fa fa-pencil edit-job-role-icon" screenReaderText="Edit Role" />
+);
 
+const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   const [showInstructions, , , toggleShowInstructions] = useToggle(false);
+  const [isEditable, setIsEditable] = useState(false);
 
   const [learnerSkillLevels, learnerSkillLevelsFetchError] = useLearnerSkillLevels(jobId);
+
+  const editOnClickHandler = () => {
+    setIsEditable(true);
+  };
+
+  const onSaveRole = (resp) => {
+    submitClickHandler(resp);
+    setIsEditable(false);
+  };
+
+  const onCancelRole = () => {
+    setIsEditable(false);
+  };
 
   if (learnerSkillLevelsFetchError) {
     return <ErrorPage status={learnerSkillLevelsFetchError.status} />;
@@ -37,68 +50,67 @@ const VisualizeCareer = ({ jobId }) => {
 
   return (
     <div className="py-5 row">
-      <div className="ml-2.5 col-xs-10 col-lg-6">
-        <div className="align-items-center">
-          <Row>
-            <ActionRow>
-              <p>Current Role</p>
-              <ActionRow.Spacer />
-              <Hyperlink destination={`/${slug}/skills-quiz`} class="edit-job-role-link">
-                <Icon className="fa fa-pencil edit-job-role-icon" screenReaderText="Edit Role" />
-                <span className="edit-job-role-text">Edit</span>
-              </Hyperlink>
-            </ActionRow>
-          </Row>
-          <Row>
-            <ActionRow>
-              <b>{learnerSkillLevels.name}</b>
-              <ActionRow.Spacer />
-            </ActionRow>
-          </Row>
-          {skillCategories && (
-            <>
-              <Row className="mt-4.5">
-                <ActionRow>
-                  <p>My Career Chart</p>
-                  <ActionRow.Spacer />
-                </ActionRow>
-              </Row>
-              <SpiderChart className="plotly-graph" categories={learnerSkillLevels} />
-            </>
-          )}
-          {skillCategories && (
-            <Row>
+      <div className="col-xs-10 col-lg-6">
+        <TransitionReplace className="mb-3">
+          {!isEditable ? (
+            <div key="edit-job-button">
               <ActionRow>
-                <Button
-                  variant="link"
-                  size="inline"
-                  data-testid="reading-instructions-button"
-                  onClick={() => toggleShowInstructions()}
-                >
-                  How do I read this?
-                </Button>
+                <p>Current Role</p>
+                <ActionRow.Spacer />
+                <Button variant="link" iconBefore={editIcon} onClick={editOnClickHandler}>Edit</Button>
+              </ActionRow>
+              <ActionRow>
+                <b>{learnerSkillLevels.name}</b>
                 <ActionRow.Spacer />
               </ActionRow>
-              {showInstructions && (
-                <div className="text-muted skills-chart-reading-instructions">
-                  <p>
-                    Using the Lightcast taxonomy, we trace your currently selected job title to the
-                    competencies and skills needed to succeed. As you pass courses on the edX platform
-                    teaching skills relevant to your current job, the graph above shows how you are
-                    growing in the competenices related to your role.
-                  </p>
-                </div>
-              )}
-            </Row>
+            </div>
+          ) : (
+            <div key="edit-job-dropdown">
+              <SearchJobRole onSave={onSaveRole} onCancel={onCancelRole} />
+            </div>
           )}
-          {skillCategories && (
-            <Row className="mt-5">
-              {skillCategories.map((category) => (
-                <CategoryCard key={category.id} topCategory={category} />
-              ))}
-            </Row>
-          )}
-        </div>
+        </TransitionReplace>
+        {skillCategories && (
+          <>
+            <ActionRow className="mt-4.5">
+              <p>My Career Chart</p>
+              <ActionRow.Spacer />
+            </ActionRow>
+            <SpiderChart className="plotly-graph" categories={learnerSkillLevels} />
+          </>
+        )}
+        {skillCategories && (
+          <Row>
+            <ActionRow>
+              <Button
+                variant="link"
+                size="inline"
+                data-testid="reading-instructions-button"
+                onClick={() => toggleShowInstructions()}
+              >
+                How do I read this?
+              </Button>
+              <ActionRow.Spacer />
+            </ActionRow>
+            {showInstructions && (
+              <div className="text-muted skills-chart-reading-instructions">
+                <p>
+                  Using the Lightcast taxonomy, we trace your currently selected job title to the
+                  competencies and skills needed to succeed. As you pass courses on the edX platform
+                  teaching skills relevant to your current job, the graph above shows how you are
+                  growing in the competenices related to your role.
+                </p>
+              </div>
+            )}
+          </Row>
+        )}
+        {skillCategories && (
+          <Row className="mt-5">
+            {skillCategories.map((category) => (
+              <CategoryCard key={category.id} topCategory={category} />
+            ))}
+          </Row>
+        )}
       </div>
     </div>
   );
@@ -106,6 +118,7 @@ const VisualizeCareer = ({ jobId }) => {
 
 VisualizeCareer.propTypes = {
   jobId: PropTypes.number.isRequired,
+  submitClickHandler: PropTypes.func.isRequired,
 };
 
 export default VisualizeCareer;
