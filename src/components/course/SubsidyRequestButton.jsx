@@ -10,6 +10,7 @@ import { useUserHasSubsidyRequestForCourse } from './data/hooks';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { ToastsContext } from '../Toasts';
 import { postLicenseRequest, postCouponCodeRequest } from '../enterprise-subsidy-requests/data/service';
+import { noAvailableCoupons } from './enrollment/utils';
 
 const props = {
   labels: {
@@ -29,6 +30,7 @@ const SubsidyRequestButton = () => {
   const {
     subsidyRequestConfiguration,
     refreshSubsidyRequests,
+    couponsForSubsidyRequests,
   } = useContext(SubsidyRequestsContext);
 
   const { state, subsidyRequestCatalogsApplicableToCourse, userSubsidyApplicableToCourse } = useContext(CourseContext);
@@ -74,11 +76,12 @@ const SubsidyRequestButton = () => {
    *    - user has a subsidy request for course
    *      OR
    *    - course is in catalog
+   *    - there are available coupons to request
    *    - user not already enrolled in crouse
    *    - user has no subsidy for course
    */
   const hasSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
-  const showSubsidyRequestButton = hasSubsidyRequestsEnabled && (
+  const showSubsidyRequestButton = hasSubsidyRequestsEnabled && !noAvailableCoupons(couponsForSubsidyRequests) && (
     userHasSubsidyRequest || (
       subsidyRequestCatalogsApplicableToCourse.size > 0 && !isUserEnrolled && !userSubsidyApplicableToCourse
     )

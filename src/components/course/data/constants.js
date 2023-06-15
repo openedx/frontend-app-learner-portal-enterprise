@@ -73,6 +73,8 @@ export const REASON_USER_MESSAGES = {
   ORGANIZATION_NO_FUNDS_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough funds. Contact your administrator to request more.",
   LEARNER_LIMITS_REACHED: "You can't enroll right now because of limits set by your organization.",
   CONTENT_NOT_IN_CATALOG: "You can't enroll right now because this course is no longer available in your organization's catalog.",
+  SUBSCRIPTION_EXPIRED: "You can't enroll right now because your subscription expired.",
+  SUBSCRIPTION_DEACTIVATED: "You can't enroll right now because your subscription has been deactivated.",
 };
 export const DISABLED_ENROLL_REASON_TYPES = {
   POLICY_NOT_ACTIVE: 'policy_not_active',
@@ -83,6 +85,9 @@ export const DISABLED_ENROLL_REASON_TYPES = {
   LEARNER_MAX_ENROLLMENTS_REACHED: 'learner_max_enrollments_reached',
   NO_SUBSIDY: 'no_subsidy',
   NO_SUBSIDY_NO_ADMINS: 'no_subsidy_no_admin',
+  NO_ENROLLMENT_CODES_REMAINING: 'no_entrollment_codes_remaining',
+  SUBSCRIPTION_EXPIRED: 'subscription_expired',
+  SUBSCRIPTION_DEACTIVATED: 'subscription_deactivated',
 };
 export const DISABLED_ENROLL_USER_MESSAGES = {
   [DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG]: REASON_USER_MESSAGES.CONTENT_NOT_IN_CATALOG,
@@ -91,6 +96,9 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
   [DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY]: REASON_USER_MESSAGES.ORGANIZATION_NO_FUNDS,
   [DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
   [DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
+  [DISABLED_ENROLL_REASON_TYPES.NO_ENROLLMENT_CODES_REMAINING]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED]: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED]: REASON_USER_MESSAGES.SUBSCRIPTION_DEACTIVATED,
 };
 
 export const DATE_FORMAT = 'MMM D, YYYY';

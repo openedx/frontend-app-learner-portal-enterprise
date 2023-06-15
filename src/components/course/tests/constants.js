@@ -1,4 +1,5 @@
-import { DISABLED_ENROLL_REASON_TYPES, REASON_USER_MESSAGES } from '../data/constants';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { DISABLED_ENROLL_REASON_TYPES, LICENSE_SUBSIDY_TYPE, REASON_USER_MESSAGES } from '../data/constants';
 
 export const TEST_RECOMMENDATION_DATA = {
   all_recommendations: [
@@ -158,9 +159,14 @@ export const mockCanRedeemData = [mockCanRedeemForContentKey];
 export const mockSubscriptionLicense = {
   uuid: 'test-subscription-uuid',
 };
+export const mockRevokedSubscriptionLicense = {
+  uuid: 'test-subscription-uuid',
+  status: LICENSE_STATUS.REVOKED,
+};
 export const mockUserLicenseSubsidy = {
   discountType: 'percentage',
   discountValue: 100,
+  subsidyType: LICENSE_SUBSIDY_TYPE,
 };
 
 export const mockEnterpriseUUID = 'enterprise-uuid';

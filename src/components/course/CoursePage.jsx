@@ -52,8 +52,13 @@ const CoursePage = () => {
     couponCodes: { couponCodes },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
+    customerAgreementConfig,
   } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests, subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
+  const {
+    couponsForSubsidyRequests,
+    catalogsForSubsidyRequests,
+    subsidyRequestConfiguration,
+  } = useContext(SubsidyRequestsContext);
 
   const {
     enterpriseCuration: {
@@ -193,12 +198,14 @@ const CoursePage = () => {
     subscriptionLicense,
     courseService,
     couponCodes,
+    couponsForSubsidyRequests,
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
     onSubscriptionLicenseForCourseValidationError,
     missingSubsidyAccessPolicyReason,
     enterpriseAdminUsers,
     courseListPrice,
+    customerAgreementConfig,
   });
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
@@ -236,6 +243,7 @@ const CoursePage = () => {
     subsidyRequestConfiguration,
     subsidyRequestCatalogsApplicableToCourse,
     userSubsidyApplicableToCourse,
+    couponsForSubsidyRequests,
   });
 
   if (error) {

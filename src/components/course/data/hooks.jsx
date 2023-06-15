@@ -45,8 +45,9 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
-import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
+import { getExternalCourseEnrollmentUrl, noAvailableCoupons } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -631,12 +632,14 @@ export const useUserSubsidyApplicableToCourse = ({
   subscriptionLicense,
   courseService,
   couponCodes,
+  couponsForSubsidyRequests,
   canEnrollWithEnterpriseOffers,
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
   missingSubsidyAccessPolicyReason,
   enterpriseAdminUsers: fallbackAdminUsers,
   courseListPrice,
+  customerAgreementConfig,
 }) => {
   const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
   const [missingUserSubsidyReason, setMissingUserSubsidyReason] = useState();
@@ -692,6 +695,7 @@ export const useUserSubsidyApplicableToCourse = ({
             onSubscriptionLicenseForCourseValidationError(error);
           }
         }
+        return licenseApplicableToCourse;
       }
       const coursePrice = getCourseRunPrice({
         courseDetails,
@@ -729,6 +733,19 @@ export const useUserSubsidyApplicableToCourse = ({
         let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
         if (enterpriseAdminUsers?.length > 0) {
           reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+        }
+        if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
+          reasonType = DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
+        }
+        const hasExpiredSubscriptions = customerAgreementConfig?.subscriptions?.every(
+          (sub) => sub.daysUntilExpiration < 0,
+        );
+        if (hasExpiredSubscriptions) {
+          reasonType = DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED;
+        }
+        const hasNoEnrollmentCodesRemaining = noAvailableCoupons(couponsForSubsidyRequests);
+        if (hasNoEnrollmentCodesRemaining) {
+          reasonType = DISABLED_ENROLL_REASON_TYPES.NO_ENROLLMENT_CODES_REMAINING;
         }
         // set reason type as content not in catalog if course is contained
         // within any of the enterprise customer's catalog(s).
@@ -816,12 +833,14 @@ export const useUserSubsidyApplicableToCourse = ({
     onSubscriptionLicenseForCourseValidationError,
     subscriptionLicense,
     couponCodes,
+    couponsForSubsidyRequests,
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
     redeemableSubsidyAccessPolicy,
     isPolicyRedemptionEnabled,
     missingSubsidyAccessPolicyReason,
     fallbackAdminUsers,
+    customerAgreementConfig?.subscriptions,
   ]);
 
   return useMemo(() => ({
