@@ -35,11 +35,12 @@ const ExternalCourseEnrollment = () => {
 
   const externalDashboardQueryParams = new URLSearchParams();
   if (authOrgId) {
-    externalDashboardQueryParams.set('org', authOrgId);
+    externalDashboardQueryParams.set('org_id', authOrgId);
   }
 
   let externalDashboardUrl = config.GETSMARTER_LEARNER_DASHBOARD_URL;
-  if (externalDashboardQueryParams.size > 0) {
+
+  if (externalDashboardQueryParams.has('org_id')) {
     externalDashboardUrl += `?${externalDashboardQueryParams.toString()}`;
   }
 

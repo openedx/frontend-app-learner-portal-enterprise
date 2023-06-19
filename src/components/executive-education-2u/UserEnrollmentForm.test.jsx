@@ -78,7 +78,7 @@ const UserEnrollmentFormWrapper = ({
     state: {
       userEnrollments: [],
     },
-    setFormSubmissionError: jest.fn(),
+    setExternalFormSubmissionError: jest.fn(),
     formSubmissionError: {},
   },
 }) => (

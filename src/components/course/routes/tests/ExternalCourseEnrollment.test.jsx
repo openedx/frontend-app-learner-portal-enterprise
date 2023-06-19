@@ -50,6 +50,13 @@ jest.mock('../../../executive-education-2u/data', () => ({
   isDuplicateExternalCourseOrder: jest.fn(() => true),
 }));
 
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(() => ({
+    GETSMARTER_LEARNER_DASHBOARD_URL: 'https://getsmarter.example.com/account',
+  })),
+}));
+
 const baseCourseContextValue = {
   state: {
     courseEntitlementProductSku: 'test-sku',
@@ -70,6 +77,7 @@ const baseAppContextValue = {
     uuid: 'test-uuid',
     enableDataSharingConsent: true,
     adminUsers: ['edx@example.com'],
+    authOrgId: 'test-uuid',
   },
   authenticatedUser: { id: 3 },
 };
@@ -168,6 +176,7 @@ describe('ExternalCourseEnrollment', () => {
   });
 
   it('shows duplicate order alert', async () => {
+    const createRefSpy = jest.spyOn(React, 'createRef');
     const courseContextValue = {
       ...baseCourseContextValue,
       formSubmissionError: { message: 'duplicate order' },
@@ -179,5 +188,7 @@ describe('ExternalCourseEnrollment', () => {
     });
     const dashboardButton = screen.getByText('Go to dashboard');
     expect(dashboardButton).toBeInTheDocument();
+    expect(dashboardButton).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-uuid');
+    expect(createRefSpy).toHaveBeenCalledTimes(1);
   });
 });
