@@ -36,6 +36,11 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  Navigate: jest.fn().mockReturnValue(null),
+}));
+
 const defaultCouponCodesState = {
   couponCodes: [],
   loading: false,

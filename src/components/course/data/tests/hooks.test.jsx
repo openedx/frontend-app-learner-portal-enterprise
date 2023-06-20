@@ -5,7 +5,9 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { MemoryRouter, useRouteMatch } from 'react-router-dom';
+import {
+  MemoryRouter, useLocation,
+} from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import {
   useCourseEnrollmentUrl,
@@ -97,15 +99,12 @@ jest.mock('../utils', () => ({
   getCourseTypeConfig: jest.fn(),
 }));
 
-const mockUseHistoryPush = jest.fn();
-const mockUseHistoryReplace = jest.fn();
+const mockNavigate = jest.fn();
+// const mockUseHistoryReplace = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-    replace: mockUseHistoryReplace,
-  }),
-  useRouteMatch: jest.fn(),
+  useNavigate: () => mockNavigate,
+  useLocation: jest.fn(),
 }
 ));
 
@@ -249,9 +248,8 @@ describe('useCourseEnrollmentUrl', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useRouteMatch.mockReturnValue({
-      path: '/:enterpriseSlug/course/:courseKey',
-      url: '/enterprise-slug/course/edX+DemoX',
+    useLocation.mockReturnValue({
+      pathname: '/enterprise-slug/course/edX+DemoX',
     });
   });
 
@@ -338,18 +336,19 @@ describe('useCourseEnrollmentUrl', () => {
           },
         },
       });
-      useRouteMatch.mockReturnValue({
-        path: '/:enterpriseSlug/:courseType/course/:courseKey',
-        url: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
+      useLocation.mockReturnValue({
+        pathname: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
       });
     });
     test('handles executive education-2u course type', () => {
       const mockSku = 'ABC123';
-      const { result } = renderHook(() => useCourseEnrollmentUrl({
-        ...noLicenseEnrollmentInputs,
-        isExecutiveEducation2UCourse: true,
-        sku: mockSku,
-      }));
+      const { result } = renderHook(() => (
+        useCourseEnrollmentUrl({
+          ...noLicenseEnrollmentInputs,
+          isExecutiveEducation2UCourse: true,
+          sku: mockSku,
+        })
+      ));
       expect(result.current).toContain(`/executive-education-2u/course/${mockCourseKey}/enroll`);
       expect(result.current).toContain(mockCourseKey);
     });
@@ -885,6 +884,13 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
       </div>
     );
   };
+
+  beforeEach(() => {
+    useLocation.mockReturnValue({
+      search: '?queryId=123&objectId=abc',
+    });
+  });
+
   it('should display the queryId and objectId from the URL search params', () => {
     render(
       <MemoryRouter initialEntries={['/?queryId=123&objectId=abc']}>
@@ -893,8 +899,8 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
     );
     expect(screen.getByText('Query ID: 123')).toBeTruthy();
     expect(screen.getByText('Object ID: abc')).toBeTruthy();
-    expect(mockUseHistoryReplace).toHaveBeenCalledTimes(1);
-    expect(mockUseHistoryReplace).toHaveBeenCalledWith({ search: '' });
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith({ replace: true, search: '' });
   });
 });
 

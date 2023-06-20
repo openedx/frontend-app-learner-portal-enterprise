@@ -2,6 +2,7 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { mockNavigate } from 'react-router-dom';
 
 import EnterpriseCustomerRedirect from '../EnterpriseCustomerRedirect';
 
@@ -10,6 +11,22 @@ import { fetchEnterpriseCustomerByUUID } from '../data/service';
 import { renderWithRouter } from '../../../utils/tests';
 
 jest.mock('../data/service');
+
+jest.mock('react-router-dom', () => {
+  const mockNavigation = jest.fn();
+
+  // eslint-disable-next-line react/prop-types
+  const Navigate = ({ to }) => {
+    mockNavigation(to);
+    return <div />;
+  };
+
+  return {
+    ...jest.requireActual('react-router-dom'),
+    Navigate,
+    mockNavigate: mockNavigation,
+  };
+});
 
 const TEST_ENTERPRISES = [
   {
@@ -45,6 +62,7 @@ describe('<EnterpriseCustomerRedirect />', () => {
 
   beforeEach(() => {
     fetchEnterpriseCustomerByUUID.mockClear();
+    jest.clearAllMocks();
   });
 
   test('renders NotFoundPage if user is not linked to any Enterprise Customers', async () => {
@@ -76,11 +94,11 @@ describe('<EnterpriseCustomerRedirect />', () => {
     };
 
     const Component = <EnterpriseCustomerRedirectWithContext initialAppState={initialState} />;
-    const { history } = renderWithRouter(Component, { route: '/' });
+    renderWithRouter(Component, { route: '/' });
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}`);
+    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISES[0].slug}`);
   });
 
   test('redirects to selected Enterprise Customer when user is linked to more than 1 Enterprise Customer', async () => {
@@ -104,10 +122,10 @@ describe('<EnterpriseCustomerRedirect />', () => {
     };
 
     const Component = <EnterpriseCustomerRedirectWithContext initialAppState={initialState} />;
-    const { history } = renderWithRouter(Component, { route: '/' });
+    renderWithRouter(Component, { route: '/' });
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}`);
+    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISES[1].slug}`);
   });
 });

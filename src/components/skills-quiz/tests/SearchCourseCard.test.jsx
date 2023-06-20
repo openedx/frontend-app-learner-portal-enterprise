@@ -29,6 +29,12 @@ jest.mock('react-truncate', () => ({
   default: ({ children }) => children,
 }));
 
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMG_URL = 'https://fake.image';
@@ -127,7 +133,7 @@ const SearchCourseCardWithContext = ({
 
 describe('<SearchCourseCard />', () => {
   test('renders the correct data', async () => {
-    const { container, history } = renderWithRouter(
+    const { container } = renderWithRouter(
       <SearchCourseCardWithContext
         index={testIndex}
       />,
@@ -149,8 +155,8 @@ describe('<SearchCourseCard />', () => {
 
     // handles click
     userEvent.click(searchCourseCard);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toContain(`${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    // expect(history.entries).toHaveLength(2);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders the correct data with skills', async () => {

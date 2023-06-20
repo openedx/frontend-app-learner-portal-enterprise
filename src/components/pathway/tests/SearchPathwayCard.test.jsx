@@ -23,6 +23,12 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 const SearchPathwayCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
@@ -51,8 +57,12 @@ const propsForLoading = {
 };
 
 describe('<SearchPathwayCard />', () => {
+  beforeEach(() => {
+    mockedNavigate.mockClear();
+  });
+
   test('renders the correct data', () => {
-    const { container, history } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
+    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
 
@@ -65,8 +75,7 @@ describe('<SearchPathwayCard />', () => {
 
     const cardEl = screen.getByTestId('search-pathway-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
       PATHWAY_SEARCH_EVENT_NAME,
@@ -77,16 +86,15 @@ describe('<SearchPathwayCard />', () => {
   });
 
   test('handles card click', () => {
-    const { history } = renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
+    renderWithRouter(<SearchPathwayCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-pathway-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
   });
 
   test('renders the correct data when clicked from skills quiz page', () => {
     const propsForSkillQuiz = { ...defaultProps, isSkillQuizResult: true };
-    const { container, history } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForSkillQuiz} />);
+    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForSkillQuiz} />);
 
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
 
@@ -99,8 +107,7 @@ describe('<SearchPathwayCard />', () => {
 
     const cardEl = screen.getByTestId('search-pathway-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/search/${TEST_PATHWAY_UUID}`);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
       TEST_ENTERPRISE_UUID,
       PATHWAY_SKILL_QUIZ_EVENT_NAME,
@@ -128,7 +135,7 @@ describe('<SearchPathwayCard />', () => {
   });
 
   test('renders the loading state', () => {
-    const { container, history } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForLoading} />);
+    const { container } = renderWithRouter(<SearchPathwayCardWithAppContext {...propsForLoading} />);
 
     // ensure `Card` was passed `isLoading` by asserting each `Card` subcomponent
     // is treated as a skeleton instead, indicated by `aria-busy="true"`.
@@ -137,6 +144,6 @@ describe('<SearchPathwayCard />', () => {
     // does not do anything when clicked
     const cardEl = screen.getByTestId('search-pathway-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(1);
+    expect(mockedNavigate).not.toHaveBeenCalled();
   });
 });

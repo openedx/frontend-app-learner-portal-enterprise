@@ -5,6 +5,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { Link } from 'react-router-dom';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SkillsCourses from '../SkillsCourses';
 
@@ -27,6 +28,13 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 jest.mock('react-truncate', () => ({
   __esModule: true,
   default: ({ children }) => children,
+}));
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  Link: jest.fn().mockImplementation(({ to, children }) => (
+    <a href={to}>{children}</a>
+  )),
 }));
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -124,7 +132,7 @@ const SkillsCoursesWithContext = ({
 
 describe('<SkillsCourses />', () => {
   test('renders the correct data', async () => {
-    const { container, history } = renderWithRouter(
+    const { container } = renderWithRouter(
       <SkillsCoursesWithContext
         index={testIndex}
       />,
@@ -144,8 +152,9 @@ describe('<SkillsCourses />', () => {
     });
 
     userEvent.click(screen.getByTestId('skills-quiz-course-card'));
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+
+    const linkCalls = Link.mock.calls;
+    expect(linkCalls[0][0].to).toEqual(`/${TEST_ENTERPRISE_SLUG}/search?skill_names=test-skill-1`);
   });
 
   test('renders an alert in case of no courses returned', async () => {

@@ -8,6 +8,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import userEvent from '@testing-library/user-event';
+import { BrowserRouter, Link } from 'react-router-dom';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import PathwayProgressListingPage from '../PathwayProgressListingPage';
 import { useInProgressPathwaysData } from '../data/hooks';
@@ -29,6 +30,13 @@ jest.mock('@edx/frontend-platform/react', () => ({
 
 jest.mock('../data/hooks', () => ({
   useInProgressPathwaysData: jest.fn(),
+}));
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  Link: jest.fn().mockImplementation(({ to, children }) => (
+    <a href={to}>{children}</a>
+  )),
 }));
 
 const PathwayProgressListingWithContext = ({
@@ -74,11 +82,13 @@ describe('<PathwayProgressListingPage />', () => {
 
     await act(async () => {
       render(
-        <PathwayProgressListingWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-          pathwayProgressData={camelCaseObject(learnerPathwayData)}
-        />,
+        <BrowserRouter>
+          <PathwayProgressListingWithContext
+            initialAppState={initialAppState}
+            initialUserSubsidyState={initialUserSubsidyState}
+            pathwayProgressData={camelCaseObject(learnerPathwayData)}
+          />
+        </BrowserRouter>,
       );
       expect(screen.getByText('test 1')).toBeInTheDocument();
       expect(screen.getByText('test 2')).toBeInTheDocument();
@@ -117,15 +127,21 @@ describe('<PathwayProgressListingPage />', () => {
     useInProgressPathwaysData.mockImplementation(() => ([[], null]));
 
     await act(async () => {
-      const { history } = renderWithRouter(
+      renderWithRouter(
         <PathwayProgressListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
       userEvent.click(screen.getByText('Explore pathways'));
-      expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
-      expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PATHWAY}`);
+
+      expect(Link).toHaveBeenCalled();
+      expect(Link).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: `/${initialAppState.enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PATHWAY}`,
+        }),
+        expect.any(Object),
+      );
     });
   });
 
