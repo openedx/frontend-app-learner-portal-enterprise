@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import NotFoundPage from '../NotFoundPage';
@@ -12,7 +12,8 @@ import {
 
 const EnterprisePageRedirect = () => {
   const { authenticatedUser } = useContext(AppContext);
-  const { redirectPath } = useParams();
+  const { pathname } = useLocation();
+  const redirectPath = pathname.substring(3);
   const { roles } = authenticatedUser;
   const selectedEnterpriseUUID = useSelectedEnterpriseUUIDByUserRoles(roles);
   const [enterpriseCustomer, isLoading] = useEnterpriseCustomerByUUID(selectedEnterpriseUUID);
@@ -30,10 +31,10 @@ const EnterprisePageRedirect = () => {
   }
 
   if (!redirectPath) {
-    return <Redirect to={`/${enterpriseCustomer.slug}`} />;
+    return <Navigate to={`/${enterpriseCustomer.slug}`} />;
   }
 
-  return <Redirect to={`/${enterpriseCustomer.slug}/${redirectPath}`} />;
+  return <Navigate to={`/${enterpriseCustomer.slug}/${redirectPath}`} />;
 };
 
 export default EnterprisePageRedirect;

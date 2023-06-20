@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -50,7 +50,7 @@ const SearchPathwayCard = ({
   ...rest
 }) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const pathway = useMemo(() => {
     if (!hit) {
@@ -93,7 +93,7 @@ const SearchPathwayCard = ({
         pathwayUUID: pathwayUuid,
       },
     );
-    history.push(linkToPathway);
+    navigate(linkToPathway);
   };
 
   return (

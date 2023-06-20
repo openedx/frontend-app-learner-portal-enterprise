@@ -7,7 +7,7 @@ import {
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
@@ -24,7 +24,7 @@ import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from '
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const activeQueryParams = useActiveQueryParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const isExecEd2UFulfillmentEnabled = useMemo(() => {
     const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
@@ -87,12 +87,14 @@ const ExecutiveEducation2UPage = () => {
   }, [contentMetadata]);
 
   const handleCheckoutSuccess = () => {
-    history.push({
-      pathname: `/${enterpriseConfig.slug}/executive-education-2u/enrollment-completed`,
-      state: {
-        data: courseMetadata,
+    navigate(
+      `/${enterpriseConfig.slug}/executive-education-2u/enrollment-completed`,
+      {
+        state: {
+          data: courseMetadata,
+        },
       },
-    });
+    );
   };
 
   if (!isExecEd2UFulfillmentEnabled) {

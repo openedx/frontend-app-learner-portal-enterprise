@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -14,7 +14,7 @@ import { isShortCourse } from './utils';
 
 const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const course = useMemo(
     () => {
@@ -74,7 +74,7 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
         courseKey: course.key,
       },
     );
-    history.push(linkToCourse);
+    navigate(linkToCourse);
   };
 
   return (

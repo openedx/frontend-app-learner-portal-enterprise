@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useMemo,
 } from 'react';
 import { Helmet } from 'react-helmet';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Tabs,
@@ -24,8 +24,8 @@ import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 
 const DashboardPage = () => {
-  const { state } = useLocation();
-  const history = useHistory();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
@@ -41,9 +41,9 @@ const DashboardPage = () => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
       delete updatedLocationState.activationSuccess;
-      history.replace({ ...history.location, state: updatedLocationState });
+      navigate(pathname, { state: updatedLocationState });
     }
-  }, [history, state]);
+  }, [pathname, navigate, state]);
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;

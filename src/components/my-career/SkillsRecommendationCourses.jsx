@@ -1,7 +1,7 @@
 import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -19,7 +19,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
     subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
@@ -93,10 +93,12 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
         className="mt-3"
         onClick={() => {
           if (subCategorySkills.length > 0) {
-            history.push({
-              pathname: `/${enterpriseConfig.slug}/search`,
-              search: `showAll=1&content_type=course&skill_names=${subCategorySkills.join('&skill_names=')}`,
-            });
+            navigate(
+              `/${enterpriseConfig.slug}/search`,
+              {
+                search: `showAll=1&content_type=course&skill_names=${subCategorySkills.join('&skill_names=')}`,
+              },
+            );
           }
         }}
       >

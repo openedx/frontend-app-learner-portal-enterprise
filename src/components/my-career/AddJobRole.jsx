@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert, Row, breakpoints, MediaQuery, Hyperlink, Icon, useToggle,
 } from '@edx/paragon';
@@ -13,16 +13,16 @@ import { LICENSE_ACTIVATION_MESSAGE } from '../dashboard/data/constants';
 import SkillsQuizImage from '../../assets/images/skills-quiz/skills-quiz.png';
 
 const AddJobRole = () => {
-  const { state } = useLocation();
-  const history = useHistory();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
       delete updatedLocationState.activationSuccess;
-      history.replace({ ...history.location, state: updatedLocationState });
+      navigate(pathname, { state: updatedLocationState, replace: true });
     }
-  }, [history, state]);
+  }, [navigate, pathname, state]);
 
   const {
     enterpriseConfig: { slug },

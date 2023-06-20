@@ -1,7 +1,7 @@
 import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
-import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -310,7 +310,7 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
   isExecutiveEducation2UCourse,
 }) => {
-  const routeMatch = useRouteMatch();
+  const { pathname } = useLocation();
   const config = getConfig();
   const baseQueryParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -363,7 +363,7 @@ export const useCourseEnrollmentUrl = ({
 
       if (isExecutiveEducation2UCourse) {
         const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
-          currentRouteUrl: routeMatch.url,
+          currentRouteUrl: pathname,
         });
         return externalCourseEnrollmentUrl;
       }
@@ -381,7 +381,7 @@ export const useCourseEnrollmentUrl = ({
       courseRunKey,
       enterpriseConfig.uuid,
       isExecutiveEducation2UCourse,
-      routeMatch.url,
+      pathname,
     ],
   );
 
@@ -396,7 +396,7 @@ export const useCourseEnrollmentUrl = ({
  */
 export const useExtractAndRemoveSearchParamsFromURL = () => {
   const { search } = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
 
   const queryParams = useMemo(
@@ -413,12 +413,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
         });
         queryParams.delete('queryId');
         queryParams.delete('objectId');
-        history.replace({
+        navigate({
           search: queryParams.toString(),
+          replace: true,
         });
       }
     },
-    [history, queryParams],
+    [navigate, queryParams],
   );
 
   return algoliaSearchParams;

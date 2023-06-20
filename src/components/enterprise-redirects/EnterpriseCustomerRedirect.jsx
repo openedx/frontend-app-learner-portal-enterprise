@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import NotFoundPage from '../NotFoundPage';
@@ -28,7 +28,7 @@ const EnterpriseCustomerRedirect = () => {
     return <NotFoundPage />;
   }
 
-  return <Redirect to={`/${enterpriseCustomer.slug}`} />;
+  return <Navigate to={`/${enterpriseCustomer.slug}`} />;
 };
 
 export default EnterpriseCustomerRedirect;
