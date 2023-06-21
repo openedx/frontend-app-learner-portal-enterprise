@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 
-import { useTrackSearchConversionClickHandlerLocal } from '../../data/hooks';
-import { EVENT_NAMES } from '../constants';
+import { useTrackSearchConversionClickHandler } from '../../data/hooks';
+import { EVENT_NAMES } from '../../data/constants';
 
 const ButtonAsLink = ({ children, ...props }) => (
   <Button as={Link} {...props}>
@@ -23,7 +23,7 @@ ButtonAsLink.propTypes = {
 const ToExecutiveEducation2UEnrollment = ({
   enrollmentUrl,
 }) => {
-  const handleSearchConversionStart = useTrackSearchConversionClickHandlerLocal({
+  const handleSearchConversionStart = useTrackSearchConversionClickHandler({
     eventName: EVENT_NAMES.clickedToEnrollPage,
   });
 

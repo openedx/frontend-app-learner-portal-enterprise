@@ -7,18 +7,15 @@ import {
 } from '../../data/hooks';
 import { EnrollButtonCta } from '../common';
 import { CourseContext } from '../../CourseContextProvider';
-import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
 // Data sharing consent
 const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
   const {
     state: {
       activeCourseRun: { key: courseRunKey },
+      userEnrollments,
     },
   } = useContext(CourseContext);
-  const {
-    courseEnrollmentsByStatus,
-  } = useContext(CourseEnrollmentsContext);
 
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
@@ -27,7 +24,7 @@ const ToDataSharingConsentPage = ({ enrollLabel, enrollmentUrl }) => {
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
     href: enrollmentUrl,
     courseRunKey,
-    courseEnrollmentsByStatus,
+    userEnrollments,
   });
 
   return (

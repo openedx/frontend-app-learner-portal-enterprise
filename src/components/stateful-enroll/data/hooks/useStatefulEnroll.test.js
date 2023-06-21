@@ -2,6 +2,9 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import useStatefulEnroll from './useStatefulEnroll';
+import * as hooks from '../../../course/data/hooks';
+import { EVENT_NAMES } from '../../../course/data/constants';
+
 import {
   submitRedemptionRequest,
   retrieveTransactionStatus,
@@ -25,6 +28,12 @@ jest.mock('../service', () => ({
 const onBeginRedeem = jest.fn();
 const onSuccess = jest.fn();
 const onError = jest.fn();
+const userEnrollments = [];
+
+const trackSearchClick = jest.fn();
+const optimizelyClick = jest.fn();
+const trackSearchSpy = jest.spyOn(hooks, 'useTrackSearchConversionClickHandler').mockReturnValue(trackSearchClick);
+const optimizelySpy = jest.spyOn(hooks, 'useOptimizelyEnrollmentClickHandler').mockReturnValue(optimizelyClick);
 
 describe('useStatefulEnroll', () => {
   beforeEach(() => {
@@ -50,6 +59,7 @@ describe('useStatefulEnroll', () => {
       onSuccess,
       onError,
       onBeginRedeem,
+      userEnrollments,
       ...options,
     }));
 
@@ -79,6 +89,8 @@ describe('useStatefulEnroll', () => {
     await act(() => onSuccessHandler({ state: mockState }));
 
     if (isSuccess) {
+      expect(trackSearchSpy).toHaveBeenCalledWith({ eventName: EVENT_NAMES.sucessfulEnrollment });
+      expect(optimizelySpy).toHaveBeenCalledWith('content_key', []);
       expect(onSuccess).toHaveBeenCalledTimes(1);
       expect(onSuccess).toHaveBeenCalledWith({ state: mockState });
     } else {

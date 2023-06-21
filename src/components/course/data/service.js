@@ -59,7 +59,6 @@ export default class CourseService {
         courseDetails.advertisedCourseRunUuid = courseDetails.courseRuns[0].uuid;
       }
     }
-
     return {
       courseDetails,
       userEnrollments: courseData[1],

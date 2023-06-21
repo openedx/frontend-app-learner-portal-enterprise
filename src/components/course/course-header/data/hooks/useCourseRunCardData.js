@@ -9,6 +9,7 @@ import { getExternalCourseEnrollmentUrl } from '../../../enrollment/utils';
 /**
  * Gathers the data needed to render the `CourseRunCard` component.
  * @param {object} args
+ * @param {object} args.course The course metadata.
  * @param {object} args.courseRun The course run metadata, including the key, availability,
  *  start date, pacing type, and enrollment count.
  * @param {object} args.userEnrollment The user's enrollment in the course run, if any.
@@ -18,6 +19,7 @@ import { getExternalCourseEnrollmentUrl } from '../../../enrollment/utils';
  * @returns An object containing the `heading, `subHeading`, and `action` data needed to render the `CourseRunCard`.
  */
 const useCourseRunCardData = ({
+  course,
   courseRun,
   userEnrollment,
   courseRunUrl,
@@ -39,6 +41,7 @@ const useCourseRunCardData = ({
   // Get and return course run card data for display
   const heading = useCourseRunCardHeading({
     isCourseRunCurrent,
+    course,
     courseRun,
     isUserEnrolled,
   });

@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
+import { useTrackSearchConversionClickHandler, useOptimizelyEnrollmentClickHandler } from '../../../course/data/hooks';
+import { EVENT_NAMES } from '../../../course/data/constants';
 
 import {
   submitRedemptionRequest,
@@ -32,9 +34,16 @@ const useStatefulEnroll = ({
   onSuccess,
   onError,
   onBeginRedeem,
+  userEnrollments,
 }) => {
   const [transaction, setTransaction] = useState();
-
+  const optimizelyHandler = useOptimizelyEnrollmentClickHandler(
+    contentKey,
+    userEnrollments,
+  );
+  const searchHandler = useTrackSearchConversionClickHandler({
+    eventName: EVENT_NAMES.sucessfulEnrollment,
+  });
   const redemptionMutation = useMutation({
     mutationFn: submitRedemptionRequest,
     onMutate: () => {
@@ -49,6 +58,8 @@ const useStatefulEnroll = ({
     setTransaction(newTransaction);
     if (newTransaction.state === 'committed') {
       if (onSuccess) {
+        optimizelyHandler();
+        searchHandler();
         await onSuccess(newTransaction);
       }
     }

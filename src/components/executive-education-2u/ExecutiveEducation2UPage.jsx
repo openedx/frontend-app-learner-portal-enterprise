@@ -9,7 +9,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { useHistory } from 'react-router-dom';
 
-import moment from 'moment/moment';
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
 import {
@@ -19,8 +18,7 @@ import {
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 import CourseSummaryCard from './components/CourseSummaryCard';
 import RegistrationSummaryCard from './components/RegistrationSummaryCard';
-import { getActiveCourseRun } from '../course/data/utils';
-import { DATE_FORMAT } from '../program/ProgramCourses';
+import { getActiveCourseRun, getCourseStartDate } from '../course/data/utils';
 import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from './utils';
 
 const ExecutiveEducation2UPage = () => {
@@ -76,7 +74,7 @@ const ExecutiveEducation2UPage = () => {
         organizationImage: organizationDetails.organizationLogo,
         organizationName: organizationDetails.organizationName,
         title: contentMetadata.title,
-        startDate: moment(activeCourseRun?.start).format(DATE_FORMAT),
+        startDate: getCourseStartDate({ contentMetadata, courseRun: activeCourseRun }),
         duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
         activeCourseRun,

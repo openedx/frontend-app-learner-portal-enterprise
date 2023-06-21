@@ -6,7 +6,6 @@ import EnrollModal from '../../EnrollModal';
 
 import { EnrollButtonCta } from '../common';
 import { CourseContext } from '../../CourseContextProvider';
-import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
@@ -26,11 +25,9 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
   const {
     state: {
       activeCourseRun: { key: courseRunKey },
+      userEnrollments,
     },
   } = useContext(CourseContext);
-  const {
-    courseEnrollmentsByStatus,
-  } = useContext(CourseEnrollmentsContext);
 
   const analyticsHandler = useTrackSearchConversionClickHandler({
     href: enrollmentUrl,
@@ -40,7 +37,7 @@ const ToEcomBasketPage = ({ enrollLabel, enrollmentUrl, courseRunPrice }) => {
   const optimizelyHandler = useOptimizelyEnrollmentClickHandler({
     href: enrollmentUrl,
     courseRunKey,
-    courseEnrollmentsByStatus,
+    userEnrollments,
   });
 
   const handleEnroll = (e) => {

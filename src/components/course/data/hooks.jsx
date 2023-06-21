@@ -2,7 +2,6 @@ import {
   useEffect, useState, useMemo, useContext, useCallback,
 } from 'react';
 import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -30,6 +29,7 @@ import {
   getCourseRunPrice,
   getMissingSubsidyReasonActions,
   getCourseOrganizationDetails,
+  getCourseStartDate,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -43,7 +43,6 @@ import {
   DISABLED_ENROLL_USER_MESSAGES,
   DISABLED_ENROLL_REASON_TYPES,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  DATE_FORMAT,
 } from './constants';
 import { pushEvent, EVENTS } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
@@ -97,7 +96,6 @@ export function useAllCourseData({
     };
     fetchData();
   }, [courseService, activeCatalogs]);
-
   return {
     courseData,
     courseRecommendations,
@@ -405,13 +403,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  * a imperceivable delay is introduced to allow enough time for analytic event request to resolve.
  *
  * @param {object} args
- * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
+ * @param {string} [args.href] Optional: If click handler is used on a hyperlink, this is the destination url.
  * @param {string} args.eventName Name of the event
  *
  * @returns Click handler function for clicks on buttons, external hyperlinks (with a delay), and
  * internal hyperlinks (e.g., using ``Link``).
  */
-export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
+export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
   const {
     state: {
       activeCourseRun: { key: courseKey },
@@ -448,51 +446,16 @@ export const useTrackSearchConversionClickHandler = ({ href, eventName }) => {
 };
 
 /**
- * Returns a function to be used as a click handler that emits an analytics event for a
- * search conversion via ``sendEnterpriseTrackEvent``. when used on a local hyperlink
- *
- * @param {object} args
- * @param {string} args.href If click handler is used on a hyperlink, this is the destination url.
- * @param {string} args.eventName Name of the event
- *
- * @returns Click handler function for clicks on buttons
- *  */
-export const useTrackSearchConversionClickHandlerLocal = ({ eventName }) => {
-  const {
-    state: {
-      activeCourseRun: { key: courseKey },
-      algoliaSearchParams,
-    },
-  } = useContext(CourseContext);
-  const { enterpriseConfig } = useContext(AppContext);
-  const handleClick = useCallback(
-    () => {
-      const { queryId, objectId } = algoliaSearchParams;
-      sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
-        eventName,
-        {
-          products: [{ objectID: objectId }],
-          index: getConfig().ALGOLIA_INDEX_NAME,
-          queryID: queryId,
-          courseKey,
-        },
-      );
-    },
-    [algoliaSearchParams, enterpriseConfig, eventName, courseKey],
-  );
-
-  return handleClick;
-};
-
-/**
  * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
+ *
+ * @param {string} [args.href] Optional: If click handler is used on a hyperlink, this is the destination url.
+ * @param {string} args.courseRunKey Id of the course run
+ * @param {string} args.userEnrollments Array of user enrollments
  *
  * @returns Click handler function for clicks on enrollment buttons.
  */
-export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, courseEnrollmentsByStatus }) => {
-  const enrollmentCountIsZero = Object.values(courseEnrollmentsByStatus).flat().length === 0;
-
+export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, userEnrollments }) => {
+  const hasNoExistingEnrollments = userEnrollments?.length === 0 || true;
   const handleClick = useCallback(
     (e) => {
       // If tracking is on a link with an external href destination, we must intentionally delay the default click
@@ -504,11 +467,11 @@ export const useOptimizelyEnrollmentClickHandler = ({ href, courseRunKey, course
         }, CLICK_DELAY_MS);
       }
       pushEvent(EVENTS.ENROLLMENT_CLICK, { courseKey: courseRunKey });
-      if (enrollmentCountIsZero) {
+      if (hasNoExistingEnrollments) {
         pushEvent(EVENTS.FIRST_ENROLLMENT_CLICK, { courseKey: courseRunKey });
       }
     },
-    [courseRunKey, enrollmentCountIsZero, href],
+    [courseRunKey, hasNoExistingEnrollments, href],
   );
 
   return handleClick;
@@ -580,7 +543,6 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
   const courseService = new CourseService({ enterpriseUuid });
   const response = await courseService.fetchCanRedeem({ courseRunKeys });
   const transformedResponse = camelCaseObject(response.data);
-
   const redeemabilityForActiveCourseRun = transformedResponse.find(r => r.contentKey === activeCourseRunKey);
   const missingSubsidyAccessPolicyReason = redeemabilityForActiveCourseRun?.reasons[0];
   const preferredSubsidyAccessPolicy = redeemabilityForActiveCourseRun?.redeemableSubsidyAccessPolicy;
@@ -630,7 +592,6 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 }) => {
   const { id: lmsUserId } = getAuthenticatedUser();
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
-
   return useQuery({
     ...queryOptions,
     queryKey: ['policy', enterpriseUuid, 'can-redeem', { lmsUserId, courseRunKeys, activeCourseRunKey }],
@@ -891,18 +852,11 @@ export const useMinimalCourseMetadata = () => {
     return duration;
   };
 
-  const getStartDate = () => {
-    if (!activeCourseRun) {
-      return undefined;
-    }
-    return moment(activeCourseRun?.start).format(DATE_FORMAT);
-  };
-
   const courseMetadata = {
     organizationImage: organizationDetails.organizationLogo,
     organizationName: organizationDetails.organizationName,
     title: course.title,
-    startDate: getStartDate(),
+    startDate: getCourseStartDate({ contentMetadata: course, courseRun: activeCourseRun }),
     duration: getDuration(),
     priceDetails: {
       price: coursePrice.list,
