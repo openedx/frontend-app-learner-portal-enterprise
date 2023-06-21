@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -39,16 +39,6 @@ jest.mock('../../data/hooks', () => ({
 jest.mock('../../../executive-education-2u/UserEnrollmentForm', () => jest.fn(() => (
   <div data-testid="user-enrollment-form" />
 )));
-
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  createRef: jest.fn(),
-}));
-
-jest.mock('../../../executive-education-2u/data', () => ({
-  ...jest.requireActual('../../../executive-education-2u/data'),
-  isDuplicateExternalCourseOrder: jest.fn(() => true),
-}));
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -175,20 +165,32 @@ describe('ExternalCourseEnrollment', () => {
     expect(mockHistoryPush).toHaveBeenCalledTimes(1);
   });
 
-  it('shows duplicate order alert', async () => {
-    const createRefSpy = jest.spyOn(React, 'createRef');
+  it.each([
+    { hasDuplicateOrder: true },
+    { hasDuplicateOrder: false },
+  ])('shows duplicate order alert (%s)', async ({ hasDuplicateOrder }) => {
+    const mockScrollIntoView = jest.fn();
+    global.HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
     const courseContextValue = {
       ...baseCourseContextValue,
-      formSubmissionError: { message: 'duplicate order' },
+      externalCourseFormSubmissionError: hasDuplicateOrder ? { message: 'duplicate order' } : undefined,
     };
+
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
-    await waitFor(() => {
+    if (hasDuplicateOrder) {
       expect(screen.getByText('Already Enrolled')).toBeInTheDocument();
-      expect(screen.getByText('Go to your GetSmarter dashboard', { exact: false })).toBeInTheDocument();
-    });
-    const dashboardButton = screen.getByText('Go to dashboard');
-    expect(dashboardButton).toBeInTheDocument();
-    expect(dashboardButton).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-uuid');
-    expect(createRefSpy).toHaveBeenCalledTimes(1);
+      const dashboardButton = screen.getByText('Go to dashboard');
+      expect(dashboardButton).toBeInTheDocument();
+      expect(dashboardButton).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-uuid');
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(1);
+      expect(mockScrollIntoView).toHaveBeenCalledWith(
+        expect.objectContaining({ behavior: 'smooth' }),
+      );
+    } else {
+      expect(screen.queryByText('Already Enrolled')).not.toBeInTheDocument();
+      expect(screen.queryByText('Go to dashboard')).not.toBeInTheDocument();
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(0);
+    }
   });
 });

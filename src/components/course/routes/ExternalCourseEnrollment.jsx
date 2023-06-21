@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, createRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   Alert, Button, Container, Col, Hyperlink, Row,
@@ -49,11 +49,11 @@ const ExternalCourseEnrollment = () => {
     failureMessage,
   } = useExternalEnrollmentFailureReason();
 
-  const containerRef = createRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (isDuplicateExternalCourseOrder(externalCourseFormSubmissionError) && containerRef?.current) {
-      containerRef?.current?.scrollIntoView({ behavior: 'smooth' });
+      containerRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [externalCourseFormSubmissionError, containerRef]);
 
@@ -86,10 +86,7 @@ const ExternalCourseEnrollment = () => {
                 variant="success"
                 ref={containerRef}
                 icon={CheckCircle}
-                show={
-                  externalCourseFormSubmissionError
-                  && isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)
-                }
+                show={isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)}
                 actions={[
                   <Button as={Hyperlink} target="_blank" destination={externalDashboardUrl}>
                     Go to dashboard
