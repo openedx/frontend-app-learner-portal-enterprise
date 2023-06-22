@@ -13,7 +13,7 @@ import { MoreVert } from '@edx/paragon/icons';
 
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
-import { COURSE_STATUSES, COURSE_PACING } from '../../../../../constants';
+import { COURSE_STATUSES, COURSE_PACING, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -321,9 +321,11 @@ class BaseCourseCard extends Component {
   };
 
   renderOrganizationName = () => {
-    const { orgName } = this.props;
+    const { orgName, mode } = this.props;
+
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     if (orgName) {
-      return <p className="mb-0">{orgName}</p>;
+      return <p className="mb-0">{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>}</p>;
     }
     return null;
   };
@@ -381,10 +383,13 @@ class BaseCourseCard extends Component {
       linkToCourse,
       hasViewCertificateLink,
       isLoading,
+      mode,
     } = this.props;
     const dropdownMenuItems = this.getDropdownMenuItems();
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+
     return (
-      <div className="dashboard-course-card py-4 border-bottom">
+      <div className={`dashboard-course-card py-4 border-bottom ${isExecutiveEducation2UCourse && 'bg-dark-200 rounded-lg p-3 text-light-100'}`}>
         {isLoading ? (
           <>
             <div className="sr-only">Loading...</div>
@@ -398,7 +403,7 @@ class BaseCourseCard extends Component {
                   {this.renderMicroMastersTitle()}
                   <div className="d-flex align-items-start justify-content-between mb-1">
                     <h4 className="course-title mb-0 mr-2">
-                      <a className="h3" href={linkToCourse}>{title}</a>
+                      <a className={`h3 ${isExecutiveEducation2UCourse && 'text-light-100'}`} href={linkToCourse}>{title}</a>
                     </h4>
                     {
                       BADGE_PROPS_BY_COURSE_STATUS[type] && (
@@ -416,7 +421,7 @@ class BaseCourseCard extends Component {
               {this.renderButtons()}
               {this.renderChildren()}
               <div className="course-misc-text row">
-                <div className="col text-gray">
+                <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-900' : 'text-gray' }`}>
                   <small className="mb-0">
                     {this.getCourseMiscText()}
                   </small>
@@ -438,6 +443,7 @@ BaseCourseCard.propTypes = {
   title: PropTypes.string.isRequired,
   linkToCourse: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
+  mode: PropTypes.string.isRequired,
   hasViewCertificateLink: PropTypes.bool,
   buttons: PropTypes.element,
   children: PropTypes.node,
