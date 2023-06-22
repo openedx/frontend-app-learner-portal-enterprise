@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis';
 import { getProgramIcon } from '../course/data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
@@ -70,14 +70,18 @@ const ProgramListingCard = ({ program }) => {
 
       <Card.Header
         title={(
-          <Truncate lines={2} trimWhitespace>
-            {program.title}
-          </Truncate>
+          <LinesEllipsis
+            text={program.title}
+            maxLine={2}
+            trimWhitespace
+          />
         )}
         subtitle={program.authoringOrganizations?.length > 0 ? (
-          <Truncate lines={2} trimWhitespace>
-            {program.authoringOrganizations.map(org => org.key).join(', ')}
-          </Truncate>
+          <LinesEllipsis
+            text={program.authoringOrganizations.map(org => org.key).join(', ')}
+            maxLine={2}
+            trimWhitespace
+          />
         ) : undefined}
       />
       <Card.Section>

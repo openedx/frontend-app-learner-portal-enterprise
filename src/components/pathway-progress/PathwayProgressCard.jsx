@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Card } from '@edx/paragon';
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis'
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -28,9 +28,11 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
       />
       <Card.Header
         title={(
-          <Truncate lines={2} trimWhitespace>
-            {learnerPathwayProgress.title}
-          </Truncate>
+          <LinesEllipsis
+            text={learnerPathwayProgress.title}
+            maxLine={2}
+            trimWhitespace
+          />
         )}
       />
       <Card.Section />

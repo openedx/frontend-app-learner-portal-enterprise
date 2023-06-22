@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis'
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -111,9 +111,11 @@ const SearchPathwayCard = ({
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {pathway.title}
-          </Truncate>
+          <LinesEllipsis
+            text={pathway.title}
+            maxLine={3}
+            trimWhitespace
+          />
         )}
       />
       <Card.Section>

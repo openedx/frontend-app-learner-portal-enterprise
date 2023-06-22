@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
@@ -69,14 +69,18 @@ const HighlightedContentCard = ({
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {title}
-          </Truncate>
+          <LinesEllipsis
+            text={title}
+            maxLine={3}
+            trimWhitespace
+          />
         )}
         subtitle={authoringOrganizations?.content && (
-          <Truncate lines={2} trimWhitespace>
-            {authoringOrganizations.content}
-          </Truncate>
+          <LinesEllipsis
+            text={authoringOrganizations.content}
+            maxLine={2}
+            trimWhitespace
+          />
         )}
       />
       <Card.Section />

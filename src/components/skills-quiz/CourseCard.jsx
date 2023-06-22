@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { Badge, Card, Stack } from '@edx/paragon';
 import { useHistory } from 'react-router-dom';
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -62,19 +62,20 @@ const CourseCard = ({
       />
       <Card.Header
         title={(
-          <Truncate
-            lines={course.skillNames?.length < 5 ? 3 : 2}
+          <LinesEllipsis
+            text={course.title}
+            maxLine={course.skillNames?.length < 5 ? 3 : 2}
             trimWhitespace
-          >
-            {course.title}
-          </Truncate>
+          />
         )}
         subtitle={course.partners.length > 0 && (
-          <Truncate lines={2} trimWhitespace>
-            {course.partners
+          <LinesEllipsis
+            text={course.partners
               .map((partner) => partner.name)
               .join(', ')}
-          </Truncate>
+            maxLine={2}
+            trimWhitespace
+          />
         )}
       />
       <Card.Section>

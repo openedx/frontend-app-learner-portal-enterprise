@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis'
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
@@ -60,15 +60,19 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
 
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {course.title}
-          </Truncate>
+          <LinesEllipsis
+            text={course.title}
+            maxLine={3}
+            trimWhitespace
+          />
         )}
         subtitle={course.owners?.length > 0 && (
           <p className="partner">
-            <Truncate lines={1} trimWhitespace>
-              {course.owners.map(partner => partner.name).join(', ')}
-            </Truncate>
+            <LinesEllipsis
+              text={course.owners.map(partner => partner.name).join(', ')}
+              maxLine={1}
+              trimWhitespace
+            />
           </p>
         )}
       />

@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -111,15 +111,19 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {program.title}
-          </Truncate>
+          <LinesEllipsis
+            text={program.title}
+            maxLine={3}
+            trimWhitespace
+          />
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <Truncate lines={2} trimWhitespace>
-              {program.authoringOrganizations.map(org => org.key).join(', ')}
-            </Truncate>
+            <LinesEllipsis
+              text={program.authoringOrganizations.map(org => org.key).join(', ')}
+              maxLine={2}
+              trimWhitespace
+            />
           )
         }
       />
