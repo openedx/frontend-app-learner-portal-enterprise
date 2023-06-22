@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import LinesEllipsis from 'react-lines-ellipsis'
+import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
