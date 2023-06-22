@@ -27,11 +27,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 

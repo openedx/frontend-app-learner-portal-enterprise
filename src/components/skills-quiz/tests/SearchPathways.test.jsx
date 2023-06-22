@@ -22,11 +22,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
 const TEST_TITLE = 'Test Title';
 const TEST_CARD_IMAGE_URL = 'http://fake.image';

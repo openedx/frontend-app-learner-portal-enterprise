@@ -26,11 +26,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
 const PROGRAM_TYPE_DISPLAYED = 'MicroMasters® Program';

@@ -7,11 +7,6 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 
 import SearchJobCard from '../SearchJobCard';
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
   default: (props = {}) => <div data-testid={props['data-testid']} />,

@@ -10,11 +10,6 @@ import { TEST_ENTERPRISE_SLUG, TEST_ENTERPRISE_UUID } from './constants';
 import { PATHWAY_SEARCH_EVENT_NAME, PATHWAY_SKILL_QUIZ_EVENT_NAME } from '../constants';
 import { renderWithRouter } from '../../../utils/tests';
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => {
   const originalModule = jest.requireActual('@edx/frontend-enterprise-utils');
   return ({

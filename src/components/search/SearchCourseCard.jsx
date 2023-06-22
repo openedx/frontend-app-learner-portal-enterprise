@@ -104,7 +104,7 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
         subtitle={course.partners?.length > 0 && (
           <LinesEllipsis
             text={course.partners.map(partner => partner.name).join(', ')}
-            maxLine={3}
+            maxLine={2}
             trimWhitespace
           />
         )}
