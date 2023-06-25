@@ -41,7 +41,7 @@ In order to create the patch of `font-awesome`, the deprecation warnings were re
 npx patch-package font-awesome
 ```
 
-This command generates a patch files that will be applied when running `npm install`, essentially persisting the temporary changes in the `node_modules` directory.
+This command generates a patch file that is automatically applied when running `npm install`, essentially persisting the temporary changes in the `node_modules` directory (i.e., even if the `node_modules` directory gets deleted and re-created).
 
 ## Alternatives Considered
 
