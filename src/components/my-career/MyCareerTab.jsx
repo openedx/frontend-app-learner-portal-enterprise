@@ -42,7 +42,7 @@ const MyCareerTab = () => {
   return (
     <div>
       <SearchData>
-        { !learnerCurrentJobID ? (
+        {!learnerCurrentJobID ? (
           <AddJobRole submitClickHandler={setLearnerProfileState} />
         ) : (
           <VisualizeCareer jobId={learnerCurrentJobID} submitClickHandler={setLearnerProfileState} />

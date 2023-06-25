@@ -17,11 +17,21 @@ import { App } from './components/app';
 import './index.scss';
 
 subscribe(APP_READY, () => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    document.getElementById('root'),
+  );
 });
 
 subscribe(APP_INIT_ERROR, (error) => {
-  ReactDOM.render(<ErrorPage message={error.message} />, document.getElementById('root'));
+  ReactDOM.render(
+    <React.StrictMode>
+      <ErrorPage message={error.message} />
+    </React.StrictMode>,
+    document.getElementById('root'),
+  );
 });
 
 initialize({
