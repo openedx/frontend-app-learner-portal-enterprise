@@ -10,6 +10,17 @@
     @extend .mb-0;
   }
 
+  &.exec-ed-course-card {
+    p > a[href]:not(.btn) {
+      color: $light-200;
+      text-decoration-color: $light-200;
+
+      &:hover {
+         color: $light-500;
+      }
+    }
+  }
+
   .notifications {
     li:last-child {
       .notification {
