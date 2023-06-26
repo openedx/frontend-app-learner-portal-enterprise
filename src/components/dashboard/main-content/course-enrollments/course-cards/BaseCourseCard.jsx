@@ -389,7 +389,7 @@ class BaseCourseCard extends Component {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
     return (
-      <div className={`dashboard-course-card py-4 border-bottom ${isExecutiveEducation2UCourse && 'bg-dark-200 rounded-lg p-3 text-light-100'}`}>
+      <div className={`dashboard-course-card py-4 border-bottom ${isExecutiveEducation2UCourse && 'exec-ed-course-card bg-dark-200 rounded-lg p-3 text-light-100'}`}>
         {isLoading ? (
           <>
             <div className="sr-only">Loading...</div>
