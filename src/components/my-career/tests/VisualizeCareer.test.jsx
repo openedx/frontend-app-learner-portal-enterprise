@@ -141,6 +141,9 @@ const defaultAppState = {
   enterpriseConfig: {
     slug: 'test-enterprise',
   },
+  authenticatedUser: {
+    username: 'enterprise-learner-1',
+  },
 };
 
 const VisualizeCareerWithContext = ({ initialAppState = defaultAppState }) => (

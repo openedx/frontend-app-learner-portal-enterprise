@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   ActionRow, Button, Icon, Row, useToggle, TransitionReplace,
 } from '@edx/paragon';
-import { ErrorPage } from '@edx/frontend-platform/react';
+import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useLearnerSkillLevels } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
 import SpiderChart from './SpiderChart';
@@ -16,6 +16,7 @@ const editIcon = () => (
 );
 
 const VisualizeCareer = ({ jobId, submitClickHandler }) => {
+  const { enterpriseConfig: { uuid: enterpriseId }, authenticatedUser: { username } } = useContext(AppContext);
   const [showInstructions, , , toggleShowInstructions] = useToggle(false);
   const [isEditable, setIsEditable] = useState(false);
 
@@ -23,6 +24,11 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
 
   const editOnClickHandler = () => {
     setIsEditable(true);
+    sendEnterpriseTrackEvent(
+      username,
+      enterpriseId,
+      'edx.ui.enterprise.learner_portal.career_tab.edit_job_button.clicked',
+    );
   };
 
   const onSaveRole = (resp) => {
