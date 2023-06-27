@@ -25,7 +25,7 @@ const SearchCurrentJobCard = ({ index }) => {
   useEffect(
     () => {
       let fetch = true;
-      fetchJobs(); // eslint-disable-line no-use-before-define
+      fetchJobs(); // eslint-disable-line @typescript-eslint/no-use-before-define
       return () => { fetch = false; };
 
       async function fetchJobs() {

@@ -22,12 +22,7 @@ import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
-
-export function hasCourseStarted(start) {
-  const today = new Date();
-  const startDate = new Date(start);
-  return startDate && today >= startDate;
-}
+import { compareRedeemableOffers, hasCourseStarted as hasCourseStartedTs } from './utilsTs';
 
 export function findUserEnrollmentForCourseRun({ userEnrollments, key }) {
   return userEnrollments.find(
@@ -199,53 +194,6 @@ const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
     hasRemainingApplications,
     hasRemainingApplicationsForUser,
   ].every(value => value === true);
-};
-
-/**
- * Compares two redeemable enterprise offers, and makes a choice
- * about which one is preferred. Prefers offers without limits,
- * less spend (> $0), and less applications (> 0) remaining.
- *
- * @param {object} args
- * @param {object} args.firstOffer First redeemable offer to compare.
- * @param {object} args.secondOffer Second redeemable offer to compare.
- *
- * @returns A sort comparison value, e.g. -1, 0, or 1.
- */
-export const compareRedeemableOffers = ({ firstOffer: a, secondOffer: b }) => {
-  const aBalance = a.remainingBalanceForUser ?? a.remainingBalance ?? null;
-  const bBalance = b.remainingBalanceForUser ?? b.remainingBalance ?? null;
-  const bothHaveBalance = !isNil(aBalance) && !isNil(bBalance);
-
-  const aApplications = a.remainingApplicationsForUser ?? a.remainingApplications ?? null;
-  const bApplications = b.remainingApplicationsForUser ?? b.remainingApplications ?? null;
-  const bothHaveApplications = !isNil(aApplications) && !isNil(bApplications);
-
-  let priority = 0;
-
-  // check balances
-  if (isNil(aBalance) && !isNil(bBalance)) {
-    priority -= 1;
-  } else if (!isNil(aBalance) && isNil(bBalance)) {
-    priority += 1;
-  } else if (bothHaveBalance && aBalance < bBalance) {
-    priority -= 1;
-  } else if (bothHaveBalance && aBalance > bBalance) {
-    priority += 1;
-  }
-
-  // check applications
-  if (isNil(aApplications) && !isNil(bApplications)) {
-    priority -= 1;
-  } else if (!isNil(aApplications) && isNil(bApplications)) {
-    priority += 1;
-  } else if (bothHaveApplications && aApplications < bApplications) {
-    priority -= 1;
-  } else if (bothHaveApplications && aApplications > bApplications) {
-    priority += 1;
-  }
-
-  return priority; // default case: no changes in sorting order
 };
 
 /**
@@ -685,3 +633,5 @@ export const getCourseStartDate = ({ contentMetadata, courseRun }) => {
 
   return startDate;
 };
+
+export const hasCourseStarted = hasCourseStartedTs;
