@@ -18,8 +18,11 @@ jest.mock('@edx/frontend-platform/config', () => ({
 jest.mock('../../data/hooks', () => ({
   ...jest.requireActual('../../data/hooks'),
   useMinimalCourseMetadata: () => ({
-    organizationImage: 'https://test.org/logo.png',
-    organizationName: 'Test Org',
+    organization: {
+      logoImgUrl: 'https://test.org/logo.png',
+      name: 'Test Org',
+      marketingUrl: 'https://test.org',
+    },
     title: 'Test Course Title',
     startDate: '2023-03-05',
     duration: '3 Weeks',
@@ -82,6 +85,7 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('3 Weeks')).toBeInTheDocument();
     expect(screen.getByText('Course total:')).toBeInTheDocument();
     expect(screen.getByText('$100.00 USD')).toBeInTheDocument();
+    expect(screen.getByText('$0.00 USD')).toBeInTheDocument();
     expect(screen.getByText('What happens next?')).toBeInTheDocument();
     expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
   });

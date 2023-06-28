@@ -1,21 +1,31 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
-  Alert, Row, breakpoints, MediaQuery, Hyperlink, Icon, useToggle,
+  Alert, Row, breakpoints, MediaQuery, Icon, useToggle, TransitionReplace, Button,
 } from '@edx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardSidebar } from '../dashboard/sidebar';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../course/CourseEnrollmentFailedAlert';
 import { LICENSE_ACTIVATION_MESSAGE } from '../dashboard/data/constants';
-
+import SearchJobRole from './SearchJobRole';
 import SkillsQuizImage from '../../assets/images/skills-quiz/skills-quiz.png';
 
-const AddJobRole = () => {
+const addIcon = () => (
+  <Icon
+    id="add-job-role-icon"
+    className="fa fa-plus add-job-icon"
+    screenReaderText="Add Role"
+  />
+);
+
+const AddJobRole = ({ submitClickHandler }) => {
   const { state } = useLocation();
   const history = useHistory();
+  const [isEditable, setIsEditable] = useState(false);
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
+
   useEffect(() => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
@@ -24,9 +34,18 @@ const AddJobRole = () => {
     }
   }, [history, state]);
 
-  const {
-    enterpriseConfig: { slug },
-  } = useContext(AppContext);
+  const addRoleClickHandler = () => {
+    setIsEditable(true);
+  };
+
+  const onSaveRole = (resp) => {
+    submitClickHandler(resp);
+    setIsEditable(false);
+  };
+
+  const onCancelRole = () => {
+    setIsEditable(false);
+  };
 
   return (
     <>
@@ -50,20 +69,30 @@ const AddJobRole = () => {
               <h2>Visualize your career.</h2>
               <div className="row job-role-details">
                 <div className="col-lg-6 col-sm-12">
-                  <p>
-                    Take one minute to pick a job title that best describes your
-                    current or desired role. We&apos;ll tell you what skills you
-                    should be looking for when enrolling in courses, and track
-                    your skill growth as you complete courses.
-                  </p>
-                  <Hyperlink destination={`/${slug}/skills-quiz`}>
-                    <Icon
-                      id="add-job-role-icon"
-                      className="fa fa-plus add-job-icon"
-                      screenReaderText="Add Role"
-                    />
-                    Add Role
-                  </Hyperlink>
+                  <TransitionReplace className="mb-3">
+                    {!isEditable ? (
+                      <div key="add-job-button">
+                        <p>
+                          Take one minute to pick a job title that best describes your
+                          current or desired role. We&apos;ll tell you what skills you
+                          should be looking for when enrolling in courses, and track
+                          your skill growth as you complete courses.
+                        </p>
+                        <Button
+                          style={{ paddingLeft: 0 }}
+                          variant="link"
+                          iconBefore={addIcon}
+                          onClick={addRoleClickHandler}
+                        >
+                          Add Role
+                        </Button>
+                      </div>
+                    ) : (
+                      <div key="add-job-dropdown">
+                        <SearchJobRole onSave={onSaveRole} onCancel={onCancelRole} />
+                      </div>
+                    )}
+                  </TransitionReplace>
                 </div>
                 <div className="col-lg-6 col-sm-12">
                   <img
@@ -86,6 +115,10 @@ const AddJobRole = () => {
       </Row>
     </>
   );
+};
+
+AddJobRole.propTypes = {
+  submitClickHandler: PropTypes.func.isRequired,
 };
 
 export default AddJobRole;

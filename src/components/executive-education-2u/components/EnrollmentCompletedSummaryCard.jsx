@@ -38,7 +38,10 @@ const EnrollmentCompletedSummaryCard = () => {
               <div className="mb-1.5 text-black-color">Notified by email</div>
               <div className="small mb-2 text-gray-500">
                 GetSmarter will email you when your course starts. Alternatively, you can visit your{' '}
-                <Hyperlink destination={externalDashboardUrl}>
+                <Hyperlink
+                  destination={externalDashboardUrl}
+                  target="_blank"
+                >
                   GetSmarter learner dashboard
                 </Hyperlink>
                 {' '}for course status updates.

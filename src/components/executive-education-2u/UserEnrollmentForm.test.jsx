@@ -78,6 +78,8 @@ const UserEnrollmentFormWrapper = ({
     state: {
       userEnrollments: [],
     },
+    setExternalFormSubmissionError: jest.fn(),
+    formSubmissionError: {},
   },
 }) => (
   <IntlProvider locale="en">
@@ -314,7 +316,17 @@ describe('UserEnrollmentForm', () => {
   it('handles network error with form submission', async () => {
     const mockError = new Error('oh noes');
     Date.now = jest.fn(() => new Date().valueOf());
-    render(<UserEnrollmentFormWrapper />);
+    const mockFormSubmissionValue = { message: 'oh noes' };
+
+    render(<UserEnrollmentFormWrapper
+      courseContextValue={{
+        state: {
+          userEnrollments: [],
+        },
+        setExternalCourseFormSubmissionError: jest.fn(),
+        externalCourseFormSubmissionError: mockFormSubmissionValue,
+      }}
+    />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
@@ -340,9 +352,11 @@ describe('UserEnrollmentForm', () => {
     expect(mockLogError).toHaveBeenCalledTimes(1);
     expect(mockLogError).toHaveBeenCalledWith(mockError);
 
-    // ensure error alert is visible
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
+    await waitFor(() => {
+      // ensure error alert is visible
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText('An error occurred while sharing your course enrollment information', { exact: false })).toBeInTheDocument();
+    });
   });
 
   it('handle error 422 where course was already enrolled in with legacy enterprise offers', async () => {
@@ -396,5 +410,39 @@ describe('UserEnrollmentForm', () => {
 
     // disabled after submitting
     expect(screen.getByText('Registration confirmed').closest('button')).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('handles duplicate order with form submission', async () => {
+    const mockError = new Error('duplicate order');
+    Date.now = jest.fn(() => new Date().valueOf());
+    const mockFormSubmissionValue = { message: 'duplicate order' };
+    render(<UserEnrollmentFormWrapper
+      courseContextValue={{
+        state: {
+          userEnrollments: [],
+        },
+        setExternalCourseFormSubmissionError: jest.fn(),
+        externalCourseFormSubmissionError: mockFormSubmissionValue,
+      }}
+    />);
+    userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
+    userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
+    userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
+    userEvent.click(screen.getByLabelText(termsLabelText));
+    userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
+    userEvent.click(screen.getByText('Confirm registration'));
+
+    // simulate `useStatefulEnroll` calling `onError` arg
+    act(() => {
+      useStatefulEnroll.mock.calls[0][0].onError(mockError);
+    });
+
+    expect(mockLogError).toHaveBeenCalledTimes(1);
+    expect(mockLogError).toHaveBeenCalledWith(mockError);
+
+    await waitFor(() => {
+      // ensure regular error alert is not visible
+      expect(screen.queryByText('An error occurred while sharing your course enrollment information')).not.toBeInTheDocument();
+    });
   });
 });

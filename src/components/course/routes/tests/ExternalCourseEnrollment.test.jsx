@@ -20,8 +20,11 @@ jest.mock('react-router-dom', () => ({
 jest.mock('../../data/hooks', () => ({
   ...jest.requireActual('../../data/hooks'),
   useMinimalCourseMetadata: () => ({
-    organizationImage: 'https://test.org/logo.png',
-    organizationName: 'Test Org',
+    organization: {
+      name: 'Test Org',
+      logoImgUrl: 'https://test.org/logo.png',
+      marketingUrl: 'https://test.org',
+    },
     title: 'Test Course Title',
     startDate: '2023-03-05',
     duration: '3 Weeks',
@@ -35,6 +38,13 @@ jest.mock('../../data/hooks', () => ({
 jest.mock('../../../executive-education-2u/UserEnrollmentForm', () => jest.fn(() => (
   <div data-testid="user-enrollment-form" />
 )));
+
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(() => ({
+    GETSMARTER_LEARNER_DASHBOARD_URL: 'https://getsmarter.example.com/account',
+  })),
+}));
 
 const baseCourseContextValue = {
   state: {
@@ -56,6 +66,7 @@ const baseAppContextValue = {
     uuid: 'test-uuid',
     enableDataSharingConsent: true,
     adminUsers: ['edx@example.com'],
+    authOrgId: 'test-uuid',
   },
   authenticatedUser: { id: 3 },
 };
@@ -77,7 +88,9 @@ describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('renders and handles checkout success', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper />);
     expect(screen.getByText('Your registration(s)')).toBeInTheDocument();
@@ -149,5 +162,33 @@ describe('ExternalCourseEnrollment', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
 
     expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    { hasDuplicateOrder: true },
+    { hasDuplicateOrder: false },
+  ])('shows duplicate order alert (%s)', async ({ hasDuplicateOrder }) => {
+    const mockScrollIntoView = jest.fn();
+    global.HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    const courseContextValue = {
+      ...baseCourseContextValue,
+      externalCourseFormSubmissionError: hasDuplicateOrder ? { message: 'duplicate order' } : undefined,
+    };
+    renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
+    if (hasDuplicateOrder) {
+      expect(screen.getByText('Already Enrolled')).toBeInTheDocument();
+      const dashboardButton = screen.getByText('Go to dashboard');
+      expect(dashboardButton).toBeInTheDocument();
+      expect(dashboardButton).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-uuid');
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(1);
+      expect(mockScrollIntoView).toHaveBeenCalledWith(
+        expect.objectContaining({ behavior: 'smooth' }),
+      );
+    } else {
+      expect(screen.queryByText('Already Enrolled')).not.toBeInTheDocument();
+      expect(screen.queryByText('Go to dashboard')).not.toBeInTheDocument();
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(0);
+    }
   });
 });

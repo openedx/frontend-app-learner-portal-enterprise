@@ -1,1 +1,14 @@
 export const NUM_POPULAR_COURSES_TO_DISPLAY = 4;
+export const CURRENT_JOB_PROFILE_FIELD_NAME = 'enterprise_learner_current_job';
+
+export const LABEL_ACTION_DEFAULT = 'Save';
+export const LABEL_ACTION_PENDING = 'Saving';
+export const LABEL_ACTION_COMPLETE = 'Saved';
+export const LABEL_ACTION_ERROR = 'Error';
+
+export const SAVE_BUTTON_LABELS = {
+  DEFAULT: LABEL_ACTION_DEFAULT,
+  PENDING: LABEL_ACTION_PENDING,
+  COMPLETE: LABEL_ACTION_COMPLETE,
+  ERROR: LABEL_ACTION_ERROR,
+};

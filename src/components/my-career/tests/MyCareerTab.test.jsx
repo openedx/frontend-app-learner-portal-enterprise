@@ -3,9 +3,11 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
+
 import * as hooks from '../data/hooks';
 
 import { renderWithRouter } from '../../../utils/tests';
@@ -22,36 +24,33 @@ jest.mock('plotly.js-dist', () => {});
 jest.mock('../data/hooks', () => ({
   usePlotlySpiderChart: jest.fn(),
   useLearnerSkillLevels: jest.fn(),
-  useLearnerSkillQuiz: jest.fn(),
+  useLearnerProfileData: jest.fn(),
 }));
 
-const skillQuizWithDefaultUser = {
-  count: 1,
-  next: null,
-  previous: null,
-  results: [
+const testUserProfileData = {
+  username: 'edx',
+  id: 23,
+  extended_profile: [
     {
-      id: 1,
-      created: '2023-01-16T15:08:46.452921Z',
-      modified: '2023-01-16T15:08:46.452921Z',
-      username: 'edx',
-      goal: 'get_promoted',
-      currentJob: 27,
-      skills: [78],
-      futureJobs: [],
+      field_name: 'enterprise_learner_current_job',
+      field_value: 27,
     },
   ],
 };
 
-const skillQuizWithNoData = {
-  count: 1,
-  next: null,
-  previous: null,
-  results: [],
+const userDataNoCurrentJob = {
+  username: 'edx',
+  id: 23,
+  extended_profile: [
+    {
+      field_name: 'enterprise_learner_current_job',
+      field_value: null,
+    },
+  ],
 };
 
-hooks.useLearnerSkillQuiz.mockReturnValue([
-  skillQuizWithDefaultUser,
+hooks.useLearnerProfileData.mockReturnValue([
+  camelCaseObject(testUserProfileData),
   null,
 ]);
 
@@ -221,7 +220,7 @@ const MyCareerTabWithContext = ({
 describe('<MyCareerTab />', () => {
   global.URL.createObjectURL = jest.fn();
 
-  it('renders the VisualizeCareer component when we have skill quiz', () => {
+  it('renders the VisualizeCareer component when learner has a current job', () => {
     renderWithRouter(<MyCareerTabWithContext />);
     const readingInstructionsButton = screen.getByTestId(
       'reading-instructions-button',
@@ -229,23 +228,24 @@ describe('<MyCareerTab />', () => {
     readingInstructionsButton.click();
   });
 
-  it('renders the AddJobRole when data has no skill quiz', () => {
-    hooks.useLearnerSkillQuiz.mockReturnValue([skillQuizWithNoData, null]);
+  it('renders the AddJobRole when learner doesnt have any current job', () => {
+    hooks.useLearnerProfileData.mockReturnValue([camelCaseObject(userDataNoCurrentJob), null, false]);
     renderWithRouter(<MyCareerTabWithContext />);
   });
 
   it('renders the LoadingSpinner component when data is not loaded yet', () => {
-    hooks.useLearnerSkillQuiz.mockReturnValue([null, null]);
+    hooks.useLearnerProfileData.mockReturnValue([null, null, true]);
     renderWithRouter(<MyCareerTabWithContext />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
   it('renders the ErrorPage component when there is problem loading data', () => {
-    hooks.useLearnerSkillQuiz.mockReturnValue([
+    hooks.useLearnerProfileData.mockReturnValue([
       null,
       {
         status: 'Error loading data',
       },
+      false,
     ]);
     renderWithRouter(<MyCareerTabWithContext />);
   });

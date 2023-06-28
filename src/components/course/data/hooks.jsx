@@ -30,6 +30,7 @@ import {
   getMissingSubsidyReasonActions,
   getCourseOrganizationDetails,
   getCourseStartDate,
+  getCourseTypeConfig,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -128,22 +129,48 @@ export function useCourseSubjects(course) {
   return { subjects, primarySubject };
 }
 
-// TODO: Refactor away from useEffect useState
+/**
+ * Determines the course partners associated with the course. Checks whether
+ * it should use the organization override or the `owners` property based on
+ * the course type configuration.
+ *
+ * @param {Object} course Metadata about the course.
+ *
+ * @returns {Array} An array of partners and a label for the partners, e.g. `[[{ name: 'edX' }], 'Institution']`.
+ */
 export function useCoursePartners(course) {
-  const [partners, setPartners] = useState([]);
-  const [label, setLabel] = useState('');
+  const partners = [];
+  let label = 'Institution';
 
-  useEffect(() => {
-    if (course?.owners) {
-      setPartners(course.owners);
-      if (course.owners.length > 1) {
-        setLabel('Institutions');
-      } else {
-        setLabel('Institution');
-      }
+  // Determine whether this course should use the organization override (e.g., for some
+  // externally hosted courses) instead of relying on the `owners` property.
+  const courseTypeConfig = getCourseTypeConfig(course);
+  const usesOrganizationOverride = courseTypeConfig?.usesOrganizationOverride;
+  if (usesOrganizationOverride) {
+    const orgDetails = getCourseOrganizationDetails(course);
+    const result = [
+      [{
+        uuid: orgDetails.organizationUuid,
+        key: orgDetails.organizationKey,
+        name: orgDetails.organizationName,
+        logoImageUrl: orgDetails.organizationLogo,
+        marketingUrl: orgDetails.organizationMarketingUrl,
+      }],
+      label,
+    ];
+    return result;
+  }
+
+  // If the course type does not have a configuration to use the organization override described above,
+  // fallback to relying on the `owners` property for regular Open edX courses.
+  if (course?.owners) {
+    course.owners.forEach((owner) => {
+      partners.push(owner);
+    });
+    if (course.owners.length > 1) {
+      label = 'Institutions';
     }
-  }, [course]);
-
+  }
   return [partners, label];
 }
 
@@ -872,8 +899,11 @@ export const useMinimalCourseMetadata = () => {
   };
 
   const courseMetadata = {
-    organizationImage: organizationDetails.organizationLogo,
-    organizationName: organizationDetails.organizationName,
+    organization: {
+      logoImgUrl: organizationDetails.organizationLogo,
+      name: organizationDetails.organizationName,
+      marketingUrl: organizationDetails.organizationMarketingUrl,
+    },
     title: course.title,
     startDate: getCourseStartDate({ contentMetadata: course, courseRun: activeCourseRun }),
     duration: getDuration(),

@@ -680,6 +680,10 @@ export const getCourseOrganizationDetails = (courseData) => {
     organizationDetails.organizationLogo = courseData?.owners[0]?.logoImageUrl;
   }
 
+  organizationDetails.organizationMarketingUrl = courseData?.owners[0]?.marketingUrl;
+  organizationDetails.organizationKey = courseData?.owners[0]?.key;
+  organizationDetails.organizationUuid = courseData?.owners[0]?.uuid;
+
   return organizationDetails;
 };
 
