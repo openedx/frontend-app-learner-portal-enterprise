@@ -148,8 +148,8 @@ const CourseMainContent = () => {
             be able to register for this course: Iran, Cuba and the Crimea region of Ukraine.
             While edX has sought licenses from the U.S. Office of Foreign Assets Control (OFAC) to
             offer our courses to learners in these countries and regions, the licenses we have
-            truly regrets that U.S. sanctions prevent us from offering all of our courses to
             received are not broad enough to allow us to offer this course in all locations. EdX
+            truly regrets that U.S. sanctions prevent us from offering all of our courses to
             everyone, no matter where they live.
           </p>
         </div>

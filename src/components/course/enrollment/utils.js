@@ -17,6 +17,15 @@ const {
 } = enrollButtonTypes;
 
 /**
+ *
+ * @param {*} couponsForSubsidyRequests Set of coupons
+ * @returns True if none of the coupons have any remaining applications
+ */
+export function noAvailableCoupons(couponsForSubsidyRequests) {
+  return couponsForSubsidyRequests?.every((coupon) => coupon?.numUnassigned === 0);
+}
+
+/**
  * Determines whether a user can request a subsidy for a course, by checking whether
  * the subsidy request feature is enabled, there are more than 1 subsidy request
  * catalogs applicable to the course, and whether the learner already has a subsidy
@@ -34,6 +43,7 @@ export function canUserRequestSubsidyForCourse({
   subsidyRequestConfiguration,
   subsidyRequestCatalogsApplicableToCourse,
   userSubsidyApplicableToCourse,
+  couponsForSubsidyRequests,
 }) {
   // Hide enroll button if browse and request is turned on and the user has no applicable subsidy
   if (!subsidyRequestConfiguration || !subsidyRequestCatalogsApplicableToCourse) {
@@ -43,6 +53,7 @@ export function canUserRequestSubsidyForCourse({
     subsidyRequestConfiguration.subsidyRequestsEnabled
     && subsidyRequestCatalogsApplicableToCourse.size > 0
     && !userSubsidyApplicableToCourse
+    && !noAvailableCoupons(couponsForSubsidyRequests)
   );
 }
 

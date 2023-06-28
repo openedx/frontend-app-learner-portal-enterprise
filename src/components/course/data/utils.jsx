@@ -22,6 +22,7 @@ import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -357,13 +358,17 @@ export function findHighestLevelSku({ courseEntitlements, seats }) {
   return findHighestLevelSeatSku(seats) || findHighestLevelEntitlementSku(courseEntitlements);
 }
 
+export function isActiveSubscriptionLicense(subscriptionLicense) {
+  return subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+}
+
 export function shouldUpgradeUserEnrollment({
   userEnrollment,
   subscriptionLicense,
   enrollmentUrl,
 }) {
   const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
-  return !!(isAuditEnrollment && subscriptionLicense && enrollmentUrl);
+  return !!(isAuditEnrollment && isActiveSubscriptionLicense(subscriptionLicense) && enrollmentUrl);
 }
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
@@ -595,26 +600,45 @@ export const getMissingSubsidyReasonActions = ({
   const hasLimitsLearnMoreCTA = [
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
+    DISABLED_ENROLL_REASON_TYPES.NO_ENROLLMENT_CODES_REMAINING,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
   ].includes(reasonType);
+  const moreInfoCTAConfigs = {
+    [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED]: {
+      configUrlKey: 'LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL',
+      text: 'Learn about deactivation',
+    },
+    default: {
+      configUrlKey: 'LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL',
+      text: 'Learn about limits',
+    },
+  };
   const hasOrganizationNoFundsCTA = [
     DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
     DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
     DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
     DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
     DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
   ].includes(reasonType);
 
+  const emailAdminTextByReason = {
+    [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED]: 'Contact admin for help',
+  };
+
   if (hasLimitsLearnMoreCTA) {
-    ensureConfig(['LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL']);
+    const moreInfoCTAConfig = moreInfoCTAConfigs[reasonType] ?? moreInfoCTAConfigs.default;
+    ensureConfig([moreInfoCTAConfig.configUrlKey]);
+    const ctaUrl = getConfig()[moreInfoCTAConfig.configUrlKey];
     return (
       <Button
         as={Hyperlink}
-        destination={getConfig().LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL}
+        destination={ctaUrl}
         target="_blank"
         size="sm"
         block
       >
-        Learn about limits
+        {moreInfoCTAConfig.text}
       </Button>
     );
   }
@@ -624,6 +648,7 @@ export const getMissingSubsidyReasonActions = ({
       return null;
     }
     const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+    const noFundsButtonText = emailAdminTextByReason[reasonType] ?? 'Contact administrator';
     return (
       <Button
         // TODO: Potentially switch to using MailtoLink here. See https://github.com/openedx/paragon/issues/2278
@@ -633,8 +658,8 @@ export const getMissingSubsidyReasonActions = ({
         size="sm"
         block
       >
-        Contact administrator
-        <span className="sr-only">about funds</span>
+        {noFundsButtonText}
+        <span className="sr-only">for help</span>
       </Button>
     );
   }
