@@ -19,6 +19,9 @@ const SavedForLaterCourseCard = (props) => {
     courseRunStatus,
     endDate,
     isRevoked,
+    startDate,
+    courseType,
+    productSource,
   } = props;
   const {
     updateCourseEnrollmentStatus,
@@ -100,6 +103,9 @@ const SavedForLaterCourseCard = (props) => {
         linkToCourse={linkToCourse}
         title={title}
         courseRunId={courseRunId}
+        courseType={courseType}
+        productSource={productSource}
+        startDate={startDate}
       />
     );
   };
@@ -110,6 +116,9 @@ const SavedForLaterCourseCard = (props) => {
       dropdownMenuItems={getDropdownMenuItems()}
       type={COURSE_STATUSES.savedForLater}
       hasViewCertificateLink={false}
+      courseType={courseType}
+      productSource={productSource}
+      startDate={startDate}
       {...props}
     >
       <MoveToInProgressModal
@@ -132,11 +141,17 @@ SavedForLaterCourseCard.propTypes = {
   isRevoked: PropTypes.bool.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
+  startDate: PropTypes.string,
+  courseType: PropTypes.string,
+  productSource: PropTypes.string,
 };
 
 SavedForLaterCourseCard.defaultProps = {
   linkToCertificate: null,
   endDate: null,
+  startDate: null,
+  courseType: null,
+  productSource: null,
 };
 
 export default SavedForLaterCourseCard;

@@ -21,12 +21,18 @@ RequestedCourseCard.propTypes = {
   isRevoked: PropTypes.bool,
   courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
+  startDate: PropTypes.string,
+  courseType: PropTypes.string,
+  productSource: PropTypes.string,
 };
 
 RequestedCourseCard.defaultProps = {
   linkToCertificate: null,
   endDate: null,
   isRevoked: false,
+  startDate: null,
+  courseType: null,
+  productSource: null,
 };
 
 export default RequestedCourseCard;

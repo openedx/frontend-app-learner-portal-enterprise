@@ -14,3 +14,7 @@ export const COURSE_STATUSES = {
   // Not a real course status, represents a subsidy request.
   requested: 'requested',
 };
+
+export const EXEC_ED_COURSE_TYPE = 'executive-education-2u';
+export const PRODUCT_SOURCE_2U = '2u';
+export const GETSMARTER_BASE_URL = 'https://www.getsmarter.com';

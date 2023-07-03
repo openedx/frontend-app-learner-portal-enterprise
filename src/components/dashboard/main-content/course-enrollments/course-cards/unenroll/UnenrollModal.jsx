@@ -8,6 +8,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
+import { EXEC_ED_COURSE_TYPE, GETSMARTER_BASE_URL, PRODUCT_SOURCE_2U } from '../../data/constants';
 
 const btnLabels = {
   default: 'Unenroll',
@@ -16,6 +17,8 @@ const btnLabels = {
 
 const UnenrollModal = ({
   courseRunId,
+  courseType,
+  productSource,
   enrollmentType,
   isOpen,
   onClose,
@@ -34,14 +37,18 @@ const UnenrollModal = ({
   };
 
   const handleUnenrollButtonClick = async () => {
-    setBtnState('pending');
     try {
-      await unenrollFromCourse({
-        courseId: courseRunId,
-      });
-      removeCourseEnrollment({ courseRunId, enrollmentType });
-      addToast('You have been unenrolled from the course.');
-      onSuccess();
+      if (courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U) {
+        window.location.href = `${GETSMARTER_BASE_URL}/cancel-defer`;
+      } else {
+        setBtnState('pending');
+        await unenrollFromCourse({
+          courseId: courseRunId,
+        });
+        removeCourseEnrollment({ courseRunId, enrollmentType });
+        addToast('You have been unenrolled from the course.');
+        onSuccess();
+      }
     } catch (err) {
       logError(err);
       setError(err);
@@ -96,6 +103,13 @@ UnenrollModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSuccess: PropTypes.func.isRequired,
+  courseType: PropTypes.string,
+  productSource: PropTypes.string,
+};
+
+UnenrollModal.defaultProps = {
+  courseType: null,
+  productSource: null,
 };
 
 export default UnenrollModal;

@@ -14,6 +14,7 @@ import { MoreVert } from '@edx/paragon/icons';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_STATUSES, COURSE_PACING, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
+import { EXEC_ED_COURSE_TYPE, PRODUCT_SOURCE_2U } from '../data/constants';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -50,12 +51,12 @@ class BaseCourseCard extends Component {
 
   getDropdownMenuItems = () => {
     const {
-      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll,
+      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll, courseType, productSource,
     } = this.props;
     const firstMenuItems = [];
     const lastMenuItems = [];
 
-    if (hasEmailsEnabled !== null) {
+    if (hasEmailsEnabled !== null && (productSource !== PRODUCT_SOURCE_2U && courseType !== EXEC_ED_COURSE_TYPE)) {
       firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
@@ -124,7 +125,7 @@ class BaseCourseCard extends Component {
     if (pacing) {
       message += 'This course ';
       message += isCourseEnded ? 'was ' : 'is ';
-      message += `${pacing}-paced. `;
+      message += `${pacing}-led. `;
     }
     if (dateMessage) {
       message += dateMessage;
@@ -199,7 +200,7 @@ class BaseCourseCard extends Component {
 
   renderUnenrollModal = () => {
     const {
-      canUnenroll, courseRunId, type,
+      canUnenroll, courseRunId, type, courseType, productSource,
     } = this.props;
     const { modals } = this.state;
 
@@ -210,6 +211,8 @@ class BaseCourseCard extends Component {
     return (
       <UnenrollModal
         courseRunId={courseRunId}
+        courseType={courseType}
+        productSource={productSource}
         onClose={this.handleUnenrollModalOnClose}
         onSuccess={this.handleUnenrollModalOnSuccess}
         isOpen={modals.unenroll.open}
@@ -241,7 +244,8 @@ class BaseCourseCard extends Component {
   };
 
   renderSettingsDropdown = (menuItems) => {
-    const { title } = this.props;
+    const { title, courseType, productSource } = this.props;
+    const execEdClass = courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U ? 'text-light-100' : '';
     if (menuItems && menuItems.length > 0) {
       return (
         <div className="ml-auto">
@@ -252,6 +256,7 @@ class BaseCourseCard extends Component {
               iconAs={Icon}
               alt={`course settings for ${title}`}
               id="course-enrollment-card-settings-dropdown-toggle"
+              iconClassNames={execEdClass}
             />
             <Dropdown.Menu>
               {menuItems.map(menuItem => (
@@ -320,12 +325,24 @@ class BaseCourseCard extends Component {
     return null;
   };
 
+  renderIsCourseStarted = () => {
+    const { startDate, courseType, productSource } = this.props;
+    const formattedStartDate = startDate ? moment(startDate).format('MMMM Do, YYYY') : null;
+
+    if (courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U) {
+      return <>&#x2022; Start date: {formattedStartDate}</>;
+    }
+
+    return null;
+  };
+
   renderOrganizationName = () => {
     const { orgName, mode } = this.props;
 
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-300' : '';
     if (orgName) {
-      return <p className="mb-0">{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>}</p>;
+      return <p className={`mb-0 ${execEdClass}`}>{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>} {this.renderIsCourseStarted()}</p>;
     }
     return null;
   };
@@ -403,7 +420,7 @@ class BaseCourseCard extends Component {
                   {this.renderMicroMastersTitle()}
                   <div className="d-flex align-items-start justify-content-between mb-1">
                     <h4 className="course-title mb-0 mr-2">
-                      <a className={`h3 ${isExecutiveEducation2UCourse && 'text-light-100'}`} href={linkToCourse}>{title}</a>
+                      <a className={`h3 ${isExecutiveEducation2UCourse && 'text-white'}`} href={linkToCourse}>{title}</a>
                     </h4>
                     {
                       BADGE_PROPS_BY_COURSE_STATUS[type] && (
@@ -421,7 +438,7 @@ class BaseCourseCard extends Component {
               {this.renderButtons()}
               {this.renderChildren()}
               <div className="course-misc-text row">
-                <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-900' : 'text-gray' }`}>
+                <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
                   <small className="mb-0">
                     {this.getCourseMiscText()}
                   </small>
@@ -448,6 +465,8 @@ BaseCourseCard.propTypes = {
   buttons: PropTypes.element,
   children: PropTypes.node,
   startDate: PropTypes.string,
+  courseType: PropTypes.string,
+  productSource: PropTypes.string,
   endDate: PropTypes.string,
   hasEmailsEnabled: PropTypes.bool,
   canUnenroll: PropTypes.bool,
@@ -469,6 +488,8 @@ BaseCourseCard.contextType = AppContext;
 BaseCourseCard.defaultProps = {
   children: null,
   startDate: null,
+  courseType: null,
+  productSource: null,
   endDate: null,
   hasEmailsEnabled: null,
   canUnenroll: null,
