@@ -110,7 +110,6 @@ export const useCatalogsForSubsidyRequests = ({
   customerAgreementConfig,
 }) => {
   const [catalogs, setCatalogs] = useState([]);
-  const [coupons, setCoupons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -121,7 +120,6 @@ export const useCatalogsForSubsidyRequests = ({
             { enterpriseId: subsidyRequestConfiguration.enterpriseCustomerUuid },
           );
           const { results } = camelCaseObject(response.data);
-          setCoupons([...new Set(results)]);
           const catalogsFromCoupons = results.map(coupon => coupon.enterpriseCatalogUuid);
           setCatalogs([...new Set(catalogsFromCoupons)]);
         } catch (error) {
@@ -153,7 +151,6 @@ export const useCatalogsForSubsidyRequests = ({
   ]);
 
   return {
-    coupons,
     catalogs,
     isLoading,
   };

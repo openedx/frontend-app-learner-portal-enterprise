@@ -40,7 +40,6 @@ const fetchExistingUserLicense = async (enterpriseId) => {
     const licensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],
       [LICENSE_STATUS.ASSIGNED]: [],
-      [LICENSE_STATUS.REVOKED]: [],
     };
     results.forEach((item) => {
       licensesByStatus[item.status].push(item);

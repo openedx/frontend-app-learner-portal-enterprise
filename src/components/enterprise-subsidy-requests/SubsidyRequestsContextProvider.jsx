@@ -34,7 +34,6 @@ const SubsidyRequestsContextProvider = ({ children }) => {
 
   const { customerAgreementConfig } = useContext(UserSubsidyContext);
   const {
-    coupons: couponsForSubsidyRequests,
     catalogs: catalogsForSubsidyRequests,
     isLoading: isLoadingCatalogsForSubsidyRequests,
   } = useCatalogsForSubsidyRequests({
@@ -55,13 +54,11 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     subsidyRequestConfiguration,
     requestsBySubsidyType,
     refreshSubsidyRequests,
-    couponsForSubsidyRequests,
     catalogsForSubsidyRequests,
   }), [
     subsidyRequestConfiguration,
     requestsBySubsidyType,
     refreshSubsidyRequests,
-    couponsForSubsidyRequests,
     catalogsForSubsidyRequests,
   ]);
 
