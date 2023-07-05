@@ -9,7 +9,7 @@ import {
   Tab,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { ProgramListingPage } from '../program-progress';
 import PathwayProgressListingPage from '../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../config';
@@ -27,6 +27,7 @@ const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
+  const { username } = authenticatedUser;
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
@@ -36,6 +37,16 @@ const DashboardPage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseConfig.uuid);
+
+  const onSelectHandler = (key) => {
+    if (key === 'my-career') {
+      sendEnterpriseTrackEvent(
+        username,
+        enterpriseConfig.uuid,
+        'edx.ui.enterprise.learner_portal.career_tab.page_visit',
+      );
+    }
+  };
 
   useEffect(() => {
     if (state?.activationSuccess) {
@@ -56,7 +67,7 @@ const DashboardPage = () => {
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
         <EnterpriseLearnerFirstVisitRedirect />
-        <Tabs defaultActiveKey="courses">
+        <Tabs defaultActiveKey="courses" onSelect={(k) => onSelectHandler(k)}>
           <Tab eventKey="courses" title="Courses">
             <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
           </Tab>
