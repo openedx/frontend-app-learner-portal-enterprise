@@ -1,5 +1,4 @@
 import moment from 'moment';
-import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import {
   COUPON_CODE_SUBSIDY_TYPE, COURSE_AVAILABILITY_MAP, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE,
 } from '../constants';
@@ -13,7 +12,6 @@ import {
   linkToCourse,
   pathContainsCourseTypeSlug,
   getCourseStartDate,
-  isActiveSubscriptionLicense,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -556,12 +554,5 @@ describe('getCourseStartDate tests', () => {
       { contentMetadata: null, courseRun: null },
     );
     expect(startDate).toBe(undefined);
-  });
-});
-
-describe('isActiveSubscriptionLicense tests', () => {
-  it('returns true for active subscription license', async () => {
-    const testSubscriptionLicense = { status: LICENSE_STATUS.ACTIVATED };
-    expect(isActiveSubscriptionLicense(testSubscriptionLicense)).toBeTruthy();
   });
 });
