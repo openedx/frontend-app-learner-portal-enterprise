@@ -20,7 +20,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   const [showInstructions, , , toggleShowInstructions] = useToggle(false);
   const [isEditable, setIsEditable] = useState(false);
 
-  const [learnerSkillLevels, learnerSkillLevelsFetchError] = useLearnerSkillLevels(jobId);
+  const [learnerSkillLevels, learnerSkillLevelsFetchError, isLoading] = useLearnerSkillLevels(jobId);
 
   const editOnClickHandler = () => {
     setIsEditable(true);
@@ -44,7 +44,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
     return <ErrorPage status={learnerSkillLevelsFetchError.status} />;
   }
 
-  if (!learnerSkillLevels) {
+  if (!learnerSkillLevels || isLoading) {
     return (
       <div className="py-5">
         <LoadingSpinner data-testid="loading-spinner" screenReaderText="Visualize Career Tab" />

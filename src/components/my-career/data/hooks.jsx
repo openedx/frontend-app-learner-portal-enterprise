@@ -33,9 +33,11 @@ export function useLearnerProfileData(username) {
 export function useLearnerSkillLevels(jobId) {
   const [learnerSkillLevels, setLearnerSkillLevels] = useState();
   const [fetchError, setFetchError] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       if (jobId) {
         try {
           const response = await getLearnerSkillLevels(jobId);
@@ -45,11 +47,12 @@ export function useLearnerSkillLevels(jobId) {
           setFetchError(error);
         }
       }
+      setIsLoading(false);
       return undefined;
     };
     fetchData();
   }, [jobId]);
-  return [camelCaseObject(learnerSkillLevels), fetchError];
+  return [camelCaseObject(learnerSkillLevels), fetchError, isLoading];
 }
 
 export function usePlotlySpiderChart(categories) {
