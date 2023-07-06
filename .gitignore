@@ -2,6 +2,7 @@
 # https://github.com/openedx/frontend-build#local-module-configuration-for-webpack
 .env.private
 module.config.js
+env.config.js
 
 # Logs
 logs

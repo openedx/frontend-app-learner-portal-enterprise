@@ -30,6 +30,20 @@ Our goal is to setup a enterprise customer, obtains its slug, then visit it such
 
 Now quickly check the .env.development file for which services are used by the application. e.g. `LMS_BASE_URL='http://localhost:18000'` . We will get back to this.
 
+### Running a production build
+
+Run the following command to build a production bundle of the MFE application, using the environment variables configured from ``.env.production.example`` instead of the default ``.env``. By doing so, the production build will be generated using the same environment variables as if it were running on the Webpack Dev Server using the config in ``.env.development``, with the exception of `NODE_ENV='production'` (e.g., relying on devstack services in the production build).
+
+```shell
+npm run build:local
+```
+
+The above command generates a ``dist`` directory containing the Webpack build output, containing all the file assets for the MFE application. To serve the production bundle, run the following command:
+
+```shell
+npm run serve
+```
+
 
 ## Setup test users and data
 
