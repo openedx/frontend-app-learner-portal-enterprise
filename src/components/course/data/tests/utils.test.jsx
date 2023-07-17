@@ -21,6 +21,7 @@ import {
   getCourseStartDate,
   getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
+  isActiveSubscriptionLicense,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -832,5 +833,29 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
       hasEnterpriseAdminUsers,
     });
     expect(reasonType).toEqual(expectedReasonType);
+  });
+});
+
+describe('isActiveSubscriptionLicense', () => {
+  it.each([
+    {
+      subscriptionLicense: { status: 'activated' },
+      expectedResult: true,
+    },
+    {
+      subscriptionLicense: { status: 'revoked' },
+      expectedResult: false,
+    },
+    {
+      subscriptionLicense: { status: 'assigned' },
+      expectedResult: false,
+    },
+    {
+      subscriptionLicense: undefined,
+      expectedResult: false,
+    },
+  ])('returns expected value given the following inputs: %s', ({ subscriptionLicense, expectedResult }) => {
+    const isActive = isActiveSubscriptionLicense(subscriptionLicense);
+    expect(isActive).toEqual(expectedResult);
   });
 });
