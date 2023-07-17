@@ -662,7 +662,6 @@ export const getMissingSubsidyReasonActions = ({
         block
       >
         Contact administrator
-        {/* TODO: verify sr-only text */}
         <span className="sr-only">for help</span>
       </Button>
     );
@@ -678,16 +677,16 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   hasEnterpriseAdminUsers,
 }) => {
   const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
-    subcription => catalogsWithCourse.includes(subcription?.enterpriseCatalogUuid),
+    subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
   );
-  const hasExpiredSubscriptions = !!subscriptionsApplicableToCourse?.every(
-    subcription => subcription.daysUntilExpiration < 0,
-  );
-  const hasExhaustedSubscriptions = !!subscriptionsApplicableToCourse?.every(
-    subcription => subcription?.licenses?.unassigned === 0,
-  );
+  const hasExpiredSubscriptions = subscriptionsApplicableToCourse?.filter(
+    subscription => subscription.daysUntilExpirationIncludingRenewals < 0,
+  )?.length > 0;
+  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse?.filter(
+    subscription => subscription?.licenses?.unassigned === 0,
+  )?.length > 0;
   const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse?.find(
-    subcription => subcription.daysUntilExpiration >= 0 && subcription?.licenses?.unassigned > 0,
+    subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
   );
 
   if (hasExpiredSubscriptions) {
