@@ -1,7 +1,7 @@
 import React from 'react';
 import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
-import { Button, Hyperlink } from '@edx/paragon';
+import { Button, Hyperlink, MailtoLink } from '@edx/paragon';
 import isNil from 'lodash.isnil';
 import {
   COURSE_AVAILABILITY_MAP,
@@ -22,6 +22,7 @@ import CreditSvgIcon from '../../../assets/icons/credit.svg';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 
 export function hasCourseStarted(start) {
   const today = new Date();
@@ -596,12 +597,18 @@ export const getMissingSubsidyReasonActions = ({
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
   ].includes(reasonType);
-  const hasOrganizationNoFundsCTA = [
+  const hasDeactivationLearnMoreCTA = [
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
+  ].includes(reasonType);
+  const hasContactAdministratorCTA = [
     DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
     DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
     DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
     DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
     DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
   ].includes(reasonType);
 
   if (hasLimitsLearnMoreCTA) {
@@ -609,6 +616,7 @@ export const getMissingSubsidyReasonActions = ({
     return (
       <Button
         as={Hyperlink}
+        className="text-center"
         destination={getConfig().LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL}
         target="_blank"
         size="sm"
@@ -619,27 +627,100 @@ export const getMissingSubsidyReasonActions = ({
     );
   }
 
-  if (hasOrganizationNoFundsCTA) {
+  if (hasDeactivationLearnMoreCTA) {
+    ensureConfig(['LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL']);
+    return (
+      <Button
+        as={Hyperlink}
+        className="text-center"
+        destination={getConfig().LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL}
+        target="_blank"
+        size="sm"
+        block
+      >
+        Learn about deactivation
+      </Button>
+    );
+  }
+
+  if (hasContactAdministratorCTA) {
     if (enterpriseAdminUsers?.length === 0) {
       return null;
     }
     const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
     return (
       <Button
-        // TODO: Potentially switch to using MailtoLink here. See https://github.com/openedx/paragon/issues/2278
-        as={Hyperlink}
-        destination={`mailto:${adminEmails}`}
+        as={MailtoLink}
+        className="text-center"
+        to={adminEmails}
         target="_blank"
         size="sm"
         block
       >
         Contact administrator
-        <span className="sr-only">about funds</span>
+        {/* TODO: verify sr-only text */}
+        <span className="sr-only">for help</span>
       </Button>
     );
   }
 
   return null;
+};
+
+export const getSubscriptionDisabledEnrollmentReasonType = ({
+  customerAgreementConfig,
+  catalogsWithCourse,
+  subscriptionLicense,
+  hasEnterpriseAdminUsers,
+}) => {
+  const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
+    subcription => catalogsWithCourse.includes(subcription?.enterpriseCatalogUuid),
+  );
+  const hasExpiredSubscriptions = subscriptionsApplicableToCourse.every(
+    subcription => subcription.daysUntilExpiration < 0,
+  );
+  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse.every(
+    subcription => subcription?.licenses?.unassigned === 0,
+  );
+  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse.find(
+    subcription => subcription.daysUntilExpiration >= 0 && subcription?.licenses?.unassigned > 0,
+  );
+
+  if (hasExpiredSubscriptions) {
+    // If customer's subscription plan(s) containing the course being viewed have expired,
+    // change `reasonType` to use the `SUBSCRIPTION_EXPIRED` message.
+    if (hasEnterpriseAdminUsers) {
+      return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED;
+    }
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS;
+  }
+
+  if (hasExhaustedSubscriptions) {
+    // If customer's subscription plan(s) containing the course being viewed no longer have
+    // any remaining seats, change `reasonType` to use the `SUBSCRIPTION_SEATS_EXHAUSTED` message.
+    if (hasEnterpriseAdminUsers) {
+      return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED;
+    }
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS;
+  }
+
+  if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
+    // If learner's subscription license is revoked, change `reasonType` to use
+    // the `SUBSCRIPTION_DEACTIVATED` message.
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
+  }
+
+  if (applicableSubscriptionNonExpiredNonExhausted) {
+    // If customer has a subscription plan(s) containing the course being viewed that is not expired
+    // nor exhausted, change `reasonType` to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
+    if (hasEnterpriseAdminUsers) {
+      return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED;
+    }
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS;
+  }
+
+  // There is no applicable subscriptions-related reason for disabled enrollment.
+  return undefined;
 };
 
 export const getCourseOrganizationDetails = (courseData) => {
