@@ -15,6 +15,4 @@ export const COURSE_STATUSES = {
   requested: 'requested',
 };
 
-export const EXEC_ED_COURSE_TYPE = 'executive-education-2u';
-export const PRODUCT_SOURCE_2U = '2u';
 export const GETSMARTER_BASE_URL = 'https://www.getsmarter.com';

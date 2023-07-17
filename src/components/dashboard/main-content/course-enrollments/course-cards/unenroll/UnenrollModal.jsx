@@ -8,7 +8,8 @@ import { logError } from '@edx/frontend-platform/logging';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { ToastsContext } from '../../../../../Toasts';
 import { unenrollFromCourse } from './data';
-import { EXEC_ED_COURSE_TYPE, GETSMARTER_BASE_URL, PRODUCT_SOURCE_2U } from '../../data/constants';
+import { GETSMARTER_BASE_URL } from '../../data/constants';
+import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../../constants';
 
 const btnLabels = {
   default: 'Unenroll',
@@ -17,8 +18,7 @@ const btnLabels = {
 
 const UnenrollModal = ({
   courseRunId,
-  courseType,
-  productSource,
+  mode,
   enrollmentType,
   isOpen,
   onClose,
@@ -38,7 +38,8 @@ const UnenrollModal = ({
 
   const handleUnenrollButtonClick = async () => {
     try {
-      if (courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U) {
+      const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+      if (isExecutiveEducation2UCourse) {
         window.location.href = `${GETSMARTER_BASE_URL}/cancel-defer`;
       } else {
         setBtnState('pending');
@@ -103,13 +104,11 @@ UnenrollModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSuccess: PropTypes.func.isRequired,
-  courseType: PropTypes.string,
-  productSource: PropTypes.string,
+  mode: PropTypes.string,
 };
 
 UnenrollModal.defaultProps = {
-  courseType: null,
-  productSource: null,
+  mode: null,
 };
 
 export default UnenrollModal;

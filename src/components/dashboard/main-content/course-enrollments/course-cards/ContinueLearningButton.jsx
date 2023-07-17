@@ -5,8 +5,7 @@ import classNames from 'classnames';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import moment from 'moment';
-import { EXEC_ED_COURSE_TYPE, PRODUCT_SOURCE_2U } from '../data/constants';
-
+import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
 /**
  * A 'Continue Learning' button with parameters.
  *
@@ -22,9 +21,8 @@ const ContinueLearningButton = ({
   linkToCourse,
   title,
   courseRunId,
-  courseType,
-  productSource,
   startDate,
+  mode,
 }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
@@ -39,11 +37,11 @@ const ContinueLearningButton = ({
   };
 
   const isCourseStarted = () => moment(startDate) <= moment();
-
-  const execClassName = (courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U) && (!isCourseStarted()) ? ' disabled btn-outline-secondary' : undefined;
+  const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+  const execClassName = (isExecutiveEducation2UCourse) && (!isCourseStarted()) ? ' disabled btn-outline-secondary' : undefined;
 
   const renderContent = () => {
-    if ((courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U) && !isCourseStarted()) {
+    if (isExecutiveEducation2UCourse && !isCourseStarted() && startDate) {
       const formattedStartDate = moment(startDate).format('MMM D, YYYY');
       return `Available on ${formattedStartDate}`;
     }
@@ -65,8 +63,7 @@ const ContinueLearningButton = ({
 ContinueLearningButton.defaultProps = {
   className: 'btn-outline-primary',
   startDate: null,
-  courseType: null,
-  productSource: null,
+  mode: null,
 };
 
 ContinueLearningButton.propTypes = {
@@ -75,8 +72,7 @@ ContinueLearningButton.propTypes = {
   title: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
   startDate: PropTypes.string,
-  courseType: PropTypes.string,
-  productSource: PropTypes.string,
+  mode: PropTypes.string,
 };
 
 export default ContinueLearningButton;
