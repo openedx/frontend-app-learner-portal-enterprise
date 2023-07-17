@@ -30,6 +30,7 @@ import {
   findEnterpriseOfferForCourse,
   getSubsidyToApplyForCourse,
   getCourseTypeConfig,
+  getSubscriptionDisabledEnrollmentReasonType,
 } from '../utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
@@ -58,6 +59,7 @@ import {
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
+import CourseService from '../service';
 
 const oldGlobalLocation = global.location;
 
@@ -95,6 +97,7 @@ jest.mock('../utils', () => ({
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
   getCourseTypeConfig: jest.fn(),
+  getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
@@ -1045,6 +1048,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
         key: 'edX+DemoX',
       },
     },
+    enterpriseAdminUsers: [],
+    customerAgreementConfig: undefined,
   };
   const argsWithMissingCourse = {
     ...baseArgs,
@@ -1165,7 +1170,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('finds applicable subscription license', async () => {
-    getSubsidyToApplyForCourse.mockReturnValue({
+    getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: LICENSE_SUBSIDY_TYPE,
     });
     const args = {
@@ -1189,6 +1194,24 @@ describe('useUserSubsidyApplicableToCourse', () => {
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
       missingUserSubsidyReason: undefined,
+    });
+  });
+
+  it('handles disabled enrollment reason related to subscriptions', async () => {
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValue(undefined);
+
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+        userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+        actions: expect.any(Object),
+      },
     });
   });
 
