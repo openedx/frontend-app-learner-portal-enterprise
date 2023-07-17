@@ -148,8 +148,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   ? (
                     <>
                       <p className="text-gray-500 text-capitalize mt-1">
-                        ({course?.pacingType.replace('_', '-')}) Starts {moment(course.start)
-                          .format('MMMM Do, YYYY')}
+                        ({course?.pacingType.replace('_', '-')}) Starts {moment(course.start).format('MMMM Do, YYYY')}
                       </p>
                       <a
                         className="btn btn-outline-primary btn-xs-block mt-2 float-right"
@@ -191,8 +190,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                           )
                           : (
                             <span data-testid="course-run-single-date">
-                              ({course?.pacingType.replace('_', '-')}) Starts {moment(course.start)
-                                .format('MMMM Do, YYYY')}
+                              ({course?.pacingType.replace('_', '-')}) Starts {moment(course.start).format('MMMM Do, YYYY')}
                             </span>
                           )}
                       </p>
@@ -224,8 +222,7 @@ const ProgramProgressCourses = ({ courseData }) => {
               <div className="mt-4.5 pl-3 pb-5 pr-3" key={course.key}>
                 <h4 className="text-dark-500">{course.title}</h4>
                 <p className="text-gray-500 text-capitalize mt-1">
-                  ({course?.pacingType.replace('_', '-')}) Started {moment(course.start)
-                    .format('MMMM Do, YYYY')}
+                  ({course?.pacingType.replace('_', '-')}) Started {moment(course.start).format('MMMM Do, YYYY')}
                 </p>
                 <a
                   className="btn btn-outline-primary btn-xs-block mb-6 float-right"

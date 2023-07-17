@@ -31,7 +31,7 @@ const SearchJobCard = ({ index }) => {
   useEffect(
     () => {
       let fetch = true;
-      fetchJobs(); // eslint-disable-line no-use-before-define
+      fetchJobs(); // eslint-disable-line @typescript-eslint/no-use-before-define
       return () => { fetch = false; };
 
       async function fetchJobs() {
@@ -52,7 +52,7 @@ const SearchJobCard = ({ index }) => {
   useEffect(() => {
     let fetch = true;
     if (currentJob) {
-      fetchJob(); // eslint-disable-line no-use-before-define
+      fetchJob(); // eslint-disable-line @typescript-eslint/no-use-before-define
     }
     return () => { fetch = false; };
     async function fetchJob() {

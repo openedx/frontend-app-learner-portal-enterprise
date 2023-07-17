@@ -1,0 +1,17 @@
+{
+  "extends": "@edx/typescript-config",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "strictNullChecks": false
+  },
+  "include": [
+    "src/**/*",
+    "__mocks__/**/*",
+    "*.d.ts",
+    "*.eslintrc.js",
+    "*.config.js",
+    "*/utils.jsx"
+  ],
+  "exclude": ["dist", "src/icons/*"]
+}
