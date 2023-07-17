@@ -59,7 +59,6 @@ import {
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
-import CourseService from '../service';
 
 const oldGlobalLocation = global.location;
 
