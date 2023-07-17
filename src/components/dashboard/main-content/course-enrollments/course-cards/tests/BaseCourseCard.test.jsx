@@ -100,4 +100,41 @@ describe('<BaseCourseCard />', () => {
 
     expect(wrapper.find(Skeleton)).toBeTruthy();
   });
+
+  describe('Executive-education BaseCard', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('renders with different startDate values', () => {
+      const today = new Date().toISOString();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      [today, yesterday, tomorrow].forEach(startDate => {
+        wrapper = mount((
+          <AppContext.Provider value={{ enterpriseConfig }}>
+            <BaseCourseCard
+              type="in_progress"
+              title="edX Demonstration Course"
+              linkToCourse="https://edx.org"
+              courseRunId="my+course+key"
+              hasEmailsEnabled
+              courseType="executive-education-2u"
+              productSource="2u"
+              mode="executive-education"
+              startDate={startDate}
+              orgName="some_name"
+              pacing="self"
+            />
+          </AppContext.Provider>
+        ));
+
+        const hasCourseStarted = wrapper.instance().renderIsCourseStarted();
+        expect(hasCourseStarted).toBeTruthy();
+      });
+    });
+  });
 });

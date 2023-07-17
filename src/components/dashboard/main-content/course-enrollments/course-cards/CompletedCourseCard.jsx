@@ -16,7 +16,10 @@ const CompletedCourseCard = (props) => {
     title,
     linkToCourse,
     courseRunId,
+    startDate,
     endDate,
+    courseType,
+    productSource,
   } = props;
   const config = getConfig();
 
@@ -30,6 +33,9 @@ const CompletedCourseCard = (props) => {
         linkToCourse={linkToCourse}
         title={title}
         courseRunId={courseRunId}
+        courseType={courseType}
+        productSource={productSource}
+        startDate={startDate}
       />
     );
   };
@@ -64,6 +70,9 @@ const CompletedCourseCard = (props) => {
       buttons={renderButtons()}
       type="completed"
       hasViewCertificateLink={false}
+      courseType={courseType}
+      productSource={productSource}
+      startDate={startDate}
       {...props}
     >
       {renderCertificateInfo()}
@@ -78,11 +87,17 @@ CompletedCourseCard.propTypes = {
   linkToCertificate: PropTypes.string,
   courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
+  startDate: PropTypes.string,
+  courseType: PropTypes.string,
+  productSource: PropTypes.string,
 };
 
 CompletedCourseCard.defaultProps = {
   linkToCertificate: null,
   endDate: null,
+  startDate: null,
+  courseType: null,
+  productSource: null,
 };
 
 export default CompletedCourseCard;
