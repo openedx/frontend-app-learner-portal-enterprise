@@ -358,13 +358,17 @@ export function findHighestLevelSku({ courseEntitlements, seats }) {
   return findHighestLevelSeatSku(seats) || findHighestLevelEntitlementSku(courseEntitlements);
 }
 
+export function isActiveSubscriptionLicense(subscriptionLicense) {
+  return subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+}
+
 export function shouldUpgradeUserEnrollment({
   userEnrollment,
   subscriptionLicense,
   enrollmentUrl,
 }) {
   const isAuditEnrollment = userEnrollment?.mode === COURSE_MODES_MAP.AUDIT;
-  return !!(isAuditEnrollment && subscriptionLicense && enrollmentUrl);
+  return !!(isAuditEnrollment && isActiveSubscriptionLicense(subscriptionLicense) && enrollmentUrl);
 }
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
@@ -676,13 +680,13 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
     subcription => catalogsWithCourse.includes(subcription?.enterpriseCatalogUuid),
   );
-  const hasExpiredSubscriptions = subscriptionsApplicableToCourse.every(
+  const hasExpiredSubscriptions = !!subscriptionsApplicableToCourse?.every(
     subcription => subcription.daysUntilExpiration < 0,
   );
-  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse.every(
+  const hasExhaustedSubscriptions = !!subscriptionsApplicableToCourse?.every(
     subcription => subcription?.licenses?.unassigned === 0,
   );
-  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse.find(
+  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse?.find(
     subcription => subcription.daysUntilExpiration >= 0 && subcription?.licenses?.unassigned > 0,
   );
 
