@@ -66,7 +66,7 @@
   },
   "devDependencies": {
     "@edx/browserslist-config": "1.1.1",
-    "@edx/frontend-build": "12.8.17",
+    "@edx/frontend-build": "12.9.1",
     "@tanstack/eslint-plugin-query": "4.29.9",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.7",
@@ -96,7 +96,8 @@
     "start:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && fedx-scripts webpack-dev-server --progress",
     "test": "fedx-scripts jest --coverage --passWithNoTests --maxWorkers=50%",
     "test:watch": "npm run test -- --watch",
-    "install-theme": "npm install \"@edx/brand@${THEME}\" --no-save"
+    "install-theme": "npm install \"@edx/brand@${THEME}\" --no-save",
+    "serve": "fedx-scripts serve"
   },
   "repository": {
     "type": "git",

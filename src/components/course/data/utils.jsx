@@ -689,22 +689,29 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
     subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
   );
 
+  const parseReasonTypeBasedOnEnterpriseAdmins = (reasonTypes) => {
+    if (hasEnterpriseAdminUsers) {
+      return reasonTypes.hasAdmins;
+    }
+    return reasonTypes.hasNoAdmins;
+  };
+
   if (hasExpiredSubscriptions) {
     // If customer's subscription plan(s) containing the course being viewed have expired,
     // change `reasonType` to use the `SUBSCRIPTION_EXPIRED` message.
-    if (hasEnterpriseAdminUsers) {
-      return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED;
-    }
-    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS;
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+      hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
+    });
   }
 
   if (hasExhaustedSubscriptions) {
     // If customer's subscription plan(s) containing the course being viewed no longer have
     // any remaining seats, change `reasonType` to use the `SUBSCRIPTION_SEATS_EXHAUSTED` message.
-    if (hasEnterpriseAdminUsers) {
-      return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED;
-    }
-    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS;
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+      hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
+    });
   }
 
   if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
@@ -716,10 +723,10 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   if (applicableSubscriptionNonExpiredNonExhausted) {
     // If customer has a subscription plan(s) containing the course being viewed that is not expired
     // nor exhausted, change `reasonType` to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
-    if (hasEnterpriseAdminUsers) {
-      return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED;
-    }
-    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS;
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+      hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+    });
   }
 
   // There is no applicable subscriptions-related reason for disabled enrollment.
