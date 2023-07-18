@@ -167,7 +167,6 @@ export const useCourseUpgradeData = ({
           setSubsidyForCourse(getSubsidyToApplyForCourse({ applicableCouponCode: couponSubsidy }));
           setCouponUpgradeUrl(url);
           setCourseRunPrice(courseRunDetails.firstEnrollablePaidSeatPrice);
-          return;
         }
       } catch (error) {
         logError(error);
