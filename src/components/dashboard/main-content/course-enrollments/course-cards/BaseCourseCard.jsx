@@ -14,7 +14,6 @@ import { MoreVert } from '@edx/paragon/icons';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_STATUSES, COURSE_PACING, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
-import { EXEC_ED_COURSE_TYPE, PRODUCT_SOURCE_2U } from '../data/constants';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -51,12 +50,12 @@ class BaseCourseCard extends Component {
 
   getDropdownMenuItems = () => {
     const {
-      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll, courseType, productSource,
+      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll, mode,
     } = this.props;
     const firstMenuItems = [];
     const lastMenuItems = [];
-
-    if (hasEmailsEnabled !== null && (productSource !== PRODUCT_SOURCE_2U && courseType !== EXEC_ED_COURSE_TYPE)) {
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    if (hasEmailsEnabled !== null && !isExecutiveEducation2UCourse) {
       firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
@@ -200,7 +199,7 @@ class BaseCourseCard extends Component {
 
   renderUnenrollModal = () => {
     const {
-      canUnenroll, courseRunId, type, courseType, productSource,
+      canUnenroll, courseRunId, type, mode,
     } = this.props;
     const { modals } = this.state;
 
@@ -211,12 +210,11 @@ class BaseCourseCard extends Component {
     return (
       <UnenrollModal
         courseRunId={courseRunId}
-        courseType={courseType}
-        productSource={productSource}
         onClose={this.handleUnenrollModalOnClose}
         onSuccess={this.handleUnenrollModalOnSuccess}
         isOpen={modals.unenroll.open}
         enrollmentType={camelCase(type)}
+        mode={mode}
       />
     );
   };
@@ -244,8 +242,9 @@ class BaseCourseCard extends Component {
   };
 
   renderSettingsDropdown = (menuItems) => {
-    const { title, courseType, productSource } = this.props;
-    const execEdClass = courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U ? 'text-light-100' : '';
+    const { title, mode } = this.props;
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-100' : '';
     if (menuItems && menuItems.length > 0) {
       return (
         <div className="ml-auto">
@@ -325,14 +324,14 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderIsCourseStarted = () => {
-    const { startDate, courseType, productSource } = this.props;
+  renderCourseStartDate = () => {
+    const { startDate, mode } = this.props;
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     const formattedStartDate = startDate ? moment(startDate).format('MMMM Do, YYYY') : null;
 
-    if (courseType === EXEC_ED_COURSE_TYPE && productSource === PRODUCT_SOURCE_2U) {
+    if (isExecutiveEducation2UCourse && formattedStartDate) {
       return <>&#x2022; Start date: {formattedStartDate}</>;
     }
-
     return null;
   };
 
@@ -342,7 +341,7 @@ class BaseCourseCard extends Component {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     const execEdClass = isExecutiveEducation2UCourse ? 'text-light-300' : '';
     if (orgName) {
-      return <p className={`mb-0 ${execEdClass}`}>{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>} {this.renderIsCourseStarted()}</p>;
+      return <p className={`mb-0 ${execEdClass}`}>{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>} {this.renderCourseStartDate()}</p>;
     }
     return null;
   };
@@ -465,8 +464,6 @@ BaseCourseCard.propTypes = {
   buttons: PropTypes.element,
   children: PropTypes.node,
   startDate: PropTypes.string,
-  courseType: PropTypes.string,
-  productSource: PropTypes.string,
   endDate: PropTypes.string,
   hasEmailsEnabled: PropTypes.bool,
   canUnenroll: PropTypes.bool,
@@ -488,8 +485,6 @@ BaseCourseCard.contextType = AppContext;
 BaseCourseCard.defaultProps = {
   children: null,
   startDate: null,
-  courseType: null,
-  productSource: null,
   endDate: null,
   hasEmailsEnabled: null,
   canUnenroll: null,

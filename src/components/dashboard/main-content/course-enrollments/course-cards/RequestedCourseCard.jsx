@@ -22,8 +22,7 @@ RequestedCourseCard.propTypes = {
   courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
   startDate: PropTypes.string,
-  courseType: PropTypes.string,
-  productSource: PropTypes.string,
+  mode: PropTypes.string,
 };
 
 RequestedCourseCard.defaultProps = {
@@ -31,8 +30,7 @@ RequestedCourseCard.defaultProps = {
   endDate: null,
   isRevoked: false,
   startDate: null,
-  courseType: null,
-  productSource: null,
+  mode: null,
 };
 
 export default RequestedCourseCard;

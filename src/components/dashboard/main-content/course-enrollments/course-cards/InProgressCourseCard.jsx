@@ -21,8 +21,7 @@ export const InProgressCourseCard = ({
   notifications,
   courseRunStatus,
   startDate,
-  courseType,
-  productSource,
+  mode,
   ...rest
 }) => {
   const {
@@ -48,8 +47,7 @@ export const InProgressCourseCard = ({
         linkToCourse={licenseUpgradeUrl ?? linkToCourse}
         title={title}
         courseRunId={courseRunId}
-        courseType={courseType}
-        productSource={productSource}
+        mode={mode}
         startDate={startDate}
       />
       {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} />}
@@ -158,8 +156,7 @@ export const InProgressCourseCard = ({
       linkToCourse={licenseUpgradeUrl ?? linkToCourse}
       courseRunId={courseRunId}
       isLoading={isLoadingUpgradeUrl}
-      courseType={courseType}
-      productSource={productSource}
+      mode={mode}
       startDate={startDate}
       {...rest}
     >
@@ -187,14 +184,12 @@ InProgressCourseCard.propTypes = {
   title: PropTypes.string.isRequired,
   courseRunStatus: PropTypes.string.isRequired,
   startDate: PropTypes.string,
-  courseType: PropTypes.string,
-  productSource: PropTypes.string,
+  mode: PropTypes.string,
 };
 
 InProgressCourseCard.defaultProps = {
   startDate: null,
-  courseType: null,
-  productSource: null,
+  mode: null,
 };
 
 export default InProgressCourseCard;

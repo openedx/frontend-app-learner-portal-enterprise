@@ -132,7 +132,7 @@ describe('<BaseCourseCard />', () => {
           </AppContext.Provider>
         ));
 
-        const hasCourseStarted = wrapper.instance().renderIsCourseStarted();
+        const hasCourseStarted = wrapper.instance().renderCourseStartDate();
         expect(hasCourseStarted).toBeTruthy();
       });
     });
