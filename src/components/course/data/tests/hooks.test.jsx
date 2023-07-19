@@ -1035,7 +1035,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   });
 });
 
-describe.skip('useUserSubsidyApplicableToCourse', () => {
+describe('useUserSubsidyApplicableToCourse', () => {
   const mockCatalogUUID = 'test-enterprise-catalog-uuid';
   const baseArgs = {
     isPolicyRedemptionEnabled: false,
@@ -1069,7 +1069,7 @@ describe.skip('useUserSubsidyApplicableToCourse', () => {
   };
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   it('handles null course data', () => {
