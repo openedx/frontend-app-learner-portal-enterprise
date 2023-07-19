@@ -313,6 +313,7 @@ export const useCourseEnrollmentUrl = ({
 }) => {
   const routeMatch = useRouteMatch();
   const config = getConfig();
+  console.log('[useCourseEnrollmentUrl] config: ', config);
   const baseQueryParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
     params.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
@@ -385,6 +386,20 @@ export const useCourseEnrollmentUrl = ({
       routeMatch.url,
     ],
   );
+
+  console.log('[useCourseEnrollmentUrl]', {
+    enrollmentUrl,
+    userSubsidyApplicableToCourse,
+    sku,
+    baseEnrollmentOptions,
+    baseQueryParams,
+    ECOMMERCE_BASE_URL: config.ECOMMERCE_BASE_URL,
+    LMS_BASE_URL: config.LMS_BASE_URL,
+    courseRunKey,
+    enterpriseUuid: enterpriseConfig.uuid,
+    isExecutiveEducation2UCourse,
+    url: routeMatch.url,
+  });
 
   return enrollmentUrl;
 };
