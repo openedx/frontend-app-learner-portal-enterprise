@@ -655,6 +655,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 export const useUserSubsidyApplicableToCourse = ({
   courseData,
   redeemableSubsidyAccessPolicy,
+  missingSubsidyAccessPolicyReason,
   isPolicyRedemptionEnabled,
   subscriptionLicense,
   courseService,
@@ -662,7 +663,6 @@ export const useUserSubsidyApplicableToCourse = ({
   canEnrollWithEnterpriseOffers,
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
-  missingSubsidyAccessPolicyReason,
   enterpriseAdminUsers: fallbackAdminUsers,
   courseListPrice,
   customerAgreementConfig,

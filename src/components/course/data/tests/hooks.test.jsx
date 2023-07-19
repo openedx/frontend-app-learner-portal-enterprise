@@ -72,6 +72,7 @@ jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => ({
     LMS_BASE_URL: process.env.LMS_BASE_URL,
+    ECOMMERCE_BASE_URL: process.env.ECOMMERCE_BASE_URL,
   })),
 }));
 
@@ -262,7 +263,7 @@ describe('useCourseEnrollmentUrl', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseEnrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);
       expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseConfig.uuid);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(withLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
     });
 
@@ -287,18 +288,17 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
       expect(result.current).toContain(noLicenseEnrollmentInputs.couponCodes[0].code);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.courseRunKey);
     });
 
     test('with no coupon codes returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noLicenseEnrollmentInputs,
         couponCodes: [],
-
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).not.toContain('code');
     });
 
@@ -307,8 +307,8 @@ describe('useCourseEnrollmentUrl', () => {
         ...noCouponCodesEnrollmentInputs,
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noCouponCodesEnrollmentInputs.sku);
+      expect(result.current).toContain(noCouponCodesEnrollmentInputs.courseRunKey);
       expect(result.current).not.toContain('code');
     });
 

@@ -82,6 +82,7 @@ export const REASON_USER_MESSAGES = {
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED: "You can't enroll right now because you don't have a subscription license.",
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS: "You can't enroll right now because you don't have a subscription license. Contact your administrator for help.",
 };
+
 export const DISABLED_ENROLL_REASON_TYPES = {
   POLICY_NOT_ACTIVE: 'policy_not_active',
   CONTENT_NOT_IN_CATALOG: 'content_not_in_catalog',
