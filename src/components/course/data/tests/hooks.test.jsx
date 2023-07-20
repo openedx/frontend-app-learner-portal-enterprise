@@ -97,6 +97,7 @@ jest.mock('../utils', () => ({
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
   getCourseTypeConfig: jest.fn(),
+  getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
