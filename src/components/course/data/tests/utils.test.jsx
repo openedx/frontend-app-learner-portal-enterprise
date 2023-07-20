@@ -1,6 +1,13 @@
 import moment from 'moment';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+
 import {
-  COUPON_CODE_SUBSIDY_TYPE, COURSE_AVAILABILITY_MAP, ENTERPRISE_OFFER_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE,
+  COUPON_CODE_SUBSIDY_TYPE,
+  COURSE_AVAILABILITY_MAP,
+  DISABLED_ENROLL_REASON_TYPES,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from '../constants';
 import {
   courseUsesEntitlementPricing,
@@ -12,10 +19,16 @@ import {
   linkToCourse,
   pathContainsCourseTypeSlug,
   getCourseStartDate,
+  getMissingSubsidyReasonActions,
+  getSubscriptionDisabledEnrollmentReasonType,
+  isActiveSubscriptionLicense,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
+  ensureConfig: jest.fn(),
   getConfig: () => ({
+    LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL: 'https://limits.url',
+    LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL: 'https://deactivation.url',
     COURSE_TYPE_CONFIG: {
       entitlement_course: {
         pathSlug: 'executive-education-2u',
@@ -554,5 +567,295 @@ describe('getCourseStartDate tests', () => {
       { contentMetadata: null, courseRun: null },
     );
     expect(startDate).toBe(undefined);
+  });
+});
+
+describe('getMissingSubsidyReasonActions', () => {
+  it.each([
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
+  ])('returns "Learn about limits" CTA when `reasonType` is: %s', (reasonType) => {
+    const ActionsComponent = getMissingSubsidyReasonActions({
+      reasonType,
+      enterpriseAdminUsers: [],
+    });
+    render(ActionsComponent);
+    const ctaBtn = screen.getByText('Learn about limits');
+    expect(ctaBtn).toBeInTheDocument();
+    expect(ctaBtn.getAttribute('href')).toEqual('https://limits.url');
+  });
+
+  it(`returns "Learn about deactivation" CTA when \`reasonType\` is: ${DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED}`, () => {
+    const ActionsComponent = getMissingSubsidyReasonActions({
+      reasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
+      enterpriseAdminUsers: [],
+    });
+    render(ActionsComponent);
+    const ctaBtn = screen.getByText('Learn about deactivation');
+    expect(ctaBtn).toBeInTheDocument();
+    expect(ctaBtn.getAttribute('href')).toEqual('https://deactivation.url');
+  });
+
+  it.each([
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+  ])('returns "Contact administrator" CTA when `reasonType` is: %s', (reasonType) => {
+    const ActionsComponent = getMissingSubsidyReasonActions({
+      reasonType,
+      enterpriseAdminUsers: [{ email: 'admin@example.com' }],
+    });
+    render(ActionsComponent);
+    const ctaBtn = screen.getByText('Contact administrator');
+    expect(ctaBtn).toBeInTheDocument();
+    expect(ctaBtn.getAttribute('href')).toEqual('mailto:admin@example.com');
+  });
+
+  it.each([
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+  ])('returns no "Contact administrator" CTA when `reasonType` is %s and there are no enterprise admins', (reasonType) => {
+    const ActionsComponent = getMissingSubsidyReasonActions({
+      reasonType,
+      enterpriseAdminUsers: [],
+    });
+    const { container } = render(ActionsComponent);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('returns no CTA when `reasonType` is unsupported', () => {
+    const ActionsComponent = getMissingSubsidyReasonActions({
+      reasonType: 'invalid',
+      enterpriseAdminUsers: [],
+    });
+    const { container } = render(ActionsComponent);
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('getSubscriptionDisabledEnrollmentReasonType', () => {
+  const mockCatalogUuid = 'test-catalog-uuid';
+
+  it.each([
+    {
+      daysUntilExpirationIncludingRenewals: -17,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      daysUntilExpirationIncludingRenewals: -17,
+      hasEnterpriseAdminUsers: false,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      daysUntilExpirationIncludingRenewals: -17,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+      catalogsWithCourse: ['fake-catalog-uuid'],
+    },
+    {
+      daysUntilExpirationIncludingRenewals: 0,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      daysUntilExpirationIncludingRenewals: 10,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+  ])('handles expired subscription: %s', ({
+    daysUntilExpirationIncludingRenewals,
+    hasEnterpriseAdminUsers,
+    expectedReasonType,
+    catalogsWithCourse,
+  }) => {
+    const customerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: mockCatalogUuid,
+          daysUntilExpirationIncludingRenewals,
+        },
+      ],
+    };
+
+    const reasonType = getSubscriptionDisabledEnrollmentReasonType({
+      customerAgreementConfig,
+      catalogsWithCourse,
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers,
+    });
+    expect(reasonType).toEqual(expectedReasonType);
+  });
+
+  it.each([
+    {
+      unassignedLicensesCount: 0,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      unassignedLicensesCount: 0,
+      hasEnterpriseAdminUsers: false,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      unassignedLicensesCount: 0,
+      hasEnterpriseAdminUsers: false,
+      expectedReasonType: undefined,
+      catalogsWithCourse: ['fake-catalog-uuid'],
+    },
+  ])('handles exhausted subscription: %s', ({
+    unassignedLicensesCount,
+    hasEnterpriseAdminUsers,
+    expectedReasonType,
+    catalogsWithCourse,
+  }) => {
+    const customerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: mockCatalogUuid,
+          daysUntilExpirationIncludingRenewals: 10,
+          licenses: {
+            unassigned: unassignedLicensesCount,
+          },
+        },
+      ],
+    };
+
+    const reasonType = getSubscriptionDisabledEnrollmentReasonType({
+      customerAgreementConfig,
+      catalogsWithCourse,
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers,
+    });
+    expect(reasonType).toEqual(expectedReasonType);
+  });
+
+  it.each([
+    {
+      subscriptionLicense: { status: 'revoked' },
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      subscriptionLicense: { status: 'activated' },
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+  ])('handles revoked/deactivated subscription license', ({
+    subscriptionLicense,
+    hasEnterpriseAdminUsers,
+    expectedReasonType,
+    catalogsWithCourse,
+  }) => {
+    const customerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: mockCatalogUuid,
+          daysUntilExpirationIncludingRenewals: 10,
+        },
+      ],
+    };
+
+    const reasonType = getSubscriptionDisabledEnrollmentReasonType({
+      customerAgreementConfig,
+      catalogsWithCourse,
+      subscriptionLicense,
+      hasEnterpriseAdminUsers,
+    });
+    expect(reasonType).toEqual(expectedReasonType);
+  });
+
+  it.each([
+    {
+      daysUntilExpirationIncludingRenewals: 10,
+      unassignedLicensesCount: 50,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      daysUntilExpirationIncludingRenewals: 10,
+      unassignedLicensesCount: 50,
+      hasEnterpriseAdminUsers: false,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+      catalogsWithCourse: [mockCatalogUuid],
+    },
+    {
+      daysUntilExpirationIncludingRenewals: 10,
+      unassignedLicensesCount: 50,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: undefined,
+      catalogsWithCourse: ['fake-catalog-uuid'],
+    },
+  ])('handles no subscription license with remaining seats: %s', ({
+    daysUntilExpirationIncludingRenewals,
+    unassignedLicensesCount,
+    hasEnterpriseAdminUsers,
+    expectedReasonType,
+    catalogsWithCourse,
+  }) => {
+    const customerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: mockCatalogUuid,
+          daysUntilExpirationIncludingRenewals,
+          licenses: {
+            unassigned: unassignedLicensesCount,
+          },
+        },
+      ],
+    };
+
+    const reasonType = getSubscriptionDisabledEnrollmentReasonType({
+      customerAgreementConfig,
+      catalogsWithCourse,
+      subscriptionLicense: undefined,
+      hasEnterpriseAdminUsers,
+    });
+    expect(reasonType).toEqual(expectedReasonType);
+  });
+});
+
+describe('isActiveSubscriptionLicense', () => {
+  it.each([
+    {
+      subscriptionLicense: { status: 'activated' },
+      expectedResult: true,
+    },
+    {
+      subscriptionLicense: { status: 'revoked' },
+      expectedResult: false,
+    },
+    {
+      subscriptionLicense: { status: 'assigned' },
+      expectedResult: false,
+    },
+    {
+      subscriptionLicense: undefined,
+      expectedResult: false,
+    },
+  ])('returns expected value given the following inputs: %s', ({ subscriptionLicense, expectedResult }) => {
+    const isActive = isActiveSubscriptionLicense(subscriptionLicense);
+    expect(isActive).toEqual(expectedResult);
   });
 });

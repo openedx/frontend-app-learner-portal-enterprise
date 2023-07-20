@@ -80,7 +80,7 @@ Array [
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M19 19H5V5h7V3H3v18h18v-9h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"
+                  d="M19 19H5V5h7V3H3v18h18v-9h-2v7ZM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7Z"
                   fill="currentColor"
                 />
               </svg>
@@ -174,7 +174,7 @@ Array [
       Who can take this course?
     </h3>
     <p>
-      Unfortunately, learners from one or more of the following countries or regions will not be able to register for this course: Iran, Cuba and the Crimea region of Ukraine. While edX has sought licenses from the U.S. Office of Foreign Assets Control (OFAC) to offer our courses to learners in these countries and regions, the licenses we have truly regrets that U.S. sanctions prevent us from offering all of our courses to received are not broad enough to allow us to offer this course in all locations. EdX everyone, no matter where they live.
+      Unfortunately, learners from one or more of the following countries or regions will not be able to register for this course: Iran, Cuba and the Crimea region of Ukraine. While edX has sought licenses from the U.S. Office of Foreign Assets Control (OFAC) to offer our courses to learners in these countries and regions, the licenses we have received are not broad enough to allow us to offer this course in all locations. EdX truly regrets that U.S. sanctions prevent us from offering all of our courses to everyone, no matter where they live.
     </p>
   </div>,
 ]

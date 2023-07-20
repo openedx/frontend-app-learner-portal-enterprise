@@ -31,6 +31,7 @@ import {
   getCourseOrganizationDetails,
   getCourseStartDate,
   getCourseTypeConfig,
+  getSubscriptionDisabledEnrollmentReasonType,
 } from './utils';
 import {
   COURSE_PACING_MAP,
@@ -312,6 +313,7 @@ export const useCourseEnrollmentUrl = ({
 }) => {
   const routeMatch = useRouteMatch();
   const config = getConfig();
+
   const baseQueryParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
     params.set(ENROLLMENT_FAILED_QUERY_PARAM, true);
@@ -654,6 +656,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
 export const useUserSubsidyApplicableToCourse = ({
   courseData,
   redeemableSubsidyAccessPolicy,
+  missingSubsidyAccessPolicyReason,
   isPolicyRedemptionEnabled,
   subscriptionLicense,
   courseService,
@@ -661,9 +664,9 @@ export const useUserSubsidyApplicableToCourse = ({
   canEnrollWithEnterpriseOffers,
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
-  missingSubsidyAccessPolicyReason,
   enterpriseAdminUsers: fallbackAdminUsers,
   courseListPrice,
+  customerAgreementConfig,
 }) => {
   const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
   const [missingUserSubsidyReason, setMissingUserSubsidyReason] = useState();
@@ -701,7 +704,7 @@ export const useUserSubsidyApplicableToCourse = ({
 
     // otherwise, fallback to existing legacy subsidies.
     const retrieveApplicableLegacySubsidy = async () => {
-      // course isn't contained in any catalog(s), so there is no applicable user subsidy; do nothing
+      // course isn't contained in any catalog(s), so we can assume there is no applicable user subsidy; do nothing
       if (!containsContentItems) {
         return undefined;
       }
@@ -743,6 +746,8 @@ export const useUserSubsidyApplicableToCourse = ({
     const handleMissingUserSubsidyReason = () => {
       setUserSubsidyApplicableToCourse(undefined);
 
+      // Prioritize any subsidy access policy reasons for why the subsidy is not redeemable
+      // for the course (i.e., prefer Learner Credit reasons over legacy subsidy reasons for disabled enrollment).
       if (missingSubsidyAccessPolicyReason) {
         setMissingUserSubsidyReason({
           reason: missingSubsidyAccessPolicyReason.reason,
@@ -753,15 +758,34 @@ export const useUserSubsidyApplicableToCourse = ({
           }),
         });
       } else if (!applicableUserSubsidy) {
+        // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
         let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
-        if (enterpriseAdminUsers?.length > 0) {
+
+        const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
+
+        // If there are admin users, change `reasonType` to use the
+        // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
+        if (hasEnterpriseAdminUsers) {
           reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
         }
-        // set reason type as content not in catalog if course is contained
-        // within any of the enterprise customer's catalog(s).
+
+        // If there is a `reasonType` related to subscriptions, change `reasonType` to use it.
+        const subscriptionsDisabledEnrollmentReasonType = getSubscriptionDisabledEnrollmentReasonType({
+          customerAgreementConfig,
+          catalogsWithCourse,
+          subscriptionLicense,
+          hasEnterpriseAdminUsers,
+        });
+        if (subscriptionsDisabledEnrollmentReasonType) {
+          reasonType = subscriptionsDisabledEnrollmentReasonType;
+        }
+
+        // If course is not contained within any of the enterprise customer's catalog(s),
+        // change `reasonType` to use `CONTENT_NOT_IN_CATALOG` message.
         if (!containsContentItems) {
           reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
         }
+
         setMissingUserSubsidyReason({
           reason: reasonType,
           userMessage: DISABLED_ENROLL_USER_MESSAGES[reasonType],
@@ -840,6 +864,7 @@ export const useUserSubsidyApplicableToCourse = ({
     courseService,
     courseData,
     courseListPrice,
+    customerAgreementConfig,
     onSubscriptionLicenseForCourseValidationError,
     subscriptionLicense,
     couponCodes,

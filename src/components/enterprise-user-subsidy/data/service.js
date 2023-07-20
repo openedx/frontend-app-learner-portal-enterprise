@@ -5,6 +5,7 @@ import { loginRefresh } from '../../../utils/common';
 export function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
+    include_revoked: true,
   });
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;

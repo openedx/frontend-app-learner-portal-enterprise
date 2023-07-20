@@ -30,6 +30,7 @@ import {
   findEnterpriseOfferForCourse,
   getSubsidyToApplyForCourse,
   getCourseTypeConfig,
+  getSubscriptionDisabledEnrollmentReasonType,
 } from '../utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
@@ -71,6 +72,7 @@ jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => ({
     LMS_BASE_URL: process.env.LMS_BASE_URL,
+    ECOMMERCE_BASE_URL: process.env.ECOMMERCE_BASE_URL,
   })),
 }));
 
@@ -95,6 +97,7 @@ jest.mock('../utils', () => ({
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
   getCourseTypeConfig: jest.fn(),
+  getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
@@ -249,6 +252,7 @@ describe('useCourseEnrollmentUrl', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
     useRouteMatch.mockReturnValue({
       path: '/:enterpriseSlug/course/:courseKey',
       url: '/enterprise-slug/course/edX+DemoX',
@@ -260,7 +264,7 @@ describe('useCourseEnrollmentUrl', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseEnrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);
       expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseConfig.uuid);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(withLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
     });
 
@@ -285,18 +289,17 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
       expect(result.current).toContain(noLicenseEnrollmentInputs.couponCodes[0].code);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.courseRunKey);
     });
 
     test('with no coupon codes returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noLicenseEnrollmentInputs,
         couponCodes: [],
-
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).not.toContain('code');
     });
 
@@ -305,8 +308,8 @@ describe('useCourseEnrollmentUrl', () => {
         ...noCouponCodesEnrollmentInputs,
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noCouponCodesEnrollmentInputs.sku);
+      expect(result.current).toContain(noCouponCodesEnrollmentInputs.courseRunKey);
       expect(result.current).not.toContain('code');
     });
 
@@ -325,10 +328,11 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current.includes('failure_url'));
     });
   });
+
   describe('executive education-2u course type', () => {
     const mockCourseKey = 'edX+DemoX';
+
     beforeEach(() => {
-      jest.clearAllMocks();
       getConfig.mockReturnValue({
         COURSE_TYPE_CONFIG: {
           'executive-education-2u': {
@@ -338,7 +342,7 @@ describe('useCourseEnrollmentUrl', () => {
           },
         },
       });
-      useRouteMatch.mockReturnValue({
+      useRouteMatch.mockReturnValueOnce({
         path: '/:enterpriseSlug/:courseType/course/:courseKey',
         url: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
       });
@@ -644,7 +648,7 @@ describe('useCoursePartners', () => {
   });
 
   it('should handle organization override based on course type config', () => {
-    getCourseTypeConfig.mockReturnValue({
+    getCourseTypeConfig.mockReturnValueOnce({
       usesOrganizationOverride: true,
     });
     const course = {
@@ -976,7 +980,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       queryData.hasSuccessfulRedemption = true;
     }
 
-    useQuery.mockReturnValue({
+    useQuery.mockReturnValueOnce({
       data: queryData,
       isInitialLoading: false,
     });
@@ -1045,6 +1049,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
         key: 'edX+DemoX',
       },
     },
+    enterpriseAdminUsers: [],
+    customerAgreementConfig: undefined,
   };
   const argsWithMissingCourse = {
     ...baseArgs,
@@ -1165,7 +1171,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('finds applicable subscription license', async () => {
-    getSubsidyToApplyForCourse.mockReturnValue({
+    getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: LICENSE_SUBSIDY_TYPE,
     });
     const args = {
@@ -1189,6 +1195,24 @@ describe('useUserSubsidyApplicableToCourse', () => {
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
       missingUserSubsidyReason: undefined,
+    });
+  });
+
+  it('handles disabled enrollment reason related to subscriptions', async () => {
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+        userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+        actions: expect.any(Object),
+      },
     });
   });
 
