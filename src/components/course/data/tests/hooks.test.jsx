@@ -1197,7 +1197,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
-  it.skip('handles disabled enrollment reason related to subscriptions', async () => {
+  it('handles disabled enrollment reason related to subscriptions', async () => {
     getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
     mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
 
