@@ -680,13 +680,14 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
     subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
   );
   const hasApplicableSubscriptions = subscriptionsApplicableToCourse.length > 0;
-
   const hasExpiredSubscriptions = hasApplicableSubscriptions && subscriptionsApplicableToCourse.every(
     subscription => subscription.daysUntilExpirationIncludingRenewals < 0,
   );
-  const hasExhaustedSubscriptions = hasApplicableSubscriptions && subscriptionsApplicableToCourse.every(
-    subscription => subscription?.licenses?.unassigned === 0,
-  );
+  const hasExhaustedSubscriptions = hasApplicableSubscriptions && subscriptionsApplicableToCourse
+    .filter(subscription => subscription.daysUntilExpirationIncludingRenewals >= 0)
+    .every(
+      subscription => subscription?.licenses?.unassigned === 0,
+    );
   const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse?.find(
     subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
   );
