@@ -692,7 +692,6 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
         },
       ],
     };
-
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreementConfig,
       catalogsWithCourse,
