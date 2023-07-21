@@ -71,8 +71,11 @@ const ExecutiveEducation2UPage = () => {
         return duration;
       };
       return {
-        organizationImage: organizationDetails.organizationLogo,
-        organizationName: organizationDetails.organizationName,
+        organization: {
+          name: organizationDetails.organizationName,
+          logoImgUrl: organizationDetails.organizationLogo,
+          marketingUrl: organizationDetails.organizationMarketingUrl,
+        },
         title: contentMetadata.title,
         startDate: getCourseStartDate({ contentMetadata, courseRun: activeCourseRun }),
         duration: getDuration(),

@@ -66,6 +66,9 @@ const courseData = {
       currency: CURRENCY_USD,
     },
   ],
+  additionalMetadata: {
+    startDate: '2022-01-01T00:00:00Z',
+  },
 };
 
 jest.mock('./data');

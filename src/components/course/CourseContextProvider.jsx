@@ -1,4 +1,4 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -18,12 +18,15 @@ export const CourseContextProvider = ({
   missingUserSubsidyReason,
   userSubsidyApplicableToCourse,
   redeemabilityPerContentKey,
+  hasSuccessfulRedemption,
   subsidyRequestCatalogsApplicableToCourse,
   userCanRequestSubsidyForCourse,
   coursePrice,
   currency,
   canOnlyViewHighlightSets,
 }) => {
+  const [externalCourseFormSubmissionError, setExternalCourseFormSubmissionError] = useState(null);
+
   const value = useMemo(() => ({
     state: courseState,
     userCanRequestSubsidyForCourse,
@@ -32,9 +35,12 @@ export const CourseContextProvider = ({
     missingUserSubsidyReason,
     userSubsidyApplicableToCourse,
     redeemabilityPerContentKey,
+    hasSuccessfulRedemption,
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
+    externalCourseFormSubmissionError,
+    setExternalCourseFormSubmissionError,
   }), [
     courseState,
     userCanRequestSubsidyForCourse,
@@ -43,9 +49,11 @@ export const CourseContextProvider = ({
     missingUserSubsidyReason,
     userSubsidyApplicableToCourse,
     redeemabilityPerContentKey,
+    hasSuccessfulRedemption,
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
+    externalCourseFormSubmissionError,
   ]);
 
   return (
@@ -101,6 +109,7 @@ CourseContextProvider.propTypes = {
       }),
     })),
   })),
+  hasSuccessfulRedemption: PropTypes.bool,
   subsidyRequestCatalogsApplicableToCourse: PropTypes.instanceOf(Set),
   userCanRequestSubsidyForCourse: PropTypes.bool,
   coursePrice: PropTypes.shape({
@@ -116,6 +125,7 @@ CourseContextProvider.defaultProps = {
   missingUserSubsidyReason: undefined,
   userSubsidyApplicableToCourse: undefined,
   redeemabilityPerContentKey: undefined,
+  hasSuccessfulRedemption: false,
   subsidyRequestCatalogsApplicableToCourse: undefined,
   userCanRequestSubsidyForCourse: false,
   coursePrice: undefined,

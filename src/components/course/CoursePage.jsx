@@ -52,6 +52,7 @@ const CoursePage = () => {
     couponCodes: { couponCodes },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
+    customerAgreementConfig,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests, subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
@@ -118,11 +119,13 @@ const CoursePage = () => {
       },
     },
   });
+
   const {
     redeemableSubsidyAccessPolicy,
     redeemabilityPerContentKey,
     isPolicyRedemptionEnabled,
     missingSubsidyAccessPolicyReason,
+    hasSuccessfulRedemption,
   } = subsidyAccessPolicyRedeemabilityData || {};
 
   const [validateLicenseForCourseError, setValidateLicenseForCourseError] = useState();
@@ -197,6 +200,7 @@ const CoursePage = () => {
     missingSubsidyAccessPolicyReason,
     enterpriseAdminUsers,
     courseListPrice,
+    customerAgreementConfig,
   });
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({
@@ -247,7 +251,6 @@ const CoursePage = () => {
       </Container>
     );
   }
-
   // If there isn't an active course run we don't show the course at all
   if (!courseState.activeCourseRun) {
     return <NotFoundPage />;
@@ -270,6 +273,7 @@ const CoursePage = () => {
           coursePrice={coursePrice}
           currency={currency}
           canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          hasSuccessfulRedemption={hasSuccessfulRedemption}
         >
           <CoursePageRoutes />
         </CourseContextProvider>

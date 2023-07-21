@@ -1,7 +1,7 @@
 import React from 'react';
 
 import '@testing-library/jest-dom/extend-expect';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CoursePreview from '../CoursePreview';
 import { renderWithRouter } from '../../../../utils/tests';
@@ -47,7 +47,7 @@ describe('Course Preview Tests', () => {
     expect(screen.queryByText('course preview')).not.toBeInTheDocument();
   });
 
-  it('Renders video play button ans starts playing when user clicks on play.', () => {
+  it('Renders video play button and starts playing when user clicks on play.', async () => {
     const { container } = renderWithRouter(
       <CoursePreview previewImage={imageURL} previewVideoURL={ytUrl} />,
     );
@@ -63,6 +63,9 @@ describe('Course Preview Tests', () => {
 
     expect(container.querySelector('.video-trigger')).toBeFalsy();
     expect(container.querySelector('.video-wrapper')).toBeTruthy();
-    expect(container.querySelector('video-js')).toBeTruthy();
+
+    await waitFor(() => {
+      expect(container.querySelector('video-js')).toBeTruthy();
+    });
   });
 });

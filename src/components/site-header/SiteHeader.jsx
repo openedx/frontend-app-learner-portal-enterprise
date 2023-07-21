@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { Menu as MenuIcon } from '@edx/paragon/icons';
+import { MenuIcon } from '@edx/paragon/icons';
 import { Container, MediaQuery } from '@edx/paragon';
 
 import SiteHeaderLogos from './SiteHeaderLogos';

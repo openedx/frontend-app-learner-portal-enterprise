@@ -29,6 +29,8 @@ import {
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getSubsidyToApplyForCourse,
+  getCourseTypeConfig,
+  getSubscriptionDisabledEnrollmentReasonType,
 } from '../utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
@@ -70,6 +72,7 @@ jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => ({
     LMS_BASE_URL: process.env.LMS_BASE_URL,
+    ECOMMERCE_BASE_URL: process.env.ECOMMERCE_BASE_URL,
   })),
 }));
 
@@ -93,6 +96,8 @@ jest.mock('../utils', () => ({
   getSubsidyToApplyForCourse: jest.fn(),
   findCouponCodeForCourse: jest.fn(),
   findEnterpriseOfferForCourse: jest.fn(),
+  getCourseTypeConfig: jest.fn(),
+  getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
@@ -247,6 +252,7 @@ describe('useCourseEnrollmentUrl', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
     useRouteMatch.mockReturnValue({
       path: '/:enterpriseSlug/course/:courseKey',
       url: '/enterprise-slug/course/edX+DemoX',
@@ -258,7 +264,7 @@ describe('useCourseEnrollmentUrl', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseEnrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);
       expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseConfig.uuid);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(withLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
     });
 
@@ -283,18 +289,17 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
       expect(result.current).toContain(noLicenseEnrollmentInputs.couponCodes[0].code);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.courseRunKey);
     });
 
     test('with no coupon codes returns ecommerce url to add product to basket', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl({
         ...noLicenseEnrollmentInputs,
         couponCodes: [],
-
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
       expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).not.toContain('code');
     });
 
@@ -303,8 +308,8 @@ describe('useCourseEnrollmentUrl', () => {
         ...noCouponCodesEnrollmentInputs,
       }));
       expect(result.current).toContain(process.env.ECOMMERCE_BASE_URL);
-      expect(result.current).toContain(noLicenseEnrollmentInputs.sku);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.key);
+      expect(result.current).toContain(noCouponCodesEnrollmentInputs.sku);
+      expect(result.current).toContain(noCouponCodesEnrollmentInputs.courseRunKey);
       expect(result.current).not.toContain('code');
     });
 
@@ -323,19 +328,21 @@ describe('useCourseEnrollmentUrl', () => {
       expect(result.current.includes('failure_url'));
     });
   });
+
   describe('executive education-2u course type', () => {
     const mockCourseKey = 'edX+DemoX';
+
     beforeEach(() => {
-      jest.clearAllMocks();
       getConfig.mockReturnValue({
         COURSE_TYPE_CONFIG: {
           'executive-education-2u': {
             pathSlug: 'executive-education-2u',
             usesEntitlementListPrice: true,
+            useAdditionalMetadata: true,
           },
         },
       });
-      useRouteMatch.mockReturnValue({
+      useRouteMatch.mockReturnValueOnce({
         path: '/:enterpriseSlug/:courseType/course/:courseKey',
         url: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
       });
@@ -608,34 +615,70 @@ describe('useCourseSubjects', () => {
 });
 
 describe('useCoursePartners', () => {
-  const CoursePartners = ({ course }) => {
-    const [partners, label] = useCoursePartners(course);
-
-    return (
-      <div>
-        <h2>{label}</h2>
-        <ul>
-          {partners.map((partner) => (
-            <li key={partner}>{partner}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
-  it('should set multiple partners and label correctly', async () => {
-    const course = { owners: ['Partner 1', 'Partner 2'] };
-    render(<CoursePartners course={course} />);
-
-    expect(screen.getByText('Partner 1')).toBeTruthy();
-    expect(screen.getByText('Partner 2')).toBeTruthy();
-    expect(screen.getByText('Institutions')).toBeTruthy();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
-  it('should set a single partners and label correctly', async () => {
-    const course = { owners: ['Partner 3'] };
-    render(<CoursePartners course={course} />);
 
-    expect(screen.getByText('Partner 3')).toBeTruthy();
-    expect(screen.getByText('Institution')).toBeTruthy();
+  it('should set multiple partners and label correctly', async () => {
+    const course = {
+      owners: [
+        { name: 'Partner 1', logoImageUrl: 'https://partner1.img' },
+        { name: 'Partner 2', logoImageUrl: 'https://partner2.img' },
+      ],
+    };
+    const { result } = renderHook(() => useCoursePartners(course));
+    expect(result.current[0]).toEqual([
+      { name: 'Partner 1', logoImageUrl: 'https://partner1.img' },
+      { name: 'Partner 2', logoImageUrl: 'https://partner2.img' },
+    ]);
+    expect(result.current[1]).toEqual('Institutions');
+  });
+
+  it('should set a single partners and label correctly', async () => {
+    const course = {
+      owners: [
+        { name: 'Partner 3', logoImageUrl: 'https://partner3.img' },
+      ],
+    };
+    const { result } = renderHook(() => useCoursePartners(course));
+    expect(result.current[0]).toEqual([
+      { name: 'Partner 3', logoImageUrl: 'https://partner3.img' },
+    ]);
+    expect(result.current[1]).toEqual('Institution');
+  });
+
+  it('should handle organization override based on course type config', () => {
+    getCourseTypeConfig.mockReturnValueOnce({
+      usesOrganizationOverride: true,
+    });
+    const course = {
+      organizationShortCodeOverride: 'Partner 1 Override',
+      organizationLogoOverrideUrl: 'https://partner1-override.img',
+      owners: [
+        {
+          uuid: 'partner-1-uuid',
+          key: 'Partner1x',
+          name: 'Partner 1',
+          marketingUrl: 'https://partner1.marketing',
+        },
+        {
+          uuid: 'partner-2-uuid',
+          key: 'Partner2x',
+          name: 'Partner 2',
+          marketingUrl: 'https://partner2.marketing',
+        }],
+    };
+    const { result } = renderHook(() => useCoursePartners(course));
+    expect(result.current[0]).toEqual([
+      {
+        uuid: 'partner-1-uuid',
+        name: 'Partner 1 Override',
+        key: 'Partner1x',
+        logoImageUrl: 'https://partner1-override.img',
+        marketingUrl: 'https://partner1.marketing',
+      },
+    ]);
+    expect(result.current[1]).toEqual('Institution');
   });
 });
 
@@ -937,7 +980,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       queryData.hasSuccessfulRedemption = true;
     }
 
-    useQuery.mockReturnValue({
+    useQuery.mockReturnValueOnce({
       data: queryData,
       isInitialLoading: false,
     });
@@ -1006,6 +1049,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
         key: 'edX+DemoX',
       },
     },
+    enterpriseAdminUsers: [],
+    customerAgreementConfig: undefined,
   };
   const argsWithMissingCourse = {
     ...baseArgs,
@@ -1126,7 +1171,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('finds applicable subscription license', async () => {
-    getSubsidyToApplyForCourse.mockReturnValue({
+    getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: LICENSE_SUBSIDY_TYPE,
     });
     const args = {
@@ -1150,6 +1195,24 @@ describe('useUserSubsidyApplicableToCourse', () => {
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
       missingUserSubsidyReason: undefined,
+    });
+  });
+
+  it('handles disabled enrollment reason related to subscriptions', async () => {
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+        userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+        actions: expect.any(Object),
+      },
     });
   });
 
@@ -1232,22 +1295,30 @@ describe('useUserSubsidyApplicableToCourse', () => {
 });
 
 describe('useMinimalCourseMetadata', () => {
-  const mockOrgName = 'https://fake-logo.url';
+  const mockOrgName = 'Fake Org Name';
   const mockLogoImageUrl = 'https://fake-logo.url';
+  const mockOrgMarketingUrl = 'https://fake-mktg.url';
   const mockWeeksToComplete = 8;
   const mockListPrice = 100;
   const mockCurrency = 'USD';
   const mockCourseTitle = 'Test Course Title';
+  const mockCourseRunStartDate = '2023-04-20T12:00:00Z';
   const baseCourseContextValue = {
     state: {
       course: {
         title: mockCourseTitle,
         organizationShortCodeOverride: undefined,
         organizationLogoOverrideUrl: undefined,
-        owners: [{ name: mockOrgName, logoImageUrl: mockLogoImageUrl }],
+        owners: [
+          {
+            name: mockOrgName,
+            logoImageUrl: mockLogoImageUrl,
+            marketingUrl: mockOrgMarketingUrl,
+          },
+        ],
       },
       activeCourseRun: {
-        start: '2023-04-20T12:00:00Z',
+        start: mockCourseRunStartDate,
         weeksToComplete: mockWeeksToComplete,
       },
     },
@@ -1267,10 +1338,13 @@ describe('useMinimalCourseMetadata', () => {
     const { result } = renderHook(() => useMinimalCourseMetadata(), { wrapper: Wrapper });
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockLogoImageUrl,
-        organizationName: mockOrgName,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
-        startDate: 'Apr 20, 2023',
+        startDate: mockCourseRunStartDate,
         duration: `${mockWeeksToComplete} Weeks`,
         priceDetails: {
           price: mockListPrice,
@@ -1296,8 +1370,11 @@ describe('useMinimalCourseMetadata', () => {
     );
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockLogoImageUrl,
-        organizationName: mockOrgName,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
         startDate: undefined,
         duration: '-',
@@ -1328,10 +1405,13 @@ describe('useMinimalCourseMetadata', () => {
     );
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockLogoImageUrl,
-        organizationName: mockOrgName,
+        organization: {
+          name: mockOrgName,
+          logoImgUrl: mockLogoImageUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
-        startDate: 'Apr 20, 2023',
+        startDate: mockCourseRunStartDate,
         duration: '1 Week',
         priceDetails: {
           price: mockListPrice,
@@ -1363,10 +1443,13 @@ describe('useMinimalCourseMetadata', () => {
     );
     expect(result.current).toEqual(
       expect.objectContaining({
-        organizationImage: mockOrgLogoUrl,
-        organizationName: mockOrgShortCode,
+        organization: {
+          name: mockOrgShortCode,
+          logoImgUrl: mockOrgLogoUrl,
+          marketingUrl: mockOrgMarketingUrl,
+        },
         title: mockCourseTitle,
-        startDate: 'Apr 20, 2023',
+        startDate: mockCourseRunStartDate,
         duration: '8 Weeks',
         priceDetails: {
           price: mockListPrice,

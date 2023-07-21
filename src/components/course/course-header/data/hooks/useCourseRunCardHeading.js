@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
 import { getCourseStartDate, hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
 import { DATE_FORMAT } from '../constants';
+import { getTodaysDate } from '../utils';
 
 const messages = defineMessages({
   courseStartDate: {
@@ -41,7 +42,11 @@ const useCourseRunCardHeading = ({
 
   const courseStartDate = getCourseStartDate({ contentMetadata: course, courseRun });
 
-  if (isCourseRunCurrent) {
+  // check whether the course run is current based on its `availability` or whether
+  // the start date is indeed in the past. As of this implementation, the `availability`
+  // for published, enrollable externally hosted courses is always "Current" even if the
+  // date is upcoming.
+  if (isCourseRunCurrent && moment(courseStartDate).isBefore(moment(getTodaysDate()))) {
     if (isUserEnrolled) {
       return intl.formatMessage(messages.courseStarted);
     }

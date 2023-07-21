@@ -70,10 +70,19 @@ export const COURSE_TYPE_PARTNER_LOGOS = {
 
 export const REASON_USER_MESSAGES = {
   ORGANIZATION_NO_FUNDS: "You can't enroll right now because your organization doesn't have enough funds.",
-  ORGANIZATION_NO_FUNDS_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough funds. Contact your administrator to request more.",
+  ORGANIZATION_NO_FUNDS_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough funds. Contact your administrator about funds.",
   LEARNER_LIMITS_REACHED: "You can't enroll right now because of limits set by your organization.",
   CONTENT_NOT_IN_CATALOG: "You can't enroll right now because this course is no longer available in your organization's catalog.",
+  SUBSCRIPTION_EXPIRED: "You can't enroll right now because your subscription expired.",
+  SUBSCRIPTION_EXPIRED_NO_ADMINS: "You can't enroll right now because your subscription expired. Contact your administrator for help.",
+  SUBSCRIPTION_DEACTIVATED: "You can't enroll right now because your subscription has been deactivated.",
+  SUBSCRIPTION_DEACTIVATED_NO_ADMINS: "You can't enroll right now because your subscription has been deactivated. Contact your administrator for help.",
+  SUBSCRIPTION_SEATS_EXHAUSTED: "You can't enroll right now because your organization doesn't have enough licenses.",
+  SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough licenses. Contact your administrator for help.",
+  SUBSCRIPTION_LICENSE_NOT_ASSIGNED: "You can't enroll right now because you don't have a subscription license.",
+  SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS: "You can't enroll right now because you don't have a subscription license. Contact your administrator for help.",
 };
+
 export const DISABLED_ENROLL_REASON_TYPES = {
   POLICY_NOT_ACTIVE: 'policy_not_active',
   CONTENT_NOT_IN_CATALOG: 'content_not_in_catalog',
@@ -83,7 +92,16 @@ export const DISABLED_ENROLL_REASON_TYPES = {
   LEARNER_MAX_ENROLLMENTS_REACHED: 'learner_max_enrollments_reached',
   NO_SUBSIDY: 'no_subsidy',
   NO_SUBSIDY_NO_ADMINS: 'no_subsidy_no_admin',
+  SUBSCRIPTION_DEACTIVATED: 'subscription_deactivated',
+  SUBSCRIPTION_EXPIRED: 'subscription_expired',
+  SUBSCRIPTION_EXPIRED_NO_ADMINS: 'subscription_expired_no_admin',
+  SUBSCRIPTION_SEATS_EXHAUSTED: 'subscription_seats_exhausted',
+  SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS: 'subscription_seats_exhausted_no_admin',
+  SUBSCRIPTION_LICENSE_NOT_ASSIGNED: 'subscription_license_not_assigned',
+  SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS: 'subscription_license_not_assigned_no_admin',
 };
+
+/* eslint-disable max-len */
 export const DISABLED_ENROLL_USER_MESSAGES = {
   [DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG]: REASON_USER_MESSAGES.CONTENT_NOT_IN_CATALOG,
   [DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY]: REASON_USER_MESSAGES.ORGANIZATION_NO_FUNDS,
@@ -91,6 +109,15 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
   [DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY]: REASON_USER_MESSAGES.ORGANIZATION_NO_FUNDS,
   [DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
   [DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED]: REASON_USER_MESSAGES.SUBSCRIPTION_DEACTIVATED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED]: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS]: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED]: REASON_USER_MESSAGES.SUBSCRIPTION_SEATS_EXHAUSTED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS]: REASON_USER_MESSAGES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED]: REASON_USER_MESSAGES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+  [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS]: REASON_USER_MESSAGES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
 };
+/* eslint-enable max-len */
 
 export const DATE_FORMAT = 'MMM D, YYYY';
+export const ZERO_PRICE = 0.00;

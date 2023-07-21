@@ -18,10 +18,13 @@ jest.mock('@edx/frontend-platform/config', () => ({
 jest.mock('../../data/hooks', () => ({
   ...jest.requireActual('../../data/hooks'),
   useMinimalCourseMetadata: () => ({
-    organizationImage: 'https://test.org/logo.png',
-    organizationName: 'Test Org',
+    organization: {
+      logoImgUrl: 'https://test.org/logo.png',
+      name: 'Test Org',
+      marketingUrl: 'https://test.org',
+    },
     title: 'Test Course Title',
-    startDate: 'March 5, 2023',
+    startDate: '2023-03-05',
     duration: '3 Weeks',
     priceDetails: {
       price: 100,
@@ -77,11 +80,12 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
     expect(screen.getByText('Start date:')).toBeInTheDocument();
-    expect(screen.getByText('March 5, 2023')).toBeInTheDocument();
+    expect(screen.getByText('Mar 5, 2023')).toBeInTheDocument();
     expect(screen.getByText('Course duration:')).toBeInTheDocument();
     expect(screen.getByText('3 Weeks')).toBeInTheDocument();
     expect(screen.getByText('Course total:')).toBeInTheDocument();
     expect(screen.getByText('$100.00 USD')).toBeInTheDocument();
+    expect(screen.getByText('$0.00 USD')).toBeInTheDocument();
     expect(screen.getByText('What happens next?')).toBeInTheDocument();
     expect(screen.getByText('Terms and Conditions')).toBeInTheDocument();
   });
@@ -112,7 +116,7 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByText('Test Course Title')).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
     expect(screen.getByText('Start date:')).toBeInTheDocument();
-    expect(screen.getByText('March 5, 2023')).toBeInTheDocument();
+    expect(screen.getByText('Mar 5, 2023')).toBeInTheDocument();
     expect(screen.getByText('Course duration:')).toBeInTheDocument();
     expect(screen.getByText('3 Weeks')).toBeInTheDocument();
     expect(screen.getByText('Course total:')).toBeInTheDocument();
