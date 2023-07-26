@@ -1,5 +1,4 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { getConfig } from '@edx/frontend-platform/config';
 import { renderHook } from '@testing-library/react-hooks';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';

@@ -1,4 +1,3 @@
-import { getConfig } from '@edx/frontend-platform';
 import { Stack, Button } from '@edx/paragon';
 
 import StatefulEnroll from '../../../../stateful-enroll';
