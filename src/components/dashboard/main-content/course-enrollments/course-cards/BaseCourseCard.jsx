@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {
   Dropdown, Badge, IconButton, Icon, Skeleton,
 } from '@edx/paragon';
@@ -89,7 +89,7 @@ class BaseCourseCard extends Component {
 
   getDateMessage = () => {
     const { type, pacing, endDate } = this.props;
-    const formattedEndDate = endDate ? moment(endDate).format('MMMM D, YYYY') : null;
+    const formattedEndDate = endDate ? dayjs(endDate).format('MMMM D, YYYY') : null;
     let message = '';
     if (formattedEndDate) {
       switch (type) {
@@ -104,7 +104,7 @@ class BaseCourseCard extends Component {
         case COURSE_STATUSES.upcoming:
         case COURSE_STATUSES.completed:
         case COURSE_STATUSES.savedForLater: {
-          const isCourseEnded = moment() > moment(endDate);
+          const isCourseEnded = dayjs() > dayjs(endDate);
           message += isCourseEnded ? 'Ended' : 'Ends';
           message += ` ${formattedEndDate}.`;
           break;
@@ -146,7 +146,7 @@ class BaseCourseCard extends Component {
 
   isCourseEnded = () => {
     const { endDate } = this.props;
-    return moment(endDate) < moment();
+    return dayjs(endDate) < dayjs();
   };
 
   handleEmailSettingsButtonClick = () => {
@@ -327,7 +327,7 @@ class BaseCourseCard extends Component {
   renderCourseStartDate = () => {
     const { startDate, mode } = this.props;
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-    const formattedStartDate = startDate ? moment(startDate).format('MMMM Do, YYYY') : null;
+    const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
 
     if (isExecutiveEducation2UCourse && formattedStartDate) {
       return <>&#x2022; Start date: {formattedStartDate}</>;

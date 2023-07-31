@@ -1,9 +1,10 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
 import Cookies from 'universal-cookie';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 
-export const isCourseEnded = endDate => moment(endDate) < moment();
+export const isCourseEnded = endDate => dayjs(endDate) < dayjs();
 
 export const createArrayFromValue = (value) => {
   const values = [];
@@ -42,7 +43,8 @@ export const hasTruthyValue = (value) => {
 };
 
 export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDate }) => {
-  const now = moment();
+  dayjs.extend(isBetween);
+  const now = dayjs();
   // Subscriptions use "expirationDate" while Codes use "endDate"
   const realEndDate = expirationDate || endDate;
   return now.isBetween(startDate, realEndDate);

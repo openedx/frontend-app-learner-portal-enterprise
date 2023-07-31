@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
 } from '@edx/paragon';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import {
-  courseUpgradationAvailable,
+  courseUpgradeAvailable,
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
@@ -40,7 +40,7 @@ const ProgramProgressCourses = ({ courseData }) => {
   let coursesInProgress = [];
   let coursesNotStarted = [];
   const courseAboutPageURL = (course) => linkToCourse(course, enterpriseConfig.slug);
-  const courseSponserdByEnterprise = `Sponsored by ${enterpriseConfig.name}`;
+  const courseSponsoredByEnterprise = `Sponsored by ${enterpriseConfig.name}`;
 
   if (courseData?.completed) {
     coursesCompleted = getEnrolledCourseRunDetails(courseData.completed);
@@ -64,7 +64,7 @@ const ProgramProgressCourses = ({ courseData }) => {
               <span className="text-success-500 pr-1.5 pl-1.5"> {certificatePrice}</span>
             </del>
           )}
-          {courseSponserdByEnterprise}
+          {courseSponsoredByEnterprise}
         </>
       );
     }
@@ -116,7 +116,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                 <div className="mt-2.5 pt-2 pl-3 pb-5.5 pr-3" key={course.key}>
                   <h4 className="text-dark-500">{course.title}</h4>
                   <p className="text-gray-500 text-capitalize mt-1">Enrolled:
-                    ({course?.pacingType.replace('_', '-')}) Started {moment(course.start)
+                    ({course?.pacingType.replace('_', '-')}) Started {dayjs(course.start)
                     .format('MMMM Do, YYYY')}
                   </p>
                   <a
@@ -127,7 +127,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   </a>
                   {course.certificateUrl
                     ? renderCertificatePurchased()
-                    : courseUpgradationAvailable(course)
+                    : courseUpgradeAvailable(course)
                     && renderCertificatePriceMessage(course)}
                 </div>
               )
@@ -148,7 +148,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                   ? (
                     <>
                       <p className="text-gray-500 text-capitalize mt-1">
-                        ({course?.pacingType.replace('_', '-')}) Starts {moment(course.start)
+                        ({course?.pacingType.replace('_', '-')}) Starts {dayjs(course.start)
                           .format('MMMM Do, YYYY')}
                       </p>
                       <a
@@ -191,7 +191,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                           )
                           : (
                             <span data-testid="course-run-single-date">
-                              ({course?.pacingType.replace('_', '-')}) Starts {moment(course.start)
+                              ({course?.pacingType.replace('_', '-')}) Starts {dayjs(course.start)
                                 .format('MMMM Do, YYYY')}
                             </span>
                           )}
@@ -224,7 +224,7 @@ const ProgramProgressCourses = ({ courseData }) => {
               <div className="mt-4.5 pl-3 pb-5 pr-3" key={course.key}>
                 <h4 className="text-dark-500">{course.title}</h4>
                 <p className="text-gray-500 text-capitalize mt-1">
-                  ({course?.pacingType.replace('_', '-')}) Started {moment(course.start)
+                  ({course?.pacingType.replace('_', '-')}) Started {dayjs(course.start)
                     .format('MMMM Do, YYYY')}
                 </p>
                 <a
@@ -235,7 +235,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                 </a>
 
                 {course.certificateUrl ? renderCertificatePurchased()
-                  : courseUpgradationAvailable(course)
+                  : courseUpgradeAvailable(course)
                   && renderCertificatePriceMessage(course)}
               </div>
             )

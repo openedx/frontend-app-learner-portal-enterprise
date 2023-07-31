@@ -14,7 +14,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-import moment from 'moment/moment';
+import dayjs from 'dayjs';
 import reactStringReplace from 'react-string-replace';
 
 import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStringWithoutMilliseconds } from './data';
@@ -88,7 +88,7 @@ const UserEnrollmentForm = ({
     }
 
     const errors = {};
-    const is18YearsOld = moment().diff(moment(values.dateOfBirth), 'years') >= 18;
+    const is18YearsOld = dayjs().diff(dayjs(values.dateOfBirth), 'years') >= 18;
 
     if (!values.firstName) {
       errors.firstName = formValidationMessages.firstNameRequired;
