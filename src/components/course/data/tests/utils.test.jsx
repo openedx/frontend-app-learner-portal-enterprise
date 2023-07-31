@@ -2,6 +2,7 @@ import moment from 'moment';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { getConfig } from '@edx/frontend-platform';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
@@ -22,6 +23,7 @@ import {
   getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
   isActiveSubscriptionLicense,
+  processCourseSubjects,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -880,5 +882,40 @@ describe('isActiveSubscriptionLicense', () => {
   ])('returns expected value given the following inputs: %s', ({ subscriptionLicense, expectedResult }) => {
     const isActive = isActiveSubscriptionLicense(subscriptionLicense);
     expect(isActive).toEqual(expectedResult);
+  });
+});
+
+describe('processCourseSubjects', () => {
+  it('handles null course', () => {
+    const result = processCourseSubjects(null);
+    expect(result).toEqual({
+      primarySubject: null,
+      subjects: [],
+    });
+  });
+
+  it('handles empty subject list', () => {
+    const course = { subjects: [] };
+    const result = processCourseSubjects(course);
+    expect(result).toEqual({
+      primarySubject: null,
+      subjects: [],
+    });
+  });
+
+  it('handles course with subjects', () => {
+    const mockSubject = {
+      name: 'Subject 1',
+      slug: 'subject-1',
+    };
+    const course = { subjects: [mockSubject] };
+    const result = processCourseSubjects(course);
+    expect(result).toEqual({
+      primarySubject: {
+        ...mockSubject,
+        url: `${getConfig().MARKETING_SITE_BASE_URL}/course/subject/${mockSubject.slug}`,
+      },
+      subjects: [mockSubject],
+    });
   });
 });

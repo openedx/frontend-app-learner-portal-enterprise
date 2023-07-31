@@ -19,7 +19,6 @@ import {
   useCoursePacingType,
   useCoursePriceForUserSubsidy,
   useExtractAndRemoveSearchParamsFromURL,
-  useCourseSubjects,
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
   useMinimalCourseMetadata,
@@ -576,41 +575,6 @@ describe('useTrackSearchConversionClickHandler', () => {
         courseKey: mockCourseState.activeCourseRun.key,
       },
     );
-  });
-});
-
-describe('useCourseSubjects', () => {
-  it('handles null course', async () => {
-    const { result } = renderHook(() => useCourseSubjects());
-    expect(result.current).toEqual({
-      primarySubject: null,
-      subjects: [],
-    });
-  });
-
-  it('handles empty subjects list', async () => {
-    const course = { subjects: [] };
-    const { result } = renderHook(() => useCourseSubjects(course));
-    expect(result.current).toEqual({
-      primarySubject: null,
-      subjects: [],
-    });
-  });
-
-  it('handles course with subjects', async () => {
-    const mockSubject = {
-      name: 'Subject 1',
-      slug: 'subject-1',
-    };
-    const course = { subjects: [mockSubject] };
-    const { result } = renderHook(() => useCourseSubjects(course));
-    expect(result.current).toEqual({
-      primarySubject: {
-        ...mockSubject,
-        url: `${getConfig().MARKETING_SITE_BASE_URL}/course/subject/${mockSubject.slug}`,
-      },
-      subjects: [mockSubject],
-    });
   });
 });
 

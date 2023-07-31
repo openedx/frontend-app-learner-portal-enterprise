@@ -779,3 +779,17 @@ export const getCourseStartDate = ({ contentMetadata, courseRun }) => {
 
   return startDate;
 };
+
+export function processCourseSubjects(course) {
+  const config = getConfig();
+  if (!course?.subjects?.length) {
+    return { subjects: [], primarySubject: null };
+  }
+  return {
+    subjects: course.subjects,
+    primarySubject: {
+      ...course.subjects[0],
+      url: `${config.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
+    },
+  };
+}
