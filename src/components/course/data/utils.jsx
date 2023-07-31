@@ -4,15 +4,15 @@ import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@edx/paragon';
 import isNil from 'lodash.isnil';
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
   COURSE_PACING_MAP,
-  LICENSE_SUBSIDY_TYPE,
-  COUPON_CODE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  ENROLLMENT_FAILED_QUERY_PARAM,
-  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   DISABLED_ENROLL_REASON_TYPES,
+  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
+  ENROLLMENT_FAILED_QUERY_PARAM,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
@@ -95,28 +95,28 @@ export function getDefaultProgram(programs = []) {
 
 export function formatProgramType(programType) {
   switch (programType) {
-    case PROGRAM_TYPE_MAP.MICROMASTERS:
-    case PROGRAM_TYPE_MAP.MICROBACHELORS:
-      return <>{programType}<sup>&reg;</sup> Program</>;
-    case PROGRAM_TYPE_MAP.MASTERS:
-      return 'Master\'s';
-    default:
-      return programType;
+        case PROGRAM_TYPE_MAP.MICROMASTERS:
+        case PROGRAM_TYPE_MAP.MICROBACHELORS:
+            return <>{programType}<sup>&reg;</sup> Program</>;
+        case PROGRAM_TYPE_MAP.MASTERS:
+            return 'Master\'s';
+        default:
+            return programType;
   }
 }
 
 export function getProgramIcon(type) {
   switch (type) {
-    case PROGRAM_TYPE_MAP.XSERIES:
-      return XSeriesSvgIcon;
-    case PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE:
-      return ProfessionalSvgIcon;
-    case PROGRAM_TYPE_MAP.MICROMASTERS:
-      return MicroMastersSvgIcon;
-    case PROGRAM_TYPE_MAP.CREDIT:
-      return CreditSvgIcon;
-    default:
-      return VerifiedSvgIcon;
+        case PROGRAM_TYPE_MAP.XSERIES:
+            return XSeriesSvgIcon;
+        case PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE:
+            return ProfessionalSvgIcon;
+        case PROGRAM_TYPE_MAP.MICROMASTERS:
+            return MicroMastersSvgIcon;
+        case PROGRAM_TYPE_MAP.CREDIT:
+            return CreditSvgIcon;
+        default:
+            return VerifiedSvgIcon;
   }
 }
 
@@ -141,8 +141,8 @@ export function getAvailableCourseRuns(course) {
   return course.courseRuns
     .filter((courseRun) => (
       courseRun.isMarketable
-      && courseRun.isEnrollable
-      && !isArchived(courseRun)
+            && courseRun.isEnrollable
+            && !isArchived(courseRun)
     ));
 }
 
@@ -151,7 +151,7 @@ export function getAvailableCourseRuns(course) {
  *
  * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
  * @returns List of course run keys.
-*/
+ */
 export function getAvailableCourseRunKeysFromCourseData(courseData) {
   if (!courseData?.courseDetails.courseRuns) {
     return [];
@@ -166,6 +166,33 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   }));
 }
 
+export const determineIfOfferRedeemable = ({
+  remainingBalance,
+  remainingBalanceForUser,
+  remainingApplications,
+  remainingApplicationsForUser,
+  isCurrent,
+}, coursePrice) => {
+  const hasRemainingBalance = !isNil(remainingBalance) ? remainingBalance >= coursePrice : true;
+  const hasRemainingBalanceForUser = !isNil(remainingBalanceForUser) ? remainingBalanceForUser >= coursePrice : true;
+  const hasRemainingApplications = !isNil(remainingApplications) ? remainingApplications > 0 : true;
+  const hasRemainingApplicationsForUser = !isNil(remainingApplicationsForUser)
+    ? remainingApplicationsForUser > 0
+    : true;
+
+  const isOfferRedeemable = [
+    hasRemainingBalance,
+    hasRemainingBalanceForUser,
+    hasRemainingApplications,
+    hasRemainingApplicationsForUser,
+  ];
+  if (isCurrent !== undefined) {
+    const hasCurrent = !isNil(isCurrent) ? isCurrent : true;
+    isOfferRedeemable.push(hasCurrent);
+  }
+  return isOfferRedeemable;
+};
+
 /**
  * Determines whether an enterprise offer may be applied
  * to a course given the course price and its remaining spend/balance.
@@ -173,33 +200,13 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
  * @param {object} args
  * @param {object} args.offer An enterprise offer.
  * @param {number} args.coursePrice The price of the course.
+ * @param {boolean} evaluate Determines whether to return the array of
+ * conditions or evaluate if they are all true, Default is true
  * @returns Whether the offer is redeemable for the course.
  */
-const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
-  let hasRemainingBalance = true;
-  let hasRemainingBalanceForUser = true;
-  let hasRemainingApplications = true;
-  let hasRemainingApplicationsForUser = true;
-
-  if (!isNil(offer.remainingBalance)) {
-    hasRemainingBalance = offer.remainingBalance >= coursePrice;
-  }
-  if (!isNil(offer.remainingBalanceForUser)) {
-    hasRemainingBalanceForUser = offer.remainingBalanceForUser >= coursePrice;
-  }
-  if (!isNil(offer.remainingApplications)) {
-    hasRemainingApplications = offer.remainingApplications > 0;
-  }
-  if (!isNil(offer.remainingApplicationsForUser)) {
-    hasRemainingApplicationsForUser = offer.remainingApplicationsForUser > 0;
-  }
-
-  return [
-    hasRemainingBalance,
-    hasRemainingBalanceForUser,
-    hasRemainingApplications,
-    hasRemainingApplicationsForUser,
-  ].every(value => value === true);
+export const isOfferRedeemableForCourse = ({ offer, coursePrice }, evaluate = true) => {
+  const isOfferRedeemableConditions = determineIfOfferRedeemable(offer, coursePrice);
+  return evaluate ? isOfferRedeemableConditions.every(value => value === true) : isOfferRedeemableConditions;
 };
 
 /**
@@ -273,7 +280,6 @@ export const findEnterpriseOfferForCourse = ({
   if (!coursePrice) {
     return undefined;
   }
-
   const orderedEnterpriseOffers = enterpriseOffers
     .filter((enterpriseOffer) => {
       const isCourseInCatalog = catalogsWithCourse.includes(enterpriseOffer.enterpriseCatalogUuid);
@@ -373,8 +379,7 @@ export function shouldUpgradeUserEnrollment({
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
 export function shortenString(str, maxLength, suffix, separator = ' ') {
-  if (str.length <= maxLength) { return str; }
-  return `${str.substr(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
+  return str.length <= maxLength ? str : `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
 export const getSubsidyToApplyForCourse = ({
@@ -414,6 +419,7 @@ export const getSubsidyToApplyForCourse = ({
       remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
       remainingApplications: applicableEnterpriseOffer.remainingApplications,
       remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
+      isCurrent: applicableEnterpriseOffer.isCurrent,
     };
   }
 

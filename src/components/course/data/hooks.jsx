@@ -1,9 +1,8 @@
 import {
-  useEffect, useState, useMemo, useContext, useCallback,
+  useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import isNil from 'lodash.isnil';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -21,32 +20,33 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 import CourseService from './service';
 import {
-  isCourseInstructorPaced,
-  isCourseSelfPaced,
   findCouponCodeForCourse,
-  getSubsidyToApplyForCourse,
   findEnterpriseOfferForCourse,
-  getCourseRunPrice,
-  getMissingSubsidyReasonActions,
   getCourseOrganizationDetails,
+  getCourseRunPrice,
   getCourseStartDate,
   getCourseTypeConfig,
+  getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
+  getSubsidyToApplyForCourse,
+  isCourseInstructorPaced,
+  isCourseSelfPaced,
+  isOfferRedeemableForCourse,
 } from './utils';
 import {
-  COURSE_PACING_MAP,
-  SUBSIDY_DISCOUNT_TYPE_MAP,
-  CURRENCY_USD,
-  ENROLLMENT_FAILED_QUERY_PARAM,
-  LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
-  DISABLED_ENROLL_USER_MESSAGES,
+  COURSE_PACING_MAP,
+  CURRENCY_USD,
   DISABLED_ENROLL_REASON_TYPES,
+  DISABLED_ENROLL_USER_MESSAGES,
+  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
+  ENROLLMENT_FAILED_QUERY_PARAM,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+  SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';
-import { pushEvent, EVENTS } from '../../../utils/optimizely';
+import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 
@@ -202,6 +202,7 @@ export function useCourseTranscriptLanguages(courseRun) {
 
   return [languages, label];
 }
+
 export function useCoursePacingType(courseRun) {
   let pacingType;
   let pacingTypeContent;
@@ -248,12 +249,12 @@ export const useCoursePriceForUserSubsidy = ({
         let discountedPrice;
 
         if (discountType
-            && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
+                    && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
           discountedPrice = listPrice - (listPrice * (discountValue / 100));
         }
 
         if (discountType
-            && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
+                    && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
           discountedPrice = Math.max(listPrice - discountValue, 0);
         }
 
@@ -530,17 +531,17 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       return false;
     }
     switch (subsidyRequestConfiguration.subsidyType) {
-      case SUBSIDY_TYPE.LICENSE: {
-        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
-      }
-      case SUBSIDY_TYPE.COUPON: {
-        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-          request => (!courseKey || request.courseId === courseKey),
-        );
-        return !!foundCouponRequest;
-      }
-      default:
-        return false;
+            case SUBSIDY_TYPE.LICENSE: {
+              return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
+            }
+            case SUBSIDY_TYPE.COUPON: {
+              const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
+                request => (!courseKey || request.courseId === courseKey),
+              );
+              return !!foundCouponRequest;
+            }
+            default:
+                return false;
     }
   }, [
     courseKey,
@@ -740,7 +741,7 @@ export const useUserSubsidyApplicableToCourse = ({
 
     const enterpriseAdminUsers = (
       missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators
-      || fallbackAdminUsers
+            || fallbackAdminUsers
     );
 
     const handleMissingUserSubsidyReason = () => {
@@ -796,7 +797,6 @@ export const useUserSubsidyApplicableToCourse = ({
         });
       }
     };
-
     if (applicableUserSubsidy) {
       setUserSubsidyApplicableToCourse(applicableUserSubsidy);
       setMissingUserSubsidyReason(undefined);
@@ -807,40 +807,35 @@ export const useUserSubsidyApplicableToCourse = ({
         if (legacyUserSubsidyApplicableToCourse) {
           // check for exceeded remaining spend/enrollments and per-learner limits if it's an enterprise offer
           if (legacyUserSubsidyApplicableToCourse.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
-            const {
-              remainingBalance,
-              remainingBalanceForUser,
-              remainingApplications,
-              remainingApplicationsForUser,
-            } = legacyUserSubsidyApplicableToCourse;
-
-            const hasBalanceRemainingForUser = (
-              !isNil(remainingBalanceForUser) ? remainingBalanceForUser > courseListPrice : true
-            );
-            const hasRemainingApplicationsForUser = (
-              !isNil(remainingApplicationsForUser) ? remainingApplicationsForUser > 0 : true
-            );
-            const hasBalanceRemaining = !isNil(remainingBalance) ? remainingBalance > courseListPrice : true;
-            const hasRemainingApplications = !isNil(remainingApplications) ? remainingApplications > 0 : true;
-
-            const redeemableOfferConditions = [
-              hasBalanceRemainingForUser,
-              hasRemainingApplicationsForUser,
-              hasBalanceRemaining,
-              hasRemainingApplications,
-            ];
-
-            if (redeemableOfferConditions.every(offerCondition => offerCondition)) {
+            const redeemableOffer = isOfferRedeemableForCourse({
+              offer: legacyUserSubsidyApplicableToCourse,
+              coursePrice: courseListPrice,
+            }, false);
+            if (redeemableOffer.every(offer => offer === true)) {
               // Redeemable for this course
               setUserSubsidyApplicableToCourse(legacyUserSubsidyApplicableToCourse);
               setMissingUserSubsidyReason(undefined);
             } else {
-              let ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+              const {
+                hasRemainingApplicationsForUser,
+                hasRemainingBalanceForUser,
+                hasRemainingBalance,
+                hasCurrent,
+              } = redeemableOffer;
+
+              let ineligibleEnterpriseOfferReasonType = null;
+
               if (!hasRemainingApplicationsForUser) {
                 ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED;
               }
-              if (!hasBalanceRemainingForUser) {
+              if (!hasRemainingBalanceForUser) {
                 ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED;
+              }
+              if (!hasRemainingBalance) {
+                ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+              }
+              if (!hasCurrent) {
+                ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.OFFER_EXPIRED;
               }
               setMissingUserSubsidyReason({
                 reason: ineligibleEnterpriseOfferReasonType,
@@ -937,6 +932,7 @@ export const useExternalEnrollmentFailureReason = () => {
       DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS,
       DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
       DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+      DISABLED_ENROLL_REASON_TYPES.SUBSIDY_NOT_ACTIVE,
     ];
     const systemErrorReasons = [
       DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
