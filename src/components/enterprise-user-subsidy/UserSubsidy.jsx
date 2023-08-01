@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
-
 import {
   useCouponCodes,
   useSubscriptions,

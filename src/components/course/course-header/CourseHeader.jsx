@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import {
   Breadcrumb,
@@ -8,8 +8,6 @@ import {
 } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getConfig } from '@edx/frontend-platform/config';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { CourseContext } from '../CourseContextProvider';
 import CourseSkills from '../CourseSkills';
@@ -25,7 +23,6 @@ import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
 
-import { isExperimentVariant } from '../../../utils/optimizely';
 import CoursePreview from './CoursePreview';
 
 const CourseHeader = () => {
@@ -34,7 +31,6 @@ const CourseHeader = () => {
     state: {
       course,
       catalog,
-      courseReviews,
     },
     isPolicyRedemptionEnabled,
   } = useContext(CourseContext);
@@ -44,31 +40,6 @@ const CourseHeader = () => {
     () => getDefaultProgram(course.programs),
     [course],
   );
-  const config = getConfig();
-  const isExperimentVariationA = isExperimentVariant(
-    config.EXPERIMENT_5_ID,
-    config.EXPERIMENT_5_VARIANT_1_ID,
-  );
-  const hasSufficientReviewCount = courseReviews?.reviewsCount >= 5;
-  useEffect(() => {
-    if (hasSufficientReviewCount && isExperimentVariationA) {
-      sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
-        'edx.ui.enterprise.learner_portal.course.viewedWithReviewsVariation',
-        {
-          course_key: course.key,
-        },
-      );
-    } else {
-      sendEnterpriseTrackEvent(
-        enterpriseConfig.uuid,
-        'edx.ui.enterprise.learner_portal.course.viewedWithoutReviewsVariation',
-        {
-          course_key: course.key,
-        },
-      );
-    }
-  }, [hasSufficientReviewCount, isExperimentVariationA, enterpriseConfig.uuid, course.key]);
 
   return (
     <div className="course-header">
@@ -137,7 +108,7 @@ const CourseHeader = () => {
           <Col xs={12} lg={12}>
             {catalog.containsContentItems ? (
               <>
-                {hasSufficientReviewCount && isExperimentVariationA && <CourseReview />}
+                <CourseReview />
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
                     This course is part of a {formatProgramType(defaultProgram.type)}.

@@ -13,7 +13,6 @@ import CourseHeader from '../CourseHeader';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import * as optimizelyUtils from '../../../../utils/optimizely';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -162,7 +161,6 @@ describe('<CourseHeader />', () => {
   });
 
   test('renders course reviews section', () => {
-    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
@@ -177,7 +175,6 @@ describe('<CourseHeader />', () => {
   });
 
   test('renders course reviews section and change the review information content', () => {
-    jest.spyOn(optimizelyUtils, 'isExperimentVariant').mockImplementation(() => true);
     render(
       <CourseHeaderWrapper
         initialAppState={initialAppState}
