@@ -46,7 +46,7 @@ export const ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM = 'course_run_key';
 export const LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME = 'license-requested-alert-dismissed';
 export const LICENSE_REQUESTED_ALERT_HEADING = 'Course requested';
 /* eslint-disable-next-line max-len */
-export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization’s subscription covers all of the courses in this catalog. You have already requested access to all courses.';
+export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization\'s subscription covers all of the courses in this catalog. You have already requested access to all courses.';
 export const UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education';
 export const PAID_EXECUTIVE_EDUCATION = 'paid-executive-education';
 
