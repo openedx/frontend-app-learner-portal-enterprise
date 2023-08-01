@@ -231,7 +231,7 @@ describe('useCourseEnrollmentUrl', () => {
     sku: 'xkcd',
     location: { search: 'foo' },
   };
-    // just skip the coupon codes here to ensure we process absence correctly
+  // just skip the coupon codes here to ensure we process absence correctly
   const noCouponCodesEnrollmentInputs = {
     enterpriseConfig: {
       uuid: 'foo',

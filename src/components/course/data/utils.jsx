@@ -166,7 +166,23 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
   }));
 }
 
-export const determineIfOfferRedeemable = ({
+/**
+ * Determines if the enterprise offer fields passed are able to deem the offer as redeemable
+ *
+ * @param {number} remainingBalance - remaining balance for the enterprise from enterprise offers
+ * @param {number} remainingBalanceForUser - remaining balance for the user from enterprise offers
+ * @param {number} remainingApplications - remaining applications for the enterprise from enterprise offers
+ * @param {number} remainingApplicationsForUser - remaining applications for the user from enterprise offers
+ * @param {boolean} isCurrent - boolean to determine if the enterprise offer is active or expired
+ * @param {number} coursePrice - cost of the price of the course to compare against the remaining balance
+ * @returns {
+ * {hasRemainingApplications: (boolean|boolean),
+ * hasRemainingApplicationsForUser: (boolean|boolean),
+ * hasRemainingBalance: (boolean|boolean),
+ * hasRemainingBalanceForUser: (boolean|boolean)}
+ * }
+ */
+export const determineIfOfferRedeemableConditions = ({
   remainingBalance,
   remainingBalanceForUser,
   remainingApplications,
@@ -200,11 +216,11 @@ export const determineIfOfferRedeemable = ({
  * @param {object} args.offer An enterprise offer.
  * @param {number} args.coursePrice The price of the course.
  */
-export const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
-  const isOfferRedeemableConditions = determineIfOfferRedeemable(offer, coursePrice);
+export const determineOfferRedeemability = ({ offer, coursePrice }) => {
+  const isOfferRedeemableConditions = determineIfOfferRedeemableConditions(offer, coursePrice);
   return {
-    conditions: isOfferRedeemableConditions,
-    resolve: Object.values(isOfferRedeemableConditions).every(condition => condition === true),
+    isRedeemableConditions: isOfferRedeemableConditions,
+    isRedeemable: Object.values(isOfferRedeemableConditions).every(condition => condition === true),
   };
 };
 
@@ -289,8 +305,12 @@ export const findEnterpriseOfferForCourse = ({
       return true;
     })
     .sort((firstOffer, secondOffer) => {
-      const isFirstOfferRedeemable = isOfferRedeemableForCourse({ offer: firstOffer, coursePrice }).resolve;
-      const isSecondOfferRedeemable = isOfferRedeemableForCourse({ offer: secondOffer, coursePrice }).resolve;
+      const {
+        isRedeemable: isFirstOfferRedeemable,
+      } = determineOfferRedeemability({ offer: firstOffer, coursePrice });
+      const {
+        isRedeemable: isSecondOfferRedeemable,
+      } = determineOfferRedeemability({ offer: secondOffer, coursePrice });
 
       if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
         // prioritize the first offer

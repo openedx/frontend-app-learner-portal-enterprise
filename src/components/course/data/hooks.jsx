@@ -20,6 +20,7 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 import CourseService from './service';
 import {
+  determineOfferRedeemability,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
@@ -31,7 +32,6 @@ import {
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
-  isOfferRedeemableForCourse,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -690,8 +690,7 @@ export const useUserSubsidyApplicableToCourse = ({
       // the enterprise-access `can-redeem` API returns `can_redeem: false` when a learner
       // has already redeemed a course. This means the course page thinks the learner no
       // longer has any subsidy available to spend. `isPolicyRedemptionEnabled` is true when
-      // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be
-      // null.
+      // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be null.
       applicableUserSubsidy = {
         discountType: 'percentage',
         discountValue: 100,
@@ -704,16 +703,14 @@ export const useUserSubsidyApplicableToCourse = ({
 
     // otherwise, fallback to existing legacy subsidies.
     const retrieveApplicableLegacySubsidy = async () => {
-      // course isn't contained in any catalog(s), so we can assume there is no applicable user subsidy; do
-      // nothing
+      // course isn't contained in any catalog(s), so we can assume there is no applicable user subsidy; do nothing
       if (!containsContentItems) {
         return undefined;
       }
       let licenseApplicableToCourse;
       if (subscriptionLicense) {
         try {
-          // get subscription license with extra information (i.e. discount type, discount value, subsidy
-          // checksum)
+          // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
           const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
           if (fetchLicenseSubsidyResponse) {
             licenseApplicableToCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
@@ -759,8 +756,7 @@ export const useUserSubsidyApplicableToCourse = ({
           }),
         });
       } else if (!applicableUserSubsidy) {
-        // Default disabled enrollment reason, assumes enterprise customer does not have any administrator
-        // nusers.
+        // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
         let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
 
         const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
@@ -808,12 +804,12 @@ export const useUserSubsidyApplicableToCourse = ({
         if (legacyUserSubsidyApplicableToCourse) {
           // check for exceeded remaining spend/enrollments and per-learner limits if it's an enterprise offer
           if (legacyUserSubsidyApplicableToCourse.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
-            const redeemableOffer = isOfferRedeemableForCourse({
+            const redeemableOffer = determineOfferRedeemability({
               offer: legacyUserSubsidyApplicableToCourse,
               coursePrice: courseListPrice,
             });
 
-            if (redeemableOffer.resolve) {
+            if (redeemableOffer.isRedeemable) {
               // Redeemable for this course
               setUserSubsidyApplicableToCourse(legacyUserSubsidyApplicableToCourse);
               setMissingUserSubsidyReason(undefined);
@@ -822,8 +818,8 @@ export const useUserSubsidyApplicableToCourse = ({
                 hasRemainingApplicationsForUser,
                 hasRemainingBalanceForUser,
                 hasRemainingBalance,
-                hasCurrent,
-              } = redeemableOffer.conditions;
+                isCurrent,
+              } = redeemableOffer.isRedeemableConditions;
 
               let ineligibleEnterpriseOfferReasonType = null;
 
@@ -836,7 +832,7 @@ export const useUserSubsidyApplicableToCourse = ({
               if (!hasRemainingBalance) {
                 ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
               }
-              if (!hasCurrent) {
+              if (!isCurrent) {
                 ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED;
               }
               setMissingUserSubsidyReason({
