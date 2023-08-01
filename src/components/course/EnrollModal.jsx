@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Modal } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Cached } from '@edx/paragon/icons';
 
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from './data/constants';
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
@@ -93,7 +92,7 @@ const EnrollModal = ({
           href={enrollmentUrl}
           onClick={handleEnroll}
         >
-          {isLoading && <FontAwesomeIcon icon={faSpinner} alt="loading" className="fa-spin mr-2" />}
+          {isLoading && <Cached className="mr-2" svgAttrs={{ 'aria-label': 'loading' }} />}
           {buttonText}
         </Button>,
       ]}

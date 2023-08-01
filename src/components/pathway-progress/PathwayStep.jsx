@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Collapsible } from '@edx/paragon';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
 
 import PathwayNode from './PathwayNode';
 
@@ -16,8 +14,8 @@ const PathwayStep = ({ index, minRequirements, nodes }) => {
       open={isOpen}
       styling="card-lg"
       className="collapsible shadow-lg pathway-step"
-      iconWhenOpen={<FontAwesomeIcon className="text-primary text-lg" icon={faChevronUp} size="1x" />}
-      iconWhenClosed={<FontAwesomeIcon className="text-primary" icon={faChevronDown} size="1x" />}
+      iconWhenOpen={<ExpandLess />}
+      iconWhenClosed={<ExpandMore />}
       onToggle={() => setIsOpen((!isOpen))}
     >
       {

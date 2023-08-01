@@ -1,14 +1,14 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom/extend-expect';
-import { faClock } from '@fortawesome/free-regular-svg-icons';
+import { Person } from '@edx/paragon/icons';
 
 import CourseSidebarListItem from '../CourseSidebarListItem';
 
 describe('CourseSidebarListItem', () => {
   it('renders', () => {
     const props = {
-      icon: faClock,
+      icon: Person,
       label: 'Test label',
       content: <div data-testid="test-content" />,
     };

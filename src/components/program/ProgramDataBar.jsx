@@ -1,9 +1,8 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { Container } from '@edx/paragon';
+import { ExpandCircleDown } from '@edx/paragon/icons';
 import classNames from 'classnames';
 import { Link } from 'react-scroll';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { ProgramContext } from './ProgramContextProvider';
 import ProgramDataBarDetails from './ProgramDataBarDetails';
 
@@ -45,7 +44,7 @@ const ProgramDataBar = () => {
                   offset={-600}
                 >
                   I&apos;m interested
-                  <FontAwesomeIcon icon={faChevronCircleDown} className="icon ml-2 align-self-center" />
+                  <ExpandCircleDown className="ml-2" />
                 </Link>
               </div>
             )}
