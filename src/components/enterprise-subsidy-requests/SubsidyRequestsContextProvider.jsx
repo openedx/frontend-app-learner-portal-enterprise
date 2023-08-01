@@ -32,7 +32,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     isLoading: isLoadingSubsidyRequests,
   } = useSubsidyRequests(subsidyRequestConfiguration);
 
-  const { customerAgreementConfig } = useContext(UserSubsidyContext);
+  const { customerAgreementConfig, couponCodes } = useContext(UserSubsidyContext);
   const {
     catalogs: catalogsForSubsidyRequests,
     isLoading: isLoadingCatalogsForSubsidyRequests,
@@ -40,6 +40,7 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     subsidyRequestConfiguration,
     isLoadingSubsidyRequestConfiguration,
     customerAgreementConfig,
+    couponsOverview: couponCodes.couponsOverview,
   });
 
   const isLoading = isLoadingSubsidyRequestConfiguration

@@ -7,7 +7,6 @@ import {
   useSubsidyRequests,
 } from '../hooks';
 import * as service from '../service';
-import * as couponsService from '../../../enterprise-user-subsidy/coupons/data/service';
 
 const mockEmail = 'edx@example.com';
 const mockEnterpriseUUID = 'enterprise-uuid';
@@ -201,15 +200,8 @@ describe('useCatalogsForSubsidyRequests', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('fetches coupons overview and sets catalogs correctly if configured subsidy type is coupons', async () => {
+  it('fetches coupons overview and sets catalogs correctly if configured subsidy type is coupons', () => {
     const mockCatalogUUIDs = ['uuid1', 'uuid2'];
-    couponsService.fetchCouponsOverview.mockResolvedValue({
-      data: {
-        results: mockCatalogUUIDs.map(uuid => ({
-          enterprise_catalog_uuid: uuid,
-        })),
-      },
-    });
     const subsidyRequestConfiguration = {
       subsidyType: SUBSIDY_TYPE.COUPON,
       subsidyRequestsEnabled: true,
@@ -218,10 +210,11 @@ describe('useCatalogsForSubsidyRequests', () => {
       subsidyRequestConfiguration,
       isLoadingSubsidyRequestConfiguration: false,
       customerAgreementConfig: null,
+      couponsOverview: mockCatalogUUIDs.map(uuid => ({
+        enterpriseCatalogUuid: uuid,
+      })),
     };
-    const { result, waitForNextUpdate } = renderHook(() => useCatalogsForSubsidyRequests(args));
-
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useCatalogsForSubsidyRequests(args));
 
     expect(result.current.isLoading).toBe(false);
     expect([...result.current.catalogs]).toEqual(mockCatalogUUIDs);
@@ -239,7 +232,7 @@ describe('useCatalogsForSubsidyRequests', () => {
     const { result } = renderHook(() => useCatalogsForSubsidyRequests(args));
 
     expect(result.current.isLoading).toBe(false);
-    expect(couponsService.fetchCouponsOverview).not.toHaveBeenCalled();
+    expect([...result.current.catalogs]).toEqual([]);
   });
 
   it('sets catalogs from subscription plans correctly if configured subsidy type is licenses', async () => {

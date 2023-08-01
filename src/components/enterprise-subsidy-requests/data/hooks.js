@@ -10,7 +10,6 @@ import {
   fetchLicenseRequests,
   fetchCouponCodeRequests,
 } from './service';
-import { fetchCouponsOverview } from '../../enterprise-user-subsidy/coupons/data/service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 
 export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
@@ -108,6 +107,7 @@ export const useCatalogsForSubsidyRequests = ({
   subsidyRequestConfiguration,
   isLoadingSubsidyRequestConfiguration,
   customerAgreementConfig,
+  couponsOverview,
 }) => {
   const [catalogs, setCatalogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,16 +115,8 @@ export const useCatalogsForSubsidyRequests = ({
   useEffect(() => {
     const getCatalogs = async () => {
       if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
-        try {
-          const response = await fetchCouponsOverview(
-            { enterpriseId: subsidyRequestConfiguration.enterpriseCustomerUuid },
-          );
-          const { results } = camelCaseObject(response.data);
-          const catalogsFromCoupons = results.map(coupon => coupon.enterpriseCatalogUuid);
-          setCatalogs([...new Set(catalogsFromCoupons)]);
-        } catch (error) {
-          logError(error);
-        }
+        const catalogsFromCoupons = couponsOverview.map(coupon => coupon.enterpriseCatalogUuid);
+        setCatalogs([...new Set(catalogsFromCoupons)]);
       }
 
       if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
@@ -148,6 +140,7 @@ export const useCatalogsForSubsidyRequests = ({
     customerAgreementConfig,
     isLoadingSubsidyRequestConfiguration,
     subsidyRequestConfiguration,
+    couponsOverview,
   ]);
 
   return {

@@ -3,6 +3,7 @@ import {
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { useQuery } from '@tanstack/react-query';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { fetchCouponCodeAssignments } from '../coupons';
@@ -16,6 +17,7 @@ import {
   activateLicense,
 } from './service';
 import { features } from '../../../config';
+import { fetchCouponsOverview } from '../coupons/data/service';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -176,8 +178,20 @@ export function useSubscriptionLicense({
   return { license, isLoading, activateUserLicense };
 }
 
+/**
+ * Given an enterprise UUID, returns overview of coupons associated with the enterprise
+ * and a list of coupon codes assigned to the authenticated user.
+ */
 export function useCouponCodes(enterpriseId) {
   const [state, dispatch] = useReducer(couponCodesReducer, initialCouponCodesState);
+
+  const couponsOverviewQuery = useQuery({
+    queryKey: ['coupons', 'overview', enterpriseId],
+    queryFn: async () => {
+      const response = await fetchCouponsOverview({ enterpriseId });
+      return camelCaseObject(response.data);
+    },
+  });
 
   useEffect(
     () => {
@@ -195,7 +209,16 @@ export function useCouponCodes(enterpriseId) {
     [enterpriseId],
   );
 
-  return [state, state.loading];
+  const result = useMemo(() => {
+    const updatedState = {
+      ...state,
+      couponsOverview: couponsOverviewQuery.data?.results || [],
+      loading: state.loading || couponsOverviewQuery.isLoading,
+    };
+    return [updatedState, updatedState.loading];
+  }, [state, couponsOverviewQuery]);
+
+  return result;
 }
 
 export function useCustomerAgreementData(enterpriseId) {
@@ -223,4 +246,45 @@ export function useCustomerAgreementData(enterpriseId) {
   }, [enterpriseId]);
 
   return [customerAgreement, isLoading];
+}
+
+/**
+ * Given an authenticated user and an enterprise customer config, returns the user's subscription license (if any)
+ * along with metadata about the customer agreement and subscription plan(s). Includes a function to allow consumers
+ * to activate the user's license.
+ */
+export function useSubscriptions({
+  authenticatedUser,
+  enterpriseConfig,
+}) {
+  const [subscriptionPlan, setSubscriptionPlan] = useState();
+  const [showExpirationNotifications, setShowExpirationNotifications] = useState();
+  const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
+  const {
+    license: subscriptionLicense,
+    isLoading: isLoadingLicense,
+    activateUserLicense,
+  } = useSubscriptionLicense({
+    enterpriseConfig,
+    customerAgreementConfig,
+    isLoadingCustomerAgreementConfig,
+    user: authenticatedUser,
+  });
+
+  useEffect(
+    () => {
+      setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
+      setShowExpirationNotifications(!(customerAgreementConfig?.disableExpirationNotifications));
+    },
+    [subscriptionLicense, customerAgreementConfig],
+  );
+
+  return {
+    customerAgreementConfig,
+    subscriptionPlan,
+    subscriptionLicense,
+    isLoading: isLoadingCustomerAgreementConfig || isLoadingLicense,
+    showExpirationNotifications,
+    activateUserLicense,
+  };
 }

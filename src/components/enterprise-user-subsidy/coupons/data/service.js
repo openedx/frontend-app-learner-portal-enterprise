@@ -11,9 +11,7 @@ const fetchCouponCodeAssignments = (options) => {
 const fetchCouponsOverview = ({ enterpriseId, options = {} }) => {
   const queryParams = new URLSearchParams({
     page: 1,
-    page_size: 50,
-    filter: 'active',
-    is_current: true,
+    page_size: 100,
     ...options,
   });
   const config = getConfig();
