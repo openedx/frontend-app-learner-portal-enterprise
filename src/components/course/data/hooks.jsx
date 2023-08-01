@@ -248,13 +248,11 @@ export const useCoursePriceForUserSubsidy = ({
         const { discountType, discountValue } = userSubsidyApplicableToCourse;
         let discountedPrice;
 
-        if (discountType
-                    && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
+        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.PERCENTAGE.toLowerCase()) {
           discountedPrice = listPrice - (listPrice * (discountValue / 100));
         }
 
-        if (discountType
-                    && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
+        if (discountType && discountType.toLowerCase() === SUBSIDY_DISCOUNT_TYPE_MAP.ABSOLUTE.toLowerCase()) {
           discountedPrice = Math.max(listPrice - discountValue, 0);
         }
 
@@ -531,17 +529,17 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       return false;
     }
     switch (subsidyRequestConfiguration.subsidyType) {
-            case SUBSIDY_TYPE.LICENSE: {
-              return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
-            }
-            case SUBSIDY_TYPE.COUPON: {
-              const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-                request => (!courseKey || request.courseId === courseKey),
-              );
-              return !!foundCouponRequest;
-            }
-            default:
-                return false;
+        case SUBSIDY_TYPE.LICENSE: {
+          return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
+        }
+        case SUBSIDY_TYPE.COUPON: {
+          const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
+            request => (!courseKey || request.courseId === courseKey),
+          );
+          return !!foundCouponRequest;
+        }
+        default:
+            return false;
     }
   }, [
     courseKey,
@@ -740,8 +738,7 @@ export const useUserSubsidyApplicableToCourse = ({
     };
 
     const enterpriseAdminUsers = (
-      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators
-            || fallbackAdminUsers
+      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
     );
 
     const handleMissingUserSubsidyReason = () => {
@@ -810,8 +807,9 @@ export const useUserSubsidyApplicableToCourse = ({
             const redeemableOffer = isOfferRedeemableForCourse({
               offer: legacyUserSubsidyApplicableToCourse,
               coursePrice: courseListPrice,
-            }, false);
-            if (redeemableOffer.every(offer => offer === true)) {
+            });
+
+            if (redeemableOffer.resolve) {
               // Redeemable for this course
               setUserSubsidyApplicableToCourse(legacyUserSubsidyApplicableToCourse);
               setMissingUserSubsidyReason(undefined);
@@ -821,7 +819,7 @@ export const useUserSubsidyApplicableToCourse = ({
                 hasRemainingBalanceForUser,
                 hasRemainingBalance,
                 hasCurrent,
-              } = redeemableOffer;
+              } = redeemableOffer.conditions;
 
               let ineligibleEnterpriseOfferReasonType = null;
 

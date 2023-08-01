@@ -95,28 +95,28 @@ export function getDefaultProgram(programs = []) {
 
 export function formatProgramType(programType) {
   switch (programType) {
-        case PROGRAM_TYPE_MAP.MICROMASTERS:
-        case PROGRAM_TYPE_MAP.MICROBACHELORS:
-            return <>{programType}<sup>&reg;</sup> Program</>;
-        case PROGRAM_TYPE_MAP.MASTERS:
-            return 'Master\'s';
-        default:
-            return programType;
+    case PROGRAM_TYPE_MAP.MICROMASTERS:
+    case PROGRAM_TYPE_MAP.MICROBACHELORS:
+        return <>{programType}<sup>&reg;</sup> Program</>;
+    case PROGRAM_TYPE_MAP.MASTERS:
+        return 'Master\'s';
+    default:
+        return programType;
   }
 }
 
 export function getProgramIcon(type) {
   switch (type) {
-        case PROGRAM_TYPE_MAP.XSERIES:
-            return XSeriesSvgIcon;
-        case PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE:
-            return ProfessionalSvgIcon;
-        case PROGRAM_TYPE_MAP.MICROMASTERS:
-            return MicroMastersSvgIcon;
-        case PROGRAM_TYPE_MAP.CREDIT:
-            return CreditSvgIcon;
-        default:
-            return VerifiedSvgIcon;
+    case PROGRAM_TYPE_MAP.XSERIES:
+        return XSeriesSvgIcon;
+    case PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE:
+        return ProfessionalSvgIcon;
+    case PROGRAM_TYPE_MAP.MICROMASTERS:
+        return MicroMastersSvgIcon;
+    case PROGRAM_TYPE_MAP.CREDIT:
+        return CreditSvgIcon;
+    default:
+        return VerifiedSvgIcon;
   }
 }
 
@@ -141,8 +141,8 @@ export function getAvailableCourseRuns(course) {
   return course.courseRuns
     .filter((courseRun) => (
       courseRun.isMarketable
-            && courseRun.isEnrollable
-            && !isArchived(courseRun)
+      && courseRun.isEnrollable
+      && !isArchived(courseRun)
     ));
 }
 
@@ -200,13 +200,13 @@ export const determineIfOfferRedeemable = ({
  * @param {object} args
  * @param {object} args.offer An enterprise offer.
  * @param {number} args.coursePrice The price of the course.
- * @param {boolean} evaluate Determines whether to return the array of
- * conditions or evaluate if they are all true, Default is true
- * @returns Whether the offer is redeemable for the course.
  */
-export const isOfferRedeemableForCourse = ({ offer, coursePrice }, evaluate = true) => {
+export const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
   const isOfferRedeemableConditions = determineIfOfferRedeemable(offer, coursePrice);
-  return evaluate ? isOfferRedeemableConditions.every(value => value === true) : isOfferRedeemableConditions;
+  return {
+    conditions: isOfferRedeemableConditions,
+    resolve: isOfferRedeemableConditions.every(condition => condition === true),
+  };
 };
 
 /**
@@ -267,6 +267,7 @@ export const compareRedeemableOffers = ({ firstOffer: a, secondOffer: b }) => {
  *   - Offer with global enrollment limit
  *
  * @param {array} enterpriseOffers List of enterprise offers available for the enterprise customer.
+ * @param {array} catalogsWithCourse List of catalogs that will be cross-referenced against the catalogUUID from offers
  * @param {number} coursePrice The price of the course.
  *
  * @returns An object containing the metadata for the enterprise offer, if any, most applicable for
@@ -289,8 +290,8 @@ export const findEnterpriseOfferForCourse = ({
       return true;
     })
     .sort((firstOffer, secondOffer) => {
-      const isFirstOfferRedeemable = isOfferRedeemableForCourse({ offer: firstOffer, coursePrice });
-      const isSecondOfferRedeemable = isOfferRedeemableForCourse({ offer: secondOffer, coursePrice });
+      const isFirstOfferRedeemable = isOfferRedeemableForCourse({ offer: firstOffer, coursePrice }).resolve;
+      const isSecondOfferRedeemable = isOfferRedeemableForCourse({ offer: secondOffer, coursePrice }).resolve;
 
       if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
         // prioritize the first offer
@@ -303,7 +304,7 @@ export const findEnterpriseOfferForCourse = ({
       }
 
       if (isFirstOfferRedeemable && isSecondOfferRedeemable) {
-        // priorize the offer based on its remaining (user|global) balance and remaining (user|global) applications
+        // prioritize the offer based on its remaining (user|global) balance and remaining (user|global) applications
         return compareRedeemableOffers({ firstOffer, secondOffer });
       }
 
