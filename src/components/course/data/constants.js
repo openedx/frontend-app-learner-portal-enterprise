@@ -69,10 +69,10 @@ export const COURSE_TYPE_PARTNER_LOGOS = {
 };
 
 export const REASON_USER_MESSAGES = {
-  SUBSIDY_NOT_ACTIVE: 'You can\'t enroll right now because your plan expired.',
-  SUBSIDY_NOT_ACTIVE_NO_ADMINS: 'You can\'t enroll right now because your plan expired. Contact your administrator for help.',
-  POLICY_NOT_ACTIVE: 'You can\'t enroll right now because your funds expired.',
-  POLICY_NOT_ACTIVE_NO_ADMINS: 'You can\'t enroll right now because your funds expired. Contact your administrator for help.',
+  SUBSIDY_NOT_ACTIVE: "You can't enroll right now because your plan expired.",
+  SUBSIDY_NOT_ACTIVE_NO_ADMINS: "You can't enroll right now because your plan expired. Contact your administrator for help.",
+  POLICY_NOT_ACTIVE: "You can't enroll right now because your funds expired.",
+  POLICY_NOT_ACTIVE_NO_ADMINS: "You can't enroll right now because your funds expired. Contact your administrator for help.",
   ORGANIZATION_NO_FUNDS: "You can't enroll right now because your organization doesn't have enough funds.",
   ORGANIZATION_NO_FUNDS_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough funds. Contact your administrator about funds.",
   LEARNER_LIMITS_REACHED: "You can't enroll right now because of limits set by your organization.",

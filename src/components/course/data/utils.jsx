@@ -97,26 +97,26 @@ export function formatProgramType(programType) {
   switch (programType) {
     case PROGRAM_TYPE_MAP.MICROMASTERS:
     case PROGRAM_TYPE_MAP.MICROBACHELORS:
-        return <>{programType}<sup>&reg;</sup> Program</>;
+      return <>{programType}<sup>&reg;</sup> Program</>;
     case PROGRAM_TYPE_MAP.MASTERS:
-        return 'Master\'s';
+      return 'Master\'s';
     default:
-        return programType;
+      return programType;
   }
 }
 
 export function getProgramIcon(type) {
   switch (type) {
     case PROGRAM_TYPE_MAP.XSERIES:
-        return XSeriesSvgIcon;
+      return XSeriesSvgIcon;
     case PROGRAM_TYPE_MAP.PROFESSIONAL_CERTIFICATE:
-        return ProfessionalSvgIcon;
+      return ProfessionalSvgIcon;
     case PROGRAM_TYPE_MAP.MICROMASTERS:
-        return MicroMastersSvgIcon;
+      return MicroMastersSvgIcon;
     case PROGRAM_TYPE_MAP.CREDIT:
-        return CreditSvgIcon;
+      return CreditSvgIcon;
     default:
-        return VerifiedSvgIcon;
+      return VerifiedSvgIcon;
   }
 }
 

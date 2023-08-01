@@ -529,17 +529,17 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
       return false;
     }
     switch (subsidyRequestConfiguration.subsidyType) {
-        case SUBSIDY_TYPE.LICENSE: {
-          return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
-        }
-        case SUBSIDY_TYPE.COUPON: {
-          const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
-            request => (!courseKey || request.courseId === courseKey),
-          );
-          return !!foundCouponRequest;
-        }
-        default:
-            return false;
+      case SUBSIDY_TYPE.LICENSE: {
+        return requestsBySubsidyType[SUBSIDY_TYPE.LICENSE].length > 0;
+      }
+      case SUBSIDY_TYPE.COUPON: {
+        const foundCouponRequest = requestsBySubsidyType[SUBSIDY_TYPE.COUPON].find(
+          request => (!courseKey || request.courseId === courseKey),
+        );
+        return !!foundCouponRequest;
+      }
+      default:
+        return false;
     }
   }, [
     courseKey,
