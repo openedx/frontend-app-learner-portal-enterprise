@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { Button } from '@edx/paragon';
 import BaseCourseCard from './BaseCourseCard';
@@ -8,7 +8,7 @@ import BaseCourseCard from './BaseCourseCard';
 const UpcomingCourseCard = (props) => {
   const renderButtons = () => (
     <Button className="btn-xs-block" variant="light" disabled>
-      Available on {moment(props.startDate).format('MMM D')}
+      Available on {dayjs(props.startDate).format('MMM D')}
     </Button>
   );
 

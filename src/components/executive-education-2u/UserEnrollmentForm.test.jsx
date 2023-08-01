@@ -7,7 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
-import moment from 'moment/moment';
+import dayjs from 'dayjs';
 
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
@@ -297,7 +297,7 @@ describe('UserEnrollmentForm', () => {
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     // Set this year as date of birthday, so user is marked as less than 18 years old.
-    userEvent.type(screen.getByLabelText('Date of birth *'), `${moment().year()}-06-10`);
+    userEvent.type(screen.getByLabelText('Date of birth *'), `${dayjs().year()}-06-10`);
     userEvent.click(screen.getByLabelText(termsLabelText));
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByText('Confirm registration'));

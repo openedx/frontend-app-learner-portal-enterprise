@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -47,8 +47,8 @@ describe('findCouponCodeForCourse', () => {
   const couponCodes = [{
     code: 'bearsRus',
     catalog: 'bears',
-    couponStartDate: moment().subtract(1, 'w').toISOString(),
-    couponEndDate: moment().add(8, 'w').toISOString(),
+    couponStartDate: dayjs().subtract(1, 'w').toISOString(),
+    couponEndDate: dayjs().add(8, 'w').toISOString(),
   }];
 
   test('returns valid index if coupon code catalog is in catalog list', () => {
@@ -400,7 +400,7 @@ describe('linkToCourse', () => {
     courseType: 'non_entitlement_course',
   };
 
-  const mockQueryQbjectIdCourse = {
+  const mockQueryObjectIdCourse = {
     key: 'mock_query_object_id_course',
     courseType: 'doesntmatter',
     queryId: 'testqueryid',
@@ -416,7 +416,7 @@ describe('linkToCourse', () => {
   });
 
   it('returns url with course queryId, objectId', () => {
-    expect(linkToCourse(mockQueryQbjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
+    expect(linkToCourse(mockQueryObjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
   });
 });
 

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
@@ -113,8 +113,8 @@ export function getNotStartedCourseDetails(courses) {
       // eslint-disable-next-line array-callback-return
       && course?.courseRuns.map((cRun) => {
         const startDate = cRun.start ? cRun.start : cRun.advertisedStart;
-        let courseRunDate = `${moment(startDate).format('MMMM Do, YYYY')}`;
-        courseRunDate = cRun?.end ? `${courseRunDate} - ${moment(cRun.end).format('MMMM Do, YYYY')}`
+        let courseRunDate = `${dayjs(startDate).format('MMMM Do, YYYY')}`;
+        courseRunDate = cRun?.end ? `${courseRunDate} - ${dayjs(cRun.end).format('MMMM Do, YYYY')}`
           : courseRunDate;
         const isEnrollable = isCourseRunEnrollable(cRun);
         multipleCourseRuns.push({
@@ -168,7 +168,7 @@ export function getCertificatePriceString(run) {
   return null;
 }
 
-export const courseUpgradationAvailable = (course) => course.upgradeUrl
+export const courseUpgradeAvailable = (course) => course.upgradeUrl
   && !course.expired
   && getCertificatePriceString(course);
 
@@ -179,7 +179,7 @@ export function getCoursesEnrolledInAuditMode(courses) {
   courses?.map((course) => (
     course?.courseRuns.map((cRun) => (cRun.isEnrolled
       && !cRun.certificateUrl
-      && courseUpgradationAvailable(cRun)
+      && courseUpgradeAvailable(cRun)
       && (courseRuns.push({
         end: cRun?.end,
       }))

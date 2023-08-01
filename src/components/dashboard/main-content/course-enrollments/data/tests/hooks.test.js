@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
 import camelCase from 'lodash.camelcase';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { useCourseEnrollments, useCourseUpgradeData } from '../hooks';
 import * as service from '../service';
@@ -230,8 +230,8 @@ describe('useCourseEnrollments', () => {
       const mockCouponCode = {
         code: 'coupon-code',
         catalog: 'catalog-1',
-        couponStartDate: moment().subtract(1, 'w').toISOString(),
-        couponEndDate: moment().add(8, 'w').toISOString(),
+        couponStartDate: dayjs().subtract(1, 'w').toISOString(),
+        couponEndDate: dayjs().add(8, 'w').toISOString(),
       };
 
       it('should return a coupon upgrade url', async () => {
