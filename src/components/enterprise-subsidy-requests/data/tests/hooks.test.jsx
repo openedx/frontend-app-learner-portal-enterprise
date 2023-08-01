@@ -212,6 +212,7 @@ describe('useCatalogsForSubsidyRequests', () => {
       customerAgreementConfig: null,
       couponsOverview: mockCatalogUUIDs.map(uuid => ({
         enterpriseCatalogUuid: uuid,
+        available: true,
       })),
     };
     const { result } = renderHook(() => useCatalogsForSubsidyRequests(args));
@@ -247,6 +248,7 @@ describe('useCatalogsForSubsidyRequests', () => {
       customerAgreementConfig: {
         subscriptions: mockCatalogUUIDs.map(uuid => ({
           enterpriseCatalogUuid: uuid,
+          daysUntilExpirationIncludingRenewals: 123,
         })),
       },
     };

@@ -115,14 +115,18 @@ export const useCatalogsForSubsidyRequests = ({
   useEffect(() => {
     const getCatalogs = async () => {
       if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
-        const catalogsFromCoupons = couponsOverview.map(coupon => coupon.enterpriseCatalogUuid);
+        const catalogsFromCoupons = couponsOverview
+          .filter(coupon => !!coupon.available)
+          .map(coupon => coupon.enterpriseCatalogUuid);
+
         setCatalogs([...new Set(catalogsFromCoupons)]);
       }
 
       if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.LICENSE) {
-        const catalogsFromSubscriptions = customerAgreementConfig.subscriptions.map(
-          subscription => subscription.enterpriseCatalogUuid,
-        );
+        const catalogsFromSubscriptions = customerAgreementConfig.subscriptions
+          .filter(subscription => subscription.daysUntilExpirationIncludingRenewals > 0)
+          .map(subscription => subscription.enterpriseCatalogUuid);
+
         setCatalogs([...new Set(catalogsFromSubscriptions)]);
       }
 
