@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment/moment';
 import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@edx/paragon';
@@ -23,7 +24,6 @@ import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 import { programIsMicroMasters, programIsProfessionalCertificate } from '../../program/data/utils';
 import { hasValidStartExpirationDates } from '../../../utils/common';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import moment from 'moment/moment';
 
 export function hasCourseStarted(start) {
   const today = new Date();

@@ -40,7 +40,6 @@ jest.mock('../../enrollment/EnrollAction', () => function EnrollAction({ enrollL
 jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
-  useCatalogsForSubsidyRequests: jest.fn(() => []),
   useCoursePriceForUserSubsidy: jest.fn(() => []),
 }));
 

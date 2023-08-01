@@ -112,8 +112,6 @@ export const useCatalogsForSubsidyRequests = ({
   const [catalogs, setCatalogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log('couponsOverview', couponsOverview);
-
   useEffect(() => {
     const getCatalogs = async () => {
       if (subsidyRequestConfiguration.subsidyType === SUBSIDY_TYPE.COUPON) {
