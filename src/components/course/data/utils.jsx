@@ -180,15 +180,14 @@ export const determineIfOfferRedeemable = ({
     ? remainingApplicationsForUser > 0
     : true;
 
-  const isOfferRedeemable = [
+  const isOfferRedeemable = {
     hasRemainingBalance,
     hasRemainingBalanceForUser,
     hasRemainingApplications,
     hasRemainingApplicationsForUser,
-  ];
-  if (isCurrent !== undefined) {
-    const hasCurrent = !isNil(isCurrent) ? isCurrent : true;
-    isOfferRedeemable.push(hasCurrent);
+  };
+  if (!isNil(isCurrent)) {
+    isOfferRedeemable.isCurrent = isCurrent;
   }
   return isOfferRedeemable;
 };
@@ -205,7 +204,7 @@ export const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
   const isOfferRedeemableConditions = determineIfOfferRedeemable(offer, coursePrice);
   return {
     conditions: isOfferRedeemableConditions,
-    resolve: isOfferRedeemableConditions.every(condition => condition === true),
+    resolve: Object.values(isOfferRedeemableConditions).every(condition => condition === true),
   };
 };
 
@@ -380,7 +379,10 @@ export function shouldUpgradeUserEnrollment({
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
 export function shortenString(str, maxLength, suffix, separator = ' ') {
-  return str.length <= maxLength ? str : `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
+  if (str.length <= maxLength) {
+    return str;
+  }
+  return `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
 export const getSubsidyToApplyForCourse = ({

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo } from 'react';
+import React, { createContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -82,7 +82,7 @@ CourseContextProvider.propTypes = {
   isPolicyRedemptionEnabled: PropTypes.bool,
   missingUserSubsidyReason: PropTypes.shape({
     reason: PropTypes.oneOf(Object.values(DISABLED_ENROLL_REASON_TYPES)),
-    userMessage: PropTypes.oneOf(Object.values(DISABLED_ENROLL_USER_MESSAGES)),
+    userMessage: PropTypes.string.isRequired,
     actions: PropTypes.node,
   }),
   userSubsidyApplicableToCourse: PropTypes.shape({

@@ -1329,8 +1329,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
-        reason: DISABLED_ENROLL_REASON_TYPES.OFFER_EXPIRED,
-        userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.OFFER_EXPIRED],
+        reason: DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED,
+        userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED],
         actions: null,
       },
     });
