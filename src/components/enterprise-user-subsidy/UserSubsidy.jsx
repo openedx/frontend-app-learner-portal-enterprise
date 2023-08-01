@@ -19,7 +19,9 @@ export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
+  const [showExpirationNotifications, setShowExpirationNotifications] = useState();
 
+  // Subscriptions
   const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
   const {
     license: subscriptionLicense,
@@ -31,10 +33,19 @@ const UserSubsidy = ({ children }) => {
     isLoadingCustomerAgreementConfig,
     user: authenticatedUser,
   });
-  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
   const [subscriptionPlan, setSubscriptionPlan] = useState();
-  const [showExpirationNotifications, setShowExpirationNotifications] = useState();
+  useEffect(
+    () => {
+      setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
+      setShowExpirationNotifications(!(customerAgreementConfig?.disableExpirationNotifications));
+    },
+    [subscriptionLicense, customerAgreementConfig],
+  );
 
+  // Coupon Codes
+  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
+
+  // Enterprise Offers
   const {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
@@ -47,14 +58,6 @@ const UserSubsidy = ({ children }) => {
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
   });
-
-  useEffect(
-    () => {
-      setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
-      setShowExpirationNotifications(!(customerAgreementConfig?.disableExpirationNotifications));
-    },
-    [subscriptionLicense, customerAgreementConfig],
-  );
 
   const isLoadingSubsidies = useMemo(
     () => {

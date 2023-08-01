@@ -1,6 +1,7 @@
 import {
   useState, useEffect, useReducer, useCallback, useMemo,
 } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
@@ -16,6 +17,7 @@ import {
   activateLicense,
 } from './service';
 import { features } from '../../../config';
+import { fetchCouponsOverview } from '../coupons/data/service';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -179,6 +181,14 @@ export function useSubscriptionLicense({
 export function useCouponCodes(enterpriseId) {
   const [state, dispatch] = useReducer(couponCodesReducer, initialCouponCodesState);
 
+  const couponsOverviewQuery = useQuery({
+    queryKey: ['couponsOverview', enterpriseId],
+    queryFn: async () => {
+      const response = await fetchCouponsOverview({ enterpriseId });
+      return camelCaseObject(response.data);
+    },
+  });
+
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
@@ -195,7 +205,16 @@ export function useCouponCodes(enterpriseId) {
     [enterpriseId],
   );
 
-  return [state, state.loading];
+  const result = useMemo(() => {
+    const updatedState = {
+      ...state,
+      couponsOverview: couponsOverviewQuery.data?.results || [],
+      loading: state.loading || couponsOverviewQuery.isLoading,
+    };
+    return [updatedState, updatedState.loading];
+  }, [state, couponsOverviewQuery]);
+
+  return result;
 }
 
 export function useCustomerAgreementData(enterpriseId) {
