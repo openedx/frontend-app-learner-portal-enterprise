@@ -1,0 +1,13 @@
+$dark-500: #00262b !default;
+
+.selectable-box {
+  .box {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+  .pgn__form-radio-input {
+    min-width: 21px;
+    min-height: 21px;
+  }
+}
