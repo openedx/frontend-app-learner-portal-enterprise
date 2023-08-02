@@ -19,6 +19,8 @@
 
     .quote-icon {
       position: absolute;
+      transform: rotateY(180deg) rotateX(180deg);
+      margin-top: -12px;
     }
   }
 

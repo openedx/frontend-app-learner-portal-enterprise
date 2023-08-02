@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Col } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Icon, Col, Row } from '@edx/paragon';
 
 const ProgramSidebarListItem = ({
   icon,
@@ -10,7 +9,7 @@ const ProgramSidebarListItem = ({
 }) => (
   <Row as="li" className="d-flex align-items-start border-bottom py-3">
     <Col className="d-flex align-items-center">
-      <FontAwesomeIcon className="mr-3" icon={icon} />
+      <Icon className="mr-3" src={icon} />
       <span>{label}:</span>
     </Col>
     <Col>

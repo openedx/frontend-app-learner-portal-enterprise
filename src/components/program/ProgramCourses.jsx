@@ -2,11 +2,10 @@ import React, { useContext } from 'react';
 
 import dayjs from 'dayjs';
 import { Alert, Collapsible, Hyperlink } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { WarningFilled } from '@edx/paragon/icons';
 import {
-  faAngleDown, faAngleUp, faBook, faCalendarAlt,
-} from '@fortawesome/free-solid-svg-icons';
+  CalendarMonth, ExpandLess, ExpandMore, LibraryBooks,
+  WarningFilled,
+} from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -40,14 +39,14 @@ const ProgramCourses = () => {
             return (
               <Collapsible.Advanced className="collapsible-card-lg" key={course.title}>
                 <Collapsible.Trigger className="collapsible-trigger">
-                  <div className="marker"><FontAwesomeIcon icon={faBook} className="fa-book mr-2" /></div>
+                  <div className="marker"><LibraryBooks className="mr-2" /></div>
                   <h4 className="h4 flex-grow-1">{course.title}</h4>
                   <Collapsible.Visible whenClosed>
-                    <FontAwesomeIcon icon={faAngleDown} className="fa-angle-down mr-2" />
+                    <ExpandMore className="mr-2" />
                   </Collapsible.Visible>
 
                   <Collapsible.Visible whenOpen>
-                    <FontAwesomeIcon icon={faAngleUp} className="fa-angle-up mr-2" />
+                    <ExpandLess className="mr-2" />
                   </Collapsible.Visible>
                 </Collapsible.Trigger>
 
@@ -56,7 +55,7 @@ const ProgramCourses = () => {
                     (courseRun?.pacingType === PROGRAM_PACING_MAP.INSTRUCTOR_PACED && courseRun.start)
                     && (
                       <div className="course-card-result mb-2">
-                        <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
+                        <CalendarMonth className="calendar-icon mr-2" />
                         <span className="font-weight-bold">Starts {dayjs(courseRun.start).format(DATE_FORMAT)}</span>
                       </div>
                     )

@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
-import { faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { breakpoints, MediaQuery } from '@edx/paragon';
+import { FormatQuote } from '@edx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramEndorsements = () => {
@@ -17,7 +16,7 @@ const ProgramEndorsements = () => {
         <MediaQuery minWidth={breakpoints.medium.minWidth}>
           {matches => matches && (
             <div className="quote-icon-wrapper">
-              <FontAwesomeIcon icon={faQuoteLeft} className="quote-icon" size="2x" />
+              <FormatQuote className="quote-icon" height="48" width="48" />
             </div>
           )}
         </MediaQuery>

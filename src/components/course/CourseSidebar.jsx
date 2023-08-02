@@ -1,18 +1,11 @@
 import React, { useContext } from 'react';
-import { faClock } from '@fortawesome/free-regular-svg-icons';
-import {
-  faTachometerAlt,
-  faTag,
-  faUniversity,
-  faGraduationCap,
-  faCertificate,
-  faFileVideo,
-  faUser,
-} from '@fortawesome/free-solid-svg-icons';
 import ISO6391 from 'iso-639-1';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { Hyperlink } from '@edx/paragon';
+import {
+  AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
+} from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
@@ -45,14 +38,14 @@ const CourseSidebar = () => {
           <>
             {hasTruthyValue(activeCourseRun.weeksToComplete) && (
               <CourseSidebarListItem
-                icon={faClock}
+                icon={AccessTime}
                 label="Length"
                 content={`${weeksToComplete} ${weeksLabel}`}
               />
             )}
             {hasTruthyValue([activeCourseRun.minEffort, activeCourseRun.maxEffort]) && (
               <CourseSidebarListItem
-                icon={faTachometerAlt}
+                icon={Speed}
                 label="Effort"
                 content={`${activeCourseRun.minEffort}-${activeCourseRun.maxEffort} hours per week`}
               />
@@ -60,13 +53,13 @@ const CourseSidebar = () => {
           </>
         )}
         <CourseSidebarListItem
-          icon={faTag}
+          icon={Tag}
           label="Price"
           content={<CourseSidebarPrice />}
         />
         {partners?.length > 0 && (
           <CourseSidebarListItem
-            icon={faUniversity}
+            icon={Institution}
             label={institutionLabel}
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
@@ -91,7 +84,7 @@ const CourseSidebar = () => {
         )}
         {primarySubject && (
           <CourseSidebarListItem
-            icon={faGraduationCap}
+            icon={School}
             label="Subject"
             content={(
               <Hyperlink
@@ -114,21 +107,21 @@ const CourseSidebar = () => {
         )}
         {activeCourseRun.levelType && (
           <CourseSidebarListItem
-            icon={faCertificate}
+            icon={Equalizer}
             label="Level"
             content={activeCourseRun.levelType}
           />
         )}
         {activeCourseRun.contentLanguage && (
           <CourseSidebarListItem
-            icon={faUniversity}
+            icon={Institution}
             label="Language"
             content={ISO6391.getNativeName(activeCourseRun.contentLanguage.slice(0, 2))}
           />
         )}
         {transcriptLanguages?.length > 0 && (
           <CourseSidebarListItem
-            icon={faFileVideo}
+            icon={VideoFile}
             label={transcriptLabel}
             content={transcriptLanguages.map(language => (
               ISO6391.getNativeName(language.slice(0, 2))
@@ -137,7 +130,7 @@ const CourseSidebar = () => {
         )}
         {pacingType && (
           <CourseSidebarListItem
-            icon={faUser}
+            icon={Person}
             label="Course Type"
             content={pacingTypeContent}
           />
