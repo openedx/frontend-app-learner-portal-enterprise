@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
 import { getCourseStartDate, hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
@@ -46,7 +46,7 @@ const useCourseRunCardHeading = ({
   // the start date is indeed in the past. As of this implementation, the `availability`
   // for published, enrollable externally hosted courses is always "Current" even if the
   // date is upcoming.
-  if (isCourseRunCurrent && moment(courseStartDate).isBefore(moment(getTodaysDate()))) {
+  if (isCourseRunCurrent && dayjs(courseStartDate).isBefore(dayjs(getTodaysDate()))) {
     if (isUserEnrolled) {
       return intl.formatMessage(messages.courseStarted);
     }
@@ -54,19 +54,19 @@ const useCourseRunCardHeading = ({
       if (hasTimeToComplete(courseRun)) {
         // always today's date (incentives enrollment)
         return intl.formatMessage(messages.courseStartDate, {
-          startDate: moment().format(DATE_FORMAT),
+          startDate: dayjs().format(DATE_FORMAT),
         });
       }
       return intl.formatMessage(messages.courseStartedDate, {
-        startDate: moment(courseStartDate).format(DATE_FORMAT),
+        startDate: dayjs(courseStartDate).format(DATE_FORMAT),
       });
     }
     return intl.formatMessage(messages.courseStartedDate, {
-      startDate: moment(courseStartDate).format(DATE_FORMAT),
+      startDate: dayjs(courseStartDate).format(DATE_FORMAT),
     });
   }
   return intl.formatMessage(messages.courseStartDate, {
-    startDate: moment(courseStartDate).format(DATE_FORMAT),
+    startDate: dayjs(courseStartDate).format(DATE_FORMAT),
   });
 };
 

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -30,6 +31,8 @@ export const InProgressCourseCard = ({
     couponUpgradeUrl,
   } = useContext(UpgradeableCourseEnrollmentContext);
 
+  dayjs.extend(isBetween);
+
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
 
@@ -55,8 +58,8 @@ export const InProgressCourseCard = ({
   );
 
   const filteredNotifications = notifications.filter((notification) => {
-    const now = moment();
-    if (moment(notification.date).isBetween(now, moment(now).add('1', 'w'))) {
+    const now = dayjs();
+    if (dayjs(notification.date).isBetween(now, dayjs(now).add('1', 'w'))) {
       return notification;
     }
     return false;

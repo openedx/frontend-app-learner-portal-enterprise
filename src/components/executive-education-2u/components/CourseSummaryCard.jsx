@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {
   Card, Image, Row, Col, Hyperlink,
 } from '@edx/paragon';
@@ -50,7 +50,7 @@ const CourseSummaryCard = ({ courseMetadata, enrollmentCompleted }) => {
               <div className="course-details">
                 <Row className="align-items-center">
                   <Col className="small font-weight-light text-gray-500 justify-content-start">{enrollmentCompleted ? 'Start date:' : 'Available start date:'}</Col>
-                  <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{moment(courseMetadata.startDate).format(DATE_FORMAT)}</Row></Col>
+                  <Col className="justify-content-end"><Row className="justify-content-end mr-2.5">{dayjs(courseMetadata.startDate).format(DATE_FORMAT)}</Row></Col>
                 </Row>
                 <Row className="align-items-center">
                   <Col className="small font-weight-light text-gray-500 justify-content-start">Course duration:</Col>
