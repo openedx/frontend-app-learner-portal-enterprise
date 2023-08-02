@@ -24,6 +24,8 @@ import {
   getSubscriptionDisabledEnrollmentReasonType,
   isActiveSubscriptionLicense,
   processCourseSubjects,
+  isCurrentCoupon,
+  getCouponCodesDisabledEnrollmentReasonType,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -894,5 +896,119 @@ describe('processCourseSubjects', () => {
       },
       subjects: [mockSubject],
     });
+  });
+});
+
+describe('isCurrentCoupon', () => {
+  const realDateNow = Date.now;
+  afterAll(() => {
+    Date.now = realDateNow;
+  });
+
+  it.each([
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2023-08-03T12:00:00Z',
+      expectedIsCurrent: true,
+    },
+    {
+      todaysDate: '1976-05-05T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2024-08-01T12:00:00Z',
+      expectedIsCurrent: false,
+    },
+    {
+      todaysDate: '2024-10-31T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2024-08-01T12:00:00Z',
+      expectedIsCurrent: false,
+    },
+  ])('handles the following case: %s', ({
+    todaysDate,
+    couponStartDate,
+    couponEndDate,
+    expectedIsCurrent,
+  }) => {
+    // mock current date
+    Date.now = jest.fn(() => new Date(todaysDate).valueOf());
+
+    const coupon = {
+      startDate: couponStartDate,
+      endDate: couponEndDate,
+    };
+    const result = isCurrentCoupon(coupon);
+    expect(result).toEqual(expectedIsCurrent);
+  });
+});
+
+describe('getCouponCodesDisabledEnrollmentReasonType', () => {
+  const testCatalogUuid = 'test-catalog-uuid';
+  const realDateNow = Date.now;
+  afterAll(() => {
+    Date.now = realDateNow;
+  });
+
+  it.each([
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      catalogsWithCourse: [],
+      couponsOverview: [],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: undefined,
+    },
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      catalogsWithCourse: [testCatalogUuid],
+      couponsOverview: [{
+        enterpriseCatalogUuid: testCatalogUuid,
+        startDate: '2023-08-01T12:00:00Z',
+        endDate: '2024-08-01T12:00:00Z',
+        numUnassigned: 100,
+      }],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    },
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      catalogsWithCourse: [testCatalogUuid],
+      couponsOverview: [{
+        enterpriseCatalogUuid: testCatalogUuid,
+        startDate: '2023-08-01T12:00:00Z',
+        endDate: '2024-08-01T12:00:00Z',
+        numUnassigned: 0,
+      }],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    },
+    {
+      todaysDate: '2023-10-31T12:00:00Z',
+      catalogsWithCourse: [testCatalogUuid],
+      couponsOverview: [{
+        enterpriseCatalogUuid: testCatalogUuid,
+        startDate: '2023-08-01T12:00:00Z',
+        endDate: '2023-08-31T12:00:00Z',
+        numUnassigned: 100,
+      }],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED,
+    },
+  ])('handles the following case: %s', ({
+    todaysDate,
+    catalogsWithCourse,
+    couponsOverview,
+    hasEnterpriseAdminUsers,
+    expectedResult,
+  }) => {
+    // mock current date
+    Date.now = jest.fn(() => new Date(todaysDate).valueOf());
+
+    const args = {
+      catalogsWithCourse,
+      couponsOverview,
+      hasEnterpriseAdminUsers,
+    };
+    const result = getCouponCodesDisabledEnrollmentReasonType(args);
+    expect(result).toEqual(expectedResult);
   });
 });

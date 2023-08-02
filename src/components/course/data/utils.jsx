@@ -684,7 +684,7 @@ const parseReasonTypeBasedOnEnterpriseAdmins = ({ hasEnterpriseAdminUsers, reaso
 
 export const isCurrentCoupon = (coupon) => {
   dayjs.extend(isBetween);
-  return dayjs().isBetween(
+  return dayjs(Date.now()).isBetween(
     coupon.startDate,
     coupon.endDate,
     'day',
@@ -714,6 +714,12 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
   const applicableCouponNonExpiredNonExhausted = applicableCouponsToCatalog.find(
     coupon => isCurrentCoupon(coupon) && coupon.numUnassigned > 0,
   );
+
+  console.log({
+    hasExpiredCoupons,
+    hasExhaustedCoupons,
+    applicableCouponNonExpiredNonExhausted,
+  });
 
   if (hasExpiredCoupons) {
     // If customer's coupon(s) containing the course being viewed have expired,
