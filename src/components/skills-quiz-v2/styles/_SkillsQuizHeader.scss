@@ -1,0 +1,37 @@
+.bg-img{
+  min-height: 13vw;
+}
+
+.skills-quiz-modal{
+  .pgn__modal-close-button{
+    color: #ffffff !important;
+ }
+}
+
+.vertical-line{
+  border-left: 7px solid #D23228;
+  transform: rotate(13deg);
+}
+
+.heading{
+  color: #F0CC00;
+}
+.subheading{
+  color: #FFFFFF;
+  line-height: 36px;
+  letter-spacing: 1px;
+  font-size: 25px;
+}
+
+.header-text{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.subheading-v2{
+  color: #FFFFFF;
+  line-height: 36px;
+  letter-spacing: 1px;
+  font-size: 40px;
+}
