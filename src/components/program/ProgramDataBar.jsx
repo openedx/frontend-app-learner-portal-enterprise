@@ -44,7 +44,7 @@ const ProgramDataBar = () => {
                   offset={-600}
                 >
                   I&apos;m interested
-                  <ExpandCircleDown className="ml-2" />
+                  <ExpandCircleDown className="icon ml-2 align-self-center" />
                 </Link>
               </div>
             )}

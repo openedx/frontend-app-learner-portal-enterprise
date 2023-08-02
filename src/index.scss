@@ -5,8 +5,6 @@
 @import "~@edx/frontend-enterprise-catalog-search";
 @import "@edx/brand/paragon/overrides";
 
-$fa-font-path: "~font-awesome/fonts";
-@import "~font-awesome/scss/font-awesome";
 
 @import "./components/layout/styles/Layout";
 @import "./components/course/styles/CourseHeader";
