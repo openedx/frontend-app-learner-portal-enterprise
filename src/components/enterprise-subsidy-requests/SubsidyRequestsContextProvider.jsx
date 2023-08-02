@@ -40,11 +40,11 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     subsidyRequestConfiguration,
     isLoadingSubsidyRequestConfiguration,
     customerAgreementConfig,
-    couponsOverview: couponCodes.couponsOverview,
+    couponsOverview: couponCodes.couponsOverview.data?.results || [],
   });
 
   const isLoading = isLoadingSubsidyRequestConfiguration
-   || isLoadingSubsidyRequests || isLoadingCatalogsForSubsidyRequests;
+    || isLoadingSubsidyRequests || isLoadingCatalogsForSubsidyRequests;
 
   const requestsBySubsidyType = useMemo(() => ({
     [SUBSIDY_TYPE.LICENSE]: licenseRequests,

@@ -623,7 +623,8 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @param {object} args.subscriptionLicense Metadata pertaining to learner's subscription license, if any.
  * @param {object} args.courseService Instance of the CourseService.
  * @param {array} args.couponCodes List of assigned coupon codes, if any.
- * @param {array} args.couponsOverview List of all coupon for enterprise, if any (includes expired).
+ * @param {array} args.couponsOverview Return from `useQuery` hook to fetch all coupons
+ *  for enterprise, if any (includes expired).
  * @param {boolean} args.canEnrollWithEnterpriseOffers Whether enterprise offers are usable for the enterprise.
  * @param {array} args.enterpriseOffers List of enterprise offers, if any.
  * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription

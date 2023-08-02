@@ -1,9 +1,11 @@
 import React from 'react';
-import moment from 'moment';
 import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@edx/paragon';
 import isNil from 'lodash.isnil';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
 import {
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
@@ -680,17 +682,21 @@ const parseReasonTypeBasedOnEnterpriseAdmins = ({ hasEnterpriseAdminUsers, reaso
   return reasonTypes.hasNoAdmins;
 };
 
+export const isCurrentCoupon = (coupon) => {
+  dayjs.extend(isBetween);
+  return dayjs().isBetween(
+    coupon.startDate,
+    coupon.endDate,
+    'day',
+    '[]',
+  );
+};
+
 export const getCouponCodesDisabledEnrollmentReasonType = ({
   catalogsWithCourse,
   couponsOverview,
   hasEnterpriseAdminUsers,
 }) => {
-  const isCurrentCoupon = (coupon) => moment().isBetween(
-    moment(coupon.startDate),
-    moment(coupon.endDate),
-    'days',
-    '[]',
-  );
   const applicableCouponsToCatalog = couponsOverview?.filter(
     coupon => catalogsWithCourse.includes(coupon.enterpriseCatalogUuid),
   ) || [];
