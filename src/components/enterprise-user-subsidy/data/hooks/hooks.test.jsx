@@ -57,8 +57,8 @@ const mockCustomerAgreement = {
 };
 
 describe('useSubscriptionLicense', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it('does nothing if customer agreement is still loading', async () => {
@@ -150,7 +150,7 @@ describe('useSubscriptionLicense', () => {
   }) => {
     const mockLicenses = hasExistingLicense ? [mockLicense] : [];
     const mockAuthenticatedUser = isEnterpriseLearner ? mockEnterpriseUser : mockUser;
-    const mockEnterpriseConfiguration = mockEnterpriseConfig;
+    const mockEnterpriseConfiguration = { ...mockEnterpriseConfig };
     if (hasIdentityProvider) {
       mockEnterpriseConfiguration.identityProvider = { id: 1 };
     }
@@ -178,10 +178,6 @@ describe('useSubscriptionLicense', () => {
     await waitForNextUpdate();
     expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
 
-    if (!hasExistingLicense && !shouldAutoApplyLicense) {
-      expect(result.current.license).toEqual(null);
-    }
-
     if (shouldAutoApplyLicense) {
       expect(requestAutoAppliedLicense).toHaveBeenCalledTimes(1);
       expect(result.current.license).toEqual(expect.objectContaining({
@@ -189,6 +185,9 @@ describe('useSubscriptionLicense', () => {
       }));
     } else {
       expect(requestAutoAppliedLicense).not.toHaveBeenCalled();
+      if (!hasExistingLicense) {
+        expect(result.current.license).toEqual(null);
+      }
     }
   });
 
