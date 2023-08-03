@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Collapsible } from '@edx/paragon';
+import { Collapsible, Icon } from '@edx/paragon';
 import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
 
 import PathwayNode from './PathwayNode';
@@ -14,8 +14,8 @@ const PathwayStep = ({ index, minRequirements, nodes }) => {
       open={isOpen}
       styling="card-lg"
       className="collapsible shadow-lg pathway-step"
-      iconWhenOpen={<ExpandLess />}
-      iconWhenClosed={<ExpandMore />}
+      iconWhenOpen={<Icon src={ExpandLess} />}
+      iconWhenClosed={<Icon src={ExpandMore} />}
       onToggle={() => setIsOpen((!isOpen))}
     >
       {

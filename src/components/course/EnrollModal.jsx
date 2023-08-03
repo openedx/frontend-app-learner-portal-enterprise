@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal } from '@edx/paragon';
-import { Cached } from '@edx/paragon/icons';
+import { Button, Modal, Spinner } from '@edx/paragon';
 
 import { COUPON_CODE_SUBSIDY_TYPE, ENTERPRISE_OFFER_SUBSIDY_TYPE } from './data/constants';
 import { ENTERPRISE_OFFER_TYPE } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
@@ -92,7 +91,7 @@ const EnrollModal = ({
           href={enrollmentUrl}
           onClick={handleEnroll}
         >
-          {isLoading && <Cached className="mr-2" svgAttrs={{ 'aria-label': 'loading' }} />}
+          {isLoading && <Spinner animation="border" className="mr-2" variant="light" size="sm" screenReaderText="Loading" />}
           {buttonText}
         </Button>,
       ]}

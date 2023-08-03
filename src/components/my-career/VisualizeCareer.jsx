@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ActionRow, Button, Row, useToggle, TransitionReplace,
+  ActionRow, Button, Row, useToggle, TransitionReplace, Icon,
 } from '@edx/paragon';
 import { Edit } from '@edx/paragon/icons';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
@@ -13,7 +13,7 @@ import CategoryCard from './CategoryCard';
 import SearchJobRole from './SearchJobRole';
 
 const editIcon = () => (
-  <Edit className="edit-job-role-icon" screenReaderText="Edit Role" />
+  <Icon src={Edit} className="edit-job-role-icon" screenReaderText="Edit Role" />
 );
 
 const VisualizeCareer = ({ jobId, submitClickHandler }) => {

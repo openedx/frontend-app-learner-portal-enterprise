@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
 
 import dayjs from 'dayjs';
-import { Alert, Collapsible, Hyperlink } from '@edx/paragon';
+import {
+  Alert, Collapsible, Hyperlink, Icon,
+} from '@edx/paragon';
 import {
   CalendarMonth, ExpandLess, ExpandMore, LibraryBooks,
   WarningFilled,
@@ -39,14 +41,14 @@ const ProgramCourses = () => {
             return (
               <Collapsible.Advanced className="collapsible-card-lg" key={course.title}>
                 <Collapsible.Trigger className="collapsible-trigger">
-                  <div className="marker"><LibraryBooks className="mr-2" /></div>
+                  <div className="marker"><Icon src={LibraryBooks} className="mr-2" /></div>
                   <h4 className="h4 flex-grow-1">{course.title}</h4>
                   <Collapsible.Visible whenClosed>
-                    <ExpandMore className="mr-2" />
+                    <Icon src={ExpandMore} className="mr-2" />
                   </Collapsible.Visible>
 
                   <Collapsible.Visible whenOpen>
-                    <ExpandLess className="mr-2" />
+                    <Icon src={ExpandLess} className="mr-2" />
                   </Collapsible.Visible>
                 </Collapsible.Trigger>
 

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Collapsible } from '@edx/paragon';
+import { Collapsible, Icon } from '@edx/paragon';
 import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
@@ -20,8 +20,8 @@ const ProgramFAQ = () => {
             className="collapsible shadow-lg"
             title={q.question}
             key={q.question}
-            iconWhenOpen={<ExpandLess />}
-            iconWhenClosed={<ExpandMore />}
+            iconWhenOpen={<Icon src={ExpandLess} />}
+            iconWhenClosed={<Icon src={ExpandMore} />}
           >
             {q.answer}
           </Collapsible>

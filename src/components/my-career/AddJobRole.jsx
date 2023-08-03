@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
-  Alert, Row, breakpoints, MediaQuery, useToggle, TransitionReplace, Button,
+  Alert, Row, breakpoints, MediaQuery, useToggle, TransitionReplace, Button, Icon,
 } from '@edx/paragon';
 import { Plus } from '@edx/paragon/icons';
 import { MainContent, Sidebar } from '../layout';
@@ -14,7 +14,8 @@ import SearchJobRole from './SearchJobRole';
 import SkillsQuizImage from '../../assets/images/skills-quiz/skills-quiz.png';
 
 const addIcon = () => (
-  <Plus
+  <Icon
+    src={Plus}
     id="add-job-role-icon"
     className="add-job-icon"
     screenReaderText="Add Role"
