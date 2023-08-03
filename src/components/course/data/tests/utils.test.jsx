@@ -1,7 +1,8 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { getConfig } from '@edx/frontend-platform';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
@@ -22,6 +23,7 @@ import {
   getMissingSubsidyReasonActions,
   getSubscriptionDisabledEnrollmentReasonType,
   isActiveSubscriptionLicense,
+  processCourseSubjects,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -47,8 +49,8 @@ describe('findCouponCodeForCourse', () => {
   const couponCodes = [{
     code: 'bearsRus',
     catalog: 'bears',
-    couponStartDate: moment().subtract(1, 'w').toISOString(),
-    couponEndDate: moment().add(8, 'w').toISOString(),
+    couponStartDate: dayjs().subtract(1, 'w').toISOString(),
+    couponEndDate: dayjs().add(8, 'w').toISOString(),
   }];
 
   test('returns valid index if coupon code catalog is in catalog list', () => {
@@ -400,7 +402,7 @@ describe('linkToCourse', () => {
     courseType: 'non_entitlement_course',
   };
 
-  const mockQueryQbjectIdCourse = {
+  const mockQueryObjectIdCourse = {
     key: 'mock_query_object_id_course',
     courseType: 'doesntmatter',
     queryId: 'testqueryid',
@@ -416,7 +418,7 @@ describe('linkToCourse', () => {
   });
 
   it('returns url with course queryId, objectId', () => {
-    expect(linkToCourse(mockQueryQbjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
+    expect(linkToCourse(mockQueryObjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
   });
 });
 
@@ -880,5 +882,40 @@ describe('isActiveSubscriptionLicense', () => {
   ])('returns expected value given the following inputs: %s', ({ subscriptionLicense, expectedResult }) => {
     const isActive = isActiveSubscriptionLicense(subscriptionLicense);
     expect(isActive).toEqual(expectedResult);
+  });
+});
+
+describe('processCourseSubjects', () => {
+  it('handles null course', () => {
+    const result = processCourseSubjects(null);
+    expect(result).toEqual({
+      primarySubject: null,
+      subjects: [],
+    });
+  });
+
+  it('handles empty subject list', () => {
+    const course = { subjects: [] };
+    const result = processCourseSubjects(course);
+    expect(result).toEqual({
+      primarySubject: null,
+      subjects: [],
+    });
+  });
+
+  it('handles course with subjects', () => {
+    const mockSubject = {
+      name: 'Subject 1',
+      slug: 'subject-1',
+    };
+    const course = { subjects: [mockSubject] };
+    const result = processCourseSubjects(course);
+    expect(result).toEqual({
+      primarySubject: {
+        ...mockSubject,
+        url: `${getConfig().MARKETING_SITE_BASE_URL}/course/subject/${mockSubject.slug}`,
+      },
+      subjects: [mockSubject],
+    });
   });
 });

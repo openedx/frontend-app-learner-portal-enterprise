@@ -7,6 +7,10 @@ import { hasTimeToComplete } from '../../../../data/utils';
 import { MOCK_COURSE_RUN_START } from './constants';
 import useCourseRunCardHeading from '../useCourseRunCardHeading';
 
+jest.mock('dayjs', () => jest.fn(
+  (...args) => jest.requireActual('dayjs')(args.filter((arg) => arg).length > 0 ? args : '2023-03-20'),
+));
+
 jest.mock('../../../../data/utils', () => ({
   ...jest.requireActual('../../../../data/utils'),
   hasTimeToComplete: jest.fn().mockReturnValue(true),

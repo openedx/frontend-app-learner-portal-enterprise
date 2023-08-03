@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -37,8 +37,8 @@ const TEST_USER = {
 const mockSubscriptionPlan = {
   uuid: TEST_SUBSCRIPTION_UUID,
   isActive: true,
-  startDate: moment().subtract(1, 'w').toISOString(),
-  expirationDate: moment().add(1, 'y').toISOString(),
+  startDate: dayjs().subtract(1, 'w').toISOString(),
+  expirationDate: dayjs().add(1, 'y').toISOString(),
 };
 
 const mockCustomerAgreementData = {

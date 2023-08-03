@@ -32,6 +32,8 @@ import {
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
+  createEnrollWithCouponCodeUrl,
+  createEnrollWithLicenseUrl,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -105,28 +107,6 @@ export function useAllCourseData({
     fetchError,
     isLoading,
   };
-}
-
-// TODO: Refactor away from useEffect useState
-export function useCourseSubjects(course) {
-  const [subjects, setSubjects] = useState([]);
-  const [primarySubject, setPrimarySubject] = useState(null);
-  const config = getConfig();
-
-  useEffect(() => {
-    if (course?.subjects) {
-      setSubjects(course.subjects);
-      if (course.subjects.length > 0) {
-        const newSubject = {
-          ...course.subjects[0],
-          url: `${config.MARKETING_SITE_BASE_URL}/course/subject/${course.subjects[0].slug}`,
-        };
-        setPrimarySubject(newSubject);
-      }
-    }
-  }, [config.MARKETING_SITE_BASE_URL, course]);
-
-  return { subjects, primarySubject };
 }
 
 /**
@@ -329,21 +309,15 @@ export const useCourseEnrollmentUrl = ({
     [config.LMS_BASE_URL, courseRunKey, baseQueryParams, location.pathname],
   );
 
-  // TODO: use the new helper functions (createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl) to generate url
   const enrollmentUrl = useMemo(
     () => {
       if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
-        const queryParams = new URLSearchParams({
-          ...baseEnrollmentOptions,
-          license_uuid: userSubsidyApplicableToCourse.subsidyId,
-          course_id: courseRunKey,
-          enterprise_customer_uuid: enterpriseConfig.uuid,
-          // We don't want any sidebar text we show the data consent page from this workflow since
-          // the text on the sidebar is used when a learner is coming from their employer's system.
-          left_sidebar_text_override: '',
-          source: 'enterprise-learner-portal',
+        return createEnrollWithLicenseUrl({
+          courseRunKey,
+          enterpriseId: enterpriseConfig.uuid,
+          licenseUUID: userSubsidyApplicableToCourse.subsidyId,
+          location,
         });
-        return `${config.LMS_BASE_URL}/enterprise/grant_data_sharing_permissions/?${queryParams.toString()}`;
       }
 
       if (!sku) {
@@ -351,15 +325,13 @@ export const useCourseEnrollmentUrl = ({
         return null;
       }
 
-      const queryParams = new URLSearchParams({
-        ...baseEnrollmentOptions,
-        sku,
-        consent_url_param_string: `failure_url=${encodeURIComponent(global.location.href)}?${baseQueryParams.toString()}&left_sidebar_text_override=`,
-      });
-
       if (features.ENROLL_WITH_CODES && userSubsidyApplicableToCourse?.subsidyType === COUPON_CODE_SUBSIDY_TYPE) {
-        queryParams.set('code', userSubsidyApplicableToCourse.code);
-        return `${config.ECOMMERCE_BASE_URL}/coupons/redeem/?${queryParams.toString()}`;
+        return createEnrollWithCouponCodeUrl({
+          courseRunKey,
+          sku,
+          code: userSubsidyApplicableToCourse.code,
+          location,
+        });
       }
 
       if (isExecutiveEducation2UCourse) {
@@ -368,7 +340,11 @@ export const useCourseEnrollmentUrl = ({
         });
         return externalCourseEnrollmentUrl;
       }
-
+      const queryParams = new URLSearchParams({
+        ...baseEnrollmentOptions,
+        sku,
+        consent_url_param_string: `failure_url=${encodeURIComponent(global.location.href)}?${baseQueryParams.toString()}&left_sidebar_text_override=`,
+      });
       // This enrollment url will automatically apply enterprise offers
       return `${config.ECOMMERCE_BASE_URL}/basket/add/?${queryParams.toString()}`;
     },
@@ -378,11 +354,11 @@ export const useCourseEnrollmentUrl = ({
       baseEnrollmentOptions,
       baseQueryParams,
       config.ECOMMERCE_BASE_URL,
-      config.LMS_BASE_URL,
       courseRunKey,
       enterpriseConfig.uuid,
       isExecutiveEducation2UCourse,
       routeMatch.url,
+      location,
     ],
   );
 

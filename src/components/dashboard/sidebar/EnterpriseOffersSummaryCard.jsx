@@ -1,11 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Badge,
-  Row,
-  Col,
-} from '@edx/paragon';
-import moment from 'moment';
+import { Badge, Row, Col } from '@edx/paragon';
+import dayjs from 'dayjs';
 import {
   ENTERPRISE_OFFER_SUMMARY_CARD_TITLE,
   ENTERPRISE_OFFER_ACTIVE_BADGE_LABEL,
@@ -55,7 +51,7 @@ const EnterpriseOffersSummaryCard = ({
 
       {offerExpiringFirst.endDatetime && (
         <p data-testid="offer-summary-end-date-text">
-          Available until <b>{moment(offerExpiringFirst.endDatetime).format('MMM D, YYYY')}</b>
+          Available until <b>{dayjs(offerExpiringFirst.endDatetime).format('MMM D, YYYY')}</b>
         </p>
       )}
 

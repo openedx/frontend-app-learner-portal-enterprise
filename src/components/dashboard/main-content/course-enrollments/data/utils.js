@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { COURSE_STATUSES } from './constants';
 
 /**
@@ -61,7 +61,7 @@ export const groupCourseEnrollmentsByStatus = (courseEnrollments) => {
 };
 
 export const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
-  enrollments.sort((c1, c2) => moment(c1.created) - moment(c2.created));
+  enrollments.sort((c1, c2) => dayjs(c1.created) - dayjs(c2.created));
   return enrollments;
 };
 
