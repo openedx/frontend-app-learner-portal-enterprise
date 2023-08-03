@@ -81,6 +81,10 @@ export const REASON_USER_MESSAGES = {
   SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough licenses. Contact your administrator for help.",
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED: "You can't enroll right now because you don't have a subscription license.",
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS: "You can't enroll right now because you don't have a subscription license. Contact your administrator for help.",
+  COUPON_CODE_NOT_ASSIGNED: "You can't enroll right now because you don't have a code.",
+  COUPON_CODE_NOT_ASSIGNED_NO_ADMINS: "You can't enroll right now because you don't have a code. Contact your administrator for help.",
+  COUPON_CODES_EXPIRED: "You can't enroll right now because your code(s) expired.",
+  COUPON_CODES_EXPIRED_NO_ADMINS: "You can't enroll right now because your code(s) expired. Contact your administrator for help.",
 };
 
 export const DISABLED_ENROLL_REASON_TYPES = {
@@ -99,6 +103,10 @@ export const DISABLED_ENROLL_REASON_TYPES = {
   SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS: 'subscription_seats_exhausted_no_admin',
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED: 'subscription_license_not_assigned',
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS: 'subscription_license_not_assigned_no_admin',
+  COUPON_CODE_NOT_ASSIGNED: 'coupon_code_not_assigned',
+  COUPON_CODE_NOT_ASSIGNED_NO_ADMINS: 'coupon_code_not_assigned_no_admin',
+  COUPON_CODES_EXPIRED: 'coupon_codes_expired',
+  COUPON_CODES_EXPIRED_NO_ADMINS: 'coupon_codes_expired_no_admin',
 };
 
 /* eslint-disable max-len */
@@ -116,6 +124,10 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS]: REASON_USER_MESSAGES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED]: REASON_USER_MESSAGES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS]: REASON_USER_MESSAGES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+  [DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED]: REASON_USER_MESSAGES.COUPON_CODE_NOT_ASSIGNED,
+  [DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED_NO_ADMINS]: REASON_USER_MESSAGES.COUPON_CODE_NOT_ASSIGNED_NO_ADMINS,
+  [DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED]: REASON_USER_MESSAGES.COUPON_CODES_EXPIRED,
+  [DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED_NO_ADMINS]: REASON_USER_MESSAGES.COUPON_CODES_EXPIRED_NO_ADMINS,
 };
 /* eslint-enable max-len */
 

@@ -30,6 +30,7 @@ import {
   getSubsidyToApplyForCourse,
   getCourseTypeConfig,
   getSubscriptionDisabledEnrollmentReasonType,
+  getCouponCodesDisabledEnrollmentReasonType,
 } from '../utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
@@ -97,6 +98,7 @@ jest.mock('../utils', () => ({
   findEnterpriseOfferForCourse: jest.fn(),
   getCourseTypeConfig: jest.fn(),
   getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
+  getCouponCodesDisabledEnrollmentReasonType: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
@@ -1175,6 +1177,25 @@ describe('useUserSubsidyApplicableToCourse', () => {
       missingUserSubsidyReason: {
         reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
         userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+        actions: expect.any(Object),
+      },
+    });
+  });
+
+  it('handles disabled enrollment reason related to coupon codes', async () => {
+    getCouponCodesDisabledEnrollmentReasonType.mockReturnValueOnce(
+      DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    );
+
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+        userMessage: REASON_USER_MESSAGES.COUPON_CODE_NOT_ASSIGNED,
         actions: expect.any(Object),
       },
     });

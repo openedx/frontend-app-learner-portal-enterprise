@@ -24,6 +24,8 @@ import {
   getSubscriptionDisabledEnrollmentReasonType,
   isActiveSubscriptionLicense,
   processCourseSubjects,
+  isCurrentCoupon,
+  getCouponCodesDisabledEnrollmentReasonType,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -651,37 +653,31 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      daysUntilExpirationIncludingRenewals: [-17],
+      daysUntilExpirationIncludingRenewals: -17,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: [-17],
+      daysUntilExpirationIncludingRenewals: -17,
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: [-17],
+      daysUntilExpirationIncludingRenewals: -17,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
     {
-      daysUntilExpirationIncludingRenewals: [0],
+      daysUntilExpirationIncludingRenewals: 0,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      daysUntilExpirationIncludingRenewals: [10],
-      hasEnterpriseAdminUsers: true,
-      expectedReasonType: undefined,
-      catalogsWithCourse: [mockCatalogUuid],
-    },
-    {
-      daysUntilExpirationIncludingRenewals: [-17, 10],
+      daysUntilExpirationIncludingRenewals: 10,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: undefined,
       catalogsWithCourse: [mockCatalogUuid],
@@ -692,14 +688,15 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const subscriptions = [];
-    daysUntilExpirationIncludingRenewals.forEach((days) => {
-      subscriptions.push({
-        enterpriseCatalogUuid: mockCatalogUuid,
-        daysUntilExpirationIncludingRenewals: days,
-      });
-    });
-    const customerAgreementConfig = { subscriptions };
+    const customerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: mockCatalogUuid,
+          daysUntilExpirationIncludingRenewals,
+        },
+      ],
+    };
+
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreementConfig,
       catalogsWithCourse,
@@ -711,58 +708,40 @@ describe('getSubscriptionDisabledEnrollmentReasonType', () => {
 
   it.each([
     {
-      unassignedLicensesCount: [0],
-      daysUntilExpirationIncludingRenewals: [10],
+      unassignedLicensesCount: 0,
       hasEnterpriseAdminUsers: true,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      unassignedLicensesCount: [0],
-      daysUntilExpirationIncludingRenewals: [10],
+      unassignedLicensesCount: 0,
       hasEnterpriseAdminUsers: false,
       expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
       catalogsWithCourse: [mockCatalogUuid],
     },
     {
-      unassignedLicensesCount: [0],
-      daysUntilExpirationIncludingRenewals: [10],
+      unassignedLicensesCount: 0,
       hasEnterpriseAdminUsers: false,
       expectedReasonType: undefined,
       catalogsWithCourse: ['fake-catalog-uuid'],
     },
-    {
-      unassignedLicensesCount: [167, 0],
-      daysUntilExpirationIncludingRenewals: [-17, 10],
-      hasEnterpriseAdminUsers: true,
-      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
-      catalogsWithCourse: [mockCatalogUuid],
-    },
-    {
-      unassignedLicensesCount: [1],
-      daysUntilExpirationIncludingRenewals: [10],
-      hasEnterpriseAdminUsers: true,
-      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
-      catalogsWithCourse: [mockCatalogUuid],
-    },
   ])('handles exhausted subscription: %s', ({
     unassignedLicensesCount,
-    daysUntilExpirationIncludingRenewals,
     hasEnterpriseAdminUsers,
     expectedReasonType,
     catalogsWithCourse,
   }) => {
-    const subscriptions = [];
-    daysUntilExpirationIncludingRenewals.forEach((days, index) => {
-      subscriptions.push({
-        enterpriseCatalogUuid: mockCatalogUuid,
-        daysUntilExpirationIncludingRenewals: days,
-        licenses: {
-          unassigned: unassignedLicensesCount[index],
+    const customerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: mockCatalogUuid,
+          daysUntilExpirationIncludingRenewals: 10,
+          licenses: {
+            unassigned: unassignedLicensesCount,
+          },
         },
-      });
-    });
-    const customerAgreementConfig = { subscriptions };
+      ],
+    };
 
     const reasonType = getSubscriptionDisabledEnrollmentReasonType({
       customerAgreementConfig,
@@ -917,5 +896,119 @@ describe('processCourseSubjects', () => {
       },
       subjects: [mockSubject],
     });
+  });
+});
+
+describe('isCurrentCoupon', () => {
+  const realDateNow = Date.now;
+  afterAll(() => {
+    Date.now = realDateNow;
+  });
+
+  it.each([
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2023-08-03T12:00:00Z',
+      expectedIsCurrent: true,
+    },
+    {
+      todaysDate: '1976-05-05T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2024-08-01T12:00:00Z',
+      expectedIsCurrent: false,
+    },
+    {
+      todaysDate: '2024-10-31T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2024-08-01T12:00:00Z',
+      expectedIsCurrent: false,
+    },
+  ])('handles the following case: %s', ({
+    todaysDate,
+    couponStartDate,
+    couponEndDate,
+    expectedIsCurrent,
+  }) => {
+    // mock current date
+    Date.now = jest.fn(() => new Date(todaysDate).valueOf());
+
+    const coupon = {
+      startDate: couponStartDate,
+      endDate: couponEndDate,
+    };
+    const result = isCurrentCoupon(coupon);
+    expect(result).toEqual(expectedIsCurrent);
+  });
+});
+
+describe('getCouponCodesDisabledEnrollmentReasonType', () => {
+  const testCatalogUuid = 'test-catalog-uuid';
+  const realDateNow = Date.now;
+  afterAll(() => {
+    Date.now = realDateNow;
+  });
+
+  it.each([
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      catalogsWithCourse: [],
+      couponsOverview: [],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: undefined,
+    },
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      catalogsWithCourse: [testCatalogUuid],
+      couponsOverview: [{
+        enterpriseCatalogUuid: testCatalogUuid,
+        startDate: '2023-08-01T12:00:00Z',
+        endDate: '2024-08-01T12:00:00Z',
+        numUnassigned: 100,
+      }],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    },
+    {
+      todaysDate: '2023-08-02T12:00:00Z',
+      catalogsWithCourse: [testCatalogUuid],
+      couponsOverview: [{
+        enterpriseCatalogUuid: testCatalogUuid,
+        startDate: '2023-08-01T12:00:00Z',
+        endDate: '2024-08-01T12:00:00Z',
+        numUnassigned: 0,
+      }],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    },
+    {
+      todaysDate: '2023-10-31T12:00:00Z',
+      catalogsWithCourse: [testCatalogUuid],
+      couponsOverview: [{
+        enterpriseCatalogUuid: testCatalogUuid,
+        startDate: '2023-08-01T12:00:00Z',
+        endDate: '2023-08-31T12:00:00Z',
+        numUnassigned: 100,
+      }],
+      hasEnterpriseAdminUsers: true,
+      expectedResult: DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED,
+    },
+  ])('handles the following case: %s', ({
+    todaysDate,
+    catalogsWithCourse,
+    couponsOverview,
+    hasEnterpriseAdminUsers,
+    expectedResult,
+  }) => {
+    // mock current date
+    Date.now = jest.fn(() => new Date(todaysDate).valueOf());
+
+    const args = {
+      catalogsWithCourse,
+      couponsOverview: { data: couponsOverview },
+      hasEnterpriseAdminUsers,
+    };
+    const result = getCouponCodesDisabledEnrollmentReasonType(args);
+    expect(result).toEqual(expectedResult);
   });
 });
