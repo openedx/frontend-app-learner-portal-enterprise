@@ -715,12 +715,6 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
     coupon => isCurrentCoupon(coupon) && coupon.numUnassigned > 0,
   );
 
-  console.log({
-    hasExpiredCoupons,
-    hasExhaustedCoupons,
-    applicableCouponNonExpiredNonExhausted,
-  });
-
   if (hasExpiredCoupons) {
     // If customer's coupon(s) containing the course being viewed have expired,
     // change `reasonType` to use the `COUPON_CODES_EXPIRED` message.

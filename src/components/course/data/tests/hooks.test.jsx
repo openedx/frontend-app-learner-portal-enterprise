@@ -1184,7 +1184,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
 
   it('handles disabled enrollment reason related to coupon codes', async () => {
     getCouponCodesDisabledEnrollmentReasonType.mockReturnValueOnce(
-      DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED
+      DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
     );
 
     const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
