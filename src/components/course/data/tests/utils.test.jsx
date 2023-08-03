@@ -1005,7 +1005,7 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
 
     const args = {
       catalogsWithCourse,
-      couponsOverview,
+      couponsOverview: { data: couponsOverview },
       hasEnterpriseAdminUsers,
     };
     const result = getCouponCodesDisabledEnrollmentReasonType(args);
