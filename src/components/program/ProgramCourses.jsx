@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Alert, Collapsible, Hyperlink } from '@edx/paragon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { WarningFilled } from '@edx/paragon/icons';
@@ -20,7 +20,7 @@ export const DATE_FORMAT = 'MMM D, YYYY';
 const getCourseRun = course => (
   // Get the latest course run.
   course.courseRuns?.sort(
-    (a, b) => (moment(a.start) < moment(b.start) ? 1 : -1),
+    (a, b) => (dayjs(a.start) < dayjs(b.start) ? 1 : -1),
   )[0]
 );
 
@@ -57,7 +57,7 @@ const ProgramCourses = () => {
                     && (
                       <div className="course-card-result mb-2">
                         <FontAwesomeIcon icon={faCalendarAlt} className="fa-calendar-alt mr-2" />
-                        <span className="font-weight-bold">Starts {moment(courseRun.start).format(DATE_FORMAT)}</span>
+                        <span className="font-weight-bold">Starts {dayjs(courseRun.start).format(DATE_FORMAT)}</span>
                       </div>
                     )
                   }

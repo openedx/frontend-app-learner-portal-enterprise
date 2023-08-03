@@ -2,7 +2,7 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
@@ -31,7 +31,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => {
   });
 });
 
-const ProgramCoursestWithContext = ({
+const ProgramCoursesWithContext = ({
   initialAppState = {},
   initialProgramState = {},
   initialUserSubsidyState = {},
@@ -85,7 +85,7 @@ describe('<ProgramCourses />', () => {
 
   test('renders program courses.', () => {
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={initialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -97,7 +97,7 @@ describe('<ProgramCourses />', () => {
 
   test('sends correct event data upon click on view the course link', () => {
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={initialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -115,7 +115,7 @@ describe('<ProgramCourses />', () => {
 
   test('renders view the course link if course in catalog', () => {
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={initialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -132,7 +132,7 @@ describe('<ProgramCourses />', () => {
     newInitialProgramState.program.courses[0].enterpriseHasCourse = false;
 
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={newInitialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -146,7 +146,7 @@ describe('<ProgramCourses />', () => {
 
   test('renders start date when courses are instructor led', () => {
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={initialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -155,7 +155,7 @@ describe('<ProgramCourses />', () => {
 
     userEvent.click(screen.getByText('Test Course Title'));
     const courseRun = initialProgramState.program.courses[0].courseRuns[0];
-    expect(screen.queryByText(`Starts ${moment(courseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${dayjs(courseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });
 
   test('does not renders start date when courses are self paced', () => {
@@ -163,7 +163,7 @@ describe('<ProgramCourses />', () => {
     const courseRun = newInitialProgramState.program.courses[0].courseRuns[0];
     courseRun.pacingType = 'self_paced';
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={newInitialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
@@ -171,7 +171,7 @@ describe('<ProgramCourses />', () => {
     );
 
     userEvent.click(screen.getByText('Test Course Title'));
-    expect(screen.queryByText(`Starts ${moment(courseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${dayjs(courseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
   });
 
   test('renders latest course run', () => {
@@ -185,14 +185,14 @@ describe('<ProgramCourses />', () => {
     };
     newInitialProgramState.program.courses[0].courseRuns.push(secondCourseRun);
     render(
-      <ProgramCoursestWithContext
+      <ProgramCoursesWithContext
         initialAppState={initialAppState}
         initialProgramState={newInitialProgramState}
         initialUserSubsidyState={initialUserSubsidyState}
       />,
     );
     userEvent.click(screen.getByText('Test Course Title'));
-    expect(screen.queryByText(`Starts ${moment(firstCourseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
-    expect(screen.queryByText(`Starts ${moment(secondCourseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${dayjs(firstCourseRun.start).format(DATE_FORMAT)}`)).not.toBeInTheDocument();
+    expect(screen.queryByText(`Starts ${dayjs(secondCourseRun.start).format(DATE_FORMAT)}`)).toBeInTheDocument();
   });
 });

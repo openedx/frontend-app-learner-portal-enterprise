@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {
   isDefinedAndNotNull,
   createArrayFromValue,
@@ -116,13 +116,13 @@ describe('hasTruthyValue', () => {
   });
 });
 
-const now = moment();
-const validStartDate = moment(now).subtract(5, 'days');
-const validEndDate = moment(now).add(5, 'days');
-const validExpirationDate = moment(now).add(6, 'days');
-const invalidStartDate = moment(now).add(1, 'days');
-const invalidEndDate = moment(now).subtract(1, 'days');
-const invalidExpirationDate = moment(now).subtract(2, 'days');
+const now = dayjs();
+const validStartDate = dayjs(now).subtract(5, 'days');
+const validEndDate = dayjs(now).add(5, 'days');
+const validExpirationDate = dayjs(now).add(6, 'days');
+const invalidStartDate = dayjs(now).add(1, 'days');
+const invalidEndDate = dayjs(now).subtract(1, 'days');
+const invalidExpirationDate = dayjs(now).subtract(2, 'days');
 
 describe('hasValidStartExpirationDates', () => {
   it('returns true when now is between startDate and endDate', () => {

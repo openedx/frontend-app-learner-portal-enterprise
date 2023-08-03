@@ -4,7 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import classNames from 'classnames';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
 /**
  * A 'Continue Learning' button with parameters.
@@ -36,13 +36,13 @@ const ContinueLearningButton = ({
     );
   };
 
-  const isCourseStarted = () => moment(startDate) <= moment();
+  const isCourseStarted = () => dayjs(startDate) <= dayjs();
   const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const execClassName = (isExecutiveEducation2UCourse) && (!isCourseStarted()) ? ' disabled btn-outline-secondary' : undefined;
 
   const renderContent = () => {
     if (isExecutiveEducation2UCourse && !isCourseStarted() && startDate) {
-      const formattedStartDate = moment(startDate).format('MMM D, YYYY');
+      const formattedStartDate = dayjs(startDate).format('MMM D, YYYY');
       return `Available on ${formattedStartDate}`;
     }
     return 'Resume';

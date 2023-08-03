@@ -9,7 +9,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
-import moment from 'moment';
+import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import {
   createCourseEnrollmentWithStatus,
@@ -122,7 +122,7 @@ describe('Course enrollments', () => {
   });
 
   it('renders courses enrollments within sections by created timestamp', async () => {
-    const now = moment();
+    const now = dayjs();
     hooks.useCourseEnrollments.mockReturnValueOnce({
       courseEnrollmentsByStatus: {
         inProgress: [{

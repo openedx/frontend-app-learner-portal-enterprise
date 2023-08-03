@@ -15,12 +15,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
 
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
-  useCourseSubjects: jest.fn(() => ({
-    primarySubject: {
-      url: 'https://test.org/subject',
-      name: 'Test Subject',
-    },
-  })),
   useCoursePartners: jest.fn(() => [
     [{
       key: 'Test Partner',
@@ -39,6 +33,16 @@ jest.mock('../data/hooks', () => ({
     'instructor_paced',
     'Instructor Paced',
   ]),
+}));
+
+jest.mock('../data/utils', () => ({
+  ...jest.requireActual('../data/utils'),
+  processCourseSubjects: jest.fn(() => ({
+    primarySubject: {
+      url: 'https://test.org/subject',
+      name: 'Test Subject',
+    },
+  })),
 }));
 
 jest.mock('../CourseSidebarListItem', () => jest.fn(({ content }) => (

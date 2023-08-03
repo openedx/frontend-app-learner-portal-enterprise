@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@edx/paragon';
@@ -43,7 +43,7 @@ const SubscriptionExpirationWarningModal = ({
         If you plan to complete the program, please {renderContactText()} to ensure your subscription access is renewed.
       </p>
       <i>
-        Access expires: {moment(expirationDate).format('MMMM Do, YYYY')}.
+        Access expires: {dayjs(expirationDate).format('MMMM Do, YYYY')}.
       </i>
     </>
   );

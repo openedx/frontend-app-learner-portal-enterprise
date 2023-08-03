@@ -1,12 +1,12 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
-import moment from 'moment';
+import { MemoryRouter, useRouteMatch } from 'react-router-dom';
+import dayjs from 'dayjs';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { MemoryRouter, useRouteMatch } from 'react-router-dom';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import {
   useCourseEnrollmentUrl,
   useUserHasSubsidyRequestForCourse,
@@ -19,7 +19,6 @@ import {
   useCoursePacingType,
   useCoursePriceForUserSubsidy,
   useExtractAndRemoveSearchParamsFromURL,
-  useCourseSubjects,
   useCheckSubsidyAccessPolicyRedeemability,
   useUserSubsidyApplicableToCourse,
   useMinimalCourseMetadata,
@@ -218,8 +217,8 @@ describe('useCourseEnrollmentUrl', () => {
   const mockCouponCode = {
     code: 'bearsRus',
     catalog: 'bears',
-    couponStartDate: moment().subtract(1, 'w').toISOString(),
-    couponEndDate: moment().add(8, 'w').toISOString(),
+    couponStartDate: dayjs().subtract(1, 'w').toISOString(),
+    couponEndDate: dayjs().add(8, 'w').toISOString(),
   };
   const noLicenseEnrollmentInputs = {
     enterpriseConfig: {
@@ -579,41 +578,6 @@ describe('useTrackSearchConversionClickHandler', () => {
   });
 });
 
-describe('useCourseSubjects', () => {
-  it('handles null course', async () => {
-    const { result } = renderHook(() => useCourseSubjects());
-    expect(result.current).toEqual({
-      primarySubject: null,
-      subjects: [],
-    });
-  });
-
-  it('handles empty subjects list', async () => {
-    const course = { subjects: [] };
-    const { result } = renderHook(() => useCourseSubjects(course));
-    expect(result.current).toEqual({
-      primarySubject: null,
-      subjects: [],
-    });
-  });
-
-  it('handles course with subjects', async () => {
-    const mockSubject = {
-      name: 'Subject 1',
-      slug: 'subject-1',
-    };
-    const course = { subjects: [mockSubject] };
-    const { result } = renderHook(() => useCourseSubjects(course));
-    expect(result.current).toEqual({
-      primarySubject: {
-        ...mockSubject,
-        url: `${getConfig().MARKETING_SITE_BASE_URL}/course/subject/${mockSubject.slug}`,
-      },
-      subjects: [mockSubject],
-    });
-  });
-});
-
 describe('useCoursePartners', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -954,7 +918,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     { hasMissingSubsidy: false, hasSuccessfulRedemption: false },
     { hasMissingSubsidy: true, hasSuccessfulRedemption: false },
     { hasMissingSubsidy: true, hasSuccessfulRedemption: true },
-  ])('makes query to check redemption eligilibity (%s)', async ({ hasMissingSubsidy, hasSuccessfulRedemption }) => {
+  ])('makes query to check redemption eligibility (%s)', async ({ hasMissingSubsidy, hasSuccessfulRedemption }) => {
     // default to not-yet-redeemed, redeemable state
     const queryData = {
       hasSuccessfulRedemption: false,
@@ -1222,8 +1186,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
       code: 'test-coupon-code',
       usageType: 'percentage',
       benefitValue: 100,
-      couponStartDate: moment().format('YYYY-MM-DD'),
-      couponEndDate: moment().add(1, 'year').format('YYYY-MM-DD'),
+      couponStartDate: dayjs().format('YYYY-MM-DD'),
+      couponEndDate: dayjs().add(1, 'year').format('YYYY-MM-DD'),
     };
     getSubsidyToApplyForCourse.mockReturnValueOnce({
       subsidyType: COUPON_CODE_SUBSIDY_TYPE,
@@ -1259,8 +1223,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
       code: 'test-coupon-code',
       usageType: 'percentage',
       benefitValue: 100,
-      couponStartDate: moment().format('YYYY-MM-DD'),
-      couponEndDate: moment().add(1, 'year').format('YYYY-MM-DD'),
+      couponStartDate: dayjs().format('YYYY-MM-DD'),
+      couponEndDate: dayjs().add(1, 'year').format('YYYY-MM-DD'),
     };
     const mockCoursePrice = 100;
     getCourseRunPrice.mockReturnValueOnce(mockCoursePrice);
