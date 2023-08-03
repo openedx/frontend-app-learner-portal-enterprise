@@ -50,7 +50,7 @@ const mockLicense = {
   activation_key: TEST_ACTIVATION_KEY,
 };
 const mockSubscriptionPlan = { uuid: TEST_SUBSCRIPTION_UUID, is_active: true, title: 'title' };
-const mockUser = { roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`] };
+const mockUser = { roles: [] };
 const mockEnterpriseUser = { roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`] };
 const mockCustomerAgreement = {
   uuid: 'test-customer-agreement-uuid',
@@ -114,13 +114,6 @@ describe('useSubscriptionLicense', () => {
       shouldAutoApplyLicense: true,
     },
     {
-      hasExistingLicense: false,
-      hasIdentityProvider: true,
-      isEnterpriseLearner: true,
-      hasCustomerAgreementData: true,
-      shouldAutoApplyLicense: true,
-    },
-    {
       hasExistingLicense: true,
       hasIdentityProvider: true,
       isEnterpriseLearner: true,
@@ -131,6 +124,20 @@ describe('useSubscriptionLicense', () => {
       hasExistingLicense: false,
       hasIdentityProvider: false,
       isEnterpriseLearner: false,
+      hasCustomerAgreementData: false,
+      shouldAutoApplyLicense: false,
+    },
+    {
+      hasExistingLicense: false,
+      hasIdentityProvider: false,
+      isEnterpriseLearner: true,
+      hasCustomerAgreementData: true,
+      shouldAutoApplyLicense: false,
+    },
+    {
+      hasExistingLicense: false,
+      hasIdentityProvider: true,
+      isEnterpriseLearner: true,
       hasCustomerAgreementData: false,
       shouldAutoApplyLicense: false,
     },

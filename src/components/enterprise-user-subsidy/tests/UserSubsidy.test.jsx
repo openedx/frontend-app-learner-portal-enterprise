@@ -86,6 +86,12 @@ describe('UserSubsidy', () => {
       isEnterpriseOffersLoading: true,
       isLoadingExpected: true,
     },
+    {
+      isSubscriptionsLoading: true,
+      isCouponCodesLoading: true,
+      isEnterpriseOffersLoading: false,
+      isLoadingExpected: true,
+    },
   ])('shows loading spinner when expected (%s)', ({
     isSubscriptionsLoading,
     isCouponCodesLoading,
