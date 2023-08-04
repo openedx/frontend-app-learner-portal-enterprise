@@ -22,6 +22,7 @@ const SubsidyRequestsContextProviderWrapper = ({
     couponCodes: {
       couponCodes: [],
       couponCodesCount: 0,
+      couponsOverview: { data: undefined },
     },
     customerAgreementConfig: {
       subscriptions: [],
