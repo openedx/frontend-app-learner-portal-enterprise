@@ -65,7 +65,7 @@ export const useDefaultSearchFilters = ({
         return getCatalogString(searchCatalogs);
       }
 
-      // If the learner is not confined to certain catalogs, scope to all of the enterprise's catalogs
+      // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
       return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
     },
     [enterpriseConfig.uuid, searchCatalogs, showAllRefinement],
