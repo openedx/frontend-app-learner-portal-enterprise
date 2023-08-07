@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
 import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { Modal, MailtoLink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -23,6 +24,7 @@ const SubscriptionExpirationModal = () => {
     enterpriseConfig: { uuid: enterpriseId, adminUsers },
     config,
   } = useContext(AppContext);
+  dayjs.extend(advancedFormat);
   const { subscriptionPlan } = useContext(UserSubsidyContext);
   const { daysUntilExpiration, expirationDate, uuid: subscriptionPlanId } = subscriptionPlan;
 

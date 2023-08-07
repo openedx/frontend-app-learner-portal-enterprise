@@ -4,6 +4,7 @@ import {
   Form, Col, Row,
 } from '@edx/paragon';
 import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -20,6 +21,7 @@ import { NotCurrentlyAvailable } from './data/constants';
 import { linkToCourse } from '../course/data/utils';
 
 const ProgramProgressCourses = ({ courseData }) => {
+  dayjs.extend(advancedFormat);
   const { enterpriseConfig } = useContext(AppContext);
   const {
     subscriptionPlan,

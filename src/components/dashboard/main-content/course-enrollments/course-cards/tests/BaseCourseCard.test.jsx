@@ -1,5 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Skeleton } from '@edx/paragon';
@@ -107,6 +109,7 @@ describe('<BaseCourseCard />', () => {
     });
 
     it('renders with different startDate values', () => {
+      dayjs.extend(advancedFormat);
       const today = new Date().toISOString();
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -114,6 +117,7 @@ describe('<BaseCourseCard />', () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
 
       [today, yesterday, tomorrow].forEach(startDate => {
+        const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
         wrapper = mount((
           <AppContext.Provider value={{ enterpriseConfig }}>
             <BaseCourseCard
@@ -134,6 +138,7 @@ describe('<BaseCourseCard />', () => {
 
         const hasCourseStarted = wrapper.instance().renderCourseStartDate();
         expect(hasCourseStarted).toBeTruthy();
+        expect(hasCourseStarted.props.children).toContain(formattedStartDate);
       });
     });
   });
