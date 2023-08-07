@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@edx/paragon';
@@ -13,6 +14,7 @@ const SubscriptionExpirationWarningModal = ({
   isSubscriptionExpiringWarningModalOpen,
   onSubscriptionExpiringWarningModalClose,
 }) => {
+  dayjs.extend(advancedFormat);
   const {
     enterpriseConfig: { name, contactEmail },
   } = useContext(AppContext);
