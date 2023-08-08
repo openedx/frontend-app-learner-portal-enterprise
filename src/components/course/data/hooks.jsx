@@ -34,6 +34,7 @@ import {
   isCourseSelfPaced,
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
+  getCouponCodesDisabledEnrollmentReasonType,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -621,6 +622,8 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @param {object} args.subscriptionLicense Metadata pertaining to learner's subscription license, if any.
  * @param {object} args.courseService Instance of the CourseService.
  * @param {array} args.couponCodes List of assigned coupon codes, if any.
+ * @param {array} args.couponsOverview Return from `useQuery` hook to fetch all coupons
+ *  for enterprise, if any (includes expired).
  * @param {boolean} args.canEnrollWithEnterpriseOffers Whether enterprise offers are usable for the enterprise.
  * @param {array} args.enterpriseOffers List of enterprise offers, if any.
  * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
@@ -636,6 +639,7 @@ export const useUserSubsidyApplicableToCourse = ({
   subscriptionLicense,
   courseService,
   couponCodes,
+  couponsOverview,
   canEnrollWithEnterpriseOffers,
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
@@ -743,19 +747,31 @@ export const useUserSubsidyApplicableToCourse = ({
           reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
         }
 
-        // If there is a `reasonType` related to subscriptions, change `reasonType` to use it.
+        const couponCodesDisabledEnrollmentReasonType = getCouponCodesDisabledEnrollmentReasonType({
+          catalogsWithCourse,
+          couponCodes,
+          couponsOverview,
+          hasEnterpriseAdminUsers,
+        });
         const subscriptionsDisabledEnrollmentReasonType = getSubscriptionDisabledEnrollmentReasonType({
           customerAgreementConfig,
           catalogsWithCourse,
           subscriptionLicense,
           hasEnterpriseAdminUsers,
         });
+
+        /**
+         * Prioritize the following order of disabled enrollment reasons:
+         * 1. Course not in catalog
+         * 2. Subscriptions related disabled enrollment reason
+         * 3. Coupon codes related disabled enrollment reason
+         */
+        if (couponCodesDisabledEnrollmentReasonType) {
+          reasonType = couponCodesDisabledEnrollmentReasonType;
+        }
         if (subscriptionsDisabledEnrollmentReasonType) {
           reasonType = subscriptionsDisabledEnrollmentReasonType;
         }
-
-        // If course is not contained within any of the enterprise customer's catalog(s),
-        // change `reasonType` to use `CONTENT_NOT_IN_CATALOG` message.
         if (!containsContentItems) {
           reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
         }
@@ -843,6 +859,7 @@ export const useUserSubsidyApplicableToCourse = ({
     isPolicyRedemptionEnabled,
     missingSubsidyAccessPolicyReason,
     fallbackAdminUsers,
+    couponsOverview,
   ]);
 
   return useMemo(() => ({

@@ -16,7 +16,6 @@ import {
 } from '@edx/paragon';
 import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
 import DOMPurify from 'dompurify';
-import { v4 as uuidv4 } from 'uuid';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
 import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
@@ -101,8 +100,8 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
         </ModalDialog.Title>
       )}
 
-      <Container key={uuidv4()}>
-        <Row key={uuidv4()} className="mb-md-4.5 mb-3">
+      <Container>
+        <Row className="mb-md-4.5 mb-3">
           <Col xs={12} md={4} className="mb-2">
             {isLoading ? <Skeleton height={30} data-testid="pathway-badge-loading" /> : (
               <div className="d-flex">

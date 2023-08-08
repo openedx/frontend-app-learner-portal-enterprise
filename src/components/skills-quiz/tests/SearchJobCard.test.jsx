@@ -80,9 +80,6 @@ const initialJobsState = {
   },
   dispatch: () => null,
 };
-global.Headers = {
-  'x-algolia-api-key': 'test',
-};
 
 describe('<SearchJobCard />', () => {
   test('renders the data in job cards correctly', async () => {

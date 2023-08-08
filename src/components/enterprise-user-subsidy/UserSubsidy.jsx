@@ -1,16 +1,14 @@
 import React, {
-  createContext, useContext, useEffect, useMemo, useState,
+  createContext, useContext, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
-
 import {
-  useSubscriptionLicense,
   useCouponCodes,
-  useCustomerAgreementData,
+  useSubscriptions,
 } from './data/hooks';
 import { useEnterpriseOffers } from './enterprise-offers/data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
@@ -20,21 +18,20 @@ export const UserSubsidyContext = createContext();
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
 
-  const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
+  // Subscriptions
   const {
-    license: subscriptionLicense,
-    isLoading: isLoadingLicense,
-    activateUserLicense,
-  } = useSubscriptionLicense({
-    enterpriseConfig,
     customerAgreementConfig,
-    isLoadingCustomerAgreementConfig,
-    user: authenticatedUser,
-  });
-  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
-  const [subscriptionPlan, setSubscriptionPlan] = useState();
-  const [showExpirationNotifications, setShowExpirationNotifications] = useState();
+    subscriptionPlan,
+    subscriptionLicense,
+    isLoading: isLoadingSubscriptions,
+    showExpirationNotifications,
+    activateUserLicense,
+  } = useSubscriptions({ enterpriseConfig, authenticatedUser });
 
+  // Coupon Codes
+  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
+
+  // Enterprise Offers
   const {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
@@ -45,28 +42,18 @@ const UserSubsidy = ({ children }) => {
     enterpriseId: enterpriseConfig.uuid,
     enableLearnerPortalOffers: enterpriseConfig.enableLearnerPortalOffers,
     customerAgreementConfig,
-    isLoadingCustomerAgreementConfig,
   });
-
-  useEffect(
-    () => {
-      setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
-      setShowExpirationNotifications(!(customerAgreementConfig?.disableExpirationNotifications));
-    },
-    [subscriptionLicense, customerAgreementConfig],
-  );
 
   const isLoadingSubsidies = useMemo(
     () => {
       const loadingStates = [
-        isLoadingLicense,
+        isLoadingSubscriptions,
         isLoadingCouponCodes,
-        isLoadingCustomerAgreementConfig,
         isLoadingEnterpriseOffers,
       ];
       return loadingStates.includes(true);
     },
-    [isLoadingLicense, isLoadingCouponCodes, isLoadingCustomerAgreementConfig, isLoadingEnterpriseOffers],
+    [isLoadingSubscriptions, isLoadingCouponCodes, isLoadingEnterpriseOffers],
   );
 
   const contextValue = useMemo(

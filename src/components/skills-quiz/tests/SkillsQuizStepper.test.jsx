@@ -1,24 +1,22 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { screen, fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuizStepper from '../SkillsQuizStepper';
-import { SkillsContextProvider, SkillsContext } from '../SkillsContextProvider';
+import { SkillsContext, SkillsContextProvider } from '../SkillsContextProvider';
 import {
-  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
-  GOAL_DROPDOWN_DEFAULT_OPTION,
-  DROPDOWN_OPTION_CHANGE_CAREERS,
-  INDUSTRY_FACET,
   CURRENT_JOB_FACET,
   DESIRED_JOB_FACET,
+  DROPDOWN_OPTION_CHANGE_CAREERS,
+  DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE,
+  GOAL_DROPDOWN_DEFAULT_OPTION,
+  INDUSTRY_FACET,
 } from '../constants';
 
 import edxLogo from '../images/edx-logo.svg';
