@@ -45,8 +45,8 @@ export const ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM = 'course_run_key';
 
 export const LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME = 'license-requested-alert-dismissed';
 export const LICENSE_REQUESTED_ALERT_HEADING = 'Course requested';
-export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization’s subscription covers all of the courses in this catalog.'
-                                    + ' You have already requested access to all courses.';
+/* eslint-disable-next-line max-len */
+export const LICENSE_REQUESTED_ALERT_TEXT = 'Your organization\'s subscription covers all of the courses in this catalog. You have already requested access to all courses.';
 export const UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education';
 export const PAID_EXECUTIVE_EDUCATION = 'paid-executive-education';
 
@@ -73,6 +73,7 @@ export const REASON_USER_MESSAGES = {
   ORGANIZATION_NO_FUNDS_NO_ADMINS: "You can't enroll right now because your organization doesn't have enough funds. Contact your administrator about funds.",
   LEARNER_LIMITS_REACHED: "You can't enroll right now because of limits set by your organization.",
   CONTENT_NOT_IN_CATALOG: "You can't enroll right now because this course is no longer available in your organization's catalog.",
+  ENTERPRISE_OFFER_EXPIRED: "You can't enroll right now because your offer expired.",
   SUBSCRIPTION_EXPIRED: "You can't enroll right now because your subscription expired.",
   SUBSCRIPTION_EXPIRED_NO_ADMINS: "You can't enroll right now because your subscription expired. Contact your administrator for help.",
   SUBSCRIPTION_DEACTIVATED: "You can't enroll right now because your subscription has been deactivated.",
@@ -88,7 +89,8 @@ export const REASON_USER_MESSAGES = {
 };
 
 export const DISABLED_ENROLL_REASON_TYPES = {
-  POLICY_NOT_ACTIVE: 'policy_not_active',
+  SUBSIDY_NOT_ACTIVE: 'subsidy_expired',
+  POLICY_NOT_ACTIVE: 'policy_expired',
   CONTENT_NOT_IN_CATALOG: 'content_not_in_catalog',
   LEARNER_NOT_IN_ENTERPRISE: 'learner_not_in_enterprise',
   NOT_ENOUGH_VALUE_IN_SUBSIDY: 'not_enough_value_in_subsidy',
@@ -103,6 +105,8 @@ export const DISABLED_ENROLL_REASON_TYPES = {
   SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS: 'subscription_seats_exhausted_no_admin',
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED: 'subscription_license_not_assigned',
   SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS: 'subscription_license_not_assigned_no_admin',
+  ENTERPRISE_OFFER_EXPIRED: 'enterprise_offer_expired',
+  POLICY_SPEND_LIMIT_REACHED: 'policy_spend_limit_reached',
   COUPON_CODE_NOT_ASSIGNED: 'coupon_code_not_assigned',
   COUPON_CODE_NOT_ASSIGNED_NO_ADMINS: 'coupon_code_not_assigned_no_admin',
   COUPON_CODES_EXPIRED: 'coupon_codes_expired',
@@ -118,6 +122,7 @@ export const DISABLED_ENROLL_USER_MESSAGES = {
   [DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
   [DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED]: REASON_USER_MESSAGES.LEARNER_LIMITS_REACHED,
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED]: REASON_USER_MESSAGES.SUBSCRIPTION_DEACTIVATED,
+  [DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED]: REASON_USER_MESSAGES.ENTERPRISE_OFFER_EXPIRED,
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED]: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS]: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
   [DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED]: REASON_USER_MESSAGES.SUBSCRIPTION_SEATS_EXHAUSTED,

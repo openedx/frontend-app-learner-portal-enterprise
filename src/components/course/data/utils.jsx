@@ -7,15 +7,15 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
 import {
+  COUPON_CODE_SUBSIDY_TYPE,
   COURSE_AVAILABILITY_MAP,
   COURSE_MODES_MAP,
   COURSE_PACING_MAP,
-  LICENSE_SUBSIDY_TYPE,
-  COUPON_CODE_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  ENROLLMENT_FAILED_QUERY_PARAM,
-  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   DISABLED_ENROLL_REASON_TYPES,
+  ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
+  ENROLLMENT_FAILED_QUERY_PARAM,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
 import ProfessionalSvgIcon from '../../../assets/icons/professional.svg';
@@ -154,7 +154,7 @@ export function getAvailableCourseRuns(course) {
  *
  * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
  * @returns List of course run keys.
-*/
+ */
 export function getAvailableCourseRunKeysFromCourseData(courseData) {
   if (!courseData?.courseDetails.courseRuns) {
     return [];
@@ -170,39 +170,61 @@ export function findCouponCodeForCourse(couponCodes, catalogList = []) {
 }
 
 /**
+ * Determines if the enterprise offer fields passed are able to deem the offer as redeemable
+ *
+ * @param {number} remainingBalance - remaining balance for the enterprise from enterprise offers
+ * @param {number} remainingBalanceForUser - remaining balance for the user from enterprise offers
+ * @param {number} remainingApplications - remaining applications for the enterprise from enterprise offers
+ * @param {number} remainingApplicationsForUser - remaining applications for the user from enterprise offers
+ * @param {boolean} isCurrent - boolean to determine if the enterprise offer is active or expired
+ * @param {number} coursePrice - cost of the price of the course to compare against the remaining balance
+ * @returns {
+ * {hasRemainingApplications: (boolean|boolean),
+ * hasRemainingApplicationsForUser: (boolean|boolean),
+ * hasRemainingBalance: (boolean|boolean),
+ * hasRemainingBalanceForUser: (boolean|boolean)}
+ * }
+ */
+export const determineIfOfferRedeemableConditions = ({
+  remainingBalance,
+  remainingBalanceForUser,
+  remainingApplications,
+  remainingApplicationsForUser,
+  isCurrent,
+}, coursePrice) => {
+  const hasRemainingBalance = !isNil(remainingBalance) ? remainingBalance >= coursePrice : true;
+  const hasRemainingBalanceForUser = !isNil(remainingBalanceForUser) ? remainingBalanceForUser >= coursePrice : true;
+  const hasRemainingApplications = !isNil(remainingApplications) ? remainingApplications > 0 : true;
+  const hasRemainingApplicationsForUser = !isNil(remainingApplicationsForUser)
+    ? remainingApplicationsForUser > 0
+    : true;
+
+  const isOfferRedeemable = {
+    hasRemainingBalance,
+    hasRemainingBalanceForUser,
+    hasRemainingApplications,
+    hasRemainingApplicationsForUser,
+  };
+  if (!isNil(isCurrent)) {
+    isOfferRedeemable.isCurrent = isCurrent;
+  }
+  return isOfferRedeemable;
+};
+
+/**
  * Determines whether an enterprise offer may be applied
  * to a course given the course price and its remaining spend/balance.
  *
  * @param {object} args
  * @param {object} args.offer An enterprise offer.
  * @param {number} args.coursePrice The price of the course.
- * @returns Whether the offer is redeemable for the course.
  */
-const isOfferRedeemableForCourse = ({ offer, coursePrice }) => {
-  let hasRemainingBalance = true;
-  let hasRemainingBalanceForUser = true;
-  let hasRemainingApplications = true;
-  let hasRemainingApplicationsForUser = true;
-
-  if (!isNil(offer.remainingBalance)) {
-    hasRemainingBalance = offer.remainingBalance >= coursePrice;
-  }
-  if (!isNil(offer.remainingBalanceForUser)) {
-    hasRemainingBalanceForUser = offer.remainingBalanceForUser >= coursePrice;
-  }
-  if (!isNil(offer.remainingApplications)) {
-    hasRemainingApplications = offer.remainingApplications > 0;
-  }
-  if (!isNil(offer.remainingApplicationsForUser)) {
-    hasRemainingApplicationsForUser = offer.remainingApplicationsForUser > 0;
-  }
-
-  return [
-    hasRemainingBalance,
-    hasRemainingBalanceForUser,
-    hasRemainingApplications,
-    hasRemainingApplicationsForUser,
-  ].every(value => value === true);
+export const determineOfferRedeemability = ({ offer, coursePrice }) => {
+  const isOfferRedeemableConditions = determineIfOfferRedeemableConditions(offer, coursePrice);
+  return {
+    isRedeemableConditions: isOfferRedeemableConditions,
+    isRedeemable: Object.values(isOfferRedeemableConditions).every(condition => condition === true),
+  };
 };
 
 /**
@@ -263,6 +285,7 @@ export const compareRedeemableOffers = ({ firstOffer: a, secondOffer: b }) => {
  *   - Offer with global enrollment limit
  *
  * @param {array} enterpriseOffers List of enterprise offers available for the enterprise customer.
+ * @param {array} catalogsWithCourse List of catalogs that will be cross-referenced against the catalogUUID from offers
  * @param {number} coursePrice The price of the course.
  *
  * @returns An object containing the metadata for the enterprise offer, if any, most applicable for
@@ -276,7 +299,6 @@ export const findEnterpriseOfferForCourse = ({
   if (!coursePrice) {
     return undefined;
   }
-
   const orderedEnterpriseOffers = enterpriseOffers
     .filter((enterpriseOffer) => {
       const isCourseInCatalog = catalogsWithCourse.includes(enterpriseOffer.enterpriseCatalogUuid);
@@ -286,8 +308,12 @@ export const findEnterpriseOfferForCourse = ({
       return true;
     })
     .sort((firstOffer, secondOffer) => {
-      const isFirstOfferRedeemable = isOfferRedeemableForCourse({ offer: firstOffer, coursePrice });
-      const isSecondOfferRedeemable = isOfferRedeemableForCourse({ offer: secondOffer, coursePrice });
+      const {
+        isRedeemable: isFirstOfferRedeemable,
+      } = determineOfferRedeemability({ offer: firstOffer, coursePrice });
+      const {
+        isRedeemable: isSecondOfferRedeemable,
+      } = determineOfferRedeemability({ offer: secondOffer, coursePrice });
 
       if (isFirstOfferRedeemable && !isSecondOfferRedeemable) {
         // prioritize the first offer
@@ -300,7 +326,7 @@ export const findEnterpriseOfferForCourse = ({
       }
 
       if (isFirstOfferRedeemable && isSecondOfferRedeemable) {
-        // priorize the offer based on its remaining (user|global) balance and remaining (user|global) applications
+        // prioritize the offer based on its remaining (user|global) balance and remaining (user|global) applications
         return compareRedeemableOffers({ firstOffer, secondOffer });
       }
 
@@ -376,8 +402,10 @@ export function shouldUpgradeUserEnrollment({
 
 // Truncate a string to less than the maxLength characters without cutting the last word and append suffix at the end
 export function shortenString(str, maxLength, suffix, separator = ' ') {
-  if (str.length <= maxLength) { return str; }
-  return `${str.substr(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
+  if (str.length <= maxLength) {
+    return str;
+  }
+  return `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
 export const getSubsidyToApplyForCourse = ({
@@ -417,6 +445,7 @@ export const getSubsidyToApplyForCourse = ({
       remainingBalanceForUser: applicableEnterpriseOffer.remainingBalanceForUser,
       remainingApplications: applicableEnterpriseOffer.remainingApplications,
       remainingApplicationsForUser: applicableEnterpriseOffer.remainingApplicationsForUser,
+      isCurrent: applicableEnterpriseOffer.isCurrent,
     };
   }
 
