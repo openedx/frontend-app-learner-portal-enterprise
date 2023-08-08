@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -79,6 +79,9 @@ const initialJobsState = {
     interestedJobs: hitObject.hits,
   },
   dispatch: () => null,
+};
+global.Headers = {
+  'x-algolia-api-key': 'test',
 };
 
 describe('<SearchJobCard />', () => {

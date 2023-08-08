@@ -3,10 +3,20 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  Icon, MarketingModal, ModalDialog, Container, Row, Col, Collapsible, Button, Image, Skeleton,
+  Button,
+  Col,
+  Collapsible,
+  Container,
+  Icon,
+  Image,
+  MarketingModal,
+  ModalDialog,
+  Row,
+  Skeleton,
 } from '@edx/paragon';
 import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
 import DOMPurify from 'dompurify';
+import { v4 as uuidv4 } from 'uuid';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
 import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
@@ -91,8 +101,8 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
         </ModalDialog.Title>
       )}
 
-      <Container>
-        <Row className="mb-md-4.5 mb-3">
+      <Container key={uuidv4()}>
+        <Row key={uuidv4()} className="mb-md-4.5 mb-3">
           <Col xs={12} md={4} className="mb-2">
             {isLoading ? <Skeleton height={30} data-testid="pathway-badge-loading" /> : (
               <div className="d-flex">
