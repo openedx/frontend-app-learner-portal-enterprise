@@ -33,20 +33,20 @@ const topCategory = {
   skillsSubcategories: [
     {
       id: 1,
-      name: 'Databases',
-      skills: [
-        { id: 78, name: 'Query Languages', score: null },
-        { id: 79, name: 'MongoDB', score: null },
-      ],
-    },
-    {
-      id: 2,
       name: 'IT Management',
       skills: [
         { id: 81, name: 'Technology Roadmap', score: 1 },
         { id: 83, name: 'Sprint Planning', score: 2 },
         { id: 84, name: 'Blocker Resolution', score: 3 },
         { id: 85, name: 'Technical Communication', score: 1 },
+      ],
+    },
+    {
+      id: 2,
+      name: 'Databases',
+      skills: [
+        { id: 78, name: 'Query Languages', score: null },
+        { id: 79, name: 'MongoDB', score: null },
       ],
     },
   ],
@@ -112,7 +112,6 @@ describe('<CategoryCard />', () => {
     const levelBarsContainer = screen.getAllByTestId('skill-category-chip');
     expect(levelBarsContainer.length === 2).toBeTruthy();
     const itManagementChip = screen.getByText('IT Management');
-    itManagementChip.click(); // Show the skills in the IT Management category
 
     const showAllButton = screen.getByText('Show (4) >');
     showAllButton.click(); // Show all of the skills in the IT Management category
