@@ -2,9 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Collapsible, Hyperlink } from '@edx/paragon';
-import { faPlusCircle, faMinusCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
+import { AddCircle, RemoveCircle } from '@edx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramStaff = ({ program }) => {
@@ -91,11 +89,11 @@ const ProgramInstructors = () => {
           <Collapsible.Trigger className="collapsible-trigger d-flex">
             <h4 className="h4 mb-0 mr-2 title">See instructor bios</h4>
             <Collapsible.Visible whenClosed>
-              <FontAwesomeIcon icon={faPlusCircle} className="fa-angle-down mr-2" />
+              <AddCircle className="mr-2" />
             </Collapsible.Visible>
 
             <Collapsible.Visible whenOpen>
-              <FontAwesomeIcon icon={faMinusCircle} className="fa-angle-up mr-2" />
+              <RemoveCircle className="mr-2" />
             </Collapsible.Visible>
           </Collapsible.Trigger>
 
