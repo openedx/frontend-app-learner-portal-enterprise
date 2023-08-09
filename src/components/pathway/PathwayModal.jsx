@@ -3,7 +3,16 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  Icon, MarketingModal, ModalDialog, Container, Row, Col, Collapsible, Button, Image, Skeleton,
+  Button,
+  Col,
+  Collapsible,
+  Container,
+  Icon,
+  Image,
+  MarketingModal,
+  ModalDialog,
+  Row,
+  Skeleton,
 } from '@edx/paragon';
 import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
 import DOMPurify from 'dompurify';

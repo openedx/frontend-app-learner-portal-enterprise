@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { getConfig } from '@edx/frontend-platform/config';
 import { logError } from '@edx/frontend-platform/logging';
-import { InstantSearch } from 'react-instantsearch-dom';
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
@@ -10,7 +10,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
   Button, Form, StatefulButton,
 } from '@edx/paragon';
-import { CURRENT_JOB_FACET } from '../skills-quiz/constants';
+import { CURRENT_JOB_FACET, JOB_FILTERS } from '../skills-quiz/constants';
 import { patchProfile, fetchJobDetailsFromAlgolia } from './data/service';
 import { CURRENT_JOB_PROFILE_FIELD_NAME, SAVE_BUTTON_LABELS } from './data/constants';
 import { useAlgoliaSearch } from '../../utils/hooks';
@@ -90,6 +90,10 @@ const SearchJobRole = (props) => {
             searchClient={searchClient}
           >
             <p> Search for your job role </p>
+            <Configure
+              facetingAfterDistinct
+              filters={JOB_FILTERS.JOB_SOURCE_COURSE_SKILL}
+            />
             <FacetListRefinement
               id="current-job-dropdown"
               key={attribute}

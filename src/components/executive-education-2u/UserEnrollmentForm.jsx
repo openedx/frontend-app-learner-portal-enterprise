@@ -1,12 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  StatefulButton, Form, Hyperlink, CheckboxControl, Row, Col, Alert, Card, MailtoLink,
+  Alert, Card, CheckboxControl, Col, Form, Hyperlink, MailtoLink, Row, StatefulButton,
 } from '@edx/paragon';
-import {
-  Formik,
-  Form as FormikForm,
-} from 'formik';
+import { Form as FormikForm, Formik } from 'formik';
 import isNil from 'lodash.isnil';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';

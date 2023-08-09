@@ -8,54 +8,54 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import {
-  useCourseEnrollmentUrl,
-  useUserHasSubsidyRequestForCourse,
   useAllCourseData,
-  useOptimizelyEnrollmentClickHandler,
-  useTrackSearchConversionClickHandler,
+  useCheckSubsidyAccessPolicyRedeemability,
+  useCourseEnrollmentUrl,
+  useCoursePacingType,
   useCoursePartners,
+  useCoursePriceForUserSubsidy,
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
-  useCoursePacingType,
-  useCoursePriceForUserSubsidy,
   useExtractAndRemoveSearchParamsFromURL,
-  useCourseSubjects,
-  useCheckSubsidyAccessPolicyRedeemability,
-  useUserSubsidyApplicableToCourse,
   useMinimalCourseMetadata,
+  useOptimizelyEnrollmentClickHandler,
+  useTrackSearchConversionClickHandler,
+  useUserHasSubsidyRequestForCourse,
+  useUserSubsidyApplicableToCourse,
 } from '../hooks';
 import {
-  getCourseRunPrice,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
-  getSubsidyToApplyForCourse,
+  getCourseRunPrice,
   getCourseTypeConfig,
   getSubscriptionDisabledEnrollmentReasonType,
+  getSubsidyToApplyForCourse,
+  getCouponCodesDisabledEnrollmentReasonType,
 } from '../utils';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
 import {
-  LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
-  REASON_USER_MESSAGES,
   DISABLED_ENROLL_USER_MESSAGES,
+  ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
+  LICENSE_SUBSIDY_TYPE,
+  REASON_USER_MESSAGES,
 } from '../constants';
 import {
-  mockCourseService,
+  mockCanRedeemData,
+  mockCanRedeemForContentKey,
+  mockCanRedeemReason,
   mockCourseData,
   mockCourseRecommendations,
+  mockCourseRunKey,
+  mockCourseService,
   mockCourseServiceUninitialized,
   mockLmsUserId,
-  mockCourseRunKey,
-  mockCanRedeemData,
+  mockRedeemableSubsidyAccessPolicy,
   mockSubscriptionLicense,
   mockUserLicenseSubsidy,
-  mockRedeemableSubsidyAccessPolicy,
-  mockCanRedeemReason,
-  mockCanRedeemForContentKey,
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
@@ -98,6 +98,7 @@ jest.mock('../utils', () => ({
   findEnterpriseOfferForCourse: jest.fn(),
   getCourseTypeConfig: jest.fn(),
   getSubscriptionDisabledEnrollmentReasonType: jest.fn(),
+  getCouponCodesDisabledEnrollmentReasonType: jest.fn(),
 }));
 
 const mockUseHistoryPush = jest.fn();
@@ -376,16 +377,16 @@ describe('useUserHasSubsidyRequestForCourse', () => {
 
   it('returns false when `subsidyType` is undefined', () => {
     const context = {
-      subsidyRequestConfiguration: { subsidyType: undefined },
-      requestsBySubsidyType: {
-        [SUBSIDY_TYPE.LICENSE]: [],
-        [SUBSIDY_TYPE.COUPON]: [],
+      subsidyRequestConfiguration: {
+        subsidyRequestsEnabled: true,
+        subsidyType: undefined,
       },
     };
     const wrapper = ({ children }) => (
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+
     expect(result.current).toBe(false);
   });
 
@@ -404,6 +405,7 @@ describe('useUserHasSubsidyRequestForCourse', () => {
       <SubsidyRequestsContext.Provider value={context}>{children}</SubsidyRequestsContext.Provider>
     );
     const { result } = renderHook(() => useUserHasSubsidyRequestForCourse(), { wrapper });
+
     expect(result.current).toBe(true);
   });
 
@@ -576,41 +578,6 @@ describe('useTrackSearchConversionClickHandler', () => {
         courseKey: mockCourseState.activeCourseRun.key,
       },
     );
-  });
-});
-
-describe('useCourseSubjects', () => {
-  it('handles null course', async () => {
-    const { result } = renderHook(() => useCourseSubjects());
-    expect(result.current).toEqual({
-      primarySubject: null,
-      subjects: [],
-    });
-  });
-
-  it('handles empty subjects list', async () => {
-    const course = { subjects: [] };
-    const { result } = renderHook(() => useCourseSubjects(course));
-    expect(result.current).toEqual({
-      primarySubject: null,
-      subjects: [],
-    });
-  });
-
-  it('handles course with subjects', async () => {
-    const mockSubject = {
-      name: 'Subject 1',
-      slug: 'subject-1',
-    };
-    const course = { subjects: [mockSubject] };
-    const { result } = renderHook(() => useCourseSubjects(course));
-    expect(result.current).toEqual({
-      primarySubject: {
-        ...mockSubject,
-        url: `${getConfig().MARKETING_SITE_BASE_URL}/course/subject/${mockSubject.slug}`,
-      },
-      subjects: [mockSubject],
-    });
   });
 });
 
@@ -943,7 +910,11 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     expect(result.current.isInitialLoading).toBeDefined();
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['policy', baseArgs.enterpriseUuid, 'can-redeem', { activeCourseRunKey: undefined, courseRunKeys: [], lmsUserId: mockLmsUserId }],
+        queryKey: ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
+          activeCourseRunKey: undefined,
+          courseRunKeys: [],
+          lmsUserId: mockLmsUserId,
+        }],
         enabled: false,
         queryFn: expect.any(Function),
       }),
@@ -1216,6 +1187,25 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
 
+  it('handles disabled enrollment reason related to coupon codes', async () => {
+    getCouponCodesDisabledEnrollmentReasonType.mockReturnValueOnce(
+      DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    );
+
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+        userMessage: REASON_USER_MESSAGES.COUPON_CODE_NOT_ASSIGNED,
+        actions: expect.any(Object),
+      },
+    });
+  });
+
   it('finds applicable coupon code', async () => {
     const mockCouponCode = {
       catalog: mockCatalogUUID,
@@ -1290,6 +1280,44 @@ describe('useUserSubsidyApplicableToCourse', () => {
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
       }),
       missingUserSubsidyReason: undefined,
+    });
+  });
+  it('returns offer error', async () => {
+    const mockExpiredEnterpriseOffer = {
+      discountType: 'percentage',
+      discountValue: 100,
+      startDate: '2023-05-01T00:00:00Z',
+      endDate: '2023-07-27T00:00:00Z',
+      offerType: 'Bookings limit',
+      subsidyType: 'enterpriseOffer',
+      maxUserDiscount: null,
+      maxUserApplications: null,
+      remainingBalance: 10000,
+      remainingBalanceForUser: null,
+      remainingApplications: null,
+      remainingApplicationsForUser: null,
+      isCurrent: false,
+    };
+    const args = {
+      ...baseArgs,
+      canEnrollWithEnterpriseOffers: true,
+      enterpriseOffers: [mockExpiredEnterpriseOffer],
+      isPolicyRedemptionEnabled: false,
+    };
+
+    getSubsidyToApplyForCourse.mockReturnValueOnce(mockExpiredEnterpriseOffer);
+
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      userSubsidyApplicableToCourse: undefined,
+      missingUserSubsidyReason: {
+        reason: DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED,
+        userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED],
+        actions: null,
+      },
     });
   });
 });

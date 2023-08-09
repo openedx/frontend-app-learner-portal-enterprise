@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import {
@@ -67,6 +67,12 @@ const CategoryCard = ({ topCategory }) => {
     setSubcategorySkills(renderableSkills.slice(0, 3));
   };
 
+  const openFirstSubcategoryPill = () => skillsSubcategories?.[0] && handleSubcategoryClick(skillsSubcategories[0]);
+
+  useEffect(() => {
+    openFirstSubcategoryPill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleShowAllClick = () => {
     toggleShowAll();
     toggleShowLess();

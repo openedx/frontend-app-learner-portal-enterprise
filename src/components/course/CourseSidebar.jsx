@@ -14,17 +14,17 @@ import CourseSidebarPrice from './CourseSidebarPrice';
 
 import { isDefinedAndNotNull, hasTruthyValue } from '../../utils/common';
 import {
-  useCourseSubjects,
   useCoursePartners,
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
   useCoursePacingType,
 } from './data/hooks';
+import { processCourseSubjects } from './data/utils';
 
 const CourseSidebar = () => {
   const { state } = useContext(CourseContext);
   const { course, activeCourseRun } = state;
-  const { primarySubject } = useCourseSubjects(course);
+  const { primarySubject } = processCourseSubjects(course);
   const [partners, institutionLabel] = useCoursePartners(course);
   const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);
   const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);
