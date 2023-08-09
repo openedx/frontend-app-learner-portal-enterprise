@@ -1,11 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Skeleton } from '@edx/paragon';
 
+import dayjs from '../../../../../../utils/dayjs';
 import BaseCourseCard from '../BaseCourseCard';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { ToastsContext } from '../../../../../Toasts';
@@ -109,7 +108,6 @@ describe('<BaseCourseCard />', () => {
     });
 
     it('renders with different startDate values', () => {
-      dayjs.extend(advancedFormat);
       const today = new Date().toISOString();
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);

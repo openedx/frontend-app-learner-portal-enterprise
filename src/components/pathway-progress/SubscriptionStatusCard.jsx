@@ -1,14 +1,12 @@
 import React, { useContext } from 'react';
 import { Card, Badge } from '@edx/paragon';
-import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
 
+import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
 
 const SubscriptionStatusCard = () => {
-  dayjs.extend(advancedFormat);
   const {
     subscriptionPlan,
     subscriptionLicense: userSubscriptionLicense,

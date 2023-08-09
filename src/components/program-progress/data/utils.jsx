@@ -1,6 +1,4 @@
-import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
-
+import dayjs from '../../../utils/dayjs';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
@@ -99,7 +97,6 @@ export function getEnrolledCourseRunDetails(courses) {
 }
 
 export function getNotStartedCourseDetails(courses) {
-  dayjs.extend(advancedFormat);
   const courseWithSingleCourseRun = [];
   const courseWithMultipleCourseRun = [];
   const multipleCourseRuns = [];

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
 import {
   Dropdown, Badge, IconButton, Icon, Skeleton,
 } from '@edx/paragon';
@@ -12,6 +10,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MoreVert } from '@edx/paragon/icons';
 
+import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_STATUSES, COURSE_PACING, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
@@ -326,7 +325,6 @@ class BaseCourseCard extends Component {
   };
 
   renderCourseStartDate = () => {
-    dayjs.extend(advancedFormat);
     const { startDate, mode } = this.props;
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
     const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
