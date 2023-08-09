@@ -56,8 +56,8 @@ const ProgramCourses = () => {
                   {
                     (courseRun?.pacingType === PROGRAM_PACING_MAP.INSTRUCTOR_PACED && courseRun.start)
                     && (
-                      <div className="course-card-result mb-2">
-                        <CalendarMonth className="calendar-icon mr-2" />
+                      <div className="course-card-result mb-2 d-flex">
+                        <Icon src={CalendarMonth} className="mr-2" />
                         <span className="font-weight-bold">Starts {dayjs(courseRun.start).format(DATE_FORMAT)}</span>
                       </div>
                     )
