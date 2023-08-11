@@ -1,10 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import dayjs from '../../../../../utils/dayjs';
 import BaseCourseCard from './BaseCourseCard';
 import { MarkCompleteModal } from './mark-complete-modal';
 import ContinueLearningButton from './ContinueLearningButton';
@@ -30,8 +29,6 @@ export const InProgressCourseCard = ({
     licenseUpgradeUrl,
     couponUpgradeUrl,
   } = useContext(UpgradeableCourseEnrollmentContext);
-
-  dayjs.extend(isBetween);
 
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;

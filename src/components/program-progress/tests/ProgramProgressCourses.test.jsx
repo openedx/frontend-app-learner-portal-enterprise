@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
 
 import { AppContext } from '@edx/frontend-platform/react';
-import dayjs from 'dayjs';
+import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NotCurrentlyAvailable } from '../data/constants';

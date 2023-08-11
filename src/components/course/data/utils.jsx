@@ -3,8 +3,7 @@ import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { Button, Hyperlink, MailtoLink } from '@edx/paragon';
 import isNil from 'lodash.isnil';
-import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
+import dayjs from '../../../utils/dayjs';
 
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -711,15 +710,12 @@ const parseReasonTypeBasedOnEnterpriseAdmins = ({ hasEnterpriseAdminUsers, reaso
   return reasonTypes.hasNoAdmins;
 };
 
-export const isCurrentCoupon = (coupon) => {
-  dayjs.extend(isBetween);
-  return dayjs(Date.now()).isBetween(
-    coupon.startDate,
-    coupon.endDate,
-    'day',
-    '[]',
-  );
-};
+export const isCurrentCoupon = (coupon) => dayjs(Date.now()).isBetween(
+  coupon.startDate,
+  coupon.endDate,
+  'day',
+  '[]',
+);
 
 export const getCouponCodesDisabledEnrollmentReasonType = ({
   catalogsWithCourse,

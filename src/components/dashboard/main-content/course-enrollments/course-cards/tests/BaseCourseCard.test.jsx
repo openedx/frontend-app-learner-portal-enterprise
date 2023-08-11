@@ -4,6 +4,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Skeleton } from '@edx/paragon';
 
+import dayjs from '../../../../../../utils/dayjs';
 import BaseCourseCard from '../BaseCourseCard';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { ToastsContext } from '../../../../../Toasts';
@@ -114,6 +115,7 @@ describe('<BaseCourseCard />', () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
 
       [today, yesterday, tomorrow].forEach(startDate => {
+        const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
         wrapper = mount((
           <AppContext.Provider value={{ enterpriseConfig }}>
             <BaseCourseCard
@@ -134,6 +136,7 @@ describe('<BaseCourseCard />', () => {
 
         const hasCourseStarted = wrapper.instance().renderCourseStartDate();
         expect(hasCourseStarted).toBeTruthy();
+        expect(hasCourseStarted.props.children).toContain(formattedStartDate);
       });
     });
   });

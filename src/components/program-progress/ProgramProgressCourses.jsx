@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
 } from '@edx/paragon';
-import dayjs from 'dayjs';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -18,6 +17,7 @@ import {
 } from './data/utils';
 import { NotCurrentlyAvailable } from './data/constants';
 import { linkToCourse } from '../course/data/utils';
+import dayjs from '../../utils/dayjs';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { enterpriseConfig } = useContext(AppContext);
