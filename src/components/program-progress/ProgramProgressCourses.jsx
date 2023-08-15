@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
 } from '@edx/paragon';
-import dayjs from 'dayjs';
 import { CheckCircle } from '@edx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -18,6 +17,7 @@ import {
 } from './data/utils';
 import { NotCurrentlyAvailable } from './data/constants';
 import { linkToCourse } from '../course/data/utils';
+import dayjs from '../../utils/dayjs';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -80,7 +80,7 @@ const ProgramProgressCourses = ({ courseData }) => {
     <Row className="d-flex align-items-start py-3 pt-5">
       <Col className="d-flex align-items-center">
         <span>Certificate Status: </span>
-        <CheckCircle className="fa fa-check-circle circle-color pl-1" />
+        <CheckCircle className="circle-color pl-1" />
         <span className="pl-1">Certificate Purchased</span>
       </Col>
     </Row>

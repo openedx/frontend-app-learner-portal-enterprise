@@ -49,7 +49,7 @@ const CoursePage = () => {
   const {
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes: { couponCodes },
+    couponCodes: { couponCodes, couponsOverview },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     customerAgreementConfig,
@@ -194,6 +194,7 @@ const CoursePage = () => {
     subscriptionLicense,
     courseService,
     couponCodes,
+    couponsOverview,
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
     onSubscriptionLicenseForCourseValidationError,

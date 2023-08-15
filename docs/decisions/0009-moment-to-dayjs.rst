@@ -27,6 +27,10 @@ just need to replace the package name and nothing else
 
 ``moment(date).format('MMMM D, YYYY') -> dayjs(date).format('MMMM D, YYYY')``
 
+To use plugins in dayjs, the best practice is to add all the needed plugins in the utils/dayjs.js file so that then
+whenever we need to use any plugins, we can just import the version of dayjs from that file to avoid having individual
+imports scattered throughout the project. 
+
 Consequences
 ************
 

@@ -6,6 +6,7 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import JobCardComponent from './JobCardComponent';
+import { JOB_FILTERS } from './constants';
 
 const SearchJobCard = ({ index }) => {
   const { refinements } = useContext(SearchContext);
@@ -37,6 +38,7 @@ const SearchJobCard = ({ index }) => {
       async function fetchJobs() {
         setIsLoading(true);
         const { hits } = await index.search('', {
+          filters: JOB_FILTERS.JOB_SOURCE_COURSE_SKILL,
           facetFilters: [
             jobsToFetch,
           ],

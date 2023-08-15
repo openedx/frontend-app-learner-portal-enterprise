@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, useToggle } from '@edx/paragon';
-import dayjs from 'dayjs';
 import { WarningFilled } from '@edx/paragon/icons';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
@@ -21,6 +20,7 @@ import {
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from './data/constants';
 import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
+import dayjs from '../../../utils/dayjs';
 
 const SubscriptionSummaryCard = ({
   subscriptionPlan, licenseRequest, className, courseEndDate, programProgressPage,

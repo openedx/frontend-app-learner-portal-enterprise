@@ -66,3 +66,11 @@ export const HITS_PER_PAGE = 500;
 export const LOADING_NO_OF_CARDS = 9;
 
 export const JOB_DESCRIPTION_DISCLAIMER = 'This job description has been created by an artificial intelligence, and should be reviewed carefully.';
+
+export const JOB_SOURCE_COURSE_SKILL = 'course_skill';
+export const JOB_SOURCE_INDUSTRY = 'industry';
+
+export const JOB_FILTERS = {
+  JOB_SOURCE_COURSE_SKILL: `job_sources:${JOB_SOURCE_COURSE_SKILL}`,
+  JOB_SOURCE_INDUSTRY: `job_sources:${JOB_SOURCE_INDUSTRY}`,
+};

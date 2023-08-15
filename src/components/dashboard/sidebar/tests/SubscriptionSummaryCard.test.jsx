@@ -86,6 +86,7 @@ describe('<SubscriptionSummaryCard />', () => {
     );
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
+    expect(screen.queryByText('October 25th, 2021')).toBeTruthy();
     expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
   test('Expiring soon and modal warning badge is displayed when 60 >= daysUntilExpiration > 0 and programProgressPage=true', () => {

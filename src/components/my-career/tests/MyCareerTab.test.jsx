@@ -188,6 +188,12 @@ const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
 
+const defaultCouponCodesState = {
+  couponCodes: [],
+  loading: false,
+  couponCodesCount: 0,
+};
+
 const expiringSubscriptionUserSubsidyState = {
   subsidyRequestConfiguration: null,
   requestsBySubsidyType: {
@@ -199,6 +205,7 @@ const expiringSubscriptionUserSubsidyState = {
     daysUntilExpiration: 60,
   },
   showExpirationNotifications: false,
+  couponCodes: defaultCouponCodesState,
 };
 
 const MyCareerTabWithContext = ({

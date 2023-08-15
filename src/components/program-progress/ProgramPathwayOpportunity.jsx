@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 
 const ProgramPathwayOpportunity = ({ pathways, title, pathwayClass }) => (
   <div className={pathwayClass}>
     <h2 className="divider-heading"> { title } </h2>
     {pathways.map((pathway) => (
-      <div className="pathway-wrapper">
+      <div key={uuidv4()} className="pathway-wrapper">
         <div className="pathway-info">
           <h2 className="pathway-heading"> { pathway.name } </h2>
           { pathway.description && <p> {pathway.description}</p> }

@@ -8,6 +8,7 @@ export const initialCouponCodesState = {
   loading: false,
   couponCodes: [],
   couponCodesCount: 0,
+  couponsOverview: [],
   error: null,
 };
 

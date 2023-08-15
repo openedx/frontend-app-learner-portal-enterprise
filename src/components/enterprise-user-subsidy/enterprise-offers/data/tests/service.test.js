@@ -22,7 +22,7 @@ describe('fetchEnterpriseOffers', () => {
       usage_type: ENTERPRISE_OFFER_USAGE_TYPE.PERCENTAGE,
       discount_value: 100,
       status: ENTERPRISE_OFFER_STATUS.OPEN,
-      is_current: true,
+      page_size: 100,
     });
     const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/${TEST_ENTERPRISE_UUID}/enterprise-learner-offers/?${queryParams.toString()}`;
     fetchEnterpriseOffers(TEST_ENTERPRISE_UUID);

@@ -1,7 +1,6 @@
 import { useContext } from 'react';
-import { Collapsible } from '@edx/paragon';
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Collapsible, Icon } from '@edx/paragon';
+import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramFAQ = () => {
@@ -21,8 +20,8 @@ const ProgramFAQ = () => {
             className="collapsible shadow-lg"
             title={q.question}
             key={q.question}
-            iconWhenOpen={<FontAwesomeIcon className="text-primary text-lg" icon={faChevronUp} size="1x" />}
-            iconWhenClosed={<FontAwesomeIcon className="text-primary" icon={faChevronDown} size="1x" />}
+            iconWhenOpen={<Icon src={ExpandLess} />}
+            iconWhenClosed={<Icon src={ExpandMore} />}
           >
             {q.answer}
           </Collapsible>

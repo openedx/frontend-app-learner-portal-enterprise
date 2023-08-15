@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import PropTypes from 'prop-types';
+import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from './data/constants';
 

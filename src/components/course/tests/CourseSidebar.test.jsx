@@ -3,6 +3,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import {
+  AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
+} from '@edx/paragon/icons';
 
 import CourseSidebar from '../CourseSidebar';
 import CourseSidebarListItem from '../CourseSidebarListItem';
@@ -101,7 +104,7 @@ describe('CourseSidebarWrapper', () => {
     // length
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: AccessTime,
         label: 'Length',
         content: '8 Weeks',
       }),
@@ -111,7 +114,7 @@ describe('CourseSidebarWrapper', () => {
     // effort
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: Speed,
         label: 'Effort',
         content: '1-2 hours per week',
       }),
@@ -121,7 +124,7 @@ describe('CourseSidebarWrapper', () => {
     // price
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: Tag,
         label: 'Price',
         content: expect.any(Object),
       }),
@@ -132,7 +135,7 @@ describe('CourseSidebarWrapper', () => {
     // institution
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: Institution,
         label: 'Institution',
         content: expect.any(Array),
       }),
@@ -152,7 +155,7 @@ describe('CourseSidebarWrapper', () => {
     // subject
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: School,
         label: 'Subject',
         content: expect.any(Object),
       }),
@@ -172,7 +175,7 @@ describe('CourseSidebarWrapper', () => {
     // level type
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: Equalizer,
         label: 'Level',
         content: 'Introductory',
       }),
@@ -182,7 +185,7 @@ describe('CourseSidebarWrapper', () => {
     // language
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: Institution,
         label: 'Language',
         content: 'English',
       }),
@@ -192,7 +195,7 @@ describe('CourseSidebarWrapper', () => {
     // transcript language
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: VideoFile,
         label: 'Transcript Language',
         content: 'English',
       }),
@@ -202,7 +205,7 @@ describe('CourseSidebarWrapper', () => {
     // pacing type
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        icon: expect.any(Object),
+        icon: Person,
         label: 'Course Type',
         content: 'Instructor Paced',
       }),
