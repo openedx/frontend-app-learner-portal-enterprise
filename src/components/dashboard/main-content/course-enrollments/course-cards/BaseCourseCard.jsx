@@ -199,7 +199,7 @@ class BaseCourseCard extends Component {
 
   renderUnenrollModal = () => {
     const {
-      canUnenroll, courseRunId, type, mode,
+      canUnenroll, courseRunId, type,
     } = this.props;
     const { modals } = this.state;
 
@@ -214,7 +214,6 @@ class BaseCourseCard extends Component {
         onSuccess={this.handleUnenrollModalOnSuccess}
         isOpen={modals.unenroll.open}
         enrollmentType={camelCase(type)}
-        mode={mode}
       />
     );
   };
