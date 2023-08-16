@@ -8,13 +8,14 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import GoalDropdown from '../skills-quiz/GoalDropdown';
 import {
-  industryCards,
+  InterestedJobs,
   SKILLS_QUIZ_SEARCH_PAGE_MESSAGE_V2,
 } from './constants';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from '../skills-quiz/images/headerImage.png';
 import CourseCard from './CourseCard';
+import ClosingAlert from './ClosingAlert';
 
 const SkillsQuizV2 = () => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -23,9 +24,18 @@ const SkillsQuizV2 = () => {
   const [value, setValue] = useState('green');
   const handleChange = (e) => setValue(e.target.value);
   const history = useHistory();
+  const [showAlert, setShowAlert] = useState(false);
 
-  const closeSkillsQuiz = () => {
+  const showCloseAlert = () => {
+    setShowAlert(true);
+  };
+
+  const navigateToSearchPage = () => {
     history.push(`/${enterpriseConfig.slug}/search`);
+  };
+
+  const hideCloseAlert = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -34,7 +44,7 @@ const SkillsQuizV2 = () => {
       size="fullscreen"
       className="bg-light-200 skills-quiz-modal"
       isOpen
-      onClose={closeSkillsQuiz}
+      onClose={showCloseAlert}
     >
       <ModalDialog.Hero className="md-img">
         <ModalDialog.Hero.Background
@@ -92,22 +102,22 @@ const SkillsQuizV2 = () => {
               type="radio"
               value={value}
               onChange={handleChange}
-              name="colors"
+              name="interested-jobs"
               columns="3"
               className="selectable-box "
             >
-              {industryCards.map((card) => (
+              {InterestedJobs.map((job) => (
                 <SelectableBox
                   className="box"
-                  value={card.name}
+                  value={job.name}
                   inputHidden={false}
                   type="radio"
-                  aria-label={card.name}
+                  aria-label={job.name}
                 >
                   <div>
-                    <div className="lead">{card.name}</div>
+                    <div className="lead">{job.name}</div>
                     <div className="x-small">Related skills</div>
-                    {card.skills.map((skill) => (
+                    {job.skills.slice(0, 5).map((skill) => (
                       <div>
                         <Chip>{skill}</Chip>
                       </div>
@@ -130,6 +140,11 @@ const SkillsQuizV2 = () => {
               <CourseCard />
             </CardGrid>
           </div>
+          <ClosingAlert
+            navigateToSearchPage={navigateToSearchPage}
+            hideCloseAlert={hideCloseAlert}
+            showAlert={showAlert}
+          />
         </Container>
       </ModalDialog.Body>
     </ModalDialog>
