@@ -140,7 +140,7 @@ describe('<SearchProgramCard />', () => {
 
     expect(screen.getByText(PROGRAM_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(PROGRAM_AUTHOR_ORG.name)).toBeInTheDocument();
-    expect(screen.getAllByText(PROGRAM_AUTHOR_ORG.name).length).toBeGreaterThan(0);
+    expect(screen.getByText(PROGRAM_AUTHOR_ORG.name)).toBeInTheDocument();
 
     expect(screen.getByTestId('program-type-badge')).toHaveTextContent(PROGRAM_TYPE_DISPLAYED);
     expect(screen.getByText(PROGRAM_COURSES_COUNT_TEXT)).toBeInTheDocument();

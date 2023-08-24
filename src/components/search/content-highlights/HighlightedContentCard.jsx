@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card } from '@edx/paragon';
+import { Card, Truncate } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import cardImageCapFallbackSrc from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
@@ -69,18 +68,10 @@ const HighlightedContentCard = ({
       />
       <Card.Header
         title={(
-          <LinesEllipsis
-            text={title}
-            maxLine={3}
-            trimWhitespace
-          />
+          <Truncate maxLine={3}>{title}</Truncate>
         )}
         subtitle={authoringOrganizations?.content && (
-          <LinesEllipsis
-            text={authoringOrganizations.content}
-            maxLine={2}
-            trimWhitespace
-          />
+          <Truncate maxLine={2}>{authoringOrganizations.content}</Truncate>
         )}
       />
       <Card.Section />

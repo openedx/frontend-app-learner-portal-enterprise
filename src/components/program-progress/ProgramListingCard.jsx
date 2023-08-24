@@ -1,5 +1,5 @@
 import {
-  breakpoints, Card,
+  breakpoints, Card, Truncate,
 } from '@edx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
@@ -7,7 +7,6 @@ import { useHistory } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import LinesEllipsis from 'react-lines-ellipsis';
 import { getProgramIcon } from '../course/data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
@@ -70,18 +69,12 @@ const ProgramListingCard = ({ program }) => {
 
       <Card.Header
         title={(
-          <LinesEllipsis
-            text={program.title}
-            maxLine={2}
-            trimWhitespace
-          />
+          <Truncate maxLine={2}>{program.title}</Truncate>
         )}
         subtitle={program.authoringOrganizations?.length > 0 ? (
-          <LinesEllipsis
-            text={program.authoringOrganizations.map(org => org.key).join(', ')}
-            maxLine={2}
-            trimWhitespace
-          />
+          <Truncate maxLine={2}>
+            {program.authoringOrganizations.map(org => org.key).join(', ')}
+          </Truncate>
         ) : undefined}
       />
       <Card.Section>

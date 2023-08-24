@@ -1,9 +1,8 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card } from '@edx/paragon';
+import { Card, Truncate } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
@@ -60,19 +59,11 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
 
       <Card.Header
         title={(
-          <LinesEllipsis
-            text={course.title}
-            maxLine={3}
-            trimWhitespace
-          />
+          <Truncate maxLine={3}>{course.title}</Truncate>
         )}
         subtitle={course.owners?.length > 0 && (
           <p className="partner">
-            <LinesEllipsis
-              text={course.owners.map(partner => partner.name).join(', ')}
-              maxLine={1}
-              trimWhitespace
-            />
+            <Truncate maxLine={1}>{course.owners.map(partner => partner.name).join(', ')}</Truncate>
           </p>
         )}
       />

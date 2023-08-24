@@ -77,7 +77,7 @@ describe('<SearchProgramCard />', () => {
     const { container } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
 
     expect(screen.getByText(PROGRAM_TITLE)).toBeInTheDocument();
-    expect(screen.getAllByText(PROGRAM_AUTHOR_ORG.key).length).toBeGreaterThan(0);
+    expect(screen.getByText(PROGRAM_AUTHOR_ORG.key)).toBeInTheDocument();
 
     // should show both logo image and card image with proper URLs
     const foundImages = container.querySelectorAll('img');

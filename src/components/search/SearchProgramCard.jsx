@@ -1,11 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card, Icon } from '@edx/paragon';
+import {
+  Badge, Card, Icon, Truncate,
+} from '@edx/paragon';
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -111,19 +112,13 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       />
       <Card.Header
         title={(
-          <LinesEllipsis
-            text={program.title}
-            maxLine={3}
-            trimWhitespace
-          />
+          <Truncate maxLine={3}>{program.title}</Truncate>
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <LinesEllipsis
-              text={program.authoringOrganizations.map(org => org.key).join(', ')}
-              maxLine={2}
-              trimWhitespace
-            />
+            <Truncate maxLine={2}>
+              {program.authoringOrganizations.map(org => org.key).join(', ')}
+            </Truncate>
           )
         }
       />

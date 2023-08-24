@@ -1,11 +1,10 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Card } from '@edx/paragon';
+import { Card, Truncate } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
@@ -107,18 +106,12 @@ const SearchCourseCard = ({
       />
       <Card.Header
         title={(
-          <LinesEllipsis
-            text={course.title}
-            maxLine={3}
-            trimWhitespace
-          />
+          <Truncate maxLine={3}>{course.title}</Truncate>
         )}
         subtitle={course.partners?.length > 0 && (
-          <LinesEllipsis
-            text={course.partners.map(partner => partner.name).join(', ')}
-            maxLine={2}
-            trimWhitespace
-          />
+          <Truncate maxLine={2}>
+            {course.partners.map(partner => partner.name).join(', ')}
+          </Truncate>
         )}
       />
       <Card.Section />

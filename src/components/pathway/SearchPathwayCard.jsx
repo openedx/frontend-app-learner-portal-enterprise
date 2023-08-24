@@ -1,11 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import LinesEllipsis from 'react-lines-ellipsis';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card, Stack } from '@edx/paragon';
+import {
+  Badge, Card, Stack, Truncate,
+} from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import {
@@ -111,11 +112,7 @@ const SearchPathwayCard = ({
       />
       <Card.Header
         title={(
-          <LinesEllipsis
-            text={pathway.title}
-            maxLine={3}
-            trimWhitespace
-          />
+          <Truncate maxLine={3}>{pathway.title}</Truncate>
         )}
       />
       <Card.Section>
