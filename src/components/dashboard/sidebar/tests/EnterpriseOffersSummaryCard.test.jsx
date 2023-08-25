@@ -59,7 +59,6 @@ describe('<EnterpriseOffersSummaryCard />', () => {
         ]}
       />,
     );
-    screen.debug();
     expect(screen.getByTestId('offer-summary-end-date-text')).toBeInTheDocument();
     expect(screen.getByText('Nov 30, 2023')).toBeInTheDocument();
   });
