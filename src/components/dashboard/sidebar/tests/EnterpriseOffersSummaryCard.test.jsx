@@ -62,6 +62,6 @@ describe('<EnterpriseOffersSummaryCard />', () => {
     );
 
     expect(screen.getByTestId('offer-summary-end-date-text')).toBeInTheDocument();
-    expect(screen.getByText('2023', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('May 31, 2023')).toBeInTheDocument();
   });
 });
