@@ -10,6 +10,8 @@ import Adapter from 'enzyme-adapter-react-16';
 
 configure({ adapter: new Adapter() });
 
+process.env.TZ = 'EDT';
+
 process.env.LMS_BASE_URL = 'http://localhost:18000';
 process.env.ECOMMERCE_BASE_URL = 'http://ecommerce.url';
 process.env.MARKETING_SITE_BASE_URL = 'http://marketing.url';
