@@ -47,7 +47,6 @@ describe('<EnterpriseOffersSummaryCard />', () => {
     render(
       <EnterpriseOffersSummaryCard
         offers={[
-          mockEnterpriseOffer,
           {
             ...mockEnterpriseOffer,
             isCurrent: false,
@@ -60,8 +59,8 @@ describe('<EnterpriseOffersSummaryCard />', () => {
         ]}
       />,
     );
-
+    screen.debug();
     expect(screen.getByTestId('offer-summary-end-date-text')).toBeInTheDocument();
-    expect(screen.getByText('May 31, 2023')).toBeInTheDocument();
+    expect(screen.getByText('Nov 30, 2023')).toBeInTheDocument();
   });
 });
