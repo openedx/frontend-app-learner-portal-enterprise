@@ -39,7 +39,7 @@ const EnterpriseOffersSummaryCard = ({
       cardClassNames={className}
     >
       <p data-testid="offer-summary-text">
-        Apply your organization&apos;s learner credit balance to enroll into courses with no out of pocket cost.
+        Apply your organization&apos;s Learner Credit balance to enroll into courses with no out of pocket cost.
       </p>
       {offerExpiringFirst?.endDatetime && (
         <p data-testid="offer-summary-end-date-text">
