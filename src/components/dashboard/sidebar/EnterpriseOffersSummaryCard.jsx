@@ -41,7 +41,7 @@ const EnterpriseOffersSummaryCard = ({
       <p data-testid="offer-summary-text">
         Apply your organization&apos;s learner credit balance to enroll into courses with no out of pocket cost.
       </p>
-      {offerExpiringFirst.endDatetime && (
+      {offerExpiringFirst?.endDatetime && (
         <p data-testid="offer-summary-end-date-text">
           Available until <b>{dayjs(offerExpiringFirst.endDatetime).format('MMM D, YYYY')}</b>
         </p>
