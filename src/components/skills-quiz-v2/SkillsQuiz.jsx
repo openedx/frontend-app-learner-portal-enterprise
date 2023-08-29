@@ -1,12 +1,15 @@
 /* eslint-disable object-curly-newline */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import {
   ModalDialog, Container, Button, SelectableBox, Chip, CardGrid,
 } from '@edx/paragon';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import algoliasearch from 'algoliasearch/lite';
+import { InstantSearch } from 'react-instantsearch-dom';
 
-import GoalDropdown from '../skills-quiz/GoalDropdown';
+import { getConfig } from '@edx/frontend-platform/config';
+import GoalDropdown from './GoalDropdown';
 import {
   InterestedJobs,
   SKILLS_QUIZ_SEARCH_PAGE_MESSAGE_V2,
@@ -16,16 +19,30 @@ import SkillsQuizHeader from './SkillsQuizHeader';
 import headerImage from '../skills-quiz/images/headerImage.png';
 import CourseCard from './CourseCard';
 import ClosingAlert from './ClosingAlert';
+import IndustryDropdown from '../skills-quiz/IndustryDropdown';
+import AutoSuggestDropDown from './AutoSuggestDropDown';
 
 const SkillsQuizV2 = () => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const config = getConfig();
 
   const { enterpriseConfig } = useContext(AppContext);
   const [value, setValue] = useState('green');
   const handleChange = (e) => setValue(e.target.value);
   const history = useHistory();
   const [showAlert, setShowAlert] = useState(false);
-
+  const [searchClient] = useMemo(
+    () => {
+      const client = algoliasearch(
+        config.ALGOLIA_APP_ID,
+        config.ALGOLIA_SEARCH_API_KEY,
+      );
+      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
+      const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
+      return [client, cIndex, jIndex];
+    },
+    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_INDEX_NAME_JOBS, config.ALGOLIA_SEARCH_API_KEY],
+  );
   const showCloseAlert = () => {
     setShowAlert(true);
   };
@@ -77,7 +94,7 @@ const SkillsQuizV2 = () => {
                             && (
                               <div>
                                 <h5 className="mt-3.5">
-                                  Tell us about what you want to acheive
+                                  Tell us about what you want to achieve
                                 </h5>
                                 <div className="mt-2">
                                   <GoalDropdown />
@@ -85,14 +102,19 @@ const SkillsQuizV2 = () => {
                                 <h5 className="mt-3.5">
                                   Search and select your current job title
                                 </h5>
-                                <div className="mt-2">
-                                  <GoalDropdown />
-                                </div>
+                                <InstantSearch
+                                  indexName={config.ALGOLIA_INDEX_NAME_JOBS}
+                                  searchClient={searchClient}
+                                >
+                                  <div className="mt-2">
+                                    <IndustryDropdown />
+                                  </div>
+                                </InstantSearch>
                                 <h5 className="mt-3.5">
                                   What industry are you interested in?
                                 </h5>
                                 <div className="mt-2">
-                                  <GoalDropdown />
+                                  <AutoSuggestDropDown />
                                 </div>
                               </div>
                             )}
