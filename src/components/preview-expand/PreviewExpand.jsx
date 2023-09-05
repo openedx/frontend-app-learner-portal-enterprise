@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Button } from '@edx/paragon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { Button, Icon } from '@edx/paragon';
+import { AddCircle, RemoveCircle } from '@edx/paragon/icons';
 
 const PreviewExpand = ({
   className,
@@ -24,8 +23,8 @@ const PreviewExpand = ({
         variant="link"
         id={cta.id}
       >
-        <FontAwesomeIcon
-          icon={isExpanded ? faMinusCircle : faPlusCircle}
+        <Icon
+          src={isExpanded ? RemoveCircle : AddCircle}
           className="mr-2 collapsible-icon"
         />
         {isExpanded ? cta.labelToMinimize : cta.labelToExpand}

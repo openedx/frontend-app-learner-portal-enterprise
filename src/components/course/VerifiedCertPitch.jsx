@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRoad, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { Icon } from '@edx/paragon';
+import { ContentPasteGo, RocketLaunch } from '@edx/paragon/icons';
 
 import './styles/VerifiedCertPitch.scss';
 
 const VerifiedCertPitchIcon = ({ icon }) => (
   <div className="icon d-flex bg-info mr-3 p-2 align-items-center justify-content-center">
-    {/* TODO: font-awesome is deprecated; replace with similar icon from `@edx/paragon/icons` */}
-    <FontAwesomeIcon className="text-white" icon={icon} />
+    <Icon className="text-white" src={icon} />
   </div>
 );
 
@@ -23,7 +22,7 @@ const VerifiedCertPitch = () => (
     </h3>
     <ul className="pl-0 mb-0 list-unstyled">
       <li className="d-flex mb-4">
-        <VerifiedCertPitchIcon icon={faRocket} />
+        <VerifiedCertPitchIcon icon={RocketLaunch} />
         <div>
           <h4>Official and Verified</h4>
           <span>
@@ -33,7 +32,7 @@ const VerifiedCertPitch = () => (
         </div>
       </li>
       <li className="d-flex mb-4">
-        <VerifiedCertPitchIcon icon={faRoad} />
+        <VerifiedCertPitchIcon icon={ContentPasteGo} />
         <div>
           <h4>Easily Shareable</h4>
           <span>

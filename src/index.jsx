@@ -5,7 +5,7 @@ import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-  initialize, APP_INIT_ERROR, APP_READY, subscribe,
+  APP_INIT_ERROR, APP_READY, initialize, subscribe,
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
@@ -44,14 +44,11 @@ initialize({
         ENABLE_NOTICES: process.env.ENABLE_NOTICES || null,
         LEARNER_SUPPORT_URL: process.env.LEARNER_SUPPORT_URL || null,
         LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL: process.env.LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL || null,
+        LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL: process.env.LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL || null,
         GETSMARTER_STUDENT_TC_URL: process.env.GETSMARTER_STUDENT_TC_URL || null,
         GETSMARTER_PRIVACY_POLICY_URL: process.env.GETSMARTER_PRIVACY_POLICY_URL || null,
         GETSMARTER_LEARNER_DASHBOARD_URL: process.env.GETSMARTER_LEARNER_DASHBOARD_URL || null,
         FEATURE_CONTENT_HIGHLIGHTS: process.env.FEATURE_CONTENT_HIGHLIGHTS || null,
-        EXPERIMENT_4_ID: process.env.EXPERIMENT_4_ID || null,
-        EXPERIMENT_4_VARIANT_1_ID: process.env.EXPERIMENT_4_VARIANT_1_ID || null,
-        EXPERIMENT_5_ID: process.env.EXPERIMENT_5_ID || null,
-        EXPERIMENT_5_VARIANT_1_ID: process.env.EXPERIMENT_5_VARIANT_1_ID || null,
         FEATURE_ENABLE_EMET_REDEMPTION: process.env.FEATURE_ENABLE_EMET_REDEMPTION || null,
         ENTERPRISE_SUBSIDY_BASE_URL: process.env.ENTERPRISE_SUBSIDY_BASE_URL || null,
       });

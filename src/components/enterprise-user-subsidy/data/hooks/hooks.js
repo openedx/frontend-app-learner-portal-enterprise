@@ -3,19 +3,21 @@ import {
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { useQuery } from '@tanstack/react-query';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { fetchCouponCodeAssignments } from '../coupons';
-import couponCodesReducer, { initialCouponCodesState } from '../coupons/data/reducer';
+import { fetchCouponCodeAssignments } from '../../coupons';
+import couponCodesReducer, { initialCouponCodesState } from '../../coupons/data/reducer';
 
-import { LICENSE_STATUS } from './constants';
+import { LICENSE_STATUS } from '../constants';
 import {
   fetchSubscriptionLicensesForUser,
   fetchCustomerAgreementData,
   requestAutoAppliedLicense,
   activateLicense,
-} from './service';
-import { features } from '../../../config';
+} from '../service';
+import { features } from '../../../../config';
+import { fetchCouponsOverview } from '../../coupons/data/service';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -40,6 +42,7 @@ const fetchExistingUserLicense = async (enterpriseId) => {
     const licensesByStatus = {
       [LICENSE_STATUS.ACTIVATED]: [],
       [LICENSE_STATUS.ASSIGNED]: [],
+      [LICENSE_STATUS.REVOKED]: [],
     };
     results.forEach((item) => {
       licensesByStatus[item.status].push(item);
@@ -104,25 +107,27 @@ export function useSubscriptionLicense({
     async function retrieveUserLicense() {
       let result = await fetchExistingUserLicense(enterpriseId);
 
-      if (features.ENABLE_AUTO_APPLIED_LICENSES) {
-        const customerAgreementMetadata = [
-          customerAgreementConfig?.uuid,
-          customerAgreementConfig?.subscriptionForAutoAppliedLicenses,
-        ];
-        const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
+      if (!features.ENABLE_AUTO_APPLIED_LICENSES) {
+        return result;
+      }
 
-        // Only request an auto-applied license if ther user is a learner of the enterprise.
-        // This is mainly to prevent edx operators from accidently getting a license.
-        const isEnterpriseLearner = !!user.roles.find(userRole => {
-          const [role, enterprise] = userRole.split(':');
-          return role === 'enterprise_learner' && enterprise === enterpriseId;
-        });
+      const customerAgreementMetadata = [
+        customerAgreementConfig?.uuid,
+        customerAgreementConfig?.subscriptionForAutoAppliedLicenses,
+      ];
+      const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
 
-        // Per the product requirements, we only want to attempt requesting an auto-applied license
-        // when the enterprise customer has an SSO/LMS provider configured.
-        if (!result && enterpriseIdentityProvider && isEnterpriseLearner && hasCustomerAgreementData) {
-          result = await requestAutoAppliedUserLicense(customerAgreementConfig.uuid);
-        }
+      // Only request an auto-applied license if ther user is a learner of the enterprise.
+      // This is mainly to prevent edx operators from accidently getting a license.
+      const isEnterpriseLearner = !!user.roles.find(userRole => {
+        const [role, enterprise] = userRole.split(':');
+        return role === 'enterprise_learner' && enterprise === enterpriseId;
+      });
+
+      // Per the product requirements, we only want to attempt requesting an auto-applied license
+      // when the enterprise customer has an SSO/LMS provider configured.
+      if (!result && enterpriseIdentityProvider && isEnterpriseLearner && hasCustomerAgreementData) {
+        result = await requestAutoAppliedUserLicense(customerAgreementConfig.uuid);
       }
 
       return result;
@@ -130,7 +135,6 @@ export function useSubscriptionLicense({
 
     if (!isLoadingCustomerAgreementConfig) {
       setIsLoading(true);
-
       retrieveUserLicense().then((userLicense) => {
         const subscriptionPlan = customerAgreementConfig?.subscriptions?.find(
           subscription => subscription.uuid === userLicense?.subscriptionPlanUuid,
@@ -175,8 +179,20 @@ export function useSubscriptionLicense({
   return { license, isLoading, activateUserLicense };
 }
 
+/**
+ * Given an enterprise UUID, returns overview of coupons associated with the enterprise
+ * and a list of coupon codes assigned to the authenticated user.
+ */
 export function useCouponCodes(enterpriseId) {
   const [state, dispatch] = useReducer(couponCodesReducer, initialCouponCodesState);
+
+  const couponsOverviewQueryData = useQuery({
+    queryKey: ['coupons', 'overview', enterpriseId],
+    queryFn: async () => {
+      const response = await fetchCouponsOverview({ enterpriseId });
+      return camelCaseObject(response.data);
+    },
+  });
 
   useEffect(
     () => {
@@ -194,7 +210,16 @@ export function useCouponCodes(enterpriseId) {
     [enterpriseId],
   );
 
-  return [state, state.loading];
+  const result = useMemo(() => {
+    const updatedState = {
+      ...state,
+      couponsOverview: couponsOverviewQueryData,
+      loading: state.loading || couponsOverviewQueryData.isLoading,
+    };
+    return [updatedState, updatedState.loading];
+  }, [state, couponsOverviewQueryData]);
+
+  return result;
 }
 
 export function useCustomerAgreementData(enterpriseId) {
@@ -206,11 +231,7 @@ export function useCustomerAgreementData(enterpriseId) {
       .then((response) => {
         const { results } = camelCaseObject(response.data);
         // Note: customer agreements are unique, only 1 can exist per customer
-        if (results.length) {
-          setCustomerAgreement(results[0]);
-        } else {
-          setCustomerAgreement(null);
-        }
+        setCustomerAgreement(results[0] || null);
       })
       .catch((error) => {
         logError(new Error(error));

@@ -49,9 +49,10 @@ const CoursePage = () => {
   const {
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes: { couponCodes },
+    couponCodes: { couponCodes, couponsOverview },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
+    customerAgreementConfig,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests, subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
@@ -193,12 +194,14 @@ const CoursePage = () => {
     subscriptionLicense,
     courseService,
     couponCodes,
+    couponsOverview,
     canEnrollWithEnterpriseOffers,
     enterpriseOffers,
     onSubscriptionLicenseForCourseValidationError,
     missingSubsidyAccessPolicyReason,
     enterpriseAdminUsers,
     courseListPrice,
+    customerAgreementConfig,
   });
 
   const [coursePrice, currency] = useCoursePriceForUserSubsidy({

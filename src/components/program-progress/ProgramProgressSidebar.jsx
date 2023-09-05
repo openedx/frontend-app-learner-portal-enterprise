@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { Button } from '@edx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 import { ProgramProgressContext } from './ProgramProgressContextProvider';
 
 import ProgramProgressCircle from './ProgramProgressCircle';
@@ -51,7 +52,7 @@ const ProgramProgressSideBar = () => {
           <h2 className="course-list-heading">Earned Certificates</h2>
           <ul className="certificate-list">
             {courseCertificates.map((certificate) => (
-              <li data-testid="certificate-item" className="certificate">
+              <li key={uuidv4()} data-testid="certificate-item" className="certificate">
                 <a className="image-link" href={certificate.url} aria-hidden="true" tabIndex="-1">
                   <img src={progSampleCertImage} className="sample-cert" alt="" />
                 </a>

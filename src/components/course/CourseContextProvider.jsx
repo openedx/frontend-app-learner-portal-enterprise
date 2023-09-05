@@ -1,9 +1,8 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
-  DISABLED_ENROLL_USER_MESSAGES,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
   LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
@@ -25,6 +24,8 @@ export const CourseContextProvider = ({
   currency,
   canOnlyViewHighlightSets,
 }) => {
+  const [externalCourseFormSubmissionError, setExternalCourseFormSubmissionError] = useState(null);
+
   const value = useMemo(() => ({
     state: courseState,
     userCanRequestSubsidyForCourse,
@@ -37,6 +38,8 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
+    externalCourseFormSubmissionError,
+    setExternalCourseFormSubmissionError,
   }), [
     courseState,
     userCanRequestSubsidyForCourse,
@@ -49,6 +52,7 @@ export const CourseContextProvider = ({
     coursePrice,
     currency,
     canOnlyViewHighlightSets,
+    externalCourseFormSubmissionError,
   ]);
 
   return (
@@ -77,7 +81,7 @@ CourseContextProvider.propTypes = {
   isPolicyRedemptionEnabled: PropTypes.bool,
   missingUserSubsidyReason: PropTypes.shape({
     reason: PropTypes.oneOf(Object.values(DISABLED_ENROLL_REASON_TYPES)),
-    userMessage: PropTypes.oneOf(Object.values(DISABLED_ENROLL_USER_MESSAGES)),
+    userMessage: PropTypes.string.isRequired,
     actions: PropTypes.node,
   }),
   userSubsidyApplicableToCourse: PropTypes.shape({
@@ -95,7 +99,7 @@ CourseContextProvider.propTypes = {
     listPrice: PropTypes.shape({ usd: PropTypes.number, usdCents: PropTypes.number }),
     reasons: PropTypes.arrayOf(PropTypes.shape({
       reason: PropTypes.oneOf(Object.values(DISABLED_ENROLL_REASON_TYPES)),
-      userMessage: PropTypes.oneOf(Object.values(DISABLED_ENROLL_USER_MESSAGES)),
+      userMessage: PropTypes.string.isRequired,
       metadata: PropTypes.shape({
         enterpriseAdministrators: PropTypes.arrayOf(PropTypes.shape({
           email: PropTypes.string,

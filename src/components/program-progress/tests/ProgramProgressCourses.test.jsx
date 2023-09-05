@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
 
 import { AppContext } from '@edx/frontend-platform/react';
-import moment from 'moment';
+import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NotCurrentlyAvailable } from '../data/constants';
@@ -445,8 +445,8 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     const courseRun = courseDataNotStartedCourse.notStarted[0].courseRuns;
-    const courseRunDateNotEnrollable = `${moment(courseRun[0].start)
-      .format('MMMM Do, YYYY')} - ${moment(courseRun[0].end).format('MMMM Do, YYYY')}`;
+    const courseRunDateNotEnrollable = `${dayjs(courseRun[0].start)
+      .format('MMMM Do, YYYY')} - ${dayjs(courseRun[0].end).format('MMMM Do, YYYY')}`;
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
@@ -519,9 +519,9 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     const courseRun = courseDataNotStartedCourse.notStarted[0].courseRuns;
-    const courseRunDateWithOutEnd = `${moment(courseRun[0].start).format('MMMM Do, YYYY')}`;
-    const courseRunDateWithEnd = `${moment(courseRun[1].start)
-      .format('MMMM Do, YYYY')} - ${moment(courseRun[1].end).format('MMMM Do, YYYY')}`;
+    const courseRunDateWithOutEnd = `${dayjs(courseRun[0].start).format('MMMM Do, YYYY')}`;
+    const courseRunDateWithEnd = `${dayjs(courseRun[1].start)
+      .format('MMMM Do, YYYY')} - ${dayjs(courseRun[1].end).format('MMMM Do, YYYY')}`;
     render(<ProgramProgressCoursesWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}

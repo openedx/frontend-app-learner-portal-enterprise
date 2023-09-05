@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Button,
-  Container,
-  Hyperlink,
-} from '@edx/paragon';
+import { Button, Container, Hyperlink } from '@edx/paragon';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -83,7 +79,7 @@ const EnterpriseInvitePage = () => {
         </Container>
       )}
       {inviteError && (
-        <ErrorPage subtitle="We couldn’t link your edX account to your organization">
+        <ErrorPage subtitle="We couldn't link your edX account to your organization">
           <p className="mb-5">
             Please reach out to your edX administrator or visit the{' '}
             <Hyperlink

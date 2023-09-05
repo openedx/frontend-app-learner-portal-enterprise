@@ -4,7 +4,7 @@ import {
   Button, Stepper, ModalDialog, Container, Form, Stack,
 } from '@edx/paragon';
 import algoliasearch from 'algoliasearch/lite';
-import { InstantSearch } from 'react-instantsearch-dom';
+import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,7 @@ import {
   STEP3,
   SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
   GOAL_DROPDOWN_DEFAULT_OPTION,
+  JOB_FILTERS,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
@@ -199,6 +200,10 @@ const SkillsQuizStepper = () => {
                       indexName={config.ALGOLIA_INDEX_NAME_JOBS}
                       searchClient={searchClient}
                     >
+                      <Configure
+                        facetingAfterDistinct
+                        filters={JOB_FILTERS.JOB_SOURCE_COURSE_SKILL}
+                      />
                       <div className="mt-4.5">
                         Second, which industry describes where you work? (select one, or leave blank)
                       </div>

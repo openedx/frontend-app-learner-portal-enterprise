@@ -1,12 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  StatefulButton, Form, Hyperlink, CheckboxControl, Row, Col, Alert, Card, MailtoLink,
+  Alert, Card, CheckboxControl, Col, Form, Hyperlink, MailtoLink, Row, StatefulButton,
 } from '@edx/paragon';
-import {
-  Formik,
-  Form as FormikForm,
-} from 'formik';
+import { Form as FormikForm, Formik } from 'formik';
 import isNil from 'lodash.isnil';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
@@ -14,10 +11,10 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-import moment from 'moment/moment';
+import dayjs from 'dayjs';
 import reactStringReplace from 'react-string-replace';
 
-import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
+import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
@@ -50,10 +47,11 @@ const UserEnrollmentForm = ({
     state: {
       userEnrollments,
     },
+    externalCourseFormSubmissionError,
+    setExternalCourseFormSubmissionError,
   } = useContext(CourseContext);
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [formSubmissionError, setFormSubmissionError] = useState();
   const [enrollButtonState, setEnrollButtonState] = useState('default');
 
   const handleFormSubmissionSuccess = async (newTransaction) => {
@@ -74,7 +72,7 @@ const UserEnrollmentForm = ({
     subsidyAccessPolicy: userSubsidyApplicableToCourse,
     onSuccess: handleFormSubmissionSuccess,
     onError: (error) => {
-      setFormSubmissionError(error);
+      setExternalCourseFormSubmissionError(error);
       setEnrollButtonState('error');
       logError(error);
     },
@@ -87,7 +85,7 @@ const UserEnrollmentForm = ({
     }
 
     const errors = {};
-    const is18YearsOld = moment().diff(moment(values.dateOfBirth), 'years') >= 18;
+    const is18YearsOld = dayjs().diff(dayjs(values.dateOfBirth), 'years') >= 18;
 
     if (!values.firstName) {
       errors.firstName = formValidationMessages.firstNameRequired;
@@ -131,7 +129,7 @@ const UserEnrollmentForm = ({
     try {
       await redeem({ metadata: userDetails });
     } catch (error) {
-      setFormSubmissionError(error);
+      setExternalCourseFormSubmissionError(error);
       logError(error);
     }
   };
@@ -155,7 +153,7 @@ const UserEnrollmentForm = ({
         logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
         await handleFormSubmissionSuccess();
       } else {
-        setFormSubmissionError(error);
+        setExternalCourseFormSubmissionError(error);
         logError(error);
       }
     }
@@ -201,15 +199,17 @@ const UserEnrollmentForm = ({
                 <Alert
                   variant="danger"
                   className="mb-4.5"
-                  show={!!formSubmissionError}
-                  onClose={() => setFormSubmissionError(undefined)}
+                  show={
+                    externalCourseFormSubmissionError
+                    && !isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)
+                  }
+                  onClose={() => setExternalCourseFormSubmissionError(undefined)}
                   dismissible
                 >
                   <p>
                     An error occurred while sharing your course enrollment information. Please try again.
                   </p>
                 </Alert>
-
                 <Row className="mb-4">
                   <Col xs={12} lg={6}>
                     <Form.Group
@@ -367,9 +367,16 @@ const UserEnrollmentForm = ({
                 default: 'Confirm registration',
                 pending: 'Confirming registration...',
                 complete: 'Registration confirmed',
-                error: 'Try again',
+                error: externalCourseFormSubmissionError
+                  && isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)
+                  ? 'Confirm registration'
+                  : 'Try again',
               }}
               state={enrollButtonState}
+              disabled={
+                externalCourseFormSubmissionError
+                && isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)
+              }
             />
           </div>
         </FormikForm>

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Card, Badge } from '@edx/paragon';
-import moment from 'moment';
 
+import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
@@ -35,7 +35,7 @@ const SubscriptionStatusCard = () => {
             hasActiveLicenseOrLicenseRequest && expirationDate && (
               <div className="subscription-expiry">Available until {' '}
                 <span className="font-weight-bold">
-                  {moment(expirationDate).format('MMMM Do, YYYY')}
+                  {dayjs(expirationDate).format('MMMM Do, YYYY')}
                 </span>
               </div>
             )

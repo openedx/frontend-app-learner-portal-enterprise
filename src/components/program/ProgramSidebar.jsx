@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
-  faBook, faUser, faClock, faTachometerAlt,
-} from '@fortawesome/free-solid-svg-icons';
+  AccessTime, LibraryBooks, Person, Speed,
+} from '@edx/paragon/icons';
 import ProgramSidebarListItem from './ProgramSidebarListItem';
 import { ProgramContext } from './ProgramContextProvider';
 import {
@@ -25,7 +25,7 @@ const ProgramSidebar = () => {
   return (
     <ul className="pl-0 mb-5 program-details-sidebar">
       <ProgramSidebarListItem
-        icon={faBook}
+        icon={LibraryBooks}
         label="Expert instruction"
         content={expertInstructionSecondaryContent}
       />
@@ -33,7 +33,7 @@ const ProgramSidebar = () => {
       {
         verboseProgramPacingType && programPacingTypeContent && (
           <ProgramSidebarListItem
-            icon={faUser}
+            icon={Person}
             label={verboseProgramPacingType}
             content={programPacingTypeContent}
           />
@@ -42,7 +42,7 @@ const ProgramSidebar = () => {
       {
         programDuration && (
           <ProgramSidebarListItem
-            icon={faClock}
+            icon={AccessTime}
             label="Length"
             content={programDuration}
           />
@@ -51,7 +51,7 @@ const ProgramSidebar = () => {
       {
         totalEstimatedEffortInHoursPerWeek && (
           <ProgramSidebarListItem
-            icon={faTachometerAlt}
+            icon={Speed}
             label="Effort"
             content={totalEstimatedEffortInHoursPerWeek}
           />

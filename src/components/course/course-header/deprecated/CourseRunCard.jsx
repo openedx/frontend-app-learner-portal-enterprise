@@ -1,9 +1,9 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import { useLocation } from 'react-router-dom';
 import { Card } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { useLocation } from 'react-router-dom';
 
 import EnrollAction from '../../enrollment/EnrollAction';
 import CourseRunCardStatus from '../CourseRunCardStatus';
@@ -145,7 +145,7 @@ const CourseRunCard = ({
         // Course will be available in the future
         return [
           'Coming soon',
-          `Enroll after ${moment(courseStartDate).format(DATE_FORMAT)}`,
+          `Enroll after ${dayjs(courseStartDate).format(DATE_FORMAT)}`,
           DEFAULT_BUTTON_LABEL,
         ];
       }
@@ -161,7 +161,7 @@ const CourseRunCard = ({
       // User is enrolled
       return [
         !isCourseStarted
-          ? `Starts ${moment(courseStartDate).format(DATE_FORMAT)}`
+          ? `Starts ${dayjs(courseStartDate).format(DATE_FORMAT)}`
           : 'Course started',
         'You are enrolled',
         'View course',
@@ -180,11 +180,11 @@ const CourseRunCard = ({
       ? `${formatStringAsNumber(enrollmentCount)} recently enrolled!`
       : 'Be the first to enroll!';
 
-    let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${moment(courseStartDate).format(DATE_FORMAT)}`;
+    let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${dayjs(courseStartDate).format(DATE_FORMAT)}`;
 
     if (isCourseSelfPaced(pacingType)) {
       if (isCourseStarted) {
-        tempHeading = hasTimeToComplete(courseRun) ? `Starts ${moment().format(DATE_FORMAT)}` : 'Course started';
+        tempHeading = hasTimeToComplete(courseRun) ? `Starts ${dayjs().format(DATE_FORMAT)}` : 'Course started';
       }
     }
     return [

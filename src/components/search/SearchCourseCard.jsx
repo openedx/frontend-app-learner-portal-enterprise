@@ -12,9 +12,21 @@ import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { GENERAL_LENGTH_COURSE, SHORT_LENGTH_COURSE } from './data/constants';
 import { isShortCourse } from './utils';
 
-const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
+const SearchCourseCard = ({
+  key, hit, isLoading, ...rest
+}) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const navigate = useNavigate();
+
+  const eventName = useMemo(
+    () => {
+      if (key?.startsWith('career-tab')) {
+        return 'edx.ui.enterprise.learner_portal.career_tab.course_recommendation.clicked';
+      }
+      return 'edx.ui.enterprise.learner_portal.search.card.clicked';
+    },
+    [key],
+  );
 
   const course = useMemo(
     () => {
@@ -65,7 +77,7 @@ const SearchCourseCard = ({ hit, isLoading, ...rest }) => {
     }
     sendEnterpriseTrackEvent(
       uuid,
-      'edx.ui.enterprise.learner_portal.search.card.clicked',
+      eventName,
       {
         objectID: course.objectId,
         position: course.position,
@@ -126,11 +138,13 @@ SearchCourseCard.propTypes = {
     title: PropTypes.string,
   }),
   isLoading: PropTypes.bool,
+  key: PropTypes.string,
 };
 
 SearchCourseCard.defaultProps = {
   hit: undefined,
   isLoading: false,
+  key: undefined,
 };
 
 SearchCourseCard.Skeleton = SkeletonCourseCard;

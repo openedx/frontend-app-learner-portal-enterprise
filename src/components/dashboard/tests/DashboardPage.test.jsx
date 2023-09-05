@@ -141,6 +141,8 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(() => mockLocation),
 }));
 
+jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect', () => jest.fn(() => <div />));
+
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: jest.fn(() => mockAuthenticatedUser),

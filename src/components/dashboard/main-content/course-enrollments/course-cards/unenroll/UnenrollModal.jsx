@@ -34,8 +34,8 @@ const UnenrollModal = ({
   };
 
   const handleUnenrollButtonClick = async () => {
-    setBtnState('pending');
     try {
+      setBtnState('pending');
       await unenrollFromCourse({
         courseId: courseRunId,
       });

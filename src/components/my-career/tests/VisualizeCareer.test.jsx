@@ -3,10 +3,13 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import * as hooks from '../data/hooks';
 
 import { renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -14,7 +17,7 @@ jest.mock('@edx/frontend-platform/i18n', () => ({
   getMessages: () => ({}),
 }));
 
-jest.mock('plotly.js-dist', () => {});
+jest.mock('plotly.js-dist', () => { });
 
 jest.mock('../data/hooks', () => ({
   usePlotlySpiderChart: jest.fn(),
@@ -141,12 +144,59 @@ const defaultAppState = {
   enterpriseConfig: {
     slug: 'test-enterprise',
   },
+  authenticatedUser: {
+    username: 'enterprise-learner-1',
+  },
 };
 
-const VisualizeCareerWithContext = ({ initialAppState = defaultAppState }) => (
+const defaultSubsidyRequestState = {
+  subsidyRequestConfiguration: null,
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+  catalogsForSubsidyRequests: [],
+};
+
+const defaultCouponCodesState = {
+  couponCodes: [],
+  loading: false,
+  couponCodesCount: 0,
+};
+
+const expiringSubscriptionUserSubsidyState = {
+  subsidyRequestConfiguration: null,
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+  catalogsForSubsidyRequests: [],
+  subscriptionPlan: {
+    daysUntilExpiration: 60,
+  },
+  showExpirationNotifications: false,
+  couponCodes: defaultCouponCodesState,
+};
+
+const defaultSearchContext = {
+  refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
+  dispatch: () => null,
+};
+
+const VisualizeCareerWithContext = ({
+  initialAppState = defaultAppState,
+  initialSubsidyRequestState = defaultSubsidyRequestState,
+  initialUserSubsidyState = expiringSubscriptionUserSubsidyState,
+}) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <VisualizeCareer jobId={27} />
+      <SearchContext.Provider value={defaultSearchContext}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+            <VisualizeCareer jobId={27} />
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );

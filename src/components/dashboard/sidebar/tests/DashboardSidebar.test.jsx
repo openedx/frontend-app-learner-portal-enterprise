@@ -19,6 +19,12 @@ import CourseEnrollmentsContextProvider from '../../main-content/course-enrollme
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
 
+const mockEnterpriseOffer = {
+  isCurrent: true,
+  uuid: 'enterprise-offer-id',
+  endDatetime: '2021-10-25',
+};
+
 const DashboardSidebarWithContext = ({
   initialAppState = { fakeContext: 'foo' },
   initialUserSubsidyState = {},
@@ -174,9 +180,7 @@ describe('<DashboardSidebar />', () => {
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
           customerAgreementConfig: undefined,
-          enterpriseOffers: [{
-            uuid: 'enterprise-offer-id',
-          }],
+          enterpriseOffers: [mockEnterpriseOffer],
           canEnrollWithEnterpriseOffers: true,
         }}
       />,
@@ -189,9 +193,7 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...userSubsidyStateWithSubscription,
-          enterpriseOffers: [{
-            uuid: 'enterprise-offer-id',
-          }],
+          enterpriseOffers: [mockEnterpriseOffer],
           canEnrollWithEnterpriseOffers: true,
         }}
       />,
@@ -208,9 +210,7 @@ describe('<DashboardSidebar />', () => {
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
           couponCodes: { ...defaultUserSubsidyState.couponCodes, couponCodesCount: 2 },
-          enterpriseOffers: [{
-            uuid: 'enterprise-offer-id',
-          }],
+          enterpriseOffers: [mockEnterpriseOffer],
           canEnrollWithEnterpriseOffers: true,
         }}
       />,

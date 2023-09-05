@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, useToggle } from '@edx/paragon';
-import moment from 'moment';
 import { WarningFilled } from '@edx/paragon/icons';
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
@@ -21,6 +20,7 @@ import {
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
 } from './data/constants';
 import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
+import dayjs from '../../../utils/dayjs';
 
 const SubscriptionSummaryCard = ({
   subscriptionPlan, licenseRequest, className, courseEndDate, programProgressPage,
@@ -107,7 +107,7 @@ const SubscriptionSummaryCard = ({
               <>
                 {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
                   ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-                {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
+                {' '}<span className="font-weight-bold">{dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
               </>
             ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
           }
@@ -139,7 +139,7 @@ const SubscriptionSummaryCard = ({
           <>
             {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
               ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
-            {' '}<span className="font-weight-bold">{moment(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
+            {' '}<span className="font-weight-bold">{dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
           </>
         ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
       }

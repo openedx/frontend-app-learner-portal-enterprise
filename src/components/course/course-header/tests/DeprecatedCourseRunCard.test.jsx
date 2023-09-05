@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -22,7 +22,7 @@ import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
 
 const COURSE_UUID = 'foo';
-const COURSE_RUN_START = moment().format();
+const COURSE_RUN_START = dayjs().format();
 const COURSE_WEEKS_TO_COMPLETE = 1;
 const DATE_FORMAT = 'MMM D';
 const COURSE_ID = '123';
@@ -40,7 +40,6 @@ jest.mock('../../enrollment/EnrollAction', () => function EnrollAction({ enrollL
 jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
-  useCatalogsForSubsidyRequests: jest.fn(() => []),
   useCoursePriceForUserSubsidy: jest.fn(() => []),
 }));
 
@@ -68,7 +67,7 @@ const generateCourseRun = ({
   enrollmentCount,
   isEnrollable,
   start,
-  end: moment().add(COURSE_WEEKS_TO_COMPLETE + 1, 'weeks').format(),
+  end: dayjs().add(COURSE_WEEKS_TO_COMPLETE + 1, 'weeks').format(),
   key: COURSE_ID,
   seats: [{ sku: 'sku', type: COURSE_MODES_MAP.VERIFIED }],
   courseUuid: COURSE_UUID,
@@ -163,7 +162,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     renderCard({
       courseRun,
     });
-    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
     expect(screen.queryByText('Enroll')).toBeInTheDocument();
@@ -172,7 +171,7 @@ describe('<DeprecatedCourseRunCard />', () => {
   test('Course self is paced, has not started, and enrollment count', () => {
     // The user has a mocked subsidy from renderCard default values,
     // so they should see an enroll button.
-    const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
+    const courseRunStart = dayjs(COURSE_RUN_START).add(1, 'd').format();
     const courseRun = generateCourseRun({
       start: courseRunStart,
       enrollmentCount: 1000,
@@ -180,7 +179,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     renderCard({
       courseRun,
     });
-    const startDate = moment(courseRunStart).format(DATE_FORMAT);
+    const startDate = dayjs(courseRunStart).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('1,000 recently enrolled!')).toBeInTheDocument();
     expect(screen.queryByText('Enroll')).toBeInTheDocument();
@@ -192,7 +191,7 @@ describe('<DeprecatedCourseRunCard />', () => {
     renderCard({
       courseRun,
     });
-    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
     expect(screen.getByText(enrollButtonTypes.HIDE_BUTTON)).toBeInTheDocument();
@@ -214,7 +213,7 @@ describe('<DeprecatedCourseRunCard />', () => {
       initialUserSubsidyState: noUserSubsidyState,
       userCanRequestSubsidyForCourse: true,
     });
-    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
     expect(screen.getByText(enrollButtonTypes.HIDE_BUTTON)).toBeInTheDocument();
@@ -238,18 +237,18 @@ describe('<DeprecatedCourseRunCard />', () => {
       initialUserSubsidyState: noUserSubsidyState,
       subsidyRequestCatalogsApplicableToCourse: new Set(),
     });
-    const startDate = moment(COURSE_RUN_START).format(DATE_FORMAT);
+    const startDate = dayjs(COURSE_RUN_START).format(DATE_FORMAT);
     expect(screen.getByText(`Starts ${startDate}`)).toBeInTheDocument();
     expect(screen.getByText('Be the first to enroll!')).toBeInTheDocument();
     expect(screen.getByText(enrollButtonTypes.ENROLL_DISABLED)).toBeInTheDocument();
   });
 
   test('User is enrolled, and course not started', () => {
-    const courseRunStart = moment(COURSE_RUN_START).add(1, 'd').format();
+    const courseRunStart = dayjs(COURSE_RUN_START).add(1, 'd').format();
     const courseRun = generateCourseRun({
       start: courseRunStart,
     });
-    const startDate = moment(courseRunStart).format(DATE_FORMAT);
+    const startDate = dayjs(courseRunStart).format(DATE_FORMAT);
     renderCard({
       courseRun,
       userEnrollments: [{

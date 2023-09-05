@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import dayjs from '../../../../../utils/dayjs';
 
 const Notification = props => (
   <li>
@@ -20,10 +21,10 @@ const Notification = props => (
           </a>
           {' is due '}
           <span className="font-weight-bold">
-            {moment(props.date).fromNow()}
+            {dayjs(props.date).fromNow()}
           </span>
           {' on '}
-          {moment(props.date).format('ddd MMMM D, YYYY')}
+          {dayjs(props.date).format('ddd MMMM D, YYYY')}
         </div>
       </div>
     </div>

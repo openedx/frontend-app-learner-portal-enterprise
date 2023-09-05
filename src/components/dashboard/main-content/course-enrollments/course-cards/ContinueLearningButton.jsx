@@ -4,7 +4,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import classNames from 'classnames';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-
+import dayjs from 'dayjs';
+import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
 /**
  * A 'Continue Learning' button with parameters.
  *
@@ -20,6 +21,8 @@ const ContinueLearningButton = ({
   linkToCourse,
   title,
   courseRunId,
+  startDate,
+  mode,
 }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
@@ -32,13 +35,26 @@ const ContinueLearningButton = ({
       },
     );
   };
+
+  const isCourseStarted = () => dayjs(startDate) <= dayjs();
+  const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+  const execClassName = (isExecutiveEducation2UCourse) && (!isCourseStarted()) ? ' disabled btn-outline-secondary' : undefined;
+
+  const renderContent = () => {
+    if (isExecutiveEducation2UCourse && !isCourseStarted() && startDate) {
+      const formattedStartDate = dayjs(startDate).format('MMM D, YYYY');
+      return `Available on ${formattedStartDate}`;
+    }
+    return 'Resume';
+  };
+
   return (
     <a
-      className={classNames('btn btn-xs-block', className)}
+      className={classNames('btn btn-xs-block', execClassName, className)}
       href={linkToCourse}
       onClick={onClickHandler}
     >
-      Resume
+      {renderContent()}
       <span className="sr-only">for {title}</span>
     </a>
   );
@@ -46,6 +62,8 @@ const ContinueLearningButton = ({
 
 ContinueLearningButton.defaultProps = {
   className: 'btn-outline-primary',
+  startDate: null,
+  mode: null,
 };
 
 ContinueLearningButton.propTypes = {
@@ -53,6 +71,8 @@ ContinueLearningButton.propTypes = {
   linkToCourse: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   courseRunId: PropTypes.string.isRequired,
+  startDate: PropTypes.string,
+  mode: PropTypes.string,
 };
 
 export default ContinueLearningButton;

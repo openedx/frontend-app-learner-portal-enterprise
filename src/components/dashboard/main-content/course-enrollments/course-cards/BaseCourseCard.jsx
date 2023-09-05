@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import {
   Dropdown, Badge, IconButton, Icon, Skeleton,
 } from '@edx/paragon';
@@ -11,6 +10,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MoreVert } from '@edx/paragon/icons';
 
+import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_STATUSES, COURSE_PACING, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
@@ -50,12 +50,12 @@ class BaseCourseCard extends Component {
 
   getDropdownMenuItems = () => {
     const {
-      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll,
+      hasEmailsEnabled, title, dropdownMenuItems, canUnenroll, mode,
     } = this.props;
     const firstMenuItems = [];
     const lastMenuItems = [];
-
-    if (hasEmailsEnabled !== null) {
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    if (hasEmailsEnabled !== null && !isExecutiveEducation2UCourse) {
       firstMenuItems.push({
         key: 'email-settings',
         type: 'button',
@@ -89,7 +89,7 @@ class BaseCourseCard extends Component {
 
   getDateMessage = () => {
     const { type, pacing, endDate } = this.props;
-    const formattedEndDate = endDate ? moment(endDate).format('MMMM D, YYYY') : null;
+    const formattedEndDate = endDate ? dayjs(endDate).format('MMMM D, YYYY') : null;
     let message = '';
     if (formattedEndDate) {
       switch (type) {
@@ -104,7 +104,7 @@ class BaseCourseCard extends Component {
         case COURSE_STATUSES.upcoming:
         case COURSE_STATUSES.completed:
         case COURSE_STATUSES.savedForLater: {
-          const isCourseEnded = moment() > moment(endDate);
+          const isCourseEnded = dayjs() > dayjs(endDate);
           message += isCourseEnded ? 'Ended' : 'Ends';
           message += ` ${formattedEndDate}.`;
           break;
@@ -124,7 +124,7 @@ class BaseCourseCard extends Component {
     if (pacing) {
       message += 'This course ';
       message += isCourseEnded ? 'was ' : 'is ';
-      message += `${pacing}-paced. `;
+      message += `${pacing}-led. `;
     }
     if (dateMessage) {
       message += dateMessage;
@@ -146,7 +146,7 @@ class BaseCourseCard extends Component {
 
   isCourseEnded = () => {
     const { endDate } = this.props;
-    return moment(endDate) < moment();
+    return dayjs(endDate) < dayjs();
   };
 
   handleEmailSettingsButtonClick = () => {
@@ -241,7 +241,9 @@ class BaseCourseCard extends Component {
   };
 
   renderSettingsDropdown = (menuItems) => {
-    const { title } = this.props;
+    const { title, mode } = this.props;
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-100' : '';
     if (menuItems && menuItems.length > 0) {
       return (
         <div className="ml-auto">
@@ -252,6 +254,7 @@ class BaseCourseCard extends Component {
               iconAs={Icon}
               alt={`course settings for ${title}`}
               id="course-enrollment-card-settings-dropdown-toggle"
+              iconClassNames={execEdClass}
             />
             <Dropdown.Menu>
               {menuItems.map(menuItem => (
@@ -320,12 +323,24 @@ class BaseCourseCard extends Component {
     return null;
   };
 
+  renderCourseStartDate = () => {
+    const { startDate, mode } = this.props;
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
+
+    if (isExecutiveEducation2UCourse && formattedStartDate) {
+      return <>&#x2022; Start date: {formattedStartDate}</>;
+    }
+    return null;
+  };
+
   renderOrganizationName = () => {
     const { orgName, mode } = this.props;
 
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-300' : '';
     if (orgName) {
-      return <p className="mb-0">{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>}</p>;
+      return <p className={`mb-0 ${execEdClass}`}>{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>} {this.renderCourseStartDate()}</p>;
     }
     return null;
   };
@@ -389,7 +404,7 @@ class BaseCourseCard extends Component {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
     return (
-      <div className={`dashboard-course-card py-4 border-bottom ${isExecutiveEducation2UCourse && 'bg-dark-200 rounded-lg p-3 text-light-100'}`}>
+      <div className={`dashboard-course-card py-4 border-bottom ${isExecutiveEducation2UCourse && 'exec-ed-course-card bg-dark-200 rounded-lg p-3 text-light-100'}`}>
         {isLoading ? (
           <>
             <div className="sr-only">Loading...</div>
@@ -403,7 +418,7 @@ class BaseCourseCard extends Component {
                   {this.renderMicroMastersTitle()}
                   <div className="d-flex align-items-start justify-content-between mb-1">
                     <h4 className="course-title mb-0 mr-2">
-                      <a className={`h3 ${isExecutiveEducation2UCourse && 'text-light-100'}`} href={linkToCourse}>{title}</a>
+                      <a className={`h3 ${isExecutiveEducation2UCourse && 'text-white'}`} href={linkToCourse}>{title}</a>
                     </h4>
                     {
                       BADGE_PROPS_BY_COURSE_STATUS[type] && (
@@ -421,7 +436,7 @@ class BaseCourseCard extends Component {
               {this.renderButtons()}
               {this.renderChildren()}
               <div className="course-misc-text row">
-                <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-900' : 'text-gray' }`}>
+                <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
                   <small className="mb-0">
                     {this.getCourseMiscText()}
                   </small>

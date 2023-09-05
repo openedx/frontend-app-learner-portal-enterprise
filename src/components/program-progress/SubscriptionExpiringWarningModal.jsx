@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import moment from 'moment';
+import PropTypes from 'prop-types';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
-import PropTypes from 'prop-types';
+import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from './data/constants';
 
@@ -43,7 +43,7 @@ const SubscriptionExpirationWarningModal = ({
         If you plan to complete the program, please {renderContactText()} to ensure your subscription access is renewed.
       </p>
       <i>
-        Access expires: {moment(expirationDate).format('MMMM Do, YYYY')}.
+        Access expires: {dayjs(expirationDate).format('MMMM Do, YYYY')}.
       </i>
     </>
   );
