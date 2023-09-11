@@ -9,14 +9,16 @@ import {
 } from './data/constants';
 import SidebarCard from './SidebarCard';
 
+function getOfferExpiringFirst(offers) {
+  return offers
+    .filter(offer => offer.isCurrent)
+    .sort((a, b) => new Date(a.endDatetime) - new Date(b.endDatetime))[0];
+}
+
 const EnterpriseOffersSummaryCard = ({
   className, offers, searchCoursesCta,
 }) => {
-  const totalRemainingBalanceForUser = offers.reduce(
-    (accumulator, currentOffer) => accumulator + (currentOffer.remainingBalanceForUser || 0),
-    0,
-  );
-  const offerExpiringFirst = offers.sort((a, b) => new Date(a.endDatetime) - new Date(b.endDatetime))[0];
+  const offerExpiringFirst = getOfferExpiringFirst(offers);
 
   return (
     <SidebarCard
@@ -36,25 +38,14 @@ const EnterpriseOffersSummaryCard = ({
       }
       cardClassNames={className}
     >
-      {totalRemainingBalanceForUser
-        ? (
-          <p data-testid="offer-summary-text-detailed">
-            Apply your <b>${totalRemainingBalanceForUser}</b>{' '}
-            balance to enroll into courses.
-          </p>
-        )
-        : (
-          <p data-testid="offer-summary-text">
-            Apply your organization&apos;s learner credit balance to enroll into courses with no out of pocket cost.
-          </p>
-        )}
-
-      {offerExpiringFirst.endDatetime && (
+      <p data-testid="offer-summary-text">
+        Apply your organization&apos;s Learner Credit balance to enroll into courses with no out of pocket cost.
+      </p>
+      {offerExpiringFirst?.endDatetime && (
         <p data-testid="offer-summary-end-date-text">
           Available until <b>{dayjs(offerExpiringFirst.endDatetime).format('MMM D, YYYY')}</b>
         </p>
       )}
-
       {searchCoursesCta && (
         <Row className="mt-3 d-flex justify-content-end">
           <Col xl={12}>{searchCoursesCta}</Col>
