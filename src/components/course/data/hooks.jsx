@@ -656,30 +656,48 @@ export const useUserSubsidyApplicableToCourse = ({
     }
 
     const {
-      catalog: {
-        containsContentItems,
-        catalogList: catalogsWithCourse,
-      },
+      catalog: { containsContentItems, catalogList: catalogsWithCourse },
       courseDetails,
     } = courseData;
 
     let applicableUserSubsidy;
 
-    // if course can be redeemed with a subsidy access policy, return `learnerCredit` subsidy type.
-    if (isPolicyRedemptionEnabled) {
-      // the enterprise-access `can-redeem` API returns `can_redeem: false` when a learner
-      // has already redeemed a course. This means the course page thinks the learner no
-      // longer has any subsidy available to spend. `isPolicyRedemptionEnabled` is true when
-      // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be null.
-      applicableUserSubsidy = {
-        discountType: 'percentage',
-        discountValue: 100,
-        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-        perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
-        perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
-        policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
-      };
-    }
+    const getSubscriptionLicenseSubsidy = async () => {
+      if (!subscriptionLicense) {
+        return null;
+      }
+      try {
+        // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+        const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
+        if (fetchLicenseSubsidyResponse) {
+          return camelCaseObject(fetchLicenseSubsidyResponse.data);
+        }
+      } catch (error) {
+        logError(error);
+        if (onSubscriptionLicenseForCourseValidationError) {
+          onSubscriptionLicenseForCourseValidationError(error);
+        }
+      }
+      return null;
+    };
+
+    const setLearnerCreditSubsidy = () => {
+      // if course can be redeemed with a subsidy access policy, return `learnerCredit` subsidy type.
+      if (isPolicyRedemptionEnabled) {
+        // the enterprise-access `can-redeem` API returns `can_redeem: false` when a learner
+        // has already redeemed a course. This means the course page thinks the learner no
+        // longer has any subsidy available to spend. `isPolicyRedemptionEnabled` is true when
+        // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be null.
+        applicableUserSubsidy = {
+          discountType: 'percentage',
+          discountValue: 100,
+          subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+          perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
+          perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
+          policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
+        };
+      }
+    };
 
     // otherwise, fallback to existing legacy subsidies.
     const retrieveApplicableLegacySubsidy = async () => {
@@ -687,21 +705,8 @@ export const useUserSubsidyApplicableToCourse = ({
       if (!containsContentItems) {
         return undefined;
       }
-      let licenseApplicableToCourse;
-      if (subscriptionLicense) {
-        try {
-          // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
-          const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
-          if (fetchLicenseSubsidyResponse) {
-            licenseApplicableToCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
-          }
-        } catch (error) {
-          logError(error);
-          if (onSubscriptionLicenseForCourseValidationError) {
-            onSubscriptionLicenseForCourseValidationError(error);
-          }
-        }
-      }
+      const licenseApplicableToCourse = await getSubscriptionLicenseSubsidy();
+
       const coursePrice = getCourseRunPrice({
         courseDetails,
         firstEnrollablePaidSeatPrice: courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice,
@@ -717,9 +722,7 @@ export const useUserSubsidyApplicableToCourse = ({
       });
     };
 
-    const enterpriseAdminUsers = (
-      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
-    );
+    const enterpriseAdminUsers = missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers;
 
     const handleMissingUserSubsidyReason = () => {
       setUserSubsidyApplicableToCourse(undefined);
@@ -789,13 +792,11 @@ export const useUserSubsidyApplicableToCourse = ({
     if (applicableUserSubsidy) {
       setUserSubsidyApplicableToCourse(applicableUserSubsidy);
       setMissingUserSubsidyReason(undefined);
-    } else {
-      // If have not yet determined whether there is an applicable subsidy access policy, fallback
-      // to checking against legacy subsidies.
+    } else if (subscriptionLicense && containsContentItems) {
       retrieveApplicableLegacySubsidy().then((legacyUserSubsidyApplicableToCourse) => {
         if (legacyUserSubsidyApplicableToCourse) {
-          // check for exceeded remaining spend/enrollments and per-learner limits if it's an enterprise offer
           if (legacyUserSubsidyApplicableToCourse.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
+            // check for exceeded remaining spend/enrollments and per-learner limits if it's an enterprise offer
             const redeemableOffer = determineOfferRedeemability({
               offer: legacyUserSubsidyApplicableToCourse,
               coursePrice: courseListPrice,
@@ -841,9 +842,15 @@ export const useUserSubsidyApplicableToCourse = ({
             setMissingUserSubsidyReason(undefined);
           }
         } else {
+          setLearnerCreditSubsidy();
           handleMissingUserSubsidyReason();
         }
       });
+    } else if (isPolicyRedemptionEnabled) {
+      setLearnerCreditSubsidy();
+      handleMissingUserSubsidyReason();
+    } else {
+      handleMissingUserSubsidyReason();
     }
   }, [
     courseService,
@@ -862,10 +869,13 @@ export const useUserSubsidyApplicableToCourse = ({
     couponsOverview,
   ]);
 
-  return useMemo(() => ({
-    userSubsidyApplicableToCourse,
-    missingUserSubsidyReason,
-  }), [userSubsidyApplicableToCourse, missingUserSubsidyReason]);
+  return useMemo(
+    () => ({
+      userSubsidyApplicableToCourse,
+      missingUserSubsidyReason,
+    }),
+    [userSubsidyApplicableToCourse, missingUserSubsidyReason],
+  );
 };
 
 export const useMinimalCourseMetadata = () => {
