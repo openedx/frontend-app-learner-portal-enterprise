@@ -789,10 +789,9 @@ export const useUserSubsidyApplicableToCourse = ({
         });
       }
     };
-    if (applicableUserSubsidy) {
-      setUserSubsidyApplicableToCourse(applicableUserSubsidy);
-      setMissingUserSubsidyReason(undefined);
-    } else if (subscriptionLicense && containsContentItems) {
+
+    setLearnerCreditSubsidy();
+    if (subscriptionLicense && containsContentItems) {
       retrieveApplicableLegacySubsidy().then((legacyUserSubsidyApplicableToCourse) => {
         if (legacyUserSubsidyApplicableToCourse) {
           if (legacyUserSubsidyApplicableToCourse.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
@@ -837,20 +836,15 @@ export const useUserSubsidyApplicableToCourse = ({
                 }),
               });
             }
-          } else {
-            setUserSubsidyApplicableToCourse(legacyUserSubsidyApplicableToCourse);
+          } else if (applicableUserSubsidy) {
+            setUserSubsidyApplicableToCourse(applicableUserSubsidy);
             setMissingUserSubsidyReason(undefined);
           }
         } else {
-          setLearnerCreditSubsidy();
-          handleMissingUserSubsidyReason();
+          setLearnerCreditSubsidy(legacyUserSubsidyApplicableToCourse);
+          handleMissingUserSubsidyReason(undefined);
         }
       });
-    } else if (isPolicyRedemptionEnabled) {
-      setLearnerCreditSubsidy();
-      handleMissingUserSubsidyReason();
-    } else {
-      handleMissingUserSubsidyReason();
     }
   }, [
     courseService,
