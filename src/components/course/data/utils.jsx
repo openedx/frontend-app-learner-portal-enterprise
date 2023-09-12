@@ -11,9 +11,11 @@ import {
   COURSE_MODES_MAP,
   COURSE_PACING_MAP,
   DISABLED_ENROLL_REASON_TYPES,
+  DISABLED_ENROLL_USER_MESSAGES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
+  LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
 } from './constants';
 import MicroMastersSvgIcon from '../../../assets/icons/micromasters.svg';
@@ -407,10 +409,291 @@ export function shortenString(str, maxLength, suffix, separator = ' ') {
   return `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
+export const isCurrentCoupon = (coupon) => dayjs(Date.now()).isBetween(
+  coupon.startDate,
+  coupon.endDate,
+  'day',
+  '[]',
+);
+
+const parseReasonTypeBasedOnEnterpriseAdmins = ({ hasEnterpriseAdminUsers, reasonTypes }) => {
+  if (hasEnterpriseAdminUsers) {
+    return reasonTypes.hasAdmins;
+  }
+  return reasonTypes.hasNoAdmins;
+};
+
+export const getCouponCodesDisabledEnrollmentReasonType = ({
+  catalogsWithCourse,
+  couponsOverview,
+  hasEnterpriseAdminUsers,
+}) => {
+  const applicableCouponsToCatalog = couponsOverview?.data?.results.filter(
+    coupon => catalogsWithCourse.includes(coupon.enterpriseCatalogUuid),
+  ) || [];
+  const hasCouponsApplicableToCourse = applicableCouponsToCatalog.length > 0;
+  if (!hasCouponsApplicableToCourse) {
+    return undefined;
+  }
+
+  const hasExpiredCoupons = applicableCouponsToCatalog.every(
+    coupon => !isCurrentCoupon(coupon),
+  );
+  const hasExhaustedCoupons = applicableCouponsToCatalog.every(
+    coupon => isCurrentCoupon(coupon) && coupon.numUnassigned === 0,
+  );
+  const applicableCouponNonExpiredNonExhausted = applicableCouponsToCatalog.find(
+    coupon => isCurrentCoupon(coupon) && coupon.numUnassigned > 0,
+  );
+
+  if (hasExpiredCoupons) {
+    // If customer's coupon(s) containing the course being viewed have expired,
+    // change `reasonType` to use the `COUPON_CODES_EXPIRED` message.
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED_NO_ADMINS,
+      },
+    });
+  }
+
+  if (hasExhaustedCoupons || applicableCouponNonExpiredNonExhausted) {
+    // If customer has a coupon(s) containing the course being viewed that is not expired
+    // nor exhausted, change `reasonType` to use the `COUPON_CODE_NOT_ASSIGNED` message.
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED_NO_ADMINS,
+      },
+    });
+  }
+
+  return undefined;
+};
+
+export const getSubscriptionDisabledEnrollmentReasonType = ({
+  customerAgreementConfig,
+  catalogsWithCourse,
+  subscriptionLicense,
+  hasEnterpriseAdminUsers,
+}) => {
+  const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
+    subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
+  ) || [];
+
+  const hasSubscriptionsApplicableToCourse = subscriptionsApplicableToCourse.length > 0;
+  if (!hasSubscriptionsApplicableToCourse) {
+    return undefined;
+  }
+
+  const hasExpiredSubscriptions = subscriptionsApplicableToCourse.every(
+    subscription => subscription.daysUntilExpirationIncludingRenewals < 0,
+  );
+  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse.every(
+    subscription => subscription?.licenses?.unassigned === 0,
+  );
+  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse.find(
+    subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
+  );
+
+  if (hasExpiredSubscriptions) {
+    // If customer's subscription plan(s) containing the course being viewed have expired,
+    // change `reasonType` to use the `SUBSCRIPTION_EXPIRED` message.
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
+      },
+    });
+  }
+
+  if (hasExhaustedSubscriptions) {
+    // If customer's subscription plan(s) containing the course being viewed no longer have
+    // any remaining seats, change `reasonType` to use the `SUBSCRIPTION_SEATS_EXHAUSTED` message.
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
+      },
+    });
+  }
+
+  if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
+    // If learner's subscription license is revoked, change `reasonType` to use
+    // the `SUBSCRIPTION_DEACTIVATED` message.
+    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
+  }
+
+  if (applicableSubscriptionNonExpiredNonExhausted) {
+    // If customer has a subscription plan(s) containing the course being viewed that is not expired
+    // nor exhausted, change `reasonType` to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
+      },
+    });
+  }
+
+  // There is no applicable subscriptions-related reason for disabled enrollment.
+  return undefined;
+};
+
+/**
+ * Determines which CTA button, if any, should be displayed for a given
+ * missing subsidy reason.
+ *
+ * @param {object} args
+ * @param {string} args.reasonType Reason type for the missing subsidy.
+ * @param {array} args.enterpriseAdminUsers List of enterprise admin users.
+ */
+export const getMissingSubsidyReasonActions = ({
+  reasonType,
+  enterpriseAdminUsers,
+}) => {
+  const hasLimitsLearnMoreCTA = [
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
+  ].includes(reasonType);
+  const hasDeactivationLearnMoreCTA = [
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
+  ].includes(reasonType);
+  const hasContactAdministratorCTA = [
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+    DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
+    DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED,
+  ].includes(reasonType);
+
+  if (hasLimitsLearnMoreCTA) {
+    ensureConfig(['LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL']);
+    return (
+      <Button
+        as={Hyperlink}
+        className="text-center"
+        destination={getConfig().LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL}
+        target="_blank"
+        size="sm"
+        block
+      >
+        Learn about limits
+      </Button>
+    );
+  }
+
+  if (hasDeactivationLearnMoreCTA) {
+    ensureConfig(['LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL']);
+    return (
+      <Button
+        as={Hyperlink}
+        className="text-center"
+        destination={getConfig().LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL}
+        target="_blank"
+        size="sm"
+        block
+      >
+        Learn about deactivation
+      </Button>
+    );
+  }
+
+  if (hasContactAdministratorCTA) {
+    if (enterpriseAdminUsers?.length === 0) {
+      return null;
+    }
+    const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+    return (
+      <Button
+        as={MailtoLink}
+        className="text-center"
+        to={adminEmails}
+        target="_blank"
+        size="sm"
+        block
+      >
+        Contact administrator
+        <span className="sr-only">for help</span>
+      </Button>
+    );
+  }
+
+  return null;
+};
+
+export const getMissingApplicableSubsidyReason = ({
+  enterpriseAdminUsers,
+  catalogsWithCourse,
+  couponCodes,
+  couponsOverview,
+  customerAgreementConfig,
+  subscriptionLicense,
+  containsContentItems,
+}) => {
+  // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
+  let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
+
+  const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
+
+  // If there are admin users, change `reasonType` to use the
+  // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
+  if (hasEnterpriseAdminUsers) {
+    reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
+  }
+
+  const couponCodesDisabledEnrollmentReasonType = getCouponCodesDisabledEnrollmentReasonType({
+    catalogsWithCourse,
+    couponCodes,
+    couponsOverview,
+    hasEnterpriseAdminUsers,
+  });
+  const subscriptionsDisabledEnrollmentReasonType = getSubscriptionDisabledEnrollmentReasonType({
+    customerAgreementConfig,
+    catalogsWithCourse,
+    subscriptionLicense,
+    hasEnterpriseAdminUsers,
+  });
+
+  /**
+   * Prioritize the following order of disabled enrollment reasons:
+   * 1. Course not in catalog
+   * 2. Subscriptions related disabled enrollment reason
+   * 3. Coupon codes related disabled enrollment reason
+   */
+  if (couponCodesDisabledEnrollmentReasonType) {
+    reasonType = couponCodesDisabledEnrollmentReasonType;
+  }
+  if (subscriptionsDisabledEnrollmentReasonType) {
+    reasonType = subscriptionsDisabledEnrollmentReasonType;
+  }
+  if (!containsContentItems) {
+    reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
+  }
+  return {
+    reason: reasonType,
+    userMessage: DISABLED_ENROLL_USER_MESSAGES[reasonType],
+    actions: getMissingSubsidyReasonActions({
+      reasonType,
+      enterpriseAdminUsers,
+    }),
+  };
+};
+
 export const getSubsidyToApplyForCourse = ({
   applicableSubscriptionLicense = undefined,
   applicableCouponCode = undefined,
   applicableEnterpriseOffer = undefined,
+  applicableSubsidyAccessPolicy = undefined,
 }) => {
   if (applicableSubscriptionLicense) {
     return {
@@ -427,6 +710,18 @@ export const getSubsidyToApplyForCourse = ({
       endDate: applicableCouponCode.couponEndDate,
       code: applicableCouponCode.code,
       subsidyType: COUPON_CODE_SUBSIDY_TYPE,
+    };
+  }
+
+  if (applicableSubsidyAccessPolicy.isPolicyRedemptionEnabled) {
+    const { redeemableSubsidyAccessPolicy } = applicableSubsidyAccessPolicy;
+    return {
+      discountType: 'percentage',
+      discountValue: 100,
+      subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+      perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
+      perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
+      policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
     };
   }
 
@@ -615,228 +910,6 @@ export const getCourseRunPrice = ({
  * @returns Casts value to a float and fixes it to 2 decimal places.
  */
 export const fixDecimalNumber = (value) => parseFloat(value).toFixed(2);
-
-/**
- * Determines which CTA button, if any, should be displayed for a given
- * missing subsidy reason.
- *
- * @param {object} args
- * @param {string} args.reasonType Reason type for the missing subsidy.
- * @param {array} args.enterpriseAdminUsers List of enterprise admin users.
- */
-export const getMissingSubsidyReasonActions = ({
-  reasonType,
-  enterpriseAdminUsers,
-}) => {
-  const hasLimitsLearnMoreCTA = [
-    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
-    DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED,
-  ].includes(reasonType);
-  const hasDeactivationLearnMoreCTA = [
-    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
-  ].includes(reasonType);
-  const hasContactAdministratorCTA = [
-    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
-    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
-    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
-    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
-    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
-    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
-    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
-    DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
-    DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED,
-  ].includes(reasonType);
-
-  if (hasLimitsLearnMoreCTA) {
-    ensureConfig(['LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL']);
-    return (
-      <Button
-        as={Hyperlink}
-        className="text-center"
-        destination={getConfig().LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL}
-        target="_blank"
-        size="sm"
-        block
-      >
-        Learn about limits
-      </Button>
-    );
-  }
-
-  if (hasDeactivationLearnMoreCTA) {
-    ensureConfig(['LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL']);
-    return (
-      <Button
-        as={Hyperlink}
-        className="text-center"
-        destination={getConfig().LEARNER_SUPPORT_ABOUT_DEACTIVATION_URL}
-        target="_blank"
-        size="sm"
-        block
-      >
-        Learn about deactivation
-      </Button>
-    );
-  }
-
-  if (hasContactAdministratorCTA) {
-    if (enterpriseAdminUsers?.length === 0) {
-      return null;
-    }
-    const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
-    return (
-      <Button
-        as={MailtoLink}
-        className="text-center"
-        to={adminEmails}
-        target="_blank"
-        size="sm"
-        block
-      >
-        Contact administrator
-        <span className="sr-only">for help</span>
-      </Button>
-    );
-  }
-
-  return null;
-};
-
-const parseReasonTypeBasedOnEnterpriseAdmins = ({ hasEnterpriseAdminUsers, reasonTypes }) => {
-  if (hasEnterpriseAdminUsers) {
-    return reasonTypes.hasAdmins;
-  }
-  return reasonTypes.hasNoAdmins;
-};
-
-export const isCurrentCoupon = (coupon) => dayjs(Date.now()).isBetween(
-  coupon.startDate,
-  coupon.endDate,
-  'day',
-  '[]',
-);
-
-export const getCouponCodesDisabledEnrollmentReasonType = ({
-  catalogsWithCourse,
-  couponsOverview,
-  hasEnterpriseAdminUsers,
-}) => {
-  const applicableCouponsToCatalog = couponsOverview?.data?.results.filter(
-    coupon => catalogsWithCourse.includes(coupon.enterpriseCatalogUuid),
-  ) || [];
-  const hasCouponsApplicableToCourse = applicableCouponsToCatalog.length > 0;
-  if (!hasCouponsApplicableToCourse) {
-    return undefined;
-  }
-
-  const hasExpiredCoupons = applicableCouponsToCatalog.every(
-    coupon => !isCurrentCoupon(coupon),
-  );
-  const hasExhaustedCoupons = applicableCouponsToCatalog.every(
-    coupon => isCurrentCoupon(coupon) && coupon.numUnassigned === 0,
-  );
-  const applicableCouponNonExpiredNonExhausted = applicableCouponsToCatalog.find(
-    coupon => isCurrentCoupon(coupon) && coupon.numUnassigned > 0,
-  );
-
-  if (hasExpiredCoupons) {
-    // If customer's coupon(s) containing the course being viewed have expired,
-    // change `reasonType` to use the `COUPON_CODES_EXPIRED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODES_EXPIRED_NO_ADMINS,
-      },
-    });
-  }
-
-  if (hasExhaustedCoupons || applicableCouponNonExpiredNonExhausted) {
-    // If customer has a coupon(s) containing the course being viewed that is not expired
-    // nor exhausted, change `reasonType` to use the `COUPON_CODE_NOT_ASSIGNED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED_NO_ADMINS,
-      },
-    });
-  }
-
-  return undefined;
-};
-
-export const getSubscriptionDisabledEnrollmentReasonType = ({
-  customerAgreementConfig,
-  catalogsWithCourse,
-  subscriptionLicense,
-  hasEnterpriseAdminUsers,
-}) => {
-  const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
-    subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
-  ) || [];
-
-  const hasSubscriptionsApplicableToCourse = subscriptionsApplicableToCourse.length > 0;
-  if (!hasSubscriptionsApplicableToCourse) {
-    return undefined;
-  }
-
-  const hasExpiredSubscriptions = subscriptionsApplicableToCourse.every(
-    subscription => subscription.daysUntilExpirationIncludingRenewals < 0,
-  );
-  const hasExhaustedSubscriptions = subscriptionsApplicableToCourse.every(
-    subscription => subscription?.licenses?.unassigned === 0,
-  );
-  const applicableSubscriptionNonExpiredNonExhausted = subscriptionsApplicableToCourse.find(
-    subscription => subscription.daysUntilExpirationIncludingRenewals >= 0 && subscription?.licenses?.unassigned > 0,
-  );
-
-  if (hasExpiredSubscriptions) {
-    // If customer's subscription plan(s) containing the course being viewed have expired,
-    // change `reasonType` to use the `SUBSCRIPTION_EXPIRED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
-      },
-    });
-  }
-
-  if (hasExhaustedSubscriptions) {
-    // If customer's subscription plan(s) containing the course being viewed no longer have
-    // any remaining seats, change `reasonType` to use the `SUBSCRIPTION_SEATS_EXHAUSTED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED_NO_ADMINS,
-      },
-    });
-  }
-
-  if (subscriptionLicense?.status === LICENSE_STATUS.REVOKED) {
-    // If learner's subscription license is revoked, change `reasonType` to use
-    // the `SUBSCRIPTION_DEACTIVATED` message.
-    return DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED;
-  }
-
-  if (applicableSubscriptionNonExpiredNonExhausted) {
-    // If customer has a subscription plan(s) containing the course being viewed that is not expired
-    // nor exhausted, change `reasonType` to use the `SUBSCRIPTION_LICENSE_NOT_ASSIGNED` message.
-    return parseReasonTypeBasedOnEnterpriseAdmins({
-      hasEnterpriseAdminUsers,
-      reasonTypes: {
-        hasAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
-        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED_NO_ADMINS,
-      },
-    });
-  }
-
-  // There is no applicable subscriptions-related reason for disabled enrollment.
-  return undefined;
-};
 
 export const getCourseOrganizationDetails = (courseData) => {
   const organizationDetails = {};
