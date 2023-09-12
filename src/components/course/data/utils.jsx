@@ -544,6 +544,10 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   return undefined;
 };
 
+export const getEnterpriseOffersDisabledEnrollmentReasonType = ({}) => {
+  // TODO
+};
+
 /**
  * Determines which CTA button, if any, should be displayed for a given
  * missing subsidy reason.
@@ -639,6 +643,7 @@ export const getMissingApplicableSubsidyReason = ({
   customerAgreementConfig,
   subscriptionLicense,
   containsContentItems,
+  missingSubsidyAccessPolicyReason,
 }) => {
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
@@ -663,13 +668,23 @@ export const getMissingApplicableSubsidyReason = ({
     subscriptionLicense,
     hasEnterpriseAdminUsers,
   });
+  const enterpriseOffersDisabledEnrollmentReasonType = getEnterpriseOffersDisabledEnrollmentReasonType({});
 
   /**
    * Prioritize the following order of disabled enrollment reasons:
    * 1. Course not in catalog
    * 2. Subscriptions related disabled enrollment reason
    * 3. Coupon codes related disabled enrollment reason
+   * 4. Learner Credit related disabled enrollment reason.
+   * 4. Enterprise offers related disabled enrollment reason
    */
+  if (enterpriseOffersDisabledEnrollmentReasonType) {
+    reasonType = enterpriseOffersDisabledEnrollmentReasonType;
+  }
+  if (missingSubsidyAccessPolicyReason) {
+    // learner credit disabled enroll reason returned by API
+    // TODO
+  }
   if (couponCodesDisabledEnrollmentReasonType) {
     reasonType = couponCodesDisabledEnrollmentReasonType;
   }

@@ -713,6 +713,7 @@ export const useUserSubsidyApplicableToCourse = ({
           customerAgreementConfig,
           subscriptionLicense,
           containsContentItems,
+          missingSubsidyAccessPolicyReason,
         });
       }
       return {
