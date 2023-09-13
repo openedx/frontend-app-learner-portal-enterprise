@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../loading-spinner';
 import {
   useCouponCodes,
   useSubscriptions,
+  useRedeemableLearnerCreditPolicies,
 } from './data/hooks';
 import { useEnterpriseOffers } from './enterprise-offers/data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
@@ -18,6 +19,7 @@ export const UserSubsidyContext = createContext();
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
 
+  const { userId } = authenticatedUser;
   // Subscriptions
   const {
     customerAgreementConfig,
@@ -27,6 +29,11 @@ const UserSubsidy = ({ children }) => {
     showExpirationNotifications,
     activateUserLicense,
   } = useSubscriptions({ enterpriseConfig, authenticatedUser });
+
+  const {
+    data: redeemableLearnerCreditPolicies,
+    isLoading: isLoadingRedeemablePolicies,
+  } = useRedeemableLearnerCreditPolicies(enterpriseConfig.uuid, userId);
 
   // Coupon Codes
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
@@ -50,10 +57,11 @@ const UserSubsidy = ({ children }) => {
         isLoadingSubscriptions,
         isLoadingCouponCodes,
         isLoadingEnterpriseOffers,
+        isLoadingRedeemablePolicies,
       ];
       return loadingStates.includes(true);
     },
-    [isLoadingSubscriptions, isLoadingCouponCodes, isLoadingEnterpriseOffers],
+    [isLoadingSubscriptions, isLoadingCouponCodes, isLoadingEnterpriseOffers, isLoadingRedeemablePolicies],
   );
 
   const contextValue = useMemo(
@@ -72,6 +80,7 @@ const UserSubsidy = ({ children }) => {
         showExpirationNotifications,
         customerAgreementConfig,
         activateUserLicense,
+        redeemableLearnerCreditPolicies,
       };
     },
     [
@@ -86,6 +95,7 @@ const UserSubsidy = ({ children }) => {
       showExpirationNotifications,
       customerAgreementConfig,
       activateUserLicense,
+      redeemableLearnerCreditPolicies,
     ],
   );
 
