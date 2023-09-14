@@ -544,10 +544,38 @@ export const getSubscriptionDisabledEnrollmentReasonType = ({
   return undefined;
 };
 
-export const getEnterpriseOffersDisabledEnrollmentReasonType = ({}) => {
-  // TODO
+export const getEnterpriseOffersDisabledEnrollmentReasonType = ({
+  enterpriseOffers,
+  catalogsWithCourse,
+}) => {
+  if (!enterpriseOffers || enterpriseOffers.length === 0) {
+    return DISABLED_ENROLL_REASON_TYPES.NO_ENTERPRISE_OFFERS;
+  }
+
+  const offersForCourse = enterpriseOffers.filter(offer => catalogsWithCourse.includes(offer.enterpriseCatalogUuid));
+  if (!offersForCourse.length) {
+    return DISABLED_ENROLL_REASON_TYPES.COURSE_NOT_IN_ENTERPRISE_OFFERS;
+  }
+
+  const hasExpiredOffers = offersForCourse.every(offer => !offer.isCurrent);
+  if (hasExpiredOffers) {
+    return DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFERS_EXPIRED;
+  }
+
+  return undefined;
 };
 
+export const getLearnerCreditDisabledEnrollResponse = ({ redeemableSubsidyAccessPolicy, coursePrice}) => {
+  if (!redeemableSubsidyAccessPolicy) {
+    return DISABLED_ENROLL_REASON_TYPES.NO_LEARNER_CREDIT_POLICY;
+  }
+
+  if (coursePrice > redeemableSubsidyAccessPolicy.perLearnerSpendLimit) {
+    return DISABLED_ENROLL_REASON_TYPES.COURSE_PRICE_EXCEEDS_LEARNER_CREDIT_SPEND_LIMIT;
+  }
+
+  return undefined;
+};
 /**
  * Determines which CTA button, if any, should be displayed for a given
  * missing subsidy reason.
@@ -647,7 +675,7 @@ export const getMissingApplicableSubsidyReason = ({
 }) => {
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
-
+  let userMessage;
   const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
 
   // If there are admin users, change `reasonType` to use the
@@ -668,7 +696,14 @@ export const getMissingApplicableSubsidyReason = ({
     subscriptionLicense,
     hasEnterpriseAdminUsers,
   });
-  const enterpriseOffersDisabledEnrollmentReasonType = getEnterpriseOffersDisabledEnrollmentReasonType({});
+  const enterpriseOffersDisabledEnrollmentReasonType = getEnterpriseOffersDisabledEnrollmentReasonType({
+    enterpriseOffers: customerAgreementConfig?.enterpriseOffers,
+    catalogsWithCourse,
+  });
+  const learnerCreditDisabledEnrollmentReasonType = getLearnerCreditDisabledEnrollResponse({
+    redeemableSubsidyAccessPolicy: missingSubsidyAccessPolicyReason,
+    coursePrice: customerAgreementConfig?.price,
+  });
 
   /**
    * Prioritize the following order of disabled enrollment reasons:
@@ -676,14 +711,14 @@ export const getMissingApplicableSubsidyReason = ({
    * 2. Subscriptions related disabled enrollment reason
    * 3. Coupon codes related disabled enrollment reason
    * 4. Learner Credit related disabled enrollment reason.
-   * 4. Enterprise offers related disabled enrollment reason
+   * 5. Enterprise offers related disabled enrollment reason
    */
   if (enterpriseOffersDisabledEnrollmentReasonType) {
     reasonType = enterpriseOffersDisabledEnrollmentReasonType;
   }
   if (missingSubsidyAccessPolicyReason) {
-    // learner credit disabled enroll reason returned by API
-    // TODO
+    reasonType = missingSubsidyAccessPolicyReason.reason;
+    userMessage = missingSubsidyAccessPolicyReason.userMessage;
   }
   if (couponCodesDisabledEnrollmentReasonType) {
     reasonType = couponCodesDisabledEnrollmentReasonType;
@@ -691,12 +726,15 @@ export const getMissingApplicableSubsidyReason = ({
   if (subscriptionsDisabledEnrollmentReasonType) {
     reasonType = subscriptionsDisabledEnrollmentReasonType;
   }
+  if (learnerCreditDisabledEnrollmentReasonType) {
+    reasonType = learnerCreditDisabledEnrollmentReasonType;
+  }
   if (!containsContentItems) {
     reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
   }
   return {
     reason: reasonType,
-    userMessage: DISABLED_ENROLL_USER_MESSAGES[reasonType],
+    userMessage: userMessage ? reasonType : DISABLED_ENROLL_USER_MESSAGES[reasonType],
     actions: getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers,
