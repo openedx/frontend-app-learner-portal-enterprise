@@ -302,6 +302,9 @@ export const findEnterpriseOfferForCourse = ({
   }
   const orderedEnterpriseOffers = enterpriseOffers
     .filter((enterpriseOffer) => {
+      if (!enterpriseOffer.isCurrent) {
+        return false;
+      }
       const isCourseInCatalog = catalogsWithCourse.includes(enterpriseOffer.enterpriseCatalogUuid);
       if (!isCourseInCatalog) {
         return false;

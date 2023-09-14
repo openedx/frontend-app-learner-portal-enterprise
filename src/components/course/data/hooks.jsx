@@ -714,12 +714,16 @@ export const useUserSubsidyApplicableToCourse = ({
         missingApplicableSubsidyReason,
       };
     };
-    const applicableUserSubsidy = getApplicableSubsidyForCourse();
-    if (applicableUserSubsidy.applicableSubsidy) {
-      setUserSubsidyApplicableToCourse(applicableUserSubsidy.applicableSubsidy);
-    } else if (applicableUserSubsidy.missingApplicableSubsidyReason) {
-      setMissingUserSubsidyReason(applicableUserSubsidy.missingApplicableSubsidyReason);
-    }
+
+    const fetchApplicableSubsidy = async () => {
+      const result = await getApplicableSubsidyForCourse();
+      if (result.applicableSubsidy) {
+        setUserSubsidyApplicableToCourse(result.applicableSubsidy);
+      } else if (result.missingApplicableSubsidyReason) {
+        setMissingUserSubsidyReason(result.missingApplicableSubsidyReason);
+      }
+    };
+    fetchApplicableSubsidy();
   }, [
     courseService,
     courseData,
