@@ -20,21 +20,17 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 import CourseService from './service';
 import {
-  determineOfferRedeemability,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCourseRunPrice,
   getCourseStartDate,
   getCourseTypeConfig,
-  getMissingSubsidyReasonActions,
-  getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  getCouponCodesDisabledEnrollmentReasonType,
   getMissingApplicableSubsidyReason,
 } from './utils';
 import {
@@ -42,11 +38,8 @@ import {
   COURSE_PACING_MAP,
   CURRENCY_USD,
   DISABLED_ENROLL_REASON_TYPES,
-  DISABLED_ENROLL_USER_MESSAGES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';

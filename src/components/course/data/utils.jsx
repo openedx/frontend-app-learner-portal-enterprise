@@ -549,33 +549,24 @@ export const getEnterpriseOffersDisabledEnrollmentReasonType = ({
   catalogsWithCourse,
 }) => {
   if (!enterpriseOffers || enterpriseOffers.length === 0) {
-    return DISABLED_ENROLL_REASON_TYPES.NO_ENTERPRISE_OFFERS;
+    return undefined;
   }
 
   const offersForCourse = enterpriseOffers.filter(offer => catalogsWithCourse.includes(offer.enterpriseCatalogUuid));
-  if (!offersForCourse.length) {
-    return DISABLED_ENROLL_REASON_TYPES.COURSE_NOT_IN_ENTERPRISE_OFFERS;
-  }
 
   const hasExpiredOffers = offersForCourse.every(offer => !offer.isCurrent);
   if (hasExpiredOffers) {
-    return DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFERS_EXPIRED;
+    return parseReasonTypeBasedOnEnterpriseAdmins({
+      hasEnterpriseAdminUsers: true,
+      reasonTypes: {
+        hasAdmins: DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED,
+        hasNoAdmins: DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED,
+      },
+    });
   }
-
   return undefined;
 };
 
-export const getLearnerCreditDisabledEnrollResponse = ({ redeemableSubsidyAccessPolicy, coursePrice}) => {
-  if (!redeemableSubsidyAccessPolicy) {
-    return DISABLED_ENROLL_REASON_TYPES.NO_LEARNER_CREDIT_POLICY;
-  }
-
-  if (coursePrice > redeemableSubsidyAccessPolicy.perLearnerSpendLimit) {
-    return DISABLED_ENROLL_REASON_TYPES.COURSE_PRICE_EXCEEDS_LEARNER_CREDIT_SPEND_LIMIT;
-  }
-
-  return undefined;
-};
 /**
  * Determines which CTA button, if any, should be displayed for a given
  * missing subsidy reason.
@@ -700,10 +691,6 @@ export const getMissingApplicableSubsidyReason = ({
     enterpriseOffers: customerAgreementConfig?.enterpriseOffers,
     catalogsWithCourse,
   });
-  const learnerCreditDisabledEnrollmentReasonType = getLearnerCreditDisabledEnrollResponse({
-    redeemableSubsidyAccessPolicy: missingSubsidyAccessPolicyReason,
-    coursePrice: customerAgreementConfig?.price,
-  });
 
   /**
    * Prioritize the following order of disabled enrollment reasons:
@@ -726,15 +713,13 @@ export const getMissingApplicableSubsidyReason = ({
   if (subscriptionsDisabledEnrollmentReasonType) {
     reasonType = subscriptionsDisabledEnrollmentReasonType;
   }
-  if (learnerCreditDisabledEnrollmentReasonType) {
-    reasonType = learnerCreditDisabledEnrollmentReasonType;
-  }
+
   if (!containsContentItems) {
     reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
   }
   return {
     reason: reasonType,
-    userMessage: userMessage ? reasonType : DISABLED_ENROLL_USER_MESSAGES[reasonType],
+    userMessage: userMessage || DISABLED_ENROLL_USER_MESSAGES[reasonType],
     actions: getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers,
