@@ -666,6 +666,7 @@ export const getMissingApplicableSubsidyReason = ({
   subscriptionLicense,
   containsContentItems,
   missingSubsidyAccessPolicyReason,
+  enterpriseOffers,
 }) => {
   // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
   let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
@@ -691,7 +692,7 @@ export const getMissingApplicableSubsidyReason = ({
     hasEnterpriseAdminUsers,
   });
   const enterpriseOffersDisabledEnrollmentReasonType = getEnterpriseOffersDisabledEnrollmentReasonType({
-    enterpriseOffers: customerAgreementConfig?.enterpriseOffers,
+    enterpriseOffers,
     catalogsWithCourse,
   });
 

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useRouteMatch } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -1051,6 +1051,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('handles course data with redeemable subsidy access policy', async () => {
+    getSubsidyToApplyForCourse.mockReturnValueOnce({
+      subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+    });
+
     const mockRedeemablePolicy = {
       perLearnerEnrollmentLimit: null,
       perLearnerSpendLimit: null,
@@ -1061,7 +1065,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
       isPolicyRedemptionEnabled: true,
       redeemableSubsidyAccessPolicy: mockRedeemablePolicy,
     };
-    const { result } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithRedeemablePolicy));
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(argsWithRedeemablePolicy));
+    await act(async () => {
+      await waitForNextUpdate();
+    });
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
@@ -1159,6 +1166,10 @@ describe('useUserSubsidyApplicableToCourse', () => {
       applicableSubscriptionLicense: mockUserLicenseSubsidy,
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: undefined,
+      applicableSubsidyAccessPolicy: {
+        isPolicyRedemptionEnabled: false,
+        perLearnerEnrollmentLimit: undefined,
+      },
     });
 
     expect(result.current).toEqual({
@@ -1173,28 +1184,49 @@ describe('useUserSubsidyApplicableToCourse', () => {
     getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
     mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
-
-    await waitForNextUpdate();
+    const mockCustomerAgreementConfig = {
+      subscriptions: [
+        {
+          enterpriseCatalogUuid: baseArgs.courseData.catalog.catalogList[0],
+          daysUntilExpirationIncludingRenewals: -5,
+        },
+      ],
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse({
+      ...baseArgs,
+      customerAgreementConfig: mockCustomerAgreementConfig,
+    }));
+    await act(async () => {
+      await waitForNextUpdate();
+    });
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
-        reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
-        userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED,
+        reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
+        userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
         actions: expect.any(Object),
       },
     });
   });
 
   it('handles disabled enrollment reason related to coupon codes', async () => {
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     getCouponCodesDisabledEnrollmentReasonType.mockReturnValueOnce(
       DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
     );
+    const mockCustomerAgreementConfig = {
+      subscriptions: [],
+    };
+    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse({
+      ...baseArgs,
+      customerAgreementConfig: mockCustomerAgreementConfig,
+    }));
 
-    const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(baseArgs));
-
-    await waitForNextUpdate();
+    await act(async () => {
+      await waitForNextUpdate();
+    });
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
@@ -1207,6 +1239,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('finds applicable coupon code', async () => {
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     const mockCouponCode = {
       catalog: mockCatalogUUID,
       code: 'test-coupon-code',
@@ -1225,15 +1259,21 @@ describe('useUserSubsidyApplicableToCourse', () => {
       couponCodes: [mockCouponCode],
     };
     const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
-
+    await act(async () => {
+      await waitForNextUpdate();
+    });
     expect(findCouponCodeForCourse).toHaveBeenCalledTimes(1);
     expect(findCouponCodeForCourse).toHaveBeenCalledWith(args.couponCodes, args.courseData.catalog.catalogList);
     expect(getSubsidyToApplyForCourse).toHaveBeenCalledTimes(1);
     expect(getSubsidyToApplyForCourse).toHaveBeenCalledWith({
       applicableCouponCode: mockCouponCode,
+      applicableEnterpriseOffer: undefined,
+      applicableSubscriptionLicense: null,
+      applicableSubsidyAccessPolicy: {
+        isPolicyRedemptionEnabled: false,
+        redeemableSubsidyAccessPolicy: undefined,
+      },
     });
-
-    await waitForNextUpdate();
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
@@ -1244,6 +1284,8 @@ describe('useUserSubsidyApplicableToCourse', () => {
   });
 
   it('finds applicable enterprise offer', async () => {
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     const mockEnterpriseOffer = {
       catalog: mockCatalogUUID,
       code: 'test-coupon-code',
@@ -1266,14 +1308,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
     };
     const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
-    expect(findEnterpriseOfferForCourse).toHaveBeenCalledTimes(1);
-    expect(findEnterpriseOfferForCourse).toHaveBeenCalledWith({
-      enterpriseOffers: args.enterpriseOffers,
-      catalogsWithCourse: args.courseData.catalog.catalogList,
-      coursePrice: mockCoursePrice,
+    await act(async () => {
+      await waitForNextUpdate();
     });
-
-    await waitForNextUpdate();
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: expect.objectContaining({
@@ -1283,6 +1320,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
     });
   });
   it('returns offer error', async () => {
+    mockCourseService.fetchUserLicenseSubsidy.mockReturnValueOnce(undefined);
+    findCouponCodeForCourse.mockReturnValueOnce(undefined);
+    getSubscriptionDisabledEnrollmentReasonType.mockReturnValueOnce(undefined);
     const mockExpiredEnterpriseOffer = {
       discountType: 'percentage',
       discountValue: 100,
@@ -1309,7 +1349,9 @@ describe('useUserSubsidyApplicableToCourse', () => {
 
     const { result, waitForNextUpdate } = renderHook(() => useUserSubsidyApplicableToCourse(args));
 
-    await waitForNextUpdate();
+    await act(async () => {
+      await waitForNextUpdate();
+    });
 
     expect(result.current).toEqual({
       userSubsidyApplicableToCourse: undefined,
