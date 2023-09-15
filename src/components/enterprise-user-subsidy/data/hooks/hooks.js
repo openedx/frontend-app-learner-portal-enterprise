@@ -13,7 +13,6 @@ import { LICENSE_STATUS } from '../constants';
 import {
   fetchSubscriptionLicensesForUser,
   fetchCustomerAgreementData,
-  fetchRedeemableLearnerCreditPolicies,
   requestAutoAppliedLicense,
   activateLicense,
 } from '../service';
@@ -244,23 +243,4 @@ export function useCustomerAgreementData(enterpriseId) {
   }, [enterpriseId]);
 
   return [customerAgreement, isLoading];
-}
-
-const getRedeemablePoliciesData = async ({ queryKey }) => {
-  const enterpriseId = queryKey[1];
-  const userID = queryKey[2];
-  try {
-    const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    logError(error);
-    return [];
-  }
-};
-
-export function useRedeemableLearnerCreditPolicies(enterpriseId, userID) {
-  return useQuery({
-    queryKey: ['redeemablePolicies', enterpriseId, userID],
-    queryFn: getRedeemablePoliciesData,
-  });
 }

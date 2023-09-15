@@ -7,23 +7,13 @@ import { Button } from '@edx/paragon';
 import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
-import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
+import EnterpriseOffersSummaryCard from './EnterpriseOffersSummaryCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
-import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
-
-function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
-  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
-  return {
-    expirationDate: learnerCreditPolicyExpiringFirst?.subsidyExpirationDate
-        || enterpriseOfferExpiringFirst?.endDatetime,
-  };
-}
 
 const SubsidiesSummary = ({
   className, showSearchCoursesCta, totalCoursesEligibleForCertificate, courseEndDate, programProgressPage,
@@ -45,13 +35,7 @@ const SubsidiesSummary = ({
     couponCodes: { couponCodesCount },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
-    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
-
-  const learnerCreditSummaryCardData = getLearnerCreditSummaryCardData({
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  });
 
   const {
     requestsBySubsidyType,
@@ -70,10 +54,9 @@ const SubsidiesSummary = ({
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.length > 0;
 
   const hasAvailableSubsidyOrRequests = hasActiveLicenseOrLicenseRequest
-   || hasAssignedCodesOrCodeRequests || canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies;
+   || hasAssignedCodesOrCodeRequests || canEnrollWithEnterpriseOffers;
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
@@ -117,11 +100,10 @@ const SubsidiesSummary = ({
             className="border-0 shadow-none"
           />
         )}
-        {(canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies)
-          && learnerCreditSummaryCardData?.expirationDate && (
-          <LearnerCreditSummaryCard
+        {canEnrollWithEnterpriseOffers && (
+          <EnterpriseOffersSummaryCard
             className="border-0 shadow-none"
-            expirationDate={learnerCreditSummaryCardData.expirationDate}
+            offers={enterpriseOffers}
           />
         )}
       </div>

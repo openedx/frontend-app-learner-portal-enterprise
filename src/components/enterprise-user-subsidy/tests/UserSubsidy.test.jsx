@@ -6,14 +6,13 @@ import '@testing-library/jest-dom/extend-expect';
 import UserSubsidy from '../UserSubsidy';
 
 import { LOADING_SCREEN_READER_TEXT } from '../data/constants';
-import { useCouponCodes, useSubscriptions, useRedeemableLearnerCreditPolicies } from '../data/hooks';
+import { useCouponCodes, useSubscriptions } from '../data/hooks';
 import { useEnterpriseOffers } from '../enterprise-offers/data/hooks';
 
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
   useSubscriptions: jest.fn().mockReturnValue({}),
   useCouponCodes: jest.fn().mockReturnValue([]),
-  useRedeemableLearnerCreditPolicies: jest.fn().mockReturnValue([]),
 }));
 
 jest.mock('../enterprise-offers/data/hooks', () => ({
@@ -61,62 +60,47 @@ describe('UserSubsidy', () => {
       isSubscriptionsLoading: false,
       isCouponCodesLoading: false,
       isEnterpriseOffersLoading: false,
-      isLoadingRedeemablePolicies: false,
       isLoadingExpected: false,
     },
     {
       isSubscriptionsLoading: true,
       isCouponCodesLoading: false,
       isEnterpriseOffersLoading: false,
-      isLoadingRedeemablePolicies: false,
       isLoadingExpected: true,
     },
     {
       isSubscriptionsLoading: false,
       isCouponCodesLoading: true,
       isEnterpriseOffersLoading: false,
-      isLoadingRedeemablePolicies: false,
       isLoadingExpected: true,
     },
     {
       isSubscriptionsLoading: false,
       isCouponCodesLoading: false,
       isEnterpriseOffersLoading: true,
-      isLoadingRedeemablePolicies: false,
-      isLoadingExpected: true,
-    },
-    {
-      isSubscriptionsLoading: false,
-      isCouponCodesLoading: false,
-      isEnterpriseOffersLoading: false,
-      isLoadingRedeemablePolicies: true,
       isLoadingExpected: true,
     },
     {
       isSubscriptionsLoading: true,
       isCouponCodesLoading: true,
       isEnterpriseOffersLoading: true,
-      isLoadingRedeemablePolicies: true,
       isLoadingExpected: true,
     },
     {
       isSubscriptionsLoading: true,
       isCouponCodesLoading: true,
       isEnterpriseOffersLoading: false,
-      isLoadingRedeemablePolicies: true,
       isLoadingExpected: true,
     },
   ])('shows loading spinner when expected (%s)', ({
     isSubscriptionsLoading,
     isCouponCodesLoading,
     isEnterpriseOffersLoading,
-    isLoadingRedeemablePolicies,
     isLoadingExpected,
   }) => {
     useSubscriptions.mockReturnValue({ isLoading: isSubscriptionsLoading });
     useCouponCodes.mockReturnValue([[], isCouponCodesLoading]);
     useEnterpriseOffers.mockReturnValue({ isLoading: isEnterpriseOffersLoading });
-    useRedeemableLearnerCreditPolicies.mockReturnValue({ data: [], isLoading: isLoadingRedeemablePolicies });
 
     const Component = (
       <UserSubsidyWithAppContext>

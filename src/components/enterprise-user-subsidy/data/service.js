@@ -35,16 +35,6 @@ export function fetchCustomerAgreementData(enterpriseUUID) {
   return getAuthenticatedHttpClient().get(url);
 }
 
-export function fetchRedeemableLearnerCreditPolicies(enterpriseUUID, userID) {
-  const queryParams = new URLSearchParams({
-    enterprise_customer_uuid: enterpriseUUID,
-    lms_user_id: userID,
-  });
-  const config = getConfig();
-  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
-}
-
 export function requestAutoAppliedLicense(customerAgreementId) {
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
