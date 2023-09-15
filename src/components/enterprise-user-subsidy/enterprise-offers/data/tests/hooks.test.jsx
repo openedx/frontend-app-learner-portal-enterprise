@@ -78,11 +78,15 @@ describe('useEnterpriseOffers', () => {
 
   it.each([
     {
+      offers: [],
+      expectedResult: false,
+    },
+    {
       offers: [
         { ...mockEnterpriseOffers[0], is_current: false },
         { ...mockEnterpriseOffers[0], id: 2, is_current: false },
       ],
-      expectedResult: false,
+      expectedResult: true,
     },
     {
       offers: [mockEnterpriseOffers[0], { ...mockEnterpriseOffers[0], id: 2, is_current: false }],
