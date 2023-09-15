@@ -26,6 +26,7 @@ const mockEnterpriseOffers = [{
   remaining_balance: 200,
   start_datetime: '2022-06-09T00:00:00Z',
   usage_type: 'Percentage',
+  is_current: true,
 }];
 
 describe('useEnterpriseOffers', () => {
@@ -75,18 +76,32 @@ describe('useEnterpriseOffers', () => {
     },
   );
 
-  it('returns canEnrollWithEnterpriseOffers = true if the enterprise has > 1 active enterprise offer', async () => {
+  it.each([
+    {
+      offers: [],
+      expectedResult: false,
+    },
+    {
+      offers: [
+        { ...mockEnterpriseOffers[0], is_current: false },
+        { ...mockEnterpriseOffers[0], id: 2, is_current: false },
+      ],
+      expectedResult: true,
+    },
+    {
+      offers: [mockEnterpriseOffers[0], { ...mockEnterpriseOffers[0], id: 2, is_current: false }],
+      expectedResult: true,
+    },
+  ])('returns canEnrollWithEnterpriseOffers = true if the enterprise has >= 1 current (non-expired) enterprise offer', async ({
+    offers,
+    expectedResult,
+  }) => {
     enterpriseOffersService.fetchEnterpriseOffers.mockResolvedValueOnce({
-      data: {
-        results: [mockEnterpriseOffers[0], { id: 2, ...mockEnterpriseOffers[1] }],
-      },
+      data: { results: offers },
     });
-
     const { result, waitForNextUpdate } = renderHook(() => useEnterpriseOffers(defaultProps));
-
     await waitForNextUpdate();
-
-    expect(result.current.canEnrollWithEnterpriseOffers).toEqual(true);
+    expect(result.current.canEnrollWithEnterpriseOffers).toEqual(expectedResult);
   });
 
   it.each([
@@ -97,6 +112,7 @@ describe('useEnterpriseOffers', () => {
         max_discount: 1000,
       }, {
         ...mockEnterpriseOffers[0],
+        id: 2,
         remaining_balance: 500,
         max_discount: 1000,
       }],
@@ -109,6 +125,7 @@ describe('useEnterpriseOffers', () => {
         max_discount: 1000,
       }, {
         ...mockEnterpriseOffers[0],
+        id: 2,
         remaining_balance: 500,
         max_discount: 1000,
       }],
