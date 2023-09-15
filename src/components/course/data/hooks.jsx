@@ -707,6 +707,7 @@ export const useUserSubsidyApplicableToCourse = ({
           subscriptionLicense,
           containsContentItems,
           missingSubsidyAccessPolicyReason,
+          enterpriseOffers,
         });
       }
       return {

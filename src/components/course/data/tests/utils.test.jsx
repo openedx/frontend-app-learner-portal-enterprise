@@ -69,50 +69,62 @@ describe('findEnterpriseOfferForCourse', () => {
   const coursePrice = 100;
   const enterpriseCatalogUuid = 'test-enterprise-catalog-uuid';
   const catalogsWithCourse = [enterpriseCatalogUuid];
+  const baseOffer = { isCurrent: true };
   const offerNoLimit = {
+    ...baseOffer,
     enterpriseCatalogUuid,
   };
   const offerRemainingBalanceNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
   };
   const offerNotEnoughRemainingBalanceNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 50,
   };
   const offerNoRemainingBalanceNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 0,
   };
   const offerRemainingBalanceForUserNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
     remainingBalanceForUser: 200,
   };
   const offerNotEnoughRemainingBalanceForUserNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
     remainingBalanceForUser: 50,
   };
   const offerNoRemainingBalanceForUserNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
     remainingBalanceForUser: 0,
   };
   const offerRemainingApplicationsNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplications: 10,
   };
   const offerNoRemainingApplicationsNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplicationsForUser: 0,
   };
   const offerRemainingApplicationsForUserNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplications: 10,
     remainingApplicationsForUser: 1,
   };
   const offerNoRemainingApplicationsForUserNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplications: 10,
     remainingApplicationsForUser: 0,
@@ -307,11 +319,15 @@ describe('getSubsidyToApplyForCourse', () => {
     endDatetime: '2024-08-11',
   };
 
-  it('returns applicableSubscriptionLicense', () => {
+  it('returns applicableSubscriptionLicense over learner credit', () => {
     const subsidyToApply = getSubsidyToApplyForCourse({
       applicableSubscriptionLicense: mockApplicableSubscriptionLicense,
       applicableCouponCode: mockApplicableCouponCode,
       applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+      applicableSubsidyAccessPolicy: {
+        isPolicyRedemptionEnabled: true,
+        redeemableSubsidyAccessPolicy: {},
+      },
     });
 
     expect(subsidyToApply).toEqual({
@@ -342,6 +358,7 @@ describe('getSubsidyToApplyForCourse', () => {
       applicableSubscriptionLicense: undefined,
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+      applicableSubsidyAccessPolicy: {},
     });
 
     expect(subsidyToApply).toEqual({
@@ -358,6 +375,10 @@ describe('getSubsidyToApplyForCourse', () => {
       applicableSubscriptionLicense: undefined,
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: undefined,
+      applicableSubsidyAccessPolicy: {
+        isPolicyRedemptionEnabled: false,
+        redeemableSubsidyAccessPolicy: undefined,
+      },
     });
 
     expect(subsidyToApply).toBeUndefined();
