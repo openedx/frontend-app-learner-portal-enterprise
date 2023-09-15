@@ -13,7 +13,6 @@ import {
   LICENSE_REQUESTED_NOTICE,
   COUPON_CODES_SUMMARY_NOTICE,
   ENTERPRISE_OFFER_SUMMARY_CARD_TITLE,
-  LEARNER_CREDIT_SUMMARY_CARD_TITLE,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
@@ -62,7 +61,6 @@ describe('<DashboardSidebar />', () => {
       couponCodesCount: 0,
     },
     enterpriseOffers: [],
-    redeemableLearnerCreditPolicies: undefined,
   };
   const initialAppState = {
     enterpriseConfig: {
@@ -175,7 +173,7 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).toBeFalsy();
   });
-  test('Enterprise offers summary card is displayed when enterprise has active offers and no subscriptions or coupons or learner credit', () => {
+  test('Enterprise offers summary card is displayed when enterprise has active offers and no subscriptions or coupons', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
         initialAppState={initialAppState}
@@ -221,49 +219,6 @@ describe('<DashboardSidebar />', () => {
     expect(screen.queryByText(SUBSCRIPTION_SUMMARY_CARD_TITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(COUPON_CODES_SUMMARY_NOTICE)).toBeInTheDocument();
   });
-
-  test('Learner credit summary card is displayed when enterprise has learner credit', () => {
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{
-          ...defaultUserSubsidyState,
-          redeemableLearnerCreditPolicies: [{
-            remainingBalancePerUser: 5,
-            subsidyExpirationDate: '2030-01-01 12:00:00Z',
-            active: true,
-          }],
-        }}
-      />,
-    );
-    expect(screen.queryByText(LEARNER_CREDIT_SUMMARY_CARD_TITLE)).toBeInTheDocument();
-  });
-
-  test('Only learner credit summary card is displayed when enterprise has both; learner credit and offers', () => {
-    const policyExpirationDate = '2030-01-01 12:00:00Z';
-    const offerEndDate = '2027-10-25';
-    renderWithRouter(
-      <DashboardSidebarWithContext
-        initialAppState={initialAppState}
-        initialUserSubsidyState={{
-          ...defaultUserSubsidyState,
-          redeemableLearnerCreditPolicies: [{
-            remainingBalancePerUser: 5,
-            subsidyExpirationDate: policyExpirationDate,
-            active: true,
-          }],
-          enterpriseOffers: [{
-            uuid: 'enterprise-offer-id',
-            endDatetime: offerEndDate,
-          }],
-          canEnrollWithEnterpriseOffers: true,
-        }}
-      />,
-    );
-    expect(screen.getByText('2030', { exact: false })).toBeInTheDocument();
-    expect(screen.queryByText('2027', { exact: false })).toBeFalsy();
-  });
-
   test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {
     renderWithRouter(
       <DashboardSidebarWithContext
