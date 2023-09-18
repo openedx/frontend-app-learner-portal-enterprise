@@ -622,6 +622,10 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @param {array} args.enterpriseOffers List of enterprise offers, if any.
  * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
  *  license validation error.
+ * @param {array} args.enterpriseAdminUsers List of enterprise admin users, if any.
+ * @param {object} args.customerAgreementConfig Customer agreement config, if any.
+ * @param {object} args.missingSubsidyAccessPolicyReason Reason why the subsidy access policy is not redeemable
+ * @param {number} args.courseListPrice List price for course
  *
  * @returns A subsidy that may be redeemed for the course.
  */
