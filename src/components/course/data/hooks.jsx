@@ -630,6 +630,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @returns A subsidy that may be redeemed for the course.
  */
 export const useUserSubsidyApplicableToCourse = ({
+  isLoadingAny,
   courseData,
   redeemableSubsidyAccessPolicy,
   missingSubsidyAccessPolicyReason,
@@ -649,7 +650,7 @@ export const useUserSubsidyApplicableToCourse = ({
   const [missingUserSubsidyReason, setMissingUserSubsidyReason] = useState();
 
   useEffect(() => {
-    if (!courseData) {
+    if (!courseData || !isLoadingAny) {
       return;
     }
 
@@ -724,14 +725,13 @@ export const useUserSubsidyApplicableToCourse = ({
       const result = await getApplicableSubsidyForCourse();
       if (result.applicableSubsidy) {
         setUserSubsidyApplicableToCourse(result.applicableSubsidy);
-        setMissingUserSubsidyReason(null);
       } else if (result.missingApplicableSubsidyReason) {
         setMissingUserSubsidyReason(result.missingApplicableSubsidyReason);
-        setUserSubsidyApplicableToCourse(null);
       }
     };
     fetchApplicableSubsidy();
   }, [
+    isLoadingAny,
     courseService,
     courseData,
     courseListPrice,

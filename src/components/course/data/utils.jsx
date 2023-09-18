@@ -707,6 +707,7 @@ export const getMissingApplicableSubsidyReason = ({
   if (enterpriseOffersDisabledEnrollmentReasonType) {
     reasonType = enterpriseOffersDisabledEnrollmentReasonType;
   }
+  console.log('[qa]', 'missingSubsidyAccessPolicyReason', missingSubsidyAccessPolicyReason);
   if (missingSubsidyAccessPolicyReason) {
     reasonType = missingSubsidyAccessPolicyReason.reason;
     userMessage = missingSubsidyAccessPolicyReason.userMessage;
