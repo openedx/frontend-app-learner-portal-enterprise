@@ -188,6 +188,7 @@ const CoursePage = () => {
     userSubsidyApplicableToCourse,
     missingUserSubsidyReason,
   } = useUserSubsidyApplicableToCourse({
+    isLoadingAny,
     courseData,
     redeemableSubsidyAccessPolicy,
     isPolicyRedemptionEnabled,

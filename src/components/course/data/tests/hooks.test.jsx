@@ -1009,6 +1009,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
 describe('useUserSubsidyApplicableToCourse', () => {
   const mockCatalogUUID = 'test-enterprise-catalog-uuid';
   const baseArgs = {
+    isLoadingAny: true,
     isPolicyRedemptionEnabled: false,
     courseService: mockCourseService,
     courseData: {
