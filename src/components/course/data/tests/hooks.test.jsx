@@ -1009,6 +1009,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
 describe('useUserSubsidyApplicableToCourse', () => {
   const mockCatalogUUID = 'test-enterprise-catalog-uuid';
   const baseArgs = {
+    isLoadingAny: true,
     isPolicyRedemptionEnabled: false,
     courseService: mockCourseService,
     courseData: {
@@ -1073,7 +1074,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: null,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -1099,7 +1100,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      userSubsidyApplicableToCourse: null,
+      userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
         reason: DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
         userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG],
@@ -1138,7 +1139,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     }
 
     expect(result.current).toEqual({
-      userSubsidyApplicableToCourse: null,
+      userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
         reason: expectedReasonType,
         userMessage: DISABLED_ENROLL_USER_MESSAGES[expectedReasonType],
@@ -1162,7 +1163,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      userSubsidyApplicableToCourse: null,
+      userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: expectedTransformedMissingUserSubsidyReason,
     });
   });
@@ -1194,7 +1195,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: LICENSE_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: null,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -1222,7 +1223,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      userSubsidyApplicableToCourse: null,
+      userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
         reason: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
         userMessage: REASON_USER_MESSAGES.SUBSCRIPTION_EXPIRED_NO_ADMINS,
@@ -1241,7 +1242,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      userSubsidyApplicableToCourse: null,
+      userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
         reason: DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED,
         userMessage: REASON_USER_MESSAGES.COUPON_CODE_NOT_ASSIGNED,
@@ -1290,7 +1291,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: COUPON_CODE_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: null,
+      missingUserSubsidyReason: undefined,
     });
   });
 
@@ -1325,7 +1326,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
       userSubsidyApplicableToCourse: expect.objectContaining({
         subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
       }),
-      missingUserSubsidyReason: null,
+      missingUserSubsidyReason: undefined,
     });
   });
   it('returns offer error', async () => {
@@ -1363,7 +1364,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      userSubsidyApplicableToCourse: null,
+      userSubsidyApplicableToCourse: undefined,
       missingUserSubsidyReason: {
         reason: DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED,
         userMessage: DISABLED_ENROLL_USER_MESSAGES[DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED],
