@@ -724,8 +724,10 @@ export const useUserSubsidyApplicableToCourse = ({
       const result = await getApplicableSubsidyForCourse();
       if (result.applicableSubsidy) {
         setUserSubsidyApplicableToCourse(result.applicableSubsidy);
+        setMissingUserSubsidyReason(null);
       } else if (result.missingApplicableSubsidyReason) {
         setMissingUserSubsidyReason(result.missingApplicableSubsidyReason);
+        setUserSubsidyApplicableToCourse(null);
       }
     };
     fetchApplicableSubsidy();
