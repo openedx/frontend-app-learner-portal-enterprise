@@ -19,6 +19,8 @@ jest.mock('../data', () => ({
   }),
 }));
 
+const mockUseCourseRunCardData = require('../data').useCourseRunCardData;
+
 const mockCourseRun = {
   key: 'course-v1:edX+DemoX+Demo_Course',
   availability: 'Current',
@@ -51,5 +53,13 @@ describe('<CourseRunCard />', () => {
     expect(screen.getByText('Heading')).toBeInTheDocument();
     expect(screen.getByText('Subheading')).toBeInTheDocument();
     expect(screen.getByText('Action')).toBeInTheDocument();
+
+    expect(mockUseCourseRunCardData).toHaveBeenCalledWith({
+      course: { entitlements: [] },
+      courseRun: mockCourseRun,
+      userEnrollment: undefined,
+      subsidyAccessPolicy: undefined,
+      userCanRequestSubsidyForCourse: undefined,
+    });
   });
 });
