@@ -95,7 +95,7 @@ const CoursePage = () => {
     courseRecommendations,
     fetchError: fetchCourseDataError,
     courseReviews,
-    isLoadingCourseData,
+    isLoading: isLoadingCourseData,
   } = useAllCourseData({ courseService, activeCatalogs });
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
 
