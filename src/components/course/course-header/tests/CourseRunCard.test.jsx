@@ -49,7 +49,7 @@ const CourseRunCardWrapper = (props) => {
       userEnrollments: mockUserEnrollments,
     },
     userSubsidyApplicableToCourse: mockUserSubsidy,
-    userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy
+    userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy,
   };
   return (
     <CourseContext.Provider value={courseContextValue}>
