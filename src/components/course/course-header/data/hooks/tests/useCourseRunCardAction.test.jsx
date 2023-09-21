@@ -1,5 +1,4 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { getConfig } from '@edx/frontend-platform/config';
 import { renderHook } from '@testing-library/react-hooks';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -29,11 +28,6 @@ const mockRedemptionActions = {
   handleRedeemError: jest.fn(),
 };
 jest.mock('../useRedemptionStatus', () => jest.fn(() => mockRedemptionActions));
-jest.mock('@edx/frontend-platform/config', () => ({
-  getConfig: jest.fn(() => ({
-    FEATURE_ENABLE_EMET_AUTO_UPGRADE_ENROLLMENT_MODE: true,
-  })),
-}));
 
 const wrapper = ({ children }) => (
   <IntlProvider locale="en">{children}</IntlProvider>
@@ -167,14 +161,7 @@ describe('useCourseRunCardAction', () => {
   it.each([
     { shouldUpgradeEnrollment: true },
     { shouldUpgradeEnrollment: false },
-  ])('returns courseware CTA if user is already enrolled (audit mode) with upgrade (%s)', ({ shouldUpgradeEnrollment }) => {
-    // when shouldUpgradeEnrollment is false, update `getConfig` mock to
-    // disable feature flag for auto-upgrading enrollments.
-    if (!shouldUpgradeEnrollment) {
-      getConfig.mockReturnValue({
-        FEATURE_ENABLE_EMET_AUTO_UPGRADE_ENROLLMENT_MODE: true,
-      });
-    }
+  ])('returns courseware CTA if user is already enrolled (audit mode) with upgrade (%s)', () => {
     const { getByTestId } = renderUseCourseRunCardActionHook({
       isUserEnrolled: true,
       userEnrollment: MOCK_ENROLLMENT_AUDIT,
