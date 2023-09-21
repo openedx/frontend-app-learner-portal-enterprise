@@ -54,6 +54,8 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             enableLearnerPortalOffers,
             enableExecutiveEducation2UFulfillment,
             enableDataSharingConsent,
+            enableCareerEngagementNetworkOnLearnerPortal,
+            careerEngagementNetworkMessage,
           } = config;
           setEnterpriseConfig({
             name,
@@ -78,6 +80,8 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             enableLearnerPortalOffers,
             enableExecutiveEducation2UFulfillment,
             enableDataSharingConsent,
+            enableCareerEngagementNetworkOnLearnerPortal,
+            careerEngagementNetworkMessage,
           });
         } else {
           if (!config) {

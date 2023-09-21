@@ -12,6 +12,8 @@ const SupportInformation = ({ className }) => {
   const {
     enterpriseConfig: {
       adminUsers,
+      enableCareerEngagementNetworkOnLearnerPortal,
+      careerEngagementNetworkMessage,
     },
   } = useContext(AppContext);
 
@@ -31,25 +33,33 @@ const SupportInformation = ({ className }) => {
   };
 
   return (
-    <SidebarBlock
-      title={NEED_HELP_BLOCK_TITLE}
-      titleOptions={{ tag: 'h3' }}
-      className={className}
-    >
-      <p>
-        For technical support, visit the{' '}
-        <Hyperlink
-          destination={config.LEARNER_SUPPORT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          edX Help Center
-        </Hyperlink>.
-      </p>
-      <p>
-        To request more benefits or specific courses, {renderContactHelpText()}.
-      </p>
-    </SidebarBlock>
+    <>
+      {enableCareerEngagementNetworkOnLearnerPortal && (
+        <SidebarBlock>
+          {/* eslint-disable-next-line react/no-danger */}
+          <div dangerouslySetInnerHTML={{ __html: careerEngagementNetworkMessage }} />
+        </SidebarBlock>
+      )}
+      <SidebarBlock
+        title={NEED_HELP_BLOCK_TITLE}
+        titleOptions={{ tag: 'h3' }}
+        className={className}
+      >
+        <p>
+          For technical support, visit the{' '}
+          <Hyperlink
+            destination={config.LEARNER_SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            edX Help Center
+          </Hyperlink>.
+        </p>
+        <p>
+          To request more benefits or specific courses, {renderContactHelpText()}.
+        </p>
+      </SidebarBlock>
+    </>
   );
 };
 
