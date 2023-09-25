@@ -22,7 +22,8 @@ export const useSearchCatalogs = ({
       catalogs.push(...couponCodes.map((couponCode) => couponCode.catalog));
     }
     if (features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
-      catalogs.push(...enterpriseOffers.map((offer) => offer.enterpriseCatalogUuid));
+      const currentOffers = enterpriseOffers.filter(offer => offer.isCurrent);
+      catalogs.push(...currentOffers.map((offer) => offer.enterpriseCatalogUuid));
     }
 
     // Scope to catalogs associated with assignable subsidies if browse and request is turned on
