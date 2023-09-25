@@ -74,7 +74,7 @@ describe('useSearchCatalogs', () => {
     expect(result.current).toEqual([]);
   });
 
-  it.only.each([
+  it.each([
     { isExpiredOffer: true },
     { isExpiredOffer: false },
   ])('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true (%s)', ({
