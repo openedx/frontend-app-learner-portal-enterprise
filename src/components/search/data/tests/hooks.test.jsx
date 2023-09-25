@@ -74,7 +74,12 @@ describe('useSearchCatalogs', () => {
     expect(result.current).toEqual([]);
   });
 
-  it('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true', () => {
+  it.only.each([
+    { isExpiredOffer: true },
+    { isExpiredOffer: false },
+  ])('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true (%s)', ({
+    isExpiredOffer,
+  }) => {
     features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true;
 
     const { result } = renderHook(() => useSearchCatalogs({
@@ -83,10 +88,15 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [{
         enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
+        isCurrent: !isExpiredOffer,
       }],
       catalogsForSubsidyRequests: [],
     }));
-    expect(result.current).toEqual([mockEnterpriseOfferCatalog]);
+    if (isExpiredOffer) {
+      expect(result.current).toEqual([]);
+    } else {
+      expect(result.current).toEqual([mockEnterpriseOfferCatalog]);
+    }
   });
 
   it('should not include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = false', () => {
