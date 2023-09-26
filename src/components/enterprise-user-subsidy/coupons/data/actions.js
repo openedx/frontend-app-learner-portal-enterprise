@@ -8,6 +8,7 @@ import {
 
 import findCouponCodeRedemptionCount from './utils';
 import * as service from './service';
+import { hasValidStartExpirationDates } from '../../../../utils/common';
 
 const fetchCouponCodesRequest = () => ({
   type: FETCH_COUPON_CODES_REQUEST,
@@ -33,7 +34,18 @@ export const fetchCouponCodeAssignments = (queryOptions, dispatch) => {
 
   return service.fetchCouponCodeAssignments(queryOptions)
     .then((response) => {
-      dispatch(fetchCouponCodesSuccess(camelCaseObject(response.data)));
+      const formattedResponse = camelCaseObject(response.data);
+      const transformedResults = formattedResponse.results.map((couponCode) => ({
+        ...couponCode,
+        available: hasValidStartExpirationDates({
+          startDate: couponCode.couponStartDate,
+          endDate: couponCode.couponEndDate,
+        }),
+      }));
+      dispatch(fetchCouponCodesSuccess(camelCaseObject({
+        ...formattedResponse,
+        results: transformedResults,
+      })));
     })
     .catch((error) => {
       dispatch(fetchCouponCodesFailure(error));
