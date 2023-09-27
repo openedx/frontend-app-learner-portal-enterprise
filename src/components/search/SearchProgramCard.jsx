@@ -79,7 +79,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   };
 
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
-
+  const defaultImage = 'https://prod-discovery.edx-cdn.org/media/programs/card_images/2f69f430-7a9a-4100-b349-40d4787c0af2-494a6fcbed02.jpg';
   const { userId } = getAuthenticatedUser();
 
   const handleCardClick = () => {
@@ -104,7 +104,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       {...rest}
     >
       <Card.ImageCap
-        src={program.cardImageUrl}
+        src={program.cardImageUrl || defaultImage}
         alt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
