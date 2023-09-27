@@ -14,6 +14,7 @@ import {
 import { Program, ZoomOut } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { SkillsContext } from './SkillsContextProvider';
 import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
@@ -25,7 +26,6 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { ProgramType } from '../search/SearchProgramCard';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
