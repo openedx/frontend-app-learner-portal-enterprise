@@ -35,6 +35,8 @@ const UserSubsidy = ({ children }) => {
     isLoading: isLoadingRedeemablePolicies,
   } = useRedeemableLearnerCreditPolicies(enterpriseConfig.uuid, userId);
 
+  console.log('useRedeemableLearnerCreditPolicies', redeemableLearnerCreditPolicies);
+
   // Coupon Codes
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
 

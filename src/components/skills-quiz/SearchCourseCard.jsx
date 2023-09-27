@@ -20,7 +20,11 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 const SearchCourseCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
@@ -30,6 +34,7 @@ const SearchCourseCard = ({ index }) => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({

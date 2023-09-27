@@ -38,7 +38,11 @@ const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
@@ -48,6 +52,7 @@ const SearchProgramCard = ({ index }) => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({

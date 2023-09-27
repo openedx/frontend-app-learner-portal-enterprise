@@ -16,12 +16,18 @@ export const useSearchCatalogs = ({
   couponCodes,
   enterpriseOffers,
   catalogsForSubsidyRequests,
+  redeemableLearnerCreditPolicies,
 }) => {
   const searchCatalogs = useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.
     const catalogUUIDs = new Set();
 
-    // Scope to catalogs from coupons, enterprise offers, or subscription plan associated with learner's license
+    // Scope to catalogs from redeemable subsidy access policies, coupons,
+    // enterprise offers, or subscription plan associated with learner's license.
+    if (redeemableLearnerCreditPolicies) {
+      const activePolicies = redeemableLearnerCreditPolicies.filter(policy => policy.active);
+      activePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
+    }
     if (subscriptionPlan?.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
       catalogUUIDs.add(subscriptionPlan.enterpriseCatalogUuid);
     }
@@ -40,6 +46,7 @@ export const useSearchCatalogs = ({
     // Convert Set back to array
     return Array.from(catalogUUIDs);
   }, [
+    redeemableLearnerCreditPolicies,
     subscriptionPlan,
     subscriptionLicense,
     couponCodes,
@@ -58,6 +65,7 @@ export const useDefaultSearchFilters = ({
   const showAllRefinement = refinements[SHOW_ALL_NAME];
 
   useEffect(() => {
+    console.log('useDefaultSearchFilters!!!', searchCatalogs);
     // default to showing all catalogs if there are no confined search catalogs
     if (searchCatalogs.length === 0 && !showAllRefinement) {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));

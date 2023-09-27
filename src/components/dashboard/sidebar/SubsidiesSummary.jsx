@@ -17,11 +17,24 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
+  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
+
+  console.log('ruh roh', {
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
+    learnerCreditPolicyExpiringFirst,
+    enterpriseOfferExpiringFirst,
+  });
+
+  if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
+    return undefined;
+  }
+
   return {
-    expirationDate: learnerCreditPolicyExpiringFirst?.subsidyExpirationDate
-        || enterpriseOfferExpiringFirst?.endDatetime,
+    expirationDate: (
+      learnerCreditPolicyExpiringFirst?.subsidyExpirationDate || enterpriseOfferExpiringFirst?.endDatetime
+    ),
   };
 }
 
@@ -52,6 +65,7 @@ const SubsidiesSummary = ({
     enterpriseOffers,
     redeemableLearnerCreditPolicies,
   });
+  console.log('learnerCreditSummaryCardData', learnerCreditSummaryCardData);
 
   const {
     requestsBySubsidyType,

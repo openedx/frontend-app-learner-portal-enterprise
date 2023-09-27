@@ -13,7 +13,11 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
 
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
@@ -23,6 +27,7 @@ const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({
