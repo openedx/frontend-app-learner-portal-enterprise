@@ -25,6 +25,7 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { ProgramType } from '../search/SearchProgramCard';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
@@ -189,7 +190,8 @@ const SearchProgramCard = ({ index }) => {
               data-testid="search-program-card"
             >
               <Card.ImageCap
-                src={program.cardImageUrl}
+                src={program.cardImageUrl || cardFallbackImg}
+                fallbackSrc={cardFallbackImg}
                 srcAlt=""
                 logoSrc={primaryPartnerLogo?.src}
                 logoAlt={primaryPartnerLogo?.alt}
