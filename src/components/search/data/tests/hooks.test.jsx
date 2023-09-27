@@ -32,6 +32,7 @@ describe('useSearchCatalogs', () => {
   const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
   const mockCouponCodeCatalog = 'test-coupon-code-catalog-uuid';
   const mockEnterpriseOfferCatalog = 'test-enterprise-offer-catalog-uuid';
+  const mockPolicyCatalog = 'test-policy-catalog-uuid';
 
   it.each([
     { isSubscriptionPlanExpired: true },
@@ -46,6 +47,7 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     if (isSubscriptionPlanExpired) {
       expect(result.current).toEqual([]);
@@ -71,6 +73,7 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     if (isCouponExpired) {
       expect(result.current).toEqual([]);
@@ -90,6 +93,7 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     expect(result.current).toEqual([]);
   });
@@ -111,6 +115,7 @@ describe('useSearchCatalogs', () => {
         isCurrent: !isExpiredOffer,
       }],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     if (isExpiredOffer) {
       expect(result.current).toEqual([]);
@@ -130,6 +135,7 @@ describe('useSearchCatalogs', () => {
         enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
       }],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     expect(result.current).toEqual([]);
   });
@@ -143,8 +149,47 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests,
+      redeemableLearnerCreditPolicies: [],
     }));
     expect(result.current).toEqual(catalogsForSubsidyRequests);
+  });
+
+  it.each([
+    {
+      hasDefinedPolicies: false,
+      isPolicyExpired: false,
+    },
+    {
+      hasDefinedPolicies: true,
+      isPolicyExpired: false,
+    },
+    {
+      hasDefinedPolicies: true,
+      isPolicyExpired: true,
+    },
+  ])('should include catalogs for redeemable subsidy access policies', ({
+    hasDefinedPolicies,
+    isPolicyExpired,
+  }) => {
+    const redeemableLearnerCreditPolicies = hasDefinedPolicies ? [{
+      active: !isPolicyExpired,
+      catalogUuid: mockPolicyCatalog,
+    }] : undefined;
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies,
+    }));
+
+    if (!hasDefinedPolicies || isPolicyExpired) {
+      expect(result.current).toEqual([]);
+    } else {
+      expect(result.current).toEqual([mockPolicyCatalog]);
+    }
   });
 });
 
