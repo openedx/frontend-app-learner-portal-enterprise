@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
@@ -53,7 +54,8 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       }}
     >
       <Card.ImageCap
-        src={course.cardImageUrl.src}
+        src={course.cardImageUrl.src || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
       />

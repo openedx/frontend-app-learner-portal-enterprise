@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -106,7 +107,8 @@ const SearchPathwayCard = ({
       {...rest}
     >
       <Card.ImageCap
-        src={pathway?.cardImageUrl}
+        src={pathway?.cardImageUrl || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         alt=""
       />
       <Card.Header
