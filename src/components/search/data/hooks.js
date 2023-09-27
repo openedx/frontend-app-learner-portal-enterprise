@@ -65,7 +65,6 @@ export const useDefaultSearchFilters = ({
   const showAllRefinement = refinements[SHOW_ALL_NAME];
 
   useEffect(() => {
-    console.log('useDefaultSearchFilters!!!', searchCatalogs);
     // default to showing all catalogs if there are no confined search catalogs
     if (searchCatalogs.length === 0 && !showAllRefinement) {
       dispatch(setRefinementAction(SHOW_ALL_NAME, 1));

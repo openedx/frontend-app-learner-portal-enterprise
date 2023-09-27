@@ -20,13 +20,6 @@ function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCr
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
   const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
 
-  console.log('ruh roh', {
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-    learnerCreditPolicyExpiringFirst,
-    enterpriseOfferExpiringFirst,
-  });
-
   if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
     return undefined;
   }
@@ -65,7 +58,6 @@ const SubsidiesSummary = ({
     enterpriseOffers,
     redeemableLearnerCreditPolicies,
   });
-  console.log('learnerCreditSummaryCardData', learnerCreditSummaryCardData);
 
   const {
     requestsBySubsidyType,

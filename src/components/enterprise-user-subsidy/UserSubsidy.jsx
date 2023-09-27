@@ -30,12 +30,11 @@ const UserSubsidy = ({ children }) => {
     activateUserLicense,
   } = useSubscriptions({ enterpriseConfig, authenticatedUser });
 
+  // Subsidy Access Policies
   const {
     data: redeemableLearnerCreditPolicies,
     isLoading: isLoadingRedeemablePolicies,
   } = useRedeemableLearnerCreditPolicies(enterpriseConfig.uuid, userId);
-
-  console.log('useRedeemableLearnerCreditPolicies', redeemableLearnerCreditPolicies);
 
   // Coupon Codes
   const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
