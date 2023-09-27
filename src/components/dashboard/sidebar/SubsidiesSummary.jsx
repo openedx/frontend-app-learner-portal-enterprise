@@ -17,16 +17,26 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
+  const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
+
+  if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
+    return undefined;
+  }
+
   return {
-    expirationDate: learnerCreditPolicyExpiringFirst?.subsidyExpirationDate
-        || enterpriseOfferExpiringFirst?.endDatetime,
+    expirationDate: (
+      learnerCreditPolicyExpiringFirst?.subsidyExpirationDate || enterpriseOfferExpiringFirst?.endDatetime
+    ),
   };
 }
 
 const SubsidiesSummary = ({
-  className, showSearchCoursesCta, totalCoursesEligibleForCertificate, courseEndDate, programProgressPage,
+  className,
+  showSearchCoursesCta,
+  totalCoursesEligibleForCertificate,
+  courseEndDate,
+  programProgressPage,
 }) => {
   const {
     enterpriseConfig: {
@@ -72,8 +82,9 @@ const SubsidiesSummary = ({
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
   const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.length > 0;
 
-  const hasAvailableSubsidyOrRequests = hasActiveLicenseOrLicenseRequest
-   || hasAssignedCodesOrCodeRequests || canEnrollWithEnterpriseOffers || hasAvailableLearnerCreditPolicies;
+  const hasAvailableSubsidyOrRequests = (
+    hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
+  );
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;

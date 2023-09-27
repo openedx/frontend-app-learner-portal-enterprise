@@ -40,7 +40,11 @@ const SkillsCourses = ({ index }) => {
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
 
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
@@ -50,6 +54,7 @@ const SkillsCourses = ({ index }) => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({

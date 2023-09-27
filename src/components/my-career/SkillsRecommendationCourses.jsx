@@ -16,7 +16,11 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
   const history = useHistory();
@@ -27,6 +31,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({

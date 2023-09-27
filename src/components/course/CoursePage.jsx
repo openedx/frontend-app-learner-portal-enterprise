@@ -53,6 +53,7 @@ const CoursePage = () => {
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
     customerAgreementConfig,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests, subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
@@ -78,6 +79,7 @@ const CoursePage = () => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   // extract search queryId and objectId that led to this course page view from
