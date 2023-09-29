@@ -36,7 +36,28 @@ const dummyProgramData = {
   uuid: 'test-uuid',
   title: 'Test Program Title',
   type: 'MicroMasters',
-  cardImageUrl: 'https://image.url',
+  bannerImage: {
+    large: {
+      url: 'www.example.com/large',
+      height: 123,
+      width: 455,
+    },
+    medium: {
+      url: 'www.example.com/medium',
+      height: 123,
+      width: 455,
+    },
+    small: {
+      url: 'www.example.com/small',
+      height: 123,
+      width: 455,
+    },
+    xSmall: {
+      url: 'www.example.com/xSmall',
+      height: 123,
+      width: 455,
+    },
+  },
   authoringOrganizations: [
     {
       key: 'test-key',
