@@ -1,8 +1,6 @@
-import {
-  breakpoints, Card,
-} from '@edx/paragon';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { Card } from '@edx/paragon';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useHistory } from 'react-router-dom';
 
@@ -14,37 +12,10 @@ import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
 const ProgramListingCard = ({ program }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const history = useHistory();
 
   const handleCardClick = () => {
     history.push(`/${enterpriseConfig.slug}/program/${program.uuid}/progress`);
-  };
-
-  useEffect(() => {
-    const handleWindowResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleWindowResize);
-
-    return () => {
-      window.removeEventListener('resize', handleWindowResize);
-    };
-  }, []);
-
-  const getBannerImageURL = () => {
-    let imageURL = '';
-    if (windowWidth >= breakpoints.large.minWidth) {
-      imageURL = program.bannerImage.large.url;
-    } else if (windowWidth >= breakpoints.medium.minWidth) {
-      imageURL = program.bannerImage.medium.url;
-    } else if (windowWidth >= breakpoints.small.minWidth) {
-      imageURL = program.bannerImage.small.url;
-    } else {
-      imageURL = program.bannerImage.xSmall.url;
-    }
-    return imageURL;
   };
 
   let authoringOrganization;
@@ -62,25 +33,24 @@ const ProgramListingCard = ({ program }) => {
       onClick={handleCardClick}
     >
       <Card.ImageCap
-        src={getBannerImageURL() || cardFallbackImg}
+        src={program.cardImageUrl || cardFallbackImg}
         fallbackSrc={cardFallbackImg}
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"
         className="banner-image"
       />
-
       <Card.Header
         title={(
           <Truncate lines={2} trimWhitespace>
             {program.title}
           </Truncate>
         )}
-        subtitle={program.authoringOrganizations?.length > 0 ? (
+        subtitle={program.authoringOrganizations?.length > 0 && (
           <Truncate lines={2} trimWhitespace>
             {program.authoringOrganizations.map(org => org.key).join(', ')}
           </Truncate>
-        ) : undefined}
+        )}
       />
       <Card.Section>
         <div className="d-flex align-items-center">
@@ -109,35 +79,12 @@ ProgramListingCard.propTypes = {
     uuid: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
+    cardImageUrl: PropTypes.string,
     progress: PropTypes.shape(
       {
         inProgress: PropTypes.number.isRequired,
         completed: PropTypes.number.isRequired,
         notStarted: PropTypes.number.isRequired,
-      },
-    ),
-    bannerImage: PropTypes.shape(
-      {
-        large: PropTypes.shape({
-          url: PropTypes.string.isRequired,
-          height: PropTypes.number.isRequired,
-          width: PropTypes.number.isRequired,
-        }),
-        medium: PropTypes.shape({
-          url: PropTypes.string.isRequired,
-          height: PropTypes.number.isRequired,
-          width: PropTypes.number.isRequired,
-        }),
-        small: PropTypes.shape({
-          url: PropTypes.string.isRequired,
-          height: PropTypes.number.isRequired,
-          width: PropTypes.number.isRequired,
-        }),
-        xSmall: PropTypes.shape({
-          url: PropTypes.string.isRequired,
-          height: PropTypes.number.isRequired,
-          width: PropTypes.number.isRequired,
-        }),
       },
     ),
     authoringOrganizations: PropTypes.arrayOf(PropTypes.shape({
