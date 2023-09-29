@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Redirect, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { UserSubsidyContext } from './UserSubsidy';
@@ -20,7 +20,7 @@ const AutoActivateLicense = () => {
   const activationPath = `/${enterpriseConfig.slug}/licenses/${subscriptionLicense.activationKey}/activate`;
 
   return (
-    <Redirect to={{
+    <Navigate to={{
       pathname: activationPath,
       state: {
         from: location.pathname,

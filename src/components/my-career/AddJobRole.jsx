@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert, Row, breakpoints, MediaQuery, useToggle, TransitionReplace, Button, Icon,
 } from '@edx/paragon';
@@ -24,7 +24,7 @@ const addIcon = () => (
 
 const AddJobRole = ({ submitClickHandler }) => {
   const { state } = useLocation();
-  const history = useHistory();
+  const history = useNavigate();
   const [isEditable, setIsEditable] = useState(false);
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
 

@@ -1,7 +1,7 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useLocation, useMatch } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
@@ -285,7 +285,7 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
   isExecutiveEducation2UCourse,
 }) => {
-  const routeMatch = useRouteMatch();
+  const routeMatch = useMatch();
   const config = getConfig();
 
   const baseQueryParams = useMemo(() => {
@@ -368,7 +368,7 @@ export const useCourseEnrollmentUrl = ({
  */
 export const useExtractAndRemoveSearchParamsFromURL = () => {
   const { search } = useLocation();
-  const history = useHistory();
+  const history = useNavigate();
   const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
 
   const queryParams = useMemo(

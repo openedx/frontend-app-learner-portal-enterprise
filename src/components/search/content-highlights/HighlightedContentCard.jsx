@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Truncate from 'react-truncate';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -21,7 +21,7 @@ const HighlightedContentCard = ({
       uuid: enterpriseUUID,
     },
   } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const {
     variant,
@@ -41,7 +41,7 @@ const HighlightedContentCard = ({
       // do nothing
       return;
     }
-    history.push(href);
+    navigate(href);
     sendEnterpriseTrackEvent(
       enterpriseUUID,
       'edx.ui.enterprise.learner_portal.search.content_highlights.card_carousel.item.clicked',

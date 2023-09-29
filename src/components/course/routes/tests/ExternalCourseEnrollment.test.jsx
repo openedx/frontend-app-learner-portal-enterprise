@@ -12,7 +12,7 @@ import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../..
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
+  useNavigate: () => ({
     push: mockHistoryPush,
   }),
 }));

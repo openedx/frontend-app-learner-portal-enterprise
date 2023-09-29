@@ -1,5 +1,6 @@
 import React from 'react';
-import { PageRoute } from '@edx/frontend-platform/react';
+import { Route } from 'react-router-dom';
+import { PageWrap } from '@edx/frontend-platform/react';
 
 import { DashboardPage } from '../dashboard';
 import { CoursePage } from '../course';
@@ -16,26 +17,26 @@ import { PathwayProgressPage } from '../pathway-progress';
 // to reduce API calls by 2 (DashboardPage, CoursePage, SearchPage) or by 3 ( + AuthenticatedPage) if created in App.jsx
 const EnterpriseAppPageRoutes = () => (
   <AuthenticatedUserSubsidyPage>
-    <PageRoute exact path="/:enterpriseSlug" component={DashboardPage} />
-    <PageRoute
+    <Route exact path="/:enterpriseSlug" element={<PageWrap><DashboardPage /></PageWrap>} />
+    <Route
       exact
       path={['/:enterpriseSlug/search', '/:enterpriseSlug/search/:pathwayUUID']}
-      component={SearchPage}
+      element={<PageWrap><SearchPage /></PageWrap>}
     />
-    <PageRoute exact path="/:enterpriseSlug/course/:courseKey" component={CoursePage} />
-    <PageRoute path="/:enterpriseSlug/:courseType/course/:courseKey" component={CoursePage} />
+    <Route exact path="/:enterpriseSlug/course/:courseKey" element={<PageWrap><CoursePage /></PageWrap>} />
+    <Route path="/:enterpriseSlug/:courseType/course/:courseKey" element={<PageWrap><CoursePage /></PageWrap>} />
     {features.ENABLE_PROGRAMS && (
-      <PageRoute exact path="/:enterpriseSlug/program/:programUuid" component={ProgramPage} />
+      <Route path="/:enterpriseSlug/program/:programUuid" element={<PageWrap><ProgramPage /></PageWrap>} />
     )}
     {
       // Deprecated URL, will be removed in the future.
-      <PageRoute exact path="/:enterpriseSlug/program-progress/:programUUID" component={ProgramProgressRedirect} />
+      <Route exact path="/:enterpriseSlug/program-progress/:programUUID" element={<PageWrap><ProgramProgressRedirect /></PageWrap>} />
     }
-    <PageRoute exact path="/:enterpriseSlug/program/:programUUID/progress" component={ProgramProgressPage} />
-    <PageRoute exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
-    <PageRoute exact path="/:enterpriseSlug/licenses/:activationKey/activate" component={LicenseActivationPage} />
+    <Route exact path="/:enterpriseSlug/program/:programUUID/progress" element={<PageWrap><ProgramProgressPage /></PageWrap>} />
+    <Route exact path="/:enterpriseSlug/skills-quiz" component={SkillsQuizPage} />
+    <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate" element={<PageWrap><LicenseActivationPage /></PageWrap>} />
     {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-      <PageRoute exact path="/:enterpriseSlug/pathway/:pathwayUUID/progress" component={PathwayProgressPage} />
+      <Route exact path="/:enterpriseSlug/pathway/:pathwayUUID/progress" element={<PageWrap><PathwayProgressPage /></PageWrap>} />
     )}
   </AuthenticatedUserSubsidyPage>
 );

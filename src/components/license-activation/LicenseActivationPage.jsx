@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logInfo } from '@edx/frontend-platform/logging';
 import { Alert } from '@edx/paragon';
@@ -32,7 +32,7 @@ const LicenseActivationPage = () => {
     }
 
     return (
-      <Redirect
+      <Navigate
         to={{
           pathname: `/${enterpriseConfig.slug}`,
         }}

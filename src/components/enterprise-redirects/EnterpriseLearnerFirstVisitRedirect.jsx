@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 
 const EnterpriseLearnerFirstVisitRedirect = () => {
@@ -17,7 +17,7 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
   });
 
   if (isFirstVisit()) {
-    return <Redirect to="/r/search" />;
+    return <Navigate to="/r/search" />;
   }
 
   return null;

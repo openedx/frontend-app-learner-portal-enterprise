@@ -22,7 +22,7 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => ({
     search: '?q=test%20query&subjects=Computer%20Science,Communication&availability=Upcoming&ignore=true',
   }),
-  useHistory: () => ({ push: jest.fn }),
+  useNavigate: () => ({ push: jest.fn }),
 }));
 jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },

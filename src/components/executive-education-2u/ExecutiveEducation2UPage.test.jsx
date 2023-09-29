@@ -80,7 +80,7 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 const mockedPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
+  useNavigate: () => ({
     push: mockedPush,
   }),
   useLocation: jest.fn(),

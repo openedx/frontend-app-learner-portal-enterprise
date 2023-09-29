@@ -1,4 +1,4 @@
-import { useRouteMatch } from 'react-router-dom';
+import { useMatch } from 'react-router-dom';
 
 import { COURSE_AVAILABILITY_MAP } from '../../../data/constants';
 import useCourseRunCardHeading from './useCourseRunCardHeading';
@@ -26,7 +26,7 @@ const useCourseRunCardData = ({
   subsidyAccessPolicy,
   userCanRequestSubsidyForCourse,
 }) => {
-  const routeMatch = useRouteMatch();
+  const routeMatch = useMatch();
   const {
     key: contentKey,
     availability,

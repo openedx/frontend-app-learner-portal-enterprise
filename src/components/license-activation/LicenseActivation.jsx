@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Redirect, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Container } from '@edx/paragon';
@@ -38,7 +38,7 @@ const LicenseActivation = () => {
     const redirectToPath = location.state?.from ?? `/${enterpriseConfig.slug}`;
 
     return (
-      <Redirect
+      <Navigate
         to={{
           pathname: redirectToPath,
           state: { activationSuccess },

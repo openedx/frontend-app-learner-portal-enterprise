@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert, Button, Container, Col, Hyperlink, Row,
 } from '@edx/paragon';
@@ -17,7 +17,7 @@ import ErrorPageContent from '../../executive-education-2u/components/ErrorPageC
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
-  const history = useHistory();
+  const navigate = useNavigate();
   const {
     state: {
       activeCourseRun,
@@ -58,14 +58,14 @@ const ExternalCourseEnrollment = () => {
   }, [externalCourseFormSubmissionError, containerRef]);
 
   const handleCheckoutSuccess = () => {
-    history.push('enroll/complete');
+    navigate('enroll/complete');
   };
 
   useEffect(() => {
     if (hasSuccessfulRedemption) {
-      history.push('enroll/complete');
+      navigate('enroll/complete');
     }
-  }, [hasSuccessfulRedemption, history]);
+  }, [hasSuccessfulRedemption, navigate]);
 
   return (
     <div className="fill-vertical-space page-light-bg">

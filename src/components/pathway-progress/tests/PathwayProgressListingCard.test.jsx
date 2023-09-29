@@ -15,7 +15,7 @@ import LearnerPathwayProgressData from '../data/__mocks__/PathwayProgressListDat
 const mockedPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
+  useNavigate: () => ({
     push: mockedPush,
   }),
   useLocation: jest.fn(),

@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, useRouteMatch } from 'react-router-dom';
+import { MemoryRouter, useMatch } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
@@ -102,15 +102,15 @@ jest.mock('../utils', () => ({
   getMissingApplicableSubsidyReason: jest.fn(),
 }));
 
-const mockUseHistoryPush = jest.fn();
-const mockUseHistoryReplace = jest.fn();
+const mockuseNavigatePush = jest.fn();
+const mockuseNavigateReplace = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-    replace: mockUseHistoryReplace,
+  useNavigate: () => ({
+    push: mockuseNavigatePush,
+    replace: mockuseNavigateReplace,
   }),
-  useRouteMatch: jest.fn(),
+  useMatch: jest.fn(),
 }
 ));
 
@@ -255,7 +255,7 @@ describe('useCourseEnrollmentUrl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    useRouteMatch.mockReturnValue({
+    useMatch.mockReturnValue({
       path: '/:enterpriseSlug/course/:courseKey',
       url: '/enterprise-slug/course/edX+DemoX',
     });
@@ -344,7 +344,7 @@ describe('useCourseEnrollmentUrl', () => {
           },
         },
       });
-      useRouteMatch.mockReturnValueOnce({
+      useMatch.mockReturnValueOnce({
         path: '/:enterpriseSlug/:courseType/course/:courseKey',
         url: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
       });
@@ -865,8 +865,8 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
     );
     expect(screen.getByText('Query ID: 123')).toBeTruthy();
     expect(screen.getByText('Object ID: abc')).toBeTruthy();
-    expect(mockUseHistoryReplace).toHaveBeenCalledTimes(1);
-    expect(mockUseHistoryReplace).toHaveBeenCalledWith({ search: '' });
+    expect(mockuseNavigateReplace).toHaveBeenCalledTimes(1);
+    expect(mockuseNavigateReplace).toHaveBeenCalledWith({ search: '' });
   });
 });
 

@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
-import { AppProvider, AuthenticatedPageRoute, PageRoute } from '@edx/frontend-platform/react';
+import {
+  Navigate, Route, Routes,
+} from 'react-router-dom';
+import { AppProvider, AuthenticatedPageRoute, PageWrap } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
 import {
-  QueryClient,
-  QueryClientProvider,
+  QueryClient, QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
@@ -14,8 +15,7 @@ import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
 import NotFoundPage from '../NotFoundPage';
 import NoticesProvider from '../notices-provider';
 import {
-  EnterpriseCustomerRedirect,
-  EnterprisePageRedirect,
+  EnterpriseCustomerRedirect, EnterprisePageRedirect,
 } from '../enterprise-redirects';
 import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ExecutiveEducation2UPage } from '../executive-education-2u';
@@ -48,14 +48,14 @@ const App = () => {
         <NoticesProvider>
           <ToastsProvider>
             <Toasts />
-            <Switch>
+            <Routes>
               {/* always remove trailing slashes from any route */}
-              <Redirect from="/:url*(/+)" to={global.location.pathname.slice(0, -1)} />
+              <Navigate from="/:url*(/+)" to={global.location.pathname.slice(0, -1)} />
               {/* page routes for the app */}
-              <AuthenticatedPageRoute exact path="/" component={EnterpriseCustomerRedirect} />
-              <AuthenticatedPageRoute exact path="/r/:redirectPath+" component={EnterprisePageRedirect} />
-              <PageRoute exact path="/invite/:enterpriseCustomerInviteKey" component={EnterpriseInvitePage} />
-              <PageRoute
+              <Route exact path="/" element={<AuthenticatedPageRoute><EnterpriseCustomerRedirect /></AuthenticatedPageRoute>} />
+              <Route exact path="/r/:redirectPath+" element={<AuthenticatedPageRoute><EnterprisePageRedirect /></AuthenticatedPageRoute>} />
+              <Route exact path="/invite/:enterpriseCustomerInviteKey" element={<PageWrap><EnterpriseInvitePage /></PageWrap>} />
+              <Route
                 exact
                 path="/:enterpriseSlug/executive-education-2u"
                 render={(routeProps) => (
@@ -64,7 +64,7 @@ const App = () => {
                   </AuthenticatedPage>
                 )}
               />
-              <PageRoute
+              <Route
                 exact
                 path="/:enterpriseSlug/executive-education-2u/enrollment-completed"
                 render={(routeProps) => (
@@ -74,8 +74,8 @@ const App = () => {
                 )}
               />
               <Route path="/:enterpriseSlug" component={EnterpriseAppPageRoutes} />
-              <PageRoute path="*" component={NotFoundPage} />
-            </Switch>
+              <Route path="*" element={<PageWrap><NotFoundPage /></PageWrap>} />
+            </Routes>
           </ToastsProvider>
         </NoticesProvider>
       </AppProvider>

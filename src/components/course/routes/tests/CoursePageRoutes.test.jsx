@@ -6,7 +6,7 @@ import CoursePageRoutes from '../CoursePageRoutes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useRouteMatch: jest.fn(() => ({
+  useMatch: jest.fn(() => ({
     path: '/:enterpriseSlug/course/:courseKey',
   })),
 }));

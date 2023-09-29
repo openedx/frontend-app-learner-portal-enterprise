@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useMemo,
 } from 'react';
 import { Helmet } from 'react-helmet';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Tabs,
@@ -25,7 +25,7 @@ import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 
 const DashboardPage = () => {
   const { state } = useLocation();
-  const history = useHistory();
+  const history = useNavigate();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username } = authenticatedUser;
   const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
