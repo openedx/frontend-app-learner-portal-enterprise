@@ -2,7 +2,6 @@ import React, {
   useContext, useEffect, useMemo,
 } from 'react';
 import { Helmet } from 'react-helmet';
-import classNames from 'classnames';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
   Container,
@@ -59,6 +58,32 @@ const DashboardPage = () => {
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;
+  const allTabs = [
+    <Tab eventKey="courses" title="Courses">
+      <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
+    </Tab>,
+    <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
+      <ProgramListingPage
+        canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+        programsListData={learnerProgramsListData}
+        programsFetchError={programsFetchError}
+      />
+    </Tab>,
+    enterpriseConfig.enablePathways && (
+      <Tab eventKey="pathways" title="Pathways" disabled={pathwayProgressData.length === 0}>
+        <PathwayProgressListingPage
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          pathwayProgressData={pathwayProgressData}
+          pathwayFetchError={pathwayFetchError}
+        />
+      </Tab>
+    ),
+    features.FEATURE_ENABLE_MY_CAREER && (
+      <Tab eventKey="my-career" title="My Career">
+        <MyCareerTab />
+      </Tab>
+    ),
+  ];
 
   return (
     <>
@@ -68,30 +93,7 @@ const DashboardPage = () => {
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
         <EnterpriseLearnerFirstVisitRedirect />
-        <Tabs defaultActiveKey="courses" onSelect={(k) => onSelectHandler(k)}>
-          <Tab eventKey="courses" title="Courses">
-            <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
-          </Tab>
-          <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
-            <ProgramListingPage
-              canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-              programsListData={learnerProgramsListData}
-              programsFetchError={programsFetchError}
-            />
-          </Tab>
-          <Tab eventKey="pathways" title="Pathways" tabClassName={classNames({ 'd-none': !enterpriseConfig.enablePathways })} disabled={pathwayProgressData.length === 0}>
-            <PathwayProgressListingPage
-              canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-              pathwayProgressData={pathwayProgressData}
-              pathwayFetchError={pathwayFetchError}
-            />
-          </Tab>
-          {features.FEATURE_ENABLE_MY_CAREER && (
-            <Tab eventKey="my-career" title="My Career">
-              <MyCareerTab />
-            </Tab>
-          )}
-        </Tabs>
+        <Tabs defaultActiveKey="courses" onSelect={(k) => onSelectHandler(k)}>{allTabs.filter(tab => tab)}</Tabs>
         {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
         {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
       </Container>

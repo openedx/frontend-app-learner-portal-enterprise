@@ -234,9 +234,19 @@ describe('<Dashboard />', () => {
   });
 
   it('renders Pathways when feature is enabled', () => {
-    features.FEATURE_ENABLE_PATHWAY_PROGRESS.mockImplementation(() => true);
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        name: 'BearsRUs',
+        uuid: 'BearsRUs',
+        disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
+        enablePathways: true,
+      },
+    };
+
     renderWithRouter(
-      <DashboardWithContext />,
+      <DashboardWithContext initialAppState={appState} />,
     );
     expect(screen.getByText('Pathways'));
   });
