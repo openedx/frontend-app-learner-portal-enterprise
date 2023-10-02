@@ -2,6 +2,7 @@ import React, {
   useContext, useEffect, useMemo,
 } from 'react';
 import { Helmet } from 'react-helmet';
+import classNames from 'classnames';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
   Container,
@@ -78,15 +79,13 @@ const DashboardPage = () => {
               programsFetchError={programsFetchError}
             />
           </Tab>
-          {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
-            <Tab eventKey="pathways" title="Pathways" disabled={pathwayProgressData.length === 0}>
-              <PathwayProgressListingPage
-                canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-                pathwayProgressData={pathwayProgressData}
-                pathwayFetchError={pathwayFetchError}
-              />
-            </Tab>
-          )}
+          <Tab eventKey="pathways" title="Pathways" tabClassName={classNames({ 'd-none': !enterpriseConfig.enablePathways })} disabled={pathwayProgressData.length === 0}>
+            <PathwayProgressListingPage
+              canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+              pathwayProgressData={pathwayProgressData}
+              pathwayFetchError={pathwayFetchError}
+            />
+          </Tab>
           {features.FEATURE_ENABLE_MY_CAREER && (
             <Tab eventKey="my-career" title="My Career">
               <MyCareerTab />
