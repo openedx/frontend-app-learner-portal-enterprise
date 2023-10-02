@@ -62,13 +62,16 @@ const DashboardPage = () => {
     <Tab eventKey="courses" title="Courses">
       <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
     </Tab>,
-    <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
-      <ProgramListingPage
-        canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-        programsListData={learnerProgramsListData}
-        programsFetchError={programsFetchError}
-      />
-    </Tab>,
+    // TODO: Replace enablePathways with enablePrograms when backend is updated
+    enterpriseConfig.enablePathways && (
+      <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
+        <ProgramListingPage
+          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+          programsListData={learnerProgramsListData}
+          programsFetchError={programsFetchError}
+        />
+      </Tab>
+    ),
     enterpriseConfig.enablePathways && (
       <Tab eventKey="pathways" title="Pathways" disabled={pathwayProgressData.length === 0}>
         <PathwayProgressListingPage

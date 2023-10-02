@@ -63,7 +63,7 @@ jest.mock('../CourseSidebarPrice', () => jest.fn(() => (
 )));
 
 const baseAppContextValue = {
-  enterpriseConfig: { uuid: 'test-enterprise-uuid' },
+  enterpriseConfig: { uuid: 'test-enterprise-uuid', enablePathways: true },
 };
 
 const mockCourse = {
