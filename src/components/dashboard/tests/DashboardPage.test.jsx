@@ -234,9 +234,19 @@ describe('<Dashboard />', () => {
   });
 
   it('renders Pathways when feature is enabled', () => {
-    features.FEATURE_ENABLE_PATHWAY_PROGRESS.mockImplementation(() => true);
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        name: 'BearsRUs',
+        uuid: 'BearsRUs',
+        disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
+        enablePathways: true,
+      },
+    };
+
     renderWithRouter(
-      <DashboardWithContext />,
+      <DashboardWithContext initialAppState={appState} />,
     );
     expect(screen.getByText('Pathways'));
   });
@@ -271,16 +281,37 @@ describe('<Dashboard />', () => {
   });
 
   it('Renders all tabs for progress in dashboard page', () => {
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        name: 'BearsRUs',
+        uuid: 'BearsRUs',
+        disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
+        enablePathways: true,
+      },
+    };
     renderWithRouter(
-      <DashboardWithContext />,
+      <DashboardWithContext initialAppState={appState} />,
     );
     expect(screen.getByText('Courses')).toBeInTheDocument();
     expect(screen.getByText('Programs')).toBeInTheDocument();
   });
 
   it('Selects courses tab from progress tabs by default', () => {
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        name: 'BearsRUs',
+        uuid: 'BearsRUs',
+        disableSearch: true,
+        adminUsers: [{ email: 'admin@foo.com' }],
+        enablePathways: true,
+      },
+    };
+
     renderWithRouter(
-      <DashboardWithContext />,
+      <DashboardWithContext initialAppState={appState} />,
     );
     const coursesTab = screen.getByText('Courses');
     const programsTab = screen.getByText('Programs');
