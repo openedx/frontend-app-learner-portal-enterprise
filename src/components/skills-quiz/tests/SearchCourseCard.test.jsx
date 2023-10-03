@@ -150,7 +150,6 @@ describe('<SearchCourseCard />', () => {
 
     // handles click
     userEvent.click(searchCourseCard);
-    // expect(history.entries).toHaveLength(2);
     expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 

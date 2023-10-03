@@ -7,7 +7,6 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
-import { Link } from 'react-router-dom';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
@@ -68,13 +67,6 @@ jest.mock('@edx/frontend-platform/react', () => ({
 
 jest.mock('../data/hooks', () => ({
   useLearnerProgramsListData: jest.fn(),
-}));
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  Link: jest.fn().mockImplementation(({ to, children }) => (
-    <a href={to}>{children}</a>
-  )),
 }));
 
 const ProgramListingWithContext = ({
@@ -171,12 +163,8 @@ describe('<ProgramListing />', () => {
         />,
       );
       userEvent.click(screen.getByText('Explore programs'));
-      expect(Link).toHaveBeenCalledWith(
-        expect.objectContaining({
-          to: `/${initialAppState.enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`,
-        }),
-        expect.any(Object),
-      );
+      expect(window.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
+      expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
     });
   });
 

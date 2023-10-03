@@ -1,9 +1,7 @@
 import React from 'react';
-import {
-  MemoryRouter, Route, Routes, mockNavigate,
-} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import EnterprisePageRedirect from '../EnterprisePageRedirect';
@@ -14,21 +12,10 @@ import { renderWithRouter } from '../../../utils/tests';
 
 jest.mock('../data/service');
 
-jest.mock('react-router-dom', () => {
-  const mockNavigation = jest.fn();
-
-  // eslint-disable-next-line react/prop-types
-  const Navigate = ({ to }) => {
-    mockNavigation(to);
-    return <div />;
-  };
-
-  return {
-    ...jest.requireActual('react-router-dom'),
-    Navigate,
-    mockNavigate: mockNavigation,
-  };
-});
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
 
 const TEST_ENTERPRISES = [
   {
@@ -64,10 +51,13 @@ describe('<EnterprisePageRedirect />', () => {
 
   beforeEach(() => {
     fetchEnterpriseCustomerByUUID.mockClear();
-    mockNavigate.mockClear();
   });
 
   test('renders NotFoundPage if user is not linked to any Enterprise Customers', async () => {
+    useParams.mockReturnValue({
+      '*': '',
+    });
+
     renderWithRouter(
       <EnterprisePageRedirectWithContext initialAppState={initialAppState} />,
     );
@@ -95,18 +85,16 @@ describe('<EnterprisePageRedirect />', () => {
       },
     };
 
-    const Component = (
-      <MemoryRouter initialEntries={['/r/search']}>
-        <Routes>
-          <Route path="/r/:redirectPath" element={<EnterprisePageRedirectWithContext initialAppState={initialState} />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    render(Component);
+    useParams.mockReturnValue({
+      '*': 'search',
+    });
+
+    const Component = (<EnterprisePageRedirectWithContext initialAppState={initialState} />);
+    renderWithRouter(Component);
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISES[0].slug}/search`);
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}/search`);
   });
 
   test('redirects to correct ``redirectPath`` from route params when user is linked to more than 1 Enterprise Customer', async () => {
@@ -129,17 +117,15 @@ describe('<EnterprisePageRedirect />', () => {
       },
     };
 
-    const Component = (
-      <MemoryRouter initialEntries={['/r/course/edX+DemoX']}>
-        <Routes>
-          <Route path="/r/*" element={<EnterprisePageRedirectWithContext initialAppState={initialState} />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    render(Component);
+    useParams.mockReturnValue({
+      '*': 'course/edX+DemoX',
+    });
+
+    const Component = (<EnterprisePageRedirectWithContext initialAppState={initialState} />);
+    renderWithRouter(Component);
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISES[1].slug}/course/edX+DemoX`);
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}/course/edX+DemoX`);
   });
 });

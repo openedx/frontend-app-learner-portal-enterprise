@@ -24,7 +24,9 @@ import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 
 const DashboardPage = () => {
-  const { pathname, state } = useLocation();
+  const {
+    pathname, state, search, hash,
+  } = useLocation();
   const navigate = useNavigate();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username } = authenticatedUser;
@@ -52,9 +54,11 @@ const DashboardPage = () => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
       delete updatedLocationState.activationSuccess;
-      navigate(pathname, { state: updatedLocationState });
+      navigate(pathname, {
+        search, hash, state: updatedLocationState, replace: true,
+      });
     }
-  }, [pathname, navigate, state]);
+  }, [pathname, navigate, state, search, hash]);
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;

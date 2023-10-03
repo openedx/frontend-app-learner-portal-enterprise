@@ -2,7 +2,6 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import Cookies from 'universal-cookie';
 
-import { mockNavigate } from 'react-router-dom';
 import { renderWithRouter } from '../../../utils/tests';
 import EnterpriseLearnerFirstVisitRedirect from '../EnterpriseLearnerFirstVisitRedirect';
 
@@ -13,32 +12,15 @@ const TEST_ENTERPRISE = {
   slug: 'test-enterprise',
 };
 
-jest.mock('react-router-dom', () => {
-  const mockNavigation = jest.fn();
-
-  // eslint-disable-next-line react/prop-types
-  const Navigate = ({ to }) => {
-    mockNavigation(to);
-    return <div />;
-  };
-
-  return {
-    ...jest.requireActual('react-router-dom'),
-    Navigate,
-    mockNavigate: mockNavigation,
-  };
-});
-
 describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   beforeEach(() => {
     const cookies = new Cookies();
     cookies.remove(COOKIE_NAME);
-    jest.clearAllMocks();
   });
 
   test('redirects to search if user is visiting for the first time.', async () => {
-    renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(mockNavigate).toHaveBeenCalledWith('/r/search');
+    renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />);
+    expect(window.location.pathname).toEqual('/r/search');
   });
 
   test('Does not redirect the returning user to search.', async () => {

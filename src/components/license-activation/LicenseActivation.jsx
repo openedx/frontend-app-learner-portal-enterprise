@@ -41,6 +41,7 @@ const LicenseActivation = () => {
       <Navigate
         to={redirectToPath}
         state={{ activationSuccess }}
+        replace
       />
     );
   }

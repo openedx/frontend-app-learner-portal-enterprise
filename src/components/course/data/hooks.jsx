@@ -367,7 +367,7 @@ export const useCourseEnrollmentUrl = ({
  * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
  */
 export const useExtractAndRemoveSearchParamsFromURL = () => {
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
 
@@ -385,13 +385,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
         });
         queryParams.delete('queryId');
         queryParams.delete('objectId');
-        navigate({
+        navigate(pathname, {
           search: queryParams.toString(),
           replace: true,
         });
       }
     },
-    [navigate, queryParams],
+    [navigate, queryParams, pathname],
   );
 
   return algoliaSearchParams;

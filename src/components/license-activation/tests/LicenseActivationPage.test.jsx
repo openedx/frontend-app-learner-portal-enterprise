@@ -1,15 +1,12 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
-
-import {
-  MemoryRouter, Route, Routes, mockNavigate,
-} from 'react-router-dom';
 
 import LicenseActivationPage from '../LicenseActivationPage';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { renderWithRouter } from '../../../utils/tests';
 
 const TEST_USER_ID = 1;
 
@@ -29,26 +26,16 @@ jest.mock('../LicenseActivationErrorAlert', () => ({
   __esModule: true,
   default: () => '<LicenseActivationErrorAlert />',
 }));
-jest.mock('react-router-dom', () => {
-  const mockNavigation = jest.fn();
-
-  // eslint-disable-next-line react/prop-types
-  const Navigate = ({ to }) => {
-    mockNavigation(to);
-    return <div />;
-  };
-
-  return {
-    ...jest.requireActual('react-router-dom'),
-    Navigate,
-    mockNavigate: mockNavigation,
-  };
-});
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: () => ({
+    activationKey: '00000000-0000-0000-0000-000000000000',
+  }),
+}));
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
 const TEST_ACTIVATION_KEY = '00000000-0000-0000-0000-000000000000';
-const TEST_ROUTE = `/${TEST_ENTERPRISE_SLUG}/licenses/${TEST_ACTIVATION_KEY}/activate`;
 
 const LicenseActivationPageWithContext = ({
   initialUserSubsidyState = {
@@ -69,9 +56,7 @@ const LicenseActivationPageWithContext = ({
     }}
   >
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <Routes>
-        <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate" element={<LicenseActivationPage />} />
-      </Routes>
+      <LicenseActivationPage />
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -84,46 +69,34 @@ describe('<LicenseActivationPageWithAppContext />', () => {
   it.each(
     [undefined, { status: LICENSE_STATUS.ACTIVATED }],
   )('should redirect if the user has no license to activate', (subscriptionLicense) => {
-    render(
-      <MemoryRouter initialEntries={[TEST_ROUTE]}>
-        <LicenseActivationPageWithContext initialUserSubsidyState={{
-          subscriptionLicense,
-        }}
-        />
-      </MemoryRouter>,
-    );
+    renderWithRouter(<LicenseActivationPageWithContext initialUserSubsidyState={{
+      subscriptionLicense,
+    }}
+    />);
 
-    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}`);
+    expect(window.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}`);
   });
 
   it('should render error alert if attempting to activate a license that does not belong to the user', () => {
-    render(
-      <MemoryRouter initialEntries={[TEST_ROUTE]}>
-        <LicenseActivationPageWithContext initialUserSubsidyState={{
-          subscriptionLicense: {
-            activationKey: '00000000-0000-0000-0000-000000000001',
-            status: LICENSE_STATUS.ASSIGNED,
-          },
-        }}
-        />
-      </MemoryRouter>,
-    );
+    renderWithRouter(<LicenseActivationPageWithContext initialUserSubsidyState={{
+      subscriptionLicense: {
+        activationKey: '00000000-0000-0000-0000-000000000001',
+        status: LICENSE_STATUS.ASSIGNED,
+      },
+    }}
+    />);
 
     expect(screen.getByText('<LicenseActivationErrorAlert />')).toBeInTheDocument();
   });
 
   it('should render <LicenseActivation /> if there is a license to activate', () => {
-    render(
-      <MemoryRouter initialEntries={[TEST_ROUTE]}>
-        <LicenseActivationPageWithContext initialUserSubsidyState={{
-          subscriptionLicense: {
-            activationKey: TEST_ACTIVATION_KEY,
-            status: LICENSE_STATUS.ASSIGNED,
-          },
-        }}
-        />
-      </MemoryRouter>,
-    );
+    renderWithRouter(<LicenseActivationPageWithContext initialUserSubsidyState={{
+      subscriptionLicense: {
+        activationKey: TEST_ACTIVATION_KEY,
+        status: LICENSE_STATUS.ASSIGNED,
+      },
+    }}
+    />);
     expect(screen.getByText('<LicenseActivation />')).toBeInTheDocument();
   });
 });

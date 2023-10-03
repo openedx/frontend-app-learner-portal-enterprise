@@ -34,6 +34,7 @@ const LicenseActivationPage = () => {
     return (
       <Navigate
         to={`/${enterpriseConfig.slug}`}
+        replace
       />
     );
   }

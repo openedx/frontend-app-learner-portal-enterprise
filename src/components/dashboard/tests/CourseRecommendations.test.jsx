@@ -2,20 +2,12 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Link } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
 import {
   renderWithRouter,
 } from '../../../utils/tests';
 import { CourseRecommendations } from '../main-content';
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  Link: jest.fn().mockImplementation(({ to, children }) => (
-    <a href={to}>{children}</a>
-  )),
-}));
 
 const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
 
@@ -51,11 +43,6 @@ describe('<CourseRecommendations />', () => {
     renderWithRouter(<CourseRecommendationsContext />);
     const courseRecommendationsButton = screen.getByText('Recommend courses for me');
     userEvent.click(courseRecommendationsButton);
-    expect(Link).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: '/BearsRUs/skills-quiz',
-      }),
-      expect.any(Object),
-    );
+    expect(window.location.pathname).toEqual('/BearsRUs/skills-quiz');
   });
 });

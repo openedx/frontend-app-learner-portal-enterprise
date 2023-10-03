@@ -25,6 +25,7 @@ const AutoActivateLicense = () => {
       state={{
         from: location.pathname,
       }}
+      replace
     />
   );
 };

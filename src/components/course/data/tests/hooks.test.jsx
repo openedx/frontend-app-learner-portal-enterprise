@@ -856,6 +856,7 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
 
   beforeEach(() => {
     useLocation.mockReturnValue({
+      pathname: '/',
       search: '?queryId=123&objectId=abc',
     });
   });
@@ -869,7 +870,7 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
     expect(screen.getByText('Query ID: 123')).toBeTruthy();
     expect(screen.getByText('Object ID: abc')).toBeTruthy();
     expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith({ replace: true, search: '' });
+    expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true, search: '' });
   });
 });
 

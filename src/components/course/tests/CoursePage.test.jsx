@@ -15,7 +15,7 @@ import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../
 import { mockCourseService } from './constants';
 
 const mockGetActiveCourseRun = jest.fn();
-const mockNavigation = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock('../data/utils', () => ({
   ...jest.requireActual('../data/utils'),
@@ -27,7 +27,7 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => ({
     pathname: '/test-enterprise-uuid/course/test-course-key',
   }),
-  useNavigate: () => mockNavigation,
+  useNavigate: () => mockNavigate,
   useParams: () => ({ enterpriseSlug: 'test-enterprise-uuid', courseKey: 'test-course-key' }),
 }));
 
@@ -223,7 +223,7 @@ describe('CoursePage', () => {
   it('Redirects to using course type slug if path does not include it', async () => {
     mockGetActiveCourseRun.mockImplementation(() => ({ staff: [] }));
     render(<CoursePageWrapper />);
-    expect(mockNavigation).toHaveBeenCalledWith('/test-enterprise-uuid/executive-education-2u/course/test-course-key', { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith('/test-enterprise-uuid/executive-education-2u/course/test-course-key', { replace: true });
     expect(screen.getByTestId('course-enrollments-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-page-routes')).toBeInTheDocument();

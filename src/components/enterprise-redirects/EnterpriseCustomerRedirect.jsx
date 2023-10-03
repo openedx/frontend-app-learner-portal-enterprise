@@ -28,7 +28,7 @@ const EnterpriseCustomerRedirect = () => {
     return <NotFoundPage />;
   }
 
-  return <Navigate to={`/${enterpriseCustomer.slug}`} />;
+  return <Navigate to={`/${enterpriseCustomer.slug}`} replace />;
 };
 
 export default EnterpriseCustomerRedirect;

@@ -10,7 +10,7 @@ const EnrollmentCompleted = () => {
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
   if (!location.state?.data) {
-    return <Navigate to={`/${enterpriseConfig.slug}`} />;
+    return <Navigate to={`/${enterpriseConfig.slug}`} replace />;
   }
   return (
     <div className="fill-vertical-space page-light-bg">
