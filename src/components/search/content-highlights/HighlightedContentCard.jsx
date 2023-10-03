@@ -60,7 +60,7 @@ const HighlightedContentCard = ({
       {...props}
     >
       <Card.ImageCap
-        src={cardImageUrl}
+        src={cardImageUrl || cardImageCapFallbackSrc}
         fallbackSrc={cardImageCapFallbackSrc}
         srcAlt=""
         logoSrc={authoringOrganizations?.logoImageUrl}

@@ -32,19 +32,36 @@ describe('useSearchCatalogs', () => {
   const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
   const mockCouponCodeCatalog = 'test-coupon-code-catalog-uuid';
   const mockEnterpriseOfferCatalog = 'test-enterprise-offer-catalog-uuid';
+  const mockPolicyCatalog = 'test-policy-catalog-uuid';
 
-  it('should include catalog from subscription', () => {
+  it.each([
+    { isSubscriptionPlanExpired: true },
+    { isSubscriptionPlanExpired: false },
+  ])('should include catalog from subscription (%s)', ({ isSubscriptionPlanExpired }) => {
     const { result } = renderHook(() => useSearchCatalogs({
-      subscriptionPlan: { enterpriseCatalogUuid: mockSubscriptionCatalog },
+      subscriptionPlan: {
+        enterpriseCatalogUuid: mockSubscriptionCatalog,
+        isCurrent: !isSubscriptionPlanExpired,
+      },
       subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
-    expect(result.current).toEqual([mockSubscriptionCatalog]);
+    if (isSubscriptionPlanExpired) {
+      expect(result.current).toEqual([]);
+    } else {
+      expect(result.current).toEqual([mockSubscriptionCatalog]);
+    }
   });
 
-  it('should include catalogs from coupon codes if features.ENROLL_WITH_CODES = true', () => {
+  it.each([
+    { isCouponExpired: true },
+    { isCouponExpired: false },
+  ])('should include catalogs from coupon codes if features.ENROLL_WITH_CODES = true (%s)', ({
+    isCouponExpired,
+  }) => {
     features.ENROLL_WITH_CODES = true;
 
     const { result } = renderHook(() => useSearchCatalogs({
@@ -52,11 +69,17 @@ describe('useSearchCatalogs', () => {
       subscriptionLicense: undefined,
       couponCodes: [{
         catalog: mockCouponCodeCatalog,
+        available: !isCouponExpired,
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
-    expect(result.current).toEqual([mockCouponCodeCatalog]);
+    if (isCouponExpired) {
+      expect(result.current).toEqual([]);
+    } else {
+      expect(result.current).toEqual([mockCouponCodeCatalog]);
+    }
   });
 
   it('should not include catalogs from coupon codes if features.ENROLL_WITH_CODES = false', () => {
@@ -70,11 +93,17 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     expect(result.current).toEqual([]);
   });
 
-  it('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true', () => {
+  it.each([
+    { isExpiredOffer: true },
+    { isExpiredOffer: false },
+  ])('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true (%s)', ({
+    isExpiredOffer,
+  }) => {
     features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true;
 
     const { result } = renderHook(() => useSearchCatalogs({
@@ -83,10 +112,16 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [{
         enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
+        isCurrent: !isExpiredOffer,
       }],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
-    expect(result.current).toEqual([mockEnterpriseOfferCatalog]);
+    if (isExpiredOffer) {
+      expect(result.current).toEqual([]);
+    } else {
+      expect(result.current).toEqual([mockEnterpriseOfferCatalog]);
+    }
   });
 
   it('should not include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = false', () => {
@@ -100,6 +135,7 @@ describe('useSearchCatalogs', () => {
         enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
       }],
       catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies: [],
     }));
     expect(result.current).toEqual([]);
   });
@@ -113,8 +149,47 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests,
+      redeemableLearnerCreditPolicies: [],
     }));
     expect(result.current).toEqual(catalogsForSubsidyRequests);
+  });
+
+  it.each([
+    {
+      hasDefinedPolicies: false,
+      isPolicyExpired: false,
+    },
+    {
+      hasDefinedPolicies: true,
+      isPolicyExpired: false,
+    },
+    {
+      hasDefinedPolicies: true,
+      isPolicyExpired: true,
+    },
+  ])('should include catalogs for redeemable subsidy access policies', ({
+    hasDefinedPolicies,
+    isPolicyExpired,
+  }) => {
+    const redeemableLearnerCreditPolicies = hasDefinedPolicies ? [{
+      active: !isPolicyExpired,
+      catalogUuid: mockPolicyCatalog,
+    }] : undefined;
+
+    const { result } = renderHook(() => useSearchCatalogs({
+      subscriptionPlan: undefined,
+      subscriptionLicense: undefined,
+      couponCodes: [],
+      enterpriseOffers: [],
+      catalogsForSubsidyRequests: [],
+      redeemableLearnerCreditPolicies,
+    }));
+
+    if (!hasDefinedPolicies || isPolicyExpired) {
+      expect(result.current).toEqual([]);
+    } else {
+      expect(result.current).toEqual([mockPolicyCatalog]);
+    }
   });
 });
 

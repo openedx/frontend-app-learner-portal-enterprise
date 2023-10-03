@@ -20,32 +20,26 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 import CourseService from './service';
 import {
-  determineOfferRedeemability,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCourseRunPrice,
   getCourseStartDate,
   getCourseTypeConfig,
-  getMissingSubsidyReasonActions,
-  getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
   createEnrollWithCouponCodeUrl,
   createEnrollWithLicenseUrl,
-  getCouponCodesDisabledEnrollmentReasonType,
+  getMissingApplicableSubsidyReason,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   COURSE_PACING_MAP,
   CURRENCY_USD,
   DISABLED_ENROLL_REASON_TYPES,
-  DISABLED_ENROLL_USER_MESSAGES,
   ENROLLMENT_COURSE_RUN_KEY_QUERY_PARAM,
   ENROLLMENT_FAILED_QUERY_PARAM,
-  ENTERPRISE_OFFER_SUBSIDY_TYPE,
-  LEARNER_CREDIT_SUBSIDY_TYPE,
   LICENSE_SUBSIDY_TYPE,
   SUBSIDY_DISCOUNT_TYPE_MAP,
 } from './constants';
@@ -628,6 +622,10 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @param {array} args.enterpriseOffers List of enterprise offers, if any.
  * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
  *  license validation error.
+ * @param {array} args.enterpriseAdminUsers List of enterprise admin users, if any.
+ * @param {object} args.customerAgreementConfig Customer agreement config, if any.
+ * @param {object} args.missingSubsidyAccessPolicyReason Reason why the subsidy access policy is not redeemable
+ * @param {number} args.courseListPrice List price for course
  *
  * @returns A subsidy that may be redeemed for the course.
  */
@@ -663,51 +661,35 @@ export const useUserSubsidyApplicableToCourse = ({
       courseDetails,
     } = courseData;
 
-    let applicableUserSubsidy;
-
-    // if course can be redeemed with a subsidy access policy, return `learnerCredit` subsidy type.
-    if (isPolicyRedemptionEnabled) {
-      // the enterprise-access `can-redeem` API returns `can_redeem: false` when a learner
-      // has already redeemed a course. This means the course page thinks the learner no
-      // longer has any subsidy available to spend. `isPolicyRedemptionEnabled` is true when
-      // `can_redeem: false && has_successful_redemption: true`, so `redeemableSubsidyAccessPolicy` may now be null.
-      applicableUserSubsidy = {
-        discountType: 'percentage',
-        discountValue: 100,
-        subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
-        perLearnerEnrollmentLimit: redeemableSubsidyAccessPolicy?.perLearnerEnrollmentLimit,
-        perLearnerSpendLimit: redeemableSubsidyAccessPolicy?.perLearnerSpendLimit,
-        policyRedemptionUrl: redeemableSubsidyAccessPolicy?.policyRedemptionUrl,
-      };
-    }
-
-    // otherwise, fallback to existing legacy subsidies.
-    const retrieveApplicableLegacySubsidy = async () => {
-      // course isn't contained in any catalog(s), so we can assume there is no applicable user subsidy; do nothing
-      if (!containsContentItems) {
-        return undefined;
+    const getSubscriptionLicenseSubsidy = async () => {
+      if (!subscriptionLicense) {
+        return null;
       }
-      let licenseApplicableToCourse;
-      if (subscriptionLicense) {
-        try {
-          // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
-          const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
-          if (fetchLicenseSubsidyResponse) {
-            licenseApplicableToCourse = camelCaseObject(fetchLicenseSubsidyResponse.data);
-          }
-        } catch (error) {
-          logError(error);
-          if (onSubscriptionLicenseForCourseValidationError) {
-            onSubscriptionLicenseForCourseValidationError(error);
-          }
+      try {
+        // get subscription license with extra information (i.e. discount type, discount value, subsidy checksum)
+        const fetchLicenseSubsidyResponse = await courseService.fetchUserLicenseSubsidy();
+        if (fetchLicenseSubsidyResponse) {
+          return camelCaseObject(fetchLicenseSubsidyResponse.data);
+        }
+      } catch (error) {
+        logError(error);
+        if (onSubscriptionLicenseForCourseValidationError) {
+          onSubscriptionLicenseForCourseValidationError(error);
         }
       }
-      const coursePrice = getCourseRunPrice({
-        courseDetails,
-        firstEnrollablePaidSeatPrice: courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice,
-      });
-      return getSubsidyToApplyForCourse({
+      return null;
+    };
+
+    const coursePrice = getCourseRunPrice({
+      courseDetails,
+      firstEnrollablePaidSeatPrice: courseService?.activeCourseRun?.firstEnrollablePaidSeatPrice,
+    });
+
+    const getApplicableSubsidyForCourse = async () => {
+      const licenseApplicableToCourse = await getSubscriptionLicenseSubsidy();
+      const applicableSubsidy = getSubsidyToApplyForCourse({
         applicableSubscriptionLicense: licenseApplicableToCourse,
+        applicableSubsidyAccessPolicy: { isPolicyRedemptionEnabled, redeemableSubsidyAccessPolicy },
         applicableCouponCode: findCouponCodeForCourse(couponCodes, catalogsWithCourse),
         applicableEnterpriseOffer: findEnterpriseOfferForCourse({
           enterpriseOffers: canEnrollWithEnterpriseOffers ? enterpriseOffers : [],
@@ -715,136 +697,40 @@ export const useUserSubsidyApplicableToCourse = ({
           coursePrice,
         }),
       });
-    };
-
-    const enterpriseAdminUsers = (
-      missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
-    );
-
-    const handleMissingUserSubsidyReason = () => {
-      setUserSubsidyApplicableToCourse(undefined);
-
-      // Prioritize any subsidy access policy reasons for why the subsidy is not redeemable
-      // for the course (i.e., prefer Learner Credit reasons over legacy subsidy reasons for disabled enrollment).
-      if (missingSubsidyAccessPolicyReason) {
-        setMissingUserSubsidyReason({
-          reason: missingSubsidyAccessPolicyReason.reason,
-          userMessage: missingSubsidyAccessPolicyReason.userMessage,
-          actions: getMissingSubsidyReasonActions({
-            reasonType: missingSubsidyAccessPolicyReason.reason,
-            enterpriseAdminUsers,
-          }),
-        });
-      } else if (!applicableUserSubsidy) {
-        // Default disabled enrollment reason, assumes enterprise customer does not have any administrator users.
-        let reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS;
-
-        const hasEnterpriseAdminUsers = enterpriseAdminUsers?.length > 0;
-
-        // If there are admin users, change `reasonType` to use the
-        // `DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY` message.
-        if (hasEnterpriseAdminUsers) {
-          reasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
-        }
-
-        const couponCodesDisabledEnrollmentReasonType = getCouponCodesDisabledEnrollmentReasonType({
+      let missingApplicableSubsidyReason;
+      if (!applicableSubsidy) {
+        const enterpriseAdminUsers = (
+          missingSubsidyAccessPolicyReason?.metadata?.enterpriseAdministrators || fallbackAdminUsers
+        );
+        missingApplicableSubsidyReason = getMissingApplicableSubsidyReason({
+          enterpriseAdminUsers,
           catalogsWithCourse,
           couponCodes,
           couponsOverview,
-          hasEnterpriseAdminUsers,
-        });
-        const subscriptionsDisabledEnrollmentReasonType = getSubscriptionDisabledEnrollmentReasonType({
           customerAgreementConfig,
-          catalogsWithCourse,
           subscriptionLicense,
-          hasEnterpriseAdminUsers,
-        });
-
-        /**
-         * Prioritize the following order of disabled enrollment reasons:
-         * 1. Course not in catalog
-         * 2. Subscriptions related disabled enrollment reason
-         * 3. Coupon codes related disabled enrollment reason
-         */
-        if (couponCodesDisabledEnrollmentReasonType) {
-          reasonType = couponCodesDisabledEnrollmentReasonType;
-        }
-        if (subscriptionsDisabledEnrollmentReasonType) {
-          reasonType = subscriptionsDisabledEnrollmentReasonType;
-        }
-        if (!containsContentItems) {
-          reasonType = DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG;
-        }
-
-        setMissingUserSubsidyReason({
-          reason: reasonType,
-          userMessage: DISABLED_ENROLL_USER_MESSAGES[reasonType],
-          actions: getMissingSubsidyReasonActions({
-            reasonType,
-            enterpriseAdminUsers,
-          }),
+          containsContentItems,
+          missingSubsidyAccessPolicyReason,
+          enterpriseOffers,
         });
       }
+      return {
+        applicableSubsidy,
+        missingApplicableSubsidyReason,
+      };
     };
-    if (applicableUserSubsidy) {
-      setUserSubsidyApplicableToCourse(applicableUserSubsidy);
-      setMissingUserSubsidyReason(undefined);
-    } else {
-      // If have not yet determined whether there is an applicable subsidy access policy, fallback
-      // to checking against legacy subsidies.
-      retrieveApplicableLegacySubsidy().then((legacyUserSubsidyApplicableToCourse) => {
-        if (legacyUserSubsidyApplicableToCourse) {
-          // check for exceeded remaining spend/enrollments and per-learner limits if it's an enterprise offer
-          if (legacyUserSubsidyApplicableToCourse.subsidyType === ENTERPRISE_OFFER_SUBSIDY_TYPE) {
-            const redeemableOffer = determineOfferRedeemability({
-              offer: legacyUserSubsidyApplicableToCourse,
-              coursePrice: courseListPrice,
-            });
 
-            if (redeemableOffer.isRedeemable) {
-              // Redeemable for this course
-              setUserSubsidyApplicableToCourse(legacyUserSubsidyApplicableToCourse);
-              setMissingUserSubsidyReason(undefined);
-            } else {
-              const {
-                hasRemainingApplicationsForUser,
-                hasRemainingBalanceForUser,
-                hasRemainingBalance,
-                isCurrent,
-              } = redeemableOffer.isRedeemableConditions;
-
-              let ineligibleEnterpriseOfferReasonType = null;
-
-              if (!hasRemainingApplicationsForUser) {
-                ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_ENROLLMENTS_REACHED;
-              }
-              if (!hasRemainingBalanceForUser) {
-                ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED;
-              }
-              if (!hasRemainingBalance) {
-                ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY;
-              }
-              if (!isCurrent) {
-                ineligibleEnterpriseOfferReasonType = DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED;
-              }
-              setMissingUserSubsidyReason({
-                reason: ineligibleEnterpriseOfferReasonType,
-                userMessage: DISABLED_ENROLL_USER_MESSAGES[ineligibleEnterpriseOfferReasonType],
-                actions: getMissingSubsidyReasonActions({
-                  reasonType: ineligibleEnterpriseOfferReasonType,
-                  enterpriseAdminUsers,
-                }),
-              });
-            }
-          } else {
-            setUserSubsidyApplicableToCourse(legacyUserSubsidyApplicableToCourse);
-            setMissingUserSubsidyReason(undefined);
-          }
-        } else {
-          handleMissingUserSubsidyReason();
-        }
-      });
-    }
+    const fetchApplicableSubsidy = async () => {
+      const result = await getApplicableSubsidyForCourse();
+      if (result.applicableSubsidy) {
+        setUserSubsidyApplicableToCourse(result.applicableSubsidy);
+        setMissingUserSubsidyReason(undefined);
+      } else if (result.missingApplicableSubsidyReason) {
+        setMissingUserSubsidyReason(result.missingApplicableSubsidyReason);
+        setUserSubsidyApplicableToCourse(undefined);
+      }
+    };
+    fetchApplicableSubsidy();
   }, [
     courseService,
     courseData,

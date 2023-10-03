@@ -3,6 +3,7 @@ import {
 } from '@edx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useHistory } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -60,7 +61,8 @@ const ProgramListingCard = ({ program }) => {
       onClick={handleCardClick}
     >
       <Card.ImageCap
-        src={getBannerImageURL()}
+        src={getBannerImageURL() || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"

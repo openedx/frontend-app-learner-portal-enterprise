@@ -13,6 +13,7 @@ import {
 import { Program, ZoomOut } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { SkillsContext } from './SkillsContextProvider';
 import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
@@ -37,7 +38,11 @@ const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
@@ -47,6 +52,7 @@ const SearchProgramCard = ({ index }) => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({
@@ -188,7 +194,8 @@ const SearchProgramCard = ({ index }) => {
               data-testid="search-program-card"
             >
               <Card.ImageCap
-                src={program.cardImageUrl}
+                src={program.cardImageUrl || cardFallbackImg}
+                fallbackSrc={cardFallbackImg}
                 srcAlt=""
                 logoSrc={primaryPartnerLogo?.src}
                 logoAlt={primaryPartnerLogo?.alt}

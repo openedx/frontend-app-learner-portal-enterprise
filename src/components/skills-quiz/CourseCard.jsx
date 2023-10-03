@@ -7,6 +7,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
+
 import getCommonSkills from './data/utils';
 import { linkToCourse, shortenString } from '../course/data/utils';
 import { ELLIPSIS_STR } from '../course/data/constants';
@@ -56,7 +58,8 @@ const CourseCard = ({
       data-testid="skills-quiz-course-card"
     >
       <Card.ImageCap
-        src={course.cardImageUrl || course.originalImageUrl}
+        src={course.cardImageUrl || course.originalImageUrl || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         srcAlt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}

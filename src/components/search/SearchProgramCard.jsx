@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -80,7 +81,6 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   };
 
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
-
   const { userId } = getAuthenticatedUser();
 
   const handleCardClick = () => {
@@ -105,7 +105,8 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       {...rest}
     >
       <Card.ImageCap
-        src={program.cardImageUrl}
+        src={program.cardImageUrl || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         alt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
