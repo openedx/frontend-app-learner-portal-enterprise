@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { Card } from '@edx/paragon';
-import Truncate from 'react-truncate';
+import { Card, Truncate } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useHistory } from 'react-router-dom';
@@ -30,9 +29,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
       />
       <Card.Header
         title={(
-          <Truncate lines={2} trimWhitespace>
-            {learnerPathwayProgress.title}
-          </Truncate>
+          <Truncate maxLine={2}>{learnerPathwayProgress.title}</Truncate>
         )}
       />
       <Card.Section />

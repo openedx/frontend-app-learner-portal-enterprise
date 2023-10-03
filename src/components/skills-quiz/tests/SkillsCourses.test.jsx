@@ -24,11 +24,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 const TEST_COURSE_KEY = 'test-course-key';
 const SKILLS_HEADING = 'Skills';
 const TEST_TITLE = 'Test Title';
