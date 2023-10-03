@@ -57,6 +57,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             enableCareerEngagementNetworkOnLearnerPortal,
             careerEngagementNetworkMessage,
             enablePathways,
+            enablePrograms,
           } = config;
           setEnterpriseConfig({
             name,
@@ -84,6 +85,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             enableCareerEngagementNetworkOnLearnerPortal,
             careerEngagementNetworkMessage,
             enablePathways,
+            enablePrograms,
           });
         } else {
           if (!config) {
