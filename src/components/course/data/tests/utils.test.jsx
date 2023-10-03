@@ -26,6 +26,7 @@ import {
   processCourseSubjects,
   isCurrentCoupon,
   getCouponCodesDisabledEnrollmentReasonType,
+  getMissingApplicableSubsidyReason,
 } from '../utils';
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -69,50 +70,62 @@ describe('findEnterpriseOfferForCourse', () => {
   const coursePrice = 100;
   const enterpriseCatalogUuid = 'test-enterprise-catalog-uuid';
   const catalogsWithCourse = [enterpriseCatalogUuid];
+  const baseOffer = { isCurrent: true };
   const offerNoLimit = {
+    ...baseOffer,
     enterpriseCatalogUuid,
   };
   const offerRemainingBalanceNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
   };
   const offerNotEnoughRemainingBalanceNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 50,
   };
   const offerNoRemainingBalanceNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 0,
   };
   const offerRemainingBalanceForUserNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
     remainingBalanceForUser: 200,
   };
   const offerNotEnoughRemainingBalanceForUserNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
     remainingBalanceForUser: 50,
   };
   const offerNoRemainingBalanceForUserNoApplications = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingBalance: 500,
     remainingBalanceForUser: 0,
   };
   const offerRemainingApplicationsNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplications: 10,
   };
   const offerNoRemainingApplicationsNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplicationsForUser: 0,
   };
   const offerRemainingApplicationsForUserNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplications: 10,
     remainingApplicationsForUser: 1,
   };
   const offerNoRemainingApplicationsForUserNoBalance = {
+    ...baseOffer,
     enterpriseCatalogUuid,
     remainingApplications: 10,
     remainingApplicationsForUser: 0,
@@ -307,11 +320,15 @@ describe('getSubsidyToApplyForCourse', () => {
     endDatetime: '2024-08-11',
   };
 
-  it('returns applicableSubscriptionLicense', () => {
+  it('returns applicableSubscriptionLicense over learner credit', () => {
     const subsidyToApply = getSubsidyToApplyForCourse({
       applicableSubscriptionLicense: mockApplicableSubscriptionLicense,
       applicableCouponCode: mockApplicableCouponCode,
       applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+      applicableSubsidyAccessPolicy: {
+        isPolicyRedemptionEnabled: true,
+        redeemableSubsidyAccessPolicy: {},
+      },
     });
 
     expect(subsidyToApply).toEqual({
@@ -342,6 +359,7 @@ describe('getSubsidyToApplyForCourse', () => {
       applicableSubscriptionLicense: undefined,
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: mockApplicableEnterpriseOffer,
+      applicableSubsidyAccessPolicy: {},
     });
 
     expect(subsidyToApply).toEqual({
@@ -358,6 +376,10 @@ describe('getSubsidyToApplyForCourse', () => {
       applicableSubscriptionLicense: undefined,
       applicableCouponCode: undefined,
       applicableEnterpriseOffer: undefined,
+      applicableSubsidyAccessPolicy: {
+        isPolicyRedemptionEnabled: false,
+        redeemableSubsidyAccessPolicy: undefined,
+      },
     });
 
     expect(subsidyToApply).toBeUndefined();
@@ -1010,5 +1032,91 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     };
     const result = getCouponCodesDisabledEnrollmentReasonType(args);
     expect(result).toEqual(expectedResult);
+  });
+});
+
+describe('getMissingApplicableSubsidyReason', () => {
+  const baseMockData = {
+    enterpriseAdminUsers: [{}],
+    catalogsWithCourse: [],
+    couponsOverview: {},
+    customerAgreementConfig: {},
+    subscriptionLicense: undefined,
+    containsContentItems: true,
+    missingSubsidyAccessPolicyReason: null,
+    enterpriseOffers: [],
+  };
+  it('returns NO_SUBSIDY_NO_ADMINS if there are no admins', () => {
+    const result = getMissingApplicableSubsidyReason({ ...baseMockData, enterpriseAdminUsers: [] });
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY_NO_ADMINS);
+  });
+
+  it('returns CONTENT_NOT_IN_CATALOG if containsContentItems is false', () => {
+    const result = getMissingApplicableSubsidyReason({ ...baseMockData, containsContentItems: false });
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG);
+  });
+
+  it('returns COUPON_CODE_NOT_ASSIGNED if there is no coupon code assigned', () => {
+    const couponProperties = {
+      todaysDate: '2023-08-02T12:00:00Z',
+      couponStartDate: '2023-08-01T12:00:00Z',
+      couponEndDate: '2023-08-03T12:00:00Z',
+      expectedIsCurrent: true,
+    };
+    const mockData = {
+      ...baseMockData,
+      catalogsWithCourse: ['test-catalog-uuid'],
+      couponsOverview:
+      {
+        data: {
+          results: [{
+            enterpriseCatalogUuid: 'test-catalog-uuid',
+            numUnassigned: 100,
+            ...couponProperties,
+          }],
+        },
+      },
+    };
+    const result = getMissingApplicableSubsidyReason(mockData);
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.COUPON_CODE_NOT_ASSIGNED);
+  });
+
+  it('returns SUBSCRIPTION_EXPIRED if there is an expired subscription', () => {
+    const subscriptionProperties = {
+      daysUntilExpirationIncludingRenewals: -17,
+      hasEnterpriseAdminUsers: true,
+      expectedReasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+      catalogsWithCourse: ['test-catalog-uuid'],
+    };
+    const mockData = {
+      ...baseMockData,
+      catalogsWithCourse: ['test-catalog-uuid'],
+      customerAgreementConfig: {
+        subscriptions: [
+          {
+            enterpriseCatalogUuid: 'test-catalog-uuid',
+            ...subscriptionProperties,
+          },
+        ],
+      },
+    };
+    const result = getMissingApplicableSubsidyReason(mockData);
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED);
+  });
+
+  it('returns ENTERPRISE_OFFER_EXPIRED if there is an expired enterprise offer', () => {
+    const enterpriseOfferProperties = {
+      id: 1,
+      usageType: 'Percentage',
+      discountValue: 100,
+      startDatetime: '2023-08-11',
+      endDatetime: '2024-08-11',
+    };
+    const mockData = {
+      ...baseMockData,
+      enterpriseOffers: [enterpriseOfferProperties],
+    };
+    const result = getMissingApplicableSubsidyReason(mockData);
+    expect(result.reason).toEqual(DISABLED_ENROLL_REASON_TYPES.ENTERPRISE_OFFER_EXPIRED);
   });
 });

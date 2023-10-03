@@ -13,11 +13,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 const TEST_UUID = '1234053423-4212-21323-45fdf';
 const initialAppState = {
   enterpriseConfig: {

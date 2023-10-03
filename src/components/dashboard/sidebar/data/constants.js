@@ -36,6 +36,12 @@ export const ENTERPRISE_OFFER_ACTIVE_BADGE_LABEL = 'Active';
 export const ENTERPRISE_OFFER_ACTIVE_BADGE_VARIANT = 'success';
 export const ENTERPRISE_OFFER_SUMMARY_CARD_SUMMARY = 'Apply your organization\'s learner credit balance to enroll into courses with no out of pocket cost.';
 
+// LearnerCreditSummaryCard
+export const LEARNER_CREDIT_SUMMARY_CARD_TITLE = 'Learner Credit';
+export const LEARNER_CREDIT_ACTIVE_BADGE_LABEL = 'Active';
+export const LEARNER_CREDIT_ACTIVE_BADGE_VARIANT = 'success';
+export const LEARNER_CREDIT_CARD_SUMMARY = 'Apply your organization\'s learner credit balance to enroll into courses with no out of pocket cost.';
+
 // Dashboard Sidebar texts
 export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
 export const NEED_HELP_BLOCK_TITLE = 'Need help?';

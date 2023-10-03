@@ -4,6 +4,8 @@ import '@testing-library/jest-dom/extend-expect';
 
 import CourseRunCard from '../CourseRunCard';
 import { CourseContext } from '../../CourseContextProvider';
+import { useCourseRunCardData } from '../data';
+import { findUserEnrollmentForCourseRun } from '../../data/utils';
 
 jest.mock('../../data/utils', () => ({
   ...jest.requireActual('../../data/utils'),
@@ -27,13 +29,27 @@ const mockCourseRun = {
   enrollmentCount: 0,
 };
 
+const mockUserEnrollment = {
+  id: 1,
+  isEnrollmentActive: true,
+  isRevoked: false,
+  courseRunId: mockCourseRun.key,
+  courseRunUrl: 'http://course.url',
+};
+const mockUserSubsidy = { subsidyType: 'learnerCredit' };
+const mockUserEnrollments = [mockUserEnrollment];
+const mockUserCanRequestSubsidy = false;
+
 const CourseRunCardWrapper = (props) => {
   const courseContextValue = {
     state: {
       course: {
         entitlements: [],
       },
+      userEnrollments: mockUserEnrollments,
     },
+    userSubsidyApplicableToCourse: mockUserSubsidy,
+    userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy,
   };
   return (
     <CourseContext.Provider value={courseContextValue}>
@@ -47,9 +63,19 @@ const CourseRunCardWrapper = (props) => {
 
 describe('<CourseRunCard />', () => {
   test('renders', () => {
+    findUserEnrollmentForCourseRun.mockReturnValue(mockUserEnrollment);
     render(<CourseRunCardWrapper />);
     expect(screen.getByText('Heading')).toBeInTheDocument();
     expect(screen.getByText('Subheading')).toBeInTheDocument();
     expect(screen.getByText('Action')).toBeInTheDocument();
+
+    expect(useCourseRunCardData).toHaveBeenCalledWith({
+      course: { entitlements: [] },
+      courseRun: mockCourseRun,
+      courseRunUrl: mockUserEnrollment.courseRunUrl,
+      userEnrollment: mockUserEnrollment,
+      subsidyAccessPolicy: mockUserSubsidy,
+      userCanRequestSubsidyForCourse: mockUserCanRequestSubsidy,
+    });
   });
 });

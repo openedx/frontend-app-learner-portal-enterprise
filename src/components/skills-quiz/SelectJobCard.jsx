@@ -25,8 +25,9 @@ const SelectJobCard = () => {
 
   return (
     <div>
-      <h3>Your jobs and skills</h3>
+      <h3 id="skills-quiz-jobs-skills-selections">Your jobs and skills</h3>
       <SelectableBox.Set
+        ariaLabelledby="skills-quiz-jobs-skills-selections"
         name="selected-job"
         type="radio"
         onChange={(e) => dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: e.target.value })}

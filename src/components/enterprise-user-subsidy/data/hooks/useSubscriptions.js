@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { useSubscriptionLicense, useCustomerAgreementData } from './hooks';
+import { hasValidStartExpirationDates } from '../../../../utils/common';
 
 /**
  * Given an authenticated user and an enterprise customer config, returns the user's subscription license (if any)
@@ -27,7 +28,15 @@ function useSubscriptions({
 
   useEffect(
     () => {
-      setSubscriptionPlan(subscriptionLicense?.subscriptionPlan);
+      if (subscriptionLicense?.subscriptionPlan) {
+        setSubscriptionPlan({
+          ...subscriptionLicense.subscriptionPlan,
+          isCurrent: hasValidStartExpirationDates({
+            startDate: subscriptionLicense.subscriptionPlan.startDate,
+            expirationDate: subscriptionLicense.subscriptionPlan.expirationDate,
+          }),
+        });
+      }
       setShowExpirationNotifications(!(customerAgreementConfig?.disableExpirationNotifications));
     },
     [subscriptionLicense, customerAgreementConfig],

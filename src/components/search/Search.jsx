@@ -51,6 +51,7 @@ const Search = () => {
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
   const searchCatalogs = useSearchCatalogs({
@@ -59,6 +60,7 @@ const Search = () => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
   const { filters } = useDefaultSearchFilters({
     enterpriseConfig,

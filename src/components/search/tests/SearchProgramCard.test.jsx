@@ -11,10 +11,6 @@ import { TEST_ENTERPRISE_SLUG } from './constants';
 
 const userId = 'batman';
 const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),

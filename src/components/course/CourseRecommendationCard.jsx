@@ -1,9 +1,9 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card } from '@edx/paragon';
+import { Card, Truncate } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
@@ -53,22 +53,19 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       }}
     >
       <Card.ImageCap
-        src={course.cardImageUrl.src}
+        src={course.cardImageUrl.src || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
       />
 
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {course.title}
-          </Truncate>
+          <Truncate maxLine={3}>{course.title}</Truncate>
         )}
         subtitle={course.owners?.length > 0 && (
           <p className="partner">
-            <Truncate lines={1} trimWhitespace>
-              {course.owners.map(partner => partner.name).join(', ')}
-            </Truncate>
+            <Truncate maxLine={1}>{course.owners.map(partner => partner.name).join(', ')}</Truncate>
           </p>
         )}
       />

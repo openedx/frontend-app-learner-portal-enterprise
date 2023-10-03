@@ -1,13 +1,13 @@
 import {
-  breakpoints, Card,
+  breakpoints, Card, Truncate,
 } from '@edx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import Truncate from 'react-truncate';
 import { getProgramIcon } from '../course/data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
@@ -61,7 +61,8 @@ const ProgramListingCard = ({ program }) => {
       onClick={handleCardClick}
     >
       <Card.ImageCap
-        src={getBannerImageURL()}
+        src={getBannerImageURL() || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         logoSrc={authoringOrganization?.src}
         logoAlt={authoringOrganization?.alt}
         data-testid="program-banner-image"
@@ -70,12 +71,10 @@ const ProgramListingCard = ({ program }) => {
 
       <Card.Header
         title={(
-          <Truncate lines={2} trimWhitespace>
-            {program.title}
-          </Truncate>
+          <Truncate maxLine={2}>{program.title}</Truncate>
         )}
         subtitle={program.authoringOrganizations?.length > 0 ? (
-          <Truncate lines={2} trimWhitespace>
+          <Truncate maxLine={2}>
             {program.authoringOrganizations.map(org => org.key).join(', ')}
           </Truncate>
         ) : undefined}

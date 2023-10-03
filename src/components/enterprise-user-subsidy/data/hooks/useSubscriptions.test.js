@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react-hooks';
 
 import useSubscriptions from './useSubscriptions';
-
 import { useCustomerAgreementData, useSubscriptionLicense } from './hooks';
+import { hasValidStartExpirationDates } from '../../../../utils/common';
 
 jest.mock('./hooks', () => ({
   ...jest.requireActual('./hooks'),
@@ -10,11 +10,16 @@ jest.mock('./hooks', () => ({
   useSubscriptionLicense: jest.fn(),
 }));
 
+jest.mock('../../../../utils/common', () => ({
+  ...jest.requireActual('../../../../utils/common'),
+  hasValidStartExpirationDates: jest.fn(),
+}));
+
 const mockCustomerAgreement = {
   uuid: 'test-customer-agreement-uuid',
   disableExpirationNotifications: false,
 };
-const mockSubscriptionPlan = { uuid: 'test-subscription-plan-uuid' };
+const mockSubscriptionPlan = { uuid: 'test-subscription-plan-uuid', isCurrent: true };
 
 describe('useSubscriptions', () => {
   beforeEach(() => {
@@ -70,22 +75,29 @@ describe('useSubscriptions', () => {
     {
       hasDisabledExpirationNotifications: false,
       expectedShowExpirationNotifications: true,
+      isSubscriptionPlanCurrent: true,
     },
     {
       hasDisabledExpirationNotifications: true,
       expectedShowExpirationNotifications: false,
+      isSubscriptionPlanCurrent: true,
     },
-  ])('does stuff', async ({
+  ])('does stuff (%s)', async ({
     hasDisabledExpirationNotifications,
     expectedShowExpirationNotifications,
+    isSubscriptionPlanCurrent,
   }) => {
     const anotherMockCustomerAgreement = {
       ...mockCustomerAgreement,
       disableExpirationNotifications: hasDisabledExpirationNotifications,
     };
+    const mockSubscriptionPlanWithCurrentStatus = {
+      ...mockSubscriptionPlan,
+      isCurrent: isSubscriptionPlanCurrent,
+    };
     const mockSubscriptionLicense = {
       uuid: 'test-license-uuid',
-      subscriptionPlan: mockSubscriptionPlan,
+      subscriptionPlan: mockSubscriptionPlanWithCurrentStatus,
     };
     useCustomerAgreementData.mockReturnValue([anotherMockCustomerAgreement, false]);
     useSubscriptionLicense.mockReturnValue({
@@ -93,6 +105,7 @@ describe('useSubscriptions', () => {
       isLoading: false,
       activateUserLicense: jest.fn(),
     });
+    hasValidStartExpirationDates.mockReturnValue(isSubscriptionPlanCurrent);
     const args = {
       authenticatedUser: {},
       enterpriseConfig: {},
@@ -104,7 +117,7 @@ describe('useSubscriptions', () => {
         customerAgreementConfig: anotherMockCustomerAgreement,
         isLoading: false,
         subscriptionLicense: mockSubscriptionLicense,
-        subscriptionPlan: mockSubscriptionPlan,
+        subscriptionPlan: mockSubscriptionPlanWithCurrentStatus,
         showExpirationNotifications: expectedShowExpirationNotifications,
       }),
     );

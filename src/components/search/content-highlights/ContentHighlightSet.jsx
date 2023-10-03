@@ -47,7 +47,6 @@ const ContentHighlightSet = ({ highlightSet }) => {
       <CardCarousel
         ariaLabel={`${title} content carousel`}
         title={title}
-        subtitle="Enroll in content selected for you by your organization."
         columnSizes={CARDGRID_COLUMN_SIZES}
         onScrollPrevious={() => {
           sendEnterpriseTrackEvent(

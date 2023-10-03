@@ -26,11 +26,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('react-truncate', () => ({
-  __esModule: true,
-  default: ({ children }) => children,
-}));
-
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

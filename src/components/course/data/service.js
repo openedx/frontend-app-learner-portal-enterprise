@@ -161,7 +161,7 @@ export default class CourseService {
     });
 
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
-    return this.cachedAuthenticatedHttpClient.get(url).catch(error => {
+    return this.authenticatedHttpClient.get(url).catch(error => {
       const httpErrorStatus = error.customAttributes?.httpErrorStatus;
       if (httpErrorStatus === 404) {
         // 404 means the user's license is not applicable for the course, return undefined instead of throwing an error

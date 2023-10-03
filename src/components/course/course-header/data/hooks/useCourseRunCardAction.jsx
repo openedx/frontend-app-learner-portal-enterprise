@@ -1,4 +1,3 @@
-import { getConfig } from '@edx/frontend-platform';
 import { Stack, Button } from '@edx/paragon';
 
 import StatefulEnroll from '../../../../stateful-enroll';
@@ -20,10 +19,9 @@ const checkUserEnrollmentUpgradeEligibility = ({
   userEnrollment,
   subsidyAccessPolicy,
 }) => {
-  const isAutoUpgradeEnabled = !!getConfig().FEATURE_ENABLE_EMET_AUTO_UPGRADE_ENROLLMENT_MODE;
   const isAuditEnrollment = userEnrollment.mode === COURSE_MODES_MAP.AUDIT;
   const canUpgrade = !!subsidyAccessPolicy;
-  return isAutoUpgradeEnabled && isAuditEnrollment && canUpgrade;
+  return isAuditEnrollment && canUpgrade;
 };
 
 /**

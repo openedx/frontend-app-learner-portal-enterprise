@@ -136,7 +136,8 @@ const CourseSidebar = () => {
           />
         )}
       </ul>
-      {course?.programs.length > 0 && (
+      {/* TODO: Replace enablePathways with enablePrograms when backend is updated */}
+      {enterpriseConfig.enablePathways && course?.programs.length > 0 && (
         <CourseAssociatedPrograms />
       )}
       {course.prerequisitesRaw && (

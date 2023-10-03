@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card } from '@edx/paragon';
+import { Card, Truncate } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import cardImageCapFallbackSrc from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
@@ -61,7 +60,7 @@ const HighlightedContentCard = ({
       {...props}
     >
       <Card.ImageCap
-        src={cardImageUrl}
+        src={cardImageUrl || cardImageCapFallbackSrc}
         fallbackSrc={cardImageCapFallbackSrc}
         srcAlt=""
         logoSrc={authoringOrganizations?.logoImageUrl}
@@ -69,14 +68,10 @@ const HighlightedContentCard = ({
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {title}
-          </Truncate>
+          <Truncate maxLine={3}>{title}</Truncate>
         )}
         subtitle={authoringOrganizations?.content && (
-          <Truncate lines={2} trimWhitespace>
-            {authoringOrganizations.content}
-          </Truncate>
+          <Truncate maxLine={2}>{authoringOrganizations.content}</Truncate>
         )}
       />
       <Card.Section />

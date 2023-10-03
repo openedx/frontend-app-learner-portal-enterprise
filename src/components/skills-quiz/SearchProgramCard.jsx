@@ -3,17 +3,17 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import Truncate from 'react-truncate';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Icon, Alert, CardGrid, Stack,
+  Badge, Card, Icon, Alert, CardGrid, Stack, Truncate,
 } from '@edx/paragon';
 import { Program, ZoomOut } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { SkillsContext } from './SkillsContextProvider';
 import { isDefinedAndNotNull, getPrimaryPartnerLogo } from '../../utils/common';
 import { ELLIPSIS_STR } from '../course/data/constants';
@@ -38,7 +38,11 @@ const SearchProgramCard = ({ index }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
-    subscriptionPlan, subscriptionLicense, couponCodes: { couponCodes }, enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+    couponCodes: { couponCodes },
+    enterpriseOffers,
+    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
 
@@ -48,6 +52,7 @@ const SearchProgramCard = ({ index }) => {
     couponCodes,
     enterpriseOffers,
     catalogsForSubsidyRequests,
+    redeemableLearnerCreditPolicies,
   });
 
   const { filters } = useDefaultSearchFilters({
@@ -189,19 +194,20 @@ const SearchProgramCard = ({ index }) => {
               data-testid="search-program-card"
             >
               <Card.ImageCap
-                src={program.cardImageUrl}
+                src={program.cardImageUrl || cardFallbackImg}
+                fallbackSrc={cardFallbackImg}
                 srcAlt=""
                 logoSrc={primaryPartnerLogo?.src}
                 logoAlt={primaryPartnerLogo?.alt}
               />
               <Card.Header
                 title={(
-                  <Truncate lines={3} trimWhitespace>
+                  <Truncate maxLine={3}>
                     {program.title}
                   </Truncate>
                 )}
                 subtitle={program.authoringOrganizations?.length > 0 && (
-                  <Truncate lines={2} trimWhitespace>
+                  <Truncate maxLine={2}>
                     {program.authoringOrganizations.map(org => org.key).join(', ')}
                   </Truncate>
                 )}

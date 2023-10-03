@@ -1,11 +1,13 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card, Icon } from '@edx/paragon';
+import {
+  Badge, Card, Icon, Truncate,
+} from '@edx/paragon';
 import { Program } from '@edx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -79,7 +81,6 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   };
 
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
-
   const { userId } = getAuthenticatedUser();
 
   const handleCardClick = () => {
@@ -104,20 +105,19 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       {...rest}
     >
       <Card.ImageCap
-        src={program.cardImageUrl}
+        src={program.cardImageUrl || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         alt=""
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {program.title}
-          </Truncate>
+          <Truncate maxLine={3}>{program.title}</Truncate>
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <Truncate lines={2} trimWhitespace>
+            <Truncate maxLine={2}>
               {program.authoringOrganizations.map(org => org.key).join(', ')}
             </Truncate>
           )

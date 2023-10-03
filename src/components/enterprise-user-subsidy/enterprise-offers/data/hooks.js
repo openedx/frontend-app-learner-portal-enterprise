@@ -48,9 +48,12 @@ export const useEnterpriseOffers = ({
 
     if (enterpriseOffers.length > 0) {
       setCanEnrollWithEnterpriseOffers(true);
+    }
 
-      const hasLowBalance = enterpriseOffers.some(offer => offer.isLowOnBalance);
-      const hasNoBalance = enterpriseOffers.every(offer => offer.isOutOfBalance);
+    const currentEnterpriseOffers = enterpriseOffers.filter(offer => offer.isCurrent);
+    if (currentEnterpriseOffers.length > 0) {
+      const hasLowBalance = currentEnterpriseOffers.some(offer => offer.isLowOnBalance);
+      const hasNoBalance = currentEnterpriseOffers.every(offer => offer.isOutOfBalance);
       setHasLowEnterpriseOffersBalance(hasLowBalance);
       setHasNoEnterpriseOffersBalance(hasNoBalance);
     }

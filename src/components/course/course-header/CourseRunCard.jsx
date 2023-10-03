@@ -12,16 +12,14 @@ import CourseRunCardStatus from './CourseRunCardStatus';
  * React component that displays information about the course run and provides a CTA to allow the learner
  * to enroll in the course run or navigate to courseware.
  */
-const CourseRunCard = ({
-  courseRun,
-  subsidyAccessPolicy,
-}) => {
+const CourseRunCard = ({ courseRun }) => {
   const {
     state: {
       course,
       userEnrollments,
     },
     missingUserSubsidyReason,
+    userSubsidyApplicableToCourse,
     userCanRequestSubsidyForCourse,
   } = useContext(CourseContext);
 
@@ -40,7 +38,7 @@ const CourseRunCard = ({
     userEnrollment: userEnrollmentForCourseRun,
     courseRunUrl: userEnrollmentForCourseRun?.courseRunUrl,
     userCanRequestSubsidyForCourse,
-    subsidyAccessPolicy,
+    subsidyAccessPolicy: userSubsidyApplicableToCourse,
   });
 
   return (
@@ -73,11 +71,6 @@ CourseRunCard.propTypes = {
     pacingType: PropTypes.string,
     enrollmentCount: PropTypes.number,
   }).isRequired,
-  subsidyAccessPolicy: PropTypes.shape(),
-};
-
-CourseRunCard.defaultProps = {
-  subsidyAccessPolicy: undefined,
 };
 
 export default CourseRunCard;

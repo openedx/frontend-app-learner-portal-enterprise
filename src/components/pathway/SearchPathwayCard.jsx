@@ -1,11 +1,13 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Truncate from 'react-truncate';
+import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Badge, Card, Stack } from '@edx/paragon';
+import {
+  Badge, Card, Stack, Truncate,
+} from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import {
@@ -106,14 +108,13 @@ const SearchPathwayCard = ({
       {...rest}
     >
       <Card.ImageCap
-        src={pathway?.cardImageUrl}
+        src={pathway?.cardImageUrl || cardFallbackImg}
+        fallbackSrc={cardFallbackImg}
         alt=""
       />
       <Card.Header
         title={(
-          <Truncate lines={3} trimWhitespace>
-            {pathway.title}
-          </Truncate>
+          <Truncate maxLine={3}>{pathway.title}</Truncate>
         )}
       />
       <Card.Section>
