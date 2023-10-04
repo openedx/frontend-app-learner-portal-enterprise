@@ -18,7 +18,7 @@ import {
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const {
-    enterpriseConfig: { uuid: enterpriseCustomerUUID, adminUsers },
+    enterpriseConfig: { adminUsers, contactEmail, uuid: enterpriseCustomerUUID },
   } = useContext(AppContext);
 
   const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
@@ -30,9 +30,9 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const adminEmails = adminUsers.map(user => user.email);
   const hasAdminEmails = adminEmails.length > 0;
 
-  const actions = hasAdminEmails ? [
+  const actions = hasAdminEmails || contactEmail ? [
     <MailtoLink
-      to={adminEmails}
+      to={contactEmail || adminEmails}
       target="_blank"
       onClick={() => {
         sendEnterpriseTrackEvent(

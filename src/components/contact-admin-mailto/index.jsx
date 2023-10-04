@@ -6,14 +6,14 @@ import PropTypes from 'prop-types';
 const ContactAdminMailto = ({
   children,
 }) => {
-  const { enterpriseConfig: { adminUsers } } = useContext(AppContext);
+  const { enterpriseConfig: { adminUsers, contactEmail } } = useContext(AppContext);
   const adminEmails = adminUsers.map(user => user.email);
 
   if (adminEmails.length > 0) {
     return (
       <MailtoLink
         target="_blank"
-        to={adminEmails}
+        to={contactEmail || adminEmails}
       >
         {children}
       </MailtoLink>

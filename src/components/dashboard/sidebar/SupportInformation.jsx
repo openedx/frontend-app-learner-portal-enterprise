@@ -12,8 +12,9 @@ const SupportInformation = ({ className }) => {
   const {
     enterpriseConfig: {
       adminUsers,
-      enableCareerEngagementNetworkOnLearnerPortal,
       careerEngagementNetworkMessage,
+      contactEmail,
+      enableCareerEngagementNetworkOnLearnerPortal,
     },
   } = useContext(AppContext);
 
@@ -21,9 +22,12 @@ const SupportInformation = ({ className }) => {
     const message = CONTACT_HELP_EMAIL_MESSAGE;
     const adminEmails = adminUsers.map(user => user.email);
 
-    if (adminEmails.length > 0) {
+    console.log(adminUsers);
+    console.log('adminEmails: ', adminEmails);
+
+    if (adminEmails.length > 0 || contactEmail) {
       return (
-        <MailtoLink to={adminEmails}>
+        <MailtoLink to={contactEmail || adminEmails}>
           {message}
         </MailtoLink>
       );

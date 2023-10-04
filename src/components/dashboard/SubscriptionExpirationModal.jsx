@@ -20,7 +20,7 @@ export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring'
 
 const SubscriptionExpirationModal = () => {
   const {
-    enterpriseConfig: { uuid: enterpriseId, adminUsers },
+    enterpriseConfig: { adminUsers, contactEmail, uuid: enterpriseId },
     config,
   } = useContext(AppContext);
   const { subscriptionPlan } = useContext(UserSubsidyContext);
@@ -41,9 +41,11 @@ const SubscriptionExpirationModal = () => {
     const adminEmails = adminUsers.map(user => user.email);
     const contactText = 'contact your learning manager';
 
-    if (adminEmails.length > 0) {
+    if (adminEmails.length > 0 || contactEmail) {
       return (
-        <MailtoLink to={adminEmails} className="font-weight-bold">{contactText}</MailtoLink>
+        <MailtoLink to={contactEmail || adminEmails} className="font-weight-bold">
+          {contactText}
+        </MailtoLink>
       );
     }
     return contactText;
