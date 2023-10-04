@@ -289,6 +289,7 @@ describe('<Dashboard />', () => {
         disableSearch: true,
         adminUsers: [{ email: 'admin@foo.com' }],
         enablePathways: true,
+        enablePrograms: true,
       },
     };
     renderWithRouter(
@@ -307,6 +308,7 @@ describe('<Dashboard />', () => {
         disableSearch: true,
         adminUsers: [{ email: 'admin@foo.com' }],
         enablePathways: true,
+        enablePrograms: true,
       },
     };
 

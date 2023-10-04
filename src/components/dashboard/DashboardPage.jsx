@@ -62,8 +62,7 @@ const DashboardPage = () => {
     <Tab eventKey="courses" title="Courses">
       <CoursesTabComponent canOnlyViewHighlightSets={canOnlyViewHighlightSets} />
     </Tab>,
-    // TODO: Replace enablePathways with enablePrograms when backend is updated
-    enterpriseConfig.enablePathways && (
+    enterpriseConfig.enablePrograms && (
       <Tab eventKey="programs" title="Programs" disabled={learnerProgramsListData.length === 0}>
         <ProgramListingPage
           canOnlyViewHighlightSets={canOnlyViewHighlightSets}
