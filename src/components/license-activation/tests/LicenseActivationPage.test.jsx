@@ -69,34 +69,40 @@ describe('<LicenseActivationPageWithAppContext />', () => {
   it.each(
     [undefined, { status: LICENSE_STATUS.ACTIVATED }],
   )('should redirect if the user has no license to activate', (subscriptionLicense) => {
-    renderWithRouter(<LicenseActivationPageWithContext initialUserSubsidyState={{
-      subscriptionLicense,
-    }}
-    />);
+    renderWithRouter(
+      <LicenseActivationPageWithContext initialUserSubsidyState={{
+        subscriptionLicense,
+      }}
+      />,
+    );
 
     expect(window.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}`);
   });
 
   it('should render error alert if attempting to activate a license that does not belong to the user', () => {
-    renderWithRouter(<LicenseActivationPageWithContext initialUserSubsidyState={{
-      subscriptionLicense: {
-        activationKey: '00000000-0000-0000-0000-000000000001',
-        status: LICENSE_STATUS.ASSIGNED,
-      },
-    }}
-    />);
+    renderWithRouter(
+      <LicenseActivationPageWithContext initialUserSubsidyState={{
+        subscriptionLicense: {
+          activationKey: '00000000-0000-0000-0000-000000000001',
+          status: LICENSE_STATUS.ASSIGNED,
+        },
+      }}
+      />,
+    );
 
     expect(screen.getByText('<LicenseActivationErrorAlert />')).toBeInTheDocument();
   });
 
   it('should render <LicenseActivation /> if there is a license to activate', () => {
-    renderWithRouter(<LicenseActivationPageWithContext initialUserSubsidyState={{
-      subscriptionLicense: {
-        activationKey: TEST_ACTIVATION_KEY,
-        status: LICENSE_STATUS.ASSIGNED,
-      },
-    }}
-    />);
+    renderWithRouter(
+      <LicenseActivationPageWithContext initialUserSubsidyState={{
+        subscriptionLicense: {
+          activationKey: TEST_ACTIVATION_KEY,
+          status: LICENSE_STATUS.ASSIGNED,
+        },
+      }}
+      />,
+    );
     expect(screen.getByText('<LicenseActivation />')).toBeInTheDocument();
   });
 });
