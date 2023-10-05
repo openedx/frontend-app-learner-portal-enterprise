@@ -57,7 +57,12 @@ describe('useCourseEnrollments', () => {
     await waitForNextUpdate();
     expect(service.fetchEnterpriseCourseEnrollments).toHaveBeenCalled();
     expect(result.current.courseEnrollmentsByStatus).toEqual({
-      inProgress: [mockTransformedMockCourseEnrollment], upcoming: [], completed: [], savedForLater: [], requested: [],
+      inProgress: [mockTransformedMockCourseEnrollment],
+      upcoming: [],
+      completed: [],
+      savedForLater: [],
+      requested: [],
+      assigned: [],
     });
     expect(result.current.fetchError).toBeUndefined();
   });
@@ -93,6 +98,7 @@ describe('useCourseEnrollments', () => {
 
       expect(result.current.courseEnrollmentsByStatus).toEqual(
         {
+          assigned: [],
           inProgress: [],
           upcoming: [],
           completed: [],
@@ -126,6 +132,7 @@ describe('useCourseEnrollments', () => {
 
       expect(result.current.courseEnrollmentsByStatus).toEqual(
         {
+          assigned: [],
           inProgress: [],
           upcoming: [],
           completed: [],

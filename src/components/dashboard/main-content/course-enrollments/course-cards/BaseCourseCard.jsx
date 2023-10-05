@@ -28,6 +28,10 @@ const BADGE_PROPS_BY_COURSE_STATUS = {
     variant: 'secondary',
     children: 'Requested',
   },
+  [COURSE_STATUSES.assigned]: {
+    variant: 'info',
+    children: 'Assigned',
+  },
 };
 
 class BaseCourseCard extends Component {
@@ -304,6 +308,15 @@ class BaseCourseCard extends Component {
       );
     }
 
+    if (type === COURSE_STATUSES.assigned) {
+      return (
+        <small className="text-gray-300">
+          Enroll in the course in the next 14 days or before the course
+          start date, whichever is earlier.
+        </small>
+      );
+    }
+
     if (name) {
       return <small>Sponsored by {name}.</small>;
     }
@@ -391,6 +404,20 @@ class BaseCourseCard extends Component {
     return null;
   };
 
+  renderMiscText = () => {
+    const { miscText } = this.props;
+
+    if (miscText != null) {
+      return miscText;
+    }
+
+    return (
+      <small className="mb-0">
+        {this.getCourseMiscText()}
+      </small>
+    );
+  };
+
   render() {
     const {
       type,
@@ -437,9 +464,7 @@ class BaseCourseCard extends Component {
               {this.renderChildren()}
               <div className="course-misc-text row">
                 <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
-                  <small className="mb-0">
-                    {this.getCourseMiscText()}
-                  </small>
+                  {this.renderMiscText()}
                   {this.renderAdditionalInfo()}
                   {hasViewCertificateLink && this.renderViewCertificateText()}
                 </div>
@@ -477,6 +502,7 @@ BaseCourseCard.propTypes = {
     children: PropTypes.element,
   })),
   isLoading: PropTypes.bool,
+  miscText: PropTypes.node,
 };
 
 BaseCourseCard.contextType = AppContext;
@@ -495,6 +521,7 @@ BaseCourseCard.defaultProps = {
   hasViewCertificateLink: true,
   dropdownMenuItems: null,
   isLoading: false,
+  miscText: null,
 };
 
 export default BaseCourseCard;

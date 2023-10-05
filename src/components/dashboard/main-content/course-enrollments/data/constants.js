@@ -13,6 +13,9 @@ export const COURSE_STATUSES = {
 
   // Not a real course status, represents a subsidy request.
   requested: 'requested',
+
+  // Not a real course status, represents a course assignment.
+  assigned: 'assigned',
 };
 
 export const GETSMARTER_BASE_URL = 'https://www.getsmarter.com';
