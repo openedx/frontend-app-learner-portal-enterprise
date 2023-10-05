@@ -83,3 +83,8 @@ export const getPrimaryPartnerLogo = (partnerDetails) => {
     alt: partnerDetails.primaryPartner.name,
   };
 };
+
+export const getContactEmail = (contactEmail, adminUsers) => {
+  const adminEmails = adminUsers.map(user => user.email);
+  return contactEmail || adminEmails;
+};

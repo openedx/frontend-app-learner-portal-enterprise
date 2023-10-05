@@ -6,6 +6,7 @@ import { MailtoLink, Hyperlink } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import { SidebarBlock } from '../../layout';
 import { CONTACT_HELP_EMAIL_MESSAGE, NEED_HELP_BLOCK_TITLE } from './data/constants';
+import { getContactEmail } from '../../../utils/common';
 
 const SupportInformation = ({ className }) => {
   const config = getConfig();
@@ -20,14 +21,10 @@ const SupportInformation = ({ className }) => {
 
   const renderContactHelpText = () => {
     const message = CONTACT_HELP_EMAIL_MESSAGE;
-    const adminEmails = adminUsers.map(user => user.email);
-
-    console.log(adminUsers);
-    console.log('adminEmails: ', adminEmails);
-
-    if (adminEmails.length > 0 || contactEmail) {
+    const email = getContactEmail(contactEmail, adminUsers);
+    if (email) {
       return (
-        <MailtoLink to={contactEmail || adminEmails}>
+        <MailtoLink to={email}>
           {message}
         </MailtoLink>
       );

@@ -15,6 +15,7 @@ import {
   NO_BALANCE_ALERT_TEXT,
   OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
+import { getContactEmail } from '../../../utils/common';
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const {
@@ -27,12 +28,11 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const heading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
   const text = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
 
-  const adminEmails = adminUsers.map(user => user.email);
-  const hasAdminEmails = adminEmails.length > 0;
+  const email = getContactEmail(contactEmail, adminUsers);
 
-  const actions = hasAdminEmails || contactEmail ? [
+  const actions = email ? [
     <MailtoLink
-      to={contactEmail || adminEmails}
+      to={email}
       target="_blank"
       onClick={() => {
         sendEnterpriseTrackEvent(
@@ -48,7 +48,7 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   return (
     <Container size="lg" className="pt-3">
       <Alert
-        className={classNames({ 'balance-alert-with-cta': hasAdminEmails })}
+        className={classNames({ 'balance-alert-with-cta': email })}
         variant={variant}
         icon={icon}
         actions={actions}
