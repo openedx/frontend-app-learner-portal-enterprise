@@ -7,8 +7,8 @@ import { getContactEmail } from '../../utils/common';
 const ContactAdminMailto = ({
   children,
 }) => {
-  const { enterpriseConfig: { adminUsers, contactEmail } } = useContext(AppContext);
-  const email = getContactEmail(contactEmail, adminUsers);
+  const { enterpriseConfig } = useContext(AppContext);
+  const email = getContactEmail(enterpriseConfig);
   if (email) {
     return (
       <MailtoLink

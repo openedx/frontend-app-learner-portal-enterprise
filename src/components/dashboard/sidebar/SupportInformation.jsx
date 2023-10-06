@@ -11,17 +11,16 @@ import { getContactEmail } from '../../../utils/common';
 const SupportInformation = ({ className }) => {
   const config = getConfig();
   const {
+    enterpriseConfig,
     enterpriseConfig: {
-      adminUsers,
       careerEngagementNetworkMessage,
-      contactEmail,
       enableCareerEngagementNetworkOnLearnerPortal,
     },
   } = useContext(AppContext);
 
   const renderContactHelpText = () => {
     const message = CONTACT_HELP_EMAIL_MESSAGE;
-    const email = getContactEmail(contactEmail, adminUsers);
+    const email = getContactEmail(enterpriseConfig);
     if (email) {
       return (
         <MailtoLink to={email}>

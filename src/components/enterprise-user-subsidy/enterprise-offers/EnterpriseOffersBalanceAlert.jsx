@@ -19,7 +19,7 @@ import { getContactEmail } from '../../../utils/common';
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const {
-    enterpriseConfig: { adminUsers, contactEmail, uuid: enterpriseCustomerUUID },
+    enterpriseConfig, enterpriseConfig: { uuid: enterpriseCustomerUUID },
   } = useContext(AppContext);
 
   const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
@@ -28,8 +28,7 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const heading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
   const text = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
 
-  const email = getContactEmail(contactEmail, adminUsers);
-
+  const email = getContactEmail(enterpriseConfig);
   const actions = email ? [
     <MailtoLink
       to={email}

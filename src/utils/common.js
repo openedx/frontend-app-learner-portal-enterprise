@@ -84,7 +84,9 @@ export const getPrimaryPartnerLogo = (partnerDetails) => {
   };
 };
 
-export const getContactEmail = (contactEmail, adminUsers) => {
-  const adminEmails = adminUsers.map(user => user.email);
-  return contactEmail || adminEmails;
+export const getContactEmail = (config) => {
+  const adminEmails = config.adminUsers.map(user => user.email);
+  if (config.contactEmail) { return config.contactEmail; }
+  if (adminEmails.length >= 1) { return adminEmails; }
+  return null;
 };
