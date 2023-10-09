@@ -21,6 +21,7 @@ const EnterpriseAppPageRoutes = () => (
       <Route path="/" element={<PageWrap><DashboardPage /></PageWrap>} />
       {['search', 'search/:pathwayUUID'].map(route => (
         <Route
+          key={route}
           path={route}
           element={<PageWrap><SearchPage /></PageWrap>}
         />
