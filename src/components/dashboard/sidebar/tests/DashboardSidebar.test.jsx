@@ -294,4 +294,22 @@ describe('<DashboardSidebar />', () => {
     expect(screen.queryByText(NEED_HELP_BLOCK_TITLE)).toBeTruthy();
     expect(screen.queryByText(CONTACT_HELP_EMAIL_MESSAGE)).toBeTruthy();
   });
+  test('Uses contact email first', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={{ enterpriseConfig: { contactEmail: 'edx@example.com', disableSearch: true, adminUsers: [{ email: 'admin@foo.com' }] } }}
+        initialUserSubsidyState={userSubsidyStateWithSubscription}
+      />,
+    );
+    expect(screen.getByText('contact your organization\'s edX administrator').closest('a')).toHaveAttribute('href', 'mailto:edx@example.com');
+  });
+  test('Falls back on admin emails if contact email is null', () => {
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={{ enterpriseConfig: { contactEmail: null, disableSearch: true, adminUsers: [{ email: 'admin@foo.com' }] } }}
+        initialUserSubsidyState={userSubsidyStateWithSubscription}
+      />,
+    );
+    expect(screen.getByText('contact your organization\'s edX administrator').closest('a')).toHaveAttribute('href', 'mailto:admin@foo.com');
+  });
 });

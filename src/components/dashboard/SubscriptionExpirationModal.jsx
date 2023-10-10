@@ -14,13 +14,16 @@ import {
   SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
 } from '../../config/constants';
 
+import { getContactEmail } from '../../utils/common';
+
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
 export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring';
 
 const SubscriptionExpirationModal = () => {
   const {
-    enterpriseConfig: { uuid: enterpriseId, adminUsers },
+    enterpriseConfig,
+    enterpriseConfig: { uuid: enterpriseId },
     config,
   } = useContext(AppContext);
   const { subscriptionPlan } = useContext(UserSubsidyContext);
@@ -38,12 +41,13 @@ const SubscriptionExpirationModal = () => {
   };
 
   const renderContactText = () => {
-    const adminEmails = adminUsers.map(user => user.email);
     const contactText = 'contact your learning manager';
-
-    if (adminEmails.length > 0) {
+    const email = getContactEmail(enterpriseConfig);
+    if (email) {
       return (
-        <MailtoLink to={adminEmails} className="font-weight-bold">{contactText}</MailtoLink>
+        <MailtoLink to={email} className="font-weight-bold">
+          {contactText}
+        </MailtoLink>
       );
     }
     return contactText;

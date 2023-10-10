@@ -6,24 +6,24 @@ import { MailtoLink, Hyperlink } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import { SidebarBlock } from '../../layout';
 import { CONTACT_HELP_EMAIL_MESSAGE, NEED_HELP_BLOCK_TITLE } from './data/constants';
+import { getContactEmail } from '../../../utils/common';
 
 const SupportInformation = ({ className }) => {
   const config = getConfig();
   const {
+    enterpriseConfig,
     enterpriseConfig: {
-      adminUsers,
-      enableCareerEngagementNetworkOnLearnerPortal,
       careerEngagementNetworkMessage,
+      enableCareerEngagementNetworkOnLearnerPortal,
     },
   } = useContext(AppContext);
 
   const renderContactHelpText = () => {
     const message = CONTACT_HELP_EMAIL_MESSAGE;
-    const adminEmails = adminUsers.map(user => user.email);
-
-    if (adminEmails.length > 0) {
+    const email = getContactEmail(enterpriseConfig);
+    if (email) {
       return (
-        <MailtoLink to={adminEmails}>
+        <MailtoLink to={email}>
           {message}
         </MailtoLink>
       );

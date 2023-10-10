@@ -2,18 +2,18 @@ import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { MailtoLink } from '@edx/paragon';
 import PropTypes from 'prop-types';
+import { getContactEmail } from '../../utils/common';
 
 const ContactAdminMailto = ({
   children,
 }) => {
-  const { enterpriseConfig: { adminUsers } } = useContext(AppContext);
-  const adminEmails = adminUsers.map(user => user.email);
-
-  if (adminEmails.length > 0) {
+  const { enterpriseConfig } = useContext(AppContext);
+  const email = getContactEmail(enterpriseConfig);
+  if (email) {
     return (
       <MailtoLink
         target="_blank"
-        to={adminEmails}
+        to={email}
       >
         {children}
       </MailtoLink>
