@@ -2,17 +2,17 @@ import React, { useContext } from 'react';
 import { Card, Truncate } from '@edx/paragon';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getProgressFromSteps } from './data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 
 const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
   const progress = getProgressFromSteps(learnerPathwayProgress.steps);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { enterpriseConfig: { slug } } = useContext(AppContext);
   const redirectToProgressDetailPage = () => {
-    history.push(`/${slug}/pathway/${learnerPathwayProgress.uuid}/progress`);
+    navigate(`/${slug}/pathway/${learnerPathwayProgress.uuid}/progress`);
   };
   return (
     <Card

@@ -119,7 +119,7 @@ const SkillsCoursesWithContext = ({
 
 describe('<SkillsCourses />', () => {
   test('renders the correct data', async () => {
-    const { container, history } = renderWithRouter(
+    const { container } = renderWithRouter(
       <SkillsCoursesWithContext
         index={testIndex}
       />,
@@ -139,8 +139,7 @@ describe('<SkillsCourses />', () => {
     });
 
     userEvent.click(screen.getByTestId('skills-quiz-course-card'));
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(window.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders an alert in case of no courses returned', async () => {

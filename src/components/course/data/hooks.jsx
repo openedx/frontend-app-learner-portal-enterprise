@@ -1,7 +1,7 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
@@ -285,7 +285,7 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
   isExecutiveEducation2UCourse,
 }) => {
-  const routeMatch = useRouteMatch();
+  const { pathname } = useLocation();
   const config = getConfig();
 
   const baseQueryParams = useMemo(() => {
@@ -331,7 +331,7 @@ export const useCourseEnrollmentUrl = ({
 
       if (isExecutiveEducation2UCourse) {
         const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
-          currentRouteUrl: routeMatch.url,
+          currentRouteUrl: pathname,
         });
         return externalCourseEnrollmentUrl;
       }
@@ -352,7 +352,7 @@ export const useCourseEnrollmentUrl = ({
       courseRunKey,
       enterpriseConfig.uuid,
       isExecutiveEducation2UCourse,
-      routeMatch.url,
+      pathname,
       location,
     ],
   );
@@ -367,8 +367,8 @@ export const useCourseEnrollmentUrl = ({
  * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
  */
 export const useExtractAndRemoveSearchParamsFromURL = () => {
-  const { search } = useLocation();
-  const history = useHistory();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
 
   const queryParams = useMemo(
@@ -385,12 +385,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
         });
         queryParams.delete('queryId');
         queryParams.delete('objectId');
-        history.replace({
+        navigate(pathname, {
           search: queryParams.toString(),
+          replace: true,
         });
       }
     },
-    [history, queryParams],
+    [navigate, queryParams, pathname],
   );
 
   return algoliaSearchParams;

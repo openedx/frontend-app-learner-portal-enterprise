@@ -73,7 +73,7 @@ describe('<PathwayProgressListingPage />', () => {
     useInProgressPathwaysData.mockImplementation(() => ([camelCaseObject(learnerPathwayData), null]));
 
     await act(async () => {
-      render(
+      renderWithRouter(
         <PathwayProgressListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
@@ -117,15 +117,15 @@ describe('<PathwayProgressListingPage />', () => {
     useInProgressPathwaysData.mockImplementation(() => ([[], null]));
 
     await act(async () => {
-      const { history } = renderWithRouter(
+      renderWithRouter(
         <PathwayProgressListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
       userEvent.click(screen.getByText('Explore pathways'));
-      expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
-      expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PATHWAY}`);
+      expect(window.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
+      expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PATHWAY}`);
     });
   });
 

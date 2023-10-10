@@ -12,10 +12,10 @@ const SiteHeaderNavMenu = () => {
 
   return (
     <>
-      <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} exact>
+      <NavLink to={`/${enterpriseConfig.slug}`} className={mainMenuLinkClassName} end>
         Dashboard
       </NavLink>
-      <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName} exact>
+      <NavLink to={`/${enterpriseConfig.slug}/search`} className={mainMenuLinkClassName}>
         Find a Course
       </NavLink>
     </>

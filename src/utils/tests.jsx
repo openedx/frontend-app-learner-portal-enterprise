@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies

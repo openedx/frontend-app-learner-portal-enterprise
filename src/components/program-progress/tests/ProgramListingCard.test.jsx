@@ -10,12 +10,10 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import ProgramListingCard from '../ProgramListingCard';
 
-const mockedPush = jest.fn();
+const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockedPush,
-  }),
+  useNavigate: () => mockedNavigate,
   useLocation: jest.fn(),
 }));
 
@@ -139,6 +137,6 @@ describe('<ProgramListingCard />', () => {
       programData={dummyProgramData}
     />);
     userEvent.click(container.firstElementChild);
-    expect(mockedPush).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
+    expect(mockedNavigate).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
   });
 });

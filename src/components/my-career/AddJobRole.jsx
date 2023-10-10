@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert, Row, breakpoints, MediaQuery, useToggle, TransitionReplace, Button, Icon,
 } from '@edx/paragon';
@@ -23,8 +23,8 @@ const addIcon = () => (
 );
 
 const AddJobRole = ({ submitClickHandler }) => {
-  const { state } = useLocation();
-  const history = useHistory();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
   const [isEditable, setIsEditable] = useState(false);
   const [isActivationAlertOpen, , closeActivationAlert] = useToggle(!!state?.activationSuccess);
 
@@ -32,9 +32,9 @@ const AddJobRole = ({ submitClickHandler }) => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
       delete updatedLocationState.activationSuccess;
-      history.replace({ ...history.location, state: updatedLocationState });
+      navigate(pathname, { state: updatedLocationState, replace: true });
     }
-  }, [history, state]);
+  }, [navigate, pathname, state]);
 
   const addRoleClickHandler = () => {
     setIsEditable(true);

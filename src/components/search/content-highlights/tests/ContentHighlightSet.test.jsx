@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import ContentHighlightSet from '../ContentHighlightSet';
+import { renderWithRouter } from '../../../../utils/tests';
 
 const defaultAppContextValue = {
   enterpriseConfig: { uuid: 'test-uuid' },
@@ -43,7 +44,7 @@ describe('ContentHighlightSet', () => {
   });
 
   it('renders stuff', () => {
-    render(<ContentHighlightSetWrapper />);
+    renderWithRouter(<ContentHighlightSetWrapper />);
 
     expect(screen.getByText(mockHighlightSetTitle)).toBeInTheDocument();
     expect(screen.getByText(mockHighlightedContentItemTitle)).toBeInTheDocument();

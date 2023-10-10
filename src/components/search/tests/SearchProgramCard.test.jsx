@@ -21,6 +21,12 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 const SearchProgramCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
@@ -90,11 +96,10 @@ describe('<SearchProgramCard />', () => {
   });
 
   test('handles card click', () => {
-    const { history } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
+    renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
   });
 
   test.each(Object.keys(programTypes))('renders the correct program type: %s', (type) => {

@@ -156,15 +156,15 @@ describe('<ProgramListing />', () => {
     useLearnerProgramsListData.mockImplementation(() => ([[], null]));
 
     await act(async () => {
-      const { history } = renderWithRouter(
+      renderWithRouter(
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
       userEvent.click(screen.getByText('Explore programs'));
-      expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
-      expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
+      expect(window.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
+      expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
     });
   });
 

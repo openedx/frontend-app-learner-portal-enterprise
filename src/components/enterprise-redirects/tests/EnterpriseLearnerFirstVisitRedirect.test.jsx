@@ -19,8 +19,8 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   });
 
   test('redirects to search if user is visiting for the first time.', async () => {
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(history.location.pathname).toEqual('/r/search');
+    renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />);
+    expect(window.location.pathname).toEqual('/r/search');
   });
 
   test('Does not redirect the returning user to search.', async () => {
