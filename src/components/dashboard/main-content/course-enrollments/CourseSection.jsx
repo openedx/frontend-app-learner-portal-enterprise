@@ -10,6 +10,7 @@ import {
   CompletedCourseCard,
   SavedForLaterCourseCard,
   RequestedCourseCard,
+  AssignedCourseCard,
 } from './course-cards';
 
 import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
@@ -21,6 +22,7 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.completed]: CompletedCourseCard,
   [COURSE_STATUSES.savedForLater]: SavedForLaterCourseCard,
   [COURSE_STATUSES.requested]: RequestedCourseCard,
+  [COURSE_STATUSES.assigned]: AssignedCourseCard,
 };
 
 class CourseSection extends React.Component {

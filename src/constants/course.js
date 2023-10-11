@@ -23,6 +23,8 @@ export const COURSE_STATUSES = {
   savedForLater: 'saved_for_later',
   // Not a real course status, represents a subsidy request.
   requested: 'requested',
+  // Not a real course status, represents a course assignment.
+  assigned: 'assigned',
 };
 
 export const COURSE_PACING = {
