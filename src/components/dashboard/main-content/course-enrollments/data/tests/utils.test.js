@@ -105,6 +105,7 @@ describe('groupCourseEnrollmentsByStatus', () => {
         completed: [completedCourseEnrollment],
         savedForLater: [savedForLaterCourseEnrollment],
         requested: [],
+        assigned: [],
       },
     );
   });

@@ -18,6 +18,7 @@ jest.mock('../course-cards', () => ({
   CompletedCourseCard: () => '<CompletedCourseCard />',
   SavedForLaterCourseCard: () => '<SavedForLaterCourseCard />',
   RequestedCourseCard: () => '<RequestedCourseCard />',
+  AssignedCourseCard: () => '<AssignedCourseCard />',
 }));
 jest.mock('../UpgradeableCourseEnrollmentContextProvider', () => ({
   __esModule: true,
@@ -30,6 +31,7 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.completed]: '<CompletedCourseCard />',
   [COURSE_STATUSES.savedForLater]: '<SavedForLaterCourseCard />',
   [COURSE_STATUSES.requested]: '<RequestedCourseCard />',
+  [COURSE_STATUSES.assigned]: '<AssignedCourseCard />',
 };
 const TEST_ENTERPRISE_UUID = 'test-uuid';
 
