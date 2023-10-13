@@ -3,6 +3,7 @@ import {
   Container, MediaQuery, Row, breakpoints,
 } from '@edx/paragon';
 
+import { AppContext } from '@edx/frontend-platform/react';
 import { MainContent, Sidebar } from '../../layout';
 import CourseHeader from '../course-header/CourseHeader';
 import CourseMainContent from '../CourseMainContent';
@@ -12,6 +13,7 @@ import { CourseContext } from '../CourseContextProvider';
 
 const CourseAbout = () => {
   const { canOnlyViewHighlightSets } = useContext(CourseContext);
+  const { enterpriseConfig } = useContext(AppContext);
   return (
     <>
       <CourseHeader />
@@ -27,7 +29,7 @@ const CourseAbout = () => {
               </Sidebar>
             )}
           </MediaQuery>
-          {canOnlyViewHighlightSets === false && <CourseRecommendations />}
+          {(canOnlyViewHighlightSets === false && !enterpriseConfig.disableSearch) && <CourseRecommendations />}
         </Row>
       </Container>
     </>

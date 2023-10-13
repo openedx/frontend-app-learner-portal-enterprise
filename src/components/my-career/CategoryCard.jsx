@@ -1,4 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, {
+  useMemo, useState, useEffect, useContext,
+} from 'react';
 
 import PropTypes from 'prop-types';
 import {
@@ -8,6 +10,7 @@ import {
 } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';
+import { AppContext } from '@edx/frontend-platform/react';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 
@@ -22,6 +25,7 @@ const CategoryCard = ({ topCategory }) => {
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
 
   const config = getConfig();
+  const { enterpriseConfig } = useContext(AppContext);
   const courseIndex = useMemo(
     () => {
       const client = algoliasearch(
@@ -148,17 +152,19 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      <Card.Section>
-        {showSkills && subcategorySkills && (
-          <div className="skill-details-recommended-courses">
-            <SkillsRecommendationCourses
-              index={courseIndex}
-              subCategoryName={subCategoryName}
-              subCategorySkills={subcategorySkills.map((skill) => skill.name)}
-            />
-          </div>
-        )}
-      </Card.Section>
+      {!enterpriseConfig.disableSearch && (
+        <Card.Section>
+          {showSkills && subcategorySkills && (
+            <div className="skill-details-recommended-courses">
+              <SkillsRecommendationCourses
+                index={courseIndex}
+                subCategoryName={subCategoryName}
+                subCategorySkills={subcategorySkills.map((skill) => skill.name)}
+              />
+            </div>
+          )}
+        </Card.Section>
+      )}
     </Card>
   );
 };
