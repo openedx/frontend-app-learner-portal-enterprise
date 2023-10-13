@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { ResponsiveContext, breakpoints } from '@edx/paragon';
 
+import { AppContext } from '@edx/frontend-platform/react';
 import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 
@@ -32,15 +33,24 @@ jest.mock('../../CourseRecommendations', () => jest.fn(() => (
 )));
 
 const baseCourseContextValue = { canOnlyViewHighlightSets: false };
+const appContextValues = {
+  enterpriseConfig: {
+    disableSearch: false,
+  },
+};
 
 const CourseAboutWrapper = ({
   responsiveContextValue = { width: breakpoints.extraLarge.minWidth },
   courseContextValue = baseCourseContextValue,
+  initialAppState = appContextValues,
+
 }) => (
   <ResponsiveContext.Provider value={responsiveContextValue}>
-    <CourseContext.Provider value={courseContextValue}>
-      <CourseAbout />
-    </CourseContext.Provider>
+    <AppContext.Provider value={initialAppState}>
+      <CourseContext.Provider value={courseContextValue}>
+        <CourseAbout />
+      </CourseContext.Provider>
+    </AppContext.Provider>
   </ResponsiveContext.Provider>
 );
 
