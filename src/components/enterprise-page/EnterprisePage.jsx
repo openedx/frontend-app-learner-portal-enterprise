@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Container } from '@edx/paragon';
@@ -19,12 +18,13 @@ import { useUpdateActiveEnterpriseForUser, useEnterpriseCustomerConfig } from '.
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
 
 const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
+  const { authenticatedUser: user } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
-  const user = getAuthenticatedUser();
   const { profileImage } = user;
+
 
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseConfig)) {
