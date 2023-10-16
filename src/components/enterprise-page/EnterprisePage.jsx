@@ -25,7 +25,6 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
   const { profileImage } = user;
 
-
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseConfig)) {
       pushUserCustomerAttributes(enterpriseConfig);
