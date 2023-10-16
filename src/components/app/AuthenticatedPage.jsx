@@ -63,7 +63,7 @@ AuthenticatedPage.propTypes = {
 };
 
 AuthenticatedPage.defaultProps = {
-  useEnterpriseConfigCache: true,
+  useEnterpriseConfigCache: false,
 };
 
 export default AuthenticatedPage;
