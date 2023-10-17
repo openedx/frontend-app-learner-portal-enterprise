@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { Container } from '@edx/paragon';
+import { Button, Container, Hyperlink } from '@edx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
+import { ErrorPage } from '../error-page';
 
 import {
   isDefined,
@@ -14,16 +15,16 @@ import {
   isDefinedAndNull,
 } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
-import { useUpdateActiveEnterpriseForUser, useEnterpriseCustomerConfig } from './data/hooks';
+import { useUpdateActiveEnterpriseForUser, useEnterpriseCustomerConfig } from './data';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
 
 const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
-  const { authenticatedUser: user } = useContext(AppContext);
+  const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
-  const { profileImage } = user;
+  const { profileImage } = authenticatedUser;
 
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseConfig)) {
@@ -33,11 +34,11 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
 
   const { isLoading: isUpdatingActiveEnterprise } = useUpdateActiveEnterpriseForUser({
     enterpriseId: enterpriseConfig?.uuid,
-    user,
+    user: authenticatedUser,
   });
 
   const contextValue = useMemo(() => ({
-    authenticatedUser: user,
+    authenticatedUser,
     config,
     enterpriseConfig,
     courseCards: {
@@ -51,19 +52,36 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
       client: searchClient,
       index: searchIndex,
     },
-  }), [config, enterpriseConfig, searchClient, searchIndex, user]);
+  }), [config, enterpriseConfig, searchClient, searchIndex, authenticatedUser]);
 
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!isDefined([enterpriseConfig, profileImage]) || isUpdatingActiveEnterprise) {
     return (
-      <Container className="py-5">
+      <Container data-testid="loading-org-user-details" className="py-5">
         <LoadingSpinner screenReaderText="loading organization and user details" />
       </Container>
     );
   }
 
   if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
+    return (
+      <Container className="py-5 text-center">
+        <ErrorPage
+          title="An unexpected error occurred."
+          subtitle="Please click the button below to refresh the page."
+          showSiteHeader={false}
+          showSiteFooter={false}
+        >
+          <p className="mb-4">{fetchError.message}</p>
+          <Button
+            as={Hyperlink}
+            destination={window.location.href}
+          >
+            Try again
+          </Button>
+        </ErrorPage>
+      </Container>
+    );
   }
 
   if (isDefinedAndNull(enterpriseConfig)) {

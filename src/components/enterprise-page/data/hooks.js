@@ -99,6 +99,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
       .catch((error) => {
         logError(new Error(`Error occurred while fetching the Enterprise Config: ${error}`));
         setFetchError(error);
+        setEnterpriseConfig(null);
       });
   }, [enterpriseSlug, useCache]);
 
