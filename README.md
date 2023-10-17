@@ -1,6 +1,6 @@
 # frontend-app-learner-portal-enterprise
 
-![Build Status](https://github.com/openedx/frontend-app-learner-portal-enterprise/actions/workflows/ci.yml/badge.svg)
+![Build Status](https://github.com/openedx/frontend-app-learner-portal-enterprise/actions/workflows/release.yml/badge.svg)
 
 ## Overview
 The edX learning platform's frontend for enterprise learners.
