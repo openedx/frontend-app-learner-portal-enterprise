@@ -114,7 +114,7 @@ const SearchPathwayCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{pathway.title}</Truncate>
+          <Truncate lines={3}>{pathway.title}</Truncate>
         )}
       />
       <Card.Section>
