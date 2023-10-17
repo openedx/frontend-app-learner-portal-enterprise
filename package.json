@@ -14,7 +14,7 @@
     "@edx/frontend-enterprise-logistration": "4.0.4",
     "@edx/frontend-enterprise-utils": "4.0.4",
     "@edx/frontend-platform": "5.5.4",
-    "@edx/paragon": "^21.5.3",
+    "@edx/paragon": "21.5.3",
     "@tanstack/react-query": "4.28.0",
     "@tanstack/react-query-devtools": "4.29.0",
     "algoliasearch": "4.6.0",
