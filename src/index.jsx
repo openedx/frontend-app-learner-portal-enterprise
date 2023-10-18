@@ -15,6 +15,9 @@ import { messages as paragonMessages } from '@edx/paragon';
 import { App } from './components/app';
 
 import './index.scss';
+import Cookies from 'universal-cookie';
+import jwtDecode from 'jwt-decode';
+import { loginRefresh } from './utils/common';
 
 subscribe(APP_READY, () => {
   ReactDOM.render(<App />, document.getElementById('root'));
@@ -23,6 +26,11 @@ subscribe(APP_READY, () => {
 subscribe(APP_INIT_ERROR, (error) => {
   ReactDOM.render(<ErrorPage message={error.message} />, document.getElementById('root'));
 });
+
+// const refreshJwt = async () => {
+//   await loginRefresh();
+// };
+// refreshJwt();
 
 initialize({
   handlers: {

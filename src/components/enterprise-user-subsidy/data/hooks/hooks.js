@@ -2,8 +2,11 @@ import {
   useState, useEffect, useReducer, useCallback, useMemo,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
+import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { useQuery } from '@tanstack/react-query';
+import jwtDecode from 'jwt-decode';
+import Cookies from 'universal-cookie';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { fetchCouponCodeAssignments } from '../../coupons';
@@ -104,6 +107,20 @@ export function useSubscriptionLicense({
     enterpriseIdentityProvider: enterpriseConfig.identityProvider,
   }), [enterpriseConfig]);
 
+  const decodeJwtCookie = () => {
+    const cookies = new Cookies();
+    const cookieValue = cookies.get(getConfig().ACCESS_TOKEN_COOKIE_NAME);
+    if (!cookieValue) { return null; }
+    try {
+      return jwtDecode(cookieValue);
+    } catch (e) {
+      const error = Object.create(e);
+      error.message = '[useSubscriptionLicense] Error decoding JWT token';
+      error.customAttributes = { cookieValue };
+      throw error;
+    }
+  };
+
   useEffect(() => {
     async function retrieveUserLicense() {
       let result = await fetchExistingUserLicense(enterpriseId);
@@ -118,9 +135,11 @@ export function useSubscriptionLicense({
       ];
       const hasCustomerAgreementData = customerAgreementMetadata.every(item => !!item);
 
-      // Only request an auto-applied license if ther user is a learner of the enterprise.
+      const decodedJwt = decodeJwtCookie();
+
+      // Only request an auto-applied license if the user is a learner of the enterprise.
       // This is mainly to prevent edx operators from accidently getting a license.
-      const isEnterpriseLearner = !!user.roles.find(userRole => {
+      const isEnterpriseLearner = !!decodedJwt.roles.find(userRole => {
         const [role, enterprise] = userRole.split(':');
         return role === 'enterprise_learner' && enterprise === enterpriseId;
       });
