@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Container, Hyperlink } from '@edx/paragon';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import { ErrorPage } from '../error-page';
 import { LoadingSpinner } from '../loading-spinner';
@@ -28,11 +28,11 @@ export const CTA_BUTTON_TEXT = 'Continue to edX.org';
  * slug. If an error occurred, an appropriate error page is shown and an error is logged.
  */
 const EnterpriseInvitePage = () => {
+  const { authenticatedUser } = useContext(AppContext);
   const { enterpriseCustomerInviteKey } = useParams();
   const [inviteError, setInviteError] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const authenticatedUser = getAuthenticatedUser();
   const config = getConfig();
 
   useEffect(() => {
@@ -46,6 +46,7 @@ const EnterpriseInvitePage = () => {
         try {
           const response = await postLinkEnterpriseLearner(enterpriseCustomerInviteKey);
           const result = camelCaseObject(response.data);
+          console.log('postLinkEnterpriseLearner', result);
           const { enterpriseCustomerSlug } = result;
           redirectTo = `/${enterpriseCustomerSlug}`;
         } catch (error) {
@@ -53,11 +54,14 @@ const EnterpriseInvitePage = () => {
           setInviteError(error);
         }
 
+        console.log('redirectTo?!?!?!', redirectTo);
+
         if (redirectTo) {
           try {
             // Refresh login so that the user's roles get updated.
             // There is not much we can do if login refresh fails here, log the error and move on.
             await loginRefresh();
+            console.log('redirectTo after loginRefresh?!?!?!', redirectTo);
           } catch (error) {
             logError(error);
           }
