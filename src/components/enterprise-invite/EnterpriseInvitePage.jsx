@@ -46,7 +46,6 @@ const EnterpriseInvitePage = () => {
         try {
           const response = await postLinkEnterpriseLearner(enterpriseCustomerInviteKey);
           const result = camelCaseObject(response.data);
-          console.log('postLinkEnterpriseLearner', result);
           const { enterpriseCustomerSlug } = result;
           redirectTo = `/${enterpriseCustomerSlug}`;
         } catch (error) {
@@ -54,14 +53,11 @@ const EnterpriseInvitePage = () => {
           setInviteError(error);
         }
 
-        console.log('redirectTo?!?!?!', redirectTo);
-
         if (redirectTo) {
           try {
             // Refresh login so that the user's roles get updated.
             // There is not much we can do if login refresh fails here, log the error and move on.
             await loginRefresh();
-            console.log('redirectTo after loginRefresh?!?!?!', redirectTo);
           } catch (error) {
             logError(error);
           }

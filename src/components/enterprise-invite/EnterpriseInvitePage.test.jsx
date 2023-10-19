@@ -2,7 +2,6 @@ import React from 'react';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  act,
   render,
   screen,
   waitFor,
@@ -10,7 +9,6 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import * as logging from '@edx/frontend-platform/logging';
 import { MemoryRouter } from 'react-router-dom';
-import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 
 import EnterpriseInvitePage, {
   LOADING_MESSAGE,
