@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import * as logging from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Cookies from 'universal-cookie';
 
 import {
   useCouponCodes,
@@ -19,6 +20,8 @@ import {
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { fetchCouponCodeAssignments } from '../../coupons';
 import { LICENSE_STATUS } from '../constants';
+
+jest.mock('universal-cookie');
 
 jest.mock('../../data/service');
 jest.mock('../../coupons/data/service');
@@ -38,7 +41,7 @@ jest.mock('../../../../config', () => ({
 
 const TEST_SUBSCRIPTION_UUID = 'test-subscription-uuid';
 const TEST_LICENSE_UUID = 'test-license-uuid';
-const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
+const TEST_ENTERPRISE_UUID = 'd0224477-4903-404a-b3c4-9edfce728d37';
 const TEST_USER_ID = '35';
 const TEST_ACTIVATION_KEY = 'test-activation-key';
 
@@ -79,8 +82,14 @@ const mockCustomerAgreement = {
 };
 
 describe('useSubscriptionLicense', () => {
+  beforeEach(() => {
+    const mockJwt = 'eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJJbmtvY3VqTGlreXVjc0Vkd2lXYXRkZWJyRWFja21ldkxha0R1aWZLb29zaGtha1dvdyIsImV4cCI6MTY5NzcyMDYyMywiZ3JhbnRfdHlwZSI6InBhc3N3b3JkIiwiaWF0IjoxNjk3NzE3MDIzLCJpc3MiOiJodHRwczovL2NvdXJzZXMuc3RhZ2UuZWR4Lm9yZy9vYXV0aDIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJyaWNrIiwic2NvcGVzIjpbInVzZXJfaWQiLCJlbWFpbCIsInByb2ZpbGUiXSwidmVyc2lvbiI6IjEuMi4wIiwic3ViIjoiNTY0NDQ4NjIwMzMwNjJiMGQzZjhlYjIxMzljYTM2NGYiLCJmaWx0ZXJzIjpbInVzZXI6bWUiXSwiaXNfcmVzdHJpY3RlZCI6ZmFsc2UsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJ1c2VyX2lkIjo1MjcwODc4LCJlbWFpbCI6InJzYW5jaGV6QHNhbWx0ZXN0LmlkIiwibmFtZSI6IlRlc3QgUmljayIsImZhbWlseV9uYW1lIjoiU2FuY2hleiIsImdpdmVuX25hbWUiOiJSaWNrIiwiYWRtaW5pc3RyYXRvciI6ZmFsc2UsInN1cGVydXNlciI6ZmFsc2UsInJvbGVzIjpbImVudGVycHJpc2VfbGVhcm5lcjpkMDIyNDQ3Ny00OTAzLTQwNGEtYjNjNC05ZWRmY2U3MjhkMzciXX0';
+    const mockGetCookie = jest.fn().mockReturnValue(mockJwt);
+    Cookies.mockReturnValue({ get: mockGetCookie });
+  });
+
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   it('does nothing if customer agreement is still loading', async () => {
