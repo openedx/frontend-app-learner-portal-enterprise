@@ -12,6 +12,13 @@ const TEST_ENTERPRISE = {
   slug: 'test-enterprise',
 };
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({
+    enterpriseSlug: TEST_ENTERPRISE.slug,
+  }),
+}));
+
 describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   beforeEach(() => {
     const cookies = new Cookies();
@@ -20,7 +27,7 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
 
   test('redirects to search if user is visiting for the first time.', async () => {
     const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(history.location.pathname).toEqual('/r/search');
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
   });
 
   test('Does not redirect the returning user to search.', async () => {
