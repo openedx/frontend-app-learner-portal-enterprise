@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 
 const EnterpriseLearnerFirstVisitRedirect = () => {
+  const { enterpriseSlug } = useParams();
+
   const cookies = new Cookies();
 
   const isFirstVisit = () => {
@@ -17,7 +19,7 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
   });
 
   if (isFirstVisit()) {
-    return <Redirect to="/r/search" />;
+    return <Redirect to={`/${enterpriseSlug}/search`} />;
   }
 
   return null;
