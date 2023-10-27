@@ -11,7 +11,7 @@ The edX learning platform's frontend for enterprise learners.
 
 Ensure you have gone through [Onboarding for devs](https://openedx.atlassian.net/wiki/spaces/ENG/pages/12550298/Developer+Onboarding)
 
-Clone this repo: `git clone <repo_url>`
+Clone this repo: `git clone https://github.com/openedx/frontend-app-learner-portal-enterpise.git`
 
 Install nodejs (using nvm maybe a good idea to be able to switch node versions and because there is an .nvmrc file that will be usable by nvm)
 
