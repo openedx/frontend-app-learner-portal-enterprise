@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 import BaseCourseCard from './BaseCourseCard';
 
 import { COURSE_STATUSES } from '../data';
-import dayjs from '../../../../../utils/dayjs';
 
 const AssignedCourseCard = (props) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -18,19 +17,10 @@ const AssignedCourseCard = (props) => {
       as={Link}
       to={`/${enterpriseConfig.slug}/course/${courseKey}`}
       className="btn-xs-block"
-      variant="brand"
+      variant="inverse-brand"
     >
       Enroll
     </Button>
-  );
-  const { startDate } = props;
-  const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
-
-  const miscText = () => (
-    <small className="text-gray-500 font-weight-bold">
-      This course has been assigned to you by your learning administrator.&nbsp;&nbsp;
-      {formattedStartDate && `Start date - ${formattedStartDate}`}
-    </small>
   );
 
   return (
@@ -38,7 +28,6 @@ const AssignedCourseCard = (props) => {
       buttons={renderButtons()}
       type={COURSE_STATUSES.assigned}
       hasViewCertificateLink={false}
-      miscText={miscText()}
       canUnenroll={false}
       {...props}
     />

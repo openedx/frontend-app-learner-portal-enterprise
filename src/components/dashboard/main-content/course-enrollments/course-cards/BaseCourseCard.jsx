@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Dropdown, Badge, IconButton, Icon, Skeleton,
+  Dropdown, Badge, IconButton, Icon, Skeleton, OverlayTrigger, Tooltip, Row, Col,
 } from '@edx/paragon';
+import classNames from 'classnames';
 import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
-import { MoreVert } from '@edx/paragon/icons';
+import { MoreVert, InfoOutline } from '@edx/paragon/icons';
 
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
@@ -91,48 +92,16 @@ class BaseCourseCard extends Component {
     return [...firstMenuItems, ...lastMenuItems];
   };
 
-  getDateMessage = () => {
-    const { type, pacing, endDate } = this.props;
-    const formattedEndDate = endDate ? dayjs(endDate).format('MMMM D, YYYY') : null;
-    let message = '';
-    if (formattedEndDate) {
-      switch (type) {
-        case COURSE_STATUSES.inProgress: {
-          if (pacing === 'self') {
-            message += `Complete at your own speed before ${formattedEndDate}.`;
-          } else {
-            message += `Ends ${formattedEndDate}.`;
-          }
-          break;
-        }
-        case COURSE_STATUSES.upcoming:
-        case COURSE_STATUSES.completed:
-        case COURSE_STATUSES.savedForLater: {
-          const isCourseEnded = dayjs() > dayjs(endDate);
-          message += isCourseEnded ? 'Ended' : 'Ends';
-          message += ` ${formattedEndDate}.`;
-          break;
-        }
-        default:
-          break;
-      }
-    }
-    return message;
-  };
-
   getCourseMiscText = () => {
     const { pacing } = this.props;
     const isCourseEnded = this.isCourseEnded();
-    const dateMessage = this.getDateMessage();
     let message = '';
     if (pacing) {
       message += 'This course ';
       message += isCourseEnded ? 'was ' : 'is ';
-      message += `${pacing}-led. `;
+      message += `${pacing}-paced. `;
     }
-    if (dateMessage) {
-      message += dateMessage;
-    }
+
     return message;
   };
 
@@ -295,32 +264,17 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderAdditionalInfo = () => {
-    const { enterpriseConfig: { name } } = this.context;
+  renderAdditionalInfoOutline = () => {
     const { type } = this.props;
 
     if (type === COURSE_STATUSES.requested) {
       return (
-        <small>
+        <small className="mt-2">
           Please allow 5-10 business days for review.
           If approved, you will receive an email to get started.
         </small>
       );
     }
-
-    if (type === COURSE_STATUSES.assigned) {
-      return (
-        <small className="text-gray-300">
-          Enroll in the course in the next 14 days or before the course
-          start date, whichever is earlier.
-        </small>
-      );
-    }
-
-    if (name) {
-      return <small>Sponsored by {name}.</small>;
-    }
-
     return null;
   };
 
@@ -336,26 +290,84 @@ class BaseCourseCard extends Component {
     return null;
   };
 
-  renderCourseStartDate = () => {
-    const { startDate, mode } = this.props;
-    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-    const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
-
-    if (isExecutiveEducation2UCourse && formattedStartDate) {
-      return <>&#x2022; Start date: {formattedStartDate}</>;
-    }
-    return null;
-  };
-
   renderOrganizationName = () => {
     const { orgName, mode } = this.props;
 
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-    const execEdClass = isExecutiveEducation2UCourse ? 'text-light-300' : '';
+    const courseTypeLabel = isExecutiveEducation2UCourse ? 'Executive Education' : 'Course';
+    const tooltipText = isExecutiveEducation2UCourse
+      ? 'Executive Education courses are instructor-led, cohort-based, and follow a set schedule.'
+      : 'Courses are on-demand, self-paced, and include asynchronous online discussion.';
+
     if (orgName) {
-      return <p className={`mb-0 ${execEdClass}`}>{orgName} {isExecutiveEducation2UCourse && <>&#x2022; Executive Education</>} {this.renderCourseStartDate()}</p>;
+      return (
+        <p className={classNames('mb-2 font-weight-light d-flex align-items-center small', { 'text-light-300': isExecutiveEducation2UCourse })}>
+          {orgName} &bull; {courseTypeLabel}
+          <OverlayTrigger
+            trigger={['hover', 'focus']}
+            placement="top"
+            overlay={(
+              <Tooltip variant="light" id={`tooltip-${Math.random()}`}>
+                {tooltipText}
+              </Tooltip>
+            )}
+          >
+            <Icon src={InfoOutline} size="xs" className="ml-2" />
+          </OverlayTrigger>
+        </p>
+      );
     }
     return null;
+  };
+
+  renderStartDate = () => {
+    const { startDate } = this.props;
+    const formattedStartDate = startDate ? dayjs(startDate).format('MMMM Do, YYYY') : null;
+    const isCourseStarted = dayjs(startDate) <= dayjs();
+
+    if (formattedStartDate && !isCourseStarted) {
+      return <span className="font-weight-light pr-2">Starts {formattedStartDate}</span>;
+    }
+    return null;
+  };
+
+  renderEndDate = () => {
+    const { endDate, type } = this.props;
+    const formattedEndDate = endDate ? dayjs(endDate).format('MMMM Do, YYYY') : null;
+    const isCourseStarted = dayjs(this.props.startDate) <= dayjs();
+
+    if (formattedEndDate && isCourseStarted && type !== COURSE_STATUSES.completed) {
+      return <span className="font-weight-light pr-2">Ends {formattedEndDate}</span>;
+    }
+    return null;
+  };
+
+  renderEnrollByDate = () => {
+    const { enrollBy, courseRunStatus } = this.props;
+    const formattedEnrollByDate = enrollBy ? dayjs(enrollBy).format('MMMM Do, YYYY') : null;
+
+    if (formattedEnrollByDate && courseRunStatus === COURSE_STATUSES.assigned) {
+      return <>&bull;<span className="font-weight-light pl-2">Enroll by {formattedEnrollByDate}</span></>;
+    }
+    return null;
+  };
+
+  renderCourseInfoOutline = () => {
+    const startDate = this.renderStartDate();
+    const endDate = this.renderEndDate();
+    const enrollByDate = this.renderEnrollByDate();
+
+    if (!startDate && !endDate && !enrollByDate) {
+      return null;
+    }
+
+    return (
+      <p className="mt-2 mb-4 small">
+        {startDate}
+        {endDate}
+        {enrollByDate}
+      </p>
+    );
   };
 
   renderChildren = () => {
@@ -377,7 +389,7 @@ class BaseCourseCard extends Component {
     if (buttons) {
       return (
         <div className="row">
-          <div className="col mb-3">
+          <div className="col mt-2">
             {buttons}
           </div>
         </div>
@@ -394,7 +406,7 @@ class BaseCourseCard extends Component {
 
     if (linkToCertificate) {
       return (
-        <small className="mb-0">
+        <small className="mt-2 mb-0">
           View your certificate on
           {' '}
           <a href={`${config.LMS_BASE_URL}/u/${username}`}>your profile →</a>
@@ -406,21 +418,39 @@ class BaseCourseCard extends Component {
 
   renderMiscText = () => {
     const { miscText } = this.props;
+    const courseMiscText = this.getCourseMiscText();
 
     if (miscText != null) {
       return miscText;
     }
 
+    if (!courseMiscText) {
+      return null;
+    }
+
     return (
-      <small className="mb-0">
-        {this.getCourseMiscText()}
+      <small className="mb-0 mt-2">
+        {courseMiscText}
       </small>
     );
   };
 
+  renderBadge = () => {
+    const { isCourseAssigned, type } = this.props;
+
+    const badgeProps = isCourseAssigned
+      ? BADGE_PROPS_BY_COURSE_STATUS.assigned
+      : BADGE_PROPS_BY_COURSE_STATUS[type];
+
+    if (badgeProps) {
+      return <Badge className="mt-1" {...badgeProps} />;
+    }
+
+    return null;
+  };
+
   render() {
     const {
-      type,
       title,
       linkToCourse,
       hasViewCertificateLink,
@@ -431,7 +461,7 @@ class BaseCourseCard extends Component {
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
     return (
-      <div className={`dashboard-course-card py-4 border-bottom ${isExecutiveEducation2UCourse && 'exec-ed-course-card bg-dark-200 rounded-lg p-3 text-light-100'}`}>
+      <div className={classNames('dashboard-course-card py-3 border-bottom', { 'exec-ed-course-card rounded-lg p-3 text-light-100': isExecutiveEducation2UCourse })}>
         {isLoading ? (
           <>
             <div className="sr-only">Loading...</div>
@@ -447,28 +477,22 @@ class BaseCourseCard extends Component {
                     <h4 className="course-title mb-0 mr-2">
                       <a className={`h3 ${isExecutiveEducation2UCourse && 'text-white'}`} href={linkToCourse}>{title}</a>
                     </h4>
-                    {
-                      BADGE_PROPS_BY_COURSE_STATUS[type] && (
-                        <Badge
-                          className="mt-1"
-                          {...BADGE_PROPS_BY_COURSE_STATUS[type]}
-                        />
-                      )
-                    }
+                    {this.renderBadge()}
                   </div>
                   {this.renderOrganizationName()}
                 </div>
                 {this.renderSettingsDropdown(dropdownMenuItems)}
               </div>
+              {this.renderCourseInfoOutline()}
               {this.renderButtons()}
               {this.renderChildren()}
-              <div className="course-misc-text row">
-                <div className={`col ${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
+              <Row className="course-misc-text">
+                <Col className={`${isExecutiveEducation2UCourse ? 'text-light-300' : 'text-gray'}`}>
                   {this.renderMiscText()}
-                  {this.renderAdditionalInfo()}
+                  {this.renderAdditionalInfoOutline()}
                   {hasViewCertificateLink && this.renderViewCertificateText()}
-                </div>
-              </div>
+                </Col>
+              </Row>
               {this.renderEmailSettingsModal()}
               {this.renderUnenrollModal()}
             </>
@@ -503,6 +527,9 @@ BaseCourseCard.propTypes = {
   })),
   isLoading: PropTypes.bool,
   miscText: PropTypes.node,
+  enrollBy: PropTypes.string,
+  courseRunStatus: PropTypes.string,
+  isCourseAssigned: PropTypes.bool,
 };
 
 BaseCourseCard.contextType = AppContext;
@@ -522,6 +549,9 @@ BaseCourseCard.defaultProps = {
   dropdownMenuItems: null,
   isLoading: false,
   miscText: null,
+  enrollBy: null,
+  courseRunStatus: null,
+  isCourseAssigned: false,
 };
 
 export default BaseCourseCard;

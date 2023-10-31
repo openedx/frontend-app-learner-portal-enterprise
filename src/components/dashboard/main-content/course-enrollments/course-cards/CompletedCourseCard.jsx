@@ -41,11 +41,11 @@ const CompletedCourseCard = (props) => {
   const renderCertificateInfo = () => (
     props.linkToCertificate ? (
       <div className="d-flex mb-3">
-        <div className="mr-3">
+        <div className="mr-3 mt-3">
           <img src={CertificateImg} alt="verified certificate preview" />
         </div>
         <div className="d-flex align-items-center">
-          <p className="mb-0">
+          <p className="mb-0 small">
             View your certificate on{' '}
             <a href={`${config.LMS_BASE_URL}/u/${username}`}>
               your profile →
@@ -54,7 +54,7 @@ const CompletedCourseCard = (props) => {
         </div>
       </div>
     ) : (
-      <p className="mb-3">
+      <p className="mb-3 mt-2 small">
         To earn a certificate,{' '}
         <a href={props.linkToCourse}>
           retake this course →
