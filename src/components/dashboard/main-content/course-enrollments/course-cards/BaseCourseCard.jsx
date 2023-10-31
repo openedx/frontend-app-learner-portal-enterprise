@@ -32,7 +32,6 @@ const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.assigned]: {
     variant: 'info',
     children: 'Assigned',
-    customClass: 'assigned-course-card-badge text-dark-900',
   },
 };
 
@@ -116,6 +115,11 @@ class BaseCourseCard extends Component {
         },
       },
     }));
+  };
+
+  isCourseEnded = () => {
+    const { endDate } = this.props;
+    return dayjs(endDate) < dayjs();
   };
 
   handleEmailSettingsButtonClick = () => {
