@@ -67,6 +67,7 @@ class CourseSection extends React.Component {
     notifications,
     courseRunStatus,
     isRevoked,
+    resumeCourseRunUrl,
     ...rest
   }) => {
     const courseRunProps = { courseRunStatus };
@@ -74,12 +75,15 @@ class CourseSection extends React.Component {
       case COURSE_STATUSES.inProgress:
         courseRunProps.linkToCertificate = linkToCertificate;
         courseRunProps.notifications = notifications;
+        courseRunProps.resumeCourseRunUrl = resumeCourseRunUrl;
         break;
       case COURSE_STATUSES.savedForLater:
         courseRunProps.isRevoked = isRevoked;
+        courseRunProps.resumeCourseRunUrl = resumeCourseRunUrl;
         break;
       case COURSE_STATUSES.completed:
         courseRunProps.linkToCertificate = linkToCertificate;
+        courseRunProps.resumeCourseRunUrl = resumeCourseRunUrl;
         break;
       default:
         break;

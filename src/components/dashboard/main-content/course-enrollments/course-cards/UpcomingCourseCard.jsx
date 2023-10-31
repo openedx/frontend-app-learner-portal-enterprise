@@ -7,7 +7,7 @@ import BaseCourseCard from './BaseCourseCard';
 
 const UpcomingCourseCard = (props) => {
   const renderButtons = () => (
-    <Button className="btn-xs-block" variant="light" disabled>
+    <Button className="btn-xs-block rounded-0" variant="light" disabled>
       Available on {dayjs(props.startDate).format('MMM D')}
     </Button>
   );
