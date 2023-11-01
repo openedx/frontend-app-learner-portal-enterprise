@@ -8,8 +8,12 @@ import { numberWithPrecision } from './data/utils';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { useIsCourseAssigned } from './data/hooks';
+import { features } from '../../config';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
+export const ASSIGNED_COURSE_MESSAGE = 'This course is assigned to you. The price of this course is already covered by your organization.';
 export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
 export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'This course can be purchased with your organization\'s learner credit';
 
@@ -20,7 +24,15 @@ const CourseSidebarPrice = () => {
     coursePrice,
     currency,
     subsidyRequestCatalogsApplicableToCourse,
+    state: {
+      course,
+    },
   } = useContext(CourseContext);
+  const {
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course.key);
+
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   if (!coursePrice) {
@@ -34,6 +46,17 @@ const CourseSidebarPrice = () => {
       <span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}
     </del>
   );
+
+  if (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && coursePrice && isCourseAssigned) {
+    return (
+      <>
+        <div>
+          {crossedOutOriginalPrice} <strong>$0</strong>
+        </div>
+        <span className="small">{ASSIGNED_COURSE_MESSAGE}</span>
+      </>
+    );
+  }
 
   // Case 1: License subsidy found
   if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {

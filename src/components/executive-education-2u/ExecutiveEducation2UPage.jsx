@@ -20,9 +20,23 @@ import CourseSummaryCard from './components/CourseSummaryCard';
 import RegistrationSummaryCard from './components/RegistrationSummaryCard';
 import { getActiveCourseRun, getCourseStartDate } from '../course/data/utils';
 import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from './utils';
+import { CourseContext } from '../course/CourseContextProvider';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { useIsCourseAssigned } from '../course/data/hooks';
+import { features } from '../../config';
 
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
+  const {
+    state: {
+      course,
+    },
+  } = useContext(CourseContext);
+  const {
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+
   const activeQueryParams = useActiveQueryParams();
   const history = useHistory();
 
@@ -30,7 +44,6 @@ const ExecutiveEducation2UPage = () => {
     const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
     return enterpriseConfig.enableExecutiveEducation2UFulfillment && hasRequiredQueryParams;
   }, [enterpriseConfig, activeQueryParams]);
-
   const { isLoadingContentMetadata: isLoading, contentMetadata } = useExecutiveEducation2UContentMetadata({
     courseUUID: activeQueryParams.get('course_uuid'),
     isExecEd2UFulfillmentEnabled,
@@ -134,7 +147,9 @@ const ExecutiveEducation2UPage = () => {
                     </strong>
                     &nbsp; Please ensure that the course details below are correct and confirm using Learner
                     Credit with a &quot;Confirm registration&quot; button.
-                    Your Learner Credit funds will be redeemed at this point.
+                    {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
+                      ? 'Your learning administrator already allocated funds towards this registration.'
+                      : 'Your Learner Credit funds will be redeemed at this point.'}
                   </p>
                 </Col>
               </Row>

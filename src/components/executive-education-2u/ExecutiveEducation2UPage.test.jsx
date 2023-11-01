@@ -12,6 +12,8 @@ import {
   useExecutiveEducation2UContentMetadata,
 } from './data';
 import { CURRENCY_USD, PAID_EXECUTIVE_EDUCATION } from '../course/data/constants';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { CourseContext } from '../course/CourseContextProvider';
 
 const mockReceiptPageUrl = 'https://edx.org';
 const courseTitle = 'edX Demonstration Course';
@@ -115,12 +117,35 @@ const initialAppContextValue = {
   },
 };
 
+const baseCourseContextValue = {
+  state: {
+    courseEntitlementProductSku: 'test-sku',
+    course: {
+      organizationShortCodeOverride: 'Test Org',
+      organizationLogoOverrideUrl: 'https://test.org/logo.png',
+    },
+  },
+  missingUserSubsidyReason: undefined,
+};
 const ExecutiveEducation2UPageWrapper = ({
   appContextValue = initialAppContextValue,
+  courseContextValue = baseCourseContextValue,
+  initialUserSubsidyState = {
+    subscriptionLicense: null,
+    couponCodes: {
+      couponCodes: [{ discountValue: 90 }],
+      couponCodesCount: 0,
+    },
+    redeemableLearnerCreditPolicies: [],
+  },
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <ExecutiveEducation2UPage />
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContext.Provider value={courseContextValue}>
+          <ExecutiveEducation2UPage />
+        </CourseContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );

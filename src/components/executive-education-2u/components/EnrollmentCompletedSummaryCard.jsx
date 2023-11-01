@@ -5,18 +5,32 @@ import {
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import GetSmarterLogo from '../../../assets/icons/get-smarter-logo-black.svg';
+import { CourseContext } from '../../course/CourseContextProvider';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { useIsCourseAssigned } from '../../course/data/hooks';
+import { features } from '../../../config';
 
 const EnrollmentCompletedSummaryCard = () => {
   const config = getConfig();
   const {
-    enterpriseConfig: { authOrgId },
+    enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
-
+  const {
+    state: {
+      course,
+    },
+  } = useContext(CourseContext);
+  const {
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
   const externalDashboardQueryParams = new URLSearchParams({
     org_id: authOrgId,
   });
   const externalDashboardQueryString = externalDashboardQueryParams ? `?${externalDashboardQueryParams.toString()}` : '';
   const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
+  const enterpriseDashboardLink = `/${slug}`;
+  const dashboardUrl = `${config.BASE_URL}${enterpriseDashboardLink}`;
 
   return (
     <Card className="bg-light-500">
@@ -39,10 +53,11 @@ const EnrollmentCompletedSummaryCard = () => {
               <div className="small mb-2 text-gray-500">
                 GetSmarter will email you when your course starts. Alternatively, you can visit your{' '}
                 <Hyperlink
-                  destination={externalDashboardUrl}
+                  destination={(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
+                    ? dashboardUrl : externalDashboardUrl}
                   target="_blank"
                 >
-                  GetSmarter learner dashboard
+                  {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) ? 'edX dashboard' : 'GetSmarter learner dashboard'}
                 </Hyperlink>
                 {' '}for course status updates.
               </div>
