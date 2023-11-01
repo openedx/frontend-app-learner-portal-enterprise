@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
 import { Modal, MailtoLink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -25,6 +24,7 @@ const SubscriptionExpirationModal = () => {
     enterpriseConfig,
     enterpriseConfig: { uuid: enterpriseId },
     config,
+    authenticatedUser: { username },
   } = useContext(AppContext);
   const { subscriptionPlan } = useContext(UserSubsidyContext);
   const { daysUntilExpiration, expirationDate, uuid: subscriptionPlanId } = subscriptionPlan;
@@ -53,14 +53,11 @@ const SubscriptionExpirationModal = () => {
     return contactText;
   };
 
-  const renderCertificateText = () => {
-    const { username } = getAuthenticatedUser();
-    return (
-      <a href={`${config.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
-        download your completed certificates
-      </a>
-    );
-  };
+  const renderCertificateText = () => (
+    <a href={`${config.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
+      download your completed certificates
+    </a>
+  );
 
   const renderBody = () => (
     <>

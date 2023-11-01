@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import { useParams, useLocation } from 'react-router-dom';
 
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Hyperlink } from '@edx/paragon';
 import { EnterprisePage } from '../enterprise-page';
@@ -19,7 +19,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   const { enterpriseSlug } = useParams();
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
-  const user = getAuthenticatedUser();
+  const { authenticatedUser: user } = useContext(AppContext);
 
   if (!user) {
     // if user is not authenticated, remove cookie that controls whether the user will see

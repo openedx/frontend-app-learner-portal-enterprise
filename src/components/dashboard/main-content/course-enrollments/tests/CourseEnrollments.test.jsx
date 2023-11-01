@@ -62,7 +62,7 @@ hooks.useCourseEnrollments.mockReturnValue({
 
 const renderEnrollmentsComponent = () => render(
   <IntlProvider locale="en">
-    <AppContext.Provider value={{ enterpriseConfig }}>
+    <AppContext.Provider value={{ enterpriseConfig, authenticatedUser: { username: 'test-username' } }}>
       <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
         <CourseEnrollmentsContextProvider>
           <CourseEnrollments />

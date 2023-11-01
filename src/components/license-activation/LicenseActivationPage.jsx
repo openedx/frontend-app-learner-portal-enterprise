@@ -3,7 +3,6 @@ import { Redirect, useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logInfo } from '@edx/frontend-platform/logging';
 import { Alert } from '@edx/paragon';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
@@ -15,7 +14,7 @@ import { useRenderContactHelpText } from '../../utils/hooks';
 export const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
 
 const LicenseActivationPage = () => {
-  const user = getAuthenticatedUser();
+  const { authenticatedUser: user } = useContext(AppContext);
   const { enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense } = useContext(UserSubsidyContext);
   const { activationKey } = useParams();

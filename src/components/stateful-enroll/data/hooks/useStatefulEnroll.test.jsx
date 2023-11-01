@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
+import { AppContext } from '@edx/frontend-platform/react';
 import useStatefulEnroll from './useStatefulEnroll';
 import * as hooks from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
@@ -14,10 +15,6 @@ const mockMutateAsync = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
   useMutation: jest.fn(() => ({ mutateAsync: mockMutateAsync })),
   useQuery: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  getAuthenticatedUser: jest.fn(() => ({ id: 123 })),
 }));
 
 jest.mock('../service', () => ({
@@ -51,6 +48,12 @@ describe('useStatefulEnroll', () => {
       });
     }
 
+    const wrapper = ({ children }) => (
+      <AppContext.Provider value={{ authenticatedUser: { id: 123 } }}>
+        {children}
+      </AppContext.Provider>
+    );
+
     const { result } = renderHook(() => useStatefulEnroll({
       contentKey: 'content_key',
       subsidyAccessPolicy: {
@@ -61,7 +64,7 @@ describe('useStatefulEnroll', () => {
       onBeginRedeem,
       userEnrollments,
       ...options,
-    }));
+    }), { wrapper });
 
     const { redeem } = result.current;
     await redeem({ metadata });

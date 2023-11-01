@@ -16,10 +16,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(() => ({})),
 }));
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ userId: TEST_USER_ID }),
-}));
 jest.mock('../LicenseActivation', () => ({
   __esModule: true,
   default: () => '<LicenseActivation />',
@@ -49,6 +45,9 @@ const LicenseActivationPageWithContext = ({
         uuid: TEST_ENTERPRISE_UUID,
         slug: TEST_ENTERPRISE_SLUG,
         name: 'Test Enterprise',
+      },
+      authenticatedUser: {
+        userId: TEST_USER_ID,
       },
     }}
   >

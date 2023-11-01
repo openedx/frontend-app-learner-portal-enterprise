@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   AvatarButton,
   Container,
@@ -6,7 +6,7 @@ import {
   Dropdown,
 } from '@edx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
 /**
@@ -18,7 +18,7 @@ import { getConfig } from '@edx/frontend-platform/config';
  */
 const ErrorPageHeader = () => {
   const config = getConfig();
-  const authenticatedUser = getAuthenticatedUser();
+  const { authenticatedUser } = useContext(AppContext);
   const { username, profileImage } = authenticatedUser || { username: '', profileImage: '' };
 
   return (

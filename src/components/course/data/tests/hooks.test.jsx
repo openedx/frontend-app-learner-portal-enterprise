@@ -65,9 +65,6 @@ const oldGlobalLocation = global.location;
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
-jest.mock('@edx/frontend-platform/auth', () => ({
-  getAuthenticatedUser: jest.fn(() => ({ id: mockLmsUserId })),
-}));
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => ({
@@ -872,9 +869,11 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
 
 describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   const wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <AppContext.Provider value={{ authenticatedUser: { id: mockLmsUserId } }}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </AppContext.Provider>
   );
 
   const baseArgs = {

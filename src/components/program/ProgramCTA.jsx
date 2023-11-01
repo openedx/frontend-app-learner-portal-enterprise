@@ -5,7 +5,6 @@ import { Dropdown } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useParams } from 'react-router-dom';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
 import { linkToCourse } from '../course/data/utils';
@@ -61,7 +60,7 @@ const ProgramCTA = () => {
 
   const programDuration = getProgramDuration(program);
   const availableCourses = getAvailableCourses();
-  const { userId } = getAuthenticatedUser();
+  const { authenticatedUser: { userId } } = useContext(AppContext);
 
   return (
     <div className={

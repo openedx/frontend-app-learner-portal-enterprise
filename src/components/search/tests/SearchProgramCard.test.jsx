@@ -12,11 +12,6 @@ import { TEST_ENTERPRISE_SLUG } from './constants';
 const userId = 'batman';
 const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne', userId }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
@@ -25,6 +20,7 @@ const SearchProgramCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
       enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
+      authenticatedUser: { username: 'b.wayne', userId },
     }}
   >
     <SearchProgramCard {...props} />
