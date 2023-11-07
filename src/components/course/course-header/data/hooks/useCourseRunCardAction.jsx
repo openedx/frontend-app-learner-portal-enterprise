@@ -1,11 +1,13 @@
 import { Stack, Button } from '@edx/paragon';
 
+import { useContext } from 'react';
 import StatefulEnroll from '../../../../stateful-enroll';
 import { COURSE_MODES_MAP } from '../../../data/constants';
 import ToExecutiveEducation2UEnrollment from '../../../enrollment/components/ToExecutiveEducation2UEnrollment';
 import { NavigateToCourseware } from '../../course-run-actions';
 import RedemptionStatusText from '../../RedemptionStatusText';
 import useRedemptionStatus from './useRedemptionStatus';
+import { ToastsContext } from '../../../../Toasts';
 
 /**
  * Checks whether the user's existing enrollment should be upgraded based on its mode and whether
@@ -45,6 +47,7 @@ const useCourseRunCardAction = ({
   contentKey,
   subsidyAccessPolicy,
   userCanRequestSubsidyForCourse,
+  course,
 }) => {
   const {
     redemptionStatus,
@@ -52,6 +55,15 @@ const useCourseRunCardAction = ({
     handleRedeemSuccess,
     handleRedeemError,
   } = useRedemptionStatus();
+
+  const { addToast } = useContext(ToastsContext);
+
+  const handleRedemptionSuccess = (transaction) => {
+    if (!externalCourseEnrollmentUrl) {
+      addToast(`You Enrolled in ${course.title}.`);
+    }
+    handleRedeemSuccess(transaction);
+  };
 
   if (isUserEnrolled) {
     const shouldUpgradeUserEnrollment = checkUserEnrollmentUpgradeEligibility({
@@ -100,7 +112,7 @@ const useCourseRunCardAction = ({
         subsidyAccessPolicy={subsidyAccessPolicy}
         contentKey={contentKey}
         onClick={handleRedeemClick}
-        onSuccess={handleRedeemSuccess}
+        onSuccess={handleRedemptionSuccess}
         onError={handleRedeemError}
       />
       <RedemptionStatusText redemptionStatus={redemptionStatus} />

@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Button } from '@edx/paragon';
+import { AppContext } from '@edx/frontend-platform/react';
+import { Link } from 'react-router-dom';
 import BaseCourseCard from './BaseCourseCard';
 
 import { COURSE_STATUSES } from '../data';
 import dayjs from '../../../../../utils/dayjs';
 
 const AssignedCourseCard = (props) => {
+  const { enterpriseConfig } = useContext(AppContext);
+  const { courseId } = props;
+
   const renderButtons = () => (
-    <Button className="btn-xs-block" variant="brand">
+    <Button
+      as={Link}
+      to={`/${enterpriseConfig.enterpriseSlug}/course/${courseId}`}
+      className="btn-xs-block"
+      variant="brand"
+    >
       Enroll
     </Button>
   );
@@ -52,5 +62,7 @@ AssignedCourseCard.defaultProps = {
   startDate: null,
   mode: null,
 };
+
+AssignedCourseCard.contextType = AppContext;
 
 export default AssignedCourseCard;
