@@ -86,6 +86,7 @@ CourseSummaryCard.propTypes = {
       logoImgUrl: PropTypes.string,
     }).isRequired,
     title: PropTypes.string.isRequired,
+    key: PropTypes.string.isRequired,
     startDate: PropTypes.string.isRequired,
     duration: PropTypes.string.isRequired,
     priceDetails: PropTypes.shape({

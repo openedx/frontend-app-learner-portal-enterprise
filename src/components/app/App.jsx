@@ -21,6 +21,7 @@ import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ExecutiveEducation2UPage } from '../executive-education-2u';
 import { ToastsProvider, Toasts } from '../Toasts';
 import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
+import { UserSubsidy } from '../enterprise-user-subsidy';
 
 // Create a query client for @tanstack/react-query
 const queryClient = new QueryClient();
@@ -60,7 +61,9 @@ const App = () => {
                 path="/:enterpriseSlug/executive-education-2u"
                 render={(routeProps) => (
                   <AuthenticatedPage>
-                    <ExecutiveEducation2UPage {...routeProps} />
+                    <UserSubsidy>
+                      <ExecutiveEducation2UPage {...routeProps} />
+                    </UserSubsidy>
                   </AuthenticatedPage>
                 )}
               />
@@ -69,7 +72,9 @@ const App = () => {
                 path="/:enterpriseSlug/executive-education-2u/enrollment-completed"
                 render={(routeProps) => (
                   <AuthenticatedPage>
-                    <EnrollmentCompleted {...routeProps} />
+                    <UserSubsidy>
+                      <EnrollmentCompleted {...routeProps} />
+                    </UserSubsidy>
                   </AuthenticatedPage>
                 )}
               />

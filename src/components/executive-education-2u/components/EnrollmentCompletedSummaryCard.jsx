@@ -1,36 +1,31 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import {
   Card, Col, Hyperlink, Row,
 } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import GetSmarterLogo from '../../../assets/icons/get-smarter-logo-black.svg';
-import { CourseContext } from '../../course/CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { useIsCourseAssigned } from '../../course/data/hooks';
 import { features } from '../../../config';
 
-const EnrollmentCompletedSummaryCard = () => {
+const EnrollmentCompletedSummaryCard = ({ courseKey }) => {
   const config = getConfig();
   const {
     enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
   const {
-    state: {
-      course,
-    },
-  } = useContext(CourseContext);
-  const {
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, courseKey);
   const externalDashboardQueryParams = new URLSearchParams({
     org_id: authOrgId,
   });
   const externalDashboardQueryString = externalDashboardQueryParams ? `?${externalDashboardQueryParams.toString()}` : '';
   const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
-  const enterpriseDashboardLink = `/${slug}`;
-  const dashboardUrl = `${config.BASE_URL}${enterpriseDashboardLink}`;
+  const enterpriseSlug = `/${slug}`;
+  const dashboardUrl = `${config.BASE_URL}${enterpriseSlug}`;
 
   return (
     <Card className="bg-light-500">
@@ -85,6 +80,10 @@ const EnrollmentCompletedSummaryCard = () => {
       </Row>
     </Card>
   );
+};
+
+EnrollmentCompletedSummaryCard.propTypes = {
+  courseKey: PropTypes.string.isRequired,
 };
 
 export default EnrollmentCompletedSummaryCard;

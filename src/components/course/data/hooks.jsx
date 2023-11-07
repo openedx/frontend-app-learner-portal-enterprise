@@ -838,10 +838,10 @@ export const useExternalEnrollmentFailureReason = () => {
   ]);
 };
 
-export const useIsCourseAssigned = (assignments, courseKey) => {
-  if (!assignments) { return false; }
+export const useIsCourseAssigned = (redeemableLCPolicies, courseKey) => {
+  if (!redeemableLCPolicies || redeemableLCPolicies.length < 1) { return false; }
 
-  const learnerContentAssignmentsArray = assignments.flatMap(item => item?.learnerContentAssignments || []);
+  const learnerContentAssignmentsArray = redeemableLCPolicies.flatMap(item => item?.learnerContentAssignments || []);
   if (!learnerContentAssignmentsArray) { return false; }
 
   return learnerContentAssignmentsArray.some(assignment => assignment?.contentKey === courseKey);

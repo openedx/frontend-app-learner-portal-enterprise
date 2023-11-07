@@ -20,7 +20,6 @@ import CourseSummaryCard from './components/CourseSummaryCard';
 import RegistrationSummaryCard from './components/RegistrationSummaryCard';
 import { getActiveCourseRun, getCourseStartDate } from '../course/data/utils';
 import { getCourseOrganizationDetails, getExecutiveEducationCoursePrice } from './utils';
-import { CourseContext } from '../course/CourseContextProvider';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { useIsCourseAssigned } from '../course/data/hooks';
 import { features } from '../../config';
@@ -28,15 +27,8 @@ import { features } from '../../config';
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
-    state: {
-      course,
-    },
-  } = useContext(CourseContext);
-  const {
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
-
   const activeQueryParams = useActiveQueryParams();
   const history = useHistory();
 
@@ -48,7 +40,6 @@ const ExecutiveEducation2UPage = () => {
     courseUUID: activeQueryParams.get('course_uuid'),
     isExecEd2UFulfillmentEnabled,
   });
-
   useEffect(() => {
     if (!enterpriseConfig.enableExecutiveEducation2UFulfillment) {
       logError(`Enterprise ${enterpriseConfig.uuid} does not have executive education (2U) fulfillment enabled.`);
@@ -68,6 +59,7 @@ const ExecutiveEducation2UPage = () => {
     sku: activeQueryParams.get('sku'),
   };
 
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, contentMetadata?.key);
   const courseMetadata = useMemo(() => {
     if (contentMetadata) {
       const activeCourseRun = getActiveCourseRun(contentMetadata);
@@ -90,6 +82,7 @@ const ExecutiveEducation2UPage = () => {
           marketingUrl: organizationDetails.organizationMarketingUrl,
         },
         title: contentMetadata.title,
+        key: contentMetadata.key,
         startDate: getCourseStartDate({ contentMetadata, courseRun: activeCourseRun }),
         duration: getDuration(),
         priceDetails: getExecutiveEducationCoursePrice(contentMetadata),
