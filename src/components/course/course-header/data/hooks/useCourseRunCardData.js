@@ -57,6 +57,7 @@ const useCourseRunCardData = ({
     contentKey,
     subsidyAccessPolicy,
     userCanRequestSubsidyForCourse,
+    course,
   });
 
   return {
