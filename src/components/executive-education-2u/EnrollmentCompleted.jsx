@@ -23,7 +23,9 @@ const EnrollmentCompleted = () => {
           courseMetadata={location.state.data}
           enrollmentCompleted
         />
-        <EnrollmentCompletedSummaryCard />
+        <EnrollmentCompletedSummaryCard
+          courseKey={location?.state?.data?.key}
+        />
       </Container>
     </div>
   );

@@ -837,3 +837,12 @@ export const useExternalEnrollmentFailureReason = () => {
     hasSuccessfulRedemption,
   ]);
 };
+
+export const useIsCourseAssigned = (redeemableLCPolicies, courseKey) => {
+  if (!redeemableLCPolicies || redeemableLCPolicies.length < 1) { return false; }
+
+  const learnerContentAssignmentsArray = redeemableLCPolicies.flatMap(item => item?.learnerContentAssignments || []);
+  if (!learnerContentAssignmentsArray) { return false; }
+
+  return learnerContentAssignmentsArray.some(assignment => assignment?.contentKey === courseKey);
+};
