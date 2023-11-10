@@ -13,6 +13,7 @@ import algoliasearch from 'algoliasearch/lite';
 import { AppContext } from '@edx/frontend-platform/react';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
+import { useAlgoliaSearch } from "../../utils/hooks";
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -26,16 +27,7 @@ const CategoryCard = ({ topCategory }) => {
 
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
-  const courseIndex = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      return client.initIndex(config.ALGOLIA_INDEX_NAME);
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
-  );
+  const [courseIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME);
 
   const filterRenderableSkills = (skills) => {
     const renderableSkills = [];

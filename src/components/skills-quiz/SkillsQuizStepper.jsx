@@ -38,6 +38,7 @@ import {
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
+import { useAlgoliaSearch } from "../../utils/hooks";
 import TopSkillsOverview from './TopSkillsOverview';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
@@ -48,18 +49,9 @@ import { fetchCourseEnrollments } from './data/service';
 const SkillsQuizStepper = () => {
   const config = getConfig();
   const { userId } = getAuthenticatedUser();
-  const [searchClient, courseIndex, jobIndex] = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-      const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
-      return [client, cIndex, jIndex];
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_INDEX_NAME_JOBS, config.ALGOLIA_SEARCH_API_KEY],
-  );
+  const [courseIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME);
+  const [jobSearchClient, jobIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME_JOBS);
+
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
   const handleIsStudentCheckedChange = e => setIsStudentChecked(e.target.checked);
@@ -198,7 +190,7 @@ const SkillsQuizStepper = () => {
                   <div>
                     <InstantSearch
                       indexName={config.ALGOLIA_INDEX_NAME_JOBS}
-                      searchClient={searchClient}
+                      searchClient={jobSearchClient}
                     >
                       <Configure
                         facetingAfterDistinct
