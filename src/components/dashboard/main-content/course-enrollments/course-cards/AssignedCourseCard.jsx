@@ -50,6 +50,7 @@ AssignedCourseCard.defaultProps = {
   isRevoked: false,
   startDate: null,
   mode: null,
+  linkToCourse: null,
 };
 
 export default AssignedCourseCard;
