@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Collapsible } from '@edx/paragon';
+import { Badge, Collapsible } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -33,11 +33,27 @@ class CourseSection extends React.Component {
     };
   }
 
+  getCoursesCount = (isOpen, title, coursesCount) => {
+    if (!isOpen) {
+      if (title === 'Assigned Courses') {
+        return <sup><Badge pill variant="danger">{coursesCount}</Badge></sup>;
+      }
+      return `(${coursesCount})`;
+    }
+    return null;
+  };
+
   getFormattedSectionTitle = () => {
     const { isOpen } = this.state;
     const { courseRuns, title } = this.props;
-    const sectionTitle = isOpen ? title : `${title} (${courseRuns.length})`;
-    return <h3>{sectionTitle}</h3>;
+    const sectionTitle = isOpen ? title : `${title} `;
+    const coursesCount = this.getCoursesCount(isOpen, title, courseRuns.length);
+    return (
+      <h3>
+        {sectionTitle}
+        {coursesCount}
+      </h3>
+    );
   };
 
   getFormattedOptionalSubtitle = () => {

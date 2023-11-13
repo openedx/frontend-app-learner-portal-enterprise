@@ -1,16 +1,21 @@
-import React, { useContext, useMemo } from 'react';
+import React, {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 
 import PropTypes from 'prop-types';
 import CourseSection from './CourseSection';
 
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
-import { sortedEnrollmentsByEnrollmentDate } from './data/utils';
+import { gettransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate } from './data/utils';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { features } from '../../../../config';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
   completed: 'Completed courses',
   savedForLater: 'Saved for later',
+  assigned: 'Assigned Courses',
 };
 
 const CourseEnrollments = ({ children }) => {
@@ -22,19 +27,41 @@ const CourseEnrollments = ({ children }) => {
     setShowMarkCourseCompleteSuccess,
     setShowMoveToInProgressCourseSuccess,
   } = useContext(CourseEnrollmentsContext);
+  const {
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
+
+  const [assignments, setAssignments] = useState([]);
+  useEffect(() => {
+    const data = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
+    setAssignments(data);
+  }, [redeemableLearnerCreditPolicies]);
+
+  const allocatedAssignments = assignments?.filter((assignment) => assignment?.state === 'allocated');
+  const assignedCourses = gettransformedAllocatedAssignments(allocatedAssignments);
 
   const currentCourseEnrollments = useMemo(
-    () => sortedEnrollmentsByEnrollmentDate(
-      [
-        ...courseEnrollmentsByStatus.inProgress,
-        ...courseEnrollmentsByStatus.upcoming,
-        ...courseEnrollmentsByStatus.requested,
-      ],
-    ),
+    () => {
+      Object.keys(courseEnrollmentsByStatus).forEach((status) => {
+        courseEnrollmentsByStatus[status] = courseEnrollmentsByStatus[status].map((course) => {
+          const isAssigned = assignments?.some(assignment => course.courseRunId.includes(assignment?.contentKey));
+          if (isAssigned) {
+            return { ...course, isCourseAssigned: true };
+          }
+          return course;
+        });
+      });
+      return sortedEnrollmentsByEnrollmentDate(
+        [
+          ...courseEnrollmentsByStatus.inProgress,
+          ...courseEnrollmentsByStatus.upcoming,
+          ...courseEnrollmentsByStatus.requested,
+        ],
+      );
+    },
     [
-      courseEnrollmentsByStatus.inProgress,
-      courseEnrollmentsByStatus.upcoming,
-      courseEnrollmentsByStatus.requested,
+      assignments,
+      courseEnrollmentsByStatus,
     ],
   );
 
@@ -57,6 +84,7 @@ const CourseEnrollments = ({ children }) => {
   }
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
+  const hasCourseAssignments = allocatedAssignments?.length > 0;
 
   return (
     <>
@@ -75,8 +103,14 @@ const CourseEnrollments = ({ children }) => {
           This allows the parent component to customize what
           gets displayed if the user does not have any course enrollments.
       */}
-      {!hasCourseEnrollments && children}
+      {(!hasCourseEnrollments && !hasCourseAssignments) && children}
       <>
+        {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
+          <CourseSection
+            title={COURSE_SECTION_TITLES.assigned}
+            courseRuns={assignedCourses}
+          />
+        )}
         <CourseSection
           title={COURSE_SECTION_TITLES.current}
           courseRuns={currentCourseEnrollments}
