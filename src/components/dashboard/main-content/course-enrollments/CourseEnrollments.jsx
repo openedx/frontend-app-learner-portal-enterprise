@@ -3,11 +3,12 @@ import React, {
 } from 'react';
 
 import PropTypes from 'prop-types';
+import { AppContext } from '@edx/frontend-platform/react';
 import CourseSection from './CourseSection';
 
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
-import { gettransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate } from './data/utils';
+import { getTransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate } from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
 
@@ -28,6 +29,11 @@ const CourseEnrollments = ({ children }) => {
     setShowMoveToInProgressCourseSuccess,
   } = useContext(CourseEnrollmentsContext);
   const {
+    enterpriseConfig: {
+      slug,
+    },
+  } = useContext(AppContext);
+  const {
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
 
@@ -38,7 +44,7 @@ const CourseEnrollments = ({ children }) => {
   }, [redeemableLearnerCreditPolicies]);
 
   const allocatedAssignments = assignments?.filter((assignment) => assignment?.state === 'allocated');
-  const assignedCourses = gettransformedAllocatedAssignments(allocatedAssignments);
+  const assignedCourses = getTransformedAllocatedAssignments(allocatedAssignments, slug);
 
   const currentCourseEnrollments = useMemo(
     () => {

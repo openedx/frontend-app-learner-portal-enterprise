@@ -85,10 +85,10 @@ export const transformSubsidyRequest = ({
   notifications: [], // required prop by CourseSection
 });
 
-export const gettransformedAllocatedAssignments = (assignments) => {
+export const getTransformedAllocatedAssignments = (assignments, slug) => {
   if (!assignments) { return assignments; }
   const updatedAssignments = assignments?.map((item) => ({
-    linkToCourse: null,
+    linkToCourse: `${slug}/course/${item.contentKey}`,
     courseRunId: item.contentKey,
     title: item.contentTitle,
     isRevoked: false,
