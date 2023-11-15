@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
@@ -7,6 +7,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import AssignedCourseCard from '../AssignedCourseCard';
 import { UserSubsidyContext } from '../../../../../enterprise-user-subsidy';
+import { renderWithRouter } from '../../../../../../utils/tests';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -17,10 +18,11 @@ jest.mock('@edx/frontend-platform/auth');
 getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 const basicProps = {
-  courseRunStatus: 'upcoming',
   title: 'edX Demonstration Course',
   linkToCourse: 'https://edx.org',
+  courseStatus: 'upcoming',
   courseRunId: 'my+course+key',
+  courseKey: 'my+course+key',
   notifications: [],
   mode: 'executive-education',
 };
@@ -57,7 +59,7 @@ const AssignedCourseCardWrapper = ({
 
 describe('<AssignedCourseCard />', () => {
   it('should render enroll button and other related content', () => {
-    render(<AssignedCourseCardWrapper
+    renderWithRouter(<AssignedCourseCardWrapper
       {...basicProps}
       upgradeableCourseEnrollmentContextValue={
         {
