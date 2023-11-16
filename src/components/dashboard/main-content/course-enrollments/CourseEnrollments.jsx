@@ -18,6 +18,11 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
   assigned: 'Assigned Courses',
 };
+export const ASSIGNMENT_TYPES = {
+  accepted: 'accepted',
+  allocated: 'allocated',
+  cancelled: 'cancelled',
+};
 
 const CourseEnrollments = ({ children }) => {
   const {
@@ -43,14 +48,16 @@ const CourseEnrollments = ({ children }) => {
     setAssignments(data);
   }, [redeemableLearnerCreditPolicies]);
 
-  const allocatedAssignments = assignments?.filter((assignment) => assignment?.state === 'allocated');
+  const allocatedAssignments = assignments?.filter((assignment) => assignment?.state === ASSIGNMENT_TYPES.allocated
+    || assignment?.state === ASSIGNMENT_TYPES.cancelled);
   const assignedCourses = getTransformedAllocatedAssignments(allocatedAssignments, slug);
 
   const currentCourseEnrollments = useMemo(
     () => {
       Object.keys(courseEnrollmentsByStatus).forEach((status) => {
         courseEnrollmentsByStatus[status] = courseEnrollmentsByStatus[status].map((course) => {
-          const isAssigned = assignments?.some(assignment => course.courseRunId.includes(assignment?.contentKey));
+          const isAssigned = assignments?.some(assignment => (assignment?.state === ASSIGNMENT_TYPES.accepted
+            && course.courseRunId.includes(assignment?.contentKey)));
           if (isAssigned) {
             return { ...course, isCourseAssigned: true };
           }

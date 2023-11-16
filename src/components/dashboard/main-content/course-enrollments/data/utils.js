@@ -88,11 +88,11 @@ export const transformSubsidyRequest = ({
 export const getTransformedAllocatedAssignments = (assignments, slug) => {
   if (!assignments) { return assignments; }
   const updatedAssignments = assignments?.map((item) => ({
-    linkToCourse: `${slug}/course/${item.contentKey}`,
-    courseRunId: item.contentKey,
+    linkToCourse: `/${slug}/course/${item.contentKey}`,
+    courseKey: item.contentKey,
     title: item.contentTitle,
     isRevoked: false,
-    courseRunStatus: 'assigned',
+    courseRunStatus: COURSE_STATUSES.assigned,
     endDate: item?.contentMetadata?.endDate,
     startDate: item?.contentMetadata?.startDate,
     mode: item?.contentMetadata?.courseType,
