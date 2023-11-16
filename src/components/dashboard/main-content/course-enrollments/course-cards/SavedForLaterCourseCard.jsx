@@ -21,7 +21,6 @@ const SavedForLaterCourseCard = (props) => {
     isRevoked,
     startDate,
     mode,
-    resumeCourseRunUrl,
   } = props;
   const {
     updateCourseEnrollmentStatus,
@@ -105,7 +104,6 @@ const SavedForLaterCourseCard = (props) => {
         courseRunId={courseRunId}
         mode={mode}
         startDate={startDate}
-        resumeCourseRunUrl={resumeCourseRunUrl}
       />
     );
   };
@@ -142,7 +140,6 @@ SavedForLaterCourseCard.propTypes = {
   endDate: PropTypes.string,
   startDate: PropTypes.string,
   mode: PropTypes.string,
-  resumeCourseRunUrl: PropTypes.string,
 };
 
 SavedForLaterCourseCard.defaultProps = {
@@ -150,7 +147,6 @@ SavedForLaterCourseCard.defaultProps = {
   endDate: null,
   startDate: null,
   mode: null,
-  resumeCourseRunUrl: null,
 };
 
 export default SavedForLaterCourseCard;

@@ -19,7 +19,6 @@ const CompletedCourseCard = (props) => {
     startDate,
     endDate,
     mode,
-    resumeCourseRunUrl,
   } = props;
   const config = getConfig();
 
@@ -35,7 +34,6 @@ const CompletedCourseCard = (props) => {
         courseRunId={courseRunId}
         mode={mode}
         startDate={startDate}
-        resumeCourseRunUrl={resumeCourseRunUrl}
       />
     );
   };
@@ -88,7 +86,6 @@ CompletedCourseCard.propTypes = {
   endDate: PropTypes.string,
   startDate: PropTypes.string,
   mode: PropTypes.string,
-  resumeCourseRunUrl: PropTypes.string,
 };
 
 CompletedCourseCard.defaultProps = {
@@ -96,7 +93,6 @@ CompletedCourseCard.defaultProps = {
   endDate: null,
   startDate: null,
   mode: null,
-  resumeCourseRunUrl: null,
 };
 
 export default CompletedCourseCard;

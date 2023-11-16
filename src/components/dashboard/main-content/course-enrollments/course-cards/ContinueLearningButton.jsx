@@ -24,7 +24,6 @@ const ContinueLearningButton = ({
   courseRunId,
   startDate,
   mode,
-  resumeCourseRunUrl,
 }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
@@ -68,7 +67,6 @@ ContinueLearningButton.defaultProps = {
   className: null,
   startDate: null,
   mode: null,
-  resumeCourseRunUrl: null,
 };
 
 ContinueLearningButton.propTypes = {
@@ -78,7 +76,6 @@ ContinueLearningButton.propTypes = {
   courseRunId: PropTypes.string.isRequired,
   startDate: PropTypes.string,
   mode: PropTypes.string,
-  resumeCourseRunUrl: PropTypes.string,
 };
 
 export default ContinueLearningButton;

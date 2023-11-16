@@ -41,6 +41,7 @@ export const transformCourseEnrollment = (rawCourseEnrollment) => {
   // Delete renamed/unused fields
   delete courseEnrollment.displayName;
   delete courseEnrollment.micromastersTitle;
+  delete courseEnrollment.resumeCourseRunUrl;
   delete courseEnrollment.courseRunUrl;
   delete courseEnrollment.certificateDownloadUrl;
   delete courseEnrollment.emailsEnabled;
