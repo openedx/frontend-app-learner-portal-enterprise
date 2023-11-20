@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import classNames from 'classnames';
+import { Button, Hyperlink } from '@edx/paragon';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
@@ -38,30 +39,32 @@ const ContinueLearningButton = ({
 
   const isCourseStarted = () => dayjs(startDate) <= dayjs();
   const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
-  const execClassName = (isExecutiveEducation2UCourse) && (!isCourseStarted()) ? ' disabled btn-outline-secondary' : undefined;
+  const disabled = !isCourseStarted() ? 'disabled' : undefined;
+  const variant = isExecutiveEducation2UCourse ? 'inverse-primary' : 'primary';
 
   const renderContent = () => {
-    if (isExecutiveEducation2UCourse && !isCourseStarted() && startDate) {
-      const formattedStartDate = dayjs(startDate).format('MMM D, YYYY');
-      return `Available on ${formattedStartDate}`;
+    if (!isCourseStarted() && startDate) {
+      return 'Start course';
     }
     return 'Resume';
   };
 
   return (
-    <a
-      className={classNames('btn btn-xs-block', execClassName, className)}
-      href={linkToCourse}
+    <Button
+      as={Hyperlink}
+      destination={linkToCourse}
+      className={classNames('btn-xs-block', disabled, className)}
       onClick={onClickHandler}
+      variant={variant}
     >
       {renderContent()}
       <span className="sr-only">for {title}</span>
-    </a>
+    </Button>
   );
 };
 
 ContinueLearningButton.defaultProps = {
-  className: 'btn-outline-primary',
+  className: null,
   startDate: null,
   mode: null,
 };
