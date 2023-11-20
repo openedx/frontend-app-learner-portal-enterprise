@@ -35,13 +35,13 @@ const AssignedCourseCard = (props) => {
 };
 
 AssignedCourseCard.propTypes = {
-  linkToCourse: PropTypes.string.isRequired,
   courseKey: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   isRevoked: PropTypes.bool,
-  courseStatus: PropTypes.string.isRequired,
+  courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
   startDate: PropTypes.string,
+  linkToCourse: PropTypes.string.isRequired,
   mode: PropTypes.string,
 };
 
