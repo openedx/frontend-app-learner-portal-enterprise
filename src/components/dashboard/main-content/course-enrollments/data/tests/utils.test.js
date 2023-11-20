@@ -1,7 +1,10 @@
 import { camelCaseObject } from '@edx/frontend-platform';
 
 import { COURSE_STATUSES } from '../constants';
-import { transformCourseEnrollment, groupCourseEnrollmentsByStatus, transformSubsidyRequest } from '../utils';
+import {
+  transformCourseEnrollment, groupCourseEnrollmentsByStatus, transformSubsidyRequest, isAssignmentExpired,
+  sortAssignmentsByAssignmentStatus,
+} from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 
 describe('transformCourseEnrollment', () => {
@@ -110,5 +113,53 @@ describe('groupCourseEnrollmentsByStatus', () => {
         assigned: [],
       },
     );
+  });
+});
+
+describe('isAssignmentExpired', () => {
+  const currentDate = new Date();
+  const futureDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24 * 10); // 10 days in the future
+  const pastDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24 * 10); // 10 days in the past
+
+  it('checks if an allocated assignment is not expired', () => {
+    const allocatedAssignment = {
+      actions: [{ actionType: 'allocated', completedAt: pastDate }],
+      contentMetadata: { enrollByDate: futureDate },
+      subsidyExpirationDate: futureDate,
+    };
+    expect(isAssignmentExpired(allocatedAssignment)).toBe(false);
+  });
+
+  it('checks if an allocated assignment is expired', () => {
+    const expiredAssignment = {
+      actions: [{ actionType: 'allocated', completedAt: pastDate }],
+      contentMetadata: { enrollByDate: pastDate },
+      subsidyExpirationDate: pastDate,
+    };
+    expect(isAssignmentExpired(expiredAssignment)).toBe(true);
+  });
+});
+
+describe('sortAssignmentsByAssignmentStatus', () => {
+  it('sorts assignments by status (cancelled or expired)', () => {
+    const cancelledAssignment = {
+      state: 'cancelled',
+    };
+
+    const validAssignment = {
+      state: 'allocated',
+    };
+
+    const expectedSortedAssignments = [
+      validAssignment,
+      cancelledAssignment,
+    ];
+
+    const sortedAssignments = sortAssignmentsByAssignmentStatus([
+      cancelledAssignment,
+      validAssignment,
+    ]);
+
+    expect(sortedAssignments).toEqual(expectedSortedAssignments);
   });
 });

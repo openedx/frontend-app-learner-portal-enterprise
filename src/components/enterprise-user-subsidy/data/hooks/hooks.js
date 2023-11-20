@@ -19,6 +19,7 @@ import {
 } from '../service';
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
+import { transformRedeemablePoliciesData } from '../utils';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -251,7 +252,7 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
   const userID = queryKey[2];
   try {
     const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
-    return camelCaseObject(response.data);
+    return camelCaseObject(transformRedeemablePoliciesData(response.data));
   } catch (error) {
     logError(error);
     return [];

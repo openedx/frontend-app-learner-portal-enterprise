@@ -4,19 +4,21 @@ import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Link } from 'react-router-dom';
+import classNames from 'classnames';
 import BaseCourseCard from './BaseCourseCard';
 
 import { COURSE_STATUSES } from '../data';
 
 const AssignedCourseCard = (props) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { courseKey } = props;
+  const { courseKey, isCancelledAssignment, isExpiredAssignment } = props;
+  const disabled = (isCancelledAssignment || isExpiredAssignment) && 'disabled';
 
   const renderButtons = () => (
     <Button
       as={Link}
       to={`/${enterpriseConfig.slug}/course/${courseKey}`}
-      className="btn-xs-block"
+      className={classNames('btn-xs-block', disabled)}
       variant="inverse-brand"
     >
       Enroll
@@ -43,6 +45,8 @@ AssignedCourseCard.propTypes = {
   startDate: PropTypes.string,
   linkToCourse: PropTypes.string.isRequired,
   mode: PropTypes.string,
+  isCancelledAssignment: PropTypes.bool,
+  isExpiredAssignment: PropTypes.bool,
 };
 
 AssignedCourseCard.defaultProps = {
@@ -50,6 +54,8 @@ AssignedCourseCard.defaultProps = {
   isRevoked: false,
   startDate: null,
   mode: null,
+  isCancelledAssignment: false,
+  isExpiredAssignment: false,
 };
 
 export default AssignedCourseCard;
