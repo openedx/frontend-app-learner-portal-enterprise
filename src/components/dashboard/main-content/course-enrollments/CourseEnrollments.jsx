@@ -7,8 +7,12 @@ import { AppContext } from '@edx/frontend-platform/react';
 import CourseSection from './CourseSection';
 
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
+import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
-import { getTransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate } from './data/utils';
+import {
+  getTransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate, sortAssignmentsByAssignmentStatus,
+  isAssignmentExpired,
+} from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
 
@@ -43,9 +47,19 @@ const CourseEnrollments = ({ children }) => {
   } = useContext(UserSubsidyContext);
 
   const [assignments, setAssignments] = useState([]);
+  const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(true);
+  const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(true);
+
   useEffect(() => {
     const data = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-    setAssignments(data);
+    const assignmentsData = sortAssignmentsByAssignmentStatus(data);
+    setAssignments(assignmentsData);
+
+    const hasCancelledAssignments = assignmentsData.some(assignment => assignment.state === 'cancelled');
+    const hasExpiredAssignments = assignmentsData.some(assignment => isAssignmentExpired(assignment));
+
+    setShowCancelledAssignmentsAlert(hasCancelledAssignments);
+    setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
 
   const allocatedAssignments = assignments?.filter((assignment) => assignment?.state === ASSIGNMENT_TYPES.allocated
@@ -101,6 +115,12 @@ const CourseEnrollments = ({ children }) => {
 
   return (
     <>
+      {showCancelledAssignmentsAlert && (
+        <CourseAssignmentAlert variant="cancelled" onClose={() => setShowCancelledAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      )}
+      {showExpiredAssignmentsAlert && (
+        <CourseAssignmentAlert variant="expired" onClose={() => setShowExpiredAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      )}
       {showMarkCourseCompleteSuccess && (
         <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>
           Your course was saved for later.

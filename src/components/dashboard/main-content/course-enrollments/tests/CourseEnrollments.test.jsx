@@ -23,6 +23,7 @@ import CourseEnrollmentsContextProvider from '../CourseEnrollmentsContextProvide
 import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
+import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -75,9 +76,15 @@ const renderEnrollmentsComponent = () => render(
   </IntlProvider>,
 );
 
+jest.mock('../data/utils', () => ({
+  ...jest.requireActual('../data/utils'),
+  sortAssignmentsByAssignmentStatus: jest.fn(),
+}));
+
 describe('Course enrollments', () => {
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
+    sortAssignmentsByAssignmentStatus.mockReturnValue([]);
   });
 
   afterEach(() => {
