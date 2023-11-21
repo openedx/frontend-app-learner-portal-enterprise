@@ -1,5 +1,5 @@
 import React, {
-  useContext, useMemo, useEffect,
+  useContext, useEffect,
 } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -9,7 +9,6 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useToggle, Stack } from '@edx/paragon';
 
-import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE,
@@ -41,6 +40,7 @@ import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
 import { POLICY_TYPES } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
+import { useAlgoliaSearch } from '../../utils/hooks';
 
 const Search = () => {
   const config = getConfig();
@@ -85,17 +85,7 @@ const Search = () => {
   const enterpriseUUID = enterpriseConfig.uuid;
   const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseUUID);
 
-  const courseIndex = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-      return cIndex;
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
-  );
+  const [, courseIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME);
 
   // If a pathwayUUID exists, open the pathway modal.
   useEffect(() => {

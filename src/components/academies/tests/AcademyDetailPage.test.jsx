@@ -74,7 +74,7 @@ getAuthenticatedHttpClient.mockReturnValue(axios);
 axiosMock.onGet(ACADEMY_API_ENDPOINT).reply(200, ACADEMY_MOCK_DATA);
 
 // Mock the 'algoliasearch' module
-jest.mock('algoliasearch/lite', () => {
+jest.mock('algoliasearch', () => {
   // Mock the 'initIndex' function
   const mockInitIndex = jest.fn(() => {
     // Mock the 'search' function of the index
