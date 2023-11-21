@@ -40,9 +40,10 @@ const CourseAbout = () => {
   );
 
   const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
-  if (!isCourseAssigned && !featuredHideCourseSearch) {
+  if (!isCourseAssigned && featuredHideCourseSearch) {
     return <Redirect to={`/${enterpriseConfig.slug}`} />;
   }
+
   return (
     <>
       <CourseHeader />
