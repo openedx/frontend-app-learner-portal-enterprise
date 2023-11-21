@@ -40,7 +40,7 @@ const ContinueLearningButton = ({
   const isCourseStarted = () => dayjs(startDate) <= dayjs();
   const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
   const disabled = !isCourseStarted() ? 'disabled' : undefined;
-  const variant = isExecutiveEducation2UCourse ? 'inverse-primary' : 'primary';
+  const variant = isExecutiveEducation2UCourse ? 'inverse-primary' : 'outline-primary';
 
   const renderContent = () => {
     if (!isCourseStarted() && startDate) {
