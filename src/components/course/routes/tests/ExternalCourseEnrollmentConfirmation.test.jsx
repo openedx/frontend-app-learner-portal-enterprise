@@ -6,6 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import ExternalCourseEnrollmentConfirmation from '../ExternalCourseEnrollmentConfirmation';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -59,12 +60,22 @@ const appContextValue = {
 
 const ExternalCourseEnrollmentConfirmationWrapper = ({
   courseContextValue = baseCourseContextValue,
+  initialUserSubsidyState = {
+    subscriptionLicense: null,
+    couponCodes: {
+      couponCodes: [{ discountValue: 90 }],
+      couponCodesCount: 0,
+    },
+    redeemableLearnerCreditPolicies: [],
+  },
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <ExternalCourseEnrollmentConfirmation />
-      </CourseContext.Provider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContext.Provider value={courseContextValue}>
+          <ExternalCourseEnrollmentConfirmation />
+        </CourseContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );

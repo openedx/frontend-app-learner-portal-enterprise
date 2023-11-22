@@ -22,6 +22,7 @@ import { COURSE_STATUSES } from '../data/constants';
 import CourseEnrollmentsContextProvider from '../CourseEnrollmentsContextProvider';
 import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
+import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -59,15 +60,17 @@ hooks.useCourseEnrollments.mockReturnValue({
   },
   updateCourseEnrollmentStatus: jest.fn(),
 });
-
+const initialUserSubsidyState = {};
 const renderEnrollmentsComponent = () => render(
   <IntlProvider locale="en">
     <AppContext.Provider value={{ enterpriseConfig, authenticatedUser: { username: 'test-username' } }}>
-      <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
-        <CourseEnrollmentsContextProvider>
-          <CourseEnrollments />
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
+          <CourseEnrollmentsContextProvider>
+            <CourseEnrollments />
+          </CourseEnrollmentsContextProvider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>,
 );

@@ -6,6 +6,8 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
 import EnrollmentCompleted from './EnrollmentCompleted';
 import { CURRENCY_USD } from '../course/data/constants';
+import { CourseContext } from '../course/CourseContextProvider';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 const enterpriseSlug = 'test-enterprise-slug';
 const initialAppContextValue = {
@@ -44,14 +46,45 @@ jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({
     GETSMARTER_STUDENT_TC_URL: 'https://example.url',
     GETSMARTER_LEARNER_DASHBOARD_URL: 'https://getsmarter.example.com/account',
+    BASE_URL: 'http://enterprise.edx.org/',
   })),
 }));
 
+const mockCourseRunKey = 'course-run-key';
+const mockCourseRun = {
+  key: mockCourseRunKey,
+  uuid: 'course-run-uuid',
+};
+const mockCourseKey = 'course-key';
+const defaultCourseContext = {
+  state: {
+    availableCourseRuns: [mockCourseRun],
+    userEntitlements: [],
+    userEnrollments: [],
+    course: { key: mockCourseKey, entitlements: [] },
+    catalog: { catalogList: [] },
+  },
+  subsidyRequestCatalogsApplicableToCourse: [],
+  missingUserSubsidyReason: undefined,
+  redeemabilityPerContentKey: [],
+};
 const EnrollmentCompletedWrapper = ({
   appContextValue = initialAppContextValue,
+  initialUserSubsidyState = {
+    subscriptionLicense: null,
+    couponCodes: {
+      couponCodes: [{ discountValue: 90 }],
+      couponCodesCount: 0,
+    },
+    redeemableLearnerCreditPolicies: [],
+  },
 }) => (
   <AppContext.Provider value={appContextValue}>
-    <EnrollmentCompleted />
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <CourseContext.Provider value={defaultCourseContext}>
+        <EnrollmentCompleted />
+      </CourseContext.Provider>
+    </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
 

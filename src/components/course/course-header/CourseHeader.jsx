@@ -5,6 +5,7 @@ import {
   Container,
   Row,
   Col,
+  Badge,
 } from '@edx/paragon';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -18,12 +19,14 @@ import {
   getDefaultProgram,
   formatProgramType,
 } from '../data/utils';
-import { useCoursePartners } from '../data/hooks';
+import { useCoursePartners, useIsCourseAssigned } from '../data/hooks';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import SubsidyRequestButton from '../SubsidyRequestButton';
 import CourseReview from '../CourseReview';
 
 import CoursePreview from './CoursePreview';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { features } from '../../../config';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -34,6 +37,11 @@ const CourseHeader = () => {
     },
     isPolicyRedemptionEnabled,
   } = useContext(CourseContext);
+  const {
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
@@ -80,8 +88,9 @@ const CourseHeader = () => {
                 ))}
               </div>
             )}
-            <div className={classNames({ 'mb-4': !course.shortDescription })}>
+            <div className={classNames({ 'mb-4': !course.shortDescription, 'd-flex': true, 'align-items-center': true })}>
               <h2>{course.title}</h2>
+              {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) && <Badge variant="info" className="ml-4">Assigned</Badge>}
             </div>
             {course.shortDescription && (
               <div

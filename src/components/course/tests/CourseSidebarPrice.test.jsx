@@ -12,6 +12,7 @@ import {
   SUBSIDY_DISCOUNT_TYPE_MAP,
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../data/constants';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -95,12 +96,22 @@ const SidebarWithContext = ({
   initialAppState = appStateWithOrigPriceHidden,
   subsidyRequestsState = defaultSubsidyRequestsState,
   courseContextProps = {},
+  initialUserSubsidyState = {
+    subscriptionLicense: null,
+    couponCodes: {
+      couponCodes: [{ discountValue: 90 }],
+      couponCodesCount: 0,
+    },
+    redeemableLearnerCreditPolicies: [],
+  },
 }) => (
   <AppContext.Provider value={initialAppState}>
     <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
-      <CourseContextProvider {...courseContextProps}>
-        <CourseSidebarPrice />
-      </CourseContextProvider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContextProvider {...courseContextProps}>
+          <CourseSidebarPrice />
+        </CourseContextProvider>
+      </UserSubsidyContext.Provider>
     </SubsidyRequestsContext.Provider>
   </AppContext.Provider>
 );

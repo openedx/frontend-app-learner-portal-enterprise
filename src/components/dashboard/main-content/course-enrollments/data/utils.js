@@ -36,6 +36,7 @@ export const transformCourseEnrollment = (rawCourseEnrollment) => {
   courseEnrollment.hasEmailsEnabled = courseEnrollment.emailsEnabled;
   courseEnrollment.notifications = courseEnrollment.dueDates;
   courseEnrollment.canUnenroll = canUnenrollCourseEnrollment(courseEnrollment);
+  courseEnrollment.isCourseAssigned = false;
 
   // Delete renamed/unused fields
   delete courseEnrollment.displayName;
@@ -83,3 +84,19 @@ export const transformSubsidyRequest = ({
   created: subsidyRequest.created,
   notifications: [], // required prop by CourseSection
 });
+
+export const getTransformedAllocatedAssignments = (assignments, slug) => {
+  if (!assignments) { return assignments; }
+  const updatedAssignments = assignments?.map((item) => ({
+    linkToCourse: `/${slug}/course/${item.contentKey}`,
+    courseKey: item.contentKey,
+    title: item.contentTitle,
+    isRevoked: false,
+    courseRunStatus: COURSE_STATUSES.assigned,
+    endDate: item?.contentMetadata?.endDate,
+    startDate: item?.contentMetadata?.startDate,
+    mode: item?.contentMetadata?.courseType,
+    orgName: item?.contentMetadata?.partners[0]?.name,
+  }));
+  return updatedAssignments;
+};
