@@ -19,6 +19,12 @@ jest.mock('react-router-dom', () => ({
 }));
 useLocation.mockImplementation(() => ({
   search: '',
+  state: {
+    parentRoute: {
+      label: 'Parent Content Type Title',
+      to: '/path/to/parent/detail/page',
+    },
+  },
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
@@ -131,6 +137,7 @@ describe('<CourseHeader />', () => {
       />,
     );
     expect(screen.queryByText('Find a Course')).toBeInTheDocument();
+    expect(screen.queryByText('Parent Content Type Title')).toBeInTheDocument();
     expect(screen.queryAllByText(courseState.course.title)[0]).toBeInTheDocument();
   });
 
