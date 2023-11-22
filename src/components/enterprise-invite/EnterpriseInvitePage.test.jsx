@@ -1,11 +1,8 @@
 import React from 'react';
+import { screen, waitFor } from '@testing-library/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getConfig } from '@edx/frontend-platform/config';
-import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
-import { MemoryRouter } from 'react-router-dom';
 
 import * as logging from '@edx/frontend-platform/logging';
 import EnterpriseInvitePage, {
@@ -15,12 +12,13 @@ import EnterpriseInvitePage, {
 import { postLinkEnterpriseLearner } from './data/service';
 import * as utils from '../../utils/common';
 
+import { renderWithRouter } from '../../utils/tests';
+
 jest.mock('../../utils/common', () => ({
   loginRefresh: jest.fn(),
 }));
 jest.mock('./data/service');
 jest.mock('@edx/frontend-platform/auth');
-jest.mock('@edx/frontend-platform/config');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
@@ -34,32 +32,30 @@ getAuthenticatedUser.mockReturnValue({
     imageUrlMedium: 'htts://img.url',
   },
 });
-getConfig.mockReturnValue({
-  MARKETING_SITE_BASE_URL: 'https://marketing.url',
-  LEARNER_SUPPORT_URL: 'https://support.url',
-  LOGOUT_URL: 'https://logout.url',
-});
 
 const TEST_ENTEPRRISE_SLUG = 'test-enterprise-slug';
 const TEST_INVITE_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/invite/${TEST_INVITE_KEY}`;
 
-const renderEnterpriseInviteComponent = () => render(
-  <IntlProvider locale="en">
-    <AppContext.Provider value={{
-      authenticatedUser: {
-        id: 1,
-        profileImage: {
-          imageUrlMedium: 'htts://img.url',
-        },
+const renderEnterpriseInviteComponent = () => renderWithRouter(
+  <AppContext.Provider value={{
+    authenticatedUser: {
+      id: 1,
+      profileImage: {
+        imageUrlMedium: 'htts://img.url',
       },
-    }}
-    >
-      <MemoryRouter initialEntries={[TEST_ROUTE]}>
-        <EnterpriseInvitePage />
-      </MemoryRouter>
-    </AppContext.Provider>
-  </IntlProvider>,
+    },
+    config: {
+      MARKETING_SITE_BASE_URL: 'https://marketing.url',
+      LEARNER_SUPPORT_URL: 'https://support.url',
+    },
+  }}
+  >
+    <EnterpriseInvitePage />
+  </AppContext.Provider>,
+  {
+    route: TEST_ROUTE,
+  },
 );
 
 describe('EnterpriseInvitePage', () => {
@@ -71,7 +67,7 @@ describe('EnterpriseInvitePage', () => {
         enterprise_customer_slug: TEST_ENTEPRRISE_SLUG,
       },
     });
-    renderEnterpriseInviteComponent();
+    const { history } = renderEnterpriseInviteComponent();
 
     // assert component is initially loading but then eventually resolves
     expect(screen.getByText(LOADING_MESSAGE));
@@ -79,7 +75,7 @@ describe('EnterpriseInvitePage', () => {
 
     expect(utils.loginRefresh).toHaveBeenCalledTimes(1);
     // assert we got redirected to enterprise's slug
-    expect(window.location.pathname).toEqual(`/${TEST_ENTEPRRISE_SLUG}`);
+    expect(history.location.pathname).toEqual(`/${TEST_ENTEPRRISE_SLUG}`);
   });
 
   test('redirects to slug if successful linked user even if login refresh fails', async () => {
@@ -88,7 +84,7 @@ describe('EnterpriseInvitePage', () => {
         enterprise_customer_slug: TEST_ENTEPRRISE_SLUG,
       },
     });
-    renderEnterpriseInviteComponent();
+    const { history } = renderEnterpriseInviteComponent();
 
     const loginRefreshError = new Error('login refresh error');
     utils.loginRefresh.mockRejectedValueOnce(loginRefreshError);
@@ -97,14 +93,14 @@ describe('EnterpriseInvitePage', () => {
     expect(logging.logError).toHaveBeenCalledWith(loginRefreshError);
 
     // assert we got redirected to enterprise's slug
-    expect(window.location.pathname).toEqual(`/${TEST_ENTEPRRISE_SLUG}`);
+    expect(history.location.pathname).toEqual(`/${TEST_ENTEPRRISE_SLUG}`);
   });
 
   test('handles error when linking user to enterprise', async () => {
     const error = new Error('oh noes');
     postLinkEnterpriseLearner.mockRejectedValueOnce(error);
 
-    renderEnterpriseInviteComponent();
+    const { history } = renderEnterpriseInviteComponent();
 
     // assert component is initially loading but then eventually resolves
     expect(screen.queryAllByText(LOADING_MESSAGE)).toHaveLength(1);
@@ -114,7 +110,7 @@ describe('EnterpriseInvitePage', () => {
     expect(utils.loginRefresh).not.toHaveBeenCalled();
 
     // assert we did NOT get redirected
-    expect(window.location.pathname).toEqual(TEST_ROUTE);
+    expect(history.location.pathname).toEqual(TEST_ROUTE);
 
     // assert the custom error page messaging renders
     expect(screen.getByText(CTA_BUTTON_TEXT));

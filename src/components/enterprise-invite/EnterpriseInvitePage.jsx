@@ -3,7 +3,6 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Button, Container, Hyperlink } from '@edx/paragon';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 
@@ -32,8 +31,7 @@ const EnterpriseInvitePage = () => {
   const [inviteError, setInviteError] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const history = useHistory();
-  const { authenticatedUser } = useContext(AppContext);
-  const config = getConfig();
+  const { authenticatedUser, config } = useContext(AppContext);
 
   useEffect(() => {
     // Note: `authenticatedUser.id` is a property that is added once the user account has finished
