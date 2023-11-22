@@ -130,7 +130,7 @@ export const isDisableCourseSearch = (
     return false;
   }
 
-  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent === true);
+  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
   const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
 
   return (activeOffers?.length === 1 && !hasActiveSubPlan) || (activeOffers?.length === 0 && hasActiveSubPlan);
