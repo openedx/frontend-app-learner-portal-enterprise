@@ -9,7 +9,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
-import { MoreVert, InfoOutline } from '@edx/paragon/icons';
+import {
+  MoreVert, InfoOutline, Info,
+} from '@edx/paragon/icons';
 
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
@@ -449,6 +451,19 @@ class BaseCourseCard extends Component {
     return null;
   };
 
+  renderAssignmentAlert = () => {
+    const { isCancelledAssignment, mode } = this.props;
+    const alertText = isCancelledAssignment ? 'Your learning administrator canceled this assignment.' : 'Deadline to enroll in this course has passed';
+    const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+
+    return (
+      <div className={classNames('p-2 small d-flex align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}>
+        <Icon src={Info} size="small" className="text-dark mr-2" />
+        <span className="text-dark font-weight-normal">{alertText}</span>
+      </div>
+    );
+  };
+
   render() {
     const {
       title,
@@ -459,9 +474,15 @@ class BaseCourseCard extends Component {
     } = this.props;
     const dropdownMenuItems = this.getDropdownMenuItems();
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
+    const { isCancelledAssignment, isExpiredAssignment } = this.props;
 
     return (
-      <div className={classNames('dashboard-course-card py-3 border-bottom', { 'exec-ed-course-card rounded-lg p-3 text-light-100': isExecutiveEducation2UCourse })}>
+      <div className={classNames(
+        'dashboard-course-card py-3 border-bottom mb-2',
+        { 'exec-ed-course-card rounded-lg p-3 text-light-100': isExecutiveEducation2UCourse },
+        { 'mb-3': (isCancelledAssignment || isExpiredAssignment) },
+      )}
+      >
         {isLoading ? (
           <>
             <div className="sr-only">Loading...</div>
@@ -493,6 +514,11 @@ class BaseCourseCard extends Component {
                   {hasViewCertificateLink && this.renderViewCertificateText()}
                 </Col>
               </Row>
+              { (isCancelledAssignment || isExpiredAssignment) && (
+                <Row className={classNames({ 'mt-4 assignment-alert-row': isExecutiveEducation2UCourse }, { 'mt-2 pl-2': !isExecutiveEducation2UCourse })}>
+                  {this.renderAssignmentAlert()}
+                </Row>
+              )}
               {this.renderEmailSettingsModal()}
               {this.renderUnenrollModal()}
             </>
@@ -530,6 +556,8 @@ BaseCourseCard.propTypes = {
   enrollBy: PropTypes.string,
   courseRunStatus: PropTypes.string,
   isCourseAssigned: PropTypes.bool,
+  isCancelledAssignment: PropTypes.bool,
+  isExpiredAssignment: PropTypes.bool,
 };
 
 BaseCourseCard.contextType = AppContext;
@@ -552,6 +580,8 @@ BaseCourseCard.defaultProps = {
   enrollBy: null,
   courseRunStatus: null,
   isCourseAssigned: false,
+  isCancelledAssignment: false,
+  isExpiredAssignment: false,
 };
 
 export default BaseCourseCard;
