@@ -54,12 +54,6 @@ const dummyProgramData = {
 
 };
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
-  getAuthenticatedHttpClient: jest.fn(),
-}));
-
 jest.mock('@edx/frontend-platform/react', () => ({
   ...jest.requireActual('@edx/frontend-platform/react'),
   ErrorPage: () => <div data-testid="error-page" />,

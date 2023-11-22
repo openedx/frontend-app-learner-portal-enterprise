@@ -143,7 +143,6 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: jest.fn(() => mockAuthenticatedUser),
   getAuthenticatedHttpClient: jest.fn(() => ({
     get: jest.fn(() => ({})),
   })),

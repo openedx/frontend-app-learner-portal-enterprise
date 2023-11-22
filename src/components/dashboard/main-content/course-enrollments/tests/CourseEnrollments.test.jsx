@@ -7,7 +7,6 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
@@ -24,9 +23,7 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 
-jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
-getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 jest.mock('../course-cards/mark-complete-modal/data/service');
 

@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
   Badge, Card, Icon, Alert, CardGrid, Stack, Truncate,
@@ -45,6 +44,7 @@ const SearchProgramCard = ({ index }) => {
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
 
   const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
@@ -152,7 +152,6 @@ const SearchProgramCard = ({ index }) => {
       return;
     }
     const url = linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid);
-    const { userId } = getAuthenticatedUser();
     sendEnterpriseTrackEvent(
       uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',

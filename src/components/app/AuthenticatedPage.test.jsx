@@ -3,11 +3,6 @@ import '@testing-library/jest-dom/extend-expect';
 
 import AuthenticatedPage from './AuthenticatedPage';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => undefined,
-}));
-
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn().mockReturnValue({ search: '?logout=true', pathname: '/test-enterprise-slug' }),

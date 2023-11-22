@@ -8,7 +8,6 @@ import isNil from 'lodash.isnil';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
@@ -41,7 +40,7 @@ const UserEnrollmentForm = ({
   const config = getConfig();
   const {
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
-    authenticatedUser: { id: userId },
+    authenticatedUser: { id: userId, email: userEmail },
   } = useContext(AppContext);
   const {
     state: {
@@ -121,7 +120,7 @@ const UserEnrollmentForm = ({
     const userDetails = snakeCaseObject({
       geagFirstName: values.firstName,
       geagLastName: values.lastName,
-      geagEmail: getAuthenticatedUser().email,
+      geagEmail: userEmail,
       geagDateOfBirth: values.dateOfBirth,
       geagTermsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
       geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,

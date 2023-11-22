@@ -14,11 +14,6 @@ import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
@@ -54,6 +49,9 @@ const testIndex = {
 const defaultAppState = {
   enterpriseConfig: {
     slug: 'test-enterprise-slug',
+  },
+  authenticatedUser: {
+    username: 'myspace-tom',
   },
 };
 

@@ -16,12 +16,6 @@ import { CONTENT_TYPE_PATHWAY } from '../../search/constants';
 import learnerPathwayData from '../data/__mocks__/PathwayProgressListData.json';
 import { NO_PATHWAYS_ERROR_MESSAGE } from '../constants';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
-  getAuthenticatedHttpClient: jest.fn(),
-}));
-
 jest.mock('@edx/frontend-platform/react', () => ({
   ...jest.requireActual('@edx/frontend-platform/react'),
   ErrorPage: () => <div data-testid="error-page" />,

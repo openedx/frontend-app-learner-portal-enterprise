@@ -7,8 +7,6 @@ import classNames from 'classnames';
 import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getConfig } from '@edx/frontend-platform/config';
 import { MoreVert, InfoOutline } from '@edx/paragon/icons';
 
 import dayjs from '../../../../../utils/dayjs';
@@ -400,9 +398,7 @@ class BaseCourseCard extends Component {
 
   renderViewCertificateText = () => {
     const { linkToCertificate } = this.props;
-    const user = getAuthenticatedUser();
-    const { username } = user;
-    const config = getConfig();
+    const { authenticatedUser: { username }, config } = this.context;
 
     if (linkToCertificate) {
       return (
