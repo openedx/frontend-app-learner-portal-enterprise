@@ -1,10 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { ResponsiveContext, breakpoints } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { renderWithRouter } from '../../../../utils/tests';
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
   <div data-testid="course-header" />
@@ -32,11 +34,29 @@ jest.mock('../../CourseRecommendations', () => jest.fn(() => (
   <div data-testid="course-recommendations" />
 )));
 
-const baseCourseContextValue = { canOnlyViewHighlightSets: false };
+const baseCourseContextValue = {
+  canOnlyViewHighlightSets: false,
+  state: {
+    courseEntitlementProductSku: 'test-sku',
+    course: {
+      key: 'demo-course',
+      organizationShortCodeOverride: 'Test Org',
+      organizationLogoOverrideUrl: 'https://test.org/logo.png',
+    },
+  },
+};
+
 const appContextValues = {
   enterpriseConfig: {
     disableSearch: false,
   },
+};
+
+const initialUserSubsidyState = {
+  redeemableLearnerCreditPolicies: [],
+  enterpriseOffers: [],
+  subscriptionPlan: {},
+  subscriptionLicense: {},
 };
 
 const CourseAboutWrapper = ({
@@ -47,16 +67,18 @@ const CourseAboutWrapper = ({
 }) => (
   <ResponsiveContext.Provider value={responsiveContextValue}>
     <AppContext.Provider value={initialAppState}>
-      <CourseContext.Provider value={courseContextValue}>
-        <CourseAbout />
-      </CourseContext.Provider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContext.Provider value={courseContextValue}>
+          <CourseAbout />
+        </CourseContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </ResponsiveContext.Provider>
 );
 
 describe('CourseAbout', () => {
   it('renders', () => {
-    render(<CourseAboutWrapper />);
+    renderWithRouter(<CourseAboutWrapper />);
     expect(screen.getByTestId('course-header')).toBeInTheDocument();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
     expect(screen.getByTestId('course-main-content')).toBeInTheDocument();
@@ -66,8 +88,18 @@ describe('CourseAbout', () => {
   });
 
   it('renders with canOnlyViewHighlightSets=true', () => {
-    const courseContextValue = { canOnlyViewHighlightSets: true };
-    render(<CourseAboutWrapper courseContextValue={courseContextValue} />);
+    const courseContextValue = {
+      canOnlyViewHighlightSets: true,
+      state: {
+        courseEntitlementProductSku: 'test-sku',
+        course: {
+          key: 'demo-course',
+          organizationShortCodeOverride: 'Test Org',
+          organizationLogoOverrideUrl: 'https://test.org/logo.png',
+        },
+      },
+    };
+    renderWithRouter(<CourseAboutWrapper courseContextValue={courseContextValue} />);
     expect(screen.getByTestId('course-header')).toBeInTheDocument();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
     expect(screen.getByTestId('course-main-content')).toBeInTheDocument();
@@ -77,7 +109,7 @@ describe('CourseAbout', () => {
   });
 
   it('renders without sidebar is screen is below breakpointslarge.minWidth', () => {
-    render(<CourseAboutWrapper responsiveContextValue={{ width: breakpoints.small.minWidth }} />);
+    renderWithRouter(<CourseAboutWrapper responsiveContextValue={{ width: breakpoints.small.minWidth }} />);
     expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
     expect(screen.queryByTestId('course-sidebar')).not.toBeInTheDocument();
   });

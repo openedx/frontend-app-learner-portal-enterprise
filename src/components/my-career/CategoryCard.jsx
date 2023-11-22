@@ -13,6 +13,9 @@ import algoliasearch from 'algoliasearch/lite';
 import { AppContext } from '@edx/frontend-platform/react';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { isDisableCourseSearch } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
+import { features } from '../../config';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -23,6 +26,20 @@ const CategoryCard = ({ topCategory }) => {
   const [showSkills, setShowSkillsOn, , toggleShowSkills] = useToggle(false);
   const [showAll, setShowAllOn, setShowAllOff, toggleShowAll] = useToggle(false);
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
+  const {
+    redeemableLearnerCreditPolicies,
+    enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+  } = useContext(UserSubsidyContext);
+  const hideCourseSearch = isDisableCourseSearch(
+    redeemableLearnerCreditPolicies,
+    enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicense,
+  );
+
+  const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
 
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
@@ -152,7 +169,7 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      {!enterpriseConfig.disableSearch && (
+      {(!enterpriseConfig.disableSearch && !featuredHideCourseSearch) && (
         <Card.Section>
           {showSkills && subcategorySkills && (
             <div className="skill-details-recommended-courses">

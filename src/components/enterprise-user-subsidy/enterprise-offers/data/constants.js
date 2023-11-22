@@ -29,3 +29,9 @@ export const NO_BALANCE_ALERT_TEXT = 'Your learner credit balance has run out, a
 export const NO_BALANCE_CONTACT_ADMIN_TEXT = 'Contact administrator';
 
 export const OFFER_BALANCE_CLICK_EVENT = 'edx.ui.enterprise.learner_portal.offer_balance_alert.clicked';
+
+export const ASSIGNMENT_TYPES = {
+  ACCEPTED: 'accepted',
+  ALLOCATED: 'allocated',
+  CANCELLED: 'cancelled',
+};

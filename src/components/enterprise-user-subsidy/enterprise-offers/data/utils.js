@@ -1,11 +1,14 @@
 import isNil from 'lodash.isnil';
 import {
+  ASSIGNMENT_TYPES,
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
 } from './constants';
+
+import { LICENSE_STATUS } from '../../data/constants';
 
 export const offerHasBookingsLimit = offer => (
   !isNil(offer.maxDiscount) || !isNil(offer.maxUserDiscount)
@@ -98,4 +101,37 @@ export const transformEnterpriseOffer = (offer) => {
     isLowOnBalance: isOfferLowOnBalance(transformedOffer),
     isOutOfBalance: isOfferOutOfBalance(transformedOffer),
   };
+};
+
+/**
+ * Determines whether course search should be disabled based on the provided criteria.
+ * Criteria:
+ * -> Is assigned a course,
+ * -> And has no other subsidy,If they had a subscription,
+ *    but the license is no longer relevant, we would not want to count that.
+ * @param {Array} redeemableLearnerCreditPolicies - Array of redeemable learner credit policies.
+ * @param {Array} enterpriseOffers - Array of enterprise offers.
+ * @param {Object} subscriptionPlan - Subscription plan object.
+ * @param {Object} subscriptionLicense - Subscription license object.
+ *
+ * @returns {boolean} Returns true if course search should be disabled, otherwise false.
+ */
+export const isDisableCourseSearch = (
+  redeemableLearnerCreditPolicies,
+  enterpriseOffers,
+  subscriptionPlan,
+  subscriptionLicense,
+) => {
+  const assignments = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
+  const allocatedAndAcceptedAssignments = assignments?.filter(item => item?.state === ASSIGNMENT_TYPES.ALLOCATED
+    || item?.state === ASSIGNMENT_TYPES.ACCEPTED);
+
+  if (allocatedAndAcceptedAssignments?.length === 0) {
+    return false;
+  }
+
+  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
+  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+
+  return (activeOffers?.length === 1 && !hasActiveSubPlan) || (activeOffers?.length === 0 && hasActiveSubPlan);
 };
