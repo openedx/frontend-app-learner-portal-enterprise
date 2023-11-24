@@ -36,7 +36,7 @@ class CourseSection extends React.Component {
   getCoursesCount = (isOpen, title, coursesCount) => {
     if (!isOpen) {
       if (title === 'Assigned Courses') {
-        return <sup><Badge pill variant="danger">{coursesCount}</Badge></sup>;
+        return <sup><Badge variant="danger" className="rounded-circle">{coursesCount}</Badge></sup>;
       }
       return `(${coursesCount})`;
     }
