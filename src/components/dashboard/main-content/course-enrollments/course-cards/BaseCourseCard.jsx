@@ -17,6 +17,7 @@ import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';
 import { UnenrollModal } from './unenroll';
 import { COURSE_STATUSES, COURSE_PACING, EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
+import { features } from '../../../../../config';
 
 const BADGE_PROPS_BY_COURSE_STATUS = {
   [COURSE_STATUSES.inProgress]: {
@@ -440,7 +441,7 @@ class BaseCourseCard extends Component {
   renderBadge = () => {
     const { isCourseAssigned, type } = this.props;
 
-    const badgeProps = isCourseAssigned
+    const badgeProps = (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
       ? BADGE_PROPS_BY_COURSE_STATUS.assigned
       : BADGE_PROPS_BY_COURSE_STATUS[type];
 
