@@ -30,6 +30,7 @@ import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
+import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
 
 const defaultCouponCodesState = {
   couponCodes: [],
@@ -44,6 +45,11 @@ jest.mock('../../../config', () => ({
     FEATURE_ENABLE_PATHWAY_PROGRESS: jest.fn(),
     FEATURE_ENABLE_MY_CAREER: jest.fn(),
   },
+}));
+
+jest.mock('../main-content/course-enrollments/data/utils', () => ({
+  ...jest.requireActual('../main-content/course-enrollments/data/utils'),
+  sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
 
 const defaultAppState = {
@@ -166,6 +172,10 @@ console.error = jest.fn();
 describe('<Dashboard />', () => {
   afterAll(() => {
     jest.restoreAllMocks();
+  });
+
+  beforeEach(() => {
+    sortAssignmentsByAssignmentStatus.mockReturnValue([]);
   });
 
   it('renders user first name if available', () => {

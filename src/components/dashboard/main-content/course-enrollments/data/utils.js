@@ -85,18 +85,67 @@ export const transformSubsidyRequest = ({
   notifications: [], // required prop by CourseSection
 });
 
+/**
+ * Checks if an assignment has expired based on following conditions:
+ * - The assignment's action is "allocated."
+ * - 90 days have passed since the "allocated" action.
+ * - The course enrollment deadline has passed.
+ * - The subsidy expiration date has passed.
+ * @param {object} assignment - Information about the assignment.
+ * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
+ */
+export const isAssignmentExpired = (assignment) => {
+  if (assignment?.actions?.length > 0 && assignment.actions[0]?.actionType === 'allocated') {
+    const currentDate = new Date();
+    const allocationDate = new Date(assignment.actions[0]?.completedAt);
+    const enrollmentEndDate = new Date(assignment?.contentMetadata?.enrollByDate);
+    const subsidyExpirationDate = new Date(assignment?.subsidyExpirationDate);
+
+    return (
+      currentDate - allocationDate > 90 * 24 * 60 * 60 * 1000
+      || currentDate > enrollmentEndDate
+      || currentDate > subsidyExpirationDate
+    );
+  }
+
+  return false;
+};
+
+/**
+ * Sorts assignments by their status (cancelled or expired).
+ * @param {array} assignments - Array of assignments to be sorted.
+ * @returns {array} - Returns the sorted array of assignments.
+ */
+export const sortAssignmentsByAssignmentStatus = (assignments) => {
+  if (assignments) {
+    const sortedAssignments = [...assignments].sort((a, b) => (
+      ((a.state === 'cancelled' || isAssignmentExpired(a)) ? 1 : 0)
+    - ((b.state === 'cancelled' || isAssignmentExpired(b)) ? 1 : 0)
+    ));
+    return sortedAssignments;
+  }
+  return [];
+};
+
 export const getTransformedAllocatedAssignments = (assignments, slug) => {
   if (!assignments) { return assignments; }
-  const updatedAssignments = assignments?.map((item) => ({
-    linkToCourse: `/${slug}/course/${item.contentKey}`,
-    courseKey: item.contentKey,
-    title: item.contentTitle,
-    isRevoked: false,
-    courseRunStatus: COURSE_STATUSES.assigned,
-    endDate: item?.contentMetadata?.endDate,
-    startDate: item?.contentMetadata?.startDate,
-    mode: item?.contentMetadata?.courseType,
-    orgName: item?.contentMetadata?.partners[0]?.name,
-  }));
+  const updatedAssignments = assignments?.map((item) => {
+    const isCancelledAssignment = item.state === 'cancelled';
+    const isExpiredAssignment = isAssignmentExpired(item);
+
+    return {
+      linkToCourse: `/${slug}/course/${item.contentKey}`,
+      courseKey: item.contentKey,
+      title: item.contentTitle,
+      isRevoked: false,
+      courseRunStatus: COURSE_STATUSES.assigned,
+      endDate: item?.contentMetadata?.endDate,
+      startDate: item?.contentMetadata?.startDate,
+      mode: item?.contentMetadata?.courseType,
+      orgName: item?.contentMetadata?.partners[0]?.name,
+      isCancelledAssignment,
+      isExpiredAssignment,
+    };
+  });
   return updatedAssignments;
 };
