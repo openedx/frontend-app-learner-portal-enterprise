@@ -22,6 +22,7 @@ export const InProgressCourseCard = ({
   courseRunStatus,
   startDate,
   mode,
+  resumeCourseRunUrl,
   ...rest
 }) => {
   const {
@@ -49,6 +50,7 @@ export const InProgressCourseCard = ({
         courseRunId={courseRunId}
         mode={mode}
         startDate={startDate}
+        resumeCourseRunUrl={resumeCourseRunUrl}
       />
       {shouldShowUpgradeButton && <UpgradeCourseButton className="ml-1" title={title} />}
     </>
@@ -185,11 +187,13 @@ InProgressCourseCard.propTypes = {
   courseRunStatus: PropTypes.string.isRequired,
   startDate: PropTypes.string,
   mode: PropTypes.string,
+  resumeCourseRunUrl: PropTypes.string,
 };
 
 InProgressCourseCard.defaultProps = {
   startDate: null,
   mode: null,
+  resumeCourseRunUrl: null,
 };
 
 export default InProgressCourseCard;
