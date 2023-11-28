@@ -1,4 +1,8 @@
-import React, { useContext } from 'react';
+import React, {
+  useContext, useEffect, useState,
+} from 'react';
+import Cookies from 'universal-cookie';
+
 import PropTypes from 'prop-types';
 
 import CourseSection from './CourseSection';
@@ -9,12 +13,7 @@ import { features } from '../../../../config';
 import { useCourseEnrollmentsBySection, useContentAssignments } from './data';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
-export const COURSE_SECTION_TITLES = {
-  current: 'My courses',
-  completed: 'Completed courses',
-  savedForLater: 'Saved for later',
-  assigned: 'Assigned Courses',
-};
+import { COURSE_SECTION_TITLES } from '../../data/constants';
 
 const CourseEnrollments = ({ children }) => {
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
@@ -42,6 +41,16 @@ const CourseEnrollments = ({ children }) => {
     courseEnrollmentsByStatus,
     assignments,
   });
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+
+  useEffect(() => {
+    const cookies = new Cookies();
+    const hasUserVisitedDashboard = cookies.get('has-user-seen-enrollments');
+    if (!hasUserVisitedDashboard) {
+      cookies.set('has-user-seen-enrollments', true, { path: '/' });
+      setIsFirstVisit(true);
+    }
+  }, []);
 
   if (fetchCourseEnrollmentsError) {
     return (
@@ -78,7 +87,7 @@ const CourseEnrollments = ({ children }) => {
       <>
         {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
           <CourseSection
-            title={COURSE_SECTION_TITLES.assigned}
+            title={isFirstVisit ? COURSE_SECTION_TITLES.firstTimeUserAndAssigned : COURSE_SECTION_TITLES.assigned}
             courseRuns={assignments}
           />
         )}
