@@ -143,6 +143,7 @@ export const getTransformedAllocatedAssignments = (assignments, slug) => {
       startDate: item?.contentMetadata?.startDate,
       mode: item?.contentMetadata?.courseType,
       orgName: item?.contentMetadata?.partners[0]?.name,
+      enrollBy: item?.contentMetadata?.enrollByDate,
       isCancelledAssignment,
       isExpiredAssignment,
     };
