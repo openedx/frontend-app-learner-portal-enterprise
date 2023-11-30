@@ -31,7 +31,10 @@ export const transformCourseEnrollment = (rawCourseEnrollment) => {
   // present if the learner has made progress. If the learner has not made progress,
   // we should link to the main course run URL. Similarly, if the resume course link
   // is not set in the API response, we should fallback on the normal course link.
-  courseEnrollment.linkToCourse = courseEnrollment.resumeCourseRunUrl || courseEnrollment.courseRunUrl;
+  // courseEnrollment.linkToCourse = courseEnrollment.resumeCourseRunUrl || courseEnrollment.courseRunUrl;
+  // TODO: uncomment out the previous line to allow for unique resume url
+  // https://2u-internal.atlassian.net/browse/ENT-8065
+  courseEnrollment.linkToCourse = courseEnrollment.courseRunUrl;
   courseEnrollment.linkToCertificate = courseEnrollment.certificateDownloadUrl;
   courseEnrollment.hasEmailsEnabled = courseEnrollment.emailsEnabled;
   courseEnrollment.notifications = courseEnrollment.dueDates;
