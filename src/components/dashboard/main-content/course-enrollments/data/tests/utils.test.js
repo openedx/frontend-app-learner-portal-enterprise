@@ -24,6 +24,7 @@ describe('transformCourseEnrollment', () => {
       isRevoked: originalCourseEnrollment.isRevoked,
       notifications: originalCourseEnrollment.dueDates,
       canUnenroll: false,
+      resumeCourseRunUrl: 'http://www.resumecourserun.com',
     };
     expect(transformCourseEnrollment(originalCourseEnrollment)).toEqual(transformedCourseEnrollment);
   });
@@ -52,6 +53,7 @@ describe('transformCourseEnrollment', () => {
       isRevoked: originalCourseEnrollment.isRevoked,
       notifications: originalCourseEnrollment.dueDates,
       canUnenroll,
+      resumeCourseRunUrl: 'http://www.resumecourserun.com',
     };
     expect(transformCourseEnrollment(originalCourseEnrollment)).toEqual(transformedCourseEnrollment);
   });

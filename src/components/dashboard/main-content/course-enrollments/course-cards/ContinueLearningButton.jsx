@@ -24,6 +24,7 @@ const ContinueLearningButton = ({
   courseRunId,
   startDate,
   mode,
+  resumeCourseRunUrl,
 }) => {
   const { enterpriseConfig } = useContext(AppContext);
 
@@ -43,7 +44,10 @@ const ContinueLearningButton = ({
   const variant = isExecutiveEducation2UCourse ? 'inverse-primary' : 'outline-primary';
 
   const renderContent = () => {
-    if (!isCourseStarted() && startDate) {
+    // resumeCourseRunUrl indicates that learner has made progress, available only if the learner has started learning.
+    // The "Start Course" is visible either when the course has not started or when the course has started but the
+    // learner has not yet begun the learning.
+    if ((!isCourseStarted() && startDate) || (isCourseStarted && !resumeCourseRunUrl)) {
       return 'Start course';
     }
     return 'Resume';
@@ -67,6 +71,7 @@ ContinueLearningButton.defaultProps = {
   className: null,
   startDate: null,
   mode: null,
+  resumeCourseRunUrl: null,
 };
 
 ContinueLearningButton.propTypes = {
@@ -76,6 +81,7 @@ ContinueLearningButton.propTypes = {
   courseRunId: PropTypes.string.isRequired,
   startDate: PropTypes.string,
   mode: PropTypes.string,
+  resumeCourseRunUrl: PropTypes.string,
 };
 
 export default ContinueLearningButton;
