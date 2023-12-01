@@ -56,7 +56,7 @@ const SubscriptionExpirationModal = () => {
   const renderCertificateText = () => {
     const { username } = getAuthenticatedUser();
     return (
-      <a href={`${config.LMS_BASE_URL}/u/${username}`} className="font-weight-bold">
+      <a href={`${config.ACCOUNT_PROFILE_URL}/u/${username}`} className="font-weight-bold">
         download your completed certificates
       </a>
     );

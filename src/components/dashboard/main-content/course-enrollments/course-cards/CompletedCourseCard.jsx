@@ -47,7 +47,7 @@ const CompletedCourseCard = (props) => {
         <div className="d-flex align-items-center">
           <p className="mb-0 small">
             View your certificate on{' '}
-            <a href={`${config.LMS_BASE_URL}/u/${username}`}>
+            <a href={`${config.ACCOUNT_PROFILE_URL}/u/${username}`}>
               your profile →
             </a>
           </p>
