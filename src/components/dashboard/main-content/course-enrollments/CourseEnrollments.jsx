@@ -10,11 +10,16 @@ import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
 import {
-  getTransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate, sortAssignmentsByAssignmentStatus,
+  getTransformedAllocatedAssignments,
   isAssignmentExpired,
+  sortAssignmentsByAssignmentStatus,
+  sortedEnrollmentsByEnrollmentDate,
 } from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
+import EnterpriseLearnerFirstVisitRedirect, {
+  isFirstDashboardPageVisit,
+} from '../../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
@@ -114,6 +119,10 @@ const CourseEnrollments = ({ children }) => {
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   const hasCourseAssignments = filteredAssignments?.length > 0;
+
+  if (hasCourseAssignments && isFirstDashboardPageVisit()) {
+    return <EnterpriseLearnerFirstVisitRedirect />;
+  }
 
   return (
     <>

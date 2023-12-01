@@ -1,13 +1,7 @@
-import React, {
-  useContext, useEffect, useMemo,
-} from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
-import {
-  Container,
-  Tabs,
-  Tab,
-} from '@edx/paragon';
+import { Container, Tab, Tabs } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { ProgramListingPage } from '../program-progress';
@@ -18,7 +12,6 @@ import { useLearnerProgramsListData } from '../program-progress/data/hooks';
 import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
 import CoursesTabComponent from './main-content/CoursesTabComponent';
 import { MyCareerTab } from '../my-career';
-import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
@@ -37,7 +30,6 @@ const DashboardPage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseConfig.uuid);
-
   const onSelectHandler = (key) => {
     if (key === 'my-career') {
       sendEnterpriseTrackEvent(
@@ -94,7 +86,6 @@ const DashboardPage = () => {
         <h2 className="h1 mb-4 mt-4">
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
-        <EnterpriseLearnerFirstVisitRedirect />
         <Tabs defaultActiveKey="courses" onSelect={(k) => onSelectHandler(k)}>{allTabs.filter(tab => tab)}</Tabs>
         {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
         {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}

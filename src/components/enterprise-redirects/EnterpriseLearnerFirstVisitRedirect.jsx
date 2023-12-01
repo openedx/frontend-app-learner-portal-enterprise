@@ -2,23 +2,24 @@ import React, { useEffect } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 
-const EnterpriseLearnerFirstVisitRedirect = () => {
-  const { enterpriseSlug } = useParams();
-
+export const isFirstDashboardPageVisit = () => {
   const cookies = new Cookies();
 
-  const isFirstVisit = () => {
-    const hasUserVisitedDashboard = cookies.get('has-user-visited-learner-dashboard');
-    return !hasUserVisitedDashboard;
-  };
+  const hasUserVisitedDashboard = cookies.get('has-user-visited-learner-dashboard');
+  return !hasUserVisitedDashboard;
+};
+
+const EnterpriseLearnerFirstVisitRedirect = () => {
+  const { enterpriseSlug } = useParams();
+  const cookies = new Cookies();
 
   useEffect(() => {
-    if (isFirstVisit()) {
+    if (isFirstDashboardPageVisit()) {
       cookies.set('has-user-visited-learner-dashboard', true, { path: '/' });
     }
   });
 
-  if (isFirstVisit()) {
+  if (isFirstDashboardPageVisit()) {
     return <Redirect to={`/${enterpriseSlug}/search`} />;
   }
 
