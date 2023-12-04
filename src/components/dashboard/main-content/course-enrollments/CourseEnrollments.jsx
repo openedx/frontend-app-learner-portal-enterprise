@@ -63,8 +63,8 @@ const CourseEnrollments = ({ children }) => {
     setShowCancelledAssignmentsAlert(hasCancelledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
-  const { filteredAssignments } = getActiveAssignments(assignments);
-  const assignedCourses = getTransformedAllocatedAssignments(filteredAssignments, slug);
+  const { filteredActiveAssignments } = getActiveAssignments(assignments);
+  const assignedCourses = getTransformedAllocatedAssignments(filteredActiveAssignments, slug);
 
   const currentCourseEnrollments = useMemo(
     () => {
@@ -111,7 +111,7 @@ const CourseEnrollments = ({ children }) => {
   }
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
-  const hasCourseAssignments = filteredAssignments?.length > 0;
+  const hasCourseAssignments = filteredActiveAssignments?.length > 0;
 
   return (
     <>
