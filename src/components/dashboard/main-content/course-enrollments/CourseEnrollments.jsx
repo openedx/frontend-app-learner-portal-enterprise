@@ -17,17 +17,14 @@ import {
 } from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
+import getActiveAssignments from '../../data/utils';
+import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
   completed: 'Completed courses',
   savedForLater: 'Saved for later',
   assigned: 'Assigned Courses',
-};
-export const ASSIGNMENT_TYPES = {
-  accepted: 'accepted',
-  allocated: 'allocated',
-  cancelled: 'cancelled',
 };
 
 const CourseEnrollments = ({ children }) => {
@@ -59,22 +56,21 @@ const CourseEnrollments = ({ children }) => {
     setAssignments(assignmentsData);
 
     const hasCancelledAssignments = assignmentsData?.some(
-      assignment => assignment.state === ASSIGNMENT_TYPES.cancelled,
+      assignment => assignment.state === ASSIGNMENT_TYPES.CANCELLED,
     );
     const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment));
 
     setShowCancelledAssignmentsAlert(hasCancelledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
-  const filteredAssignments = assignments?.filter((assignment) => assignment?.state === ASSIGNMENT_TYPES.allocated
-    || assignment?.state === ASSIGNMENT_TYPES.cancelled);
+  const { filteredAssignments } = getActiveAssignments(assignments);
   const assignedCourses = getTransformedAllocatedAssignments(filteredAssignments, slug);
 
   const currentCourseEnrollments = useMemo(
     () => {
       Object.keys(courseEnrollmentsByStatus).forEach((status) => {
         courseEnrollmentsByStatus[status] = courseEnrollmentsByStatus[status].map((course) => {
-          const isAssigned = assignments?.some(assignment => (assignment?.state === ASSIGNMENT_TYPES.accepted
+          const isAssigned = assignments?.some(assignment => (assignment?.state === ASSIGNMENT_TYPES.ACCEPTED
             && course.courseRunId.includes(assignment?.contentKey)));
           if (isAssigned) {
             return { ...course, isCourseAssigned: true };

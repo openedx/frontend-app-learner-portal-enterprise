@@ -34,4 +34,5 @@ export const ASSIGNMENT_TYPES = {
   ACCEPTED: 'accepted',
   ALLOCATED: 'allocated',
   CANCELLED: 'cancelled',
+  ERRORED: 'errored',
 };

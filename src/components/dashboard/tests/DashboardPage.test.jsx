@@ -25,7 +25,6 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
-import * as EnterpriseLearnerFirstVisitRedirect from '../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const defaultCouponCodesState = {
   couponCodes: [],
@@ -52,6 +51,10 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
 
+jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect', () => jest.fn(
+  () => (<div>enterprise-learner-first-visit-redirect</div>),
+));
+
 const defaultAppState = {
   enterpriseConfig: {
     name: 'BearsRUs',
@@ -75,7 +78,7 @@ const defaultUserSubsidyState = {
   },
   {
     learnerContentAssignments: {
-      state: 'accepted',
+      state: 'cancelled',
     },
   }],
 };
@@ -354,16 +357,10 @@ describe('<Dashboard />', () => {
   it('should render redirect component if no cookie and no courseAssignments exist', () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [{
-        learnerContentAssignments: [{
-          state: 'cancelled',
-        },
-        ],
-      }],
+      redeemableLearnerCreditPolicies: [],
     };
-    jest.spyOn(EnterpriseLearnerFirstVisitRedirect, 'default').mockReturnValueOnce(<IntlProvider locale="en">search-page</IntlProvider>);
     renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
-    expect(screen.queryByText('search-page')).toBeTruthy();
+    expect(screen.queryByText('enterprise-learner-first-visit-redirect')).toBeTruthy();
   });
 
   describe('SubscriptionExpirationModal', () => {

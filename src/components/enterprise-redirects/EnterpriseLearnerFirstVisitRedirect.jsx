@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import Cookies from 'universal-cookie';
-import { ASSIGNMENT_TYPES } from '../dashboard/main-content/course-enrollments/CourseEnrollments';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import getActiveAssignments from '../dashboard/data/utils';
 
 export const isFirstDashboardPageVisit = () => {
   const cookies = new Cookies();
@@ -18,15 +18,12 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
   } = useContext(UserSubsidyContext);
 
   // TODO: Refactor to DRY up code for redeemableLearnerCreditPolicies
-  const hasActiveCourseAssignments = (learnerCreditPolicies) => {
+  const hasActiveContentAssignments = (learnerCreditPolicies) => {
     const learnerContentAssignmentsArray = learnerCreditPolicies?.flatMap(
       item => item?.learnerContentAssignments || [],
     );
     // filters out course assignments that are not considered active
-    const hasActiveAssignments = learnerContentAssignmentsArray.filter(
-      assignment => assignment.state !== ASSIGNMENT_TYPES.cancelled,
-    );
-    return hasActiveAssignments.length > 0;
+    return getActiveAssignments(learnerContentAssignmentsArray).isActiveAssignments();
   };
   useEffect(() => {
     const cookies = new Cookies();
@@ -35,7 +32,8 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
       cookies.set('has-user-visited-learner-dashboard', true, { path: '/' });
     }
   }, []);
-  if (!hasActiveCourseAssignments(redeemableLearnerCreditPolicies) && isFirstDashboardPageVisit()) {
+
+  if (!hasActiveContentAssignments(redeemableLearnerCreditPolicies) && isFirstDashboardPageVisit()) {
     return <Redirect to={`/${enterpriseSlug}/search`} />;
   }
 

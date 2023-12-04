@@ -1,8 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import Cookies from 'universal-cookie';
-
-import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
 import EnterpriseLearnerFirstVisitRedirect from '../EnterpriseLearnerFirstVisitRedirect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -29,7 +27,7 @@ const defaultUserSubsidyState = {
   },
   {
     learnerContentAssignments: {
-      state: 'accepted',
+      state: 'cancelled',
     },
   }],
 };
@@ -37,11 +35,9 @@ const defaultUserSubsidyState = {
 const EnterpriseLearnerFirstVisitRedirectWrapper = ({
   initialUserSubsidyState = defaultUserSubsidyState,
 }) => (
-  <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <EnterpriseLearnerFirstVisitRedirect />
-    </UserSubsidyContext.Provider>
-  </IntlProvider>
+  <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+    <EnterpriseLearnerFirstVisitRedirect />
+  </UserSubsidyContext.Provider>
 );
 
 describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
@@ -53,9 +49,7 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   test('redirects to search if user is visiting for the first time.', async () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [{
-        learnerContentAssignments: [],
-      }],
+      redeemableLearnerCreditPolicies: [],
     };
 
     const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
@@ -65,12 +59,7 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   test('redirects to search if the course assigned is not active.', async () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [{
-        learnerContentAssignments: [{
-          state: 'cancelled',
-        },
-        ],
-      }],
+      redeemableLearnerCreditPolicies: [],
     };
 
     const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
