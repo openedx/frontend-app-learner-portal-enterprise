@@ -52,8 +52,6 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
 
-// jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect');
-
 const defaultAppState = {
   enterpriseConfig: {
     name: 'BearsRUs',

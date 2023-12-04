@@ -21,15 +21,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
 const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-  enterpriseOffers: [],
   redeemableLearnerCreditPolicies: [{
     learnerContentAssignments: {
       state: 'allocated',
