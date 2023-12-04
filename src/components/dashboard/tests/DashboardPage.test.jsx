@@ -337,7 +337,7 @@ describe('<Dashboard />', () => {
     expect(programsTab).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('should send track event when "my-craeer" tab selected', () => {
+  it('should send track event when "my-career" tab selected', () => {
     renderWithRouter(<DashboardWithContext />);
 
     const myCareerTab = screen.getByText('My Career');
