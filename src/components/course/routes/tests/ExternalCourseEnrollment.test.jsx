@@ -8,6 +8,7 @@ import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentFo
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -74,12 +75,15 @@ const baseAppContextValue = {
 const ExternalCourseEnrollmentWrapper = ({
   courseContextValue = baseCourseContextValue,
   appContextValue = baseAppContextValue,
+  initialUserSubsidyState = {},
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <ExternalCourseEnrollment />
-      </CourseContext.Provider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContext.Provider value={courseContextValue}>
+          <ExternalCourseEnrollment />
+        </CourseContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
