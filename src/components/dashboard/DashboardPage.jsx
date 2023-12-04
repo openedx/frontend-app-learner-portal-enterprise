@@ -43,7 +43,7 @@ const DashboardPage = () => {
     const learnerContentAssignmentsArray = learnerCreditPolicies?.flatMap(
       item => item?.learnerContentAssignments || [],
     );
-    // looks for some course assignments that are either 'allocated' or 'accepted'
+    // filters out course assignments that are not considered active
     const hasActiveAssignments = learnerContentAssignmentsArray.filter(
       assignment => assignment.state !== ASSIGNMENT_TYPES.cancelled,
     );

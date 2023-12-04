@@ -56,12 +56,6 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
 
 jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect');
 
-// jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect', () => (
-//   {
-//     ...jest.requireActual('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect'),
-//     isFirstDashboardPageVisit: jest.fn(),
-//   }));
-
 const defaultAppState = {
   enterpriseConfig: {
     name: 'BearsRUs',
