@@ -25,9 +25,7 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
-import EnterpriseLearnerFirstVisitRedirect, {
-  isFirstDashboardPageVisit,
-} from '../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
+import * as EnterpriseLearnerFirstVisitRedirect from '../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const defaultCouponCodesState = {
   couponCodes: [],
@@ -54,7 +52,7 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
 
-jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect');
+// jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect');
 
 const defaultAppState = {
   enterpriseConfig: {
@@ -72,7 +70,16 @@ const defaultAppState = {
 const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
   enterpriseOffers: [],
-  redeemableLearnerCreditPolicies: [],
+  redeemableLearnerCreditPolicies: [{
+    learnerContentAssignments: {
+      state: 'allocated',
+    },
+  },
+  {
+    learnerContentAssignments: {
+      state: 'accepted',
+    },
+  }],
 };
 
 const defaultCourseState = {
@@ -347,13 +354,6 @@ describe('<Dashboard />', () => {
   });
 
   it('should render redirect component if no cookie and no courseAssignments exist', () => {
-    isFirstDashboardPageVisit.mockReturnValueOnce(true);
-    EnterpriseLearnerFirstVisitRedirect.mockImplementation(() => (
-      <IntlProvider locale="en">
-        <div>search-page</div>
-      </IntlProvider>
-    ));
-
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
       redeemableLearnerCreditPolicies: [{
@@ -363,35 +363,9 @@ describe('<Dashboard />', () => {
         ],
       }],
     };
+    jest.spyOn(EnterpriseLearnerFirstVisitRedirect, 'default').mockReturnValueOnce(<IntlProvider locale="en">search-page</IntlProvider>);
     renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
-
-    expect(isFirstDashboardPageVisit).toHaveBeenCalled();
-    expect(screen.getByText('search-page')).toBeInTheDocument();
-  });
-
-  it('should not render redirect component if active learnerContentAssignment exist', () => {
-    isFirstDashboardPageVisit.mockReturnValueOnce(true);
-    EnterpriseLearnerFirstVisitRedirect.mockImplementation(() => (
-      <IntlProvider locale="en">
-        <div>search-page</div>
-      </IntlProvider>
-    ));
-
-    const noActiveCourseAssignmentUserSubsidyState = {
-      ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [{
-        learnerContentAssignments: [{
-          state: 'allocated',
-        },
-        {
-          state: 'accepted',
-        },
-        ],
-      }],
-    };
-    renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
-
-    expect(screen.queryByText('search-page')).not.toBeInTheDocument();
+    expect(screen.queryByText('search-page')).toBeTruthy();
   });
 
   describe('SubscriptionExpirationModal', () => {

@@ -15,10 +15,7 @@ import { MyCareerTab } from '../my-career';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import { ASSIGNMENT_TYPES } from './main-content/course-enrollments/CourseEnrollments';
-import EnterpriseLearnerFirstVisitRedirect, {
-  isFirstDashboardPageVisit,
-} from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
+import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const DashboardPage = () => {
   const { state } = useLocation();
@@ -28,7 +25,6 @@ const DashboardPage = () => {
   const {
     subscriptionPlan,
     showExpirationNotifications,
-    redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
@@ -38,17 +34,6 @@ const DashboardPage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseConfig.uuid);
-
-  const hasActiveCourseAssignments = (learnerCreditPolicies) => {
-    const learnerContentAssignmentsArray = learnerCreditPolicies?.flatMap(
-      item => item?.learnerContentAssignments || [],
-    );
-    // filters out course assignments that are not considered active
-    const hasActiveAssignments = learnerContentAssignmentsArray.filter(
-      assignment => assignment.state !== ASSIGNMENT_TYPES.cancelled,
-    );
-    return hasActiveAssignments.length > 0;
-  };
 
   const onSelectHandler = (key) => {
     if (key === 'my-career') {
@@ -99,10 +84,6 @@ const DashboardPage = () => {
     ),
   ];
 
-  if (!hasActiveCourseAssignments(redeemableLearnerCreditPolicies) && isFirstDashboardPageVisit()) {
-    return <EnterpriseLearnerFirstVisitRedirect />;
-  }
-
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -110,6 +91,7 @@ const DashboardPage = () => {
         <h2 className="h1 mb-4 mt-4">
           {userFirstName ? `Welcome, ${userFirstName}!` : 'Welcome!'}
         </h2>
+        <EnterpriseLearnerFirstVisitRedirect />
         <Tabs defaultActiveKey="courses" onSelect={(k) => onSelectHandler(k)}>{allTabs.filter(tab => tab)}</Tabs>
         {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
         {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}

@@ -53,6 +53,7 @@ const CourseEnrollments = ({ children }) => {
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
   useEffect(() => {
+    // TODO: Refactor to DRY up code for redeemableLearnerCreditPolicies
     const data = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
     const assignmentsData = sortAssignmentsByAssignmentStatus(data);
     setAssignments(assignmentsData);
