@@ -23,7 +23,7 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
       item => item?.learnerContentAssignments || [],
     );
     // filters out course assignments that are not considered active and returns a boolean value
-    return getActiveAssignments(learnerContentAssignmentsArray).isActiveAssignments();
+    return getActiveAssignments(learnerContentAssignmentsArray).hasActiveAssignments;
   };
   useEffect(() => {
     const cookies = new Cookies();
