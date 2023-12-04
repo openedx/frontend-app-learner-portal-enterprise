@@ -15,13 +15,21 @@ import { MyCareerTab } from '../my-career';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
+import { ASSIGNMENT_TYPES } from './main-content/course-enrollments/CourseEnrollments';
+import EnterpriseLearnerFirstVisitRedirect, {
+  isFirstDashboardPageVisit,
+} from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username } = authenticatedUser;
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
+  const {
+    subscriptionPlan,
+    showExpirationNotifications,
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
   const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
@@ -30,6 +38,18 @@ const DashboardPage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseConfig.uuid);
+
+  const hasActiveCourseAssignments = (learnerCreditPolicies) => {
+    const learnerContentAssignmentsArray = learnerCreditPolicies?.flatMap(
+      item => item?.learnerContentAssignments || [],
+    );
+    // looks for some course assignments that are either 'allocated' or 'accepted'
+    const hasActiveAssignments = learnerContentAssignmentsArray.filter(
+      assignment => assignment.state !== ASSIGNMENT_TYPES.cancelled,
+    );
+    return hasActiveAssignments.length > 0;
+  };
+
   const onSelectHandler = (key) => {
     if (key === 'my-career') {
       sendEnterpriseTrackEvent(
@@ -78,6 +98,10 @@ const DashboardPage = () => {
       </Tab>
     ),
   ];
+
+  if (!hasActiveCourseAssignments(redeemableLearnerCreditPolicies) && isFirstDashboardPageVisit()) {
+    return <EnterpriseLearnerFirstVisitRedirect />;
+  }
 
   return (
     <>

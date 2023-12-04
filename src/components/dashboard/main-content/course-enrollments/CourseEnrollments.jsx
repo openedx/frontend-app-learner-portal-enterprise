@@ -17,9 +17,6 @@ import {
 } from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
-import EnterpriseLearnerFirstVisitRedirect, {
-  isFirstDashboardPageVisit,
-} from '../../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
@@ -68,7 +65,6 @@ const CourseEnrollments = ({ children }) => {
     setShowCancelledAssignmentsAlert(hasCancelledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
-
   const filteredAssignments = assignments?.filter((assignment) => assignment?.state === ASSIGNMENT_TYPES.allocated
     || assignment?.state === ASSIGNMENT_TYPES.cancelled);
   const assignedCourses = getTransformedAllocatedAssignments(filteredAssignments, slug);
@@ -119,10 +115,6 @@ const CourseEnrollments = ({ children }) => {
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   const hasCourseAssignments = filteredAssignments?.length > 0;
-
-  if (hasCourseAssignments && isFirstDashboardPageVisit()) {
-    return <EnterpriseLearnerFirstVisitRedirect />;
-  }
 
   return (
     <>
