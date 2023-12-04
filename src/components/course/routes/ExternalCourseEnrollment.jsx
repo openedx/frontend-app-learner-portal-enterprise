@@ -12,8 +12,10 @@ import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import RegistrationSummaryCard from '../../executive-education-2u/components/RegistrationSummaryCard';
 import UserEnrollmentForm from '../../executive-education-2u/UserEnrollmentForm';
-import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '../data/hooks';
+import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCourseMetadata } from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { features } from '../../../config';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
@@ -22,14 +24,19 @@ const ExternalCourseEnrollment = () => {
     state: {
       activeCourseRun,
       courseEntitlementProductSku,
+      course,
     },
     userSubsidyApplicableToCourse,
     hasSuccessfulRedemption,
     externalCourseFormSubmissionError,
   } = useContext(CourseContext);
   const {
+    redeemableLearnerCreditPolicies,
+  } = useContext(UserSubsidyContext);
+  const {
     enterpriseConfig: { authOrgId },
   } = useContext(AppContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
 
@@ -106,7 +113,9 @@ const ExternalCourseEnrollment = () => {
                   </strong>
                   &nbsp; Please ensure that the course details below are correct and confirm using Learner
                   Credit with a &quot;Confirm registration&quot; button.
-                  Your Learner Credit funds will be redeemed at this point.
+                  {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
+                    ? 'Your learning administrator already allocated funds towards this registration.'
+                    : 'Your Learner Credit funds will be redeemed at this point.'}
                 </p>
               )}
               <CourseSummaryCard courseMetadata={courseMetadata} />

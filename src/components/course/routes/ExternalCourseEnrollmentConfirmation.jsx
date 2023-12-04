@@ -1,13 +1,19 @@
-import React from 'react';
+import { React, useContext } from 'react';
 import { Container } from '@edx/paragon';
 
 import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '../data/hooks';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import EnrollmentCompletedSummaryCard from '../../executive-education-2u/components/EnrollmentCompletedSummaryCard';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
+import { CourseContext } from '../CourseContextProvider';
 
 const ExternalCourseEnrollmentConfirmation = () => {
   const courseMetadata = useMinimalCourseMetadata();
+  const {
+    state: {
+      course,
+    },
+  } = useContext(CourseContext);
   const {
     failureReason,
     failureMessage,
@@ -28,7 +34,7 @@ const ExternalCourseEnrollmentConfirmation = () => {
             courseMetadata={courseMetadata}
             enrollmentCompleted
           />
-          <EnrollmentCompletedSummaryCard />
+          <EnrollmentCompletedSummaryCard courseKey={course?.key} />
         </Container>
       )}
     </div>
