@@ -153,6 +153,10 @@ export const mockCanRedeemForContentKey = {
   has_redeemed: false,
   redemptions: [],
   reasons: [],
+  list_price: {
+    usd: 99.0,
+    usd_cents: 9900,
+  },
 };
 export const mockCanRedeemData = [mockCanRedeemForContentKey];
 export const mockSubscriptionLicense = {

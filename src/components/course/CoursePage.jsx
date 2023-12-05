@@ -182,7 +182,7 @@ const CoursePage = () => {
     ],
   );
 
-  const courseListPrice = subsidyAccessPolicyRedeemabilityData?.coursePrice
+  const courseListPrice = subsidyAccessPolicyRedeemabilityData?.listPrice
   || courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
   || getEntitlementPrice(courseState?.course?.entitlements);
 

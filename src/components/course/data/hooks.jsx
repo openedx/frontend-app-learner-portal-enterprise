@@ -532,7 +532,9 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  *  isPolicyRedemptionEnabled,
  *  redeemabilityPerContentKey,
  *  redeemableSubsidyAccessPolicy,
- *  missingSubsidyAccessPolicyReason
+ *  missingSubsidyAccessPolicyReason,
+ *  hasSuccessfulRedemption,
+ *  listPrice,
  * }
  */
 const checkRedemptionEligibility = async ({ queryKey }) => {
@@ -548,6 +550,7 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
   const otherSubsidyAccessPolicy = transformedResponse.find(
     r => r.redeemableSubsidyAccessPolicy,
   )?.redeemableSubsidyAccessPolicy;
+  const listPrice = redeemabilityForActiveCourseRun?.listPrice?.usd;
 
   const hasSuccessfulRedemption = transformedResponse.some(r => r.hasSuccessfulRedemption);
 
@@ -562,6 +565,7 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
     redeemableSubsidyAccessPolicy,
     missingSubsidyAccessPolicyReason,
     hasSuccessfulRedemption,
+    listPrice,
   };
 };
 
@@ -581,6 +585,9 @@ const checkRedemptionEligibility = async ({ queryKey }) => {
  * - `redeemableSubsidyAccessPolicy`: The redeemable subsidy access policy, if any.
  * - `redeemabilityPerContentKey`: An array of objects containing the redeemability status for each course run key.
  * - `missingSubsidyAccessPolicyReason`: The reason why the subsidy access policy is not redeemable, if any.
+ * - `hasSuccessfulRedemption`: Whether a successful redemption for the active course run
+ *    already exists for the requesting user.
+ * - `listPrice`: The list price (as a float) to display for the course.
  */
 export const useCheckSubsidyAccessPolicyRedeemability = ({
   courseRunKeys = [],
