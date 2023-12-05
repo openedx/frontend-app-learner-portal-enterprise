@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Badge, Collapsible } from '@edx/paragon';
+import { Bubble, Collapsible } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -36,7 +36,7 @@ class CourseSection extends React.Component {
   getCoursesCount = (isOpen, title, coursesCount) => {
     if (!isOpen) {
       if (title === 'Assigned Courses') {
-        return <sup><Badge variant="danger" className="rounded-circle">{coursesCount}</Badge></sup>;
+        return <sup><Bubble variant="error">{coursesCount}</Bubble></sup>;
       }
       return `(${coursesCount})`;
     }
