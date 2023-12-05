@@ -36,6 +36,7 @@ import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import PathwayModal from '../pathway/PathwayModal';
 import { useEnterpriseCuration } from './content-highlights/data';
+import SearchAcademy from './SearchAcademy';
 
 const Search = () => {
   const { pathwayUUID } = useParams();
@@ -137,6 +138,7 @@ const Search = () => {
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
+            {features.ENABLE_ACADEMIES && (canOnlyViewHighlightSets === false) && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
