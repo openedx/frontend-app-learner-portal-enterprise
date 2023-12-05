@@ -1,13 +1,7 @@
-import React, {
-  useContext, useEffect, useMemo,
-} from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useHistory, useLocation } from 'react-router-dom';
-import {
-  Container,
-  Tabs,
-  Tab,
-} from '@edx/paragon';
+import { Container, Tab, Tabs } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { ProgramListingPage } from '../program-progress';
@@ -18,17 +12,20 @@ import { useLearnerProgramsListData } from '../program-progress/data/hooks';
 import { useInProgressPathwaysData } from '../pathway-progress/data/hooks';
 import CoursesTabComponent from './main-content/CoursesTabComponent';
 import { MyCareerTab } from '../my-career';
-import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
+import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const DashboardPage = () => {
   const { state } = useLocation();
   const history = useHistory();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username } = authenticatedUser;
-  const { subscriptionPlan, showExpirationNotifications } = useContext(UserSubsidyContext);
+  const {
+    subscriptionPlan,
+    showExpirationNotifications,
+  } = useContext(UserSubsidyContext);
   // TODO: Create a context provider containing these 2 data fetch hooks to future proof when we need to use this data
   const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
   const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);

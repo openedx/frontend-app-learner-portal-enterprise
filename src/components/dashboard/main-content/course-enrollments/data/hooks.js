@@ -1,6 +1,4 @@
-import {
-  useState, useEffect, useCallback,
-} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 import _camelCase from 'lodash.camelcase';
@@ -11,8 +9,8 @@ import { groupCourseEnrollmentsByStatus, transformCourseEnrollment } from './uti
 import { COURSE_STATUSES } from './constants';
 import CourseService from '../../../../course/data/service';
 import {
-  createEnrollWithLicenseUrl,
   createEnrollWithCouponCodeUrl,
+  createEnrollWithLicenseUrl,
   findCouponCodeForCourse,
   findHighestLevelSeatSku,
   getSubsidyToApplyForCourse,

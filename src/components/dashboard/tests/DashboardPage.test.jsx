@@ -7,21 +7,15 @@ import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
 
 import userEvent from '@testing-library/user-event';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
-import {
-  SUBSCRIPTION_EXPIRED_MODAL_TITLE,
-  SUBSCRIPTION_EXPIRING_MODAL_TITLE,
-} from '../SubscriptionExpirationModal';
-import {
-  SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX,
-} from '../../../config/constants';
+import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
+import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
 import { features } from '../../../config';
 import * as hooks from '../main-content/course-enrollments/data/hooks';
 
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
 
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
@@ -40,6 +34,11 @@ const defaultCouponCodesState = {
 
 const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
 
+jest.mock('@edx/frontend-enterprise-utils', () => ({
+  ...jest.requireActual('@edx/frontend-enterprise-utils'),
+  sendEnterpriseTrackEvent: jest.fn(),
+}));
+
 jest.mock('../../../config', () => ({
   features: {
     FEATURE_ENABLE_PATHWAY_PROGRESS: jest.fn(),
@@ -51,6 +50,10 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
   ...jest.requireActual('../main-content/course-enrollments/data/utils'),
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
+
+jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect', () => jest.fn(
+  () => (<div>enterprise-learner-first-visit-redirect</div>),
+));
 
 const defaultAppState = {
   enterpriseConfig: {
@@ -68,6 +71,16 @@ const defaultAppState = {
 const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
   enterpriseOffers: [],
+  redeemableLearnerCreditPolicies: [{
+    learnerContentAssignments: {
+      state: 'allocated',
+    },
+  },
+  {
+    learnerContentAssignments: {
+      state: 'cancelled',
+    },
+  }],
 };
 
 const defaultCourseState = {
@@ -176,12 +189,13 @@ describe('<Dashboard />', () => {
   });
 
   beforeEach(() => {
+    jest.clearAllMocks();
     sortAssignmentsByAssignmentStatus.mockReturnValue([]);
   });
 
   it('renders user first name if available', () => {
     renderWithRouter(<DashboardWithContext />);
-    expect(screen.getByText('Welcome, John!'));
+    expect(screen.getByText('Welcome, John!')).toBeInTheDocument();
   });
 
   it('does not render user first name if not available', () => {
@@ -193,7 +207,7 @@ describe('<Dashboard />', () => {
       },
     };
     renderWithRouter(<DashboardWithContext initialAppState={appState} />);
-    expect(screen.getByText('Welcome!'));
+    expect(screen.getByText('Welcome!')).toBeInTheDocument();
   });
 
   it('renders license activation alert on activation success', () => {
@@ -201,7 +215,7 @@ describe('<Dashboard />', () => {
       <DashboardWithContext />,
       { route: '/?activationSuccess=true' },
     );
-    expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE));
+    expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE)).toBeInTheDocument();
   });
 
   it('does not render license activation alert without activation success', () => {
@@ -218,7 +232,7 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.getByTestId('sidebar'));
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
   });
 
   it('renders subsidies summary on a small screen', () => {
@@ -233,14 +247,14 @@ describe('<Dashboard />', () => {
       }}
       />,
     );
-    expect(screen.getByTestId('subsidies-summary'));
+    expect(screen.getByTestId('subsidies-summary')).toBeInTheDocument();
   });
 
   it('renders "Find a course" when search is enabled for the customer', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.getByText('Find a course'));
+    expect(screen.getByText('Find a course')).toBeInTheDocument();
   });
 
   it('renders Pathways when feature is enabled', () => {
@@ -258,7 +272,7 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext initialAppState={appState} />,
     );
-    expect(screen.getByText('Pathways'));
+    expect(screen.getByText('Pathways')).toBeInTheDocument();
   });
 
   it('renders My Career when feature is enabled', () => {
@@ -266,7 +280,7 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.getByText('My Career'));
+    expect(screen.getByText('My Career')).toBeInTheDocument();
   });
 
   it('does not render "Find a course" when search is disabled for the customer', () => {
@@ -329,6 +343,24 @@ describe('<Dashboard />', () => {
     const programsTab = screen.getByText('Programs');
     expect(coursesTab).toHaveAttribute('aria-selected', 'true');
     expect(programsTab).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('should send track event when "my-career" tab selected', () => {
+    renderWithRouter(<DashboardWithContext />);
+
+    const myCareerTab = screen.getByText('My Career');
+    userEvent.click(myCareerTab);
+
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('should render redirect component if no cookie and no courseAssignments exist', () => {
+    const noActiveCourseAssignmentUserSubsidyState = {
+      ...defaultUserSubsidyState,
+      redeemableLearnerCreditPolicies: [],
+    };
+    renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
+    expect(screen.queryByText('enterprise-learner-first-visit-redirect')).toBeTruthy();
   });
 
   describe('SubscriptionExpirationModal', () => {
