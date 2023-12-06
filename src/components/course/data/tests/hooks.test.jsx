@@ -1002,6 +1002,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       redeemabilityPerContentKey: mockCanRedeemData,
       redeemableSubsidyAccessPolicy: mockRedeemableSubsidyAccessPolicy,
       missingSubsidyAccessPolicyReason: undefined,
+      listPrice: mockCanRedeemForContentKey.list_price.usd,
     }));
   });
 });
