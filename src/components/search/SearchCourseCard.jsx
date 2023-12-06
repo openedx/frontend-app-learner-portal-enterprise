@@ -13,7 +13,7 @@ import { GENERAL_LENGTH_COURSE, SHORT_LENGTH_COURSE } from './data/constants';
 import { isShortCourse } from './utils';
 
 const SearchCourseCard = ({
-  key, hit, isLoading, ...rest
+  key, hit, isLoading, parentRoute, ...rest
 }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const history = useHistory();
@@ -86,7 +86,8 @@ const SearchCourseCard = ({
         courseKey: course.key,
       },
     );
-    history.push(linkToCourse);
+
+    history.push(linkToCourse, { parentRoute });
   };
 
   return (
@@ -138,12 +139,17 @@ SearchCourseCard.propTypes = {
   }),
   isLoading: PropTypes.bool,
   key: PropTypes.string,
+  parentRoute: PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    to: PropTypes.string.isRequired,
+  }),
 };
 
 SearchCourseCard.defaultProps = {
   hit: undefined,
   isLoading: false,
   key: undefined,
+  parentRoute: undefined,
 };
 
 SearchCourseCard.Skeleton = SkeletonCourseCard;

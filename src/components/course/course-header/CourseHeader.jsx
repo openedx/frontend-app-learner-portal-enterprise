@@ -7,7 +7,7 @@ import {
   Col,
   Badge,
 } from '@edx/paragon';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from '../CourseContextProvider';
@@ -48,6 +48,16 @@ const CourseHeader = () => {
     () => getDefaultProgram(course.programs),
     [course],
   );
+  const location = useLocation();
+  const routeLinks = [
+    {
+      label: 'Find a Course',
+      to: `/${enterpriseConfig.slug}/search`,
+    },
+  ];
+  if (location?.state?.parentRoute) {
+    routeLinks.push(location.state.parentRoute);
+  }
 
   return (
     <div className="course-header">
@@ -59,12 +69,7 @@ const CourseHeader = () => {
             {!enterpriseConfig.disableSearch && (
               <div className="small">
                 <Breadcrumb
-                  links={[
-                    {
-                      label: 'Find a Course',
-                      to: `/${enterpriseConfig.slug}/search`,
-                    },
-                  ]}
+                  links={routeLinks}
                   activeLabel={course.title}
                   linkAs={Link}
                 />
