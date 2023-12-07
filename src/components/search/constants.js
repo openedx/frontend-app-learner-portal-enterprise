@@ -7,10 +7,12 @@ export const CONTENT_TYPE_PROGRAM = 'program';
 export const CONTENT_TYPE_PATHWAY = 'learnerpathway';
 export const NUM_RESULTS_PROGRAM = 4;
 export const NUM_RESULTS_PATHWAY = 4;
+export const NUM_RESULTS_ACADEMY = 4;
 export const NUM_RESULTS_COURSE = 20;
 export const COURSE_TITLE = 'Courses';
 export const PROGRAM_TITLE = 'Programs';
 export const PATHWAY_TITLE = 'Pathways';
+export const ACADEMY_TITLE = 'Academies';
 export const HEADER_TITLE = 'Search Courses and Programs';
 export const SEARCH_TRACKING_NAME = 'learner_portal';
 
