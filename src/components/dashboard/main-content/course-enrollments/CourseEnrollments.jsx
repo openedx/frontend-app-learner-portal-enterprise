@@ -134,7 +134,7 @@ const CourseEnrollments = ({ children }) => {
           This allows the parent component to customize what
           gets displayed if the user does not have any course enrollments.
       */}
-      {(!hasCourseEnrollments && (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && !hasActiveAssignments)) && children}
+      {(!hasCourseEnrollments && !(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hasActiveAssignments)) && children}
       <>
         {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
           <CourseSection
