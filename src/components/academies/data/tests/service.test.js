@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getAcademyMetadata } from '../service';
+import { getAcademies, getAcademyMetadata } from '../service';
 
 // config
 const APP_CONFIG = {
@@ -12,6 +12,7 @@ const APP_CONFIG = {
 
 // test data
 const ACADEMY_UUID = 'b48ff396-03b4-467f-a4cc-da4327156984';
+const ENTERPRISE_UUID = '12345678-9000-0000-0000-123456789101';
 const ACADEMY_MOCK_DATA = {
   uuid: ACADEMY_UUID,
   title: 'Awesome Academy',
@@ -34,11 +35,13 @@ const ACADEMY_MOCK_DATA = {
 
 // endpoints
 const ACADEMY_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${ACADEMY_UUID}/`;
+const ACADEMIES_LIST_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies?enterprise_customer=${ENTERPRISE_UUID}`;
 
 jest.mock('@edx/frontend-platform/auth');
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
 axiosMock.onGet(ACADEMY_API_ENDPOINT).reply(200, ACADEMY_MOCK_DATA);
+axiosMock.onGet(ACADEMIES_LIST_API_ENDPOINT).reply(200, { count: 1, results: [ACADEMY_MOCK_DATA] });
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -55,5 +58,11 @@ describe('getAcademyMetadata', () => {
     const response = await getAcademyMetadata(ACADEMY_UUID);
     expect(axiosMock.history.get[0].url).toBe(ACADEMY_API_ENDPOINT);
     expect(response).toEqual(camelCaseObject(ACADEMY_MOCK_DATA));
+  });
+
+  it('fetches academies list', async () => {
+    const response = await getAcademies(ENTERPRISE_UUID);
+    expect(axiosMock.history.get[0].url).toBe(ACADEMIES_LIST_API_ENDPOINT);
+    expect(response).toEqual(camelCaseObject([ACADEMY_MOCK_DATA]));
   });
 });

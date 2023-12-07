@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useAcademyMetadata } from '../hooks';
-import { getAcademyMetadata } from '../service';
+import { useAcademyMetadata, useAcademies } from '../hooks';
+import { getAcademies, getAcademyMetadata } from '../service';
 
 const ACADEMY_UUID = 'b48ff396-03b4-467f-a4cc-da4327156984';
 const ACADEMY_MOCK_DATA = {
@@ -37,6 +37,7 @@ jest.mock('@edx/frontend-platform/config', () => ({
 }));
 jest.mock('../service.js', () => ({
   getAcademyMetadata: jest.fn(),
+  getAcademies: jest.fn(),
 }));
 
 describe('useAcademyMetadata', () => {
@@ -49,5 +50,16 @@ describe('useAcademyMetadata', () => {
     expect(result.current[2]).toEqual(false);
     await waitForNextUpdate();
     expect(result.current[0]).toEqual(ACADEMY_MOCK_DATA);
+  });
+
+  it('returns academies list', async () => {
+    getAcademies.mockReturnValue([ACADEMY_MOCK_DATA]);
+    const { result, waitForNextUpdate } = renderHook(() => useAcademies(ACADEMY_UUID));
+    expect(result.current[0]).toEqual([]);
+    expect(result.current[1]).toEqual(true);
+    expect(result.current[2]).toEqual(null);
+    await waitForNextUpdate();
+    expect(result.current[0].length).toEqual(1);
+    expect(result.current[0][0].uuid).toEqual(ACADEMY_UUID);
   });
 });
