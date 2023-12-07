@@ -8,6 +8,7 @@ import { CourseEnrollmentsContextProvider } from './course-enrollments';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { renderWithRouter } from '../../../utils/tests';
+import { features } from '../../../config';
 
 jest.mock('../../search/content-highlights/data', () => ({
   useEnterpriseCuration: jest.fn(() => ({
@@ -16,7 +17,11 @@ jest.mock('../../search/content-highlights/data', () => ({
     },
   })),
 }));
-
+jest.mock('../../../config', () => ({
+  features: {
+    FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: jest.fn(),
+  },
+}));
 const DashboardMainContentWrapper = ({
   initialAppState = { fakeContext: 'foo' },
   initialUserSubsidyState = {},
@@ -80,6 +85,7 @@ describe('DashboardMainContent', () => {
     expect(screen.queryByText('Recommend courses for me')).not.toBeInTheDocument();
   });
   it('renders recommended courses when canOnlyViewHighlightSets false', () => {
+    features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT.mockImplementation(() => true);
     useEnterpriseCuration.mockImplementation(() => ({
       enterpriseCuration: {
         canOnlyViewHighlightSets: false,
