@@ -63,8 +63,8 @@ const CourseEnrollments = ({ children }) => {
     setShowCancelledAssignmentsAlert(hasCancelledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
-  const { activeAssigments, hasActiveAssignments } = getActiveAssignments(assignments);
-  const assignedCourses = getTransformedAllocatedAssignments(activeAssigments, slug);
+  const { activeAssignments, hasActiveAssignments } = getActiveAssignments(assignments);
+  const assignedCourses = getTransformedAllocatedAssignments(activeAssignments, slug);
 
   const currentCourseEnrollments = useMemo(
     () => {
@@ -113,10 +113,10 @@ const CourseEnrollments = ({ children }) => {
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   return (
     <>
-      {showCancelledAssignmentsAlert && (
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showCancelledAssignmentsAlert && (
         <CourseAssignmentAlert variant="cancelled" onClose={() => setShowCancelledAssignmentsAlert(false)}> </CourseAssignmentAlert>
       )}
-      {showExpiredAssignmentsAlert && (
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showExpiredAssignmentsAlert && (
         <CourseAssignmentAlert variant="expired" onClose={() => setShowExpiredAssignmentsAlert(false)}> </CourseAssignmentAlert>
       )}
       {showMarkCourseCompleteSuccess && (
@@ -134,7 +134,7 @@ const CourseEnrollments = ({ children }) => {
           This allows the parent component to customize what
           gets displayed if the user does not have any course enrollments.
       */}
-      {(!hasCourseEnrollments && !hasActiveAssignments) && children}
+      {(!hasCourseEnrollments && (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && !hasActiveAssignments)) && children}
       <>
         {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
           <CourseSection

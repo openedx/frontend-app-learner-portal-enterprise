@@ -43,6 +43,7 @@ jest.mock('../../../config', () => ({
   features: {
     FEATURE_ENABLE_PATHWAY_PROGRESS: jest.fn(),
     FEATURE_ENABLE_MY_CAREER: jest.fn(),
+    FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: jest.fn(),
   },
 }));
 
@@ -251,6 +252,7 @@ describe('<Dashboard />', () => {
   });
 
   it('renders "Find a course" when search is enabled for the customer', () => {
+    features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT.mockImplementation(() => true);
     renderWithRouter(
       <DashboardWithContext />,
     );
