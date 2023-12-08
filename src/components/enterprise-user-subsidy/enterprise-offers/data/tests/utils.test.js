@@ -1,12 +1,14 @@
-import { ENTERPRISE_OFFER_TYPE } from '../constants';
+import { ASSIGNMENT_TYPES, ENTERPRISE_OFFER_TYPE } from '../constants';
 import {
   getOfferType,
+  isDisableCourseSearch,
   isOfferLowOnBalance,
   isOfferOutOfBalance,
   offerHasBookingsLimit,
   offerHasEnrollmentsLimit,
   transformEnterpriseOffer,
 } from '../utils';
+import { LICENSE_STATUS } from '../../../data/constants';
 
 describe('offerHasBookingsLimit', () => {
   test.each([
@@ -330,5 +332,58 @@ describe('transformEnterpriseOffer', () => {
     offer, expectedResult,
   }) => {
     expect(transformEnterpriseOffer(offer)).toEqual(expectedResult);
+  });
+});
+
+describe('isDisableCourseSearch', () => {
+  it('returns false if hasActiveSubPlan', () => {
+    const inputs = {
+      redeemableLearnerCreditPolicies: [{
+        learnerContentAssignments: {
+          state: ASSIGNMENT_TYPES.ALLOCATED,
+        },
+      }],
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: true,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+    };
+    const isDisableSearch = isDisableCourseSearch(
+      inputs.redeemableLearnerCreditPolicies,
+      inputs.enterpriseOffers,
+      inputs.subscriptionPlan,
+      inputs.subscriptionLicenses,
+    );
+    expect(isDisableSearch).toEqual(false);
+  });
+  it('returns true if does not have active sub plans and assignments', () => {
+    const inputs = {
+      redeemableLearnerCreditPolicies: [{
+        learnerContentAssignments: {
+          state: ASSIGNMENT_TYPES.ALLOCATED,
+        },
+      }],
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+    };
+    const isDisableSearch = isDisableCourseSearch(
+      inputs.redeemableLearnerCreditPolicies,
+      inputs.enterpriseOffers,
+      inputs.subscriptionPlan,
+      inputs.subscriptionLicenses,
+    );
+    expect(isDisableSearch).toEqual(true);
   });
 });
