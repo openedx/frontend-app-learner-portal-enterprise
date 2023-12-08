@@ -122,6 +122,9 @@ export const isDisableCourseSearch = (
   subscriptionPlan,
   subscriptionLicense,
 ) => {
+  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
+
   const assignments = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
   const allocatedAndAcceptedAssignments = assignments?.filter(item => item?.state === ASSIGNMENT_TYPES.ALLOCATED
     || item?.state === ASSIGNMENT_TYPES.ACCEPTED);
@@ -130,8 +133,9 @@ export const isDisableCourseSearch = (
     return false;
   }
 
-  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
-  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+  if (hasActiveSubPlan) {
+    return false;
+  }
 
-  return (activeOffers?.length === 1 && !hasActiveSubPlan) || (activeOffers?.length === 0 && hasActiveSubPlan);
+  return activeOffers?.length > 0 || allocatedAndAcceptedAssignments?.length > 0;
 };
