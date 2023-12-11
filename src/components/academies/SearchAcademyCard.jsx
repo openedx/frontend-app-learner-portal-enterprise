@@ -5,6 +5,8 @@ import {
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 
+import './styles/Academy.scss';
+
 const SearchAcademyCard = ({
   uuid, title, shortDescription, image, isLoading,
 }) => {
@@ -15,14 +17,17 @@ const SearchAcademyCard = ({
       isClickable
       as={Hyperlink}
       isLoading={isLoading}
-      destination={`/${enterpriseConfig.slug}/academy/${uuid}`}
+      destination={`/${enterpriseConfig.slug}/academies/${uuid}/`}
+      className="academy-card"
     >
       <Card.Header title={title} />
       <Card.Section>
         {shortDescription}
       </Card.Section>
+      <br />
+      <br />
       <Card.Section className="clearfix">
-        <Image className="float-right" src={image} />
+        <Image className="float-right academy-card-image" src={image} />
       </Card.Section>
     </Card>
   );
