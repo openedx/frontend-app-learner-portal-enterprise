@@ -51,7 +51,7 @@ const CourseSidebarPrice = () => {
     return (
       <>
         <div>
-          {crossedOutOriginalPrice} <strong>$0</strong>
+          {crossedOutOriginalPrice}
         </div>
         <span className="small">{ASSIGNED_COURSE_MESSAGE}</span>
       </>
