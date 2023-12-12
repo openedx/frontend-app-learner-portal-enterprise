@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import {
-  Container, MediaQuery, Row, breakpoints,
+  breakpoints, Container, MediaQuery, Row,
 } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';

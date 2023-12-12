@@ -36,3 +36,9 @@ export const ASSIGNMENT_TYPES = {
   CANCELLED: 'cancelled',
   ERRORED: 'errored',
 };
+
+export const POLICY_TYPES = {
+  ASSIGNED_CREDIT: 'AssignedLearnerCreditAccessPolicy',
+  PER_LEARNER_CREDIT: 'PerLearnerSpendCreditAccessPolicy',
+  PER_ENROLLMENT_CREDIT: 'PerLearnerEnrollmentCreditAccessPolicy',
+};

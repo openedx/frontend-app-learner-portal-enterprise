@@ -6,6 +6,7 @@ import {
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
+  POLICY_TYPES,
 } from './constants';
 
 import { LICENSE_STATUS } from '../../data/constants';
@@ -122,14 +123,21 @@ export const isDisableCourseSearch = (
   subscriptionPlan,
   subscriptionLicense,
 ) => {
+  const nonAssignablePolicyTypes = redeemableLearnerCreditPolicies.filter(
+    item => item.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
+  );
+  if (nonAssignablePolicyTypes.length > 0) {
+    return false;
+  }
+
   const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
   const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
 
   const assignments = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-  const allocatedAndAcceptedAssignments = assignments?.filter(item => item?.state === ASSIGNMENT_TYPES.ALLOCATED
+  const allocatedOrAcceptedAssignments = assignments?.filter(item => item?.state === ASSIGNMENT_TYPES.ALLOCATED
     || item?.state === ASSIGNMENT_TYPES.ACCEPTED);
 
-  if (allocatedAndAcceptedAssignments?.length === 0) {
+  if (allocatedOrAcceptedAssignments?.length === 0) {
     return false;
   }
 
@@ -137,5 +145,5 @@ export const isDisableCourseSearch = (
     return false;
   }
 
-  return activeOffers?.length > 0 || allocatedAndAcceptedAssignments?.length > 0;
+  return activeOffers?.length > 0 || allocatedOrAcceptedAssignments?.length > 0;
 };
