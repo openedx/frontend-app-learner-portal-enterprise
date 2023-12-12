@@ -10,6 +10,7 @@ import { renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -176,6 +177,9 @@ const expiringSubscriptionUserSubsidyState = {
   },
   showExpirationNotifications: false,
   couponCodes: defaultCouponCodesState,
+  redeemableLearnerCreditPolicies: [{
+    policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+  }],
 };
 
 const defaultSearchContext = {

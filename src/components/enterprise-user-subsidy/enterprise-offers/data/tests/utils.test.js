@@ -1,4 +1,4 @@
-import { ASSIGNMENT_TYPES, ENTERPRISE_OFFER_TYPE } from '../constants';
+import { ASSIGNMENT_TYPES, ENTERPRISE_OFFER_TYPE, POLICY_TYPES } from '../constants';
 import {
   getOfferType,
   isDisableCourseSearch,
@@ -336,9 +336,11 @@ describe('transformEnterpriseOffer', () => {
 });
 
 describe('isDisableCourseSearch', () => {
-  it('returns false if hasActiveSubPlan', () => {
-    const inputs = {
+  it.each([
+    {
+      isCourseSearchDisabled: false,
       redeemableLearnerCreditPolicies: [{
+        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
         learnerContentAssignments: {
           state: ASSIGNMENT_TYPES.ALLOCATED,
         },
@@ -352,18 +354,54 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
-    };
-    const isDisableSearch = isDisableCourseSearch(
-      inputs.redeemableLearnerCreditPolicies,
-      inputs.enterpriseOffers,
-      inputs.subscriptionPlan,
-      inputs.subscriptionLicenses,
-    );
-    expect(isDisableSearch).toEqual(false);
-  });
-  it('returns true if does not have active sub plans and assignments', () => {
-    const inputs = {
+    },
+    {
+      isCourseSearchDisabled: false,
       redeemableLearnerCreditPolicies: [{
+        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+        learnerContentAssignments: {
+          state: ASSIGNMENT_TYPES.ALLOCATED,
+        },
+      },
+      {
+        policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+      },
+      {
+        policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+      }],
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+    },
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: [
+        {
+          policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+        },
+        {
+          policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+        }],
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+    },
+    {
+      isCourseSearchDisabled: true,
+      redeemableLearnerCreditPolicies: [{
+        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
         learnerContentAssignments: {
           state: ASSIGNMENT_TYPES.ALLOCATED,
         },
@@ -377,13 +415,44 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
-    };
+    },
+    {
+      isCourseSearchDisabled: true,
+      redeemableLearnerCreditPolicies: [{
+        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+        learnerContentAssignments: {
+          state: ASSIGNMENT_TYPES.ACCEPTED,
+        },
+      },
+      {
+        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+        learnerContentAssignments: {
+          state: ASSIGNMENT_TYPES.ALLOCATED,
+        },
+      }],
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+    },
+  ])('isCourseSearchDisabled - (%p), (%s)', ({
+    isCourseSearchDisabled,
+    redeemableLearnerCreditPolicies,
+    enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicenses,
+  }) => {
     const isDisableSearch = isDisableCourseSearch(
-      inputs.redeemableLearnerCreditPolicies,
-      inputs.enterpriseOffers,
-      inputs.subscriptionPlan,
-      inputs.subscriptionLicenses,
+      redeemableLearnerCreditPolicies,
+      enterpriseOffers,
+      subscriptionPlan,
+      subscriptionLicenses,
     );
-    expect(isDisableSearch).toEqual(true);
+    expect(isDisableSearch).toEqual(isCourseSearchDisabled);
   });
 });

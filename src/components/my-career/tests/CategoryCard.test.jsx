@@ -9,6 +9,7 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -90,6 +91,9 @@ const expiringSubscriptionUserSubsidyState = {
   },
   couponCodes: [],
   showExpirationNotifications: false,
+  redeemableLearnerCreditPolicies: [{
+    policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+  }],
 };
 
 const CategoryCardWithContext = () => (
