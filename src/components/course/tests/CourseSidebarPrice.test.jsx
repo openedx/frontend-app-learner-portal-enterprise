@@ -102,7 +102,15 @@ const SidebarWithContext = ({
       couponCodes: [{ discountValue: 90 }],
       couponCodesCount: 0,
     },
-    redeemableLearnerCreditPolicies: [],
+    redeemableLearnerCreditPolicies: {
+      redeemablePolicies: [],
+      learnerContentAssignments: {
+        assignments: [],
+        hasAssignments: false,
+        activeAssignments: [],
+        hasActiveAssignments: false,
+      },
+    },
   },
 }) => (
   <AppContext.Provider value={initialAppState}>

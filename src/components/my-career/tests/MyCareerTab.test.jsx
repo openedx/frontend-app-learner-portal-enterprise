@@ -207,9 +207,12 @@ const expiringSubscriptionUserSubsidyState = {
   },
   showExpirationNotifications: false,
   couponCodes: defaultCouponCodesState,
-  redeemableLearnerCreditPolicies: [{
-    policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-  }],
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [{
+      policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+    }],
+    learnerContentAssignments: [],
+  },
 };
 
 const MyCareerTabWithContext = ({

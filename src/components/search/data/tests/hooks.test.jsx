@@ -47,7 +47,15 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     }));
     if (isSubscriptionPlanExpired) {
       expect(result.current).toEqual([]);
@@ -73,7 +81,15 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     }));
     if (isCouponExpired) {
       expect(result.current).toEqual([]);
@@ -93,7 +109,15 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     }));
     expect(result.current).toEqual([]);
   });
@@ -115,7 +139,15 @@ describe('useSearchCatalogs', () => {
         isCurrent: !isExpiredOffer,
       }],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     }));
     if (isExpiredOffer) {
       expect(result.current).toEqual([]);
@@ -135,7 +167,15 @@ describe('useSearchCatalogs', () => {
         enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
       }],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     }));
     expect(result.current).toEqual([]);
   });
@@ -149,7 +189,15 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests,
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     }));
     expect(result.current).toEqual(catalogsForSubsidyRequests);
   });
@@ -167,14 +215,17 @@ describe('useSearchCatalogs', () => {
       hasDefinedPolicies: true,
       isPolicyExpired: true,
     },
-  ])('should include catalogs for redeemable subsidy access policies', ({
+  ])('should include catalogs for redeemable subsidy access policies (%s)', ({
     hasDefinedPolicies,
     isPolicyExpired,
   }) => {
-    const redeemableLearnerCreditPolicies = hasDefinedPolicies ? [{
-      active: !isPolicyExpired,
-      catalogUuid: mockPolicyCatalog,
-    }] : undefined;
+    const redeemableLearnerCreditPolicies = {
+      redeemablePolicies: hasDefinedPolicies ? [{
+        active: !isPolicyExpired,
+        catalogUuid: mockPolicyCatalog,
+      }] : undefined,
+      learnerContentAssignments: [],
+    };
 
     const { result } = renderHook(() => useSearchCatalogs({
       subscriptionPlan: undefined,

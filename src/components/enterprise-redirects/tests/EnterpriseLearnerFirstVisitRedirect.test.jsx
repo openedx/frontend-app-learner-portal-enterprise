@@ -20,16 +20,26 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const defaultUserSubsidyState = {
-  redeemableLearnerCreditPolicies: [{
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [
+      {
+        learnerContentAssignments: [
+          { state: 'allocated' },
+        ],
+      },
+      {
+        learnerContentAssignments: [
+          { state: 'cancelled' },
+        ],
+      },
+    ],
     learnerContentAssignments: {
-      state: 'allocated',
+      assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasAssignments: true,
+      activeAssignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasActiveAssignments: true,
     },
   },
-  {
-    learnerContentAssignments: {
-      state: 'cancelled',
-    },
-  }],
 };
 
 const EnterpriseLearnerFirstVisitRedirectWrapper = ({
@@ -49,7 +59,15 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   test('redirects to search if user is visiting for the first time.', async () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     };
 
     const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
@@ -59,7 +77,15 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   test('redirects to search if the course assigned is not active.', async () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     };
 
     const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });

@@ -110,7 +110,8 @@ export const transformEnterpriseOffer = (offer) => {
  * -> Is assigned a course,
  * -> And has no other subsidy,If they had a subscription,
  *    but the license is no longer relevant, we would not want to count that.
- * @param {Array} redeemableLearnerCreditPolicies - Array of redeemable learner credit policies.
+ * @param {Object} redeemableLearnerCreditPolicies - Object containing list of redeemable
+ *  policies and learner content assignments.
  * @param {Array} enterpriseOffers - Array of enterprise offers.
  * @param {Object} subscriptionPlan - Subscription plan object.
  * @param {Object} subscriptionLicense - Subscription license object.
@@ -123,7 +124,12 @@ export const isDisableCourseSearch = (
   subscriptionPlan,
   subscriptionLicense,
 ) => {
-  const nonAssignablePolicyTypes = redeemableLearnerCreditPolicies.filter(
+  const {
+    redeemablePolicies,
+    learnerContentAssignments,
+  } = redeemableLearnerCreditPolicies || {};
+
+  const nonAssignablePolicyTypes = redeemablePolicies.filter(
     item => item.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
   );
   if (nonAssignablePolicyTypes.length > 0) {
@@ -133,9 +139,8 @@ export const isDisableCourseSearch = (
   const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
   const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
 
-  const assignments = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-  const allocatedOrAcceptedAssignments = assignments?.filter(item => item?.state === ASSIGNMENT_TYPES.ALLOCATED
-    || item?.state === ASSIGNMENT_TYPES.ACCEPTED);
+  const allocatedOrAcceptedAssignments = learnerContentAssignments.assignments
+    .filter(item => [ASSIGNMENT_TYPES.ALLOCATED, ASSIGNMENT_TYPES.ACCEPTED].includes(item.state));
 
   if (allocatedOrAcceptedAssignments?.length === 0) {
     return false;

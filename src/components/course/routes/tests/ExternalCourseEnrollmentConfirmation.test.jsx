@@ -58,16 +58,26 @@ const appContextValue = {
   },
 };
 
+const baseUserSubsidyContextValue = {
+  subscriptionLicense: null,
+  couponCodes: {
+    couponCodes: [{ discountValue: 90 }],
+    couponCodesCount: 0,
+  },
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+
 const ExternalCourseEnrollmentConfirmationWrapper = ({
   courseContextValue = baseCourseContextValue,
-  initialUserSubsidyState = {
-    subscriptionLicense: null,
-    couponCodes: {
-      couponCodes: [{ discountValue: 90 }],
-      couponCodesCount: 0,
-    },
-    redeemableLearnerCreditPolicies: [],
-  },
+  initialUserSubsidyState = baseUserSubsidyContextValue,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>

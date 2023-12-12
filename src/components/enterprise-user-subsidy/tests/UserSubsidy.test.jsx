@@ -13,7 +13,7 @@ jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
   useSubscriptions: jest.fn().mockReturnValue({}),
   useCouponCodes: jest.fn().mockReturnValue([]),
-  useRedeemableLearnerCreditPolicies: jest.fn().mockReturnValue([]),
+  useRedeemableLearnerCreditPolicies: jest.fn().mockReturnValue({ data: undefined }),
 }));
 
 jest.mock('../enterprise-offers/data/hooks', () => ({
@@ -116,7 +116,10 @@ describe('UserSubsidy', () => {
     useSubscriptions.mockReturnValue({ isLoading: isSubscriptionsLoading });
     useCouponCodes.mockReturnValue([[], isCouponCodesLoading]);
     useEnterpriseOffers.mockReturnValue({ isLoading: isEnterpriseOffersLoading });
-    useRedeemableLearnerCreditPolicies.mockReturnValue({ data: [], isLoading: isLoadingRedeemablePolicies });
+    useRedeemableLearnerCreditPolicies.mockReturnValue({
+      data: { redeemablePolicies: [], learnerContentAssignments: [] },
+      isLoading: isLoadingRedeemablePolicies,
+    });
 
     const Component = (
       <UserSubsidyWithAppContext>

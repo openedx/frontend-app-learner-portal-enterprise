@@ -339,12 +339,22 @@ describe('isDisableCourseSearch', () => {
   it.each([
     {
       isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: [{
-        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
         learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ALLOCATED,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
         },
-      }],
+      },
       enterpriseOffers: [{
         isCurrent: true,
       }],
@@ -357,18 +367,30 @@ describe('isDisableCourseSearch', () => {
     },
     {
       isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: [{
-        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+          {
+            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+            learnerContentAssignments: [],
+          },
+          {
+            policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+            learnerContentAssignments: [],
+          },
+        ],
         learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ALLOCATED,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
         },
       },
-      {
-        policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-      },
-      {
-        policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
-      }],
       enterpriseOffers: [{
         isCurrent: true,
       }],
@@ -381,13 +403,24 @@ describe('isDisableCourseSearch', () => {
     },
     {
       isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: [
-        {
-          policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+            learnerContentAssignments: [],
+          },
+          {
+            policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+            learnerContentAssignments: [],
+          },
+        ],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
         },
-        {
-          policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
-        }],
+      },
       enterpriseOffers: [{
         isCurrent: true,
       }],
@@ -400,12 +433,22 @@ describe('isDisableCourseSearch', () => {
     },
     {
       isCourseSearchDisabled: true,
-      redeemableLearnerCreditPolicies: [{
-        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
         learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ALLOCATED,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
         },
-      }],
+      },
       enterpriseOffers: [{
         isCurrent: true,
       }],
@@ -418,18 +461,28 @@ describe('isDisableCourseSearch', () => {
     },
     {
       isCourseSearchDisabled: true,
-      redeemableLearnerCreditPolicies: [{
-        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ACCEPTED },
+            ],
+          },
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
         learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ACCEPTED,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
         },
       },
-      {
-        policyType: POLICY_TYPES.ASSIGNED_CREDIT,
-        learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ALLOCATED,
-        },
-      }],
       enterpriseOffers: [{
         isCurrent: false,
       }],

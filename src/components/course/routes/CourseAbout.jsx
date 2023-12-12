@@ -31,7 +31,7 @@ const CourseAbout = () => {
     subscriptionLicense,
   } = useContext(UserSubsidyContext);
 
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
   const hideCourseSearch = isDisableCourseSearch(
     redeemableLearnerCreditPolicies,
     enterpriseOffers,

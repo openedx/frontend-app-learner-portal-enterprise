@@ -177,9 +177,17 @@ const expiringSubscriptionUserSubsidyState = {
   },
   showExpirationNotifications: false,
   couponCodes: defaultCouponCodesState,
-  redeemableLearnerCreditPolicies: [{
-    policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-  }],
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [{
+      policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+    }],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
 };
 
 const defaultSearchContext = {

@@ -53,25 +53,24 @@ const mockLicense = {
   activation_key: TEST_ACTIVATION_KEY,
 };
 const mockSubscriptionPlan = { uuid: TEST_SUBSCRIPTION_UUID, is_active: true, title: 'title' };
-const mockLearnerCredit = [
-  {
-    uuid: '3a93089e-9ff6-4d70-88d5-71c9cda7ce12',
-    policy_redemption_url: 'http://localhost:18270/api/v1/policy-redemption/3a93089e-9ff6-4d70-88d5-71c9cda7ce12/redeem/',
-    remaining_balance_per_user: 500,
-    remaining_balance: 50000,
-    subsidy_expiration_date: '2030-01-01 12:00:00Z',
-    policy_type: 'PerLearnerEnrollmentCreditAccessPolicy',
-    enterprise_customer_uuid: 'd0a6c526-670b-4991-b213-83f7b1216f29',
-    description: 'test Subsidy policy',
-    active: true,
-    catalog_uuid: '8e353fcc-b623-4912-85ee-1f0d045c6d1c',
-    subsidy_uuid: '8e353fcc-b623-4912-85ee-1f0d045c6d1c',
-    access_method: 'direct',
-    spend_limit: 5000,
-    per_learner_enrollment_limit: 10,
-    per_learner_spend_limit: 1500,
-  },
-];
+const mockLearnerCreditPolicy = {
+  uuid: '3a93089e-9ff6-4d70-88d5-71c9cda7ce12',
+  policy_redemption_url: 'http://localhost:18270/api/v1/policy-redemption/3a93089e-9ff6-4d70-88d5-71c9cda7ce12/redeem/',
+  remaining_balance_per_user: 500,
+  remaining_balance: 50000,
+  subsidy_expiration_date: '2030-01-01 12:00:00Z',
+  policy_type: 'PerLearnerEnrollmentCreditAccessPolicy',
+  enterprise_customer_uuid: 'd0a6c526-670b-4991-b213-83f7b1216f29',
+  description: 'test Subsidy policy',
+  active: true,
+  catalog_uuid: '8e353fcc-b623-4912-85ee-1f0d045c6d1c',
+  subsidy_uuid: '8e353fcc-b623-4912-85ee-1f0d045c6d1c',
+  access_method: 'direct',
+  spend_limit: 5000,
+  per_learner_enrollment_limit: 10,
+  per_learner_spend_limit: 1500,
+  learner_content_assignments: undefined,
+};
 const mockUser = { roles: [] };
 const mockEnterpriseUser = { roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`] };
 const mockCustomerAgreement = {
@@ -365,16 +364,16 @@ describe('useCustomerAgreementData', () => {
   });
 });
 
-describe('useRedeemableLearnerCreditPolicies', () => {
-  const Wrapper = ({ children }) => (
-    <QueryClientProvider client={new QueryClient()}>
-      {children}
-    </QueryClientProvider>
-  );
+const Wrapper = ({ children }) => (
+  <QueryClientProvider client={new QueryClient()}>
+    {children}
+  </QueryClientProvider>
+);
 
+describe('useRedeemableLearnerCreditPolicies', () => {
   it('fetches and returns redeemable learner credit policies', async () => {
     fetchRedeemableLearnerCreditPolicies.mockResolvedValueOnce({
-      data: mockLearnerCredit,
+      data: [mockLearnerCreditPolicy],
     });
     const { result, waitForNextUpdate } = renderHook(
       () => useRedeemableLearnerCreditPolicies(TEST_ENTERPRISE_UUID, TEST_USER_ID),
@@ -382,6 +381,15 @@ describe('useRedeemableLearnerCreditPolicies', () => {
     );
     await waitForNextUpdate();
     expect(fetchRedeemableLearnerCreditPolicies).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID, TEST_USER_ID);
-    expect(result.current.data).toEqual(camelCaseObject(mockLearnerCredit));
+
+    expect(result.current.data).toEqual({
+      redeemablePolicies: [camelCaseObject(mockLearnerCreditPolicy)],
+      learnerContentAssignments: {
+        assignments: [],
+        hasAssignments: false,
+        activeAssignments: [],
+        hasActiveAssignments: false,
+      },
+    });
   });
 });

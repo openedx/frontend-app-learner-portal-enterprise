@@ -24,7 +24,7 @@ import getActiveAssignments from '../data/utils';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
+  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
   const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
 
   if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
@@ -88,7 +88,7 @@ const SubsidiesSummary = ({
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.length > 0;
+  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.length > 0;
 
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData

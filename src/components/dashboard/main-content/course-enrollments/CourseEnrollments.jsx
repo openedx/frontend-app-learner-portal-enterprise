@@ -41,18 +41,16 @@ const CourseEnrollments = ({ children }) => {
       slug,
     },
   } = useContext(AppContext);
-  const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
 
   const [assignments, setAssignments] = useState([]);
   const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
   useEffect(() => {
-    // TODO: Refactor to DRY up code for redeemableLearnerCreditPolicies
-    const data = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-    const assignmentsData = sortAssignmentsByAssignmentStatus(data);
+    const assignmentsData = sortAssignmentsByAssignmentStatus(
+      redeemableLearnerCreditPolicies?.learnerContentAssignments.activeAssignments,
+    );
     setAssignments(assignmentsData);
 
     const hasCancelledAssignments = assignmentsData?.some(
@@ -63,6 +61,7 @@ const CourseEnrollments = ({ children }) => {
     setShowCancelledAssignmentsAlert(hasCancelledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
+
   const { activeAssignments, hasActiveAssignments } = getActiveAssignments(assignments);
   const assignedCourses = getTransformedAllocatedAssignments(activeAssignments, slug);
 

@@ -20,6 +20,7 @@ import {
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { transformRedeemablePoliciesData } from '../utils';
+import getActiveAssignments from '../../../dashboard/data/utils';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -250,18 +251,24 @@ export function useCustomerAgreementData(enterpriseId) {
 const getRedeemablePoliciesData = async ({ queryKey }) => {
   const enterpriseId = queryKey[1];
   const userID = queryKey[2];
-  try {
-    const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
-    return camelCaseObject(transformRedeemablePoliciesData(response.data));
-  } catch (error) {
-    logError(error);
-    return [];
-  }
+  const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
+  const redeemablePolicies = camelCaseObject(transformRedeemablePoliciesData(response.data));
+  const learnerContentAssignments = getActiveAssignments(
+    redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
+  );
+
+  return {
+    redeemablePolicies,
+    learnerContentAssignments,
+  };
 };
 
 export function useRedeemableLearnerCreditPolicies(enterpriseId, userID) {
   return useQuery({
     queryKey: ['redeemablePolicies', enterpriseId, userID],
     queryFn: getRedeemablePoliciesData,
+    onError: (error) => {
+      logError(error);
+    },
   });
 }

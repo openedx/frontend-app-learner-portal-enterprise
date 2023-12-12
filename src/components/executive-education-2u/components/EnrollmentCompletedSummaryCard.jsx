@@ -15,13 +15,9 @@ const EnrollmentCompletedSummaryCard = ({ courseKey }) => {
   const {
     enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
-  const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, courseKey);
-  const externalDashboardQueryParams = new URLSearchParams({
-    org_id: authOrgId,
-  });
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, courseKey);
+  const externalDashboardQueryParams = new URLSearchParams({ org_id: authOrgId });
   const externalDashboardQueryString = externalDashboardQueryParams ? `?${externalDashboardQueryParams.toString()}` : '';
   const externalDashboardUrl = `${config.GETSMARTER_LEARNER_DASHBOARD_URL}${externalDashboardQueryString ?? ''}`;
   const enterpriseSlug = `/${slug}`;
