@@ -91,7 +91,7 @@ const ExecutiveEducation2UPage = () => {
     return {};
   }, [contentMetadata]);
 
-  const handleCheckoutSuccess = async () => {
+  const handleCheckoutSuccess = () => {
     history.push({
       pathname: `/${enterpriseConfig.slug}/executive-education-2u/enrollment-completed`,
       state: {

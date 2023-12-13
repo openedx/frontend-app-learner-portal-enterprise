@@ -17,6 +17,8 @@ const useRedemptionStatus = () => {
 
   const handleRedeemSuccess = (transaction) => {
     queryClient.invalidateQueries({ queryKey: ['policy'] });
+    queryClient.invalidateQueries({ queryKey: ['redeemablePolicies'] });
+
     setRedemptionStatus('success');
 
     // redirect to courseware
