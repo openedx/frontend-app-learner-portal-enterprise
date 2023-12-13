@@ -17,8 +17,8 @@ import {
 } from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
-import getActiveAssignments from '../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import useActiveAssignments from '../../data/hooks';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
@@ -45,26 +45,30 @@ const CourseEnrollments = ({ children }) => {
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
 
-  const [assignments, setAssignments] = useState([]);
   const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
+  const {
+    assignments,
+    activeAssignments,
+    hasActiveAssignments,
+  } = useActiveAssignments(redeemableLearnerCreditPolicies);
+
+  const assignedCourses = getTransformedAllocatedAssignments(activeAssignments, slug);
 
   useEffect(() => {
-    // TODO: Refactor to DRY up code for redeemableLearnerCreditPolicies
-    const data = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-    const assignmentsData = sortAssignmentsByAssignmentStatus(data);
-    setAssignments(assignmentsData);
+    if (assignments) {
+      const sortedAssignments = sortAssignmentsByAssignmentStatus(assignments);
+      const hasCancelledAssignments = sortedAssignments?.some(
+        assignment => assignment.state === ASSIGNMENT_TYPES.CANCELLED,
+      );
+      const hasExpiredAssignments = sortedAssignments?.some(
+        assignment => isAssignmentExpired(assignment),
+      );
 
-    const hasCancelledAssignments = assignmentsData?.some(
-      assignment => assignment.state === ASSIGNMENT_TYPES.CANCELLED,
-    );
-    const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment));
-
-    setShowCancelledAssignmentsAlert(hasCancelledAssignments);
-    setShowExpiredAssignmentsAlert(hasExpiredAssignments);
-  }, [redeemableLearnerCreditPolicies]);
-  const { activeAssignments, hasActiveAssignments } = getActiveAssignments(assignments);
-  const assignedCourses = getTransformedAllocatedAssignments(activeAssignments, slug);
+      setShowCancelledAssignmentsAlert(hasCancelledAssignments);
+      setShowExpiredAssignmentsAlert(hasExpiredAssignments);
+    }
+  }, [assignments]);
 
   const currentCourseEnrollments = useMemo(
     () => {
@@ -111,6 +115,7 @@ const CourseEnrollments = ({ children }) => {
   }
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
+
   return (
     <>
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showCancelledAssignmentsAlert && (

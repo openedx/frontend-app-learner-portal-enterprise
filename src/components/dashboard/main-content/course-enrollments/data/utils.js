@@ -127,7 +127,7 @@ export const sortAssignmentsByAssignmentStatus = (assignments) => {
 };
 
 export const getTransformedAllocatedAssignments = (assignments, slug) => {
-  if (!assignments) { return assignments; }
+  if (!assignments) { return []; }
   const updatedAssignments = assignments?.map((item) => {
     const isCancelledAssignment = item.state === 'cancelled';
     const isExpiredAssignment = isAssignmentExpired(item);
