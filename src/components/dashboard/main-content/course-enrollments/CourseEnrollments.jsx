@@ -110,6 +110,13 @@ const CourseEnrollments = ({ children }) => {
     );
   }
 
+   const handleOnClose = () => {
+    // 1) setShowCancelledAssignmentsAlert(false);
+    // 2) patchLearnerContentAssignment
+    // 3) refetch fetchRedeemableLearnerCreditPolicies to update list
+  }
+
+
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   return (
     <>
