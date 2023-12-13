@@ -20,7 +20,6 @@ import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
-import getActiveAssignments from '../data/utils';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
@@ -93,20 +92,18 @@ const SubsidiesSummary = ({
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
   );
-  const hasAutoAppliedLearnerCreditPolicies = (
-    redeemableLearnerCreditPolicies?.filter(policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT).length > 0
-  );
+  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies
+    .filter(policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT).length > 0;
 
   const [assignmentOnlyLearner, setAssignmentOnlyLearner] = useState(false);
   useEffect(() => {
-    const assignmentsData = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-    const { hasActiveAssignments } = getActiveAssignments(assignmentsData);
+    const hasActiveAssignments = redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments;
     if (
-      !hasActiveLicenseOrLicenseRequest
+      hasActiveAssignments
+      && !hasActiveLicenseOrLicenseRequest
       && !hasAssignedCodesOrCodeRequests
       && !hasCurrentEnterpriseOffers
       && !hasAutoAppliedLearnerCreditPolicies
-      && hasActiveAssignments
     ) {
       setAssignmentOnlyLearner(true);
     }
