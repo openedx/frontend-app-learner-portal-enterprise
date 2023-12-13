@@ -68,7 +68,7 @@ const UserEnrollmentForm = ({
       'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
     );
     await queryClient.invalidateQueries({
-      queryKey: enterpriseUserSubsidyQueryKeys.redeemablePolicies(enterpriseId, userId),
+      queryKey: enterpriseUserSubsidyQueryKeys.policy(),
     });
     onCheckoutSuccess(newTransaction);
   };

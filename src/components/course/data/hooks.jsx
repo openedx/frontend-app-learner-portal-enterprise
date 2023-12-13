@@ -20,18 +20,18 @@ import { isDefinedAndNotNull } from '../../../utils/common';
 import { features } from '../../../config';
 import CourseService from './service';
 import {
+  createEnrollWithCouponCodeUrl,
+  createEnrollWithLicenseUrl,
   findCouponCodeForCourse,
   findEnterpriseOfferForCourse,
   getCourseOrganizationDetails,
   getCourseRunPrice,
   getCourseStartDate,
   getCourseTypeConfig,
+  getMissingApplicableSubsidyReason,
   getSubsidyToApplyForCourse,
   isCourseInstructorPaced,
   isCourseSelfPaced,
-  createEnrollWithCouponCodeUrl,
-  createEnrollWithLicenseUrl,
-  getMissingApplicableSubsidyReason,
 } from './utils';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
@@ -46,6 +46,7 @@ import {
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
+import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -538,8 +539,8 @@ export function useUserHasSubsidyRequestForCourse(courseKey) {
  * }
  */
 const checkRedemptionEligibility = async ({ queryKey }) => {
-  const enterpriseUuid = queryKey[1];
-  const { courseRunKeys, activeCourseRunKey } = queryKey[3];
+  const enterpriseUuid = queryKey[2];
+  const { courseRunKeys, activeCourseRunKey } = queryKey[4];
 
   const courseService = new CourseService({ enterpriseUuid });
   const response = await courseService.fetchCanRedeem({ courseRunKeys });
@@ -600,7 +601,11 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
   return useQuery({
     ...queryOptions,
-    queryKey: ['policy', enterpriseUuid, 'can-redeem', { lmsUserId, courseRunKeys, activeCourseRunKey }],
+    queryKey: enterpriseUserSubsidyQueryKeys.coursePolicyRedeemability(
+      {
+        enterpriseId: enterpriseUuid, lmsUserId, courseRunKeys, activeCourseRunKey,
+      },
+    ),
     enabled: isEnabled,
     queryFn: checkRedemptionEligibility,
   });
