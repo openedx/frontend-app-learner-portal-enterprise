@@ -14,10 +14,12 @@ import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@ed
 import dayjs from 'dayjs';
 import reactStringReplace from 'react-string-replace';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
+import { enterpriseUserSubsidyQueryKeys } from '../enterprise-user-subsidy/data/constants';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
@@ -39,6 +41,7 @@ const UserEnrollmentForm = ({
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
+  const queryClient = useQueryClient();
   const {
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { id: userId },
@@ -64,6 +67,9 @@ const UserEnrollmentForm = ({
       enterpriseId,
       'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
     );
+    await queryClient.invalidateQueries({
+      queryKey: enterpriseUserSubsidyQueryKeys.redeemablePolicies(enterpriseId, userId),
+    });
     onCheckoutSuccess(newTransaction);
   };
 

@@ -5,3 +5,7 @@ export const LICENSE_STATUS = {
 };
 
 export const LOADING_SCREEN_READER_TEXT = 'loading your edX benefits from your organization';
+
+export const enterpriseUserSubsidyQueryKeys = {
+  redeemablePolicies: (enterpriseId, userId) => ['redeemablePolicies', enterpriseId, userId],
+};

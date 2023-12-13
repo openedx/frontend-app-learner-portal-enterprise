@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
-  Alert, Button, Container, Col, Hyperlink, Row,
+  Alert, Button, Col, Container, Hyperlink, Row,
 } from '@edx/paragon';
 import { CheckCircle } from '@edx/paragon/icons';
 
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { isDuplicateExternalCourseOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
@@ -20,6 +21,7 @@ import { features } from '../../../config';
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const history = useHistory();
+  const queryClient = useQueryClient();
   const {
     state: {
       activeCourseRun,
@@ -63,6 +65,7 @@ const ExternalCourseEnrollment = () => {
   }, [externalCourseFormSubmissionError, containerRef]);
 
   const handleCheckoutSuccess = () => {
+    // invalidate redeemable policies to refresh dashboard card
     history.push('enroll/complete');
   };
 
