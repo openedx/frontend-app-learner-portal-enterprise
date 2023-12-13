@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  screen, render, waitFor, act,
+  act, render, screen, waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -9,6 +9,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import dayjs from 'dayjs';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
@@ -67,6 +68,8 @@ const mockUserSubsidyApplicableToCourse = {
   subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
 };
 
+const queryClient = new QueryClient();
+
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   enterpriseId = mockEnterpriseId,
@@ -83,17 +86,19 @@ const UserEnrollmentFormWrapper = ({
   },
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <UserEnrollmentForm
-          enterpriseId={enterpriseId}
-          productSKU={productSKU}
-          onCheckoutSuccess={onCheckoutSuccess}
-          activeCourseRun={activeCourseRun}
-          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        />
-      </CourseContext.Provider>
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={appContextValue}>
+        <CourseContext.Provider value={courseContextValue}>
+          <UserEnrollmentForm
+            enterpriseId={enterpriseId}
+            productSKU={productSKU}
+            onCheckoutSuccess={onCheckoutSuccess}
+            activeCourseRun={activeCourseRun}
+            userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+          />
+        </CourseContext.Provider>
+      </AppContext.Provider>
+    </QueryClientProvider>
   </IntlProvider>
 );
 
