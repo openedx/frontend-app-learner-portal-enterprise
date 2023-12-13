@@ -52,6 +52,10 @@ export const useEnterpriseCuration = (enterpriseUUID) => {
   const [fetchError, setFetchError] = useState();
 
   useEffect(() => {
+    if (!enterpriseUUID) {
+      return;
+    }
+
     const fetchEnterpriseCuration = async () => {
       try {
         setIsLoading(true);
