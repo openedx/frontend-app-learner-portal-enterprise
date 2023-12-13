@@ -1,4 +1,9 @@
-import React, { useContext, useMemo } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -15,6 +20,8 @@ import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
+import getActiveAssignments from '../data/utils';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
@@ -55,6 +62,7 @@ const SubsidiesSummary = ({
     couponCodes: { couponCodesCount },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
+    hasCurrentEnterpriseOffers,
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
 
@@ -85,6 +93,30 @@ const SubsidiesSummary = ({
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
   );
+  const hasAutoAppliedLearnerCreditPolicies = (
+    redeemableLearnerCreditPolicies?.filter(policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT).length > 0
+  );
+
+  const [assignmentOnlyLearner, setAssignmentOnlyLearner] = useState(false);
+  useEffect(() => {
+    const assignmentsData = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
+    const { hasActiveAssignments } = getActiveAssignments(assignmentsData);
+    if (
+      !hasActiveLicenseOrLicenseRequest
+      && !hasAssignedCodesOrCodeRequests
+      && !hasCurrentEnterpriseOffers
+      && !hasAutoAppliedLearnerCreditPolicies
+      && hasActiveAssignments
+    ) {
+      setAssignmentOnlyLearner(true);
+    }
+  }, [
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
+    hasAssignedCodesOrCodeRequests,
+    hasActiveLicenseOrLicenseRequest,
+    hasAutoAppliedLearnerCreditPolicies,
+  ]);
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
@@ -136,7 +168,7 @@ const SubsidiesSummary = ({
           />
         )}
       </div>
-      {searchCoursesCta && (
+      {(searchCoursesCta && !assignmentOnlyLearner) && (
         <SidebarCard
           cardClassNames="border-0 shadow-none"
         >
