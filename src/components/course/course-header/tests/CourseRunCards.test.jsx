@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import CourseRunCards from '../CourseRunCards';
 import { CourseContext } from '../../CourseContextProvider';
-import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
+import { LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 
 jest.mock('../CourseRunCard', () => jest.fn((props) => {
   const MockName = 'course-run-card';
@@ -41,8 +41,21 @@ const CourseRunCardsWrapper = ({ courseContexValue = defaultCourseContext }) => 
 );
 
 describe('<CourseRunCardStatus />', () => {
-  test('renders deprecated course run card', () => {
+  test('renders deprecated course run card when there is no applicable subsidy', () => {
     render(<CourseRunCardsWrapper />);
+    expect(screen.getByTestId('deprecated-course-run-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('course-run-card')).not.toBeInTheDocument();
+  });
+
+  test('renders deprecated course run card when applicable subsidy is other than a policy', () => {
+    render(<CourseRunCardsWrapper
+      courseContexValue={{
+        ...defaultCourseContext,
+        userSubsidyApplicableToCourse: {
+          subsidyType: LICENSE_SUBSIDY_TYPE,
+        },
+      }}
+    />);
     expect(screen.getByTestId('deprecated-course-run-card')).toBeInTheDocument();
     expect(screen.queryByTestId('course-run-card')).not.toBeInTheDocument();
   });
