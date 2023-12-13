@@ -26,9 +26,7 @@ import { features } from '../../config';
 
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
-  const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const activeQueryParams = useActiveQueryParams();
   const history = useHistory();
 
@@ -36,10 +34,12 @@ const ExecutiveEducation2UPage = () => {
     const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
     return enterpriseConfig.enableExecutiveEducation2UFulfillment && hasRequiredQueryParams;
   }, [enterpriseConfig, activeQueryParams]);
+
   const { isLoadingContentMetadata: isLoading, contentMetadata } = useExecutiveEducation2UContentMetadata({
     courseUUID: activeQueryParams.get('course_uuid'),
     isExecEd2UFulfillmentEnabled,
   });
+
   useEffect(() => {
     if (!enterpriseConfig.enableExecutiveEducation2UFulfillment) {
       logError(`Enterprise ${enterpriseConfig.uuid} does not have executive education (2U) fulfillment enabled.`);
@@ -59,7 +59,11 @@ const ExecutiveEducation2UPage = () => {
     sku: activeQueryParams.get('sku'),
   };
 
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, contentMetadata?.key);
+  const isCourseAssigned = useIsCourseAssigned(
+    redeemableLearnerCreditPolicies?.learnerContentAssignments,
+    contentMetadata?.key,
+  );
+
   const courseMetadata = useMemo(() => {
     if (contentMetadata) {
       const activeCourseRun = getActiveCourseRun(contentMetadata);

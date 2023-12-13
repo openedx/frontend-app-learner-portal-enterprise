@@ -228,11 +228,19 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
-          redeemableLearnerCreditPolicies: [{
-            remainingBalancePerUser: 5,
-            subsidyExpirationDate: '2030-01-01 12:00:00Z',
-            active: true,
-          }],
+          redeemableLearnerCreditPolicies: {
+            redeemablePolicies: [{
+              remainingBalancePerUser: 5,
+              subsidyExpirationDate: '2030-01-01 12:00:00Z',
+              active: true,
+            }],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: false,
+              activeAssignments: [],
+              hasActiveAssignments: false,
+            },
+          },
         }}
       />,
     );
@@ -247,11 +255,19 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
-          redeemableLearnerCreditPolicies: [{
-            remainingBalancePerUser: 5,
-            subsidyExpirationDate: policyExpirationDate,
-            active: true,
-          }],
+          redeemableLearnerCreditPolicies: {
+            redeemablePolicies: [{
+              remainingBalancePerUser: 5,
+              subsidyExpirationDate: policyExpirationDate,
+              active: true,
+            }],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: false,
+              activeAssignments: [],
+              hasActiveAssignments: false,
+            },
+          },
           enterpriseOffers: [{
             uuid: 'enterprise-offer-id',
             endDatetime: offerEndDate,

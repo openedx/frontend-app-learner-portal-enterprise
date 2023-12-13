@@ -62,7 +62,18 @@ hooks.useCourseEnrollments.mockReturnValue({
   },
   updateCourseEnrollmentStatus: jest.fn(),
 });
-const initialUserSubsidyState = {};
+const initialUserSubsidyState = {
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+
 const renderEnrollmentsComponent = () => render(
   <IntlProvider locale="en">
     <AppContext.Provider value={{ enterpriseConfig }}>

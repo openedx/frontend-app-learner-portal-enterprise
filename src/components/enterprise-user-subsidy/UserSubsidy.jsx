@@ -18,8 +18,8 @@ export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-
   const { userId } = authenticatedUser;
+
   // Subscriptions
   const {
     customerAgreementConfig,

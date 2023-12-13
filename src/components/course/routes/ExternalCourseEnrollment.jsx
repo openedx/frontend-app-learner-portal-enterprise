@@ -31,12 +31,10 @@ const ExternalCourseEnrollment = () => {
     externalCourseFormSubmissionError,
   } = useContext(CourseContext);
   const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const {
     enterpriseConfig: { authOrgId },
   } = useContext(AppContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
 

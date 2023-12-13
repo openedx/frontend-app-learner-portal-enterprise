@@ -72,10 +72,22 @@ const baseAppContextValue = {
   authenticatedUser: { id: 3 },
 };
 
+const baseUserSubsidyContextValue = {
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+
 const ExternalCourseEnrollmentWrapper = ({
   courseContextValue = baseCourseContextValue,
   appContextValue = baseAppContextValue,
-  initialUserSubsidyState = {},
+  initialUserSubsidyState = baseUserSubsidyContextValue,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
