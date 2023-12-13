@@ -1,5 +1,5 @@
 import {
-  useState, useEffect, useReducer, useCallback, useMemo,
+  useCallback, useEffect, useMemo, useReducer, useState,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -9,13 +9,13 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { fetchCouponCodeAssignments } from '../../coupons';
 import couponCodesReducer, { initialCouponCodesState } from '../../coupons/data/reducer';
 
-import { LICENSE_STATUS } from '../constants';
+import { enterpriseUserSubsidyQueryKeys, LICENSE_STATUS } from '../constants';
 import {
-  fetchSubscriptionLicensesForUser,
+  activateLicense,
   fetchCustomerAgreementData,
   fetchRedeemableLearnerCreditPolicies,
+  fetchSubscriptionLicensesForUser,
   requestAutoAppliedLicense,
-  activateLicense,
 } from '../service';
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
@@ -249,8 +249,8 @@ export function useCustomerAgreementData(enterpriseId) {
 }
 
 const getRedeemablePoliciesData = async ({ queryKey }) => {
-  const enterpriseId = queryKey[1];
-  const userID = queryKey[2];
+  const enterpriseId = queryKey[3];
+  const userID = queryKey[4];
   const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
   const redeemablePolicies = camelCaseObject(transformRedeemablePoliciesData(response.data));
   const learnerContentAssignments = getActiveAssignments(
@@ -265,7 +265,7 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
 
 export function useRedeemableLearnerCreditPolicies(enterpriseId, userID) {
   return useQuery({
-    queryKey: ['redeemablePolicies', enterpriseId, userID],
+    queryKey: enterpriseUserSubsidyQueryKeys.redeemablePolicies(enterpriseId, userID),
     queryFn: getRedeemablePoliciesData,
     onError: (error) => {
       logError(error);

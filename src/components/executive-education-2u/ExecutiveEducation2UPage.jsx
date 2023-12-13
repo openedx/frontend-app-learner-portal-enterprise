@@ -1,9 +1,7 @@
-import React, {
-  useContext, useEffect, useMemo,
-} from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import {
-  Container, Row, Col, Skeleton,
+  Col, Container, Row, Skeleton,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -11,10 +9,7 @@ import { useHistory } from 'react-router-dom';
 
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
-import {
-  useActiveQueryParams,
-  useExecutiveEducation2UContentMetadata,
-} from './data';
+import { useActiveQueryParams, useExecutiveEducation2UContentMetadata } from './data';
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 import CourseSummaryCard from './components/CourseSummaryCard';
 import RegistrationSummaryCard from './components/RegistrationSummaryCard';

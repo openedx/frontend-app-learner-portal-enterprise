@@ -28,12 +28,11 @@ import {
   findEnterpriseOfferForCourse,
   getCourseRunPrice,
   getCourseTypeConfig,
+  getMissingApplicableSubsidyReason,
   getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
-  getMissingApplicableSubsidyReason,
 } from '../utils';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
@@ -59,6 +58,7 @@ import {
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
+import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
 
 const oldGlobalLocation = global.location;
 
@@ -911,7 +911,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     expect(result.current.isInitialLoading).toBeDefined();
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
+        queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), baseArgs.enterpriseUuid, 'can-redeem', {
           activeCourseRunKey: undefined,
           courseRunKeys: [],
           lmsUserId: mockLmsUserId,
@@ -978,7 +978,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       expect(result.current.data.hasSuccessfulRedemption).toBeFalsy();
     }
 
-    const expectQueryKey = ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
+    const expectQueryKey = [...enterpriseUserSubsidyQueryKeys.policy(), baseArgs.enterpriseUuid, 'can-redeem', {
       activeCourseRunKey: argsWithCourseRunKeys.courseRunKeys[0],
       lmsUserId: mockLmsUserId,
       courseRunKeys: argsWithCourseRunKeys.courseRunKeys,
