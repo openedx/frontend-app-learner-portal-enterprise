@@ -10,7 +10,6 @@ export const enterpriseUserSubsidyQueryKeys = {
   // Namespace for all user subsidy query keys
   all: ['user-subsidy'],
   policy: () => [
-    // eslint-disable-next-line no-use-before-define
     ...enterpriseUserSubsidyQueryKeys.all,
     'policy',
   ],

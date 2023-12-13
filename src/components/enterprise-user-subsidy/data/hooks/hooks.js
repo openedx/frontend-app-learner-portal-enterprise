@@ -266,7 +266,6 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
 export function useRedeemableLearnerCreditPolicies(enterpriseId, userID) {
   return useQuery({
     queryKey: enterpriseUserSubsidyQueryKeys.redeemablePolicies(enterpriseId, userID),
-    // queryKey: ['redeemablePolicies', enterpriseId, userID],
     queryFn: getRedeemablePoliciesData,
     onError: (error) => {
       logError(error);
