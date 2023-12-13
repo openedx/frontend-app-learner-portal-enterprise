@@ -138,7 +138,7 @@ const Search = () => {
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
-            {features.ENABLE_ACADEMIES && (canOnlyViewHighlightSets === false) && <SearchAcademy />}
+            {canOnlyViewHighlightSets === false && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
