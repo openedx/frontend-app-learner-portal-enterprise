@@ -31,9 +31,8 @@ const CourseRunCards = () => {
       {availableCourseRuns.map((courseRun) => {
         const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
-        // Render the newer `CourseRunCard` component when the user's
-        // subsidy (if any) is a policy OR if no disabled enroll reason
-        // was provided by the `can-redeem` API.
+        // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
+        // a policy OR if there is a known disabled enroll reason.
         if (hasRedeemablePolicy || missingUserSubsidyReason?.userMessage) {
           return (
             <CourseRunCard
