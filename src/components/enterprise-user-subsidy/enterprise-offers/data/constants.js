@@ -36,3 +36,8 @@ export const ASSIGNMENT_TYPES = {
   CANCELLED: 'cancelled',
   ERRORED: 'errored',
 };
+
+export const ASSIGNMENT_ACTION_TYPES = {
+  CANCELLED_NOTIFICATION: 'cancelled',
+  AUTOMATIC_CANCELLATION_NOTIFICATION: 'automatic_cancellation',
+};

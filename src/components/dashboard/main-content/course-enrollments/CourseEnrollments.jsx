@@ -64,7 +64,7 @@ const CourseEnrollments = ({ children }) => {
     setShowCancelledAssignmentsAlert(hasActiveCancelledAssignments);
 
     const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment))
-      && getIsActiveExpiredAssignment();
+      && getIsActiveExpiredAssignment(assignmentsData);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
   const { activeAssignments, hasActiveAssignments } = getActiveAssignments(assignments);
