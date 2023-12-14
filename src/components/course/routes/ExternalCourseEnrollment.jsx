@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
+import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
 } from '@edx/paragon';
@@ -20,6 +20,7 @@ import { features } from '../../../config';
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const history = useHistory();
+  const routeMatch = useRouteMatch();
   const {
     state: {
       activeCourseRun,
@@ -31,9 +32,13 @@ const ExternalCourseEnrollment = () => {
     externalCourseFormSubmissionError,
   } = useContext(CourseContext);
   const {
-    enterpriseConfig: { authOrgId },
+    enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
+  const completeEnrollmentUrl = generatePath(
+      `${routeMatch.path}/complete`,
+      { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
+  );
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
@@ -62,15 +67,14 @@ const ExternalCourseEnrollment = () => {
     }
   }, [externalCourseFormSubmissionError, containerRef]);
 
-  const handleCheckoutSuccess = () => {
-    history.push('enroll/complete');
-  };
-
   useEffect(() => {
+    // Once a redemption has successfully completed and the can-redeem query has been invalidated or
+    // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
+    //  it will run this conditional and perform the redirect
     if (hasSuccessfulRedemption) {
-      history.push('enroll/complete');
+      history.push(completeEnrollmentUrl);
     }
-  }, [hasSuccessfulRedemption, history]);
+  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, history, routeMatch.path, slug]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
@@ -120,7 +124,6 @@ const ExternalCourseEnrollment = () => {
               <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
               <UserEnrollmentForm
                 productSKU={courseEntitlementProductSku}
-                onCheckoutSuccess={handleCheckoutSuccess}
                 activeCourseRun={activeCourseRun}
                 userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
               />

@@ -70,7 +70,9 @@ const UserEnrollmentForm = ({
     await queryClient.invalidateQueries({
       queryKey: enterpriseUserSubsidyQueryKeys.policy(),
     });
-    onCheckoutSuccess(newTransaction);
+    if (onCheckoutSuccess) {
+      onCheckoutSuccess(newTransaction);
+    }
   };
 
   const { redeem } = useStatefulEnroll({
@@ -394,7 +396,7 @@ const UserEnrollmentForm = ({
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
   productSKU: PropTypes.string.isRequired,
-  onCheckoutSuccess: PropTypes.func.isRequired,
+  onCheckoutSuccess: PropTypes.func,
   activeCourseRun: PropTypes.shape({
     key: PropTypes.string.isRequired,
   }).isRequired,
@@ -406,6 +408,7 @@ UserEnrollmentForm.propTypes = {
 UserEnrollmentForm.defaultProps = {
   className: undefined,
   userSubsidyApplicableToCourse: undefined,
+  onCheckoutSuccess: undefined,
 };
 
 export default UserEnrollmentForm;
