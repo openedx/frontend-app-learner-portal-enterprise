@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
+import { getTodaysDate } from '../../../../../utils/dayjs';
 import { getCourseStartDate, hasTimeToComplete, isCourseSelfPaced } from '../../../data/utils';
 import { DATE_FORMAT } from '../constants';
-import { getTodaysDate } from '../utils';
 
 const messages = defineMessages({
   courseStartDate: {

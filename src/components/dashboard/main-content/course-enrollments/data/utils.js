@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { COURSE_STATUSES } from './constants';
+import { getTodaysDate } from '../../../../../utils/dayjs';
 
 /**
  * Determines whether a course enrollment may be unenrolled based on its enrollment
@@ -95,11 +96,11 @@ export const transformSubsidyRequest = ({
  */
 export const isAssignmentExpired = (assignment) => {
   // Assignment is not in an allocated state, so it cannot be expired.
-  if (!assignment?.state !== 'allocated') {
+  if (!assignment) {
     return false;
   }
 
-  const currentDate = dayjs();
+  const currentDate = dayjs(getTodaysDate());
   const allocationDate = dayjs(assignment.created);
   const enrollmentEndDate = dayjs(assignment.contentMetadata.enrollByDate);
   const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
