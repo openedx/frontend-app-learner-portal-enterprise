@@ -5,7 +5,11 @@ import {
 } from '../main-content/course-enrollments/data/constants';
 
 export function getIsActiveExpiredAssignment() {
+  // if item has never been set, user has not dismissed any expired assignments
   const lastExpiredAlertDismissedTime = global.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT);
+  if (lastExpiredAlertDismissedTime === null) {
+    return true;
+  }
   const currentDate = new Date();
   return (currentDate > new Date(lastExpiredAlertDismissedTime));
 }
