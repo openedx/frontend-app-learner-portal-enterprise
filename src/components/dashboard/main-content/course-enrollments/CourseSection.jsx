@@ -47,8 +47,7 @@ class CourseSection extends React.Component {
     const { isOpen } = this.state;
     const { courseRuns, title } = this.props;
     const sectionTitle = isOpen ? title : `${title} `;
-    const activeAssignedCourses = courseRuns.filter(course => !course.isCancelledAssignment);
-    const coursesCount = this.getCoursesCount(isOpen, title, activeAssignedCourses.length);
+    const coursesCount = this.getCoursesCount(isOpen, title, courseRuns.length);
     return (
       <h3>
         {sectionTitle}
