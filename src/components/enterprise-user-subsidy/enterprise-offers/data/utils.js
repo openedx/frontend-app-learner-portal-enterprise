@@ -115,8 +115,8 @@ export const transformEnterpriseOffer = (offer) => {
  * @param {Array} enterpriseOffers - Array of enterprise offers.
  * @param {Object} subscriptionPlan - Subscription plan object.
  * @param {Object} subscriptionLicense - Subscription license object.
+ * @param {Array} couponCodes - Array of couponCodes from the UserSubsidyContext, couponCodes.couponCodes
  *
- * @param couponCodes
  * @returns {boolean} Returns true if course search should be disabled, otherwise false.
  */
 export const isDisableCourseSearch = (
