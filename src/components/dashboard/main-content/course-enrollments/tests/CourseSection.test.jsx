@@ -83,6 +83,24 @@ describe('<CourseSection />', () => {
     expect(screen.getByText(CARD_COMPONENT_BY_COURSE_STATUS[courseStatus]));
   });
 
+  it('should not render cancelled assignment course cards', () => {
+    const courseRuns = [...Array(1)].map(
+      () => createCourseEnrollmentWithStatus({
+        status: COURSE_STATUSES.assigned, isCancelledAssignment: true,
+      }),
+    );
+    const title = 'title';
+    render(
+      <CourseSectionWrapper
+        title={title}
+        courseRuns={courseRuns}
+      />,
+    );
+    expect(screen.queryByText(CARD_COMPONENT_BY_COURSE_STATUS[COURSE_STATUSES.assigned])).not.toBeInTheDocument();
+    userEvent.click(screen.getByText(title));
+    expect(screen.getByText(`${title} (0)`));
+  });
+
   it.each([
     {
       status: COURSE_STATUSES.inProgress,

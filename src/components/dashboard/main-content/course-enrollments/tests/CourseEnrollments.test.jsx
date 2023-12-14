@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
 import {
   render, screen, act, waitFor,
@@ -14,7 +15,10 @@ import userEvent from '@testing-library/user-event';
 import {
   createCourseEnrollmentWithStatus,
 } from './enrollment-testutils';
-import CourseEnrollments, { COURSE_SECTION_TITLES } from '../CourseEnrollments';
+import CourseEnrollments, {
+  COURSE_SECTION_TITLES,
+  LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT,
+} from '../CourseEnrollments';
 import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
@@ -24,6 +28,7 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
+import getActiveAssignments from '../../../data/utils';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -31,8 +36,18 @@ getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 jest.mock('../course-cards/mark-complete-modal/data/service');
 
+jest.mock('../../../data/utils', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 jest.mock('../data/service');
 jest.mock('../data/hooks');
+jest.mock('../../../../../config', () => ({
+  features: {
+    FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: true,
+  },
+}));
 
 const enterpriseConfig = {
   uuid: 'test-enterprise-uuid',
@@ -42,6 +57,10 @@ const inProgCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUS
 const upcomingCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.upcoming });
 const completedCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.completed });
 const savedForLaterCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.savedForLater });
+const cancelledAssignedCourseRun = createCourseEnrollmentWithStatus({
+  status: COURSE_STATUSES.assigned,
+  isCancelledAssignment: true,
+});
 
 const transformedLicenseRequest = {
   created: '2017-02-05T05:00:00Z',
@@ -52,29 +71,51 @@ const transformedLicenseRequest = {
   notifications: [],
 };
 
+const assignmentsData = {
+  contentKey: 'test-contentKey',
+  contentTitle: 'test-title',
+  contentMetadata: {
+    endDate: '2018-08-18T05:00:00Z',
+    startDate: '2017-02-05T05:00:00Z',
+    courseType: 'test-course-type',
+    enrollByDate: '2017-02-05T05:00:00Z',
+    partners: [{ name: 'test-partner' }],
+  },
+  state: 'cancelled',
+};
+
 hooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
     inProgress: [inProgCourseRun],
     upcoming: [upcomingCourseRun],
     completed: [completedCourseRun],
+    assigned: [cancelledAssignedCourseRun],
     savedForLater: [savedForLaterCourseRun],
     requested: [transformedLicenseRequest],
   },
   updateCourseEnrollmentStatus: jest.fn(),
 });
-const initialUserSubsidyState = {};
+const initialUserSubsidyState = {
+  redeemableLearnerCreditPolicies: [
+    {
+      learnerContentAssignments: [assignmentsData],
+    },
+  ],
+};
 const renderEnrollmentsComponent = () => render(
-  <IntlProvider locale="en">
-    <AppContext.Provider value={{ enterpriseConfig }}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
-          <CourseEnrollmentsContextProvider>
-            <CourseEnrollments />
-          </CourseEnrollmentsContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>,
+  <BrowserRouter>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={{ enterpriseConfig }}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
+            <CourseEnrollmentsContextProvider>
+              <CourseEnrollments />
+            </CourseEnrollmentsContextProvider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
+  </BrowserRouter>,
 );
 
 jest.mock('../data/utils', () => ({
@@ -85,7 +126,11 @@ jest.mock('../data/utils', () => ({
 describe('Course enrollments', () => {
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
-    sortAssignmentsByAssignmentStatus.mockReturnValue([]);
+    sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentsData]);
+    getActiveAssignments.mockReturnValue({
+      activeAssignments: [],
+      hasActiveAssignments: true,
+    });
   });
 
   afterEach(() => {
@@ -98,6 +143,21 @@ describe('Course enrollments', () => {
     expect(screen.getByText(COURSE_SECTION_TITLES.completed));
     expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater));
     expect(screen.getAllByText(inProgCourseRun.title).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('does not render cancelled assignment and renders cancelled alert', async () => {
+    renderEnrollmentsComponent();
+    expect(screen.getByText('Course assignment cancelled')).toBeInTheDocument();
+    expect(screen.queryByText('test-title')).toBeFalsy();
+    const dismissButton = screen.getByText('Dismiss');
+    await act(async () => userEvent.click(dismissButton));
+    await waitFor(() => expect(screen.queryByText('Course assignment cancelled')).toBeFalsy());
+  });
+
+  it('if localStorage record is found and set to true, cancelled alert is hidden', () => {
+    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT, true);
+    renderEnrollmentsComponent();
+    expect(screen.queryByText('Course assignment cancelled')).toBeFalsy();
   });
 
   it('generates course status update on move to in progress action', async () => {

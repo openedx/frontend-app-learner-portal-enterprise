@@ -26,6 +26,7 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
   assigned: 'Assigned Courses',
 };
+export const LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT = 'learner_acknowledged_cancellation';
 
 const CourseEnrollments = ({ children }) => {
   const {
@@ -46,7 +47,12 @@ const CourseEnrollments = ({ children }) => {
   } = useContext(UserSubsidyContext);
 
   const [assignments, setAssignments] = useState([]);
-  const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(false);
+  const hasLearnerAcknowledgedCancellation = global.localStorage.getItem(LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT);
+  const [hasCancelledAssignments, setHasCancelledAssignments] = useState(false);
+  const [
+    showCancelledAssignmentsAlert,
+    setShowCancelledAssignmentsAlert,
+  ] = useState(!hasLearnerAcknowledgedCancellation);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
   useEffect(() => {
@@ -55,12 +61,12 @@ const CourseEnrollments = ({ children }) => {
     const assignmentsData = sortAssignmentsByAssignmentStatus(data);
     setAssignments(assignmentsData);
 
-    const hasCancelledAssignments = assignmentsData?.some(
+    const isCancelledAssignments = assignmentsData?.some(
       assignment => assignment.state === ASSIGNMENT_TYPES.CANCELLED,
     );
+    setHasCancelledAssignments(isCancelledAssignments);
     const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment));
 
-    setShowCancelledAssignmentsAlert(hasCancelledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
   const { activeAssignments, hasActiveAssignments } = getActiveAssignments(assignments);
@@ -110,18 +116,16 @@ const CourseEnrollments = ({ children }) => {
     );
   }
 
-   const handleOnClose = () => {
-    // 1) setShowCancelledAssignmentsAlert(false);
-    // 2) patchLearnerContentAssignment
-    // 3) refetch fetchRedeemableLearnerCreditPolicies to update list
-  }
-
+  const handleOnClose = () => {
+    setShowCancelledAssignmentsAlert(false);
+    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT, true);
+  };
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   return (
     <>
-      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showCancelledAssignmentsAlert && (
-        <CourseAssignmentAlert variant="cancelled" onClose={() => setShowCancelledAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hasCancelledAssignments && (
+        <CourseAssignmentAlert showAlert={showCancelledAssignmentsAlert} variant="cancelled" onClose={handleOnClose}> </CourseAssignmentAlert>
       )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showExpiredAssignmentsAlert && (
         <CourseAssignmentAlert variant="expired" onClose={() => setShowExpiredAssignmentsAlert(false)}> </CourseAssignmentAlert>

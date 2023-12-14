@@ -6,6 +6,7 @@ import { Info } from '@edx/paragon/icons';
 import { getContactEmail } from '../../../../utils/common';
 
 const CourseAssignmentAlert = ({
+  showAlert,
   onClose,
   variant,
 }) => {
@@ -20,6 +21,7 @@ const CourseAssignmentAlert = ({
   return (
     <Alert
       variant="danger"
+      show={showAlert}
       icon={Info}
       dismissible
       actions={[
@@ -40,11 +42,13 @@ const CourseAssignmentAlert = ({
 CourseAssignmentAlert.propTypes = {
   onClose: PropTypes.func,
   variant: PropTypes.string,
+  showAlert: PropTypes.bool,
 };
 
 CourseAssignmentAlert.defaultProps = {
   onClose: null,
   variant: null,
+  showAlert: null,
 };
 
 export default CourseAssignmentAlert;

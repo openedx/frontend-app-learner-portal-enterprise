@@ -50,19 +50,3 @@ export function requestAutoAppliedLicense(customerAgreementId) {
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
   return getAuthenticatedHttpClient().post(url);
 }
-
-
- function patchLearnerContentAssignment(assignmentConfigurationUUID, userID, params) {
-  // const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/v1/assignment-configurations/{assignmentConfigurationUUID}/assignments/{userID}/`;
-  // const { data } = await getAuthenticatedHttpClient()
-  //   .patch(url, params, {
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //   })
-  //   .catch((error) => {
-  //     throw error;
-  //   });
-  // return data;
-}
-

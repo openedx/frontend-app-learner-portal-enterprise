@@ -47,7 +47,8 @@ class CourseSection extends React.Component {
     const { isOpen } = this.state;
     const { courseRuns, title } = this.props;
     const sectionTitle = isOpen ? title : `${title} `;
-    const coursesCount = this.getCoursesCount(isOpen, title, courseRuns.length);
+    const activeAssignedCourses = courseRuns.filter(course => !course.isCancelledAssignment);
+    const coursesCount = this.getCoursesCount(isOpen, title, activeAssignedCourses.length);
     return (
       <h3>
         {sectionTitle}
@@ -125,6 +126,9 @@ class CourseSection extends React.Component {
           />
         </UpgradeableCourseEnrollmentContextProvider>
       );
+    }
+    if (courseRun.isCancelledAssignment) {
+      return null;
     }
 
     return (
