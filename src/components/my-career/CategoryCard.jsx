@@ -27,13 +27,14 @@ const CategoryCard = ({ topCategory }) => {
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
+    couponCodes,
   } = useContext(UserSubsidyContext);
   const hideCourseSearch = isDisableCourseSearch(
     redeemableLearnerCreditPolicies,
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes,
+    couponCodes.couponCodes,
   );
 
   const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
