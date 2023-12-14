@@ -65,6 +65,9 @@ const initialUserSubsidyState = {
   enterpriseOffers: [],
   subscriptionPlan: {},
   subscriptionLicense: {},
+  couponCodes: {
+    couponCodes: [],
+  },
 };
 
 const CourseAboutWrapper = ({
