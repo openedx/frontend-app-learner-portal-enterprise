@@ -86,28 +86,29 @@ export const transformSubsidyRequest = ({
 
 /**
  * Checks if an assignment has expired based on following conditions:
- * - The assignment's action is "allocated."
- * - 90 days have passed since the "allocated" action.
+ * - The assignment's lifecycle state is "allocated."
+ * - 90 days have passed since the "created" date.
  * - The course enrollment deadline has passed.
  * - The subsidy expiration date has passed.
  * @param {object} assignment - Information about the assignment.
  * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
  */
 export const isAssignmentExpired = (assignment) => {
-  if (assignment?.actions?.length > 0 && assignment.actions[0]?.actionType === 'allocated') {
-    const currentDate = new Date();
-    const allocationDate = new Date(assignment.actions[0]?.completedAt);
-    const enrollmentEndDate = new Date(assignment?.contentMetadata?.enrollByDate);
-    const subsidyExpirationDate = new Date(assignment?.subsidyExpirationDate);
-
-    return (
-      currentDate - allocationDate > 90 * 24 * 60 * 60 * 1000
-      || currentDate > enrollmentEndDate
-      || currentDate > subsidyExpirationDate
-    );
+  // Assignment is not in an allocated state, so it cannot be expired.
+  if (!assignment?.state !== 'allocated') {
+    return false;
   }
 
-  return false;
+  const currentDate = dayjs();
+  const allocationDate = dayjs(assignment.created);
+  const enrollmentEndDate = dayjs(assignment.contentMetadata.enrollByDate);
+  const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
+
+  return (
+    currentDate.diff(allocationDate, 'day') > 90
+    || currentDate.isAfter(enrollmentEndDate)
+    || currentDate.isAfter(subsidyExpirationDate)
+  );
 };
 
 /**
