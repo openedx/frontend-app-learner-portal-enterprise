@@ -364,6 +364,7 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
+      couponCodes: [],
     },
     {
       isCourseSearchDisabled: false,
@@ -400,6 +401,7 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
+      couponCodes: [],
     },
     {
       isCourseSearchDisabled: false,
@@ -430,6 +432,38 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
+      couponCodes: [],
+    },
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+      couponCodes: [
+        { available: true },
+      ],
     },
     {
       isCourseSearchDisabled: true,
@@ -458,6 +492,7 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
+      couponCodes: [],
     },
     {
       isCourseSearchDisabled: true,
@@ -492,6 +527,7 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
+      couponCodes: [],
     },
   ])('isCourseSearchDisabled - (%p), (%s)', ({
     isCourseSearchDisabled,
@@ -499,12 +535,14 @@ describe('isDisableCourseSearch', () => {
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicenses,
+    couponCodes,
   }) => {
     const isDisableSearch = isDisableCourseSearch(
       redeemableLearnerCreditPolicies,
       enterpriseOffers,
       subscriptionPlan,
       subscriptionLicenses,
+      couponCodes,
     );
     expect(isDisableSearch).toEqual(isCourseSearchDisabled);
   });

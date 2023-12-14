@@ -115,6 +115,7 @@ export const transformEnterpriseOffer = (offer) => {
  * @param {Array} enterpriseOffers - Array of enterprise offers.
  * @param {Object} subscriptionPlan - Subscription plan object.
  * @param {Object} subscriptionLicense - Subscription license object.
+ * @param {Array} couponCodes - Array of couponCodes from the UserSubsidyContext, couponCodes.couponCodes
  *
  * @returns {boolean} Returns true if course search should be disabled, otherwise false.
  */
@@ -123,12 +124,12 @@ export const isDisableCourseSearch = (
   enterpriseOffers,
   subscriptionPlan,
   subscriptionLicense,
+  couponCodes,
 ) => {
   const {
     redeemablePolicies,
     learnerContentAssignments,
   } = redeemableLearnerCreditPolicies || {};
-
   const nonAssignablePolicyTypes = redeemablePolicies.filter(
     item => item.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
   );
@@ -137,16 +138,18 @@ export const isDisableCourseSearch = (
   }
 
   const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
-
+  const hasCouponCodes = couponCodes.filter(code => !!code?.available).length > 0;
   const allocatedOrAcceptedAssignments = learnerContentAssignments.assignments
     .filter(item => [ASSIGNMENT_TYPES.ALLOCATED, ASSIGNMENT_TYPES.ACCEPTED].includes(item.state));
-
-  if (allocatedOrAcceptedAssignments?.length === 0) {
-    return false;
-  }
+  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
 
   if (hasActiveSubPlan) {
+    return false;
+  }
+  if (hasCouponCodes) {
+    return false;
+  }
+  if (allocatedOrAcceptedAssignments?.length === 0) {
     return false;
   }
 
