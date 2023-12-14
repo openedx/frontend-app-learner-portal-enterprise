@@ -29,6 +29,7 @@ const CourseAbout = () => {
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
+    couponCodes,
   } = useContext(UserSubsidyContext);
 
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
@@ -37,6 +38,7 @@ const CourseAbout = () => {
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
+    couponCodes.couponCodes,
   );
 
   const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;

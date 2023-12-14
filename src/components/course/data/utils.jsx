@@ -434,6 +434,7 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
   const applicableCouponsToCatalog = couponsOverview?.data?.results.filter(
     coupon => catalogsWithCourse.includes(coupon.enterpriseCatalogUuid),
   ) || [];
+
   const hasCouponsApplicableToCourse = applicableCouponsToCatalog.length > 0;
   if (!hasCouponsApplicableToCourse) {
     return undefined;

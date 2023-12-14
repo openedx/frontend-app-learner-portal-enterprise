@@ -499,12 +499,14 @@ describe('isDisableCourseSearch', () => {
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicenses,
+    couponCodes,
   }) => {
     const isDisableSearch = isDisableCourseSearch(
       redeemableLearnerCreditPolicies,
       enterpriseOffers,
       subscriptionPlan,
       subscriptionLicenses,
+      couponCodes,
     );
     expect(isDisableSearch).toEqual(isCourseSearchDisabled);
   });
