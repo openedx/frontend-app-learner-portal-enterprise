@@ -82,10 +82,6 @@ const assignmentData = {
     partners: [{ name: 'test-partner' }],
   },
   state: 'cancelled',
-  // actions: [{
-  //   actionType: 'cancelled',
-  //   completedAt: '2023-12-14T18:10:05.128809Z',
-  // }],
 };
 
 hooks.useCourseEnrollments.mockReturnValue({
