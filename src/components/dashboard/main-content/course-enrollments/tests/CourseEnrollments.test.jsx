@@ -1,5 +1,4 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
 
 import {
   render, screen, act, waitFor,
@@ -9,6 +8,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
@@ -17,7 +17,6 @@ import {
 } from './enrollment-testutils';
 import CourseEnrollments, {
   COURSE_SECTION_TITLES,
-  LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT,
 } from '../CourseEnrollments';
 import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
@@ -28,7 +27,7 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
-import getActiveAssignments from '../../../data/utils';
+import getActiveAssignments, { getIsActiveCancelledAssignment } from '../../../data/utils';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -39,6 +38,7 @@ jest.mock('../course-cards/mark-complete-modal/data/service');
 jest.mock('../../../data/utils', () => ({
   __esModule: true,
   default: jest.fn(),
+  getIsActiveCancelledAssignment: jest.fn(),
 }));
 
 jest.mock('../data/service');
@@ -71,7 +71,7 @@ const transformedLicenseRequest = {
   notifications: [],
 };
 
-const assignmentsData = {
+const assignmentData = {
   contentKey: 'test-contentKey',
   contentTitle: 'test-title',
   contentMetadata: {
@@ -82,6 +82,10 @@ const assignmentsData = {
     partners: [{ name: 'test-partner' }],
   },
   state: 'cancelled',
+  // actions: [{
+  //   actionType: 'cancelled',
+  //   completedAt: '2023-12-14T18:10:05.128809Z',
+  // }],
 };
 
 hooks.useCourseEnrollments.mockReturnValue({
@@ -98,24 +102,22 @@ hooks.useCourseEnrollments.mockReturnValue({
 const initialUserSubsidyState = {
   redeemableLearnerCreditPolicies: [
     {
-      learnerContentAssignments: [assignmentsData],
+      learnerContentAssignments: [assignmentData],
     },
   ],
 };
 const renderEnrollmentsComponent = () => render(
-  <BrowserRouter>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={{ enterpriseConfig }}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
-            <CourseEnrollmentsContextProvider>
-              <CourseEnrollments />
-            </CourseEnrollmentsContextProvider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
-  </BrowserRouter>,
+  <IntlProvider locale="en">
+    <AppContext.Provider value={{ enterpriseConfig }}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
+          <CourseEnrollmentsContextProvider>
+            <CourseEnrollments />
+          </CourseEnrollmentsContextProvider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>,
 );
 
 jest.mock('../data/utils', () => ({
@@ -126,7 +128,7 @@ jest.mock('../data/utils', () => ({
 describe('Course enrollments', () => {
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
-    sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentsData]);
+    sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
     getActiveAssignments.mockReturnValue({
       activeAssignments: [],
       hasActiveAssignments: true,
@@ -146,16 +148,24 @@ describe('Course enrollments', () => {
   });
 
   it('does not render cancelled assignment and renders cancelled alert', async () => {
-    renderEnrollmentsComponent();
+    getIsActiveCancelledAssignment.mockReturnValue(true);
+    renderWithRouter(renderEnrollmentsComponent());
+    expect(screen.queryByText('Your learning administrator canceled this assignment.')).toBeFalsy();
     expect(screen.getByText('Course assignment cancelled')).toBeInTheDocument();
     expect(screen.queryByText('test-title')).toBeFalsy();
     const dismissButton = screen.getByText('Dismiss');
-    await act(async () => userEvent.click(dismissButton));
+    userEvent.click(dismissButton);
     await waitFor(() => expect(screen.queryByText('Course assignment cancelled')).toBeFalsy());
   });
 
-  it('if localStorage record is found and set to true, cancelled alert is hidden', () => {
-    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT, true);
+  it('if there are active cancelled assignments, cancelled alert is rendered', () => {
+    getIsActiveCancelledAssignment.mockReturnValue(true);
+    renderEnrollmentsComponent();
+    expect(screen.queryByText('Course assignment cancelled')).toBeTruthy();
+  });
+
+  it('if there are no active cancelled assignments, cancelled alert is hidden', () => {
+    getIsActiveCancelledAssignment.mockReturnValue(false);
     renderEnrollmentsComponent();
     expect(screen.queryByText('Course assignment cancelled')).toBeFalsy();
   });

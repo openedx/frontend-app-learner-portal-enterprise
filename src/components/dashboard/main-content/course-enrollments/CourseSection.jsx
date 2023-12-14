@@ -127,9 +127,6 @@ class CourseSection extends React.Component {
         </UpgradeableCourseEnrollmentContextProvider>
       );
     }
-    if (courseRun.isCancelledAssignment) {
-      return null;
-    }
 
     return (
       <Component

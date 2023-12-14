@@ -17,8 +17,9 @@ import {
 } from './data/utils';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
-import getActiveAssignments from '../../data/utils';
+import getActiveAssignments, { getIsActiveCancelledAssignment, getIsActiveExpiredAssignment } from '../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT } from './data';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
@@ -26,7 +27,6 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
   assigned: 'Assigned Courses',
 };
-export const LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT = 'learner_acknowledged_cancellation';
 
 const CourseEnrollments = ({ children }) => {
   const {
@@ -47,12 +47,10 @@ const CourseEnrollments = ({ children }) => {
   } = useContext(UserSubsidyContext);
 
   const [assignments, setAssignments] = useState([]);
-  const hasLearnerAcknowledgedCancellation = global.localStorage.getItem(LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT);
-  const [hasCancelledAssignments, setHasCancelledAssignments] = useState(false);
   const [
     showCancelledAssignmentsAlert,
     setShowCancelledAssignmentsAlert,
-  ] = useState(!hasLearnerAcknowledgedCancellation);
+  ] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
   useEffect(() => {
@@ -61,12 +59,12 @@ const CourseEnrollments = ({ children }) => {
     const assignmentsData = sortAssignmentsByAssignmentStatus(data);
     setAssignments(assignmentsData);
 
-    const isCancelledAssignments = assignmentsData?.some(
-      assignment => assignment.state === ASSIGNMENT_TYPES.CANCELLED,
-    );
-    setHasCancelledAssignments(isCancelledAssignments);
-    const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment));
+    const hasActiveCancelledAssignments = assignmentsData?.some((assignment) => (
+      assignment.state === ASSIGNMENT_TYPES.CANCELLED)) && getIsActiveCancelledAssignment(assignmentsData);
+    setShowCancelledAssignmentsAlert(hasActiveCancelledAssignments);
 
+    const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment))
+      && getIsActiveExpiredAssignment();
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
   const { activeAssignments, hasActiveAssignments } = getActiveAssignments(assignments);
@@ -115,20 +113,24 @@ const CourseEnrollments = ({ children }) => {
       </CourseEnrollmentsAlert>
     );
   }
-
-  const handleOnClose = () => {
+  const handleOnCloseCancelAlert = () => {
     setShowCancelledAssignmentsAlert(false);
-    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_CANCELLATION_ALERT, true);
+    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, new Date());
+  };
+
+  const handleOnCloseExpiredAlert = () => {
+    setShowCancelledAssignmentsAlert(false);
+    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT, new Date());
   };
 
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   return (
     <>
-      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hasCancelledAssignments && (
-        <CourseAssignmentAlert showAlert={showCancelledAssignmentsAlert} variant="cancelled" onClose={handleOnClose}> </CourseAssignmentAlert>
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
+        <CourseAssignmentAlert showAlert={showCancelledAssignmentsAlert} variant="cancelled" onClose={handleOnCloseCancelAlert}> </CourseAssignmentAlert>
       )}
-      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showExpiredAssignmentsAlert && (
-        <CourseAssignmentAlert variant="expired" onClose={() => setShowExpiredAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
+        <CourseAssignmentAlert showAlert={showExpiredAssignmentsAlert} variant="expired" onClose={handleOnCloseExpiredAlert}> </CourseAssignmentAlert>
       )}
       {showMarkCourseCompleteSuccess && (
         <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>
