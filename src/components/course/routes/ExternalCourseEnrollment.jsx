@@ -69,10 +69,10 @@ const ExternalCourseEnrollment = () => {
 
   useEffect(() => {
     // Once a redemption has successfully completed and the can-redeem query has been invalidated or
-    // a user attempts to navigate directly to :slug/executive-education-2u/course/:courseKey/enroll,
+    // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
     //  it will run this conditional and perform the redirect
     if (hasSuccessfulRedemption) {
-      history.push({ pathname: completeEnrollmentUrl });
+      history.push(completeEnrollmentUrl);
     }
   }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, history, routeMatch.path, slug]);
 

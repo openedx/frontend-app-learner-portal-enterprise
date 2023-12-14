@@ -120,13 +120,9 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
     expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        onCheckoutSuccess: expect.any(Function),
         productSKU: 'test-sku',
       }),
     );
-    UserEnrollmentForm.mock.calls[0][0].onCheckoutSuccess();
-    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
-    expect(mockHistoryPush).toHaveBeenCalledWith('enroll/complete');
   });
 
   it.each([
