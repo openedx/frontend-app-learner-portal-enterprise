@@ -17,6 +17,7 @@ import {
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
   useExtractAndRemoveSearchParamsFromURL,
+  useIsCourseAssigned,
   useMinimalCourseMetadata,
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
@@ -1538,5 +1539,58 @@ describe('useMinimalCourseMetadata', () => {
         },
       }),
     );
+  });
+});
+
+describe('useIsCourseAssigned', () => {
+  const mockContentKey = 'edX+DemoX';
+
+  it('should return false if there are no active assignments', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: false,
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments));
+    expect(result.current).toEqual(false);
+  });
+
+  it('should return false if there is NO matching assignment to the course key', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: true,
+      activeAssignments: [
+        {
+          contentKey: mockContentKey,
+        },
+      ],
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, 'non-existent-course-key'));
+    expect(result.current).toEqual(false);
+  });
+
+  it('should return false if matching assignment(s) are canceled', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: true,
+      activeAssignments: [
+        {
+          contentKey: mockContentKey,
+          state: 'cancelled',
+        },
+      ],
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    expect(result.current).toEqual(false);
+  });
+
+  it('should return true if there is a matching allocated assignment to the course key', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: true,
+      activeAssignments: [
+        {
+          contentKey: mockContentKey,
+          state: 'allocated',
+        },
+      ],
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    expect(result.current).toEqual(true);
   });
 });
