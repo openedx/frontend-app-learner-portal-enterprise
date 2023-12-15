@@ -64,7 +64,7 @@ const CourseSidebar = () => {
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
                 <Link
-                  to={`/${enterpriseConfig.slug}/search?partners.name=${partner.name}`}
+                  to={`/${enterpriseConfig.slug}/search?partners.name=${encodeURIComponent(partner.name)}`}
                   onClick={() => {
                     sendEnterpriseTrackEvent(
                       enterpriseConfig.uuid,
@@ -87,7 +87,7 @@ const CourseSidebar = () => {
             label="Subject"
             content={(
               <Link
-                to={`/${enterpriseConfig.slug}/search?subjects=${primarySubject.name}`}
+                to={`/${enterpriseConfig.slug}/search?subjects=${encodeURIComponent(primarySubject.name)}`}
                 onClick={() => {
                   sendEnterpriseTrackEvent(
                     enterpriseConfig.uuid,
