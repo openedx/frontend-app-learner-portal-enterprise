@@ -117,14 +117,16 @@ export const isAssignmentExpired = (assignment) => {
  * @returns {array} - Returns the sorted array of assignments.
  */
 export const sortAssignmentsByAssignmentStatus = (assignments) => {
-  if (assignments) {
-    const sortedAssignments = [...assignments].sort((a, b) => (
-      ((a.state === 'cancelled' || isAssignmentExpired(a)) ? 1 : 0)
-    - ((b.state === 'cancelled' || isAssignmentExpired(b)) ? 1 : 0)
-    ));
-    return sortedAssignments;
+  if (!assignments) {
+    return [];
   }
-  return [];
+  const assignmentsCopy = [...assignments];
+  const sortedAssignments = assignmentsCopy.sort((a, b) => {
+    const isAssignmentACanceledOrExpired = a.state === 'cancelled' || isAssignmentExpired(a) ? 1 : 0;
+    const isAssignmentBCanceledOrExpired = b.state === 'cancelled' || isAssignmentExpired(b) ? 1 : 0;
+    return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
+  });
+  return sortedAssignments;
 };
 
 export const getTransformedAllocatedAssignments = (assignments, slug) => {

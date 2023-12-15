@@ -1,4 +1,5 @@
 import { camelCaseObject } from '@edx/frontend-platform';
+import MockDate from 'mockdate';
 
 import { COURSE_STATUSES } from '../constants';
 import {
@@ -126,6 +127,14 @@ describe('isAssignmentExpired', () => {
   const futureDate = '2024-04-20';
   const pastDate = '2022-04-20';
 
+  beforeAll(() => {
+    MockDate.set(currentDate);
+  });
+
+  afterAll(() => {
+    MockDate.reset();
+  });
+
   it('handles null/undefined assignment', () => {
     expect(isAssignmentExpired(null)).toBe(false);
     expect(isAssignmentExpired(undefined)).toBe(false);
@@ -172,6 +181,14 @@ describe('isAssignmentExpired', () => {
 });
 
 describe('sortAssignmentsByAssignmentStatus', () => {
+  beforeAll(() => {
+    MockDate.set('2023-04-20');
+  });
+
+  afterAll(() => {
+    MockDate.reset();
+  });
+
   it('sorts assignments by status (cancelled or expired)', () => {
     const baseAssignment = {
       created: '2023-04-20',
