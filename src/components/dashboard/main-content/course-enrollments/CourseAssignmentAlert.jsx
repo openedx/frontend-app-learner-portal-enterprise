@@ -12,8 +12,8 @@ const CourseAssignmentAlert = ({
 }) => {
   const heading = variant === 'cancelled' ? 'Course assignment cancelled' : 'Deadline passed';
   const text = (variant === 'cancelled'
-    ? 'Your learning administrator cancelled one or more course assignments below.'
-    : 'Deadline to enroll into one or more courses below has passed.');
+    ? 'Your learning administrator cancelled one or more course assignments.'
+    : 'Deadline to enroll into one or more assigned courses has passed.');
 
   const { enterpriseConfig } = useContext(AppContext);
   const adminEmail = getContactEmail(enterpriseConfig);

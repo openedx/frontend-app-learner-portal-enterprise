@@ -1,29 +1,39 @@
+import dayjs from 'dayjs';
 import { ASSIGNMENT_TYPES, ASSIGNMENT_ACTION_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { isAssignmentExpired } from '../main-content/course-enrollments/data';
 import {
   LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
   LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
 } from '../main-content/course-enrollments/data/constants';
 
-export function getIsActiveExpiredAssignment(assignments) {
+export function getHasActiveExpiredAssignment(assignments) {
   const lastExpiredAlertDismissedTime = global.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT);
 
-  const activeExpiredAssignments = assignments.filter((assignment) => (
-    assignment?.actions.some((action) => (
-      action.actionType === ASSIGNMENT_ACTION_TYPES.AUTOMATIC_CANCELLATION_NOTIFICATION
-      && new Date(action.completedAt) > new Date(lastExpiredAlertDismissedTime)
-    ))
-  ));
+  const activeExpiredAssignments = assignments.filter((assignment) => {
+    const {
+      isExpired,
+      enrollByDeadline,
+    } = isAssignmentExpired(assignment);
+
+    if (!isExpired) {
+      return false;
+    }
+
+    return dayjs(enrollByDeadline).isAfter(new Date(lastExpiredAlertDismissedTime));
+  });
+
   return activeExpiredAssignments.length > 0;
 }
 
-export function getIsActiveCancelledAssignment(assignments) {
+export function getHasActiveCancelledAssignments(assignments) {
   const lastCancelledAlertDismissedTime = global.localStorage.getItem(
     LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
   );
+
   const activeCancelledAssignments = assignments.filter((assignment) => (
-    assignment?.actions.some((action) => (
+    assignment.actions.some((action) => (
       action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED_NOTIFICATION
-      && new Date(action.completedAt) > new Date(lastCancelledAlertDismissedTime)
+      && dayjs(action.completedAt).isAfter(new Date(lastCancelledAlertDismissedTime))
     ))
   ));
   return activeCancelledAssignments.length > 0;
@@ -44,16 +54,38 @@ export function getIsActiveCancelledAssignment(assignments) {
  *  activeAssignments: Array,
  * }}
  */
-export default function getActiveAssignments(assignments = []) {
-  const activeAssignments = assignments.filter((assignment) => [
-    ASSIGNMENT_TYPES.ALLOCATED,
-  ].includes(assignment.state));
-  const hasAssignments = assignments.length > 0;
-  const hasActiveAssignments = activeAssignments.length > 0;
+export function getAssignmentsByState(assignments = []) {
+  const allAssignments = [];
+  const allocatedAssignments = [];
+  const canceledAssignments = [];
+  const acceptedAssignments = [];
+
+  assignments.forEach((assignment) => {
+    allAssignments.push(assignment);
+    if (assignment.state === ASSIGNMENT_TYPES.ALLOCATED) {
+      allocatedAssignments.push(assignment);
+    }
+    if (assignment.state === ASSIGNMENT_TYPES.CANCELLED) {
+      canceledAssignments.push(assignment);
+    }
+    if (assignment.state === ASSIGNMENT_TYPES.ACCEPTED) {
+      acceptedAssignments.push(assignment);
+    }
+  });
+
+  const hasAssignments = allAssignments.length > 0;
+  const hasAllocatedAssignments = allocatedAssignments.length > 0;
+  const hasCanceledAssignments = canceledAssignments.length > 0;
+  const hasAcceptedAssignments = acceptedAssignments.length > 0;
+
   return {
     assignments,
     hasAssignments,
-    activeAssignments,
-    hasActiveAssignments,
+    allocatedAssignments,
+    hasAllocatedAssignments,
+    canceledAssignments,
+    hasCanceledAssignments,
+    acceptedAssignments,
+    hasAcceptedAssignments,
   };
 }

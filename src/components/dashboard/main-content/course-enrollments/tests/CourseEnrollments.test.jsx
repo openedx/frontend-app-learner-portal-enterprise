@@ -27,7 +27,7 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
-import getActiveAssignments, { getIsActiveCancelledAssignment } from '../../../data/utils';
+import getActiveAssignments, { getHasActiveCancelledAssignments } from '../../../data/utils';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -38,8 +38,8 @@ jest.mock('../course-cards/mark-complete-modal/data/service');
 jest.mock('../../../data/utils', () => ({
   __esModule: true,
   default: jest.fn(),
-  getIsActiveCancelledAssignment: jest.fn(),
   getIsActiveExpiredAssignment: jest.fn(),
+  getHasActiveCancelledAssignments: jest.fn(),
 }));
 
 jest.mock('../data/service');
@@ -150,7 +150,7 @@ describe('Course enrollments', () => {
   });
 
   it('does not render cancelled assignment and renders cancelled alert', async () => {
-    getIsActiveCancelledAssignment.mockReturnValue(true);
+    getHasActiveCancelledAssignments.mockReturnValue(true);
     renderWithRouter(renderEnrollmentsComponent());
     expect(screen.queryByText('Your learning administrator canceled this assignment.')).toBeFalsy();
     expect(screen.getByText('Course assignment cancelled')).toBeInTheDocument();
@@ -161,13 +161,13 @@ describe('Course enrollments', () => {
   });
 
   it('if there are active cancelled assignments, cancelled alert is rendered', () => {
-    getIsActiveCancelledAssignment.mockReturnValue(true);
+    getHasActiveCancelledAssignments.mockReturnValue(true);
     renderEnrollmentsComponent();
     expect(screen.queryByText('Course assignment cancelled')).toBeTruthy();
   });
 
   it('if there are no active cancelled assignments, cancelled alert is hidden', () => {
-    getIsActiveCancelledAssignment.mockReturnValue(false);
+    getHasActiveCancelledAssignments.mockReturnValue(false);
     renderEnrollmentsComponent();
     expect(screen.queryByText('Course assignment cancelled')).toBeFalsy();
   });

@@ -20,7 +20,7 @@ import {
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { transformRedeemablePoliciesData } from '../utils';
-import getActiveAssignments from '../../../dashboard/data/utils';
+import { getAssignmentsByState } from '../../../dashboard/data/utils';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -253,7 +253,7 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
   const userID = queryKey[4];
   const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
   const redeemablePolicies = camelCaseObject(transformRedeemablePoliciesData(response.data));
-  const learnerContentAssignments = getActiveAssignments(
+  const learnerContentAssignments = getAssignmentsByState(
     redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
   );
 

@@ -104,11 +104,22 @@ export const isAssignmentExpired = (assignment) => {
   const enrollmentEndDate = dayjs(assignment.contentMetadata.enrollByDate);
   const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
 
-  return (
+  const isExpired = (
     currentDate.diff(allocationDate, 'day') > 90
     || currentDate.isAfter(enrollmentEndDate)
     || currentDate.isAfter(subsidyExpirationDate)
   );
+
+  const earliestAssignmentExpiryDate = [
+    dayjs(allocationDate).add(90, 'day'),
+    enrollmentEndDate,
+    subsidyExpirationDate,
+  ].sort()[0]?.toDate();
+
+  return {
+    isExpired,
+    enrollByDeadline: earliestAssignmentExpiryDate,
+  };
 };
 
 /**
