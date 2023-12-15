@@ -30,17 +30,29 @@ export function getIsActiveCancelledAssignment(assignments) {
 }
 
 /**
- * Takes the flattened array from redeemableLearnerCreditPolicies and returns the options of
- * the array of activeAssignments, or hasActiveAssignments which returns a boolean value
- * @param assignments - flatMap'ed object from redeemableLearnerCreditPolicies for learnerContentAssignments
- * @returns {{hasActiveAssignments: boolean, activeAssignments: Array}}
+ * Takes a flattened array of assignments and returns an object containing:
+ * - List of assignments
+ * - Boolean hasAssignments
+ * - List of active assignments
+ * - Boolean hasActiveAssignments
+ *
+ * @param {Array} assignments - List of content assignments.
+ * @returns {{
+ *  assignments: Array,
+ *  hasAssignments: Boolean,
+ *  hasActiveAssignments: Boolean,
+ *  activeAssignments: Array,
+ * }}
  */
 export default function getActiveAssignments(assignments = []) {
   const activeAssignments = assignments.filter((assignment) => [
     ASSIGNMENT_TYPES.ALLOCATED,
   ].includes(assignment.state));
+  const hasAssignments = assignments.length > 0;
   const hasActiveAssignments = activeAssignments.length > 0;
   return {
+    assignments,
+    hasAssignments,
     activeAssignments,
     hasActiveAssignments,
   };

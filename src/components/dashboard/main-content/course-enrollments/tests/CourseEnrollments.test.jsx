@@ -39,6 +39,7 @@ jest.mock('../../../data/utils', () => ({
   __esModule: true,
   default: jest.fn(),
   getIsActiveCancelledAssignment: jest.fn(),
+  getIsActiveExpiredAssignment: jest.fn(),
 }));
 
 jest.mock('../data/service');
@@ -96,12 +97,17 @@ hooks.useCourseEnrollments.mockReturnValue({
   updateCourseEnrollmentStatus: jest.fn(),
 });
 const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: [
-    {
-      learnerContentAssignments: [assignmentData],
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
     },
-  ],
+  },
 };
+
 const renderEnrollmentsComponent = () => render(
   <IntlProvider locale="en">
     <AppContext.Provider value={{ enterpriseConfig }}>

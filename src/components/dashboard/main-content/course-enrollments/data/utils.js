@@ -86,28 +86,29 @@ export const transformSubsidyRequest = ({
 
 /**
  * Checks if an assignment has expired based on following conditions:
- * - The assignment's action is "allocated."
- * - 90 days have passed since the "allocated" action.
+ * - The assignment's lifecycle state is "allocated."
+ * - 90 days have passed since the "created" date.
  * - The course enrollment deadline has passed.
  * - The subsidy expiration date has passed.
  * @param {object} assignment - Information about the assignment.
  * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
  */
 export const isAssignmentExpired = (assignment) => {
-  if (assignment?.actions?.length > 0 && assignment.actions[0]?.actionType === 'allocated') {
-    const currentDate = new Date();
-    const allocationDate = new Date(assignment.actions[0]?.completedAt);
-    const enrollmentEndDate = new Date(assignment?.contentMetadata?.enrollByDate);
-    const subsidyExpirationDate = new Date(assignment?.subsidyExpirationDate);
-
-    return (
-      currentDate - allocationDate > 90 * 24 * 60 * 60 * 1000
-      || currentDate > enrollmentEndDate
-      || currentDate > subsidyExpirationDate
-    );
+  // Assignment is not in an allocated state, so it cannot be expired.
+  if (!assignment) {
+    return false;
   }
 
-  return false;
+  const currentDate = dayjs();
+  const allocationDate = dayjs(assignment.created);
+  const enrollmentEndDate = dayjs(assignment.contentMetadata.enrollByDate);
+  const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
+
+  return (
+    currentDate.diff(allocationDate, 'day') > 90
+    || currentDate.isAfter(enrollmentEndDate)
+    || currentDate.isAfter(subsidyExpirationDate)
+  );
 };
 
 /**
@@ -116,14 +117,16 @@ export const isAssignmentExpired = (assignment) => {
  * @returns {array} - Returns the sorted array of assignments.
  */
 export const sortAssignmentsByAssignmentStatus = (assignments) => {
-  if (assignments) {
-    const sortedAssignments = [...assignments].sort((a, b) => (
-      ((a.state === 'cancelled' || isAssignmentExpired(a)) ? 1 : 0)
-    - ((b.state === 'cancelled' || isAssignmentExpired(b)) ? 1 : 0)
-    ));
-    return sortedAssignments;
+  if (!assignments) {
+    return [];
   }
-  return [];
+  const assignmentsCopy = [...assignments];
+  const sortedAssignments = assignmentsCopy.sort((a, b) => {
+    const isAssignmentACanceledOrExpired = a.state === 'cancelled' || isAssignmentExpired(a) ? 1 : 0;
+    const isAssignmentBCanceledOrExpired = b.state === 'cancelled' || isAssignmentExpired(b) ? 1 : 0;
+    return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
+  });
+  return sortedAssignments;
 };
 
 export const getTransformedAllocatedAssignments = (assignments, slug) => {

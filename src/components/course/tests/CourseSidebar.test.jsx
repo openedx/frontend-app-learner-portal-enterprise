@@ -1,8 +1,8 @@
 import { AppContext } from '@edx/frontend-platform/react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { sendEnterpriseTrackEvent, renderWithRouter } from '@edx/frontend-enterprise-utils';
 import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
 } from '@edx/paragon/icons';
@@ -20,6 +20,7 @@ jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
   useCoursePartners: jest.fn(() => [
     [{
+      name: 'Test Partner',
       key: 'Test Partner',
       marketingUrl: 'https://test.org/partner',
     }],
@@ -63,7 +64,12 @@ jest.mock('../CourseSidebarPrice', () => jest.fn(() => (
 )));
 
 const baseAppContextValue = {
-  enterpriseConfig: { uuid: 'test-enterprise-uuid', enablePathways: true, enablePrograms: true },
+  enterpriseConfig: {
+    slug: 'test-slug',
+    uuid: 'test-enterprise-uuid',
+    enablePathways: true,
+    enablePrograms: true,
+  },
 };
 
 const mockCourse = {
@@ -99,7 +105,7 @@ const CourseSidebarWrapper = ({
 
 describe('CourseSidebarWrapper', () => {
   it('renders', () => {
-    render(<CourseSidebarWrapper />);
+    renderWithRouter(<CourseSidebarWrapper />);
 
     // length
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
@@ -151,6 +157,9 @@ describe('CourseSidebarWrapper', () => {
         partner_name: 'Test Partner',
       },
     );
+    expect(partner.href).toContain(
+      `/${baseAppContextValue.enterpriseConfig.slug}/search?partners.name=${encodeURIComponent('Test Partner')}`,
+    );
 
     // subject
     expect(CourseSidebarListItem).toHaveBeenCalledWith(
@@ -170,6 +179,9 @@ describe('CourseSidebarWrapper', () => {
       {
         subject: 'Test Subject',
       },
+    );
+    expect(subject.href).toContain(
+      `/${baseAppContextValue.enterpriseConfig.slug}/search?subjects=${encodeURIComponent('Test Subject')}`,
     );
 
     // level type

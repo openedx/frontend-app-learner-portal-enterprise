@@ -39,9 +39,7 @@ const EnterpriseAppPageRoutes = () => (
       <PageRoute exact path="/:enterpriseSlug/pathway/:pathwayUUID/progress" component={PathwayProgressPage} />
     )}
 
-    {features.ENABLE_ACADEMIES && (
-      <PageRoute exact path="/:enterpriseSlug/academies/:academyUUID" component={AcademyDetailPage} />
-    )}
+    <PageRoute exact path="/:enterpriseSlug/academies/:academyUUID" component={AcademyDetailPage} />
   </AuthenticatedUserSubsidyPage>
 );
 

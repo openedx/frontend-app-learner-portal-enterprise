@@ -41,3 +41,9 @@ export const ASSIGNMENT_ACTION_TYPES = {
   CANCELLED_NOTIFICATION: 'cancelled',
   AUTOMATIC_CANCELLATION_NOTIFICATION: 'automatic_cancellation',
 };
+
+export const POLICY_TYPES = {
+  ASSIGNED_CREDIT: 'AssignedLearnerCreditAccessPolicy',
+  PER_LEARNER_CREDIT: 'PerLearnerSpendCreditAccessPolicy',
+  PER_ENROLLMENT_CREDIT: 'PerLearnerEnrollmentCreditAccessPolicy',
+};

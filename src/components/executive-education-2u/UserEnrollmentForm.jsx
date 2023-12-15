@@ -14,10 +14,12 @@ import { sendEnterpriseTrackEvent, sendEnterpriseTrackEventWithDelay } from '@ed
 import dayjs from 'dayjs';
 import reactStringReplace from 'react-string-replace';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { checkoutExecutiveEducation2U, isDuplicateExternalCourseOrder, toISOStringWithoutMilliseconds } from './data';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
+import { enterpriseUserSubsidyQueryKeys } from '../enterprise-user-subsidy/data/constants';
 
 export const formValidationMessages = {
   firstNameRequired: 'First name is required',
@@ -39,6 +41,7 @@ const UserEnrollmentForm = ({
   userSubsidyApplicableToCourse,
 }) => {
   const config = getConfig();
+  const queryClient = useQueryClient();
   const {
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { id: userId },
@@ -64,7 +67,12 @@ const UserEnrollmentForm = ({
       enterpriseId,
       'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
     );
-    onCheckoutSuccess(newTransaction);
+    await queryClient.invalidateQueries({
+      queryKey: enterpriseUserSubsidyQueryKeys.policy(),
+    });
+    if (onCheckoutSuccess) {
+      onCheckoutSuccess(newTransaction);
+    }
   };
 
   const { redeem } = useStatefulEnroll({
@@ -123,7 +131,7 @@ const UserEnrollmentForm = ({
       geagLastName: values.lastName,
       geagEmail: getAuthenticatedUser().email,
       geagDateOfBirth: values.dateOfBirth,
-      geagTermsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+      geagTermsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
       geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
     });
     try {
@@ -143,7 +151,7 @@ const UserEnrollmentForm = ({
           lastName: values.lastName,
           dateOfBirth: values.dateOfBirth,
         },
-        termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+        termsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
         dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
       });
       await handleFormSubmissionSuccess();
@@ -388,7 +396,7 @@ const UserEnrollmentForm = ({
 UserEnrollmentForm.propTypes = {
   className: PropTypes.string,
   productSKU: PropTypes.string.isRequired,
-  onCheckoutSuccess: PropTypes.func.isRequired,
+  onCheckoutSuccess: PropTypes.func,
   activeCourseRun: PropTypes.shape({
     key: PropTypes.string.isRequired,
   }).isRequired,
@@ -400,6 +408,7 @@ UserEnrollmentForm.propTypes = {
 UserEnrollmentForm.defaultProps = {
   className: undefined,
   userSubsidyApplicableToCourse: undefined,
+  onCheckoutSuccess: undefined,
 };
 
 export default UserEnrollmentForm;

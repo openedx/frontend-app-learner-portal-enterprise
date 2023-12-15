@@ -6,6 +6,7 @@ import {
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
+  POLICY_TYPES,
 } from './constants';
 
 import { LICENSE_STATUS } from '../../data/constants';
@@ -109,10 +110,12 @@ export const transformEnterpriseOffer = (offer) => {
  * -> Is assigned a course,
  * -> And has no other subsidy,If they had a subscription,
  *    but the license is no longer relevant, we would not want to count that.
- * @param {Array} redeemableLearnerCreditPolicies - Array of redeemable learner credit policies.
+ * @param {Object} redeemableLearnerCreditPolicies - Object containing list of redeemable
+ *  policies and learner content assignments.
  * @param {Array} enterpriseOffers - Array of enterprise offers.
  * @param {Object} subscriptionPlan - Subscription plan object.
  * @param {Object} subscriptionLicense - Subscription license object.
+ * @param {Array} couponCodes - Array of couponCodes from the UserSubsidyContext, couponCodes.couponCodes
  *
  * @returns {boolean} Returns true if course search should be disabled, otherwise false.
  */
@@ -121,21 +124,34 @@ export const isDisableCourseSearch = (
   enterpriseOffers,
   subscriptionPlan,
   subscriptionLicense,
+  couponCodes,
 ) => {
-  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
-
-  const assignments = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-  const allocatedAndAcceptedAssignments = assignments?.filter(item => item?.state === ASSIGNMENT_TYPES.ALLOCATED
-    || item?.state === ASSIGNMENT_TYPES.ACCEPTED);
-
-  if (allocatedAndAcceptedAssignments?.length === 0) {
+  const {
+    redeemablePolicies,
+    learnerContentAssignments,
+  } = redeemableLearnerCreditPolicies || {};
+  const nonAssignablePolicyTypes = redeemablePolicies.filter(
+    item => item.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
+  );
+  if (nonAssignablePolicyTypes.length > 0) {
     return false;
   }
+
+  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
+  const hasCouponCodes = couponCodes.filter(code => !!code?.available).length > 0;
+  const allocatedOrAcceptedAssignments = learnerContentAssignments.assignments
+    .filter(item => [ASSIGNMENT_TYPES.ALLOCATED, ASSIGNMENT_TYPES.ACCEPTED].includes(item.state));
+  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
 
   if (hasActiveSubPlan) {
     return false;
   }
+  if (hasCouponCodes) {
+    return false;
+  }
+  if (allocatedOrAcceptedAssignments?.length === 0) {
+    return false;
+  }
 
-  return activeOffers?.length > 0 || allocatedAndAcceptedAssignments?.length > 0;
+  return activeOffers?.length > 0 || allocatedOrAcceptedAssignments?.length > 0;
 };

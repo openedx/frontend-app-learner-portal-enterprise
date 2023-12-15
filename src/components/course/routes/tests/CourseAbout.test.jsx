@@ -53,10 +53,21 @@ const appContextValues = {
 };
 
 const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: [],
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
   enterpriseOffers: [],
   subscriptionPlan: {},
   subscriptionLicense: {},
+  couponCodes: {
+    couponCodes: [],
+  },
 };
 
 const CourseAboutWrapper = ({

@@ -72,10 +72,22 @@ const baseAppContextValue = {
   authenticatedUser: { id: 3 },
 };
 
+const baseUserSubsidyContextValue = {
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+
 const ExternalCourseEnrollmentWrapper = ({
   courseContextValue = baseCourseContextValue,
   appContextValue = baseAppContextValue,
-  initialUserSubsidyState = {},
+  initialUserSubsidyState = baseUserSubsidyContextValue,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
@@ -108,13 +120,9 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
     expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        onCheckoutSuccess: expect.any(Function),
         productSKU: 'test-sku',
       }),
     );
-    UserEnrollmentForm.mock.calls[0][0].onCheckoutSuccess();
-    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
-    expect(mockHistoryPush).toHaveBeenCalledWith('enroll/complete');
   });
 
   it.each([

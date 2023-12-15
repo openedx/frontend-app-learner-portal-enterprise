@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import CourseRunCards from '../CourseRunCards';
 import { CourseContext } from '../../CourseContextProvider';
+import { LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from '../../data/constants';
 
 jest.mock('../CourseRunCard', () => jest.fn((props) => {
   const MockName = 'course-run-card';
@@ -30,7 +31,7 @@ const defaultCourseContext = {
   },
   subsidyRequestCatalogsApplicableToCourse: [],
   missingUserSubsidyReason: undefined,
-  redeemabilityPerContentKey: [],
+  userSubsidyApplicableToCourse: undefined,
 };
 
 const CourseRunCardsWrapper = ({ courseContexValue = defaultCourseContext }) => (
@@ -40,25 +41,48 @@ const CourseRunCardsWrapper = ({ courseContexValue = defaultCourseContext }) => 
 );
 
 describe('<CourseRunCardStatus />', () => {
-  test('renders deprecated course run card', () => {
+  test('renders deprecated course run card when there is no applicable subsidy', () => {
     render(<CourseRunCardsWrapper />);
     expect(screen.getByTestId('deprecated-course-run-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('course-run-card')).not.toBeInTheDocument();
   });
 
-  test('renders non-deprecated course run card', () => {
+  test('renders deprecated course run card when applicable subsidy is other than a policy', () => {
     render(<CourseRunCardsWrapper
       courseContexValue={{
         ...defaultCourseContext,
-        redeemabilityPerContentKey: [{
-          contentKey: mockCourseRunKey,
-          redeemableSubsidyAccessPolicy: {
-            uuid: 'subsidy-access-policy-uuid',
-            canRedeem: true,
-            policyRedemptionUrl: 'http://redeem.url',
-          },
-        }],
+        userSubsidyApplicableToCourse: {
+          subsidyType: LICENSE_SUBSIDY_TYPE,
+        },
+      }}
+    />);
+    expect(screen.getByTestId('deprecated-course-run-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('course-run-card')).not.toBeInTheDocument();
+  });
+
+  test('renders non-deprecated course run card with an applicable policy', () => {
+    render(<CourseRunCardsWrapper
+      courseContexValue={{
+        ...defaultCourseContext,
+        userSubsidyApplicableToCourse: {
+          subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
+        },
       }}
     />);
     expect(screen.getByTestId('course-run-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('deprecated-course-run-card')).not.toBeInTheDocument();
+  });
+
+  test('renders non-deprecated course run card with a disabled enroll reason', () => {
+    render(<CourseRunCardsWrapper
+      courseContexValue={{
+        ...defaultCourseContext,
+        missingUserSubsidyReason: {
+          userMessage: 'You cannot enroll in this course.',
+        },
+      }}
+    />);
+    expect(screen.getByTestId('course-run-card')).toBeInTheDocument();
+    expect(screen.queryByTestId('deprecated-course-run-card')).not.toBeInTheDocument();
   });
 });

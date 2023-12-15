@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  screen, render, waitFor, act,
+  act, render, screen, waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -8,7 +8,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { snakeCaseObject } from '@edx/frontend-platform/utils';
 import dayjs from 'dayjs';
+import MockDate from 'mockdate';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
@@ -67,6 +69,8 @@ const mockUserSubsidyApplicableToCourse = {
   subsidyType: LEARNER_CREDIT_SUBSIDY_TYPE,
 };
 
+const queryClient = new QueryClient();
+
 const UserEnrollmentFormWrapper = ({
   appContextValue = initialAppContextValue,
   enterpriseId = mockEnterpriseId,
@@ -83,23 +87,29 @@ const UserEnrollmentFormWrapper = ({
   },
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <UserEnrollmentForm
-          enterpriseId={enterpriseId}
-          productSKU={productSKU}
-          onCheckoutSuccess={onCheckoutSuccess}
-          activeCourseRun={activeCourseRun}
-          userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-        />
-      </CourseContext.Provider>
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={appContextValue}>
+        <CourseContext.Provider value={courseContextValue}>
+          <UserEnrollmentForm
+            enterpriseId={enterpriseId}
+            productSKU={productSKU}
+            onCheckoutSuccess={onCheckoutSuccess}
+            activeCourseRun={activeCourseRun}
+            userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+          />
+        </CourseContext.Provider>
+      </AppContext.Provider>
+    </QueryClientProvider>
   </IntlProvider>
 );
 
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    MockDate.reset();
   });
 
   it('has course enrollment information section and handles validation', async () => {
@@ -199,7 +209,7 @@ describe('UserEnrollmentForm', () => {
 
   it('handles successful form submission with subsidy access policy redemption', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
-    Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
+    MockDate.set(mockTermsAcceptedAt);
 
     render(<UserEnrollmentFormWrapper />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
@@ -242,7 +252,7 @@ describe('UserEnrollmentForm', () => {
 
   it('handles successful form submission with data sharing consent disabled', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
-    Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
+    MockDate.set(mockTermsAcceptedAt);
     const appContext = {
       enterpriseConfig: {
         ...initialAppContextValue.enterpriseConfig,
@@ -291,7 +301,7 @@ describe('UserEnrollmentForm', () => {
 
   it('handles age related errors during form submission', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
-    Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
+    MockDate.set(mockTermsAcceptedAt);
 
     render(<UserEnrollmentFormWrapper />);
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
@@ -315,7 +325,7 @@ describe('UserEnrollmentForm', () => {
 
   it('handles network error with form submission', async () => {
     const mockError = new Error('oh noes');
-    Date.now = jest.fn(() => new Date().valueOf());
+    MockDate.set(new Date());
     const mockFormSubmissionValue = { message: 'oh noes' };
 
     render(<UserEnrollmentFormWrapper
@@ -368,7 +378,7 @@ describe('UserEnrollmentForm', () => {
     };
     checkoutExecutiveEducation2U.mockRejectedValueOnce(mockCheckoutAlreadyEnrolledResponse);
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
-    Date.now = jest.fn(() => new Date(mockTermsAcceptedAt).valueOf());
+    MockDate.set(mockTermsAcceptedAt);
 
     const userSubsidyApplicableToCourse = {
       subsidyType: ENTERPRISE_OFFER_SUBSIDY_TYPE,
@@ -414,7 +424,7 @@ describe('UserEnrollmentForm', () => {
 
   it('handles duplicate order with form submission', async () => {
     const mockError = new Error('duplicate order');
-    Date.now = jest.fn(() => new Date().valueOf());
+    MockDate.set(new Date());
     const mockFormSubmissionValue = { message: 'duplicate order' };
     render(<UserEnrollmentFormWrapper
       courseContextValue={{

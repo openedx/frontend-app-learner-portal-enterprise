@@ -17,14 +17,43 @@ jest.mock('../../search/content-highlights/data', () => ({
     },
   })),
 }));
+
 jest.mock('../../../config', () => ({
   features: {
     FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: jest.fn(),
   },
 }));
+
+const defaultUserSubsidyState = {
+  subscriptionPlan: undefined,
+  subscriptionLicense: undefined,
+  couponCodes: {
+    couponCodes: [],
+    loading: false,
+    couponCodesCount: 0,
+  },
+  enterpriseOffers: [],
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+const defaultAppState = {
+  enterpriseConfig: {
+    slug: 'slug',
+    uuid: 'uuid',
+    adminUsers: [{ email: 'edx@example.com' }],
+  },
+};
+
 const DashboardMainContentWrapper = ({
-  initialAppState = { fakeContext: 'foo' },
-  initialUserSubsidyState = {},
+  initialAppState = defaultAppState,
+  initialUserSubsidyState = defaultUserSubsidyState,
   initialSubsidyRequestsState = {
     subsidyRequestConfiguration: {},
     requestsBySubsidyType: {
@@ -50,23 +79,6 @@ const DashboardMainContentWrapper = ({
 );
 
 describe('DashboardMainContent', () => {
-  const defaultUserSubsidyState = {
-    subscriptionPlan: undefined,
-    subscriptionLicense: undefined,
-    couponCodes: {
-      couponCodes: [],
-      loading: false,
-      couponCodesCount: 0,
-    },
-    enterpriseOffers: [],
-  };
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'slug',
-      uuid: 'uuid',
-      adminUsers: [{ email: 'edx@example.com' }],
-    },
-  };
   it('does not render recommended courses when canOnlyViewHighlightSets true', () => {
     useEnterpriseCuration.mockImplementation(() => ({
       enterpriseCuration: {
@@ -76,8 +88,6 @@ describe('DashboardMainContent', () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <DashboardMainContentWrapper
-          initialAppState={initialAppState}
-          initialUserSubsidyState={defaultUserSubsidyState}
           canOnlyViewHighlightSets
         />
       </IntlProvider>,
@@ -94,26 +104,25 @@ describe('DashboardMainContent', () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <DashboardMainContentWrapper
-          initialAppState={initialAppState}
-          initialUserSubsidyState={defaultUserSubsidyState}
           canOnlyViewHighlightSets={false}
         />
       </IntlProvider>,
     );
     expect(screen.getByText('Recommend courses for me')).toBeInTheDocument();
   });
-  it('Displays disableSearch Flag message', () => {
+
+  it('Displays disableSearch flag message', () => {
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        ...defaultAppState.enterpriseConfig,
+        disableSearch: true,
+      },
+    };
     renderWithRouter(
       <IntlProvider locale="en">
         <DashboardMainContentWrapper
-          initialAppState={{
-            ...initialAppState,
-            enterpriseConfig: {
-              ...initialAppState.enterpriseConfig,
-              disableSearch: true,
-            },
-          }}
-          initialUserSubsidyState={defaultUserSubsidyState}
+          initialAppState={appState}
         />
       </IntlProvider>,
     );

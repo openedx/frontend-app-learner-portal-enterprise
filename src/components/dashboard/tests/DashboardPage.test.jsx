@@ -72,16 +72,24 @@ const defaultAppState = {
 const defaultUserSubsidyState = {
   couponCodes: defaultCouponCodesState,
   enterpriseOffers: [],
-  redeemableLearnerCreditPolicies: [{
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [{
+      learnerContentAssignments: [
+        { state: 'allocated' },
+      ],
+    },
+    {
+      learnerContentAssignments: [
+        { state: 'cancelled' },
+      ],
+    }],
     learnerContentAssignments: {
-      state: 'allocated',
+      assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasAssignments: true,
+      activeAssignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasActiveAssignments: true,
     },
   },
-  {
-    learnerContentAssignments: {
-      state: 'cancelled',
-    },
-  }],
 };
 
 const defaultCourseState = {
@@ -359,7 +367,15 @@ describe('<Dashboard />', () => {
   it('should render redirect component if no cookie and no courseAssignments exist', () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: [],
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
     };
     renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
     expect(screen.queryByText('enterprise-learner-first-visit-redirect')).toBeTruthy();

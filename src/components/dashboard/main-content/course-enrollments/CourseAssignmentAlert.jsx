@@ -25,16 +25,14 @@ const CourseAssignmentAlert = ({
       icon={Info}
       dismissible
       actions={[
-        <Button className="text-nowrap text-white">
-          <MailtoLink className="text-white" to={adminEmail}>
-            Contact administrator
-          </MailtoLink>
+        <Button as={MailtoLink} className="text-nowrap" to={adminEmail}>
+          Contact administrator
         </Button>,
       ]}
       onClose={onClose}
     >
       <Alert.Heading>{heading}</Alert.Heading>
-      <p> {text} </p>
+      <p>{text}</p>
     </Alert>
   );
 };

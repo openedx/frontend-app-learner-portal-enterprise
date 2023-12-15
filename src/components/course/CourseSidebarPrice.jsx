@@ -28,10 +28,8 @@ const CourseSidebarPrice = () => {
       course,
     },
   } = useContext(CourseContext);
-  const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
 
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 

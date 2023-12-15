@@ -24,8 +24,8 @@ export const useSearchCatalogs = ({
 
     // Scope to catalogs from redeemable subsidy access policies, coupons,
     // enterprise offers, or subscription plan associated with learner's license.
-    if (redeemableLearnerCreditPolicies) {
-      const activePolicies = redeemableLearnerCreditPolicies.filter(policy => policy.active);
+    if (redeemableLearnerCreditPolicies?.redeemablePolicies) {
+      const activePolicies = redeemableLearnerCreditPolicies.redeemablePolicies.filter(policy => policy.active);
       activePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
     }
     if (subscriptionPlan?.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {

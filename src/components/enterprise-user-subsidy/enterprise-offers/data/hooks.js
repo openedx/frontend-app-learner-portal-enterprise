@@ -13,8 +13,10 @@ export const useEnterpriseOffers = ({
   enableLearnerPortalOffers,
 }) => {
   const [enterpriseOffers, setEnterpriseOffers] = useState([]);
+  const [currentEnterpriseOffers, setCurrentEnterpriseOffers] = useState([]);
   const [isLoadingOffers, setIsLoadingOffers] = useState(true);
   const [canEnrollWithEnterpriseOffers, setCanEnrollWithEnterpriseOffers] = useState(false);
+  const [hasCurrentEnterpriseOffers, setHasCurrentEnterpriseOffers] = useState(false);
   const [hasLowEnterpriseOffersBalance, setHasLowEnterpriseOffersBalance] = useState(false);
   const [hasNoEnterpriseOffersBalance, setHasNoEnterpriseOffersBalance] = useState(false);
 
@@ -50,10 +52,12 @@ export const useEnterpriseOffers = ({
       setCanEnrollWithEnterpriseOffers(true);
     }
 
-    const currentEnterpriseOffers = enterpriseOffers.filter(offer => offer.isCurrent);
-    if (currentEnterpriseOffers.length > 0) {
-      const hasLowBalance = currentEnterpriseOffers.some(offer => offer.isLowOnBalance);
-      const hasNoBalance = currentEnterpriseOffers.every(offer => offer.isOutOfBalance);
+    const currentEntOffers = enterpriseOffers.filter(offer => offer.isCurrent);
+    if (currentEntOffers.length > 0) {
+      setCurrentEnterpriseOffers(currentEntOffers);
+      setHasCurrentEnterpriseOffers(true);
+      const hasLowBalance = currentEntOffers.some(offer => offer.isLowOnBalance);
+      const hasNoBalance = currentEntOffers.every(offer => offer.isOutOfBalance);
       setHasLowEnterpriseOffersBalance(hasLowBalance);
       setHasNoEnterpriseOffersBalance(hasNoBalance);
     }
@@ -65,6 +69,8 @@ export const useEnterpriseOffers = ({
 
   return {
     enterpriseOffers,
+    currentEnterpriseOffers,
+    hasCurrentEnterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,

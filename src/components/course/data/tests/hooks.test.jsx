@@ -17,6 +17,7 @@ import {
   useCourseRunWeeksToComplete,
   useCourseTranscriptLanguages,
   useExtractAndRemoveSearchParamsFromURL,
+  useIsCourseAssigned,
   useMinimalCourseMetadata,
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
@@ -28,12 +29,11 @@ import {
   findEnterpriseOfferForCourse,
   getCourseRunPrice,
   getCourseTypeConfig,
+  getMissingApplicableSubsidyReason,
   getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
-  getMissingApplicableSubsidyReason,
 } from '../utils';
-import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
@@ -59,6 +59,7 @@ import {
 } from '../../tests/constants';
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
+import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
 
 const oldGlobalLocation = global.location;
 
@@ -911,7 +912,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
     expect(result.current.isInitialLoading).toBeDefined();
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
+        queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), baseArgs.enterpriseUuid, 'can-redeem', {
           activeCourseRunKey: undefined,
           courseRunKeys: [],
           lmsUserId: mockLmsUserId,
@@ -978,7 +979,7 @@ describe('useCheckSubsidyAccessPolicyRedeemability', () => {
       expect(result.current.data.hasSuccessfulRedemption).toBeFalsy();
     }
 
-    const expectQueryKey = ['policy', baseArgs.enterpriseUuid, 'can-redeem', {
+    const expectQueryKey = [...enterpriseUserSubsidyQueryKeys.policy(), baseArgs.enterpriseUuid, 'can-redeem', {
       activeCourseRunKey: argsWithCourseRunKeys.courseRunKeys[0],
       lmsUserId: mockLmsUserId,
       courseRunKeys: argsWithCourseRunKeys.courseRunKeys,
@@ -1538,5 +1539,58 @@ describe('useMinimalCourseMetadata', () => {
         },
       }),
     );
+  });
+});
+
+describe('useIsCourseAssigned', () => {
+  const mockContentKey = 'edX+DemoX';
+
+  it('should return false if there are no active assignments', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: false,
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments));
+    expect(result.current).toEqual(false);
+  });
+
+  it('should return false if there is NO matching assignment to the course key', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: true,
+      activeAssignments: [
+        {
+          contentKey: mockContentKey,
+        },
+      ],
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, 'non-existent-course-key'));
+    expect(result.current).toEqual(false);
+  });
+
+  it('should return false if matching assignment(s) are canceled', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: true,
+      activeAssignments: [
+        {
+          contentKey: mockContentKey,
+          state: 'cancelled',
+        },
+      ],
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    expect(result.current).toEqual(false);
+  });
+
+  it('should return true if there is a matching allocated assignment to the course key', () => {
+    const learnerContentAssignments = {
+      hasActiveAssignments: true,
+      activeAssignments: [
+        {
+          contentKey: mockContentKey,
+          state: 'allocated',
+        },
+      ],
+    };
+    const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments, mockContentKey));
+    expect(result.current).toEqual(true);
   });
 });

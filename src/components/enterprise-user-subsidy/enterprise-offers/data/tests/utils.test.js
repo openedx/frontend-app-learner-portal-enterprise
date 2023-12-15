@@ -1,4 +1,4 @@
-import { ASSIGNMENT_TYPES, ENTERPRISE_OFFER_TYPE } from '../constants';
+import { ASSIGNMENT_TYPES, ENTERPRISE_OFFER_TYPE, POLICY_TYPES } from '../constants';
 import {
   getOfferType,
   isDisableCourseSearch,
@@ -336,13 +336,25 @@ describe('transformEnterpriseOffer', () => {
 });
 
 describe('isDisableCourseSearch', () => {
-  it('returns false if hasActiveSubPlan', () => {
-    const inputs = {
-      redeemableLearnerCreditPolicies: [{
+  it.each([
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
         learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ALLOCATED,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
         },
-      }],
+      },
       enterpriseOffers: [{
         isCurrent: true,
       }],
@@ -352,22 +364,34 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
-    };
-    const isDisableSearch = isDisableCourseSearch(
-      inputs.redeemableLearnerCreditPolicies,
-      inputs.enterpriseOffers,
-      inputs.subscriptionPlan,
-      inputs.subscriptionLicenses,
-    );
-    expect(isDisableSearch).toEqual(false);
-  });
-  it('returns true if does not have active sub plans and assignments', () => {
-    const inputs = {
-      redeemableLearnerCreditPolicies: [{
+      couponCodes: [],
+    },
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+          {
+            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+            learnerContentAssignments: [],
+          },
+          {
+            policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+            learnerContentAssignments: [],
+          },
+        ],
         learnerContentAssignments: {
-          state: ASSIGNMENT_TYPES.ALLOCATED,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
         },
-      }],
+      },
       enterpriseOffers: [{
         isCurrent: true,
       }],
@@ -377,13 +401,149 @@ describe('isDisableCourseSearch', () => {
       subscriptionLicenses: {
         status: LICENSE_STATUS.ACTIVATED,
       },
-    };
+      couponCodes: [],
+    },
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+            learnerContentAssignments: [],
+          },
+          {
+            policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+            learnerContentAssignments: [],
+          },
+        ],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+      couponCodes: [],
+    },
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+      couponCodes: [
+        { available: true },
+      ],
+    },
+    {
+      isCourseSearchDisabled: true,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+      couponCodes: [],
+    },
+    {
+      isCourseSearchDisabled: true,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ACCEPTED },
+            ],
+          },
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasActiveAssignments: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicenses: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+      couponCodes: [],
+    },
+  ])('isCourseSearchDisabled - (%p), (%s)', ({
+    isCourseSearchDisabled,
+    redeemableLearnerCreditPolicies,
+    enterpriseOffers,
+    subscriptionPlan,
+    subscriptionLicenses,
+    couponCodes,
+  }) => {
     const isDisableSearch = isDisableCourseSearch(
-      inputs.redeemableLearnerCreditPolicies,
-      inputs.enterpriseOffers,
-      inputs.subscriptionPlan,
-      inputs.subscriptionLicenses,
+      redeemableLearnerCreditPolicies,
+      enterpriseOffers,
+      subscriptionPlan,
+      subscriptionLicenses,
+      couponCodes,
     );
-    expect(isDisableSearch).toEqual(true);
+    expect(isDisableSearch).toEqual(isCourseSearchDisabled);
   });
 });

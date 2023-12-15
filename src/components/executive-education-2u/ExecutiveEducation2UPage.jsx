@@ -1,9 +1,7 @@
-import React, {
-  useContext, useEffect, useMemo,
-} from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import {
-  Container, Row, Col, Skeleton,
+  Col, Container, Row, Skeleton,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -11,10 +9,7 @@ import { useHistory } from 'react-router-dom';
 
 import NotFoundPage from '../NotFoundPage';
 import UserEnrollmentForm from './UserEnrollmentForm';
-import {
-  useActiveQueryParams,
-  useExecutiveEducation2UContentMetadata,
-} from './data';
+import { useActiveQueryParams, useExecutiveEducation2UContentMetadata } from './data';
 import ExecutiveEducation2UError from './ExecutiveEducation2UError';
 import CourseSummaryCard from './components/CourseSummaryCard';
 import RegistrationSummaryCard from './components/RegistrationSummaryCard';
@@ -26,9 +21,7 @@ import { features } from '../../config';
 
 const ExecutiveEducation2UPage = () => {
   const { enterpriseConfig } = useContext(AppContext);
-  const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const activeQueryParams = useActiveQueryParams();
   const history = useHistory();
 
@@ -36,10 +29,12 @@ const ExecutiveEducation2UPage = () => {
     const hasRequiredQueryParams = (activeQueryParams.has('course_uuid') && activeQueryParams.has('sku'));
     return enterpriseConfig.enableExecutiveEducation2UFulfillment && hasRequiredQueryParams;
   }, [enterpriseConfig, activeQueryParams]);
+
   const { isLoadingContentMetadata: isLoading, contentMetadata } = useExecutiveEducation2UContentMetadata({
     courseUUID: activeQueryParams.get('course_uuid'),
     isExecEd2UFulfillmentEnabled,
   });
+
   useEffect(() => {
     if (!enterpriseConfig.enableExecutiveEducation2UFulfillment) {
       logError(`Enterprise ${enterpriseConfig.uuid} does not have executive education (2U) fulfillment enabled.`);
@@ -59,7 +54,11 @@ const ExecutiveEducation2UPage = () => {
     sku: activeQueryParams.get('sku'),
   };
 
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, contentMetadata?.key);
+  const isCourseAssigned = useIsCourseAssigned(
+    redeemableLearnerCreditPolicies?.learnerContentAssignments,
+    contentMetadata?.key,
+  );
+
   const courseMetadata = useMemo(() => {
     if (contentMetadata) {
       const activeCourseRun = getActiveCourseRun(contentMetadata);
