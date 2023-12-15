@@ -412,7 +412,7 @@ export function shortenString(str, maxLength, suffix, separator = ' ') {
   return `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
-export const isCurrentCoupon = (coupon) => dayjs(Date.now()).isBetween(
+export const isCurrentCoupon = (coupon) => dayjs().isBetween(
   coupon.startDate,
   coupon.endDate,
   'day',

@@ -131,7 +131,7 @@ const UserEnrollmentForm = ({
       geagLastName: values.lastName,
       geagEmail: getAuthenticatedUser().email,
       geagDateOfBirth: values.dateOfBirth,
-      geagTermsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+      geagTermsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
       geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
     });
     try {
@@ -151,7 +151,7 @@ const UserEnrollmentForm = ({
           lastName: values.lastName,
           dateOfBirth: values.dateOfBirth,
         },
-        termsAcceptedAt: toISOStringWithoutMilliseconds(new Date(Date.now()).toISOString()),
+        termsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
         dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
       });
       await handleFormSubmissionSuccess();

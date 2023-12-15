@@ -9,11 +9,6 @@ import {
   sortAssignmentsByAssignmentStatus,
 } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
-import { getTodaysDate } from '../../../../../../utils/dayjs';
-
-jest.mock('../../../../../../utils/dayjs', () => ({
-  getTodaysDate: jest.fn(() => new Date('2023-04-20')),
-}));
 
 describe('transformCourseEnrollment', () => {
   it('should transform a course enrollment', () => {
@@ -167,7 +162,6 @@ describe('isAssignmentExpired', () => {
     subsidyExpirationDate,
     isExpired,
   }) => {
-    getTodaysDate.mockReturnValue(currentDate);
     const allocatedAssignment = {
       created,
       contentMetadata: { enrollByDate },
