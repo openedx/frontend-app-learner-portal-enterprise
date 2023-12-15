@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { render, screen } from '@testing-library/react';
+import MockDate from 'mockdate';
 import '@testing-library/jest-dom/extend-expect';
 
 import { getConfig } from '@edx/frontend-platform';
@@ -922,9 +923,8 @@ describe('processCourseSubjects', () => {
 });
 
 describe('isCurrentCoupon', () => {
-  const realDateNow = Date.now;
-  afterAll(() => {
-    Date.now = realDateNow;
+  afterEach(() => {
+    MockDate.reset();
   });
 
   it.each([
@@ -953,7 +953,7 @@ describe('isCurrentCoupon', () => {
     expectedIsCurrent,
   }) => {
     // mock current date
-    Date.now = jest.fn(() => new Date(todaysDate).valueOf());
+    MockDate.set(todaysDate);
 
     const coupon = {
       startDate: couponStartDate,
@@ -966,9 +966,9 @@ describe('isCurrentCoupon', () => {
 
 describe('getCouponCodesDisabledEnrollmentReasonType', () => {
   const testCatalogUuid = 'test-catalog-uuid';
-  const realDateNow = Date.now;
-  afterAll(() => {
-    Date.now = realDateNow;
+
+  afterEach(() => {
+    MockDate.reset();
   });
 
   it.each([
@@ -1023,7 +1023,7 @@ describe('getCouponCodesDisabledEnrollmentReasonType', () => {
     expectedResult,
   }) => {
     // mock current date
-    Date.now = jest.fn(() => new Date(todaysDate).valueOf());
+    MockDate.set(todaysDate);
 
     const args = {
       catalogsWithCourse,

@@ -1,9 +1,12 @@
 import { camelCaseObject } from '@edx/frontend-platform';
+import MockDate from 'mockdate';
 
 import { COURSE_STATUSES } from '../constants';
 import {
   transformCourseEnrollment,
-  groupCourseEnrollmentsByStatus, transformSubsidyRequest, isAssignmentExpired,
+  groupCourseEnrollmentsByStatus,
+  transformSubsidyRequest,
+  isAssignmentExpired,
   sortAssignmentsByAssignmentStatus,
 } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
@@ -120,36 +123,86 @@ describe('groupCourseEnrollmentsByStatus', () => {
 });
 
 describe('isAssignmentExpired', () => {
-  const currentDate = new Date();
-  const futureDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24 * 10); // 10 days in the future
-  const pastDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24 * 10); // 10 days in the past
+  const currentDate = '2023-04-20';
+  const futureDate = '2024-04-20';
+  const pastDate = '2022-04-20';
 
-  it('checks if an allocated assignment is not expired', () => {
-    const allocatedAssignment = {
-      actions: [{ actionType: 'allocated', completedAt: pastDate }],
-      contentMetadata: { enrollByDate: futureDate },
-      subsidyExpirationDate: futureDate,
-    };
-    expect(isAssignmentExpired(allocatedAssignment)).toBe(false);
+  beforeAll(() => {
+    MockDate.set(currentDate);
   });
 
-  it('checks if an allocated assignment is expired', () => {
-    const expiredAssignment = {
-      actions: [{ actionType: 'allocated', completedAt: pastDate }],
-      contentMetadata: { enrollByDate: pastDate },
+  afterAll(() => {
+    MockDate.reset();
+  });
+
+  it('handles null/undefined assignment', () => {
+    expect(isAssignmentExpired(null)).toBe(false);
+    expect(isAssignmentExpired(undefined)).toBe(false);
+  });
+
+  it.each([
+    {
+      created: pastDate,
+      enrollByDate: pastDate,
+      subsidyExpirationDate: futureDate,
+      isExpired: true,
+    },
+    {
+      created: currentDate,
+      enrollByDate: pastDate,
+      subsidyExpirationDate: futureDate,
+      isExpired: true,
+    },
+    {
+      created: currentDate,
+      enrollByDate: futureDate,
       subsidyExpirationDate: pastDate,
+      isExpired: true,
+    },
+    {
+      created: currentDate,
+      enrollByDate: futureDate,
+      subsidyExpirationDate: futureDate,
+      isExpired: false,
+    },
+  ])('checks whether assignment is expired (%s)', ({
+    created,
+    enrollByDate,
+    subsidyExpirationDate,
+    isExpired,
+  }) => {
+    const allocatedAssignment = {
+      created,
+      contentMetadata: { enrollByDate },
+      subsidyExpirationDate,
     };
-    expect(isAssignmentExpired(expiredAssignment)).toBe(true);
+    expect(isAssignmentExpired(allocatedAssignment)).toBe(isExpired);
   });
 });
 
 describe('sortAssignmentsByAssignmentStatus', () => {
+  beforeAll(() => {
+    MockDate.set('2023-04-20');
+  });
+
+  afterAll(() => {
+    MockDate.reset();
+  });
+
   it('sorts assignments by status (cancelled or expired)', () => {
+    const baseAssignment = {
+      created: '2023-04-20',
+      contentMetadata: { enrollByDate: '2023-05-20' },
+      subsidyExpirationDate: '2024-04-20',
+    };
+
     const cancelledAssignment = {
+      ...baseAssignment,
       state: 'cancelled',
     };
 
     const validAssignment = {
+      ...baseAssignment,
       state: 'allocated',
     };
 
