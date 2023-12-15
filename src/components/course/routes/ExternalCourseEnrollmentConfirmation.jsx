@@ -3,14 +3,14 @@ import { Button, Container, Hyperlink } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
-import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCourseMetadata } from '../data/hooks';
+import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '../data/hooks';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import EnrollmentCompletedSummaryCard from '../../executive-education-2u/components/EnrollmentCompletedSummaryCard';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 import { CourseContext } from '../CourseContextProvider';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 const ExternalCourseEnrollmentConfirmation = () => {
+  const config = getConfig();
   const courseMetadata = useMinimalCourseMetadata();
   const {
     state: {
@@ -22,12 +22,9 @@ const ExternalCourseEnrollmentConfirmation = () => {
     failureMessage,
   } = useExternalEnrollmentFailureReason();
 
-  const config = getConfig();
   const {
     enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
   const externalDashboardQueryParams = new URLSearchParams({
     org_id: authOrgId,
   });
@@ -59,10 +56,10 @@ const ExternalCourseEnrollmentConfirmation = () => {
             enrollmentCompleted
           />
           <EnrollmentCompletedSummaryCard
-            isCourseAssigned={isCourseAssigned}
             externalDashboardUrl={externalDashboardUrl}
             dashboardUrl={dashboardUrl}
             getStudnetTCUrl={getStudnetTCUrl}
+            courseKey={course?.key}
           />
         </Container>
       )}
