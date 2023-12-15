@@ -9,7 +9,7 @@ export function getIsActiveExpiredAssignment(assignments) {
 
   const activeExpiredAssignments = assignments.filter((assignment) => (
     assignment?.actions.some((action) => (
-      action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED
+      action.actionType === ASSIGNMENT_ACTION_TYPES.AUTOMATIC_CANCELLATION_NOTIFICATION
       && new Date(action.completedAt) > new Date(lastExpiredAlertDismissedTime)
     ))
   ));
@@ -22,7 +22,7 @@ export function getIsActiveCancelledAssignment(assignments) {
   );
   const activeCancelledAssignments = assignments.filter((assignment) => (
     assignment?.actions.some((action) => (
-      action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED
+      action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED_NOTIFICATION
       && new Date(action.completedAt) > new Date(lastCancelledAlertDismissedTime)
     ))
   ));
