@@ -1,6 +1,8 @@
 // get common skills between a course/program and the job selected by the learner
 // here content can either be a course or a program
 
+import { logError } from '@edx/frontend-platform/logging';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { postSkillsGoalsAndJobsUserSelected } from './service';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS,
@@ -12,6 +14,8 @@ import {
   DROPDOWN_OPTION_OTHER,
   DROPDOWN_OPTION_OTHER_LABEL,
 } from '../constants';
+import { CURRENT_JOB_PROFILE_FIELD_NAME } from '../../my-career/data/constants';
+import { patchProfile } from '../../my-career/data/service';
 
 export default function getCommonSkills(content, selectedJobSkills, MAX_VISIBLE_SKILLS) {
   const contentSkills = content.skillNames || [];
@@ -49,4 +53,23 @@ export const saveSkillsGoalsAndJobsUserSelected = async (goal, currentJobRole, i
   const currentJobRoleId = currentJobRole?.map(({ id }) => id);
   const goalLabel = goalLabels(goal);
   postSkillsGoalsAndJobsUserSelected(goalLabel, interestedJobsId, currentJobRoleId);
+};
+
+export const saveDesiredRoleForCareerChart = async (goal, currentJob, interestedJobs) => {
+  const { username } = getAuthenticatedUser();
+  const learnerFirstDesiredJobID = (goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)
+    ? currentJob[0].id
+    : interestedJobs[0]?.id;
+
+  const params = {
+    extended_profile: [
+      { field_name: CURRENT_JOB_PROFILE_FIELD_NAME, field_value: learnerFirstDesiredJobID },
+    ],
+  };
+
+  try {
+    await patchProfile(username, params);
+  } catch (error) {
+    logError(new Error(error));
+  }
 };
