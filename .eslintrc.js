@@ -6,6 +6,7 @@ const config = createConfig('eslint', {
     '@edx/eslint-config',
     'plugin:@tanstack/eslint-plugin-query/recommended',
   ],
+  ignorePatterns: ['*.config.js'],
   overrides: [
     {
       files: ['*.test.js', '*.test.jsx'],
