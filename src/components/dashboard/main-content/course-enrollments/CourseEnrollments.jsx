@@ -51,7 +51,10 @@ const CourseEnrollments = ({ children }) => {
     showCancelledAssignmentsAlert,
     setShowCancelledAssignmentsAlert,
   ] = useState(false);
-  const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
+  const [
+    showExpiredAssignmentsAlert,
+    setShowExpiredAssignmentsAlert,
+  ] = useState(false);
 
   useEffect(() => {
     if (!redeemableLearnerCreditPolicies) {
@@ -129,7 +132,7 @@ const CourseEnrollments = ({ children }) => {
   };
 
   const handleOnCloseExpiredAlert = () => {
-    setShowCancelledAssignmentsAlert(false);
+    setShowExpiredAssignmentsAlert(false);
     global.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT, new Date());
   };
 
