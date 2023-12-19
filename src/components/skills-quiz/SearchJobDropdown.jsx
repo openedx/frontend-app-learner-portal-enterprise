@@ -1,10 +1,14 @@
 import React, { useContext } from 'react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-
+import PropTypes from 'prop-types';
 import { DESIRED_JOB_FACET } from './constants';
 
-const SearchJobDropdown = () => {
+const SearchJobDropdown = ({
+  isStyleAutoSuggest,
+  isChip,
+  isStyleSearchBox,
+}) => {
   const { refinements } = useContext(SearchContext);
   const { title, attribute, typeaheadOptions } = DESIRED_JOB_FACET;
 
@@ -12,6 +16,7 @@ const SearchJobDropdown = () => {
     <FacetListRefinement
       key={attribute}
       title={title}
+      label={title}
       attribute={attribute}
       limit={300} // this is replicating the B2C search experience
       refinements={refinements}
@@ -20,9 +25,17 @@ const SearchJobDropdown = () => {
       searchable={!!typeaheadOptions}
       doRefinement={false}
       showBadge={false}
-      variant="default"
+      variant='default'
+      isStyleAutoSuggest={isStyleAutoSuggest}
+      isChip={isChip}
+      isStyleSearchBox={isStyleSearchBox}
     />
   );
+};
+SearchJobDropdown.propTypes = {
+  isStyleAutoSuggest: PropTypes.bool,
+  isChip: PropTypes.bool,
+  isStyleSearchBox: PropTypes.bool,
 };
 
 export default SearchJobDropdown;

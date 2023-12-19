@@ -1,0 +1,25 @@
+$accent-b: #f0cc00 !default;
+
+.header {
+  display: flex;
+  background: $dark-500;
+  width: 100%;
+  min-height: 100px;
+  max-height: 150px;
+  color: $accent-b;
+}
+
+.sticky {
+  z-index: 1;
+}
+
+.heading-text {
+  display: flex;
+  padding: 10px;
+  justify-content: center;
+  flex-direction: column;
+}
+
+h2 {
+  color: $accent-b;
+}
