@@ -42,7 +42,7 @@ import TopSkillsOverview from './TopSkillsOverview';
 import SkillsQuizHeader from './SkillsQuizHeader';
 
 import headerImage from './images/headerImage.png';
-import { saveSkillsGoalsAndJobsUserSelected } from './data/utils';
+import { saveDesiredRoleForCareerChart, saveSkillsGoalsAndJobsUserSelected } from './data/utils';
 import { fetchCourseEnrollments } from './data/service';
 
 const SkillsQuizStepper = () => {
@@ -90,6 +90,7 @@ const SkillsQuizStepper = () => {
 
   const flipToRecommendedCourses = () => {
     saveSkillsGoalsAndJobsUserSelected(goal, currentJobRole, interestedJobs);
+    saveDesiredRoleForCareerChart(goal, currentJobRole, interestedJobs);
     // show  courses if learner has selected skills or jobs.
     if (goalExceptImproveAndJobSelected) {
       // verify if selectedJob is still checked and within first 3 jobs else
