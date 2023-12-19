@@ -38,8 +38,8 @@ export const ASSIGNMENT_TYPES = {
 };
 
 export const ASSIGNMENT_ACTION_TYPES = {
-  CANCELLED_NOTIFICATION: 'cancelled',
-  AUTOMATIC_CANCELLATION_NOTIFICATION: 'automatic_cancellation',
+  CANCELLED: 'cancelled',
+  AUTOMATIC_CANCELLATION: 'automatic_cancellation',
 };
 
 export const POLICY_TYPES = {

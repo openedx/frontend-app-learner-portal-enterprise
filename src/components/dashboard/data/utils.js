@@ -47,9 +47,12 @@ export const isAssignmentExpired = (assignment) => {
 };
 
 /**
- * TODO
- * @param {*} assignment
- * @returns
+ * Determines whether an assignment record is expired and/or the expiration has been acknowledged by the learner.
+ *
+ * @param {Object} assignment - Metadata about the assignment.
+ * @returns {Object} - Returns an object with the following properties:
+ * - isExpired: Boolean indicating whether the assignment has expired.
+ * - hasDismissedExpiration: Boolean indicating whether the learner has acknowledged the assignment expiration.
  */
 export function isExpiredAssignmentAcknowledged(assignment) {
   const lastExpiredAlertDismissedTime = global.localStorage.getItem(
@@ -65,9 +68,10 @@ export function isExpiredAssignmentAcknowledged(assignment) {
 }
 
 /**
- * TODO
- * @param {*} assignments
- * @returns
+ * Determines whether there are any unacknowledged expired assignments.
+ *
+ * @param {Array} assignments - Metadata about the assignments.
+ * @returns {Boolean} - Returns true if there are any unacknowledged expired assignments, otherwise false.
  */
 export function getHasUnacknowledgedExpiredAssignments(assignments) {
   return assignments.some((assignment) => {
@@ -77,9 +81,12 @@ export function getHasUnacknowledgedExpiredAssignments(assignments) {
 }
 
 /**
- * TODO
- * @param {*} assignment
- * @returns
+ * Determines whether an assignment has been canceled and/or the cancelaton has been acknowledged by the learner.
+ *
+ * @param {Object} assignment - Metadata about the assignment.
+ * @returns {Object} - Returns an object with the following properties:
+ * - isCancelled: Boolean indicating whether the assignment has been cancelled.
+ * - hasDismissedCancellation: Boolean indicating whether the learner has acknowledged the assignment cancellation.
  */
 export function isCancelledAssignmentAcknowledged(assignment) {
   const lastCancelledAlertDismissedTime = global.localStorage.getItem(
@@ -87,7 +94,10 @@ export function isCancelledAssignmentAcknowledged(assignment) {
   );
   const isCancelled = assignment.state === ASSIGNMENT_TYPES.CANCELLED;
   const hasDismissedCancellation = assignment.actions.some((action) => {
-    const isCancelledNoticationAction = action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED_NOTIFICATION;
+    const isCancelledNoticationAction = [
+      ASSIGNMENT_ACTION_TYPES.CANCELLED,
+      ASSIGNMENT_ACTION_TYPES.AUTOMATIC_CANCELLATION,
+    ].includes(action.actionType);
     const isAcknowledged = dayjs(action.completedAt).isBefore(new Date(lastCancelledAlertDismissedTime));
     return isCancelled && isCancelledNoticationAction && isAcknowledged;
   });
@@ -98,9 +108,10 @@ export function isCancelledAssignmentAcknowledged(assignment) {
 }
 
 /**
- * TODO
- * @param {*} assignments
- * @returns
+ * Determines whether there are any unacknowledged canceled assignments.
+ *
+ * @param {Array} assignments - Metadata about the assignments.
+ * @returns {Boolean} - Returns true if there are any unacknowledged canceled assignments, otherwise false.
  */
 export function getHasUnacknowledgedCancelledAssignments(assignments) {
   return assignments.some((assignment) => {

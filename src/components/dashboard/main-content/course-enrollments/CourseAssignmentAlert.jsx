@@ -46,7 +46,7 @@ CourseAssignmentAlert.propTypes = {
 CourseAssignmentAlert.defaultProps = {
   onClose: null,
   variant: null,
-  showAlert: null,
+  showAlert: false,
 };
 
 export default CourseAssignmentAlert;

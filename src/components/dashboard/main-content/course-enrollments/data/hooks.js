@@ -15,7 +15,11 @@ import {
   sortedEnrollmentsByEnrollmentDate,
   transformCourseEnrollment,
 } from './utils';
-import { COURSE_STATUSES, LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT } from './constants';
+import {
+  COURSE_STATUSES,
+  LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
+  LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
+} from './constants';
 import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
@@ -202,8 +206,20 @@ export const useCourseUpgradeData = ({
 };
 
 /**
- * TODO
- * @returns
+ * - Parses list of redeemable learner credit policies to extract a list of learner content
+ * assignments across all policies.
+ * - Filters the assignments to only include those that are allocated, cancelled, or expired,
+ * and have not yet been acknowledged (dismissed).
+ * - Sorts the list of assignments for display by status (allocated, cancelled, expired).
+ * - Provides helper functions to handle dismissal of the cancelled/expired assignments alerts.
+ *
+ * @param {Array} [redeemableLearnerCreditPolicies] - List of redeemable learner credit policies.
+ * @returns {Object} - Returns an object with the following properties:
+ * - assignments: Array of transformed assignments for display.
+ * - showCancelledAssignmentsAlert: Boolean indicating whether to display the cancelled assignments alert.
+ * - showExpiredAssignmentsAlert: Boolean indicating whether to display the expired assignments alert.
+ * - handleOnCloseCancelAlert: Function to handle dismissal of the cancelled assignments alert.
+ * - handleOnCloseExpiredAlert: Function to handle dismissal of the expired assignments alert.
  */
 export function useContentAssignments(redeemableLearnerCreditPolicies) {
   const {
@@ -306,9 +322,17 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
 }
 
 /**
- * TODO
- * @param {*} param0
- * @returns
+ * Transforms list of course enrollments into sections for display in the dashboard (e.g., current,
+ * completed, saved for later). Accounts for any accepted assignments.
+ *
+ * @param {Object} args
+ * @param {Array} args.assignments - Array of assignments for learner/enterprise.
+ * @param {Object} args.courseEnrollmentsByStatus - Object containing course enrollments grouped by status.
+ * @returns {Object} - Returns an object with the following properties:
+ * - hasCourseEnrollments: Boolean indicating whether there are any course enrollments.
+ * - currentCourseEnrollments: Array of current course enrollments.
+ * - completedCourseEnrollments: Array of completed course enrollments.
+ * - savedForLaterCourseEnrollments: Array of saved for later course enrollments.
  */
 export function useCourseEnrollmentsBySection({ assignments, courseEnrollmentsByStatus }) {
   const currentCourseEnrollments = useMemo(
