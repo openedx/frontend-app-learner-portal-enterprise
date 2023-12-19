@@ -1,14 +1,11 @@
 import React, {
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import PropTypes from 'prop-types';
-import { Button } from '@edx/paragon';
+import { Button, MailtoLink } from '@edx/paragon';
 import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
@@ -18,9 +15,10 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { getContactEmail } from '../../../utils/common';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
@@ -45,12 +43,8 @@ const SubsidiesSummary = ({
   programProgressPage,
 }) => {
   const {
-    enterpriseConfig: {
-      slug,
-      disableSearch,
-    },
+    enterpriseConfig,
   } = useContext(AppContext);
-
   const {
     courseEnrollmentsByStatus,
   } = useContext(CourseEnrollmentsContext);
@@ -120,16 +114,27 @@ const SubsidiesSummary = ({
   }
 
   const searchCoursesCta = (
-    !programProgressPage && !disableSearch && showSearchCoursesCta && (
+    !programProgressPage && !enterpriseConfig.disableSearch && showSearchCoursesCta && (
       <Button
         as={Link}
-        to={`/${slug}/search`}
+        to={`/${enterpriseConfig.slug}/search`}
         variant={ctaButtonVariant}
         block
       >
         {CATALOG_ACCESS_CARD_BUTTON_TEXT}
       </Button>
     )
+  );
+
+  const adminContactEmail = getContactEmail(enterpriseConfig);
+  const contactAdministratorCTA = (
+    <Button
+      as={MailtoLink}
+      to={adminContactEmail}
+      block
+    >
+      Contact administrator
+    </Button>
   );
 
   return (
@@ -162,16 +167,21 @@ const SubsidiesSummary = ({
           <LearnerCreditSummaryCard
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
+            assignmentOnlyLearner={assignmentOnlyLearner}
           />
         )}
       </div>
-      {(searchCoursesCta && !assignmentOnlyLearner) && (
-        <SidebarCard
-          cardClassNames="border-0 shadow-none"
-        >
-          {searchCoursesCta}
-        </SidebarCard>
-      )}
+      {(searchCoursesCta && !assignmentOnlyLearner)
+        ? (
+          <SidebarCard cardClassNames="border-0 shadow-none">
+            {searchCoursesCta}
+          </SidebarCard>
+        )
+        : (
+          <SidebarCard cardClassNames="border-0 shadow-none">
+            {contactAdministratorCTA}
+          </SidebarCard>
+        )}
     </SidebarCard>
   );
 };
