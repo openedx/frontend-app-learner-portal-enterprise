@@ -29,9 +29,9 @@ import {
   getSubsidyToApplyForCourse,
 } from '../../../../course/data/utils';
 import {
-  getHasUnacknowledgedCancelledAssignments,
+  getHasUnacknowledgedCanceledAssignments,
   getHasUnacknowledgedExpiredAssignments,
-  isCancelledAssignmentAcknowledged,
+  isCanceledAssignmentAcknowledged,
   isExpiredAssignmentAcknowledged,
 } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
@@ -208,17 +208,17 @@ export const useCourseUpgradeData = ({
 /**
  * - Parses list of redeemable learner credit policies to extract a list of learner content
  * assignments across all policies.
- * - Filters the assignments to only include those that are allocated, cancelled, or expired,
+ * - Filters the assignments to only include those that are allocated, canceled, or expired,
  * and have not yet been acknowledged (dismissed).
- * - Sorts the list of assignments for display by status (allocated, cancelled, expired).
- * - Provides helper functions to handle dismissal of the cancelled/expired assignments alerts.
+ * - Sorts the list of assignments for display by status (allocated, canceled, expired).
+ * - Provides helper functions to handle dismissal of the canceled/expired assignments alerts.
  *
  * @param {Array} [redeemableLearnerCreditPolicies] - List of redeemable learner credit policies.
  * @returns {Object} - Returns an object with the following properties:
  * - assignments: Array of transformed assignments for display.
- * - showCancelledAssignmentsAlert: Boolean indicating whether to display the cancelled assignments alert.
+ * - showCanceledAssignmentsAlert: Boolean indicating whether to display the canceled assignments alert.
  * - showExpiredAssignmentsAlert: Boolean indicating whether to display the expired assignments alert.
- * - handleOnCloseCancelAlert: Function to handle dismissal of the cancelled assignments alert.
+ * - handleOnCloseCancelAlert: Function to handle dismissal of the canceled assignments alert.
  * - handleOnCloseExpiredAlert: Function to handle dismissal of the expired assignments alert.
  */
 export function useContentAssignments(redeemableLearnerCreditPolicies) {
@@ -227,17 +227,17 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
   } = useContext(AppContext);
 
   const [assignments, setAssignments] = useState([]);
-  const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(false);
+  const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
   /**
-   * On dismiss of the cancelled assignments alert, remove all cancelled
+   * On dismiss of the canceled assignments alert, remove all canceled
    * assignments from the displayed list of assignments. Set the localStorage
    * key to the current date of the acknowledgement.
    */
   const handleOnCloseCancelAlert = useCallback(() => {
-    setAssignments((prevState) => prevState.filter((assignment) => !assignment.isCancelledAssignment));
-    setShowCancelledAssignmentsAlert(false);
+    setAssignments((prevState) => prevState.filter((assignment) => !assignment.isCanceledAssignment));
+    setShowCanceledAssignmentsAlert(false);
     global.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, new Date());
   }, []);
 
@@ -254,7 +254,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
 
   /**
    * Parses the learner content assignments from the redeemableLearnerCreditPolicies
-   * response and filters out any cancelled/expired assignments that have already been
+   * response and filters out any canceled/expired assignments that have already been
    * acknowledged (dismissed) by the learner.
    */
   useEffect(() => {
@@ -267,7 +267,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
       canceledAssignments,
     } = redeemableLearnerCreditPolicies.learnerContentAssignments;
 
-    const lastCancelledAlertDismissedTime = global.localStorage.getItem(
+    const lastCanceledAlertDismissedTime = global.localStorage.getItem(
       LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
     );
     const lastExpiredAlertDismissedTime = global.localStorage.getItem(
@@ -276,9 +276,9 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
 
     const assignmentsForDisplay = [...allocatedAssignments, ...canceledAssignments].filter((assignment) => {
       // Filter out already-dismissed cancelled assignments
-      if (lastCancelledAlertDismissedTime) {
-        const { isCancelled, hasDismissedCancellation } = isCancelledAssignmentAcknowledged(assignment);
-        if (isCancelled && hasDismissedCancellation) {
+      if (lastCanceledAlertDismissedTime) {
+        const { isCanceled, hasDismissedCancellation } = isCanceledAssignmentAcknowledged(assignment);
+        if (isCanceled && hasDismissedCancellation) {
           return false;
         }
       }
@@ -303,9 +303,9 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     );
     setAssignments(transformedAssignmentsForDisplay);
 
-    // Determine whether there are unacknowledged cancelled assignments. If so, display alert.
-    const hasUnacknowledgedCancelledAssignments = getHasUnacknowledgedCancelledAssignments(canceledAssignments);
-    setShowCancelledAssignmentsAlert(hasUnacknowledgedCancelledAssignments);
+    // Determine whether there are unacknowledged canceled assignments. If so, display alert.
+    const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedCanceledAssignments(canceledAssignments);
+    setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
 
     // Determine whether there are unacknowledged expired assignments. If so, display alert.
     const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedExpiredAssignments(allocatedAssignments);
@@ -314,7 +314,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
 
   return {
     assignments,
-    showCancelledAssignmentsAlert,
+    showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
     handleOnCloseCancelAlert,
     handleOnCloseExpiredAlert,
