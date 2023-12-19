@@ -27,7 +27,7 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
-import getActiveAssignments, { getHasActiveCancelledAssignments } from '../../../data/utils';
+import { getHasUnacknowledgedCancelledAssignments } from '../../../data/utils';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -131,10 +131,6 @@ describe('Course enrollments', () => {
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
-    getActiveAssignments.mockReturnValue({
-      activeAssignments: [],
-      hasActiveAssignments: true,
-    });
   });
 
   afterEach(() => {
@@ -150,7 +146,7 @@ describe('Course enrollments', () => {
   });
 
   it('does not render cancelled assignment and renders cancelled alert', async () => {
-    getHasActiveCancelledAssignments.mockReturnValue(true);
+    getHasUnacknowledgedCancelledAssignments.mockReturnValue(true);
     renderWithRouter(renderEnrollmentsComponent());
     expect(screen.queryByText('Your learning administrator canceled this assignment.')).toBeFalsy();
     expect(screen.getByText('Course assignment cancelled')).toBeInTheDocument();
@@ -161,13 +157,13 @@ describe('Course enrollments', () => {
   });
 
   it('if there are active cancelled assignments, cancelled alert is rendered', () => {
-    getHasActiveCancelledAssignments.mockReturnValue(true);
+    getHasUnacknowledgedCancelledAssignments.mockReturnValue(true);
     renderEnrollmentsComponent();
     expect(screen.queryByText('Course assignment cancelled')).toBeTruthy();
   });
 
   it('if there are no active cancelled assignments, cancelled alert is hidden', () => {
-    getHasActiveCancelledAssignments.mockReturnValue(false);
+    getHasUnacknowledgedCancelledAssignments.mockReturnValue(false);
     renderEnrollmentsComponent();
     expect(screen.queryByText('Course assignment cancelled')).toBeFalsy();
   });

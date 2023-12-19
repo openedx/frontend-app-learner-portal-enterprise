@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { COURSE_STATUSES } from './constants';
+import { isAssignmentExpired } from '../../../data/utils';
 
 /**
  * Determines whether a course enrollment may be unenrolled based on its enrollment
@@ -85,44 +86,6 @@ export const transformSubsidyRequest = ({
 });
 
 /**
- * Checks if an assignment has expired based on following conditions:
- * - The assignment's lifecycle state is "allocated."
- * - 90 days have passed since the "created" date.
- * - The course enrollment deadline has passed.
- * - The subsidy expiration date has passed.
- * @param {object} assignment - Information about the assignment.
- * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
- */
-export const isAssignmentExpired = (assignment) => {
-  // Assignment is not in an allocated state, so it cannot be expired.
-  if (!assignment) {
-    return false;
-  }
-
-  const currentDate = dayjs();
-  const allocationDate = dayjs(assignment.created);
-  const enrollmentEndDate = dayjs(assignment.contentMetadata.enrollByDate);
-  const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
-
-  const isExpired = (
-    currentDate.diff(allocationDate, 'day') > 90
-    || currentDate.isAfter(enrollmentEndDate)
-    || currentDate.isAfter(subsidyExpirationDate)
-  );
-
-  const earliestAssignmentExpiryDate = [
-    dayjs(allocationDate).add(90, 'day'),
-    enrollmentEndDate,
-    subsidyExpirationDate,
-  ].sort()[0]?.toDate();
-
-  return {
-    isExpired,
-    enrollByDeadline: earliestAssignmentExpiryDate,
-  };
-};
-
-/**
  * Sorts assignments by their status (cancelled or expired).
  * @param {array} assignments - Array of assignments to be sorted.
  * @returns {array} - Returns the sorted array of assignments.
@@ -144,7 +107,10 @@ export const getTransformedAllocatedAssignments = (assignments, slug) => {
   if (!assignments) { return assignments; }
   const updatedAssignments = assignments?.map((item) => {
     const isCancelledAssignment = item.state === 'cancelled';
-    const isExpiredAssignment = isAssignmentExpired(item);
+    const {
+      isExpired: isExpiredAssignment,
+      enrollByDeadline: assignmentEnrollByDeadline,
+    } = isAssignmentExpired(item);
 
     return {
       linkToCourse: `/${slug}/course/${item.contentKey}`,
@@ -156,7 +122,8 @@ export const getTransformedAllocatedAssignments = (assignments, slug) => {
       startDate: item?.contentMetadata?.startDate,
       mode: item?.contentMetadata?.courseType,
       orgName: item?.contentMetadata?.partners[0]?.name,
-      enrollBy: item?.contentMetadata?.enrollByDate,
+      // enrollBy: item?.contentMetadata?.enrollByDate,
+      enrollBy: assignmentEnrollByDeadline,
       isCancelledAssignment,
       isExpiredAssignment,
     };

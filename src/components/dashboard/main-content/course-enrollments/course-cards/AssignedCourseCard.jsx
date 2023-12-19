@@ -1,24 +1,26 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-
 import { Button } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import BaseCourseCard from './BaseCourseCard';
 
+import BaseCourseCard from './BaseCourseCard';
 import { COURSE_STATUSES } from '../data';
 
 const AssignedCourseCard = (props) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { courseKey, isCancelledAssignment, isExpiredAssignment } = props;
-  const disabled = (isCancelledAssignment || isExpiredAssignment) && 'disabled';
+  const {
+    courseKey,
+    isCancelledAssignment,
+    isExpiredAssignment,
+  } = props;
 
   const renderButtons = () => (
     <Button
       as={Link}
       to={`/${enterpriseConfig.slug}/course/${courseKey}`}
-      className={classNames('btn-xs-block', disabled)}
+      className={classNames('btn-xs-block', { disabled: isCancelledAssignment || isExpiredAssignment })}
       variant="inverse-brand"
     >
       Enroll

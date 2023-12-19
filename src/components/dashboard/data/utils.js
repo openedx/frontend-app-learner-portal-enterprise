@@ -1,42 +1,112 @@
 import dayjs from 'dayjs';
 import { ASSIGNMENT_TYPES, ASSIGNMENT_ACTION_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { isAssignmentExpired } from '../main-content/course-enrollments/data';
 import {
   LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
   LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
 } from '../main-content/course-enrollments/data/constants';
 
-export function getHasActiveExpiredAssignment(assignments) {
-  const lastExpiredAlertDismissedTime = global.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT);
+/**
+ * Checks if an assignment has expired based on following conditions:
+ * - 90 days have passed since the "created" date.
+ * - The course enrollment deadline has passed.
+ * - The subsidy expiration date has passed.
+ * @param {object} assignment - Information about the assignment.
+ * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
+ */
+export const isAssignmentExpired = (assignment) => {
+  if (!assignment) {
+    return false;
+  }
 
-  const activeExpiredAssignments = assignments.filter((assignment) => {
-    const {
-      isExpired,
-      enrollByDeadline,
-    } = isAssignmentExpired(assignment);
+  const currentDate = dayjs();
+  // Note: `created` is not currently present in the API response for assignments. In the future,
+  // the enroll by deadline will be returned by API instead of calculating it here.
+  const allocationDate = assignment.created ? dayjs(assignment.created) : undefined;
+  const enrollmentEndDate = assignment.contentMetadata.enrollByDate
+    ? dayjs(assignment.contentMetadata.enrollByDate)
+    : undefined;
+  const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
 
-    if (!isExpired) {
-      return false;
-    }
+  const hasExceededAssignmentDeadline = allocationDate && currentDate.diff(allocationDate, 'day') > 90;
+  const isEnrollmentDeadlineExpired = enrollmentEndDate && currentDate.isAfter(enrollmentEndDate);
 
-    return dayjs(enrollByDeadline).isAfter(new Date(lastExpiredAlertDismissedTime));
-  });
+  const isExpired = (
+    hasExceededAssignmentDeadline || isEnrollmentDeadlineExpired || currentDate.isAfter(subsidyExpirationDate)
+  );
 
-  return activeExpiredAssignments.length > 0;
+  const assignmentExpiryDates = [enrollmentEndDate, subsidyExpirationDate];
+  if (allocationDate) {
+    assignmentExpiryDates.push(dayjs(allocationDate).add(90, 'day'));
+  }
+  const earliestAssignmentExpiryDate = assignmentExpiryDates.sort()[0]?.toDate();
+
+  return {
+    isExpired,
+    enrollByDeadline: earliestAssignmentExpiryDate,
+  };
+};
+
+/**
+ * TODO
+ * @param {*} assignment
+ * @returns
+ */
+export function isExpiredAssignmentAcknowledged(assignment) {
+  const lastExpiredAlertDismissedTime = global.localStorage.getItem(
+    LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
+  );
+  const { isExpired, enrollByDeadline } = isAssignmentExpired(assignment);
+  const isAcknowledged = dayjs(enrollByDeadline).isBefore(new Date(lastExpiredAlertDismissedTime));
+  const hasDismissedExpiration = isExpired && isAcknowledged;
+  return {
+    isExpired,
+    hasDismissedExpiration,
+  };
 }
 
-export function getHasActiveCancelledAssignments(assignments) {
+/**
+ * TODO
+ * @param {*} assignments
+ * @returns
+ */
+export function getHasUnacknowledgedExpiredAssignments(assignments) {
+  return assignments.some((assignment) => {
+    const { isExpired, hasDismissedExpiration } = isExpiredAssignmentAcknowledged(assignment);
+    return isExpired && !hasDismissedExpiration;
+  });
+}
+
+/**
+ * TODO
+ * @param {*} assignment
+ * @returns
+ */
+export function isCancelledAssignmentAcknowledged(assignment) {
   const lastCancelledAlertDismissedTime = global.localStorage.getItem(
     LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
   );
+  const isCancelled = assignment.state === ASSIGNMENT_TYPES.CANCELLED;
+  const hasDismissedCancellation = assignment.actions.some((action) => {
+    const isCancelledNoticationAction = action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED_NOTIFICATION;
+    const isAcknowledged = dayjs(action.completedAt).isBefore(new Date(lastCancelledAlertDismissedTime));
+    return isCancelled && isCancelledNoticationAction && isAcknowledged;
+  });
+  return {
+    isCancelled,
+    hasDismissedCancellation,
+  };
+}
 
-  const activeCancelledAssignments = assignments.filter((assignment) => (
-    assignment.actions.some((action) => (
-      action.actionType === ASSIGNMENT_ACTION_TYPES.CANCELLED_NOTIFICATION
-      && dayjs(action.completedAt).isAfter(new Date(lastCancelledAlertDismissedTime))
-    ))
-  ));
-  return activeCancelledAssignments.length > 0;
+/**
+ * TODO
+ * @param {*} assignments
+ * @returns
+ */
+export function getHasUnacknowledgedCancelledAssignments(assignments) {
+  return assignments.some((assignment) => {
+    const { isCancelled, hasDismissedCancellation } = isCancelledAssignmentAcknowledged(assignment);
+    return isCancelled && !hasDismissedCancellation;
+  });
 }
 
 /**

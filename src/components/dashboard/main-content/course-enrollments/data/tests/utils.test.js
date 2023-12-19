@@ -6,10 +6,10 @@ import {
   transformCourseEnrollment,
   groupCourseEnrollmentsByStatus,
   transformSubsidyRequest,
-  isAssignmentExpired,
   sortAssignmentsByAssignmentStatus,
 } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
+import { isAssignmentExpired } from '../../../../data/utils';
 
 describe('transformCourseEnrollment', () => {
   it('should transform a course enrollment', () => {
