@@ -126,11 +126,13 @@ const SubsidiesSummary = ({
     )
   );
 
+  // A stand contactAdminCTA that can be generalized for other summary card usage if the need arises
   const adminContactEmail = getContactEmail(enterpriseConfig);
   const contactAdministratorCTA = (
     <Button
       as={MailtoLink}
       to={adminContactEmail}
+      variant={ctaButtonVariant}
       block
     >
       Contact administrator
