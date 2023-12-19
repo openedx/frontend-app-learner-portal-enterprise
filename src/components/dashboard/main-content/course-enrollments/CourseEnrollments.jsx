@@ -28,7 +28,7 @@ const CourseEnrollments = ({ children }) => {
   } = useContext(CourseEnrollmentsContext);
   const {
     assignments,
-    showCancelledAssignmentsAlert,
+    showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
     handleOnCloseCancelAlert,
     handleOnCloseExpiredAlert,
@@ -54,7 +54,7 @@ const CourseEnrollments = ({ children }) => {
   return (
     <>
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
-        <CourseAssignmentAlert showAlert={showCancelledAssignmentsAlert} variant="cancelled" onClose={handleOnCloseCancelAlert}> </CourseAssignmentAlert>
+        <CourseAssignmentAlert showAlert={showCanceledAssignmentsAlert} variant="canceled" onClose={handleOnCloseCancelAlert}> </CourseAssignmentAlert>
       )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
         <CourseAssignmentAlert showAlert={showExpiredAssignmentsAlert} variant="expired" onClose={handleOnCloseExpiredAlert}> </CourseAssignmentAlert>

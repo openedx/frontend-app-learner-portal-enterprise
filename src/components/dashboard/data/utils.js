@@ -85,25 +85,25 @@ export function getHasUnacknowledgedExpiredAssignments(assignments) {
  *
  * @param {Object} assignment - Metadata about the assignment.
  * @returns {Object} - Returns an object with the following properties:
- * - isCancelled: Boolean indicating whether the assignment has been cancelled.
+ * - isCanceled: Boolean indicating whether the assignment has been canceled.
  * - hasDismissedCancellation: Boolean indicating whether the learner has acknowledged the assignment cancellation.
  */
-export function isCancelledAssignmentAcknowledged(assignment) {
-  const lastCancelledAlertDismissedTime = global.localStorage.getItem(
+export function isCanceledAssignmentAcknowledged(assignment) {
+  const lastCanceledAlertDismissedTime = global.localStorage.getItem(
     LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
   );
-  const isCancelled = assignment.state === ASSIGNMENT_TYPES.CANCELLED;
-  const hasDismissedCancellation = assignment.actions.some((action) => {
-    const isCancelledNoticationAction = [
-      ASSIGNMENT_ACTION_TYPES.CANCELLED,
-      ASSIGNMENT_ACTION_TYPES.AUTOMATIC_CANCELLATION,
+  const isCanceled = assignment.state === ASSIGNMENT_TYPES.CANCELED;
+  const hasDismissedCancelation = assignment.actions.some((action) => {
+    const isCanceledNoticationAction = [
+      ASSIGNMENT_ACTION_TYPES.CANCELED,
+      ASSIGNMENT_ACTION_TYPES.AUTOMATIC_CANCELATION,
     ].includes(action.actionType);
-    const isAcknowledged = dayjs(action.completedAt).isBefore(new Date(lastCancelledAlertDismissedTime));
-    return isCancelled && isCancelledNoticationAction && isAcknowledged;
+    const isAcknowledged = dayjs(action.completedAt).isBefore(new Date(lastCanceledAlertDismissedTime));
+    return isCanceled && isCanceledNoticationAction && isAcknowledged;
   });
   return {
-    isCancelled,
-    hasDismissedCancellation,
+    isCanceled,
+    hasDismissedCancelation,
   };
 }
 
@@ -113,10 +113,10 @@ export function isCancelledAssignmentAcknowledged(assignment) {
  * @param {Array} assignments - Metadata about the assignments.
  * @returns {Boolean} - Returns true if there are any unacknowledged canceled assignments, otherwise false.
  */
-export function getHasUnacknowledgedCancelledAssignments(assignments) {
+export function getHasUnacknowledgedCanceledAssignments(assignments) {
   return assignments.some((assignment) => {
-    const { isCancelled, hasDismissedCancellation } = isCancelledAssignmentAcknowledged(assignment);
-    return isCancelled && !hasDismissedCancellation;
+    const { isCanceled, hasDismissedCancelation } = isCanceledAssignmentAcknowledged(assignment);
+    return isCanceled && !hasDismissedCancelation;
   });
 }
 
@@ -146,7 +146,7 @@ export function getAssignmentsByState(assignments = []) {
     if (assignment.state === ASSIGNMENT_TYPES.ALLOCATED) {
       allocatedAssignments.push(assignment);
     }
-    if (assignment.state === ASSIGNMENT_TYPES.CANCELLED) {
+    if (assignment.state === ASSIGNMENT_TYPES.CANCELED) {
       canceledAssignments.push(assignment);
     }
     if (assignment.state === ASSIGNMENT_TYPES.ACCEPTED) {

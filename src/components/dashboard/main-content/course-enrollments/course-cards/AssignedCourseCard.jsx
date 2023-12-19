@@ -12,7 +12,7 @@ const AssignedCourseCard = (props) => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     courseKey,
-    isCancelledAssignment,
+    isCanceledAssignment,
     isExpiredAssignment,
   } = props;
 
@@ -20,7 +20,7 @@ const AssignedCourseCard = (props) => {
     <Button
       as={Link}
       to={`/${enterpriseConfig.slug}/course/${courseKey}`}
-      className={classNames('btn-xs-block', { disabled: isCancelledAssignment || isExpiredAssignment })}
+      className={classNames('btn-xs-block', { disabled: isCanceledAssignment || isExpiredAssignment })}
       variant="inverse-brand"
     >
       Enroll
@@ -47,7 +47,7 @@ AssignedCourseCard.propTypes = {
   startDate: PropTypes.string,
   linkToCourse: PropTypes.string.isRequired,
   mode: PropTypes.string,
-  isCancelledAssignment: PropTypes.bool,
+  isCanceledAssignment: PropTypes.bool,
   isExpiredAssignment: PropTypes.bool,
 };
 
@@ -56,7 +56,7 @@ AssignedCourseCard.defaultProps = {
   isRevoked: false,
   startDate: null,
   mode: null,
-  isCancelledAssignment: false,
+  isCanceledAssignment: false,
   isExpiredAssignment: false,
 };
 

@@ -858,8 +858,8 @@ export const useIsCourseAssigned = (learnerContentAssignments, courseKey) => {
   const isCourseAssigned = learnerContentAssignments.activeAssignments.some(
     (assignment) => {
       const isCourseKeyMatching = assignment.contentKey === courseKey;
-      const isAssignmentCancelled = assignment.state === ASSIGNMENT_TYPES.CANCELLED;
-      return isCourseKeyMatching && !isAssignmentCancelled;
+      const isAssignmentCanceled = assignment.state === ASSIGNMENT_TYPES.CANCELED;
+      return isCourseKeyMatching && !isAssignmentCanceled;
     },
   );
 
