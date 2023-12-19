@@ -33,7 +33,7 @@ export const OFFER_BALANCE_CLICK_EVENT = 'edx.ui.enterprise.learner_portal.offer
 export const ASSIGNMENT_TYPES = {
   ACCEPTED: 'accepted',
   ALLOCATED: 'allocated',
-  CANCELLED: 'cancelled',
+  CANCELED: 'cancelled',
   ERRORED: 'errored',
 };
 

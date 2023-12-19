@@ -44,7 +44,7 @@ const CourseEnrollments = ({ children }) => {
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
 
   const [assignments, setAssignments] = useState([]);
-  const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(false);
+  const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
   useEffect(() => {
@@ -53,12 +53,12 @@ const CourseEnrollments = ({ children }) => {
     );
     setAssignments(assignmentsData);
 
-    const hasCancelledAssignments = assignmentsData?.some(
-      assignment => assignment.state === ASSIGNMENT_TYPES.CANCELLED,
+    const hasCanceledAssignments = assignmentsData?.some(
+      assignment => assignment.state === ASSIGNMENT_TYPES.CANCELED,
     );
     const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment));
 
-    setShowCancelledAssignmentsAlert(hasCancelledAssignments);
+    setShowCanceledAssignmentsAlert(hasCanceledAssignments);
     setShowExpiredAssignmentsAlert(hasExpiredAssignments);
   }, [redeemableLearnerCreditPolicies]);
 
@@ -112,8 +112,8 @@ const CourseEnrollments = ({ children }) => {
   const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
   return (
     <>
-      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showCancelledAssignmentsAlert && (
-        <CourseAssignmentAlert variant="cancelled" onClose={() => setShowCancelledAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showCanceledAssignmentsAlert && (
+        <CourseAssignmentAlert variant="cancelled" onClose={() => setShowCanceledAssignmentsAlert(false)}> </CourseAssignmentAlert>
       )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && showExpiredAssignmentsAlert && (
         <CourseAssignmentAlert variant="expired" onClose={() => setShowExpiredAssignmentsAlert(false)}> </CourseAssignmentAlert>

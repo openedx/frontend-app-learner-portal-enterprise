@@ -11,8 +11,8 @@ import { COURSE_STATUSES } from '../data';
 
 const AssignedCourseCard = (props) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const { courseKey, isCancelledAssignment, isExpiredAssignment } = props;
-  const disabled = (isCancelledAssignment || isExpiredAssignment) && 'disabled';
+  const { courseKey, isCanceledAssignment, isExpiredAssignment } = props;
+  const disabled = (isCanceledAssignment || isExpiredAssignment) && 'disabled';
 
   const renderButtons = () => (
     <Button
@@ -45,7 +45,7 @@ AssignedCourseCard.propTypes = {
   startDate: PropTypes.string,
   linkToCourse: PropTypes.string.isRequired,
   mode: PropTypes.string,
-  isCancelledAssignment: PropTypes.bool,
+  isCanceledAssignment: PropTypes.bool,
   isExpiredAssignment: PropTypes.bool,
 };
 
@@ -54,7 +54,7 @@ AssignedCourseCard.defaultProps = {
   isRevoked: false,
   startDate: null,
   mode: null,
-  isCancelledAssignment: false,
+  isCanceledAssignment: false,
   isExpiredAssignment: false,
 };
 

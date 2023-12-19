@@ -17,7 +17,7 @@ import { ASSIGNMENT_TYPES } from '../../enterprise-user-subsidy/enterprise-offer
  */
 export default function getActiveAssignments(assignments = []) {
   const activeAssignments = assignments.filter((assignment) => [
-    ASSIGNMENT_TYPES.CANCELLED, ASSIGNMENT_TYPES.ALLOCATED,
+    ASSIGNMENT_TYPES.CANCELED, ASSIGNMENT_TYPES.ALLOCATED,
   ].includes(assignment.state));
   const hasAssignments = assignments.length > 0;
   const hasActiveAssignments = activeAssignments.length > 0;
