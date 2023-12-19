@@ -86,7 +86,7 @@ export const transformSubsidyRequest = ({
 });
 
 /**
- * Sorts assignments by their status (cancelled or expired).
+ * Sorts assignments by their status (canceled or expired).
  * @param {array} assignments - Array of assignments to be sorted.
  * @returns {array} - Returns the sorted array of assignments.
  */
@@ -106,7 +106,7 @@ export const sortAssignmentsByAssignmentStatus = (assignments) => {
 export const getTransformedAllocatedAssignments = (assignments, slug) => {
   if (!assignments) { return assignments; }
   const updatedAssignments = assignments?.map((item) => {
-    const isCancelledAssignment = item.state === 'cancelled';
+    const isCanceledAssignment = item.state === 'cancelled';
     const {
       isExpired: isExpiredAssignment,
       enrollByDeadline: assignmentEnrollByDeadline,
@@ -124,7 +124,7 @@ export const getTransformedAllocatedAssignments = (assignments, slug) => {
       orgName: item?.contentMetadata?.partners[0]?.name,
       // enrollBy: item?.contentMetadata?.enrollByDate,
       enrollBy: assignmentEnrollByDeadline,
-      isCancelledAssignment,
+      isCanceledAssignment,
       isExpiredAssignment,
     };
   });
