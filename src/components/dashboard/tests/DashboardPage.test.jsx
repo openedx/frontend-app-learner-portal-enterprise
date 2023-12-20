@@ -5,19 +5,19 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@edx/paragon';
 import Cookies from 'universal-cookie';
-
 import userEvent from '@testing-library/user-event';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
 import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
 import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
 import { features } from '../../../config';
-import * as hooks from '../main-content/course-enrollments/data/hooks';
-
+import * as courseEnrollmentsHooks from '../main-content/course-enrollments/data/hooks';
+import * as myCareerHooks from '../../my-career/data/hooks';
+import * as pathwayProgressHooks from '../../pathway-progress/data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
-
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
@@ -86,8 +86,12 @@ const defaultUserSubsidyState = {
     learnerContentAssignments: {
       assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
       hasAssignments: true,
-      activeAssignments: [{ state: 'allocated' }, { state: 'cancelled' }],
-      hasActiveAssignments: true,
+      allocatedAssignments: [{ state: 'allocated' }],
+      hasAllocatedAssignments: true,
+      canceledAssignments: [{ state: 'cancelled' }],
+      hasCanceledAssignments: true,
+      acceptedAssignments: [],
+      hasAcceptedAssignments: false,
     },
   },
 };
@@ -179,7 +183,9 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 
 jest.mock('universal-cookie');
 jest.mock('../main-content/course-enrollments/data/hooks');
-hooks.useCourseEnrollments.mockReturnValue({
+jest.mock('../../my-career/data/hooks');
+jest.mock('../../pathway-progress/data/hooks');
+courseEnrollmentsHooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
     inProgress: [],
     upcoming: [],
@@ -188,6 +194,23 @@ hooks.useCourseEnrollments.mockReturnValue({
     requested: [],
   },
 });
+const mockHandleOnCloseCancelAlert = jest.fn();
+const mockHandleOnCloseExpiredAlert = jest.fn();
+courseEnrollmentsHooks.useContentAssignments.mockReturnValue({
+  assignments: [],
+  showCanceledAssignmentsAlert: false,
+  showExpiredAssignmentsAlert: false,
+  handleOnCloseCancelAlert: mockHandleOnCloseCancelAlert,
+  handleOnCloseExpiredAlert: mockHandleOnCloseExpiredAlert,
+});
+courseEnrollmentsHooks.useCourseEnrollmentsBySection.mockReturnValue({
+  hasCourseEnrollments: false,
+  currentCourseEnrollments: [],
+  completedCourseEnrollments: [],
+  savedForLaterCourseEnrollments: [],
+});
+myCareerHooks.useLearnerProfileData.mockReturnValue([{}, null, false]);
+pathwayProgressHooks.useInProgressPathwaysData.mockReturnValue([{}, null, false]);
 
 // eslint-disable-next-line no-console
 console.error = jest.fn();
@@ -241,7 +264,8 @@ describe('<Dashboard />', () => {
     renderWithRouter(
       <DashboardWithContext />,
     );
-    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('courses-tab-sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument();
   });
 
   it('renders subsidies summary on a small screen', () => {

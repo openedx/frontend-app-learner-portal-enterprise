@@ -11,7 +11,11 @@ import { COURSE_STATUSES } from '../data';
 const AssignedCourseCard = (props) => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
-    courseKey,
+    // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
+    // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
+    // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
+    // are for top-level courses, not course runs.
+    courseRunId: courseKey,
     isCanceledAssignment,
     isExpiredAssignment,
   } = props;
@@ -21,6 +25,9 @@ const AssignedCourseCard = (props) => {
       as={Link}
       to={`/${enterpriseConfig.slug}/course/${courseKey}`}
       className={classNames('btn-xs-block', { disabled: isCanceledAssignment || isExpiredAssignment })}
+      // TODO: Not all assignment cards are rendered with a darker background (e.g., external courses
+      // such as Executive Education) should use the inverse-brand variant while Open Courses (with white
+      // background) should be using the brand variant.
       variant="inverse-brand"
     >
       Enroll
@@ -39,7 +46,7 @@ const AssignedCourseCard = (props) => {
 };
 
 AssignedCourseCard.propTypes = {
-  courseKey: PropTypes.string.isRequired,
+  courseRunId: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   isRevoked: PropTypes.bool,
   courseRunStatus: PropTypes.string.isRequired,

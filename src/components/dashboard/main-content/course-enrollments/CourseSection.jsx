@@ -120,9 +120,7 @@ class CourseSection extends React.Component {
           courseEnrollment={courseRun}
           key={courseRun.courseRunId}
         >
-          <Component
-            {...this.getCourseRunProps(courseRun)}
-          />
+          <Component {...this.getCourseRunProps(courseRun)} />
         </UpgradeableCourseEnrollmentContextProvider>
       );
     }

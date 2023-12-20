@@ -1,23 +1,15 @@
 import React from 'react';
-
-import {
-  render, screen, act, waitFor,
-  within,
-} from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { renderWithRouter } from '@edx/frontend-enterprise-utils';
-
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import {
-  createCourseEnrollmentWithStatus,
-} from './enrollment-testutils';
-import CourseEnrollments, {
-  COURSE_SECTION_TITLES,
-} from '../CourseEnrollments';
+
+import { renderWithRouter } from '../../../../../utils/tests';
+import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
+import CourseEnrollments, { COURSE_SECTION_TITLES } from '../CourseEnrollments';
 import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
@@ -27,7 +19,7 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
-import { getHasUnacknowledgedCanceledAssignments } from '../../../data/utils';
+import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -38,8 +30,7 @@ jest.mock('../course-cards/mark-complete-modal/data/service');
 jest.mock('../../../data/utils', () => ({
   __esModule: true,
   default: jest.fn(),
-  getIsActiveExpiredAssignment: jest.fn(),
-  getHasActiveCancelledAssignments: jest.fn(),
+  getHasUnacknowledgedCanceledAssignments: jest.fn(),
 }));
 
 jest.mock('../data/service');
@@ -96,6 +87,22 @@ hooks.useCourseEnrollments.mockReturnValue({
   },
   updateCourseEnrollmentStatus: jest.fn(),
 });
+
+hooks.useContentAssignments.mockReturnValue({
+  assignments: [],
+  showCanceledAssignmentsAlert: false,
+  showExpiredAssignmentsAlert: false,
+  handleOnCloseCancelAlert: jest.fn(),
+  handleOnCloseExpiredAlert: jest.fn(),
+});
+
+hooks.useCourseEnrollmentsBySection.mockReturnValue({
+  hasCourseEnrollments: true,
+  currentCourseEnrollments: [inProgCourseRun],
+  completedCourseEnrollments: [completedCourseRun],
+  savedForLaterCourseEnrollments: [savedForLaterCourseRun],
+});
+
 const initialUserSubsidyState = {
   redeemableLearnerCreditPolicies: {
     redeemablePolicies: [],
@@ -108,7 +115,7 @@ const initialUserSubsidyState = {
   },
 };
 
-const renderEnrollmentsComponent = () => render(
+const CourseEnrollmentsWrapper = () => (
   <IntlProvider locale="en">
     <AppContext.Provider value={{ enterpriseConfig }}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
@@ -119,7 +126,7 @@ const renderEnrollmentsComponent = () => render(
         </SubsidyRequestsContext.Provider>
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
-  </IntlProvider>,
+  </IntlProvider>
 );
 
 jest.mock('../data/utils', () => ({
@@ -138,41 +145,86 @@ describe('Course enrollments', () => {
   });
 
   it('renders course sections', () => {
-    renderEnrollmentsComponent();
+    renderWithRouter(<CourseEnrollmentsWrapper />);
     expect(screen.getByText(COURSE_SECTION_TITLES.current));
     expect(screen.getByText(COURSE_SECTION_TITLES.completed));
     expect(screen.getByText(COURSE_SECTION_TITLES.savedForLater));
     expect(screen.getAllByText(inProgCourseRun.title).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('does not render cancelled assignment and renders cancelled alert', async () => {
-    getHasUnacknowledgedCanceledAssignments.mockReturnValue(true);
-    renderWithRouter(renderEnrollmentsComponent());
-    expect(screen.queryByText('Your learning administrator canceled this assignment.')).toBeFalsy();
-    expect(screen.getByText('Course assignment cancelled')).toBeInTheDocument();
-    expect(screen.queryByText('test-title')).toBeFalsy();
-    const dismissButton = screen.getByText('Dismiss');
+  it('renders alert for canceled assignments and renders canceled assignment cards with dismiss behavior', async () => {
+    const mockCourseKey = 'test-courseKey';
+    const mockAssignment = {
+      state: ASSIGNMENT_TYPES.CANCELED,
+      courseRunId: mockCourseKey,
+      courseRunStatus: COURSE_STATUSES.assigned,
+      title: 'test-title',
+      linkToCourse: `/test-enterprise/course/${mockCourseKey}`,
+      notifications: [],
+      isCanceledAssignment: true,
+      isExpiredAssignment: false,
+      endDate: dayjs().add(1, 'day').toISOString(),
+      startDate: dayjs().subtract(1, 'day').toISOString(),
+      mode: 'verified',
+    };
+    const mockCloseCancelAlert = jest.fn();
+    hooks.useContentAssignments.mockReturnValue({
+      assignments: [mockAssignment],
+      showCanceledAssignmentsAlert: true,
+      showExpiredAssignmentsAlert: false,
+      handleOnCloseCancelAlert: mockCloseCancelAlert,
+      handleOnCloseExpiredAlert: jest.fn(),
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    // Verify canceled assignment card is visible initially
+    expect(screen.getByText(mockAssignment.title)).toBeInTheDocument();
+    expect(screen.getByText('Your learning administrator canceled this assignment')).toBeInTheDocument();
+    // Verify cancelation alert is visible initially
+    expect(screen.getByText('Course assignment canceled')).toBeInTheDocument();
+    // Handles dismiss behavior
+    const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
     userEvent.click(dismissButton);
-    await waitFor(() => expect(screen.queryByText('Course assignment cancelled')).toBeFalsy());
+    expect(mockCloseCancelAlert).toHaveBeenCalledTimes(1);
   });
 
-  it('if there are active cancelled assignments, cancelled alert is rendered', () => {
-    getHasUnacknowledgedCanceledAssignments.mockReturnValue(true);
-    renderEnrollmentsComponent();
-    expect(screen.queryByText('Course assignment cancelled')).toBeTruthy();
-  });
-
-  it('if there are no active cancelled assignments, cancelled alert is hidden', () => {
-    getHasUnacknowledgedCanceledAssignments.mockReturnValue(false);
-    renderEnrollmentsComponent();
-    expect(screen.queryByText('Course assignment cancelled')).toBeFalsy();
+  it('renders alert for expired assignments and renders expired assignment cards with dismiss behavior', async () => {
+    const mockCourseKey = 'test-courseKey';
+    const mockAssignment = {
+      state: ASSIGNMENT_TYPES.ALLOCATED,
+      courseRunId: mockCourseKey,
+      courseRunStatus: COURSE_STATUSES.assigned,
+      title: 'test-title',
+      linkToCourse: `/test-enterprise/course/${mockCourseKey}`,
+      notifications: [],
+      isCanceledAssignment: false,
+      isExpiredAssignment: true,
+      endDate: dayjs().subtract(1, 'day').toISOString(),
+      startDate: dayjs().subtract(30, 'day').toISOString(),
+      mode: 'verified',
+    };
+    const mockCloseExpiredAlert = jest.fn();
+    hooks.useContentAssignments.mockReturnValue({
+      assignments: [mockAssignment],
+      showCanceledAssignmentsAlert: false,
+      showExpiredAssignmentsAlert: true,
+      handleOnCloseCancelAlert: jest.fn(),
+      handleOnCloseExpiredAlert: mockCloseExpiredAlert,
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
+    // Verify canceled assignment card is visible initially
+    expect(screen.getByText(mockAssignment.title)).toBeInTheDocument();
+    expect(screen.getByText('Deadline to enroll in this course has passed')).toBeInTheDocument();
+    // Verify cancelation alert is visible initially
+    expect(screen.getByText('Deadline passed')).toBeInTheDocument();
+    // Handles dismiss behavior
+    const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
+    userEvent.click(dismissButton);
+    expect(mockCloseExpiredAlert).toHaveBeenCalledTimes(1);
   });
 
   it('generates course status update on move to in progress action', async () => {
-    const { getByText } = renderEnrollmentsComponent();
-    await act(async () => {
-      userEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
-    });
+    const { getByText } = renderWithRouter(<CourseEnrollmentsWrapper />);
+    userEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
 
     // TODO This test only validates 'half way', we ideally want to update it to
     // validate the UI results. Skipping at the time of writing since need to
@@ -183,17 +235,20 @@ describe('Course enrollments', () => {
   });
 
   it('generates course status update on move to saved for later action', async () => {
-    const { getByText } = renderEnrollmentsComponent();
-    await act(async () => {
-      userEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
-    });
-
+    const { getByText } = renderWithRouter(<CourseEnrollmentsWrapper />);
+    userEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
     expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(getByText('Your course was saved for later.')));
   });
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {
-    renderEnrollmentsComponent();
+    hooks.useCourseEnrollmentsBySection.mockReturnValueOnce({
+      hasCourseEnrollments: true,
+      currentCourseEnrollments: [inProgCourseRun, upcomingCourseRun, transformedLicenseRequest],
+      completedCourseEnrollments: [completedCourseRun],
+      savedForLaterCourseEnrollments: [savedForLaterCourseRun],
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
     const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
     expect(within(currentCourses).getByText(inProgCourseRun.title));
     expect(within(currentCourses).getByText(upcomingCourseRun.title));
@@ -202,34 +257,40 @@ describe('Course enrollments', () => {
 
   it('renders courses enrollments within sections by created timestamp', async () => {
     const now = dayjs();
+    const mockFirstEnrollment = {
+      ...upcomingCourseRun,
+      courseRunId: 'first enrollment',
+      title: 'first enrollment',
+      created: now.subtract(100, 's').toISOString(),
+    };
+    const mockSecondEnrollment = {
+      ...inProgCourseRun,
+      title: 'second enrollment',
+      created: now.toISOString(),
+    };
+    const mockThirdEnrollment = {
+      ...upcomingCourseRun,
+      courseRunId: 'third enrollment',
+      title: 'third enrollment',
+      created: now.add(1, 's').toISOString(),
+    };
     hooks.useCourseEnrollments.mockReturnValueOnce({
       courseEnrollmentsByStatus: {
-        inProgress: [{
-          ...inProgCourseRun,
-          title: 'second enrollment',
-          created: now.toISOString(),
-        }],
-        upcoming: [{
-          ...upcomingCourseRun,
-          courseRunId: 'third enrollment',
-          title: 'third enrollment',
-          created: now.add(1, 's').toISOString(),
-        },
-        {
-          ...upcomingCourseRun,
-          courseRunId: 'first enrollment',
-          title: 'first enrollment',
-          created: now.subtract(100, 's').toISOString(),
-        }],
+        inProgress: [mockSecondEnrollment],
+        upcoming: [mockThirdEnrollment, mockFirstEnrollment],
         completed: [],
         savedForLater: [],
         requested: [],
       },
     });
-
-    renderEnrollmentsComponent({
-      isSubsidyRequestsEnabled: false,
+    hooks.useCourseEnrollmentsBySection.mockReturnValueOnce({
+      hasCourseEnrollments: true,
+      currentCourseEnrollments: [mockFirstEnrollment, mockSecondEnrollment, mockThirdEnrollment],
+      completedCourseEnrollments: [],
+      savedForLaterCourseEnrollments: [],
     });
+
+    renderWithRouter(<CourseEnrollmentsWrapper />);
 
     const currentCourses = screen.getByText(COURSE_SECTION_TITLES.current).closest('.course-section');
     const courseTitles = currentCourses.querySelectorAll('.course-title');

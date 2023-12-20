@@ -136,8 +136,14 @@ describe('isAssignmentExpired', () => {
   });
 
   it('handles null/undefined assignment', () => {
-    expect(isAssignmentExpired(null)).toBe(false);
-    expect(isAssignmentExpired(undefined)).toBe(false);
+    expect(isAssignmentExpired(null)).toEqual({
+      isExpired: false,
+      enrollByDeadline: undefined,
+    });
+    expect(isAssignmentExpired(undefined)).toEqual({
+      isExpired: false,
+      enrollByDeadline: undefined,
+    });
   });
 
   it.each([
@@ -176,7 +182,15 @@ describe('isAssignmentExpired', () => {
       contentMetadata: { enrollByDate },
       subsidyExpirationDate,
     };
-    expect(isAssignmentExpired(allocatedAssignment)).toBe(isExpired);
+    const earliestAssignmentExpiryDate = [
+      new Date(created),
+      new Date(enrollByDate),
+      new Date(subsidyExpirationDate),
+    ].sort()[0];
+    expect(isAssignmentExpired(allocatedAssignment)).toEqual({
+      isExpired,
+      enrollByDeadline: earliestAssignmentExpiryDate,
+    });
   });
 });
 
@@ -189,7 +203,7 @@ describe('sortAssignmentsByAssignmentStatus', () => {
     MockDate.reset();
   });
 
-  it('sorts assignments by status (cancelled or expired)', () => {
+  it('sorts assignments by status (allocated, then cancelled/expired)', () => {
     const baseAssignment = {
       created: '2023-04-20',
       contentMetadata: { enrollByDate: '2023-05-20' },

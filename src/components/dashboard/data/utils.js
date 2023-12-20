@@ -15,7 +15,10 @@ import {
  */
 export const isAssignmentExpired = (assignment) => {
   if (!assignment) {
-    return false;
+    return {
+      isExpired: false,
+      enrollByDeadline: undefined,
+    };
   }
 
   const currentDate = dayjs();
@@ -121,18 +124,19 @@ export function getHasUnacknowledgedCanceledAssignments(assignments) {
 }
 
 /**
- * Takes a flattened array of assignments and returns an object containing:
- * - List of assignments
- * - Boolean hasAssignments
- * - List of active assignments
- * - Boolean hasActiveAssignments
+ * Takes a flattened array of assignments and returns an object containing
+ * lists of assignments for each assignment state.
  *
  * @param {Array} assignments - List of content assignments.
  * @returns {{
  *  assignments: Array,
  *  hasAssignments: Boolean,
- *  hasActiveAssignments: Boolean,
- *  activeAssignments: Array,
+ *  allocatedAssignments: Array,
+ *  hasAllocatedAssignments: Boolean,
+ *  canceledAssignments: Array,
+ *  hasCanceledAssignments: Boolean,
+ *  acceptedAssignments: Array,
+ *  hasAcceptedAssignments: Boolean,
  * }}
  */
 export function getAssignmentsByState(assignments = []) {

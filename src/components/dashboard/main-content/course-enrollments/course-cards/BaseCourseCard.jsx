@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Badge, Col, Dropdown, Icon, IconButton, OverlayTrigger, Row, Skeleton, Tooltip,
 } from '@edx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
 import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -378,10 +379,10 @@ class BaseCourseCard extends Component {
         {dateFields.map((dateField, index) => {
           const isLastDateField = index === dateFields.length - 1;
           return (
-            <>
+            <span key={uuidv4()}>
               {dateField}
               {!isLastDateField && <span className="px-2">&bull;</span>}
-            </>
+            </span>
           );
         })}
       </p>
@@ -469,12 +470,12 @@ class BaseCourseCard extends Component {
 
   renderAssignmentAlert = () => {
     const { isCanceledAssignment, mode } = this.props;
-    const alertText = isCanceledAssignment ? 'Your learning administrator canceled this assignment.' : 'Deadline to enroll in this course has passed';
+    const alertText = isCanceledAssignment ? 'Your learning administrator canceled this assignment' : 'Deadline to enroll in this course has passed';
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
     return (
       <div className={classNames('p-2 small d-flex align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}>
-        <Icon src={Info} size="small" className="text-dark mr-2" />
+        <Icon src={Info} size="xs" className="text-dark mr-2" />
         <span className="text-dark font-weight-normal">{alertText}</span>
       </div>
     );

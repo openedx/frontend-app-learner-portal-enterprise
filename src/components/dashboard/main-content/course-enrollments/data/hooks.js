@@ -277,8 +277,8 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     const assignmentsForDisplay = [...allocatedAssignments, ...canceledAssignments].filter((assignment) => {
       // Filter out already-dismissed canceled assignments
       if (lastCanceledAlertDismissedTime) {
-        const { isCanceled, hasDismissedCancellation } = isCanceledAssignmentAcknowledged(assignment);
-        if (isCanceled && hasDismissedCancellation) {
+        const { isCanceled, hasDismissedCancelation } = isCanceledAssignmentAcknowledged(assignment);
+        if (isCanceled && hasDismissedCancelation) {
           return false;
         }
       }
