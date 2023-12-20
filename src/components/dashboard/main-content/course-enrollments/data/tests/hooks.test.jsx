@@ -4,7 +4,12 @@ import { AppContext } from '@edx/frontend-platform/react';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
 
-import { useContentAssignments, useCourseEnrollments, useCourseUpgradeData } from '../hooks';
+import {
+  useContentAssignments,
+  useCourseEnrollments,
+  useCourseEnrollmentsBySection,
+  useCourseUpgradeData,
+} from '../hooks';
 import * as service from '../service';
 import { COURSE_STATUSES, LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT } from '../constants';
 import { transformCourseEnrollment } from '../utils';
@@ -517,5 +522,50 @@ describe('useContentAssignments', () => {
         }),
       );
     }
+  });
+});
+
+describe('useCourseEnrollmentsBySection', () => {
+  it('returns enrollments, if any, by section and accounting for any accepted assignments', () => {
+    const mockAssignedContentKey = 'edX+DemoX';
+    const mockAssignments = [{
+      state: ASSIGNMENT_TYPES.ACCEPTED,
+      contentKey: mockAssignedContentKey,
+    }];
+    const mockAssignedEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunId: mockAssignedContentKey,
+      courseRunStatus: COURSE_STATUSES.assigned,
+    };
+    const mockCompletedEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunStatus: COURSE_STATUSES.completed,
+    };
+    const mockUpcomingEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunStatus: COURSE_STATUSES.upcoming,
+    };
+    const mockCourseEnrollmentsByStatus = {
+      inProgress: [mockAssignedEnrollment],
+      upcoming: [mockUpcomingEnrollment],
+      completed: [mockCompletedEnrollment],
+      savedForLater: [],
+      requested: [],
+      assigned: [],
+    };
+    const { result } = renderHook(() => useCourseEnrollmentsBySection({
+      assignments: mockAssignments,
+      courseEnrollmentsByStatus: mockCourseEnrollmentsByStatus,
+    }));
+    const mockTransformedAcceptedAssignment = {
+      ...mockAssignedEnrollment,
+      isCourseAssigned: true,
+    };
+    expect(result.current).toEqual({
+      hasCourseEnrollments: true,
+      currentCourseEnrollments: [mockTransformedAcceptedAssignment, mockUpcomingEnrollment],
+      completedCourseEnrollments: [mockCompletedEnrollment],
+      savedForLaterCourseEnrollments: [],
+    });
   });
 });
