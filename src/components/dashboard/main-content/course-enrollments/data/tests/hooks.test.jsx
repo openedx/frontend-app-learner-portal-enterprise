@@ -17,23 +17,6 @@ import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 import { ASSIGNMENT_ACTION_TYPES, ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
-// jest.mock('react', () => ({
-//   ...jest.requireActual('react'),
-//   useContext: jest.fn(() => ({
-//     state: {
-//       course: {
-//         entitlements: {
-//           mode: 'paid-executive-education',
-//           price: '820.00',
-//           currency: 'USD',
-//           sku: '821D85D',
-//           expires: null,
-//         },
-//       },
-//     },
-//   })),
-// }));
-
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
@@ -344,6 +327,8 @@ describe('useContentAssignments', () => {
       hasCanceledAssignments: false,
       acceptedAssignments: [],
       hasAcceptedAssignments: false,
+      erroredAssignments: [],
+      hasErroredAssignments: false,
     },
   };
   const mockAssignment = {

@@ -92,6 +92,8 @@ const defaultUserSubsidyState = {
       hasCanceledAssignments: true,
       acceptedAssignments: [],
       hasAcceptedAssignments: false,
+      erroredAssignments: [],
+      hasErroredAssignments: false,
     },
   },
 };

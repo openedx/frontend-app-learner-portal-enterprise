@@ -144,6 +144,7 @@ export function getAssignmentsByState(assignments = []) {
   const allocatedAssignments = [];
   const canceledAssignments = [];
   const acceptedAssignments = [];
+  const erroredAssignments = [];
 
   assignments.forEach((assignment) => {
     allAssignments.push(assignment);
@@ -156,12 +157,16 @@ export function getAssignmentsByState(assignments = []) {
     if (assignment.state === ASSIGNMENT_TYPES.ACCEPTED) {
       acceptedAssignments.push(assignment);
     }
+    if (assignment.state === ASSIGNMENT_TYPES.ERRORED) {
+      erroredAssignments.push(assignment);
+    }
   });
 
   const hasAssignments = allAssignments.length > 0;
   const hasAllocatedAssignments = allocatedAssignments.length > 0;
   const hasCanceledAssignments = canceledAssignments.length > 0;
   const hasAcceptedAssignments = acceptedAssignments.length > 0;
+  const hasErroredAssignments = erroredAssignments.length > 0;
 
   return {
     assignments,
@@ -172,5 +177,7 @@ export function getAssignmentsByState(assignments = []) {
     hasCanceledAssignments,
     acceptedAssignments,
     hasAcceptedAssignments,
+    erroredAssignments,
+    hasErroredAssignments,
   };
 }

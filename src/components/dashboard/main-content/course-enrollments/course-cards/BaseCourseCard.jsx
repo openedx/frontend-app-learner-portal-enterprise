@@ -475,7 +475,7 @@ class BaseCourseCard extends Component {
 
     return (
       <div className={classNames('p-2 small d-flex align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}>
-        <Icon src={Info} size="xs" className="text-dark mr-2" />
+        <Icon src={Info} size="sm" className="text-dark mr-2" />
         <span className="text-dark font-weight-normal">{alertText}</span>
       </div>
     );
