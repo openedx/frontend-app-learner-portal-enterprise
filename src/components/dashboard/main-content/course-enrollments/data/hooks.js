@@ -213,7 +213,7 @@ export const useCourseUpgradeData = ({
  * - Sorts the list of assignments for display by status (allocated, canceled, expired).
  * - Provides helper functions to handle dismissal of the canceled/expired assignments alerts.
  *
- * @param {Array} [redeemableLearnerCreditPolicies] - List of redeemable learner credit policies.
+ * @param {Object} redeemableLearnerCreditPolicies - Object containing list of redeemable learner credit policies.
  * @returns {Object} - Returns an object with the following properties:
  * - assignments: Array of transformed assignments for display.
  * - showCanceledAssignmentsAlert: Boolean indicating whether to display the canceled assignments alert.
@@ -258,10 +258,6 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
    * acknowledged (dismissed) by the learner.
    */
   useEffect(() => {
-    if (!redeemableLearnerCreditPolicies) {
-      return;
-    }
-
     const {
       allocatedAssignments,
       canceledAssignments,
