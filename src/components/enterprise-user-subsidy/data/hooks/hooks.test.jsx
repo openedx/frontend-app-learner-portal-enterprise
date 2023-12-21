@@ -19,6 +19,7 @@ import {
 import { fetchCouponsOverview } from '../../coupons/data/service';
 import { fetchCouponCodeAssignments } from '../../coupons';
 import { LICENSE_STATUS } from '../constants';
+import { ASSIGNMENT_TYPES } from '../../enterprise-offers/data/constants';
 
 jest.mock('../../data/service');
 jest.mock('../../coupons/data/service');
@@ -372,8 +373,24 @@ const Wrapper = ({ children }) => (
 
 describe('useRedeemableLearnerCreditPolicies', () => {
   it('fetches and returns redeemable learner credit policies', async () => {
+    const mockAllocatedAssignment = {
+      uuid: 'test-assignment-uuid',
+      state: ASSIGNMENT_TYPES.ALLOCATED,
+    };
+    const mockCanceledssignment = {
+      uuid: 'test-assignment-uuid',
+      state: ASSIGNMENT_TYPES.CANCELED,
+    };
+    const mockAcceptedAssignment = {
+      uuid: 'test-assignment-uuid',
+      state: ASSIGNMENT_TYPES.ACCEPTED,
+    };
+    const mockAssignablePolicy = {
+      ...mockLearnerCreditPolicy,
+      learner_content_assignments: [mockAllocatedAssignment, mockCanceledssignment, mockAcceptedAssignment],
+    };
     fetchRedeemableLearnerCreditPolicies.mockResolvedValueOnce({
-      data: [mockLearnerCreditPolicy],
+      data: [mockLearnerCreditPolicy, mockAssignablePolicy],
     });
     const { result, waitForNextUpdate } = renderHook(
       () => useRedeemableLearnerCreditPolicies(TEST_ENTERPRISE_UUID, TEST_USER_ID),
@@ -382,13 +399,46 @@ describe('useRedeemableLearnerCreditPolicies', () => {
     await waitForNextUpdate();
     expect(fetchRedeemableLearnerCreditPolicies).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID, TEST_USER_ID);
 
+    const mockAllocatedAssignmentWithPlanExpiration = {
+      ...mockAllocatedAssignment,
+      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
+    };
+    const mockCanceledssignmentWithPlanExpiration = {
+      ...mockCanceledssignment,
+      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
+    };
+    const mockAcceptedAssignmentWithPlanExpiration = {
+      ...mockAcceptedAssignment,
+      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
+    };
+
     expect(result.current.data).toEqual({
-      redeemablePolicies: [camelCaseObject(mockLearnerCreditPolicy)],
+      redeemablePolicies: [
+        camelCaseObject(mockLearnerCreditPolicy),
+        camelCaseObject({
+          ...mockAssignablePolicy,
+          learnerContentAssignments: [
+            mockAllocatedAssignmentWithPlanExpiration,
+            mockCanceledssignmentWithPlanExpiration,
+            mockAcceptedAssignmentWithPlanExpiration,
+          ],
+        }),
+      ],
       learnerContentAssignments: {
-        assignments: [],
-        hasAssignments: false,
-        activeAssignments: [],
-        hasActiveAssignments: false,
+        assignments: [
+          mockAllocatedAssignmentWithPlanExpiration,
+          mockCanceledssignmentWithPlanExpiration,
+          mockAcceptedAssignmentWithPlanExpiration,
+        ],
+        hasAssignments: true,
+        allocatedAssignments: [mockAllocatedAssignmentWithPlanExpiration],
+        hasAllocatedAssignments: true,
+        canceledAssignments: [mockCanceledssignmentWithPlanExpiration],
+        hasCanceledAssignments: true,
+        acceptedAssignments: [mockAcceptedAssignmentWithPlanExpiration],
+        hasAcceptedAssignments: true,
+        erroredAssignments: [],
+        hasErroredAssignments: false,
       },
     });
   });

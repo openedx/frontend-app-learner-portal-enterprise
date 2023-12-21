@@ -1,31 +1,21 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
+import { AppContext } from '@edx/frontend-platform/react';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
 
-import { useCourseEnrollments, useCourseUpgradeData } from '../hooks';
+import {
+  useContentAssignments,
+  useCourseEnrollments,
+  useCourseEnrollmentsBySection,
+  useCourseUpgradeData,
+} from '../hooks';
 import * as service from '../service';
-import { COURSE_STATUSES } from '../constants';
+import { COURSE_STATUSES, LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT } from '../constants';
 import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
-
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useContext: jest.fn(() => ({
-    state: {
-      course: {
-        entitlements: {
-          mode: 'paid-executive-education',
-          price: '820.00',
-          currency: 'USD',
-          sku: '821D85D',
-          expires: null,
-        },
-      },
-    },
-  })),
-}));
+import { ASSIGNMENT_ACTION_TYPES, ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -311,6 +301,256 @@ describe('useCourseEnrollments', () => {
       expect(result.current.upgradeUrl).toBeUndefined();
       expect(result.current.isLoading).toEqual(false);
       expect(logger.logError).toHaveBeenCalledWith(error);
+    });
+  });
+});
+
+describe('useContentAssignments', () => {
+  const mockAppContextValue = {
+    enterpriseConfig: {
+      slug: 'test-enterprise',
+    },
+  };
+  const wrapper = ({ children }) => (
+    <AppContext.Provider value={mockAppContextValue}>
+      {children}
+    </AppContext.Provider>
+  );
+  const mockRedeemableLearnerCreditPolicies = {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      allocatedAssignments: [],
+      hasAllocatedAssignments: false,
+      canceledAssignments: [],
+      hasCanceledAssignments: false,
+      acceptedAssignments: [],
+      hasAcceptedAssignments: false,
+      erroredAssignments: [],
+      hasErroredAssignments: false,
+    },
+  };
+  const mockAssignment = {
+    contentKey: 'edX+DemoX',
+    contentTitle: 'edX Demo Course',
+    contentMetadata: {
+      enrollByDate: dayjs().add(1, 'd').toISOString(),
+      partners: [{ name: 'Test Partner' }],
+    },
+    actions: [],
+  };
+  const mockAllocatedAssignment = {
+    ...mockAssignment,
+    uuid: 'test-assignment-uuid',
+    state: ASSIGNMENT_TYPES.ALLOCATED,
+  };
+  const mockAllocatedExpiredAssignment = {
+    ...mockAllocatedAssignment,
+    uuid: 'test-assignment-uuid-2',
+    contentMetadata: {
+      ...mockAllocatedAssignment.contentMetadata,
+      enrollByDate: dayjs().subtract(1, 'w').toISOString(),
+    },
+  };
+  const mockCanceledAssignment = {
+    ...mockAssignment,
+    uuid: 'test-assignment-uuid-3',
+    state: ASSIGNMENT_TYPES.CANCELED,
+    actions: [{
+      actionType: ASSIGNMENT_ACTION_TYPES.CANCELED,
+      completedAt: dayjs().subtract(1, 'w').toISOString(),
+    }],
+  };
+  const mockAcceptedAssignment = {
+    ...mockAssignment,
+    uuid: 'test-assignment-uuid-4',
+    state: ASSIGNMENT_TYPES.ACCEPTED,
+  };
+  const mockPoliciesWithAssignments = {
+    ...mockRedeemableLearnerCreditPolicies,
+    learnerContentAssignments: {
+      ...mockRedeemableLearnerCreditPolicies.learnerContentAssignments,
+      allocatedAssignments: [mockAllocatedAssignment],
+      hasAllocatedAssignments: true,
+      canceledAssignments: [mockCanceledAssignment],
+      hasCanceledAssignments: true,
+      acceptedAssignments: [mockAcceptedAssignment],
+      hasAcceptedAssignments: true,
+    },
+  };
+
+  afterEach(() => {
+    window.localStorage.removeItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT);
+    window.localStorage.removeItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT);
+  });
+
+  it.each([
+    { hasDismissedCanceledAssignmentsAlert: false },
+    { hasDismissedCanceledAssignmentsAlert: true },
+  ])('should return only allocated and canceled assignments, handling dismiss behavior (%s)', async ({
+    hasDismissedCanceledAssignmentsAlert,
+  }) => {
+    if (hasDismissedCanceledAssignmentsAlert) {
+      window.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, new Date());
+    }
+    const { result } = renderHook(
+      () => useContentAssignments(mockPoliciesWithAssignments),
+      { wrapper },
+    );
+    const expectedAssignments = [
+      {
+        courseRunStatus: COURSE_STATUSES.assigned,
+        enrollBy: dayjs(mockAllocatedAssignment.contentMetadata.enrollByDate).toDate(),
+        title: mockAllocatedAssignment.contentTitle,
+        isCanceledAssignment: false,
+        isExpiredAssignment: false,
+      },
+    ];
+    if (!hasDismissedCanceledAssignmentsAlert) {
+      expectedAssignments.push({
+        courseRunStatus: COURSE_STATUSES.assigned,
+        enrollBy: dayjs(mockCanceledAssignment.contentMetadata.enrollByDate).toDate(),
+        title: mockCanceledAssignment.contentTitle,
+        isCanceledAssignment: true,
+        isExpiredAssignment: false,
+      });
+    }
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        assignments: expectedAssignments.map((assignment) => expect.objectContaining(assignment)),
+        showCanceledAssignmentsAlert: !hasDismissedCanceledAssignmentsAlert,
+        showExpiredAssignmentsAlert: false,
+        handleOnCloseCancelAlert: expect.any(Function),
+        handleOnCloseExpiredAlert: expect.any(Function),
+      }),
+    );
+
+    // If canceled assignments have not yet been dismissed/acknowledged, then
+    // dismiss the canceled assignments alert and verify that the canceled
+    // assignments are no longer returned.
+    if (!hasDismissedCanceledAssignmentsAlert) {
+      act(() => result.current.handleOnCloseCancelAlert());
+      expect(window.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT)).toBeTruthy();
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          assignments: expectedAssignments
+            .filter((assignment) => !assignment.isCanceledAssignment)
+            .map((assignment) => expect.objectContaining(assignment)),
+          showCanceledAssignmentsAlert: false,
+        }),
+      );
+    }
+  });
+
+  it.each([
+    { hasDismissedExpiredAssignmentsAlert: false },
+    { hasDismissedExpiredAssignmentsAlert: true },
+  ])('should return only allocated and expired assignments, handling dismiss behavior (%s)', async ({
+    hasDismissedExpiredAssignmentsAlert,
+  }) => {
+    const mockPoliciesWithExpiredAssignments = {
+      ...mockPoliciesWithAssignments,
+      learnerContentAssignments: {
+        ...mockPoliciesWithAssignments.learnerContentAssignments,
+        allocatedAssignments: [mockAllocatedAssignment, mockAllocatedExpiredAssignment],
+        canceledAssignments: [],
+        hasCanceledAssignments: false,
+      },
+    };
+    if (hasDismissedExpiredAssignmentsAlert) {
+      window.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT, new Date());
+    }
+    const { result } = renderHook(
+      () => useContentAssignments(mockPoliciesWithExpiredAssignments),
+      { wrapper },
+    );
+    const expectedAssignments = [
+      {
+        courseRunStatus: COURSE_STATUSES.assigned,
+        enrollBy: dayjs(mockAllocatedAssignment.contentMetadata.enrollByDate).toDate(),
+        title: mockAllocatedAssignment.contentTitle,
+        isCanceledAssignment: false,
+        isExpiredAssignment: false,
+      },
+    ];
+    if (!hasDismissedExpiredAssignmentsAlert) {
+      expectedAssignments.push({
+        courseRunStatus: COURSE_STATUSES.assigned,
+        enrollBy: dayjs(mockAllocatedExpiredAssignment.contentMetadata.enrollByDate).toDate(),
+        title: mockAllocatedExpiredAssignment.contentTitle,
+        isCanceledAssignment: false,
+        isExpiredAssignment: true,
+      });
+    }
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        assignments: expectedAssignments.map((assignment) => expect.objectContaining(assignment)),
+        showExpiredAssignmentsAlert: !hasDismissedExpiredAssignmentsAlert,
+        handleOnCloseCancelAlert: expect.any(Function),
+        handleOnCloseExpiredAlert: expect.any(Function),
+      }),
+    );
+
+    // If expired assignments have not yet been dismissed/acknowledged, then
+    // dismiss the expired assignments alert and verify that the expired
+    // assignments are no longer returned.
+    if (!hasDismissedExpiredAssignmentsAlert) {
+      act(() => result.current.handleOnCloseExpiredAlert());
+      expect(window.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT)).toBeTruthy();
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          assignments: expectedAssignments
+            .filter((assignment) => !assignment.isExpiredAssignment)
+            .map((assignment) => expect.objectContaining(assignment)),
+          showExpiredAssignmentsAlert: false,
+        }),
+      );
+    }
+  });
+});
+
+describe('useCourseEnrollmentsBySection', () => {
+  it('returns enrollments, if any, by section and accounting for any accepted assignments', () => {
+    const mockAssignedContentKey = 'edX+DemoX';
+    const mockAssignments = [{
+      state: ASSIGNMENT_TYPES.ACCEPTED,
+      contentKey: mockAssignedContentKey,
+    }];
+    const mockAssignedEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunId: mockAssignedContentKey,
+      courseRunStatus: COURSE_STATUSES.assigned,
+    };
+    const mockCompletedEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunStatus: COURSE_STATUSES.completed,
+    };
+    const mockUpcomingEnrollment = {
+      ...mockTransformedMockCourseEnrollment,
+      courseRunStatus: COURSE_STATUSES.upcoming,
+    };
+    const mockCourseEnrollmentsByStatus = {
+      inProgress: [mockAssignedEnrollment],
+      upcoming: [mockUpcomingEnrollment],
+      completed: [mockCompletedEnrollment],
+      savedForLater: [],
+      requested: [],
+      assigned: [],
+    };
+    const { result } = renderHook(() => useCourseEnrollmentsBySection({
+      assignments: mockAssignments,
+      courseEnrollmentsByStatus: mockCourseEnrollmentsByStatus,
+    }));
+    const mockTransformedAcceptedAssignment = {
+      ...mockAssignedEnrollment,
+      isCourseAssigned: true,
+    };
+    expect(result.current).toEqual({
+      hasCourseEnrollments: true,
+      currentCourseEnrollments: [mockTransformedAcceptedAssignment, mockUpcomingEnrollment],
+      completedCourseEnrollments: [mockCompletedEnrollment],
+      savedForLaterCourseEnrollments: [],
     });
   });
 });

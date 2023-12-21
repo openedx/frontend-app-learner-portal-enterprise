@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Badge, Col, Dropdown, Icon, IconButton, OverlayTrigger, Row, Skeleton, Tooltip,
 } from '@edx/paragon';
+import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
 import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -327,7 +328,7 @@ class BaseCourseCard extends Component {
     const isCourseStarted = dayjs(startDate) <= dayjs();
 
     if (formattedStartDate && !isCourseStarted) {
-      return <span className="font-weight-light pr-2">Starts {formattedStartDate}</span>;
+      return <span className="font-weight-light">Starts {formattedStartDate}</span>;
     }
     return null;
   };
@@ -338,7 +339,7 @@ class BaseCourseCard extends Component {
     const isCourseStarted = dayjs(this.props.startDate) <= dayjs();
 
     if (formattedEndDate && isCourseStarted && type !== COURSE_STATUSES.completed) {
-      return <span className="font-weight-light pr-2">Ends {formattedEndDate}</span>;
+      return <span className="font-weight-light">Ends {formattedEndDate}</span>;
     }
     return null;
   };
@@ -348,7 +349,7 @@ class BaseCourseCard extends Component {
     const formattedEnrollByDate = enrollBy ? dayjs(enrollBy).format('MMMM Do, YYYY') : null;
 
     if (formattedEnrollByDate && courseRunStatus === COURSE_STATUSES.assigned) {
-      return <>&bull;<span className="font-weight-light pl-2">Enroll by {formattedEnrollByDate}</span></>;
+      return <span className="font-weight-light">Enroll by {formattedEnrollByDate}</span>;
     }
     return null;
   };
@@ -362,11 +363,28 @@ class BaseCourseCard extends Component {
       return null;
     }
 
+    const dateFields = [];
+    if (startDate) {
+      dateFields.push(startDate);
+    }
+    if (endDate) {
+      dateFields.push(endDate);
+    }
+    if (enrollByDate) {
+      dateFields.push(enrollByDate);
+    }
+
     return (
       <p className="mt-2 mb-4 small">
-        {startDate}
-        {endDate}
-        {enrollByDate}
+        {dateFields.map((dateField, index) => {
+          const isLastDateField = index === dateFields.length - 1;
+          return (
+            <span key={uuidv4()}>
+              {dateField}
+              {!isLastDateField && <span className="px-2">&bull;</span>}
+            </span>
+          );
+        })}
       </p>
     );
   };
@@ -452,12 +470,12 @@ class BaseCourseCard extends Component {
 
   renderAssignmentAlert = () => {
     const { isCanceledAssignment, mode } = this.props;
-    const alertText = isCanceledAssignment ? 'Your learning administrator canceled this assignment.' : 'Deadline to enroll in this course has passed';
+    const alertText = isCanceledAssignment ? 'Your learning administrator canceled this assignment' : 'Deadline to enroll in this course has passed';
     const isExecutiveEducation2UCourse = EXECUTIVE_EDUCATION_COURSE_MODES.includes(mode);
 
     return (
       <div className={classNames('p-2 small d-flex align-items-center', { 'assignment-alert bg-light-300': isExecutiveEducation2UCourse })}>
-        <Icon src={Info} size="small" className="text-dark mr-2" />
+        <Icon src={Info} size="sm" className="text-dark mr-2" />
         <span className="text-dark font-weight-normal">{alertText}</span>
       </div>
     );

@@ -37,6 +37,11 @@ export const ASSIGNMENT_TYPES = {
   ERRORED: 'errored',
 };
 
+export const ASSIGNMENT_ACTION_TYPES = {
+  CANCELED: 'cancelled',
+  AUTOMATIC_CANCELATION: 'automatic_cancellation',
+};
+
 export const POLICY_TYPES = {
   ASSIGNED_CREDIT: 'AssignedLearnerCreditAccessPolicy',
   PER_LEARNER_CREDIT: 'PerLearnerSpendCreditAccessPolicy',

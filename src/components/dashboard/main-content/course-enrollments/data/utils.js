@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import { COURSE_STATUSES } from './constants';
+import { isAssignmentExpired } from '../../../data/utils';
+import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 /**
  * Determines whether a course enrollment may be unenrolled based on its enrollment
@@ -85,34 +87,7 @@ export const transformSubsidyRequest = ({
 });
 
 /**
- * Checks if an assignment has expired based on following conditions:
- * - The assignment's lifecycle state is "allocated."
- * - 90 days have passed since the "created" date.
- * - The course enrollment deadline has passed.
- * - The subsidy expiration date has passed.
- * @param {object} assignment - Information about the assignment.
- * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
- */
-export const isAssignmentExpired = (assignment) => {
-  // Assignment is not in an allocated state, so it cannot be expired.
-  if (!assignment) {
-    return false;
-  }
-
-  const currentDate = dayjs();
-  const allocationDate = dayjs(assignment.created);
-  const enrollmentEndDate = dayjs(assignment.contentMetadata.enrollByDate);
-  const subsidyExpirationDate = dayjs(assignment.subsidyExpirationDate);
-
-  return (
-    currentDate.diff(allocationDate, 'day') > 90
-    || currentDate.isAfter(enrollmentEndDate)
-    || currentDate.isAfter(subsidyExpirationDate)
-  );
-};
-
-/**
- * Sorts assignments by their status (cancelled or expired).
+ * Sorts assignments by their status (canceled or expired).
  * @param {array} assignments - Array of assignments to be sorted.
  * @returns {array} - Returns the sorted array of assignments.
  */
@@ -122,31 +97,40 @@ export const sortAssignmentsByAssignmentStatus = (assignments) => {
   }
   const assignmentsCopy = [...assignments];
   const sortedAssignments = assignmentsCopy.sort((a, b) => {
-    const isAssignmentACanceledOrExpired = a.state === 'cancelled' || isAssignmentExpired(a) ? 1 : 0;
-    const isAssignmentBCanceledOrExpired = b.state === 'cancelled' || isAssignmentExpired(b) ? 1 : 0;
+    const isAssignmentACanceledOrExpired = a.state === 'cancelled' || isAssignmentExpired(a).isExpired ? 1 : 0;
+    const isAssignmentBCanceledOrExpired = b.state === 'cancelled' || isAssignmentExpired(b).isExpired ? 1 : 0;
     return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
   });
   return sortedAssignments;
 };
 
 export const getTransformedAllocatedAssignments = (assignments, slug) => {
-  if (!assignments) { return assignments; }
+  if (!assignments) {
+    return assignments;
+  }
   const updatedAssignments = assignments?.map((item) => {
-    const isCancelledAssignment = item.state === 'cancelled';
-    const isExpiredAssignment = isAssignmentExpired(item);
-
+    const isCanceledAssignment = item.state === ASSIGNMENT_TYPES.CANCELED;
+    const {
+      isExpired: isExpiredAssignment,
+      enrollByDeadline: assignmentEnrollByDeadline,
+    } = isAssignmentExpired(item);
     return {
       linkToCourse: `/${slug}/course/${item.contentKey}`,
-      courseKey: item.contentKey,
+      // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
+      // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
+      // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
+      // are for top-level courses, not course runs.
+      courseRunId: item.contentKey,
       title: item.contentTitle,
       isRevoked: false,
+      notifications: [],
       courseRunStatus: COURSE_STATUSES.assigned,
       endDate: item?.contentMetadata?.endDate,
       startDate: item?.contentMetadata?.startDate,
       mode: item?.contentMetadata?.courseType,
       orgName: item?.contentMetadata?.partners[0]?.name,
-      enrollBy: item?.contentMetadata?.enrollByDate,
-      isCancelledAssignment,
+      enrollBy: assignmentEnrollByDeadline,
+      isCanceledAssignment,
       isExpiredAssignment,
     };
   });

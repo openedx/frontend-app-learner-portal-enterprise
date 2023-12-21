@@ -133,7 +133,7 @@ describe('<BaseCourseCard />', () => {
 
       const renderedStartDate = wrapper.instance().renderStartDate();
       const expectedOutput = formattedStartDate && !isCourseStarted
-        ? <span className="font-weight-light pr-2">Starts {formattedStartDate}</span>
+        ? <span className="font-weight-light">Starts {formattedStartDate}</span>
         : null;
 
       expect(renderedStartDate).toEqual(expectedOutput);
@@ -166,7 +166,7 @@ describe('<BaseCourseCard />', () => {
 
     const renderedEndDate = wrapper.instance().renderEndDate();
     const expectedOutput = formattedEndDate && dayjs(startDate) <= dayjs() && type !== 'completed'
-      ? <span className="font-weight-light pr-2">Ends {formattedEndDate}</span>
+      ? <span className="font-weight-light">Ends {formattedEndDate}</span>
       : null;
 
     expect(renderedEndDate).toEqual(expectedOutput);
@@ -193,7 +193,7 @@ describe('<BaseCourseCard />', () => {
 
     const isNotEnrolled = wrapper.instance().renderEnrollByDate();
     const expectedOutput = formattedEnrollByDate && courseRunStatus === 'assigned'
-      ? <>&#x2022;<span className="font-weight-light pl-2">Enroll by {formattedEnrollByDate}</span></>
+      ? <span className="font-weight-light">Enroll by {formattedEnrollByDate}</span>
       : null;
 
     expect(isNotEnrolled).toEqual(expectedOutput);

@@ -9,6 +9,7 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
 import { renderWithRouter } from '../../../utils/tests';
 import { features } from '../../../config';
+import { useContentAssignments } from './course-enrollments/data';
 
 jest.mock('../../search/content-highlights/data', () => ({
   useEnterpriseCuration: jest.fn(() => ({
@@ -23,6 +24,18 @@ jest.mock('../../../config', () => ({
     FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT: jest.fn(),
   },
 }));
+
+jest.mock('./course-enrollments/data', () => ({
+  ...jest.requireActual('./course-enrollments/data'),
+  useContentAssignments: jest.fn(),
+}));
+useContentAssignments.mockReturnValue({
+  assignments: [],
+  showCanceledAssignmentsAlert: false,
+  showExpiredAssignmentsAlert: false,
+  handleOnCloseCancelAlert: jest.fn(),
+  handleOnCloseExpiredAlert: jest.fn(),
+});
 
 const defaultUserSubsidyState = {
   subscriptionPlan: undefined,

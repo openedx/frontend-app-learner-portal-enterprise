@@ -6,11 +6,12 @@ import { Info } from '@edx/paragon/icons';
 import { getContactEmail } from '../../../../utils/common';
 
 const CourseAssignmentAlert = ({
+  showAlert,
   onClose,
   variant,
 }) => {
-  const heading = variant === 'cancelled' ? 'Course assignment canceled' : 'Deadline passed';
-  const text = (variant === 'cancelled'
+  const heading = variant === 'canceled' ? 'Course assignment canceled' : 'Deadline passed';
+  const text = (variant === 'canceled'
     ? 'Your learning administrator canceled one or more course assignments below.'
     : 'Deadline to enroll into one or more courses below has passed.');
 
@@ -20,6 +21,7 @@ const CourseAssignmentAlert = ({
   return (
     <Alert
       variant="danger"
+      show={showAlert}
       icon={Info}
       dismissible
       actions={[
@@ -38,11 +40,13 @@ const CourseAssignmentAlert = ({
 CourseAssignmentAlert.propTypes = {
   onClose: PropTypes.func,
   variant: PropTypes.string,
+  showAlert: PropTypes.bool,
 };
 
 CourseAssignmentAlert.defaultProps = {
   onClose: null,
   variant: null,
+  showAlert: false,
 };
 
 export default CourseAssignmentAlert;

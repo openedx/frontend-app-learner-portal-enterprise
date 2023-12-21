@@ -37,7 +37,7 @@ const CoursesTabComponent = ({ canOnlyViewHighlightSets }) => {
           </MainContent>
           <MediaQuery minWidth={breakpoints.large.minWidth}>
             {matches => (matches ? (
-              <Sidebar data-testid="sidebar">
+              <Sidebar data-testid="courses-tab-sidebar">
                 <DashboardSidebar />
               </Sidebar>
             ) : null)}
