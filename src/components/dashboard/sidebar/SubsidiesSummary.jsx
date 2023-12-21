@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import PropTypes from 'prop-types';
-import { Button, MailtoLink } from '@edx/paragon';
+import { Button } from '@edx/paragon';
 import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';
@@ -18,7 +18,6 @@ import { CourseEnrollmentsContext } from '../main-content/course-enrollments/Cou
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { getContactEmail } from '../../../utils/common';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
@@ -97,7 +96,7 @@ const SubsidiesSummary = ({
       && !hasActiveLicenseOrLicenseRequest
       && !hasAssignedCodesOrCodeRequests
       && !hasCurrentEnterpriseOffers
-      && !hasAutoAppliedLearnerCreditPolicies
+      // && !hasAutoAppliedLearnerCreditPolicies
     ) {
       setAssignmentOnlyLearner(true);
     }
@@ -124,19 +123,6 @@ const SubsidiesSummary = ({
         {CATALOG_ACCESS_CARD_BUTTON_TEXT}
       </Button>
     )
-  );
-
-  // A stand contactAdminCTA that can be generalized for other summary card usage if the need arises
-  const adminContactEmail = getContactEmail(enterpriseConfig);
-  const contactAdministratorCTA = (
-    <Button
-      as={MailtoLink}
-      to={adminContactEmail}
-      variant={ctaButtonVariant}
-      block
-    >
-      Contact administrator
-    </Button>
   );
 
   return (
