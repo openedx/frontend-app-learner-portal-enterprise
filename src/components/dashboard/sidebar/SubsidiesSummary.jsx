@@ -173,17 +173,11 @@ const SubsidiesSummary = ({
           />
         )}
       </div>
-      {(searchCoursesCta && !assignmentOnlyLearner)
-        ? (
-          <SidebarCard cardClassNames="border-0 shadow-none">
-            {searchCoursesCta}
-          </SidebarCard>
-        )
-        : (
-          <SidebarCard cardClassNames="border-0 shadow-none">
-            {contactAdministratorCTA}
-          </SidebarCard>
-        )}
+      {(searchCoursesCta && !assignmentOnlyLearner) && (
+        <SidebarCard cardClassNames="border-0 shadow-none">
+          {searchCoursesCta}
+        </SidebarCard>
+      )}
     </SidebarCard>
   );
 };
