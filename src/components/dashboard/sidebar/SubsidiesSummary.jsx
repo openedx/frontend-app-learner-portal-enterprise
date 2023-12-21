@@ -96,7 +96,7 @@ const SubsidiesSummary = ({
       && !hasActiveLicenseOrLicenseRequest
       && !hasAssignedCodesOrCodeRequests
       && !hasCurrentEnterpriseOffers
-      // && !hasAutoAppliedLearnerCreditPolicies
+      && !hasAutoAppliedLearnerCreditPolicies
     ) {
       setAssignmentOnlyLearner(true);
     }
