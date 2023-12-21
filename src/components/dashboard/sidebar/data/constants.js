@@ -41,6 +41,7 @@ export const LEARNER_CREDIT_SUMMARY_CARD_TITLE = 'Learner Credit';
 export const LEARNER_CREDIT_ACTIVE_BADGE_LABEL = 'Active';
 export const LEARNER_CREDIT_ACTIVE_BADGE_VARIANT = 'success';
 export const LEARNER_CREDIT_CARD_SUMMARY = 'Apply your organization\'s learner credit balance to enroll into courses with no out of pocket cost.';
+export const LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY = 'Your organization will assign courses to learners. Please contact your administrator if you are interested in taking a course.';
 
 // Dashboard Sidebar texts
 export const CATALOG_ACCESS_CARD_BUTTON_TEXT = 'Find a course';
