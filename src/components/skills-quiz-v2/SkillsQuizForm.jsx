@@ -7,8 +7,8 @@ import { InstantSearch } from "react-instantsearch-dom";
 import { useMemo } from "react";
 import CurrentJobDropdown from "../skills-quiz/CurrentJobDropdown";
 import IndustryDropdown from "../skills-quiz/IndustryDropdown";
-import GoalDropdown from "./GoalDropdown";
-import SearchJobCard from "./SearchJobCard";
+import GoalDropdown from "../skills-quiz/GoalDropdown";
+import SearchJobCard from "../skills-quiz/SearchJobCard";
 import PropTypes from "prop-types";
 
 const SkillQuizForm = ({ isStyleAutoSuggest }) => {
@@ -28,7 +28,7 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
     config.ALGOLIA_INDEX_NAME_JOBS,
     config.ALGOLIA_SEARCH_API_KEY,
   ]);
-  const [hide, setHide] = useState(false);
+  const [hide, setHide] = useState(true);
 
   return (
     <div className="form">

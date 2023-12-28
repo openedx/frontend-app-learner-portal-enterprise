@@ -16,7 +16,7 @@ const ProgramCard = ({ mainImg, logoImg, title, subtitle }) => {
   );
 };
 
-ProgramCard.PropTypes = {
+ProgramCard.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
 };
