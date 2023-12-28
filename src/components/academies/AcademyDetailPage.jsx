@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import {
   Container, Chip, Breadcrumb,
   Skeleton, Spinner,
@@ -7,12 +7,12 @@ import {
   useParams, Link,
 } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useAcademyMetadata } from './data/hooks';
 import CourseCard from './CourseCard';
 import NotFoundPage from '../NotFoundPage';
 import { ACADEMY_NOT_FOUND_TITLE } from './data/constants';
+import { useAlgoliaSearch } from '../../utils/hooks';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
@@ -21,17 +21,7 @@ const AcademyDetailPage = () => {
   const [academy, isAcademyAPILoading, academyAPIError] = useAcademyMetadata(academyUUID);
   const academyURL = `/${enterpriseConfig.slug}/academy/${academyUUID}`;
 
-  // init algolia index
-  const courseIndex = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      return client.initIndex(config.ALGOLIA_INDEX_NAME);
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
-  );
+  const [, courseIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME);
 
   if (academyAPIError) {
     return (

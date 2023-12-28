@@ -21,6 +21,7 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
+  getAuthenticatedHttpClient: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
