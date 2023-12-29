@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import {
   Col, Container, Row, Skeleton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { useHistory } from 'react-router-dom';

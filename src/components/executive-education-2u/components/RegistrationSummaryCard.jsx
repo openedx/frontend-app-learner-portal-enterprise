@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Card, Row, Col,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { numberWithPrecision } from '../../course/data/utils';
 import { CURRENCY_USD } from '../../course/data/constants';
 

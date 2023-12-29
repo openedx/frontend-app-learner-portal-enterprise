@@ -7,7 +7,7 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import {
   CardGrid, Container, Skeleton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 
 import SearchNoResults from './SearchNoResults';

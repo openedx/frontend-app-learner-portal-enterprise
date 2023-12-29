@@ -3,7 +3,7 @@ import { Link, generatePath } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   Container, Alert, Row, Col, Card, MailtoLink, Button, Image, Stack,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 
 import { getContactEmail } from '../../utils/common';
 import returnToDashboardIllustration from './data/illustrations/assignments-only-return-to-dashboard.svg';

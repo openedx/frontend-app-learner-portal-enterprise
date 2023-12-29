@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
-import { Alert, Button, MailtoLink } from '@edx/paragon';
-import { Info } from '@edx/paragon/icons';
+import { Alert, Button, MailtoLink } from '@openedx/paragon';
+import { Info } from '@openedx/paragon/icons';
 import { getContactEmail } from '../../../../utils/common';
 
 const CourseAssignmentAlert = ({

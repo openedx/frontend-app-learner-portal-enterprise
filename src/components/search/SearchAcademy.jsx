@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import { CardGrid, Container, Skeleton } from '@edx/paragon';
+import { CardGrid, Container, Skeleton } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
 import SearchAcademyCard from '../academies/SearchAcademyCard';

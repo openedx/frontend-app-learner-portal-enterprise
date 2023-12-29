@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import {
   Container, Row,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 
 import { MainContent } from '../layout';
 import SkillsQuizStepper from './SkillsQuizStepper';

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
   Button, breakpoints, MediaQuery,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import PropTypes from 'prop-types';
 
 import { CourseEnrollments } from './course-enrollments';

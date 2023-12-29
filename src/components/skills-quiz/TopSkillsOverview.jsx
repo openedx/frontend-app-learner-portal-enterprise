@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useState, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card } from '@openedx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from './SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';

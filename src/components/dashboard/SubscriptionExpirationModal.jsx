@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Cookies from 'universal-cookie';
-import { Modal, MailtoLink } from '@edx/paragon';
+import { Modal, MailtoLink } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 

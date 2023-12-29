@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import {
   Container, Chip, Breadcrumb,
   Skeleton, Spinner,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import {
   useParams, Link,
 } from 'react-router-dom';

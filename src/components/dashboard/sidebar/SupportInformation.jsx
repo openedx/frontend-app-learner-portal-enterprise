@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { MailtoLink, Hyperlink } from '@edx/paragon';
+import { MailtoLink, Hyperlink } from '@openedx/paragon';
 
 import PropTypes from 'prop-types';
 import { SidebarBlock } from '../../layout';

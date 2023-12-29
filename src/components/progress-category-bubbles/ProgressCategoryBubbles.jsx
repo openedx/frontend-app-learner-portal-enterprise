@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bubble, Stack } from '@edx/paragon';
+import { Bubble, Stack } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import './styles/index.scss';
 

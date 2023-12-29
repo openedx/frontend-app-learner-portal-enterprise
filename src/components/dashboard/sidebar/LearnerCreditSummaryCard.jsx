@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from '@edx/paragon';
+import { Badge } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import {
   LEARNER_CREDIT_ACTIVE_BADGE_LABEL,

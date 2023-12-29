@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Collapsible, Icon } from '@edx/paragon';
-import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
+import { Collapsible, Icon } from '@openedx/paragon';
+import { ExpandLess, ExpandMore } from '@openedx/paragon/icons';
 
 import PathwayNode from './PathwayNode';
 

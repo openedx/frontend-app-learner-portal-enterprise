@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
-import { CardGrid, Hyperlink } from '@edx/paragon';
+import { CardGrid, Hyperlink } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 

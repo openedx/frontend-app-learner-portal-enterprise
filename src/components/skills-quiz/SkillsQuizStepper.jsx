@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import {
   Button, Stepper, ModalDialog, Container, Form, Stack,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import algoliasearch from 'algoliasearch/lite';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';

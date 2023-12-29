@@ -5,7 +5,7 @@ import {
   useLocation, useParams, useHistory,
 } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';

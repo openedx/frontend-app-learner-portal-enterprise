@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 
 import PropTypes from 'prop-types';
-import { Button, Card, useToggle } from '@edx/paragon';
+import { Button, Card, useToggle } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';
 import { AppContext } from '@edx/frontend-platform/react';

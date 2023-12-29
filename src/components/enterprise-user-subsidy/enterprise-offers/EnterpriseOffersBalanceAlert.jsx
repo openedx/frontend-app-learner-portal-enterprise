@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { Container, Alert, MailtoLink } from '@edx/paragon';
-import { WarningFilled, Error } from '@edx/paragon/icons';
+import { Container, Alert, MailtoLink } from '@openedx/paragon';
+import { WarningFilled, Error } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 import {

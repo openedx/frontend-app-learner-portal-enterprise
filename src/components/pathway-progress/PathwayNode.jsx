@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card } from '@openedx/paragon';
 import { useParams } from 'react-router-dom';
 import capitalize from 'lodash.capitalize';
 

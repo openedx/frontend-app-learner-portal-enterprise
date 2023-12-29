@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const { createConfig } = require('@edx/frontend-build');
+const { createConfig } = require('@openedx/frontend-build');
 
 const config = createConfig('eslint', {
   extends: [
@@ -19,7 +19,7 @@ const config = createConfig('eslint', {
   rules: {
     // Temporarily update the 'indent' and 'template-curly-spacing' rules
     // since they are causing eslint to fail for no apparent reason since
-    // upgrading @edx/frontend-build from v3 to v5:
+    // upgrading @openedx/frontend-build from v3 to v5:
     //  - TypeError: Cannot read property 'range' of null
     indent: ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchCase'] }],
     'template-curly-spacing': 'off',

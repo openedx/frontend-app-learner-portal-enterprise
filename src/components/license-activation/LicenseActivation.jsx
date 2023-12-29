@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Redirect, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Alert, Container } from '@edx/paragon';
+import { Alert, Container } from '@openedx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 

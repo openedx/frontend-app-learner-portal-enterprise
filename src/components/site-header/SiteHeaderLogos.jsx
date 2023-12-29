@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useRouteMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
-import { Stack } from '@edx/paragon';
+import { Stack } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 

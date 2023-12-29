@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Breadcrumb } from '@edx/paragon';
+import { Breadcrumb } from '@openedx/paragon';
 
 import { useParams } from 'react-router-dom';
 import { PathwayProgressContext } from './PathwayProgressContextProvider';

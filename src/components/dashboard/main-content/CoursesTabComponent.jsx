@@ -6,7 +6,7 @@ import {
   Alert,
   MediaQuery,
   breakpoints,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { CourseEnrollmentsContextProvider } from './course-enrollments';
 import { MainContent, Sidebar } from '../../layout';

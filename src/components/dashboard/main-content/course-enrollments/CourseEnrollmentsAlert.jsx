@@ -1,6 +1,6 @@
 import React from 'react';
-import { Alert } from '@edx/paragon';
-import { WarningFilled, CheckCircle } from '@edx/paragon/icons';
+import { Alert } from '@openedx/paragon';
+import { WarningFilled, CheckCircle } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
 
 const iconByVariant = {

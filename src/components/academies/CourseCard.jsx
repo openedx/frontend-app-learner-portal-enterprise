@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CardGrid, Spinner } from '@edx/paragon';
+import { CardGrid, Spinner } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';

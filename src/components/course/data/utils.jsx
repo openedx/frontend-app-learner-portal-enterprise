@@ -1,7 +1,7 @@
 import React from 'react';
 import { ensureConfig, getConfig } from '@edx/frontend-platform';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
-import { Button, Hyperlink, MailtoLink } from '@edx/paragon';
+import { Button, Hyperlink, MailtoLink } from '@openedx/paragon';
 import isNil from 'lodash.isnil';
 import dayjs from '../../../utils/dayjs';
 

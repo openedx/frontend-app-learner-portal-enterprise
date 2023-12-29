@@ -9,7 +9,7 @@ import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetLi
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
   Button, Form, StatefulButton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { CURRENT_JOB_FACET, JOB_FILTERS } from '../skills-quiz/constants';
 import { patchProfile, fetchJobDetailsFromAlgolia } from './data/service';
 import { CURRENT_JOB_PROFILE_FIELD_NAME, SAVE_BUTTON_LABELS } from './data/constants';

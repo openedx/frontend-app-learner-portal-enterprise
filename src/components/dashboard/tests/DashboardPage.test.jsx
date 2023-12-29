@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { breakpoints } from '@edx/paragon';
+import { breakpoints } from '@openedx/paragon';
 import Cookies from 'universal-cookie';
 import userEvent from '@testing-library/user-event';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';

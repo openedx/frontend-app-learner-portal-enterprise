@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { breakpoints, ResponsiveContext } from '@edx/paragon';
+import { breakpoints, ResponsiveContext } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import CourseAbout from '../CourseAbout';

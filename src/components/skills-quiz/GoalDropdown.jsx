@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Dropdown } from '@edx/paragon';
+import { Dropdown } from '@openedx/paragon';
 import {
   DROPDOWN_OPTION_CHANGE_CAREERS, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_GET_PROMOTED,
   DROPDOWN_OPTION_OTHER, GOAL_DROPDOWN_DEFAULT_OPTION,

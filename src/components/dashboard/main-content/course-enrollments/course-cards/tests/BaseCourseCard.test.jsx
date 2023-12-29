@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Skeleton } from '@edx/paragon';
+import { Skeleton } from '@openedx/paragon';
 
 import dayjs from '../../../../../../utils/dayjs';
 import BaseCourseCard from '../BaseCourseCard';

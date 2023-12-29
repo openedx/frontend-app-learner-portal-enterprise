@@ -4,7 +4,7 @@ import {
   Container,
   Navbar,
   Dropdown,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';

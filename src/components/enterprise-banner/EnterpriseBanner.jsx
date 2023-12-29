@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, generatePath } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Button, Container } from '@edx/paragon';
+import { Button, Container } from '@openedx/paragon';
 import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
 
 import './styles/EnterpriseBanner.scss';

@@ -2,8 +2,8 @@ import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Container, Alert } from '@edx/paragon';
-import { Error } from '@edx/paragon/icons';
+import { Container, Alert } from '@openedx/paragon';
+import { Error } from '@openedx/paragon/icons';
 
 import { useRenderContactHelpText } from '../../utils/hooks';
 import {

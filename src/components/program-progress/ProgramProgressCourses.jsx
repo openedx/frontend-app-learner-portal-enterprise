@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   Form, Col, Row,
-} from '@edx/paragon';
-import { CheckCircle } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { CheckCircle } from '@openedx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert } from '@edx/paragon';
-import { Warning } from '@edx/paragon/icons';
+import { Alert } from '@openedx/paragon';
+import { Warning } from '@openedx/paragon/icons';
 import { getSearchErrorMessage } from '../utils/search';
 
 const SearchError = ({ title }) => {

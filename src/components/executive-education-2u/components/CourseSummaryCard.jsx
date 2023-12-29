@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import {
   Card, Image, Row, Col, Hyperlink,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 
 import { numberWithPrecision } from '../../course/data/utils';
 import { DATE_FORMAT, ZERO_PRICE } from '../../course/data/constants';

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { COUPON_CODE_EXPIRING_MODAL_TITLE } from './data/constants';

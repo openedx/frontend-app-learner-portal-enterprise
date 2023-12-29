@@ -5,7 +5,7 @@ import { mount } from 'enzyme';
 import ReactDOM from 'react-dom';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import { StatefulButton } from '@edx/paragon';
+import { StatefulButton } from '@openedx/paragon';
 
 import { fetchJobDetailsFromAlgolia, patchProfile } from '../data/service';
 import { renderWithRouter } from '../../../utils/tests';

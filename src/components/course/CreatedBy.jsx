@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Hyperlink } from '@edx/paragon';
+import { Hyperlink } from '@openedx/paragon';
 
 import { CourseContext } from './CourseContextProvider';
 import { useCoursePartners } from './data/hooks';

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { LoadingSpinner } from '../loading-spinner';
 import {

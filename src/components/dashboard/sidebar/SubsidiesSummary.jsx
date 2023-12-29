@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import PropTypes from 'prop-types';
-import { Button } from '@edx/paragon';
+import { Button } from '@openedx/paragon';
 import classNames from 'classnames';
 import CouponCodesSummaryCard from './CouponCodesSummaryCard';
 import SubscriptionSummaryCard from './SubscriptionSummaryCard';

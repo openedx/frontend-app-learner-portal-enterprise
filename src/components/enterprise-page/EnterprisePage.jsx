@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';

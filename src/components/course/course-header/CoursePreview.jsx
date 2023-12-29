@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { PlayCircleFilled } from '@edx/paragon/icons';
-import { useToggle, Image } from '@edx/paragon';
+import { PlayCircleFilled } from '@openedx/paragon/icons';
+import { useToggle, Image } from '@openedx/paragon';
 import { VideoPlayer } from '../../video';
 
 const CoursePreview = ({ previewImage, previewVideoURL }) => {

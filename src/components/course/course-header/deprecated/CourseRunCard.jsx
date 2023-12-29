@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
-import { Card } from '@edx/paragon';
+import { Card } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import EnrollAction from '../../enrollment/EnrollAction';

@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { defineMessages, useIntl, FormattedMessage } from '@edx/frontend-platform/i18n';
 import classNames from 'classnames';
-import { Dropdown } from '@edx/paragon';
+import { Dropdown } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useParams } from 'react-router-dom';

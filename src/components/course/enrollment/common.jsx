@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@edx/paragon';
+import { Button } from '@openedx/paragon';
 
 // Common UI components for enrollment to avoid duplication, consistent styling etc.
 // Each enroll component can use the EnrollButtonCta to render the enroll behavior

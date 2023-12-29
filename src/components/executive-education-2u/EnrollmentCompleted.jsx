@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Redirect, useLocation } from 'react-router-dom';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import CourseSummaryCard from './components/CourseSummaryCard';

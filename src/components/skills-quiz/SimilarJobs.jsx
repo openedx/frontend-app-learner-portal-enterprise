@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Hyperlink } from '@edx/paragon';
+import { Hyperlink } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { SearchContext, setRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from './SkillsContextProvider';

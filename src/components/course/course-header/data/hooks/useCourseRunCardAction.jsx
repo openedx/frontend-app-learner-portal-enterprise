@@ -1,4 +1,4 @@
-import { Stack, Button } from '@edx/paragon';
+import { Stack, Button } from '@openedx/paragon';
 
 import { useContext } from 'react';
 import StatefulEnroll from '../../../../stateful-enroll';
