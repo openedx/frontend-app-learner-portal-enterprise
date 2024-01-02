@@ -1,6 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import { StatefulButton } from '@edx/paragon';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { EmailSettingsModal } from '../EmailSettingsModal';
 import { updateEmailSettings } from '../data';
@@ -11,7 +10,7 @@ describe('<EmailSettingsModal />', () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = mount((
+    wrapper = render((
       <EmailSettingsModal
         onClose={() => {}}
         courseRunId="my+course+key"
@@ -23,28 +22,38 @@ describe('<EmailSettingsModal />', () => {
     // is initially `false` until the modal is opened, at which point it's
     // set to whatever the correct value is for that particular course run.
     // Setting the `hasEmailsEnabled` prop here simulates that behavior.
-    wrapper.setProps({
-      hasEmailsEnabled: true,
-    });
+    wrapper.rerender((
+      <EmailSettingsModal
+        onClose={() => {}}
+        courseRunId="my+course+key"
+        hasEmailsEnabled
+      />
+    ));
   });
 
   it('statefulbutton component state is initially set to default and disabled', () => {
-    const defaultState = 'default';
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual(defaultState);
-    expect(wrapper.find(StatefulButton).prop('disabledStates')).toContain(defaultState);
+    const buttonElement = screen.getAllByRole('button');
+
+    expect(buttonElement[buttonElement.length - 1].getAttribute('aria-disabled')).toEqual('true');
+    expect(buttonElement[buttonElement.length - 1].disabled).toEqual(false);
+    expect(screen.getByText('Save')).toBeTruthy();
   });
 
   it('statefulbutton component state is set to complete after click event', async () => {
     // Note: The following line is needed to properly resolve the
     // `updateEmailSettings` promise.
     const flushPromises = () => new Promise(setImmediate);
+    const buttonElement = screen.getAllByRole('button');
 
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual('default');
-    wrapper.find('input[type="checkbox"]').simulate('change', { target: { checked: false } });
-    wrapper.find(StatefulButton).simulate('click');
+    expect(screen.getByText('Save')).toBeTruthy();
+    expect(screen.queryByText('Saved')).toBeFalsy();
+
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(buttonElement[buttonElement.length - 1]);
     await flushPromises();
-    wrapper.update();
+
     expect(updateEmailSettings).toHaveBeenCalledTimes(1);
-    expect(wrapper.find(StatefulButton).prop('state')).toEqual('complete');
+    expect(screen.getByText('Saved')).toBeTruthy();
+    expect(screen.queryByText('Save')).toBeFalsy();
   });
 });

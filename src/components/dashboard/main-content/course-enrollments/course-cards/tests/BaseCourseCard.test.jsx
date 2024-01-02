@@ -1,8 +1,7 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Skeleton } from '@edx/paragon';
 
 import dayjs from '../../../../../../utils/dayjs';
 import BaseCourseCard from '../BaseCourseCard';
@@ -28,7 +27,7 @@ describe('<BaseCourseCard />', () => {
     beforeEach(() => {
       jest.clearAllMocks();
 
-      wrapper = mount((
+      wrapper = render((
         <AppContext.Provider value={{ enterpriseConfig }}>
           <BaseCourseCard
             type="completed"
@@ -40,14 +39,15 @@ describe('<BaseCourseCard />', () => {
         </AppContext.Provider>
       ));
       // open email settings modal
-      wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
-      wrapper.find('Dropdown').find('button.dropdown-item').simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeTruthy();
+      fireEvent.click(wrapper.container.querySelector('button.btn-icon'));
+      fireEvent.click(wrapper.container.querySelectorAll('button.dropdown-item')[0]);
+
+      expect(screen.getAllByText('Email settings')).toHaveLength(2);
     });
 
     it('test modal close/cancel', () => {
-      wrapper.find('EmailSettingsModal').find('.modal-footer .btn-link').first().simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeFalsy();
+      fireEvent.click(screen.getAllByText('Close')[1]);
+      expect(screen.getAllByText('Email settings')).toHaveLength(1);
     });
   });
 
@@ -57,7 +57,7 @@ describe('<BaseCourseCard />', () => {
     beforeEach(() => {
       jest.clearAllMocks();
 
-      wrapper = mount((
+      wrapper = render((
         <AppContext.Provider value={{ enterpriseConfig }}>
           <ToastsContext.Provider value={{ addToast: mockAddToast }}>
             <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
@@ -74,19 +74,19 @@ describe('<BaseCourseCard />', () => {
         </AppContext.Provider>
       ));
       // open unenroll modal
-      wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
-      wrapper.find('Dropdown').find('button.dropdown-item').at(1).simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').unenroll.open).toBeTruthy();
+      fireEvent.click(wrapper.container.querySelector('button.btn-icon'));
+      fireEvent.click(wrapper.container.querySelectorAll('button.dropdown-item')[1]);
+      expect(screen.getByText('Unenroll from course?')).toBeTruthy();
     });
 
     it('test modal close/cancel', () => {
-      wrapper.find('UnenrollModal').find('.btn-tertiary').simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').unenroll.open).toBeFalsy();
+      fireEvent.click(screen.getAllByText('Close')[1]);
+      expect(screen.queryByText('Unenroll from course?')).toBeFalsy();
     });
   });
 
   it('should render Skeleton if isLoading = true', () => {
-    wrapper = mount((
+    render((
       <AppContext.Provider value={{ enterpriseConfig }}>
         <BaseCourseCard
           type="completed"
@@ -99,7 +99,7 @@ describe('<BaseCourseCard />', () => {
       </AppContext.Provider>
     ));
 
-    expect(wrapper.find(Skeleton)).toBeTruthy();
+    expect(screen.getByText('Loading...')).toBeTruthy();
   });
 
   it('renders with different startDate values', () => {
@@ -113,7 +113,7 @@ describe('<BaseCourseCard />', () => {
       const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
       const isCourseStarted = dayjs(startDate) <= dayjs();
 
-      wrapper = mount((
+      wrapper = render((
         <AppContext.Provider value={{ enterpriseConfig }}>
           <BaseCourseCard
             type="in_progress"
@@ -131,12 +131,11 @@ describe('<BaseCourseCard />', () => {
         </AppContext.Provider>
       ));
 
-      const renderedStartDate = wrapper.instance().renderStartDate();
-      const expectedOutput = formattedStartDate && !isCourseStarted
-        ? <span className="font-weight-light">Starts {formattedStartDate}</span>
-        : null;
-
-      expect(renderedStartDate).toEqual(expectedOutput);
+      if (formattedStartDate && !isCourseStarted) {
+        expect(screen.getByText(`Starts ${formattedStartDate}`)).toBeTruthy();
+      } else {
+        expect(screen.queryByText(`Starts ${formattedStartDate}`)).toBeFalsy();
+      }
     });
   });
 
@@ -147,7 +146,7 @@ describe('<BaseCourseCard />', () => {
     const formattedEndDate = dayjs(endDate).format('MMMM Do, YYYY');
     const type = 'in_progress';
 
-    wrapper = mount((
+    wrapper = render((
       <AppContext.Provider value={{ enterpriseConfig }}>
         <BaseCourseCard
           type={type}
@@ -164,12 +163,11 @@ describe('<BaseCourseCard />', () => {
       </AppContext.Provider>
     ));
 
-    const renderedEndDate = wrapper.instance().renderEndDate();
-    const expectedOutput = formattedEndDate && dayjs(startDate) <= dayjs() && type !== 'completed'
-      ? <span className="font-weight-light">Ends {formattedEndDate}</span>
-      : null;
-
-    expect(renderedEndDate).toEqual(expectedOutput);
+    if (formattedEndDate && dayjs(startDate) <= dayjs() && type !== 'completed') {
+      expect(screen.getByText(`Ends ${formattedEndDate}`)).toBeTruthy();
+    } else {
+      expect(screen.queryByText(`Ends ${formattedEndDate}`)).toBeFalsy();
+    }
   });
 
   it('renders Enroll By Date if the user is not enrolled', () => {
@@ -178,7 +176,7 @@ describe('<BaseCourseCard />', () => {
     const formattedEnrollByDate = dayjs(enrollBy).format('MMMM Do, YYYY');
     const courseRunStatus = 'assigned';
 
-    wrapper = mount((
+    wrapper = render((
       <AppContext.Provider value={{ enterpriseConfig }}>
         <BaseCourseCard
           courseRunStatus={courseRunStatus}
@@ -191,11 +189,10 @@ describe('<BaseCourseCard />', () => {
       </AppContext.Provider>
     ));
 
-    const isNotEnrolled = wrapper.instance().renderEnrollByDate();
-    const expectedOutput = formattedEnrollByDate && courseRunStatus === 'assigned'
-      ? <span className="font-weight-light">Enroll by {formattedEnrollByDate}</span>
-      : null;
-
-    expect(isNotEnrolled).toEqual(expectedOutput);
+    if (formattedEnrollByDate && courseRunStatus === 'assigned') {
+      expect(screen.getByText(`Enroll by ${formattedEnrollByDate}`)).toBeTruthy();
+    } else {
+      expect(screen.queryByText(`Enroll by ${formattedEnrollByDate}`)).toBeFalsy();
+    }
   });
 });

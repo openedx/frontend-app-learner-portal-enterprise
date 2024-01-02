@@ -1,11 +1,9 @@
 import React, { useContext } from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import * as auth from '@edx/frontend-platform/auth';
-import { ErrorPage, AppContext } from '@edx/frontend-platform/react';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import EnterprisePage from './EnterprisePage';
-import { LoadingSpinner } from '../loading-spinner';
-import NotFoundPage from '../NotFoundPage';
 import * as hooks from './data/hooks';
 
 const mockUser = {
@@ -30,30 +28,30 @@ describe('<EnterprisePage />', () => {
       jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
       // mock hook as if async call to fetch enterprise config is still resolving
       jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [undefined, undefined]);
-      const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
-      expect(wrapper.find(LoadingSpinner)).toBeTruthy();
+      const wrapper = render(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+      expect(wrapper.container.querySelector('.loading-spinner')).toBeTruthy();
     });
     it('while hydrating user metadata', () => {
       jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => ({}));
       // mock hook as if async call to fetch enterprise config is fully resolved
       jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [{}, undefined]);
-      const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
-      expect(wrapper.find(LoadingSpinner)).toBeTruthy();
+      const wrapper = render(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+      expect(wrapper.container.querySelector('.loading-spinner')).toBeTruthy();
     });
   });
   it('renders error state when unable to fetch enterprise config', () => {
     jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
     // mock hook as if async call to fetch enterprise config is fully resolved
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error('test error')]);
-    const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
-    expect(wrapper.find(ErrorPage)).toBeTruthy();
+    render(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+    expect(screen.getByTestId('error-page')).toBeTruthy();
   });
   it('renders not found page when no enterprise config is found', () => {
     jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
     // mock hook as if async call to fetch enterprise config is fully resolved
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
-    expect(wrapper.find(NotFoundPage)).toBeTruthy();
+    render(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+    expect(screen.getByTestId('not-found-page')).toBeTruthy();
   });
   it('populates AppContext with expected values', () => {
     jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
@@ -63,10 +61,10 @@ describe('<EnterprisePage />', () => {
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [mockEnterpriseConfig, undefined]);
     const ChildComponent = () => {
       const contextValue = useContext(AppContext);
-      return <div className="did-i-render" data-contextvalue={contextValue} />;
+      return <div className="did-i-render" data-contextvalue={JSON.stringify(contextValue)} />;
     };
-    const wrapper = mount(<EnterprisePage><ChildComponent /></EnterprisePage>);
-    const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
+    const wrapper = render(<EnterprisePage><ChildComponent /></EnterprisePage>);
+    const actualContextValue = JSON.parse(wrapper.container.querySelector('.did-i-render').getAttribute('data-contextvalue'));
     expect(actualContextValue).toEqual(
       expect.objectContaining({
         authenticatedUser: mockUser,
