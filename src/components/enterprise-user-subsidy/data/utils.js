@@ -49,15 +49,20 @@ export const determineLearnerHasContentAssignmentsOnly = ({
   const hasActiveLicense = !!(subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED);
   const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
+  const autoAppliedPolicyTypes = [
+    POLICY_TYPES.PER_LEARNER_CREDIT,
+    POLICY_TYPES.PER_ENROLLMENT_CREDIT,
+  ];
   const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies?.redeemablePolicies.filter(
-    policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
+    policy => autoAppliedPolicyTypes.includes(policy.policyType),
   ).length > 0;
-  const hasAssignmentsForDisplay = !!(
-    redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAssignmentsForDisplay
+  const hasAllocatedOrAcceptedAssignments = !!(
+    redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAllocatedAssignments
+    || redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAcceptedAssignments
   );
 
   return (
-    hasAssignmentsForDisplay
+    hasAllocatedOrAcceptedAssignments
     && !hasCurrentEnterpriseOffers
     && !hasActiveLicenseOrLicenseRequest
     && !hasAssignedCodesOrCodeRequests
