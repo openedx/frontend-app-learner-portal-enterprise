@@ -1,4 +1,4 @@
-import { ASSIGNMENT_TYPES, ENTERPRISE_OFFER_TYPE, POLICY_TYPES } from '../constants';
+import { ENTERPRISE_OFFER_TYPE } from '../constants';
 import {
   getOfferType,
   isOfferLowOnBalance,
@@ -7,7 +7,6 @@ import {
   offerHasEnrollmentsLimit,
   transformEnterpriseOffer,
 } from '../utils';
-import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../../data/constants';
 
 describe('offerHasBookingsLimit', () => {
   test.each([

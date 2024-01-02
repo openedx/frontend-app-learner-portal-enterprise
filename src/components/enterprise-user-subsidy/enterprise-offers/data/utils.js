@@ -1,14 +1,12 @@
 import isNil from 'lodash.isnil';
+
 import {
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
-  POLICY_TYPES,
 } from './constants';
-
-import { LICENSE_STATUS } from '../../data/constants';
 
 export const offerHasBookingsLimit = offer => (
   !isNil(offer.maxDiscount) || !isNil(offer.maxUserDiscount)
