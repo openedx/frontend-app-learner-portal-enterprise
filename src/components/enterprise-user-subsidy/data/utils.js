@@ -46,7 +46,7 @@ export const determineLearnerHasContentAssignmentsOnly = ({
   redeemableLearnerCreditPolicies,
   hasCurrentEnterpriseOffers,
 }) => {
-  const hasActiveLicense = !!(subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED);
+  const hasActiveLicense = !!(subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED);
   const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
   const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies?.redeemablePolicies.filter(
