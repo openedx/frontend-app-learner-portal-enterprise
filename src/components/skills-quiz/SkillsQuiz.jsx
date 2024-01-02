@@ -26,7 +26,7 @@ const SkillsQuiz = () => {
                 {v1 ? (
                   <SkillsQuizStepper isStyleAutoSuggest={false} />
                 ) : (
-                  <SkillsQuizV2 isStyleAutoSuggest={true} />
+                  <SkillsQuizV2 isStyleAutoSuggest />
                 )}
               </SkillsContextProvider>
             </SearchData>

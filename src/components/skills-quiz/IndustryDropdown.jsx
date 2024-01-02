@@ -6,7 +6,9 @@ import { INDUSTRY_ATTRIBUTE_NAME, INDUSTRY_FACET } from './constants';
 
 const IndustryDropdown = ({ isStyleAutoSuggest, isStyleSearchBox }) => {
   const { refinements } = useContext(SearchContext);
-  const { title, attribute, typeaheadOptions, facetValueType } = INDUSTRY_FACET;
+  const {
+    title, attribute, typeaheadOptions, facetValueType,
+  } = INDUSTRY_FACET;
 
   return (
     <FacetListRefinement
@@ -34,6 +36,11 @@ const IndustryDropdown = ({ isStyleAutoSuggest, isStyleSearchBox }) => {
 IndustryDropdown.propTypes = {
   isStyleAutoSuggest: PropTypes.bool,
   isStyleSearchBox: PropTypes.bool,
+};
+
+IndustryDropdown.defaultProps = {
+  isStyleAutoSuggest: false,
+  isStyleSearchBox: false,
 };
 
 export default IndustryDropdown;

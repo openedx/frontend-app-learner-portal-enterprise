@@ -1,5 +1,6 @@
 /* eslint-disable object-curly-newline */
 import React, { useEffect, useState, useContext, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import {
   Button,
   Stepper,
@@ -55,7 +56,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const [searchClient, courseIndex, jobIndex] = useMemo(() => {
     const client = algoliasearch(
       config.ALGOLIA_APP_ID,
-      config.ALGOLIA_SEARCH_API_KEY
+      config.ALGOLIA_SEARCH_API_KEY,
     );
     const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
     const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
@@ -68,8 +69,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   ]);
   const [currentStep, setCurrentStep] = useState(STEP1);
   const [isStudentChecked, setIsStudentChecked] = useState(false);
-  const handleIsStudentCheckedChange = (e) =>
-    setIsStudentChecked(e.target.checked);
+  const handleIsStudentCheckedChange = (e) => setIsStudentChecked(e.target.checked);
 
   const {
     state: { selectedJob, goal, currentJobRole, interestedJobs },
@@ -82,19 +82,16 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const history = useHistory();
 
   const goalNotDefault = goal !== GOAL_DROPDOWN_DEFAULT_OPTION;
-  const goalExceptImproveAndJobSelected =
-    goalNotDefault && checkValidGoalAndJobSelected(goal, jobs, false);
-  const improveGoalAndCurrentJobSelected =
-    goalNotDefault && checkValidGoalAndJobSelected(goal, currentJob, true);
-  const canContinueToRecommendedCourses =
-    goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
+  const goalExceptImproveAndJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, jobs, false);
+  const improveGoalAndCurrentJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, currentJob, true);
+  const canContinueToRecommendedCourses = goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
 
   const closeSkillsQuiz = () => {
     history.push(`/${enterpriseConfig.slug}/search`);
     sendEnterpriseTrackEvent(
       enterpriseConfig.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',
-      { userId, enterprise: enterpriseConfig.slug }
+      { userId, enterprise: enterpriseConfig.slug },
     );
   };
 
@@ -105,13 +102,13 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
       // verify if selectedJob is still checked and within first 3 jobs else
       // set first job as selected by default to show courses.
       if (
-        jobs?.length > 0 &&
-        ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)
+        jobs?.length > 0
+        && ((selectedJob && !jobs?.includes(selectedJob)) || !selectedJob)
       ) {
         sendEnterpriseTrackEvent(
           enterpriseConfig.uuid,
           'edx.ui.enterprise.learner_portal.skills_quiz.continue.clicked',
-          { userId, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] }
+          { userId, enterprise: enterpriseConfig.slug, selectedJob: jobs[0] },
         );
         skillsDispatch({
           type: SET_KEY_VALUE,
@@ -128,7 +125,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
           userId,
           enterprise: enterpriseConfig.slug,
           selectedJob: currentJob[0],
-        }
+        },
       );
       skillsDispatch({
         type: SET_KEY_VALUE,
@@ -143,7 +140,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
     sendEnterpriseTrackEvent(
       enterpriseConfig.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.started',
-      { userId, enterprise: enterpriseConfig.slug }
+      { userId, enterprise: enterpriseConfig.slug },
     );
   }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
 
@@ -170,7 +167,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
         const response = await fetchCourseEnrollments();
         const enrolledCourses = camelCaseObject(response.data);
         const enrolledCourseIds = enrolledCourses.map(
-          (course) => course.courseDetails.courseId
+          (course) => course.courseDetails.courseId,
         );
         skillsDispatch({
           type: SET_KEY_VALUE,
@@ -197,7 +194,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
       >
         <ModalDialog.Hero className="bg-img">
           <ModalDialog.Hero.Background backgroundSrc={headerImage} />
-          <ModalDialog.Hero.Content style={{ maxWidth: "15rem" }}>
+          <ModalDialog.Hero.Content style={{ maxWidth: '15rem' }}>
             <SkillsQuizHeader />
           </ModalDialog.Hero.Content>
         </ModalDialog.Hero>
@@ -256,7 +253,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                             </p>
                             <div className="col col-8 p-0 mt-3">
                               <SearchJobDropdown
-                                isChip={true}
+                                isChip
                                 isStyleAutoSuggest={isStyleAutoSuggest}
                               />
                             </div>
@@ -291,8 +288,8 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                 </div>
                 <TopSkillsOverview index={jobIndex} />
                 <div>
-                  {(selectedJob ||
-                    goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
+                  {(selectedJob
+                    || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
                     <Stack gap={4}>
                       <SearchCourseCard index={courseIndex} />
                       <SearchProgramCard index={courseIndex} />
@@ -312,7 +309,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
             </Stepper.Step>
             <Stepper.Step
               eventKey="courses-with-skills"
-              title='Recommended Courses With Skills'
+              title="Recommended Courses With Skills"
             >
               <SkillsCourses index={courseIndex} />
             </Stepper.Step>
@@ -355,6 +352,14 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
       </ModalDialog>
     </Stepper>
   );
+};
+
+SkillsQuizStepper.propTypes = {
+  isStyleAutoSuggest: PropTypes.bool,
+};
+
+SkillsQuizStepper.defaultProps = {
+  isStyleAutoSuggest: false,
 };
 
 export default SkillsQuizStepper;

@@ -25,7 +25,7 @@ const SearchJobDropdown = ({
       searchable={!!typeaheadOptions}
       doRefinement={false}
       showBadge={false}
-      variant='default'
+      variant="default"
       isStyleAutoSuggest={isStyleAutoSuggest}
       isChip={isChip}
       isStyleSearchBox={isStyleSearchBox}
@@ -36,6 +36,12 @@ SearchJobDropdown.propTypes = {
   isStyleAutoSuggest: PropTypes.bool,
   isChip: PropTypes.bool,
   isStyleSearchBox: PropTypes.bool,
+};
+
+SearchJobDropdown.defaultProps = {
+  isStyleAutoSuggest: false,
+  isChip: false,
+  isStyleSearchBox: false,
 };
 
 export default SearchJobDropdown;

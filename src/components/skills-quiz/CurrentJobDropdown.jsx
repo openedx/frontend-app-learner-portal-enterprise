@@ -32,15 +32,21 @@ const CurrentJobDropdown = ({ isStyleAutoSuggest, isChip }) => {
       doRefinement={false}
       customAttribute={customAttribute}
       showBadge={false}
-      variant='default'
+      variant="default"
       isStyleAutoSuggest={isStyleAutoSuggest}
       isChip={isChip}
     />
   );
 };
+
 CurrentJobDropdown.propTypes = {
   isStyleAutoSuggest: PropTypes.bool,
   isChip: PropTypes.bool,
+};
+
+CurrentJobDropdown.defaultProps = {
+  isStyleAutoSuggest: false,
+  isChip: false,
 };
 
 export default CurrentJobDropdown;

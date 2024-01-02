@@ -1,20 +1,22 @@
-import { Helmet } from "react-helmet";
+import { Helmet } from 'react-helmet';
+import './styles/index.scss';
+import { AppContext } from '@edx/frontend-platform/react';
+import PropTypes from 'prop-types';
+import {
+  ModalDialog, useToggle, ActionRow, Button,
+} from '@edx/paragon';
+import { useHistory } from 'react-router-dom';
+import { useContext } from 'react';
 import {
   SKILL_BUILDER_TITLE,
   text,
   webTechBootCamps,
   closeModalText,
-} from "./constants";
-import SkillQuizForm from "./SkillsQuizForm";
-import "./styles/index.scss";
-import SkillsQuizHeader from "./SkillsQuizHeader";
-import ProgramCard from "./ProgramCard";
-import { AppContext } from "@edx/frontend-platform/react";
-import PropTypes from "prop-types";
-import { ModalDialog, useToggle, ActionRow, Button } from "@edx/paragon";
-import { useHistory } from "react-router-dom";
-import { useContext } from "react";
-import headerImage from "../skills-quiz/images/headerImage.png";
+} from './constants';
+import ProgramCard from './ProgramCard';
+import SkillsQuizHeader from './SkillsQuizHeader';
+import SkillQuizForm from './SkillsQuizForm';
+import headerImage from '../skills-quiz/images/headerImage.png';
 
 const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -30,7 +32,7 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
     <>
       <Helmet title={TITLE} />
       <ModalDialog
-        className={"modal-small"}
+        className="modal-small"
         title="Close Dialog"
         isOpen={isOpen}
         onClose={close}
@@ -42,7 +44,7 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
         </ModalDialog.Header>
         <ModalDialog.Body>
           <p className="text-justify">{closeModalText}</p>
-          <ActionRow className={"mt-4.5"}>
+          <ActionRow className="mt-4.5">
             <Button variant="tertiary" onClick={close}>
               Back to Skill Builder
             </Button>
@@ -62,7 +64,7 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
       >
         <ModalDialog.Hero className="md-img">
           <ModalDialog.Hero.Background backgroundSrc={headerImage} />
-          <ModalDialog.Hero.Content style={{ maxWidth: "15rem" }}>
+          <ModalDialog.Hero.Content style={{ maxWidth: '15rem' }}>
             <SkillsQuizHeader />
           </ModalDialog.Hero.Content>
         </ModalDialog.Hero>
@@ -91,6 +93,10 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
 
 SkillsQuizV2.propTypes = {
   isStyleAutoSuggest: PropTypes.bool,
+};
+
+SkillsQuizV2.defaultProps = {
+  isStyleAutoSuggest: false,
 };
 
 export default SkillsQuizV2;

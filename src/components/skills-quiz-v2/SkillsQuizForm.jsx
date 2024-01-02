@@ -1,15 +1,14 @@
-import { Button } from "@edx/paragon";
-import { useState } from "react";
-import SearchJobDropdown from "../skills-quiz/SearchJobDropdown";
-import { getConfig } from "@edx/frontend-platform/config";
-import algoliasearch from "algoliasearch/lite";
-import { InstantSearch } from "react-instantsearch-dom";
-import { useMemo } from "react";
-import CurrentJobDropdown from "../skills-quiz/CurrentJobDropdown";
-import IndustryDropdown from "../skills-quiz/IndustryDropdown";
-import GoalDropdown from "../skills-quiz/GoalDropdown";
-import SearchJobCard from "../skills-quiz/SearchJobCard";
-import PropTypes from "prop-types";
+import { Button } from '@edx/paragon';
+import { useState, useMemo } from 'react';
+import { getConfig } from '@edx/frontend-platform/config';
+import algoliasearch from 'algoliasearch/lite';
+import { InstantSearch } from 'react-instantsearch-dom';
+import PropTypes from 'prop-types';
+import SearchJobDropdown from '../skills-quiz/SearchJobDropdown';
+import CurrentJobDropdown from '../skills-quiz/CurrentJobDropdown';
+import IndustryDropdown from '../skills-quiz/IndustryDropdown';
+import GoalDropdown from '../skills-quiz/GoalDropdown';
+import SearchJobCard from '../skills-quiz/SearchJobCard';
 
 const SkillQuizForm = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
@@ -17,7 +16,7 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
   const [searchClient, courseIndex, jobIndex] = useMemo(() => {
     const client = algoliasearch(
       config.ALGOLIA_APP_ID,
-      config.ALGOLIA_SEARCH_API_KEY
+      config.ALGOLIA_SEARCH_API_KEY,
     );
     const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
     const jIndex = client.initIndex(config.ALGOLIA_INDEX_NAME_JOBS);
@@ -39,14 +38,14 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
         <p className="mt-4 font-weight-bold">
           What roles are you interested in ?
         </p>
-        <SearchJobDropdown key="search" isStyleSearchBox={true} isChip={true} />
+        <SearchJobDropdown key="search" isStyleSearchBox isChip />
         <Button
           variant="link"
           size="inline"
           className="mb-2 mb-sm-0 btn"
           onClick={() => setHide(!hide)}
         >
-          {!hide ? "Hide advanced options" : "Show advanced options"}
+          {!hide ? 'Hide advanced options' : 'Show advanced options'}
         </Button>
         {!hide && (
           <div>
@@ -65,10 +64,10 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
             <p className="mt-4 font-weight-bold">
               What industry are you interested in ?
             </p>
-            <IndustryDropdown key="industry" isStyleSearchBox={true} />
+            <IndustryDropdown key="industry" isStyleSearchBox />
           </div>
         )}
-        <SearchJobCard index={jobIndex} />
+        <SearchJobCard index={jobIndex} courseIndex={courseIndex} isSkillQuizV2 />
       </InstantSearch>
     </div>
   );
@@ -76,6 +75,10 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
 
 SkillQuizForm.propTypes = {
   isStyleAutoSuggest: PropTypes.bool,
+};
+
+SkillQuizForm.defaultProps = {
+  isStyleAutoSuggest: false,
 };
 
 export default SkillQuizForm;
