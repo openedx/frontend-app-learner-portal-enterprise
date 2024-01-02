@@ -1,6 +1,5 @@
 import isNil from 'lodash.isnil';
 import {
-  ASSIGNMENT_TYPES,
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
@@ -127,31 +126,44 @@ export const isDisableCourseSearch = (
   couponCodes,
 ) => {
   const {
-    redeemablePolicies,
-    learnerContentAssignments,
+    redeemablePolicies = [],
+    learnerContentAssignments = [],
   } = redeemableLearnerCreditPolicies || {};
-  const nonAssignablePolicyTypes = redeemablePolicies.filter(
+
+  // If there is a non-assignable policy type, we should NOT disable course search
+  const hasNonAssignablePolicies = redeemablePolicies.filter(
     item => item.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
+  ).length > 0;
+  if (hasNonAssignablePolicies) {
+    return false;
+  }
+
+  // If there is an active subscription plan and license, we should NOT disable course search
+  const hasActiveSubPlanAndLicense = !!(
+    subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED
   );
-  if (nonAssignablePolicyTypes.length > 0) {
+  if (hasActiveSubPlanAndLicense) {
     return false;
   }
-
-  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-  const hasCouponCodes = couponCodes.filter(code => !!code?.available).length > 0;
-  const allocatedOrAcceptedAssignments = learnerContentAssignments.assignments
-    .filter(item => [ASSIGNMENT_TYPES.ALLOCATED, ASSIGNMENT_TYPES.ACCEPTED].includes(item.state));
-  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
-
-  if (hasActiveSubPlan) {
-    return false;
-  }
+  // If there are coupon codes assigned and available, we should NOT disable course search
+  const hasCouponCodes = couponCodes.filter(code => code.available).length > 0;
   if (hasCouponCodes) {
     return false;
   }
-  if (allocatedOrAcceptedAssignments?.length === 0) {
+
+  // If there are no allocated or accepted assignments, we should NOT disable course search
+  const hasAllocatedOrAcceptedAssignments = (
+    learnerContentAssignments.hasAllocatedAssignments || learnerContentAssignments.hasAcceptedAssignments
+  );
+  if (!hasAllocatedOrAcceptedAssignments) {
     return false;
   }
 
-  return activeOffers?.length > 0 || allocatedOrAcceptedAssignments?.length > 0;
+  // If there are current offers, we should NOT disable course search
+  const hasCurrentOffers = !!enterpriseOffers?.filter(item => item.isCurrent).length > 0;
+  if (hasCurrentOffers) {
+    return false;
+  }
+
+  return true;
 };

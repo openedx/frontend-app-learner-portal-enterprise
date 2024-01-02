@@ -13,6 +13,7 @@ import {
   ENTERPRISE_OFFER_SUBSIDY_TYPE,
 } from '../data/constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -102,15 +103,7 @@ const SidebarWithContext = ({
       couponCodes: [{ discountValue: 90 }],
       couponCodesCount: 0,
     },
-    redeemableLearnerCreditPolicies: {
-      redeemablePolicies: [],
-      learnerContentAssignments: {
-        assignments: [],
-        hasAssignments: false,
-        activeAssignments: [],
-        hasActiveAssignments: false,
-      },
-    },
+    redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
   },
 }) => (
   <AppContext.Provider value={initialAppState}>

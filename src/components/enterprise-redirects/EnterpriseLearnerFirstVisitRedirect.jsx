@@ -14,7 +14,9 @@ export const isFirstDashboardPageVisit = () => {
 const EnterpriseLearnerFirstVisitRedirect = () => {
   const { enterpriseSlug } = useParams();
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const hasActiveContentAssignments = !!redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments;
+  const hasAssignmentsForDisplay = (
+    !!redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAssignmentsForDisplay
+  );
 
   useEffect(() => {
     const cookies = new Cookies();
@@ -24,7 +26,7 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
     }
   }, []);
 
-  if (!hasActiveContentAssignments && isFirstDashboardPageVisit()) {
+  if (!hasAssignmentsForDisplay && isFirstDashboardPageVisit()) {
     return <Redirect to={`/${enterpriseSlug}/search`} />;
   }
 

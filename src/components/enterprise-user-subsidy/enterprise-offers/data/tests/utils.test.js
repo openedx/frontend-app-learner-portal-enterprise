@@ -8,7 +8,7 @@ import {
   offerHasEnrollmentsLimit,
   transformEnterpriseOffer,
 } from '../utils';
-import { LICENSE_STATUS } from '../../../data/constants';
+import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../../data/constants';
 
 describe('offerHasBookingsLimit', () => {
   test.each([
@@ -337,134 +337,14 @@ describe('transformEnterpriseOffer', () => {
 
 describe('isDisableCourseSearch', () => {
   it.each([
-    {
-      isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [
-          {
-            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
-            learnerContentAssignments: [
-              { state: ASSIGNMENT_TYPES.ALLOCATED },
-            ],
-          },
-        ],
-        learnerContentAssignments: {
-          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasAssignments: true,
-          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasActiveAssignments: true,
-        },
-      },
-      enterpriseOffers: [{
-        isCurrent: true,
-      }],
-      subscriptionPlan: {
-        isActive: true,
-      },
-      subscriptionLicenses: {
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      couponCodes: [],
-    },
-    {
-      isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [
-          {
-            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
-            learnerContentAssignments: [
-              { state: ASSIGNMENT_TYPES.ALLOCATED },
-            ],
-          },
-          {
-            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-            learnerContentAssignments: [],
-          },
-          {
-            policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
-            learnerContentAssignments: [],
-          },
-        ],
-        learnerContentAssignments: {
-          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasAssignments: true,
-          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasActiveAssignments: true,
-        },
-      },
-      enterpriseOffers: [{
-        isCurrent: true,
-      }],
-      subscriptionPlan: {
-        isActive: false,
-      },
-      subscriptionLicenses: {
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      couponCodes: [],
-    },
-    {
-      isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [
-          {
-            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-            learnerContentAssignments: [],
-          },
-          {
-            policyType: POLICY_TYPES.PER_ENROLLMENT_CREDIT,
-            learnerContentAssignments: [],
-          },
-        ],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
-      enterpriseOffers: [{
-        isCurrent: true,
-      }],
-      subscriptionPlan: {
-        isActive: false,
-      },
-      subscriptionLicenses: {
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      couponCodes: [],
-    },
-    {
-      isCourseSearchDisabled: false,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [
-          {
-            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
-            learnerContentAssignments: [
-              { state: ASSIGNMENT_TYPES.ALLOCATED },
-            ],
-          },
-        ],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
-      enterpriseOffers: [{
-        isCurrent: true,
-      }],
-      subscriptionPlan: {
-        isActive: false,
-      },
-      subscriptionLicenses: {
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      couponCodes: [
-        { available: true },
-      ],
-    },
+    /**
+     * - `isCourseSearchDisabled`: true
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has no other redeemable policies (auto-applied)
+     * - Has no enterprise offer
+     * - Has no active subscription plan and/or activated license
+     * - Has no coupon codes
+     */
     {
       isCourseSearchDisabled: true,
       redeemableLearnerCreditPolicies: {
@@ -477,45 +357,13 @@ describe('isDisableCourseSearch', () => {
           },
         ],
         learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
           assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
           hasAssignments: true,
-          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasActiveAssignments: true,
-        },
-      },
-      enterpriseOffers: [{
-        isCurrent: true,
-      }],
-      subscriptionPlan: {
-        isActive: false,
-      },
-      subscriptionLicenses: {
-        status: LICENSE_STATUS.ACTIVATED,
-      },
-      couponCodes: [],
-    },
-    {
-      isCourseSearchDisabled: true,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [
-          {
-            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
-            learnerContentAssignments: [
-              { state: ASSIGNMENT_TYPES.ACCEPTED },
-            ],
-          },
-          {
-            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
-            learnerContentAssignments: [
-              { state: ASSIGNMENT_TYPES.ALLOCATED },
-            ],
-          },
-        ],
-        learnerContentAssignments: {
-          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasAssignments: true,
-          activeAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
-          hasActiveAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
         },
       },
       enterpriseOffers: [{
@@ -524,24 +372,259 @@ describe('isDisableCourseSearch', () => {
       subscriptionPlan: {
         isActive: false,
       },
-      subscriptionLicenses: {
+      subscriptionLicense: undefined,
+      couponCodes: [],
+    },
+    /**
+     * - `isCourseSearchDisabled`: false
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has another auto-applied redeemable policy
+     * - Has no enterprise offer
+     * - Has no active subscription plan and/or activated license
+     * - Has no coupon codes
+     */
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+          {
+            policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
+          },
+        ],
+        learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicense: undefined,
+      couponCodes: [],
+    },
+    /**
+     * - `isCourseSearchDisabled`: false
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has no other redeemable policies (auto-applied)
+     * - Has current enterprise offer
+     * - Has no active subscription plan and/or activated license
+     * - Has no coupon codes
+     */
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: true,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicense: undefined,
+      couponCodes: [],
+    },
+    /**
+     * - `isCourseSearchDisabled`: true
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has no other redeemable policies (auto-applied)
+     * - Has no enterprise offer
+     * - Has active subscription plan (with no activated license)
+     * - Has no coupon codes
+     */
+    {
+      isCourseSearchDisabled: true,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: true,
+      },
+      subscriptionLicense: undefined,
+      couponCodes: [],
+    },
+    /**
+     * - `isCourseSearchDisabled`: true
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has no other redeemable policies (auto-applied)
+     * - Has no enterprise offer
+     * - Has inactive subscription plan (with activated license)
+     * - Has no coupon codes
+     */
+    {
+      isCourseSearchDisabled: true,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicense: {
         status: LICENSE_STATUS.ACTIVATED,
       },
       couponCodes: [],
+    },
+    /**
+     * - `isCourseSearchDisabled`: false
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has no other redeemable policies (auto-applied)
+     * - Has no enterprise offer
+     * - Has active subscription plan (with activated license)
+     * - Has no coupon codes
+     */
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: true,
+      },
+      subscriptionLicense: {
+        status: LICENSE_STATUS.ACTIVATED,
+      },
+      couponCodes: [],
+    },
+    /**
+     * - `isCourseSearchDisabled`: false
+     * - Has assignable redeemable policy with allocated assignment
+     * - Has no other redeemable policies (auto-applied)
+     * - Has no enterprise offer
+     * - Has no active subscription plan and/or activated license
+     * - Has available coupon codes
+     */
+    {
+      isCourseSearchDisabled: false,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [
+          {
+            policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            learnerContentAssignments: [
+              { state: ASSIGNMENT_TYPES.ALLOCATED },
+            ],
+          },
+        ],
+        learnerContentAssignments: {
+          ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+          assignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignments: true,
+          allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAllocatedAssignments: true,
+          assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+          hasAssignmentsForDisplay: true,
+        },
+      },
+      enterpriseOffers: [{
+        isCurrent: false,
+      }],
+      subscriptionPlan: {
+        isActive: false,
+      },
+      subscriptionLicense: undefined,
+      couponCodes: [{
+        available: true,
+      }],
     },
   ])('isCourseSearchDisabled - (%p), (%s)', ({
     isCourseSearchDisabled,
     redeemableLearnerCreditPolicies,
     enterpriseOffers,
     subscriptionPlan,
-    subscriptionLicenses,
+    subscriptionLicense,
     couponCodes,
   }) => {
     const isDisableSearch = isDisableCourseSearch(
       redeemableLearnerCreditPolicies,
       enterpriseOffers,
       subscriptionPlan,
-      subscriptionLicenses,
+      subscriptionLicense,
       couponCodes,
     );
     expect(isDisableSearch).toEqual(isCourseSearchDisabled);

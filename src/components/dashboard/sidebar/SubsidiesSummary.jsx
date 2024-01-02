@@ -1,6 +1,4 @@
-import React, {
-  useContext, useEffect, useMemo, useState,
-} from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -17,7 +15,7 @@ import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
-import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
@@ -85,28 +83,16 @@ const SubsidiesSummary = ({
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
   );
-  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies
-    .filter(policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT).length > 0;
 
-  const [assignmentOnlyLearner, setAssignmentOnlyLearner] = useState(false);
-  useEffect(() => {
-    const hasActiveAssignments = redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments;
-    if (
-      hasActiveAssignments
-      && !hasActiveLicenseOrLicenseRequest
-      && !hasAssignedCodesOrCodeRequests
-      && !hasCurrentEnterpriseOffers
-      && !hasAutoAppliedLearnerCreditPolicies
-    ) {
-      setAssignmentOnlyLearner(true);
-    }
-  }, [
+  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
+    subscriptionPlan,
+    subscriptionLicense: userSubscriptionLicense,
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
     redeemableLearnerCreditPolicies,
     hasCurrentEnterpriseOffers,
-    hasAssignedCodesOrCodeRequests,
-    hasActiveLicenseOrLicenseRequest,
-    hasAutoAppliedLearnerCreditPolicies,
-  ]);
+  });
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
@@ -155,12 +141,14 @@ const SubsidiesSummary = ({
           <LearnerCreditSummaryCard
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
-            assignmentOnlyLearner={assignmentOnlyLearner}
+            assignmentOnlyLearner={isAssignmentOnlyLearner}
           />
         )}
       </div>
-      {(searchCoursesCta && !assignmentOnlyLearner) && (
-        <SidebarCard cardClassNames="border-0 shadow-none">
+      {(searchCoursesCta && !isAssignmentOnlyLearner) && (
+        <SidebarCard
+          cardClassNames="border-0 shadow-none"
+        >
           {searchCoursesCta}
         </SidebarCard>
       )}

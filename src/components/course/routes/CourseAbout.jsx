@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import {
   breakpoints, Container, MediaQuery, Row,
 } from '@edx/paragon';
-
 import { AppContext } from '@edx/frontend-platform/react';
 import { Redirect } from 'react-router-dom';
+
 import { MainContent, Sidebar } from '../../layout';
 import CourseHeader from '../course-header/CourseHeader';
 import CourseMainContent from '../CourseMainContent';
@@ -33,7 +33,7 @@ const CourseAbout = () => {
   } = useContext(UserSubsidyContext);
 
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
-  const hideCourseSearch = isDisableCourseSearch(
+  const isCourseSearchDisabled = isDisableCourseSearch(
     redeemableLearnerCreditPolicies,
     enterpriseOffers,
     subscriptionPlan,
@@ -41,10 +41,16 @@ const CourseAbout = () => {
     couponCodes.couponCodes,
   );
 
-  const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
-  if (!isCourseAssigned && featuredHideCourseSearch) {
+  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
+  if (!isCourseAssigned && featuredIsCourseSearchDisabled) {
     return <Redirect to={`/${enterpriseConfig.slug}`} />;
   }
+
+  const shouldShowCourseRecommendations = (
+    !canOnlyViewHighlightSets
+    && !enterpriseConfig.disableSearch
+    && !featuredIsCourseSearchDisabled
+  );
 
   return (
     <>
@@ -61,8 +67,7 @@ const CourseAbout = () => {
               </Sidebar>
             )}
           </MediaQuery>
-          {(canOnlyViewHighlightSets === false
-            && !enterpriseConfig.disableSearch && !featuredHideCourseSearch) && <CourseRecommendations />}
+          {shouldShowCourseRecommendations && <CourseRecommendations />}
         </Row>
       </Container>
     </>

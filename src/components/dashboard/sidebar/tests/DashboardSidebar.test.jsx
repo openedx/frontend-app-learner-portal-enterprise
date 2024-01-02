@@ -18,7 +18,7 @@ import {
   NEED_HELP_BLOCK_TITLE,
   SUBSCRIPTION_SUMMARY_CARD_TITLE,
 } from '../data/constants';
-import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
@@ -238,12 +238,7 @@ describe('<DashboardSidebar />', () => {
               subsidyExpirationDate: '2030-01-01 12:00:00Z',
               active: true,
             }],
-            learnerContentAssignments: {
-              assignments: [],
-              hasAssignments: false,
-              activeAssignments: [],
-              hasActiveAssignments: false,
-            },
+            learnerContentAssignments: emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
           },
         }}
       />,
@@ -265,12 +260,7 @@ describe('<DashboardSidebar />', () => {
               subsidyExpirationDate: policyExpirationDate,
               active: true,
             }],
-            learnerContentAssignments: {
-              assignments: [],
-              hasAssignments: false,
-              activeAssignments: [],
-              hasActiveAssignments: false,
-            },
+            learnerContentAssignments: emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
           },
           enterpriseOffers: [{
             uuid: 'enterprise-offer-id',

@@ -9,6 +9,7 @@ import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -73,15 +74,7 @@ const baseAppContextValue = {
 };
 
 const baseUserSubsidyContextValue = {
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 
 const ExternalCourseEnrollmentWrapper = ({

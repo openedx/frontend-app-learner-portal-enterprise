@@ -29,7 +29,7 @@ const CategoryCard = ({ topCategory }) => {
     subscriptionLicense,
     couponCodes,
   } = useContext(UserSubsidyContext);
-  const hideCourseSearch = isDisableCourseSearch(
+  const isCourseSearchDisabled = isDisableCourseSearch(
     redeemableLearnerCreditPolicies,
     enterpriseOffers,
     subscriptionPlan,
@@ -37,7 +37,7 @@ const CategoryCard = ({ topCategory }) => {
     couponCodes.couponCodes,
   );
 
-  const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
+  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
 
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
@@ -167,7 +167,7 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      {(!enterpriseConfig.disableSearch && !featuredHideCourseSearch) && (
+      {(!enterpriseConfig.disableSearch && !featuredIsCourseSearchDisabled) && (
         <Card.Section>
           {showSkills && subcategorySkills && (
             <div className="skill-details-recommended-courses">

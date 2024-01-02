@@ -7,6 +7,7 @@ import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../utils/tests';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
   <div data-testid="course-header" />
@@ -53,15 +54,7 @@ const appContextValues = {
 };
 
 const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
   enterpriseOffers: [],
   subscriptionPlan: {},
   subscriptionLicense: {},

@@ -20,6 +20,7 @@ import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests'
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
@@ -104,15 +105,7 @@ hooks.useCourseEnrollmentsBySection.mockReturnValue({
 });
 
 const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 
 const CourseEnrollmentsWrapper = () => (

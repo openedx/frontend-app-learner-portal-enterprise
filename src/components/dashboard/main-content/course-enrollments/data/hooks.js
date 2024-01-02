@@ -261,6 +261,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     const {
       allocatedAssignments,
       canceledAssignments,
+      assignmentsForDisplay,
     } = redeemableLearnerCreditPolicies.learnerContentAssignments;
 
     const lastCanceledAlertDismissedTime = global.localStorage.getItem(
@@ -270,7 +271,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
       LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
     );
 
-    const assignmentsForDisplay = [...allocatedAssignments, ...canceledAssignments].filter((assignment) => {
+    const filteredAssignmentsForDisplay = assignmentsForDisplay.filter((assignment) => {
       // Filter out already-dismissed canceled assignments
       if (lastCanceledAlertDismissedTime) {
         const { isCanceled, hasDismissedCancelation } = isCanceledAssignmentAcknowledged(assignment);
@@ -292,7 +293,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     });
 
     // Sort and transform the list of assignments for display.
-    const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
+    const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(filteredAssignmentsForDisplay);
     const transformedAssignmentsForDisplay = getTransformedAllocatedAssignments(
       sortedAssignmentsForDisplay,
       enterpriseSlug,

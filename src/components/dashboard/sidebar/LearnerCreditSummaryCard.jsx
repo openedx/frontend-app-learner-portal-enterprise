@@ -12,7 +12,9 @@ import {
 import SidebarCard from './SidebarCard';
 
 const LearnerCreditSummaryCard = ({
-  className, expirationDate, assignmentOnlyLearner,
+  className,
+  expirationDate,
+  assignmentOnlyLearner,
 }) => (
   <SidebarCard
     title={
