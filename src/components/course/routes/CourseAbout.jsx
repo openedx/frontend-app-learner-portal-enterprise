@@ -12,9 +12,10 @@ import CourseSidebar from '../CourseSidebar';
 import CourseRecommendations from '../CourseRecommendations';
 import { CourseContext } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { isDisableCourseSearch } from '../../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { useIsCourseAssigned } from '../data/hooks';
 import { features } from '../../../config';
+import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const CourseAbout = () => {
   const {
@@ -26,30 +27,36 @@ const CourseAbout = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     redeemableLearnerCreditPolicies,
-    enterpriseOffers,
+    hasCurrentEnterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes,
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
-
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
-  const isCourseSearchDisabled = isDisableCourseSearch(
-    redeemableLearnerCreditPolicies,
-    enterpriseOffers,
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
+
+  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
+  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
+
+  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes.couponCodes,
-  );
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
+  });
 
-  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
-  if (!isCourseAssigned && featuredIsCourseSearchDisabled) {
+  const featuredIsAssignmentOnlyLearner = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isAssignmentOnlyLearner;
+  if (!isCourseAssigned && featuredIsAssignmentOnlyLearner) {
     return <Redirect to={`/${enterpriseConfig.slug}`} />;
   }
 
   const shouldShowCourseRecommendations = (
     !canOnlyViewHighlightSets
     && !enterpriseConfig.disableSearch
-    && !featuredIsCourseSearchDisabled
+    && !featuredIsAssignmentOnlyLearner
   );
 
   return (

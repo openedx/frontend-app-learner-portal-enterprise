@@ -8,6 +8,7 @@ import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../utils/tests';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
   <div data-testid="course-header" />
@@ -63,18 +64,27 @@ const initialUserSubsidyState = {
   },
 };
 
+const defaultSubsidyRequestsContextValue = {
+  requestsBySubsidyType: {
+    [SUBSIDY_TYPE.LICENSE]: [],
+    [SUBSIDY_TYPE.COUPON]: [],
+  },
+};
+
 const CourseAboutWrapper = ({
   responsiveContextValue = { width: breakpoints.extraLarge.minWidth },
   courseContextValue = baseCourseContextValue,
   initialAppState = appContextValues,
-
+  subsidyRequestsContextValue = defaultSubsidyRequestsContextValue,
 }) => (
   <ResponsiveContext.Provider value={responsiveContextValue}>
     <AppContext.Provider value={initialAppState}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <CourseContext.Provider value={courseContextValue}>
-          <CourseAbout />
-        </CourseContext.Provider>
+        <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
+          <CourseContext.Provider value={courseContextValue}>
+            <CourseAbout />
+          </CourseContext.Provider>
+        </SubsidyRequestsContext.Provider>
       </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </ResponsiveContext.Provider>

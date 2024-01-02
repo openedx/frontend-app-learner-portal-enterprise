@@ -1545,20 +1545,21 @@ describe('useMinimalCourseMetadata', () => {
 describe('useIsCourseAssigned', () => {
   const mockContentKey = 'edX+DemoX';
 
-  it('should return false if there are no active assignments', () => {
+  it('should return false if there are no allocated assignments', () => {
     const learnerContentAssignments = {
-      hasAssignments: false,
+      hasAllocatedAssignments: false,
     };
     const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments));
     expect(result.current).toEqual(false);
   });
 
-  it('should return false if there is NO matching assignment to the course key', () => {
+  it('should return false if there is NO matching allocated assignment to the course key', () => {
     const learnerContentAssignments = {
-      hasAssignments: true,
-      assignments: [
+      hasAllocatedAssignments: true,
+      allocatedAssignments: [
         {
           contentKey: mockContentKey,
+          state: 'allocated',
         },
       ],
     };
@@ -1568,8 +1569,10 @@ describe('useIsCourseAssigned', () => {
 
   it('should return false if matching assignment(s) are canceled', () => {
     const learnerContentAssignments = {
-      hasAssignments: true,
-      assignments: [
+      hasAllocatedAssignments: false,
+      allocatedAssignments: [],
+      hasCanceledAssignments: true,
+      canceledAssignments: [
         {
           contentKey: mockContentKey,
           state: 'cancelled',

@@ -61,9 +61,7 @@ const SubsidiesSummary = ({
     redeemableLearnerCreditPolicies,
   });
 
-  const {
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
 
   // if there are course enrollments, the cta button below will be the only one on the page
   const ctaButtonVariant = useMemo(
@@ -146,9 +144,7 @@ const SubsidiesSummary = ({
         )}
       </div>
       {(searchCoursesCta && !isAssignmentOnlyLearner) && (
-        <SidebarCard
-          cardClassNames="border-0 shadow-none"
-        >
+        <SidebarCard cardClassNames="border-0 shadow-none">
           {searchCoursesCta}
         </SidebarCard>
       )}

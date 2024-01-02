@@ -34,7 +34,7 @@ const LearnerCreditSummaryCard = ({
     cardClassNames={className}
   >
     <p data-testid="learner-credit-summary-text">
-      { assignmentOnlyLearner ? LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY : LEARNER_CREDIT_CARD_SUMMARY }
+      {assignmentOnlyLearner ? LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY : LEARNER_CREDIT_CARD_SUMMARY}
     </p>
 
     {expirationDate && (
