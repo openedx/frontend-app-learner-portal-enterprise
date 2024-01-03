@@ -38,9 +38,8 @@ import PathwayModal from '../pathway/PathwayModal';
 import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
-import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
-import { POLICY_TYPES } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
+import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
 
 const Search = () => {
   const config = getConfig();
@@ -106,36 +105,26 @@ const Search = () => {
 
   const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
 
-  // Determine whether learner has only content assignments available to them, based on the presence of:
-  // - active content assignments
-  // - no auto-applied budgets
-  // - no current enterprise offers
-  // - no active license or license requests
-  // - no assigned codes or code requests
-  const hasActiveLicense = subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-  const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.filter(
-    policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
-  ).length > 0;
-  const hasContentAssignmentsOnly = !!(
-    redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments
-    && !hasCurrentEnterpriseOffers
-    && !hasActiveLicenseOrLicenseRequest
-    && !hasAssignedCodesOrCodeRequests
-    && !hasAutoAppliedLearnerCreditPolicies
-  );
+  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
+    subscriptionPlan,
+    subscriptionLicense,
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
+  });
 
   useEffect(() => {
-    if (hasContentAssignmentsOnly) {
+    if (isAssignmentOnlyLearner) {
       hideRecommendCourses();
     } else {
       showRecommendCourses();
     }
-  }, [showRecommendCourses, hideRecommendCourses, hasContentAssignmentsOnly]);
+  }, [showRecommendCourses, hideRecommendCourses, isAssignmentOnlyLearner]);
 
   // If learner only has content assignments available, show the assignments-only empty state.
-  if (hasContentAssignmentsOnly) {
+  if (isAssignmentOnlyLearner) {
     return (
       <>
         <Helmet title={PAGE_TITLE} />

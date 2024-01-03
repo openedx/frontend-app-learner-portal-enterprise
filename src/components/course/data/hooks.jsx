@@ -47,7 +47,6 @@ import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
-import { ASSIGNMENT_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -851,17 +850,19 @@ export const useExternalEnrollmentFailureReason = () => {
   ]);
 };
 
+/**
+ * Checks if a course is assigned to a learner based on their allocated content assignments.
+ *
+ * @param {Object} learnerContentAssignments - The content assignments of the learner.
+ * @param {string} courseKey - The key of the course to check.
+ * @returns {boolean} - Returns true if the course is assigned to the learner, false otherwise.
+ */
 export const useIsCourseAssigned = (learnerContentAssignments, courseKey) => {
-  if (!learnerContentAssignments.hasActiveAssignments) {
+  if (!learnerContentAssignments.hasAllocatedAssignments) {
     return false;
   }
-  const isCourseAssigned = learnerContentAssignments.activeAssignments.some(
-    (assignment) => {
-      const isCourseKeyMatching = assignment.contentKey === courseKey;
-      const isAssignmentCanceled = assignment.state === ASSIGNMENT_TYPES.CANCELED;
-      return isCourseKeyMatching && !isAssignmentCanceled;
-    },
+  const isCourseAssigned = learnerContentAssignments.allocatedAssignments.some(
+    (assignment) => assignment.contentKey === courseKey,
   );
-
   return isCourseAssigned;
 };

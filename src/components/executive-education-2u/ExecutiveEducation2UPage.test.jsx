@@ -14,6 +14,7 @@ import {
 import { CURRENCY_USD, PAID_EXECUTIVE_EDUCATION } from '../course/data/constants';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { CourseContext } from '../course/CourseContextProvider';
+import { emptyRedeemableLearnerCreditPolicies } from '../enterprise-user-subsidy/data/constants';
 
 const mockReceiptPageUrl = 'https://edx.org';
 const courseTitle = 'edX Demonstration Course';
@@ -136,15 +137,7 @@ const ExecutiveEducation2UPageWrapper = ({
       couponCodes: [{ discountValue: 90 }],
       couponCodesCount: 0,
     },
-    redeemableLearnerCreditPolicies: {
-      redeemablePolicies: [],
-      learnerContentAssignments: {
-        assignments: [],
-        hasAssignments: false,
-        activeAssignments: [],
-        hasActiveAssignments: false,
-      },
-    },
+    redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
   },
 }) => (
   <IntlProvider locale="en">

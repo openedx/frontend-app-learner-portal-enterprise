@@ -21,7 +21,7 @@ import DashboardPage from '../DashboardPage';
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
@@ -84,16 +84,14 @@ const defaultUserSubsidyState = {
       ],
     }],
     learnerContentAssignments: {
+      ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
       assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
       hasAssignments: true,
       allocatedAssignments: [{ state: 'allocated' }],
       hasAllocatedAssignments: true,
       canceledAssignments: [{ state: 'cancelled' }],
-      hasCanceledAssignments: true,
-      acceptedAssignments: [],
-      hasAcceptedAssignments: false,
-      erroredAssignments: [],
-      hasErroredAssignments: false,
+      assignmentsForDisplay: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasAssignmentsForDisplay: true,
     },
   },
 };
@@ -393,15 +391,7 @@ describe('<Dashboard />', () => {
   it('should render redirect component if no cookie and no courseAssignments exist', () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     };
     renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
     expect(screen.queryByText('enterprise-learner-first-visit-redirect')).toBeTruthy();

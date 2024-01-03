@@ -16,6 +16,7 @@ import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 import { ASSIGNMENT_ACTION_TYPES, ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -316,24 +317,11 @@ describe('useContentAssignments', () => {
       {children}
     </AppContext.Provider>
   );
-  const mockRedeemableLearnerCreditPolicies = {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      allocatedAssignments: [],
-      hasAllocatedAssignments: false,
-      canceledAssignments: [],
-      hasCanceledAssignments: false,
-      acceptedAssignments: [],
-      hasAcceptedAssignments: false,
-      erroredAssignments: [],
-      hasErroredAssignments: false,
-    },
-  };
+  const mockRedeemableLearnerCreditPolicies = emptyRedeemableLearnerCreditPolicies;
   const mockAssignment = {
     contentKey: 'edX+DemoX',
     contentTitle: 'edX Demo Course',
+    subsidyExpirationDate: dayjs().add(1, 'w').toISOString(),
     contentMetadata: {
       enrollByDate: dayjs().add(1, 'd').toISOString(),
       partners: [{ name: 'Test Partner' }],
@@ -377,6 +365,8 @@ describe('useContentAssignments', () => {
       hasCanceledAssignments: true,
       acceptedAssignments: [mockAcceptedAssignment],
       hasAcceptedAssignments: true,
+      assignmentsForDisplay: [mockAllocatedAssignment, mockCanceledAssignment],
+      hasAssignmentsForDisplay: true,
     },
   };
 
@@ -454,8 +444,9 @@ describe('useContentAssignments', () => {
       learnerContentAssignments: {
         ...mockPoliciesWithAssignments.learnerContentAssignments,
         allocatedAssignments: [mockAllocatedAssignment, mockAllocatedExpiredAssignment],
-        canceledAssignments: [],
-        hasCanceledAssignments: false,
+        hasAllocatedAssignments: true,
+        assignmentsForDisplay: [mockAllocatedAssignment, mockAllocatedExpiredAssignment],
+        hasAssignmentsForDisplay: true,
       },
     };
     if (hasDismissedExpiredAssignmentsAlert) {

@@ -10,8 +10,9 @@ import { AppContext } from '@edx/frontend-platform/react';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { isDisableCourseSearch } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { features } from '../../config';
+import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -24,20 +25,25 @@ const CategoryCard = ({ topCategory }) => {
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
   const {
     redeemableLearnerCreditPolicies,
-    enterpriseOffers,
+    hasCurrentEnterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes,
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
-  const hideCourseSearch = isDisableCourseSearch(
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
+  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
+  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
+  const isCourseSearchDisabled = determineLearnerHasContentAssignmentsOnly({
     redeemableLearnerCreditPolicies,
-    enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes.couponCodes,
-  );
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
+    hasCurrentEnterpriseOffers,
+  });
 
-  const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
+  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
 
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
@@ -167,7 +173,7 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      {(!enterpriseConfig.disableSearch && !featuredHideCourseSearch) && (
+      {(!enterpriseConfig.disableSearch && !featuredIsCourseSearchDisabled) && (
         <Card.Section>
           {showSkills && subcategorySkills && (
             <div className="skill-details-recommended-courses">

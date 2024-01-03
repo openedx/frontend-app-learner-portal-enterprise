@@ -10,6 +10,7 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import { renderWithRouter } from '../../../utils/tests';
 import { features } from '../../../config';
 import { useContentAssignments } from './course-enrollments/data';
+import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
 
 jest.mock('../../search/content-highlights/data', () => ({
   useEnterpriseCuration: jest.fn(() => ({
@@ -46,15 +47,7 @@ const defaultUserSubsidyState = {
     couponCodesCount: 0,
   },
   enterpriseOffers: [],
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 const defaultAppState = {
   enterpriseConfig: {

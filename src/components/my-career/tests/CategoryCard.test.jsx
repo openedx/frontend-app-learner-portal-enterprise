@@ -10,6 +10,7 @@ import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -95,12 +96,7 @@ const expiringSubscriptionUserSubsidyState = {
     redeemablePolicies: [{
       policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
     }],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
+    learnerContentAssignments: emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
   },
 };
 

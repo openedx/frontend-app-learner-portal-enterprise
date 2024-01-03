@@ -439,6 +439,11 @@ describe('useRedeemableLearnerCreditPolicies', () => {
         hasAcceptedAssignments: true,
         erroredAssignments: [],
         hasErroredAssignments: false,
+        assignmentsForDisplay: [
+          mockAllocatedAssignmentWithPlanExpiration,
+          mockCanceledssignmentWithPlanExpiration,
+        ],
+        hasAssignmentsForDisplay: true,
       },
     });
   });
