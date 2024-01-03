@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { ResponsiveContext, breakpoints } from '@edx/paragon';
+import { breakpoints, ResponsiveContext } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import CourseAbout from '../CourseAbout';
@@ -53,10 +53,21 @@ const appContextValues = {
 };
 
 const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: [],
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
   enterpriseOffers: [],
   subscriptionPlan: {},
   subscriptionLicense: {},
+  couponCodes: {
+    couponCodes: [],
+  },
 };
 
 const CourseAboutWrapper = ({

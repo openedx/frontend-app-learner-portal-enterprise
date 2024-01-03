@@ -7,18 +7,22 @@ import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar from '../DashboardSidebar';
 import { renderWithRouter } from '../../../../utils/tests';
 import {
-  SUBSCRIPTION_SUMMARY_CARD_TITLE, CATALOG_ACCESS_CARD_BUTTON_TEXT,
+  CATALOG_ACCESS_CARD_BUTTON_TEXT,
   CONTACT_HELP_EMAIL_MESSAGE,
-  NEED_HELP_BLOCK_TITLE,
-  LICENSE_REQUESTED_NOTICE,
   COUPON_CODES_SUMMARY_NOTICE,
   ENTERPRISE_OFFER_SUMMARY_CARD_TITLE,
+  LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY,
+  LEARNER_CREDIT_CARD_SUMMARY,
   LEARNER_CREDIT_SUMMARY_CARD_TITLE,
+  LICENSE_REQUESTED_NOTICE,
+  NEED_HELP_BLOCK_TITLE,
+  SUBSCRIPTION_SUMMARY_CARD_TITLE,
 } from '../data/constants';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
+import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 const mockEnterpriseOffer = {
   isCurrent: true,
@@ -228,11 +232,19 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
-          redeemableLearnerCreditPolicies: [{
-            remainingBalancePerUser: 5,
-            subsidyExpirationDate: '2030-01-01 12:00:00Z',
-            active: true,
-          }],
+          redeemableLearnerCreditPolicies: {
+            redeemablePolicies: [{
+              remainingBalancePerUser: 5,
+              subsidyExpirationDate: '2030-01-01 12:00:00Z',
+              active: true,
+            }],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: false,
+              activeAssignments: [],
+              hasActiveAssignments: false,
+            },
+          },
         }}
       />,
     );
@@ -247,11 +259,19 @@ describe('<DashboardSidebar />', () => {
         initialAppState={initialAppState}
         initialUserSubsidyState={{
           ...defaultUserSubsidyState,
-          redeemableLearnerCreditPolicies: [{
-            remainingBalancePerUser: 5,
-            subsidyExpirationDate: policyExpirationDate,
-            active: true,
-          }],
+          redeemableLearnerCreditPolicies: {
+            redeemablePolicies: [{
+              remainingBalancePerUser: 5,
+              subsidyExpirationDate: policyExpirationDate,
+              active: true,
+            }],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: false,
+              activeAssignments: [],
+              hasActiveAssignments: false,
+            },
+          },
           enterpriseOffers: [{
             uuid: 'enterprise-offer-id',
             endDatetime: offerEndDate,
@@ -262,6 +282,37 @@ describe('<DashboardSidebar />', () => {
     );
     expect(screen.getByText('2030', { exact: false })).toBeInTheDocument();
     expect(screen.queryByText('2027', { exact: false })).toBeFalsy();
+    expect(screen.getByText(LEARNER_CREDIT_CARD_SUMMARY)).toBeInTheDocument();
+  });
+
+  test('Only learner credit summary card with contact administrator is displayed when enterprise has assigned', () => {
+    const policyExpirationDate = '2030-01-01 12:00:00Z';
+
+    renderWithRouter(
+      <DashboardSidebarWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={{
+          ...defaultUserSubsidyState,
+          redeemableLearnerCreditPolicies: {
+            redeemablePolicies: [{
+              remainingBalancePerUser: 5,
+              subsidyExpirationDate: policyExpirationDate,
+              active: true,
+              policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+            }],
+            learnerContentAssignments: {
+              assignments: [],
+              hasAssignments: true,
+              activeAssignments: [],
+              hasActiveAssignments: true,
+            },
+          },
+          enterpriseOffers: [],
+          canEnrollWithEnterpriseOffers: false,
+        }}
+      />,
+    );
+    expect(screen.getByText(LEARNER_CREDIT_ASSIGNMENT_ONLY_SUMMARY)).toBeInTheDocument();
   });
 
   test('Find a course button is not rendered when user has no coupon codes or license subsidy', () => {

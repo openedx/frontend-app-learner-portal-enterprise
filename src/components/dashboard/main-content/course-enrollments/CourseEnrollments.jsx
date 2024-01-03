@@ -1,20 +1,13 @@
-import React, {
-  useContext, useEffect, useMemo, useState,
-} from 'react';
-
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
-import CourseSection from './CourseSection';
 
+import CourseSection from './CourseSection';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
 import CourseAssignmentAlert from './CourseAssignmentAlert';
 import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
-import {
-  getTransformedAllocatedAssignments, sortedEnrollmentsByEnrollmentDate, sortAssignmentsByAssignmentStatus,
-  isAssignmentExpired,
-} from './data/utils';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { features } from '../../../../config';
+import { useCourseEnrollmentsBySection, useContentAssignments } from './data';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 export const COURSE_SECTION_TITLES = {
   current: 'My courses',
@@ -22,87 +15,33 @@ export const COURSE_SECTION_TITLES = {
   savedForLater: 'Saved for later',
   assigned: 'Assigned Courses',
 };
-export const ASSIGNMENT_TYPES = {
-  accepted: 'accepted',
-  allocated: 'allocated',
-  cancelled: 'cancelled',
-};
 
 const CourseEnrollments = ({ children }) => {
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const {
-    courseEnrollmentsByStatus,
     fetchCourseEnrollmentsError,
     showMarkCourseCompleteSuccess,
     showMoveToInProgressCourseSuccess,
     setShowMarkCourseCompleteSuccess,
     setShowMoveToInProgressCourseSuccess,
+    courseEnrollmentsByStatus,
   } = useContext(CourseEnrollmentsContext);
   const {
-    enterpriseConfig: {
-      slug,
-    },
-  } = useContext(AppContext);
+    assignments,
+    showCanceledAssignmentsAlert,
+    showExpiredAssignmentsAlert,
+    handleOnCloseCancelAlert,
+    handleOnCloseExpiredAlert,
+  } = useContentAssignments(redeemableLearnerCreditPolicies);
   const {
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-
-  const [assignments, setAssignments] = useState([]);
-  const [showCancelledAssignmentsAlert, setShowCancelledAssignmentsAlert] = useState(false);
-  const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
-
-  useEffect(() => {
-    const data = redeemableLearnerCreditPolicies?.flatMap(item => item?.learnerContentAssignments || []);
-    const assignmentsData = sortAssignmentsByAssignmentStatus(data);
-    setAssignments(assignmentsData);
-
-    const hasCancelledAssignments = assignmentsData?.some(
-      assignment => assignment.state === ASSIGNMENT_TYPES.cancelled,
-    );
-    const hasExpiredAssignments = assignmentsData?.some(assignment => isAssignmentExpired(assignment));
-
-    setShowCancelledAssignmentsAlert(hasCancelledAssignments);
-    setShowExpiredAssignmentsAlert(hasExpiredAssignments);
-  }, [redeemableLearnerCreditPolicies]);
-
-  const filteredAssignments = assignments?.filter((assignment) => assignment?.state === ASSIGNMENT_TYPES.allocated
-    || assignment?.state === ASSIGNMENT_TYPES.cancelled);
-  const assignedCourses = getTransformedAllocatedAssignments(filteredAssignments, slug);
-
-  const currentCourseEnrollments = useMemo(
-    () => {
-      Object.keys(courseEnrollmentsByStatus).forEach((status) => {
-        courseEnrollmentsByStatus[status] = courseEnrollmentsByStatus[status].map((course) => {
-          const isAssigned = assignments?.some(assignment => (assignment?.state === ASSIGNMENT_TYPES.accepted
-            && course.courseRunId.includes(assignment?.contentKey)));
-          if (isAssigned) {
-            return { ...course, isCourseAssigned: true };
-          }
-          return course;
-        });
-      });
-      return sortedEnrollmentsByEnrollmentDate(
-        [
-          ...courseEnrollmentsByStatus.inProgress,
-          ...courseEnrollmentsByStatus.upcoming,
-          ...courseEnrollmentsByStatus.requested,
-        ],
-      );
-    },
-    [
-      assignments,
-      courseEnrollmentsByStatus,
-    ],
-  );
-
-  const completedCourseEnrollments = useMemo(
-    () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.completed),
-    [courseEnrollmentsByStatus.completed],
-  );
-
-  const savedForLaterCourseEnrollments = useMemo(
-    () => sortedEnrollmentsByEnrollmentDate(courseEnrollmentsByStatus.savedForLater),
-    [courseEnrollmentsByStatus.savedForLater],
-  );
+    hasCourseEnrollments,
+    currentCourseEnrollments,
+    completedCourseEnrollments,
+    savedForLaterCourseEnrollments,
+  } = useCourseEnrollmentsBySection({
+    courseEnrollmentsByStatus,
+    assignments,
+  });
 
   if (fetchCourseEnrollmentsError) {
     return (
@@ -112,16 +51,13 @@ const CourseEnrollments = ({ children }) => {
     );
   }
 
-  const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
-  const hasCourseAssignments = filteredAssignments?.length > 0;
-
   return (
     <>
-      {showCancelledAssignmentsAlert && (
-        <CourseAssignmentAlert variant="cancelled" onClose={() => setShowCancelledAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
+        <CourseAssignmentAlert showAlert={showCanceledAssignmentsAlert} variant="canceled" onClose={handleOnCloseCancelAlert}> </CourseAssignmentAlert>
       )}
-      {showExpiredAssignmentsAlert && (
-        <CourseAssignmentAlert variant="expired" onClose={() => setShowExpiredAssignmentsAlert(false)}> </CourseAssignmentAlert>
+      {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
+        <CourseAssignmentAlert showAlert={showExpiredAssignmentsAlert} variant="expired" onClose={handleOnCloseExpiredAlert}> </CourseAssignmentAlert>
       )}
       {showMarkCourseCompleteSuccess && (
         <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>
@@ -138,12 +74,12 @@ const CourseEnrollments = ({ children }) => {
           This allows the parent component to customize what
           gets displayed if the user does not have any course enrollments.
       */}
-      {(!hasCourseEnrollments && !hasCourseAssignments) && children}
+      {(!hasCourseEnrollments && !(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && assignments.length > 0)) && children}
       <>
         {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
           <CourseSection
             title={COURSE_SECTION_TITLES.assigned}
-            courseRuns={assignedCourses}
+            courseRuns={assignments}
           />
         )}
         <CourseSection

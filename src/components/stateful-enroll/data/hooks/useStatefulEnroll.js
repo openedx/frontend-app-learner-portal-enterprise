@@ -2,13 +2,11 @@ import { useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
-import { useTrackSearchConversionClickHandler, useOptimizelyEnrollmentClickHandler } from '../../../course/data/hooks';
+import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
 
-import {
-  submitRedemptionRequest,
-  retrieveTransactionStatus,
-} from '../service';
+import { retrieveTransactionStatus, submitRedemptionRequest } from '../service';
+import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
 
 const shouldPollTransactionState = (response) => {
   const transactionState = response?.state;
@@ -23,7 +21,7 @@ const getRefetchInterval = (response) => {
 };
 
 const checkTransactionStatus = async ({ queryKey }) => {
-  const transaction = queryKey[2];
+  const transaction = queryKey[3];
   const { transactionStatusApiUrl } = transaction;
   return retrieveTransactionStatus({ transactionStatusApiUrl });
 };
@@ -73,7 +71,7 @@ const useStatefulEnroll = ({
   };
 
   useQuery({
-    queryKey: ['policy', 'transactions', transaction],
+    queryKey: enterpriseUserSubsidyQueryKeys.pollPendingPolicyTransaction(transaction),
     enabled: shouldPollTransactionState(transaction),
     queryFn: checkTransactionStatus,
     refetchInterval: getRefetchInterval,

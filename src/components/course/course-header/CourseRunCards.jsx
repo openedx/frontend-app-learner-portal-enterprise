@@ -4,6 +4,7 @@ import { CardGrid } from '@edx/paragon';
 import { CourseContext } from '../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';
 import DeprecatedCourseRunCard from './deprecated/CourseRunCard';
+import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../data/constants';
 
 /**
  * Displays a grid of `CourseRunCard` components, where each `CourseRunCard` represents
@@ -19,7 +20,7 @@ const CourseRunCards = () => {
       catalog: { catalogList },
     },
     missingUserSubsidyReason,
-    redeemabilityPerContentKey,
+    userSubsidyApplicableToCourse,
   } = useContext(CourseContext);
 
   return (
@@ -28,18 +29,19 @@ const CourseRunCards = () => {
       hasEqualColumnHeights={false}
     >
       {availableCourseRuns.map((courseRun) => {
-        const redeemabilityForContentKey = redeemabilityPerContentKey?.find(r => r.contentKey === courseRun.key);
-        const redeemableSubsidyAccessPolicy = redeemabilityForContentKey?.redeemableSubsidyAccessPolicy;
+        const hasRedeemablePolicy = userSubsidyApplicableToCourse?.subsidyType === LEARNER_CREDIT_SUBSIDY_TYPE;
 
-        if (redeemableSubsidyAccessPolicy || missingUserSubsidyReason?.userMessage) {
+        // Render the newer `CourseRunCard` component when the user's subsidy, if any, is
+        // a policy OR if there is a known disabled enroll reason.
+        if (hasRedeemablePolicy || missingUserSubsidyReason?.userMessage) {
           return (
             <CourseRunCard
               key={courseRun.uuid}
               courseRun={courseRun}
-              subsidyAccessPolicy={redeemableSubsidyAccessPolicy}
             />
           );
         }
+
         return (
           <DeprecatedCourseRunCard
             key={courseRun.uuid}

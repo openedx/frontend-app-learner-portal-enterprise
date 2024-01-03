@@ -33,5 +33,17 @@ export const OFFER_BALANCE_CLICK_EVENT = 'edx.ui.enterprise.learner_portal.offer
 export const ASSIGNMENT_TYPES = {
   ACCEPTED: 'accepted',
   ALLOCATED: 'allocated',
-  CANCELLED: 'cancelled',
+  CANCELED: 'cancelled',
+  ERRORED: 'errored',
+};
+
+export const ASSIGNMENT_ACTION_TYPES = {
+  CANCELED: 'cancelled',
+  AUTOMATIC_CANCELATION: 'automatic_cancellation',
+};
+
+export const POLICY_TYPES = {
+  ASSIGNED_CREDIT: 'AssignedLearnerCreditAccessPolicy',
+  PER_LEARNER_CREDIT: 'PerLearnerSpendCreditAccessPolicy',
+  PER_ENROLLMENT_CREDIT: 'PerLearnerEnrollmentCreditAccessPolicy',
 };

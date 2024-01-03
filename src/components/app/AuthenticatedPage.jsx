@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import { useParams, useLocation } from 'react-router-dom';
@@ -12,6 +12,8 @@ import { EnterpriseBanner } from '../enterprise-banner';
 import { Layout } from '../layout';
 import LoginRefresh from './LoginRefresh';
 import { ErrorPage } from '../error-page';
+import AuthenticatedPageContext from './AuthenticatedPageContext';
+import { useRecommendCoursesForMe } from './data';
 
 const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   const location = useLocation();
@@ -20,6 +22,12 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
   const { authenticatedUser: user } = useContext(AppContext);
+
+  const recommendCoursesForMeContextValue = useRecommendCoursesForMe();
+
+  const authenticatedPageContext = useMemo(() => ({
+    ...recommendCoursesForMeContextValue,
+  }), [recommendCoursesForMeContextValue]);
 
   if (!user) {
     // if user is not authenticated, remove cookie that controls whether the user will see
@@ -43,15 +51,18 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
       </ErrorPage>
     );
   }
+
   return (
     <LoginRedirect>
       <LoginRefresh>
-        <EnterprisePage useEnterpriseConfigCache={useEnterpriseConfigCache}>
-          <Layout>
-            <EnterpriseBanner />
-            {children}
-          </Layout>
-        </EnterprisePage>
+        <AuthenticatedPageContext.Provider value={authenticatedPageContext}>
+          <EnterprisePage useEnterpriseConfigCache={useEnterpriseConfigCache}>
+            <Layout>
+              <EnterpriseBanner />
+              {children}
+            </Layout>
+          </EnterprisePage>
+        </AuthenticatedPageContext.Provider>
       </LoginRefresh>
     </LoginRedirect>
   );

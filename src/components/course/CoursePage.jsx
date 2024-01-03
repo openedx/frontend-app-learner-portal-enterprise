@@ -62,7 +62,7 @@ const CoursePage = () => {
       canOnlyViewHighlightSets,
     },
   } = useEnterpriseCuration(enterpriseUUID);
-  const { pathname, search } = useLocation();
+  const { pathname, search, state } = useLocation();
   const history = useHistory();
 
   const courseRunKey = useMemo(
@@ -182,7 +182,7 @@ const CoursePage = () => {
     ],
   );
 
-  const courseListPrice = subsidyAccessPolicyRedeemabilityData?.coursePrice
+  const courseListPrice = subsidyAccessPolicyRedeemabilityData?.listPrice
   || courseState?.activeCourseRun?.firstEnrollablePaidSeatPrice
   || getEntitlementPrice(courseState?.course?.entitlements);
 
@@ -226,9 +226,9 @@ const CoursePage = () => {
         courseState.course,
         enterpriseSlug,
       );
-      history.replace(newUrl);
+      history.replace(newUrl, state);
     }
-  }, [enterpriseSlug, history, courseState, pathname]);
+  }, [enterpriseSlug, history, courseState, pathname, state]);
 
   const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
     const catalogsContainingCourse = new Set(courseState?.catalog?.catalogList);

@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -6,10 +6,8 @@ import useStatefulEnroll from './useStatefulEnroll';
 import * as hooks from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
 
-import {
-  submitRedemptionRequest,
-  retrieveTransactionStatus,
-} from '../service';
+import { retrieveTransactionStatus, submitRedemptionRequest } from '../service';
+import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
 
 const mockMutateAsync = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -164,7 +162,7 @@ describe('useStatefulEnroll', () => {
 
     expect(useQuery).toHaveBeenCalledTimes(2);
     expect(useQuery).toHaveBeenCalledWith({
-      queryKey: ['policy', 'transactions', mockTransaction],
+      queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), 'transactions', mockTransaction],
       queryFn: expect.any(Function),
       refetchInterval: expect.any(Function),
       onSuccess: expect.any(Function),
@@ -195,7 +193,7 @@ describe('useStatefulEnroll', () => {
     expect(useQuery).toHaveBeenCalledTimes(1);
     expect(useQuery).toHaveBeenCalledWith({
       // undefined here is expected, as we're testing before the redemption mutation has resolved
-      queryKey: ['policy', 'transactions', undefined],
+      queryKey: [...enterpriseUserSubsidyQueryKeys.policy(), 'transactions', undefined],
       queryFn: expect.any(Function),
       refetchInterval: expect.any(Function),
       onSuccess: expect.any(Function),

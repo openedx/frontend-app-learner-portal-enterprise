@@ -1,4 +1,6 @@
-import React, { useContext, useMemo } from 'react';
+import React, {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -13,11 +15,12 @@ import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
+import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
-  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies);
+  const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
   const enterpriseOfferExpiringFirst = getOfferExpiringFirst(enterpriseOffers);
 
   if (!learnerCreditPolicyExpiringFirst && !enterpriseOfferExpiringFirst) {
@@ -39,12 +42,8 @@ const SubsidiesSummary = ({
   programProgressPage,
 }) => {
   const {
-    enterpriseConfig: {
-      slug,
-      disableSearch,
-    },
+    enterpriseConfig,
   } = useContext(AppContext);
-
   const {
     courseEnrollmentsByStatus,
   } = useContext(CourseEnrollmentsContext);
@@ -55,6 +54,7 @@ const SubsidiesSummary = ({
     couponCodes: { couponCodesCount },
     enterpriseOffers,
     canEnrollWithEnterpriseOffers,
+    hasCurrentEnterpriseOffers,
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
 
@@ -80,21 +80,43 @@ const SubsidiesSummary = ({
     && userSubscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
 
   const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.length > 0;
+  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.length > 0;
 
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
   );
+  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies
+    .filter(policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT).length > 0;
+
+  const [assignmentOnlyLearner, setAssignmentOnlyLearner] = useState(false);
+  useEffect(() => {
+    const hasActiveAssignments = redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments;
+    if (
+      hasActiveAssignments
+      && !hasActiveLicenseOrLicenseRequest
+      && !hasAssignedCodesOrCodeRequests
+      && !hasCurrentEnterpriseOffers
+      && !hasAutoAppliedLearnerCreditPolicies
+    ) {
+      setAssignmentOnlyLearner(true);
+    }
+  }, [
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
+    hasAssignedCodesOrCodeRequests,
+    hasActiveLicenseOrLicenseRequest,
+    hasAutoAppliedLearnerCreditPolicies,
+  ]);
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
   }
 
   const searchCoursesCta = (
-    !programProgressPage && !disableSearch && showSearchCoursesCta && (
+    !programProgressPage && !enterpriseConfig.disableSearch && showSearchCoursesCta && (
       <Button
         as={Link}
-        to={`/${slug}/search`}
+        to={`/${enterpriseConfig.slug}/search`}
         variant={ctaButtonVariant}
         block
       >
@@ -133,13 +155,12 @@ const SubsidiesSummary = ({
           <LearnerCreditSummaryCard
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
+            assignmentOnlyLearner={assignmentOnlyLearner}
           />
         )}
       </div>
-      {searchCoursesCta && (
-        <SidebarCard
-          cardClassNames="border-0 shadow-none"
-        >
+      {(searchCoursesCta && !assignmentOnlyLearner) && (
+        <SidebarCard cardClassNames="border-0 shadow-none">
           {searchCoursesCta}
         </SidebarCard>
       )}

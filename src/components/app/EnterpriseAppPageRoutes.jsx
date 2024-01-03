@@ -11,6 +11,7 @@ import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import { features } from '../../config';
 import { LicenseActivationPage } from '../license-activation';
 import { PathwayProgressPage } from '../pathway-progress';
+import { AcademyDetailPage } from '../academies';
 
 // TODO: Techdebt, Create Context wrapper around this component for enterpriseCurations
 // to reduce API calls by 2 (DashboardPage, CoursePage, SearchPage) or by 3 ( + AuthenticatedPage) if created in App.jsx
@@ -37,6 +38,8 @@ const EnterpriseAppPageRoutes = () => (
     {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (
       <PageRoute exact path="/:enterpriseSlug/pathway/:pathwayUUID/progress" component={PathwayProgressPage} />
     )}
+
+    <PageRoute exact path="/:enterpriseSlug/academies/:academyUUID" component={AcademyDetailPage} />
   </AuthenticatedUserSubsidyPage>
 );
 

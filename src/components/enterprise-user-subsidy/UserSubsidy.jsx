@@ -18,8 +18,8 @@ export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-
   const { userId } = authenticatedUser;
+
   // Subscriptions
   const {
     customerAgreementConfig,
@@ -42,6 +42,8 @@ const UserSubsidy = ({ children }) => {
   // Enterprise Offers
   const {
     enterpriseOffers,
+    currentEnterpriseOffers,
+    hasCurrentEnterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
@@ -75,6 +77,8 @@ const UserSubsidy = ({ children }) => {
         subscriptionPlan,
         couponCodes,
         enterpriseOffers,
+        currentEnterpriseOffers,
+        hasCurrentEnterpriseOffers,
         canEnrollWithEnterpriseOffers,
         hasLowEnterpriseOffersBalance,
         hasNoEnterpriseOffersBalance,
@@ -90,6 +94,8 @@ const UserSubsidy = ({ children }) => {
       subscriptionPlan,
       couponCodes,
       enterpriseOffers,
+      currentEnterpriseOffers,
+      hasCurrentEnterpriseOffers,
       canEnrollWithEnterpriseOffers,
       hasLowEnterpriseOffersBalance,
       hasNoEnterpriseOffersBalance,

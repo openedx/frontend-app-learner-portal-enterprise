@@ -225,7 +225,10 @@ describe('CoursePage', () => {
   it('Redirects to using course type slug if path does not include it', async () => {
     mockGetActiveCourseRun.mockImplementation(() => ({ staff: [] }));
     render(<CoursePageWrapper />);
-    expect(mockUseHistoryReplace).toHaveBeenCalledWith('/test-enterprise-uuid/executive-education-2u/course/test-course-key');
+    expect(mockUseHistoryReplace).toHaveBeenCalledWith(
+      '/test-enterprise-uuid/executive-education-2u/course/test-course-key',
+      undefined,
+    );
     expect(screen.getByTestId('course-enrollments-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-page-routes')).toBeInTheDocument();

@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import { COURSE_STATUSES } from './constants';
+import { isAssignmentExpired } from '../../../data/utils';
+import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 /**
  * Determines whether a course enrollment may be unenrolled based on its enrollment
@@ -41,7 +43,6 @@ export const transformCourseEnrollment = (rawCourseEnrollment) => {
   // Delete renamed/unused fields
   delete courseEnrollment.displayName;
   delete courseEnrollment.micromastersTitle;
-  delete courseEnrollment.resumeCourseRunUrl;
   delete courseEnrollment.courseRunUrl;
   delete courseEnrollment.certificateDownloadUrl;
   delete courseEnrollment.emailsEnabled;
@@ -86,64 +87,50 @@ export const transformSubsidyRequest = ({
 });
 
 /**
- * Checks if an assignment has expired based on following conditions:
- * - The assignment's action is "allocated."
- * - 90 days have passed since the "allocated" action.
- * - The course enrollment deadline has passed.
- * - The subsidy expiration date has passed.
- * @param {object} assignment - Information about the assignment.
- * @returns {boolean} - Returns true if the assignment has expired, otherwise false.
- */
-export const isAssignmentExpired = (assignment) => {
-  if (assignment?.actions?.length > 0 && assignment.actions[0]?.actionType === 'allocated') {
-    const currentDate = new Date();
-    const allocationDate = new Date(assignment.actions[0]?.completedAt);
-    const enrollmentEndDate = new Date(assignment?.contentMetadata?.enrollByDate);
-    const subsidyExpirationDate = new Date(assignment?.subsidyExpirationDate);
-
-    return (
-      currentDate - allocationDate > 90 * 24 * 60 * 60 * 1000
-      || currentDate > enrollmentEndDate
-      || currentDate > subsidyExpirationDate
-    );
-  }
-
-  return false;
-};
-
-/**
- * Sorts assignments by their status (cancelled or expired).
+ * Sorts assignments by their status (canceled or expired).
  * @param {array} assignments - Array of assignments to be sorted.
  * @returns {array} - Returns the sorted array of assignments.
  */
 export const sortAssignmentsByAssignmentStatus = (assignments) => {
-  if (assignments) {
-    const sortedAssignments = [...assignments].sort((a, b) => (
-      ((a.state === 'cancelled' || isAssignmentExpired(a)) ? 1 : 0)
-    - ((b.state === 'cancelled' || isAssignmentExpired(b)) ? 1 : 0)
-    ));
-    return sortedAssignments;
+  if (!assignments) {
+    return [];
   }
-  return [];
+  const assignmentsCopy = [...assignments];
+  const sortedAssignments = assignmentsCopy.sort((a, b) => {
+    const isAssignmentACanceledOrExpired = a.state === 'cancelled' || isAssignmentExpired(a).isExpired ? 1 : 0;
+    const isAssignmentBCanceledOrExpired = b.state === 'cancelled' || isAssignmentExpired(b).isExpired ? 1 : 0;
+    return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
+  });
+  return sortedAssignments;
 };
 
 export const getTransformedAllocatedAssignments = (assignments, slug) => {
-  if (!assignments) { return assignments; }
+  if (!assignments) {
+    return assignments;
+  }
   const updatedAssignments = assignments?.map((item) => {
-    const isCancelledAssignment = item.state === 'cancelled';
-    const isExpiredAssignment = isAssignmentExpired(item);
-
+    const isCanceledAssignment = item.state === ASSIGNMENT_TYPES.CANCELED;
+    const {
+      isExpired: isExpiredAssignment,
+      enrollByDeadline: assignmentEnrollByDeadline,
+    } = isAssignmentExpired(item);
     return {
       linkToCourse: `/${slug}/course/${item.contentKey}`,
-      courseKey: item.contentKey,
+      // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
+      // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
+      // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
+      // are for top-level courses, not course runs.
+      courseRunId: item.contentKey,
       title: item.contentTitle,
       isRevoked: false,
+      notifications: [],
       courseRunStatus: COURSE_STATUSES.assigned,
       endDate: item?.contentMetadata?.endDate,
       startDate: item?.contentMetadata?.startDate,
       mode: item?.contentMetadata?.courseType,
       orgName: item?.contentMetadata?.partners[0]?.name,
-      isCancelledAssignment,
+      enrollBy: assignmentEnrollByDeadline,
+      isCanceledAssignment,
       isExpiredAssignment,
     };
   });

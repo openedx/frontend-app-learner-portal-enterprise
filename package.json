@@ -71,6 +71,7 @@
     "enzyme": "3.11.0",
     "jest-canvas-mock": "^2.4.0",
     "match-media-mock": "0.1.1",
+    "mockdate": "3.0.5",
     "prettier": "2.2.1",
     "react-test-renderer": "17.0.2",
     "resize-observer-polyfill": "^1.5.1"
@@ -79,14 +80,17 @@
   "license": "AGPL-3.0",
   "scripts": {
     "build": "fedx-scripts webpack",
-    "build:with-theme": "paragon install-theme && npm run build",
+    "build:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && npm run build",
     "i18n_extract": "BABEL_ENV=i18n fedx-scripts babel src --quiet > /dev/null",
     "lint": "fedx-scripts eslint --ext .js --ext .jsx .",
     "lint:fix": "fedx-scripts eslint --fix --ext .js --ext .jsx .",
     "precommit": "npm run lint",
     "snapshot": "fedx-scripts jest --updateSnapshot",
+    "install-theme": "npm install \"@edx/brand@${THEME}\" --no-save",
     "start": "fedx-scripts webpack-dev-server --progress",
-    "start:with-theme": "paragon install-theme && npm start",
+    "start:stage": "npm run start -- --config=webpack.dev-stage.config.js",
+    "start:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && npm run start",
+    "start:stage:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && npm run start:stage",
     "test": "fedx-scripts jest --coverage --passWithNoTests --maxWorkers=50%",
     "test:watch": "npm run test -- --watch"
   },

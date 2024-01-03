@@ -62,7 +62,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
           {!isEditable ? (
             <div key="edit-job-button">
               <ActionRow>
-                <p>Current Role</p>
+                <p>Desired Role</p>
                 <ActionRow.Spacer />
                 <Button variant="link" iconBefore={editIcon} onClick={editOnClickHandler}>Edit</Button>
               </ActionRow>

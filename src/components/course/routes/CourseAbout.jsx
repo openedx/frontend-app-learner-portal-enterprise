@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import {
-  Container, MediaQuery, Row, breakpoints,
+  breakpoints, Container, MediaQuery, Row,
 } from '@edx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -29,14 +29,16 @@ const CourseAbout = () => {
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
+    couponCodes,
   } = useContext(UserSubsidyContext);
 
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
   const hideCourseSearch = isDisableCourseSearch(
     redeemableLearnerCreditPolicies,
     enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
+    couponCodes.couponCodes,
   );
 
   const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;

@@ -1,9 +1,9 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import Cookies from 'universal-cookie';
-
 import { renderWithRouter } from '../../../utils/tests';
 import EnterpriseLearnerFirstVisitRedirect from '../EnterpriseLearnerFirstVisitRedirect';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 const COOKIE_NAME = 'has-user-visited-learner-dashboard';
 const TEST_ENTERPRISE = {
@@ -19,6 +19,37 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
+const defaultUserSubsidyState = {
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [
+      {
+        learnerContentAssignments: [
+          { state: 'allocated' },
+        ],
+      },
+      {
+        learnerContentAssignments: [
+          { state: 'cancelled' },
+        ],
+      },
+    ],
+    learnerContentAssignments: {
+      assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasAssignments: true,
+      activeAssignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasActiveAssignments: true,
+    },
+  },
+};
+
+const EnterpriseLearnerFirstVisitRedirectWrapper = ({
+  initialUserSubsidyState = defaultUserSubsidyState,
+}) => (
+  <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+    <EnterpriseLearnerFirstVisitRedirect />
+  </UserSubsidyContext.Provider>
+);
+
 describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   beforeEach(() => {
     const cookies = new Cookies();
@@ -26,7 +57,38 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   });
 
   test('redirects to search if user is visiting for the first time.', async () => {
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />, { route: `/${TEST_ENTERPRISE.slug}` });
+    const noActiveCourseAssignmentUserSubsidyState = {
+      ...defaultUserSubsidyState,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
+    };
+
+    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
+    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
+  });
+
+  test('redirects to search if the course assigned is not active.', async () => {
+    const noActiveCourseAssignmentUserSubsidyState = {
+      ...defaultUserSubsidyState,
+      redeemableLearnerCreditPolicies: {
+        redeemablePolicies: [],
+        learnerContentAssignments: {
+          assignments: [],
+          hasAssignments: false,
+          activeAssignments: [],
+          hasActiveAssignments: false,
+        },
+      },
+    };
+
+    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
     expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
   });
 
@@ -35,7 +97,7 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
     const cookies = new Cookies();
     cookies.set(COOKIE_NAME, true);
 
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />, { route: `/${TEST_ENTERPRISE.slug}` });
+    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper />, { route: `/${TEST_ENTERPRISE.slug}` });
     expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}`);
   });
 
@@ -44,7 +106,7 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
     const cookies = new Cookies();
     cookies.set(COOKIE_NAME, true);
 
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirect />, { route: `/${TEST_ENTERPRISE.slug}` });
+    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper />, { route: `/${TEST_ENTERPRISE.slug}` });
     expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}`);
   });
 });

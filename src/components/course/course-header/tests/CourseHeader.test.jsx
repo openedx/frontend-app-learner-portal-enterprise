@@ -19,6 +19,12 @@ jest.mock('react-router-dom', () => ({
 }));
 useLocation.mockImplementation(() => ({
   search: '',
+  state: {
+    parentRoute: {
+      label: 'Parent Content Type Title',
+      to: '/path/to/parent/detail/page',
+    },
+  },
 }));
 
 // Stub out the enroll button to avoid testing its implementation here
@@ -47,11 +53,74 @@ const defaultCourseEnrollmentsState = {
   },
 };
 
+const defaultAppState = {
+  enterpriseConfig: {
+    slug: 'test-enterprise-slug',
+  },
+};
+const defaultCourseState = {
+  course: {
+    subjects: [{
+      name: 'Test Subject 1',
+      slug: 'test-subject-slug',
+    }],
+    shortDescription: 'Course short description.',
+    title: 'Test Course Title',
+    owners: [TEST_OWNER],
+    programs: [],
+    image: {
+      src: 'http://test-image.url',
+    },
+    skills: [],
+  },
+  activeCourseRun: {
+    isEnrollable: true,
+    key: 'test-course-run-key',
+    pacingType: COURSE_PACING_MAP.SELF_PACED,
+    start: '2020-09-09T04:00:00Z',
+    availability: 'Current',
+    courseUuid: 'Foo',
+  },
+  userEnrollments: [],
+  userEntitlements: [],
+  catalog: {
+    containsContentItems: true,
+    catalogList: ['catalog-uuid'],
+  },
+  courseReviews: {
+    course_key: 'test-course-run-key',
+    reviewsCount: 345,
+    avgCourseRating: 3,
+    confidentLearnersPercentage: 33,
+    mostCommonGoal: 'Job advancement',
+    mostCommonGoalLearnersPercentage: 34,
+    totalEnrollments: 4444,
+  },
+};
+const defaultUserSubsidyState = {
+  subscriptionLicense: {
+    uuid: 'test-license-uuid',
+  },
+  couponCodes: {
+    couponCodes: [],
+    couponCodesCount: 0,
+  },
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+
 const CourseHeaderWrapper = ({
-  initialAppState = {},
+  initialAppState = defaultAppState,
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
-  courseState = {},
-  initialUserSubsidyState = {},
+  courseState = defaultCourseState,
+  initialUserSubsidyState = defaultUserSubsidyState,
   initialSubsidyRequestsState = defaultSubsidyRequestsState,
 }) => (
   <AppContext.Provider value={initialAppState}>
@@ -68,106 +137,29 @@ const CourseHeaderWrapper = ({
 );
 
 describe('<CourseHeader />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-    },
-  };
-  const courseState = {
-    course: {
-      subjects: [{
-        name: 'Test Subject 1',
-        slug: 'test-subject-slug',
-      }],
-      shortDescription: 'Course short description.',
-      title: 'Test Course Title',
-      owners: [TEST_OWNER],
-      programs: [],
-      image: {
-        src: 'http://test-image.url',
-      },
-      skills: [],
-    },
-    activeCourseRun: {
-      isEnrollable: true,
-      key: 'test-course-run-key',
-      pacingType: COURSE_PACING_MAP.SELF_PACED,
-      start: '2020-09-09T04:00:00Z',
-      availability: 'Current',
-      courseUuid: 'Foo',
-    },
-    userEnrollments: [],
-    userEntitlements: [],
-    catalog: {
-      containsContentItems: true,
-      catalogList: ['catalog-uuid'],
-    },
-    courseReviews: {
-      course_key: 'test-course-run-key',
-      reviewsCount: 345,
-      avgCourseRating: 3,
-      confidentLearnersPercentage: 33,
-      mostCommonGoal: 'Job advancement',
-      mostCommonGoalLearnersPercentage: 34,
-      totalEnrollments: 4444,
-    },
-  };
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
-
   test('renders breadcrumb', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper />);
     expect(screen.queryByText('Find a Course')).toBeInTheDocument();
-    expect(screen.queryAllByText(courseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryByText('Parent Content Type Title')).toBeInTheDocument();
+    expect(screen.queryAllByText(defaultCourseState.course.title)[0]).toBeInTheDocument();
   });
 
   test('does not render breadcrumb when search is disabled for customer', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={{ enterpriseConfig: { disableSearch: true } }}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper initialAppState={{ enterpriseConfig: { disableSearch: true } }} />);
     expect(screen.queryByText('Find a Course')).toBeFalsy();
-    expect(screen.queryAllByText(courseState.course.title)[0]).toBeInTheDocument();
+    expect(screen.queryAllByText(defaultCourseState.course.title)[0]).toBeInTheDocument();
   });
 
   test('renders course title and short description', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper />);
 
-    const { title, shortDescription } = courseState.course;
+    const { title, shortDescription } = defaultCourseState.course;
     expect(screen.queryAllByText(title)[1]).toBeInTheDocument();
     expect(screen.queryByText(shortDescription)).toBeInTheDocument();
   });
 
   test('renders course reviews section', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper />);
 
     expect(screen.queryByText('average rating')).toBeInTheDocument();
     expect(screen.queryByText('learners took this course in the last 12 months')).toBeInTheDocument();
@@ -175,13 +167,7 @@ describe('<CourseHeader />', () => {
   });
 
   test('renders course reviews section and change the review information content', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper />);
     userEvent.click(screen.queryByTestId('average-rating'));
     expect(screen.getByText('learners have rated this course in a post completion survey.', { exact: false })).toBeInTheDocument();
     userEvent.click(screen.queryByTestId('confident-learners'));
@@ -194,16 +180,10 @@ describe('<CourseHeader />', () => {
 
   test('does not renders course reviews section', () => {
     const courseStateWithNoCourseReviews = {
-      ...courseState,
+      ...defaultCourseState,
       courseReviews: null,
     };
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseStateWithNoCourseReviews}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper courseState={courseStateWithNoCourseReviews} />);
 
     expect(screen.queryByText('average rating')).not.toBeInTheDocument();
     expect(screen.queryByText('learners took this course in the last 12 months')).not.toBeInTheDocument();
@@ -211,65 +191,39 @@ describe('<CourseHeader />', () => {
 
   test('does not renders course reviews section if course not part of catalog', () => {
     const courseStateWithNoCourseReviews = {
-      ...courseState,
+      ...defaultCourseState,
       catalog: {
         containsContentItems: false,
         catalogList: [],
       },
     };
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseStateWithNoCourseReviews}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper courseState={courseStateWithNoCourseReviews} />);
 
     expect(screen.queryByText('average rating')).not.toBeInTheDocument();
     expect(screen.queryByText('learners took this course in the last 12 months')).not.toBeInTheDocument();
   });
 
   test('renders course image', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-
+    render(<CourseHeaderWrapper />);
     expect(screen.queryByAltText('course preview')).toBeInTheDocument();
   });
 
   test('renders partners', () => {
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseState}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
-
-    const partner = courseState.course.owners[0];
+    render(<CourseHeaderWrapper />);
+    const partner = defaultCourseState.course.owners[0];
     expect(screen.queryByAltText(`${partner.name} logo`)).toBeInTheDocument();
   });
 
   test('renders not in catalog messaging', () => {
     const courseStateWithNoCatalog = {
-      ...courseState,
+      ...defaultCourseState,
       catalog: {
         containsContentItems: false,
         catalogList: [],
       },
     };
 
-    render(
-      <CourseHeaderWrapper
-        initialAppState={initialAppState}
-        courseState={courseStateWithNoCatalog}
-        initialUserSubsidyState={initialUserSubsidyState}
-      />,
-    );
+    render(<CourseHeaderWrapper courseState={courseStateWithNoCatalog} />);
 
     const messaging = 'This course is not part of your company\'s curated course catalog.';
     expect(screen.queryByText(messaging)).toBeInTheDocument();
@@ -288,13 +242,7 @@ describe('<CourseHeader />', () => {
         search: `?enrollment_failed=${enrollmentFailed}&failure_reason=${failureReason}`,
       }));
 
-      render(
-        <CourseHeaderWrapper
-          initialAppState={initialAppState}
-          courseState={courseState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
+      render(<CourseHeaderWrapper />);
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     },
   );
@@ -315,13 +263,7 @@ describe('<CourseHeader />', () => {
         search: mockedSearchString,
       }));
 
-      render(
-        <CourseHeaderWrapper
-          initialAppState={initialAppState}
-          courseState={courseState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
+      render(<CourseHeaderWrapper />);
       expect(screen.queryByRole('alert')).toBeInTheDocument();
       expect(screen.queryByText(expectedMessage, { exact: false })).toBeInTheDocument();
     },
@@ -329,9 +271,9 @@ describe('<CourseHeader />', () => {
 
   describe('renders program messaging', () => {
     const courseStateWithProgramType = (type) => ({
-      ...courseState,
+      ...defaultCourseState,
       course: {
-        ...courseState.course,
+        ...defaultCourseState.course,
         programs: [{
           type,
         }],
@@ -341,13 +283,7 @@ describe('<CourseHeader />', () => {
     test('MicroMasters', () => {
       const micromasters = 'MicroMasters';
 
-      render(
-        <CourseHeaderWrapper
-          initialAppState={initialAppState}
-          courseState={courseStateWithProgramType(micromasters)}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
+      render(<CourseHeaderWrapper courseState={courseStateWithProgramType(micromasters)} />);
 
       const messaging = `This course is part of a ${micromasters}`;
       expect(screen.queryByText(messaging, { exact: false })).toBeInTheDocument();
@@ -356,13 +292,7 @@ describe('<CourseHeader />', () => {
     test('Professional Certificate', () => {
       const profCert = 'Professional Certificate';
 
-      render(
-        <CourseHeaderWrapper
-          initialAppState={initialAppState}
-          courseState={courseStateWithProgramType(profCert)}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
+      render(<CourseHeaderWrapper courseState={courseStateWithProgramType(profCert)} />);
 
       const messaging = `This course is part of a ${profCert}`;
       expect(screen.queryByText(messaging, { exact: false })).toBeInTheDocument();

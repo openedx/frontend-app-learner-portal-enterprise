@@ -8,6 +8,7 @@ import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentFo
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
+import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -71,15 +72,30 @@ const baseAppContextValue = {
   authenticatedUser: { id: 3 },
 };
 
+const baseUserSubsidyContextValue = {
+  redeemableLearnerCreditPolicies: {
+    redeemablePolicies: [],
+    learnerContentAssignments: {
+      assignments: [],
+      hasAssignments: false,
+      activeAssignments: [],
+      hasActiveAssignments: false,
+    },
+  },
+};
+
 const ExternalCourseEnrollmentWrapper = ({
   courseContextValue = baseCourseContextValue,
   appContextValue = baseAppContextValue,
+  initialUserSubsidyState = baseUserSubsidyContextValue,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <CourseContext.Provider value={courseContextValue}>
-        <ExternalCourseEnrollment />
-      </CourseContext.Provider>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <CourseContext.Provider value={courseContextValue}>
+          <ExternalCourseEnrollment />
+        </CourseContext.Provider>
+      </UserSubsidyContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
@@ -104,13 +120,9 @@ describe('ExternalCourseEnrollment', () => {
     expect(screen.getByTestId('user-enrollment-form')).toBeInTheDocument();
     expect(UserEnrollmentForm.mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        onCheckoutSuccess: expect.any(Function),
         productSKU: 'test-sku',
       }),
     );
-    UserEnrollmentForm.mock.calls[0][0].onCheckoutSuccess();
-    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
-    expect(mockHistoryPush).toHaveBeenCalledWith('enroll/complete');
   });
 
   it.each([

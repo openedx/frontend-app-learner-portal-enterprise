@@ -412,7 +412,7 @@ export function shortenString(str, maxLength, suffix, separator = ' ') {
   return `${str.substring(0, str.lastIndexOf(separator, maxLength))}${suffix}`;
 }
 
-export const isCurrentCoupon = (coupon) => dayjs(Date.now()).isBetween(
+export const isCurrentCoupon = (coupon) => dayjs().isBetween(
   coupon.startDate,
   coupon.endDate,
   'day',
@@ -434,6 +434,7 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
   const applicableCouponsToCatalog = couponsOverview?.data?.results.filter(
     coupon => catalogsWithCourse.includes(coupon.enterpriseCatalogUuid),
   ) || [];
+
   const hasCouponsApplicableToCourse = applicableCouponsToCatalog.length > 0;
   if (!hasCouponsApplicableToCourse) {
     return undefined;

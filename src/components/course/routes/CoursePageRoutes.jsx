@@ -1,10 +1,9 @@
 import React from 'react';
 import { Switch, useRouteMatch } from 'react-router-dom';
 import { PageRoute } from '@edx/frontend-platform/react';
-
-import CourseAbout from './CourseAbout';
 import ExternalCourseEnrollment from './ExternalCourseEnrollment';
 import ExternalCourseEnrollmentConfirmation from './ExternalCourseEnrollmentConfirmation';
+import CourseAbout from './CourseAbout';
 import NotFoundPage from '../../NotFoundPage';
 
 const CoursePageRoutes = () => {

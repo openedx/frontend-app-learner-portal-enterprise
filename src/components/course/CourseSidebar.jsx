@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import ISO6391 from 'iso-639-1';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import { Hyperlink } from '@edx/paragon';
 import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
 } from '@edx/paragon/icons';
@@ -63,9 +63,8 @@ const CourseSidebar = () => {
             label={institutionLabel}
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
-                <Hyperlink
-                  destination={partner.marketingUrl}
-                  target="_blank"
+                <Link
+                  to={`/${enterpriseConfig.slug}/search?partners.name=${encodeURIComponent(partner.name)}`}
                   onClick={() => {
                     sendEnterpriseTrackEvent(
                       enterpriseConfig.uuid,
@@ -77,7 +76,7 @@ const CourseSidebar = () => {
                   }}
                 >
                   {partner.key}
-                </Hyperlink>
+                </Link>
               </span>
             ))}
           />
@@ -87,9 +86,8 @@ const CourseSidebar = () => {
             icon={School}
             label="Subject"
             content={(
-              <Hyperlink
-                destination={primarySubject.url}
-                target="_blank"
+              <Link
+                to={`/${enterpriseConfig.slug}/search?subjects=${encodeURIComponent(primarySubject.name)}`}
                 onClick={() => {
                   sendEnterpriseTrackEvent(
                     enterpriseConfig.uuid,
@@ -101,7 +99,7 @@ const CourseSidebar = () => {
                 }}
               >
                 {primarySubject.name}
-              </Hyperlink>
+              </Link>
             )}
           />
         )}

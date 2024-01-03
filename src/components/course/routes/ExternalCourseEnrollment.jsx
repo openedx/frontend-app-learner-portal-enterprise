@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
+import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
 import {
-  Alert, Button, Container, Col, Hyperlink, Row,
+  Alert, Button, Col, Container, Hyperlink, Row,
 } from '@edx/paragon';
 import { CheckCircle } from '@edx/paragon/icons';
 
@@ -12,24 +12,34 @@ import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import RegistrationSummaryCard from '../../executive-education-2u/components/RegistrationSummaryCard';
 import UserEnrollmentForm from '../../executive-education-2u/UserEnrollmentForm';
-import { useExternalEnrollmentFailureReason, useMinimalCourseMetadata } from '../data/hooks';
+import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCourseMetadata } from '../data/hooks';
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { features } from '../../../config';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
   const history = useHistory();
+  const routeMatch = useRouteMatch();
   const {
     state: {
       activeCourseRun,
       courseEntitlementProductSku,
+      course,
     },
     userSubsidyApplicableToCourse,
     hasSuccessfulRedemption,
     externalCourseFormSubmissionError,
   } = useContext(CourseContext);
   const {
-    enterpriseConfig: { authOrgId },
+    enterpriseConfig: { authOrgId, slug },
   } = useContext(AppContext);
+  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
+  const completeEnrollmentUrl = generatePath(
+      `${routeMatch.path}/complete`,
+      { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
+  );
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
 
@@ -57,15 +67,14 @@ const ExternalCourseEnrollment = () => {
     }
   }, [externalCourseFormSubmissionError, containerRef]);
 
-  const handleCheckoutSuccess = () => {
-    history.push('enroll/complete');
-  };
-
   useEffect(() => {
+    // Once a redemption has successfully completed and the can-redeem query has been invalidated or
+    // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
+    //  it will run this conditional and perform the redirect
     if (hasSuccessfulRedemption) {
-      history.push('enroll/complete');
+      history.push(completeEnrollmentUrl);
     }
-  }, [hasSuccessfulRedemption, history]);
+  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, history, routeMatch.path, slug]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
@@ -106,14 +115,15 @@ const ExternalCourseEnrollment = () => {
                   </strong>
                   &nbsp; Please ensure that the course details below are correct and confirm using Learner
                   Credit with a &quot;Confirm registration&quot; button.
-                  Your Learner Credit funds will be redeemed at this point.
+                  {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
+                    ? 'Your learning administrator already allocated funds towards this registration.'
+                    : 'Your Learner Credit funds will be redeemed at this point.'}
                 </p>
               )}
               <CourseSummaryCard courseMetadata={courseMetadata} />
               <RegistrationSummaryCard priceDetails={courseMetadata.priceDetails} />
               <UserEnrollmentForm
                 productSKU={courseEntitlementProductSku}
-                onCheckoutSuccess={handleCheckoutSuccess}
                 activeCourseRun={activeCourseRun}
                 userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
               />

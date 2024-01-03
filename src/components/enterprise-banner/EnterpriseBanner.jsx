@@ -1,16 +1,14 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, generatePath } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Button, Container } from '@edx/paragon';
-import { useEnterpriseCuration } from '../search/content-highlights/data';
+import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
+
 import './styles/EnterpriseBanner.scss';
 
 const EnterpriseBanner = () => {
-  const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
-  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
-  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseUUID);
-  const isSearchPage = `/${ enterpriseConfig.slug }/search` === location.pathname;
+  const { shouldRecommendCourses } = useContext(AuthenticatedPageContext);
 
   return (
     <div className="enterprise-banner bg-brand-secondary border-brand-tertiary">
@@ -19,14 +17,14 @@ const EnterpriseBanner = () => {
           <h1 className="h2 mb-0 py-3 pl-3 text-brand-secondary">
             {enterpriseConfig.name}
           </h1>
-          {isSearchPage
-          && (canOnlyViewHighlightSets === false) && (
+          {shouldRecommendCourses && (
             <Button
               as={Link}
-              to={`/${ enterpriseConfig.slug }/skills-quiz`}
+              to={generatePath('/:enterpriseSlug/skills-quiz', { enterpriseSlug: enterpriseConfig.slug })}
               variant="inverse-primary"
               className="skills-quiz-btn"
-            > Recommend courses for me
+            >
+              Recommend courses for me
             </Button>
           )}
         </div>

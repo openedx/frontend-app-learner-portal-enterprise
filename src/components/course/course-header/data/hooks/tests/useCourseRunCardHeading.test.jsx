@@ -1,28 +1,17 @@
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderHook } from '@testing-library/react-hooks';
+import MockDate from 'mockdate';
 import '@testing-library/jest-dom/extend-expect';
 
 import { hasTimeToComplete } from '../../../../data/utils';
 
 import { MOCK_COURSE_RUN_START } from './constants';
 import useCourseRunCardHeading from '../useCourseRunCardHeading';
-
-jest.mock('dayjs', () => jest.fn(
-  (...args) => jest.requireActual('dayjs')(args.filter((arg) => arg).length > 0 ? args : '2023-03-20'),
-));
-
-jest.mock('../../../../../../utils/dayjs', () => jest.fn(
-  (...args) => jest.requireActual('../../../../../../utils/dayjs')(args.filter((arg) => arg).length > 0 ? args : '2023-03-20'),
-));
+import { COURSE_PACING_MAP } from '../../../../data/constants';
 
 jest.mock('../../../../data/utils', () => ({
   ...jest.requireActual('../../../../data/utils'),
   hasTimeToComplete: jest.fn().mockReturnValue(true),
-}));
-
-jest.mock('../../utils', () => ({
-  ...jest.requireActual('../../utils'),
-  getTodaysDate: jest.fn(() => new Date('2023-10-20')),
 }));
 
 const wrapper = ({ children }) => (
@@ -30,6 +19,10 @@ const wrapper = ({ children }) => (
 );
 
 describe('useCourseRunCardHeading', () => {
+  afterEach(() => {
+    MockDate.reset();
+  });
+
   it('handles non-current course run', () => {
     const { result } = renderHook(
       () => useCourseRunCardHeading({
@@ -49,18 +42,17 @@ describe('useCourseRunCardHeading', () => {
     { hasTimeToCompleteOverride: true },
     { hasTimeToCompleteOverride: false },
   ])('handles current, self-paced, unenrolled course run (%s)', ({ hasTimeToCompleteOverride }) => {
-    // mock hasTimeToComplete
     hasTimeToComplete.mockReturnValue(hasTimeToCompleteOverride);
 
     // mock current date
-    Date.now = jest.fn(() => new Date('2023-03-20T12:00:00Z'));
+    MockDate.set(new Date('2023-05-20T12:00:00Z'));
 
     const { result } = renderHook(
       () => useCourseRunCardHeading({
         isCourseRunCurrent: true,
         isUserEnrolled: false,
         courseRun: {
-          pacingType: 'self_paced',
+          pacingType: COURSE_PACING_MAP.SELF_PACED,
           start: MOCK_COURSE_RUN_START,
         },
       }),
@@ -69,7 +61,7 @@ describe('useCourseRunCardHeading', () => {
 
     if (hasTimeToCompleteOverride) {
       // assert shown start date matches the above mocked current date
-      expect(result.current).toEqual('Starts Mar 20');
+      expect(result.current).toEqual('Starts May 20');
     } else {
       // assert shown start date matches the start date of the course run
       expect(result.current).toEqual('Started Apr 20');

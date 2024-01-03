@@ -76,7 +76,15 @@ const EnrollmentCompletedWrapper = ({
       couponCodes: [{ discountValue: 90 }],
       couponCodesCount: 0,
     },
-    redeemableLearnerCreditPolicies: [],
+    redeemableLearnerCreditPolicies: {
+      redeemablePolicies: [],
+      learnerContentAssignments: {
+        assignments: [],
+        hasAssignments: false,
+        activeAssignments: [],
+        hasActiveAssignments: false,
+      },
+    },
   },
 }) => (
   <AppContext.Provider value={appContextValue}>
@@ -102,11 +110,5 @@ describe('EnrollmentCompleted', () => {
     expect(screen.getByText('test org')).toBeInTheDocument();
     expect(screen.getByText(8)).toBeInTheDocument();
     expect(screen.getByText('Start date:')).toBeInTheDocument();
-  });
-  it('renders get smarter learner dashboard URL on enrollment.', () => {
-    renderWithRouter(<EnrollmentCompletedWrapper />);
-    expect(
-      screen.getByRole('link', { name: 'GetSmarter learner dashboard in a new tab' }),
-    ).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-enterprise-slug');
   });
 });
