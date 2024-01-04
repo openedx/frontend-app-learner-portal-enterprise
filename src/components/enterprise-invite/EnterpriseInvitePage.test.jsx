@@ -1,6 +1,5 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -18,20 +17,15 @@ jest.mock('../../utils/common', () => ({
   loginRefresh: jest.fn(),
 }));
 jest.mock('./data/service');
-jest.mock('@edx/frontend-platform/auth');
+jest.mock('@edx/frontend-enterprise-logistration', () => ({
+  LoginRedirect: ({ children }) => children,
+}));
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
 jest.mock('../error-page', () => ({
   ErrorPage: ({ children }) => <div data-testid="error-page-message">{children}</div>,
 }));
-
-getAuthenticatedUser.mockReturnValue({
-  id: 1,
-  profileImage: {
-    imageUrlMedium: 'htts://img.url',
-  },
-});
 
 const TEST_ENTEPRRISE_SLUG = 'test-enterprise-slug';
 const TEST_INVITE_KEY = '00000000-0000-0000-0000-000000000000';
@@ -40,7 +34,7 @@ const TEST_ROUTE = `/invite/${TEST_INVITE_KEY}`;
 const renderEnterpriseInviteComponent = () => renderWithRouter(
   <AppContext.Provider value={{
     authenticatedUser: {
-      id: 1,
+      userId: 1,
       profileImage: {
         imageUrlMedium: 'htts://img.url',
       },

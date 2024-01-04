@@ -38,7 +38,7 @@ export const ProgramType = ({ type }) => {
 
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   const history = useHistory();
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
   const program = useMemo(() => {
     if (!hit) {
       return {};
@@ -80,7 +80,6 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   };
 
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
-  const { authenticatedUser: { userId } } = useContext(AppContext);
 
   const handleCardClick = () => {
     sendEnterpriseTrackEvent(

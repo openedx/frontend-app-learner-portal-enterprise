@@ -43,7 +43,7 @@ const UserEnrollmentForm = ({
   const queryClient = useQueryClient();
   const {
     enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
-    authenticatedUser: { id: userId, email: userEmail },
+    authenticatedUser: { userId, email: userEmail },
   } = useContext(AppContext);
   const {
     state: {

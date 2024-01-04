@@ -37,7 +37,7 @@ const EnterpriseInvitePage = () => {
     // Note: `authenticatedUser.id` is a property that is added once the user account has finished
     // resolving its async request. By using `id` instead of `userId`, we are ensuring the user data
     // is hydrated before showing error page that requires hydrated user data.
-    if (authenticatedUser?.id) {
+    if (authenticatedUser?.userId) {
       const linkEnterpriseLearner = async () => {
         let redirectTo;
 

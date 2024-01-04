@@ -597,7 +597,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   isQueryEnabled,
   queryOptions,
 }) => {
-  const { authenticatedUser: { id: lmsUserId } } = useContext(AppContext);
+  const { authenticatedUser: { userId: lmsUserId } } = useContext(AppContext);
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
   return useQuery({
     ...queryOptions,

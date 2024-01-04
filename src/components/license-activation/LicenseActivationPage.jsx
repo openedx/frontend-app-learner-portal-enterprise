@@ -14,18 +14,17 @@ import { useRenderContactHelpText } from '../../utils/hooks';
 export const LOADING_MESSAGE = 'Your enterprise license is being activated! You will be automatically redirected to your organization\'s learner portal shortly.';
 
 const LicenseActivationPage = () => {
-  const { authenticatedUser: user } = useContext(AppContext);
-  const { enterpriseConfig } = useContext(AppContext);
+  const { authenticatedUser: { userId }, enterpriseConfig } = useContext(AppContext);
   const { subscriptionLicense } = useContext(UserSubsidyContext);
   const { activationKey } = useParams();
   const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
 
   if (!subscriptionLicense || subscriptionLicense.status !== LICENSE_STATUS.ASSIGNED) {
     if (!subscriptionLicense) {
-      logInfo(`User ${user.id} attempted to activate a license with activation key ${activationKey}, but has no license.`);
+      logInfo(`User ${userId} attempted to activate a license with activation key ${activationKey}, but has no license.`);
     } else {
       logInfo(
-        `User ${user.id} attempted to activate a license with activation key ${activationKey}`
+        `User ${userId} attempted to activate a license with activation key ${activationKey}`
        + ` but their license ${subscriptionLicense.uuid} is ${subscriptionLicense.status}.`,
       );
     }
@@ -41,7 +40,7 @@ const LicenseActivationPage = () => {
 
   if (activationKey !== subscriptionLicense.activationKey) {
     logInfo(
-      `User ${user.id} attempted to activate a license with activation key ${activationKey}`
+      `User ${userId} attempted to activate a license with activation key ${activationKey}`
       + ` but their license ${subscriptionLicense.uuid} has activation key ${subscriptionLicense.activationKey}.`,
     );
     // User will be redirected to the correct activation link due to AutoActivateLicense.

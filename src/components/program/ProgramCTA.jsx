@@ -13,7 +13,7 @@ const ProgramCTA = () => {
   const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
   const { programUuid } = useParams();
 
   const { courseCount, availableCourseCount } = useMemo(() => (
@@ -60,7 +60,6 @@ const ProgramCTA = () => {
 
   const programDuration = getProgramDuration(program);
   const availableCourses = getAvailableCourses();
-  const { authenticatedUser: { userId } } = useContext(AppContext);
 
   return (
     <div className={

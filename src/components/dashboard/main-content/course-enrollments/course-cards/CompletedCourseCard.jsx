@@ -10,8 +10,7 @@ import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
 
 const CompletedCourseCard = (props) => {
-  const { authenticatedUser: user } = useContext(AppContext);
-  const { username } = user;
+  const { authenticatedUser: { username } } = useContext(AppContext);
   const {
     title,
     linkToCourse,

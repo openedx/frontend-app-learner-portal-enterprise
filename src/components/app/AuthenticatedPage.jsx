@@ -21,7 +21,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   const { enterpriseSlug } = useParams();
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
-  const { authenticatedUser: user } = useContext(AppContext);
+  const { authenticatedUser } = useContext(AppContext);
 
   const recommendCoursesForMeContextValue = useRecommendCoursesForMe();
 
@@ -29,7 +29,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
     ...recommendCoursesForMeContextValue,
   }), [recommendCoursesForMeContextValue]);
 
-  if (!user) {
+  if (!authenticatedUser) {
     // if user is not authenticated, remove cookie that controls whether the user will see
     // the integration warning modal on their next visit. the expected behavior is to only
     // see the modal once per authenticated session.
@@ -41,7 +41,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   // flow, we can show the logout message safely
   // not rendering the SiteFooter here since it looks like it requires additional setup
   // not available in the logged out state (errors with InjectIntl errors)
-  if (!user && isLogoutWorkflow) {
+  if (!authenticatedUser && isLogoutWorkflow) {
     return (
       <ErrorPage title="You are now logged out." showSiteFooter={false}>
         Please log back in {' '}

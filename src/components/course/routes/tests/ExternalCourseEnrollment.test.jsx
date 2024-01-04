@@ -69,7 +69,7 @@ const baseAppContextValue = {
     adminUsers: ['edx@example.com'],
     authOrgId: 'test-uuid',
   },
-  authenticatedUser: { id: 3 },
+  authenticatedUser: { userId: 3 },
 };
 
 const baseUserSubsidyContextValue = {

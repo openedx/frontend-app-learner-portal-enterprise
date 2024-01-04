@@ -25,10 +25,9 @@ const getCourseRun = course => (
 );
 
 const ProgramCourses = () => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
   const { program } = useContext(ProgramContext);
   const { programUuid } = useParams();
-  const { authenticatedUser: { userId } } = useContext(AppContext);
 
   return (
     <>

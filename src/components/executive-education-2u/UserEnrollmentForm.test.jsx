@@ -54,7 +54,7 @@ const initialAppContextValue = {
     enableExecutiveEducation2UFulfillment: true,
     enableDataSharingConsent: true,
   },
-  authenticatedUser: { id: 1, email: mockEmail },
+  authenticatedUser: { userId: 1, email: mockEmail },
 };
 
 const mockActiveCourseRun = {

@@ -11,9 +11,8 @@ import {
 } from './data/hooks';
 
 const EnterprisePageRedirect = () => {
-  const { authenticatedUser } = useContext(AppContext);
+  const { authenticatedUser: { roles } } = useContext(AppContext);
   const { redirectPath } = useParams();
-  const { roles } = authenticatedUser;
   const selectedEnterpriseUUID = useSelectedEnterpriseUUIDByUserRoles(roles);
   const [enterpriseCustomer, isLoading] = useEnterpriseCustomerByUUID(selectedEnterpriseUUID);
 

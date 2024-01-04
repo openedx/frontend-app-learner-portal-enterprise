@@ -46,7 +46,6 @@ import { fetchCourseEnrollments } from './data/service';
 
 const SkillsQuizStepper = () => {
   const config = getConfig();
-  const { authenticatedUser: { userId } } = useContext(AppContext);
   const [searchClient, courseIndex, jobIndex] = useMemo(
     () => {
       const client = algoliasearch(
@@ -69,7 +68,7 @@ const SkillsQuizStepper = () => {
   } = useContext(SkillsContext);
   const { refinements } = useContext(SearchContext);
   const { name: jobs, current_job: currentJob } = refinements;
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
 
   const history = useHistory();
 

@@ -11,8 +11,7 @@ import VisualizeCareer from './VisualizeCareer';
 import { extractCurrentJobID } from './data/utils';
 
 const MyCareerTab = () => {
-  const { authenticatedUser } = useContext(AppContext);
-  const { username } = authenticatedUser;
+  const { authenticatedUser: { username } } = useContext(AppContext);
 
   const [learnerProfileData, learnerProfileDataFetchError, isLoadingData] = useLearnerProfileData(
     username,

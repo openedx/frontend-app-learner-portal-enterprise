@@ -870,7 +870,7 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
 
 describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ authenticatedUser: { id: mockLmsUserId } }}>
+    <AppContext.Provider value={{ authenticatedUser: { userId: mockLmsUserId } }}>
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>

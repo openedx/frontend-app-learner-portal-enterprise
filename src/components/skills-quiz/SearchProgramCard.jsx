@@ -34,7 +34,7 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
 
 const SearchProgramCard = ({ index }) => {
   const history = useHistory();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
     subscriptionPlan,
@@ -44,7 +44,6 @@ const SearchProgramCard = ({ index }) => {
     redeemableLearnerCreditPolicies,
   } = useContext(UserSubsidyContext);
   const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-  const { authenticatedUser: { userId } } = useContext(AppContext);
 
   const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,

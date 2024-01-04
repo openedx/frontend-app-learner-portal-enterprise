@@ -87,7 +87,7 @@ const useStatefulEnroll = ({
     const makeRedemption = async () => {
       try {
         await redemptionMutation.mutateAsync({
-          userId: authenticatedUser.id,
+          userId: authenticatedUser.userId,
           contentKey,
           policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
           metadata,

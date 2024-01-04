@@ -47,7 +47,7 @@ describe('useStatefulEnroll', () => {
     }
 
     const wrapper = ({ children }) => (
-      <AppContext.Provider value={{ authenticatedUser: { id: 123 } }}>
+      <AppContext.Provider value={{ authenticatedUser: { userId: 123 } }}>
         {children}
       </AppContext.Provider>
     );

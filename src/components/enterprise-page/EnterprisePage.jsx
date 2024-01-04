@@ -22,8 +22,8 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
-  const { authenticatedUser: user } = useContext(AppContext);
-  const { profileImage } = user;
+  const { authenticatedUser } = useContext(AppContext);
+  const { profileImage } = authenticatedUser;
 
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseConfig)) {
@@ -33,11 +33,11 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
 
   const { isLoading: isUpdatingActiveEnterprise } = useUpdateActiveEnterpriseForUser({
     enterpriseId: enterpriseConfig?.uuid,
-    user,
+    authenticatedUser,
   });
 
   const contextValue = useMemo(() => ({
-    authenticatedUser: user,
+    authenticatedUser,
     config,
     enterpriseConfig,
     courseCards: {
@@ -51,7 +51,7 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
       client: searchClient,
       index: searchIndex,
     },
-  }), [config, enterpriseConfig, searchClient, searchIndex, user]);
+  }), [config, enterpriseConfig, searchClient, searchIndex, authenticatedUser]);
 
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!isDefined([enterpriseConfig, profileImage]) || isUpdatingActiveEnterprise) {
