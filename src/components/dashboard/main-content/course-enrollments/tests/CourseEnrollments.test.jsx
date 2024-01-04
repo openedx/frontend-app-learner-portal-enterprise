@@ -3,7 +3,6 @@ import { screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 
@@ -22,9 +21,7 @@ import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../../enterprise-user-subsidy/data/constants';
 
-jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
-getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 jest.mock('../course-cards/mark-complete-modal/data/service');
 
@@ -110,7 +107,7 @@ const initialUserSubsidyState = {
 
 const CourseEnrollmentsWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={{ enterpriseConfig }}>
+    <AppContext.Provider value={{ enterpriseConfig, authenticatedUser: { username: 'test-username' } }}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
           <CourseEnrollmentsContextProvider>

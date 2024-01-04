@@ -11,8 +11,7 @@ import {
 } from './data/hooks';
 
 const EnterpriseCustomerRedirect = () => {
-  const { authenticatedUser } = useContext(AppContext);
-  const { roles } = authenticatedUser;
+  const { authenticatedUser: { roles } } = useContext(AppContext);
   const selectedEnterpriseUUID = useSelectedEnterpriseUUIDByUserRoles(roles);
   const [enterpriseCustomer, isLoading] = useEnterpriseCustomerByUUID(selectedEnterpriseUUID);
 

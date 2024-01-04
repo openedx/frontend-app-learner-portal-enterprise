@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -597,7 +596,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   isQueryEnabled,
   queryOptions,
 }) => {
-  const { id: lmsUserId } = getAuthenticatedUser();
+  const { authenticatedUser: { userId: lmsUserId } } = useContext(AppContext);
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
   return useQuery({
     ...queryOptions,

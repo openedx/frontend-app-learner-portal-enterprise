@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import BaseCourseCard from './BaseCourseCard';
@@ -10,8 +10,7 @@ import { isCourseEnded } from '../../../../../utils/common';
 import CertificateImg from './images/edx-verified-mini-cert.png';
 
 const CompletedCourseCard = (props) => {
-  const user = getAuthenticatedUser();
-  const { username } = user;
+  const { authenticatedUser: { username } } = useContext(AppContext);
   const {
     title,
     linkToCourse,

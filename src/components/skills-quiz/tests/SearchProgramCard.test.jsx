@@ -16,11 +16,6 @@ import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const userId = 'batman';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne', userId }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
@@ -65,6 +60,10 @@ const defaultAppState = {
   enterpriseConfig: {
     slug: TEST_ENTERPRISE_SLUG,
     uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
+  },
+  authenticatedUser: {
+    username: 'b.wayne',
+    userId,
   },
 };
 

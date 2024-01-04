@@ -37,11 +37,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => (mockLocation),
 }));
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 describe('<GoalDropdown />', () => {
   afterAll(() => {
     jest.restoreAllMocks();

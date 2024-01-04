@@ -1,17 +1,11 @@
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
 import AuthenticatedPage from './AuthenticatedPage';
 import { useRecommendCoursesForMe } from './data';
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: jest.fn(),
-}));
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -100,7 +94,6 @@ describe('AuthenticatedPage tests', () => {
       shouldRecommendCourses: true,
     },
   ])('handles authenticated user (%s)', ({ shouldRecommendCourses }) => {
-    getAuthenticatedUser.mockReturnValue(mockAuthenticatedUser);
     useRecommendCoursesForMe.mockReturnValue({
       shouldRecommendCourses,
     });

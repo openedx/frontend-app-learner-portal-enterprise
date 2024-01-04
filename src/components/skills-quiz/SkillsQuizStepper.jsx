@@ -16,7 +16,6 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
@@ -52,7 +51,6 @@ import { fetchCourseEnrollments } from './data/service';
 
 const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const config = getConfig();
-  const { userId } = getAuthenticatedUser();
   const [searchClient, courseIndex, jobIndex] = useMemo(() => {
     const client = algoliasearch(
       config.ALGOLIA_APP_ID,
@@ -77,7 +75,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   } = useContext(SkillsContext);
   const { refinements } = useContext(SearchContext);
   const { name: jobs, current_job: currentJob } = refinements;
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
 
   const history = useHistory();
 

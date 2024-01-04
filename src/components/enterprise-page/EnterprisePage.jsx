@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Container } from '@edx/paragon';
@@ -23,8 +22,8 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   const [enterpriseConfig, fetchError] = useEnterpriseCustomerConfig(enterpriseSlug, useEnterpriseConfigCache);
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
-  const user = getAuthenticatedUser();
-  const { profileImage } = user;
+  const { authenticatedUser } = useContext(AppContext);
+  const { profileImage } = authenticatedUser;
 
   useEffect(() => {
     if (isDefinedAndNotNull(enterpriseConfig)) {
@@ -34,11 +33,11 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
 
   const { isLoading: isUpdatingActiveEnterprise } = useUpdateActiveEnterpriseForUser({
     enterpriseId: enterpriseConfig?.uuid,
-    user,
+    authenticatedUser,
   });
 
   const contextValue = useMemo(() => ({
-    authenticatedUser: user,
+    authenticatedUser,
     config,
     enterpriseConfig,
     courseCards: {
@@ -52,7 +51,7 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
       client: searchClient,
       index: searchIndex,
     },
-  }), [config, enterpriseConfig, searchClient, searchIndex, user]);
+  }), [config, enterpriseConfig, searchClient, searchIndex, authenticatedUser]);
 
   // Render the app as loading while waiting on the configuration or additional user metadata
   if (!isDefined([enterpriseConfig, profileImage]) || isUpdatingActiveEnterprise) {

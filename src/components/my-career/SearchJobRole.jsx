@@ -4,7 +4,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { logError } from '@edx/frontend-platform/logging';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -18,7 +18,7 @@ import { useAlgoliaSearch } from '../../utils/hooks';
 const SearchJobRole = (props) => {
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config, config.ALGOLIA_INDEX_NAME_JOBS);
-  const { username } = getAuthenticatedUser();
+  const { authenticatedUser: { username } } = useContext(AppContext);
   const { refinements, dispatch } = useContext(SearchContext);
   const { current_job: currentJob } = refinements;
   const [loadingRequest, setLoadingRequest] = useState(false);

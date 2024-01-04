@@ -13,8 +13,7 @@ const AvatarDropdown = ({ showLabel }) => {
     LOGOUT_URL,
     LEARNER_SUPPORT_URL,
   } = getConfig();
-  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-  const { username, profileImage } = authenticatedUser;
+  const { enterpriseConfig, authenticatedUser: { username, profileImage } } = useContext(AppContext);
   const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
 
   const idpPresent = isDefinedAndNotNull(enterpriseConfig.identityProvider);
@@ -52,7 +51,7 @@ const AvatarDropdown = ({ showLabel }) => {
           {enterpriseConfig.name}
         </Dropdown.Item>
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={`${LMS_BASE_URL}/u/${authenticatedUser.username}`}>My profile</Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/u/${username}`}>My profile</Dropdown.Item>
         <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account settings</Dropdown.Item>
         <Dropdown.Item href={LEARNER_SUPPORT_URL}>Help</Dropdown.Item>
         <Dropdown.Divider className="border-light" />

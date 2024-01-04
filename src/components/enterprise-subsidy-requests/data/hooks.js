@@ -1,9 +1,9 @@
 import {
-  useState, useEffect, useCallback,
+  useState, useEffect, useCallback, useContext,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 
 import {
   fetchSubsidyRequestConfiguration,
@@ -53,11 +53,11 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
   const [licenseRequests, setLicenseRequests] = useState([]);
   const [couponCodeRequests, setCouponCodeRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { authenticatedUser: { email: userEmail } } = useContext(AppContext);
 
   const fetchSubsidyRequests = useCallback(async (subsidyType) => {
     setIsLoading(true);
     try {
-      const { email: userEmail } = getAuthenticatedUser();
       const { enterpriseCustomerUuid: enterpriseUUID } = subsidyRequestConfiguration;
 
       const options = {
@@ -80,7 +80,7 @@ export const useSubsidyRequests = (subsidyRequestConfiguration) => {
     } finally {
       setIsLoading(false);
     }
-  }, [subsidyRequestConfiguration]);
+  }, [subsidyRequestConfiguration, userEmail]);
 
   const loadSubsidyRequests = useCallback(() => {
     if (subsidyRequestConfiguration?.subsidyRequestsEnabled) {

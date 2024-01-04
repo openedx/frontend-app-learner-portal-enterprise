@@ -11,10 +11,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ programUuid: '00000000-0000-0000-0000-000000000000' }),
 }));
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
-}));
 
 const ProgramMainContentWithContext = ({
   initialAppState = {},
@@ -34,6 +30,9 @@ describe('<ProgramMainContent />', () => {
   const initialAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
+    },
+    authenticatedUser: {
+      username: 'b.wayne',
     },
   };
   const initialProgramState = {

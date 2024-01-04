@@ -2,7 +2,6 @@ import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
@@ -13,9 +12,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
-
-jest.mock('@edx/frontend-platform/auth');
-getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 const basicProps = {
   courseRunStatus: 'in_progress',
@@ -30,6 +26,9 @@ const InProgressCourseCardWrapper = ({
   {
     enterpriseConfig: {
       uuid: 123,
+    },
+    authenticatedUser: {
+      username: 'test-username',
     },
   },
   userSubsidyContextValue = {
