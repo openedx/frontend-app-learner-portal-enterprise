@@ -8,6 +8,7 @@ import EnrollmentCompleted from './EnrollmentCompleted';
 import { CURRENCY_USD } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { emptyRedeemableLearnerCreditPolicies } from '../enterprise-user-subsidy/data/constants';
 
 const enterpriseSlug = 'test-enterprise-slug';
 const initialAppContextValue = {
@@ -76,15 +77,7 @@ const EnrollmentCompletedWrapper = ({
       couponCodes: [{ discountValue: 90 }],
       couponCodesCount: 0,
     },
-    redeemableLearnerCreditPolicies: {
-      redeemablePolicies: [],
-      learnerContentAssignments: {
-        assignments: [],
-        hasAssignments: false,
-        activeAssignments: [],
-        hasActiveAssignments: false,
-      },
-    },
+    redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
   },
 }) => (
   <AppContext.Provider value={appContextValue}>

@@ -1,4 +1,5 @@
 import { camelCaseObject } from '@edx/frontend-platform';
+import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
 import { COURSE_STATUSES } from '../constants';
@@ -183,13 +184,13 @@ describe('isAssignmentExpired', () => {
       subsidyExpirationDate,
     };
     const earliestAssignmentExpiryDate = [
-      new Date(created),
-      new Date(enrollByDate),
-      new Date(subsidyExpirationDate),
-    ].sort()[0];
+      dayjs(created).add(90, 'd'),
+      dayjs(enrollByDate),
+      dayjs(subsidyExpirationDate),
+    ].sort((a, b) => (dayjs(a).isAfter(b) ? 1 : -1))[0];
     expect(isAssignmentExpired(allocatedAssignment)).toEqual({
       isExpired,
-      enrollByDeadline: earliestAssignmentExpiryDate,
+      enrollByDeadline: earliestAssignmentExpiryDate.toDate(),
     });
   });
 });

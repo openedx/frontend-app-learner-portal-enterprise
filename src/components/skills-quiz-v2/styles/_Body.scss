@@ -1,0 +1,37 @@
+$gray-500: #707070;
+$max-sm-modal-width: 28rem !important;
+$min-sm-modal-height: 16rem !important;
+
+.page-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.form {
+  width: 65%;
+}
+.pgn__form-group {
+  width: 101%;
+}
+.text {
+  width: 65%;
+}
+.pgn__form-label {
+  font-weight: bold;
+}
+
+.btn {
+  margin: 7px -5px;
+}
+
+.form-auto-suggest {
+  .form-control {
+    color: $gray-500;
+  }
+}
+
+.modal-small {
+  max-width: $max-sm-modal-width;
+  min-height: $min-sm-modal-height;
+}

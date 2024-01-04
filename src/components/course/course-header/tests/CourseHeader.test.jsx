@@ -13,6 +13,7 @@ import CourseHeader from '../CourseHeader';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -105,15 +106,7 @@ const defaultUserSubsidyState = {
     couponCodes: [],
     couponCodesCount: 0,
   },
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 
 const CourseHeaderWrapper = ({

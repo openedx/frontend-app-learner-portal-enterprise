@@ -37,11 +37,14 @@ export const isAssignmentExpired = (assignment) => {
     hasExceededAssignmentDeadline || isEnrollmentDeadlineExpired || currentDate.isAfter(subsidyExpirationDate)
   );
 
-  const assignmentExpiryDates = [enrollmentEndDate, subsidyExpirationDate];
+  const assignmentExpiryDates = [subsidyExpirationDate];
+  if (enrollmentEndDate) {
+    assignmentExpiryDates.push(enrollmentEndDate);
+  }
   if (allocationDate) {
     assignmentExpiryDates.push(dayjs(allocationDate).add(90, 'day'));
   }
-  const earliestAssignmentExpiryDate = assignmentExpiryDates.sort()[0]?.toDate();
+  const earliestAssignmentExpiryDate = assignmentExpiryDates.sort((a, b) => (dayjs(a).isAfter(b) ? 1 : -1))[0].toDate();
 
   return {
     isExpired,
@@ -145,6 +148,7 @@ export function getAssignmentsByState(assignments = []) {
   const canceledAssignments = [];
   const acceptedAssignments = [];
   const erroredAssignments = [];
+  const assignmentsForDisplay = [];
 
   assignments.forEach((assignment) => {
     allAssignments.push(assignment);
@@ -168,6 +172,11 @@ export function getAssignmentsByState(assignments = []) {
   const hasAcceptedAssignments = acceptedAssignments.length > 0;
   const hasErroredAssignments = erroredAssignments.length > 0;
 
+  // Concatenate all assignments for display (includes allocated and canceled assignments)
+  assignmentsForDisplay.push(...allocatedAssignments);
+  assignmentsForDisplay.push(...canceledAssignments);
+  const hasAssignmentsForDisplay = assignmentsForDisplay.length > 0;
+
   return {
     assignments,
     hasAssignments,
@@ -179,5 +188,7 @@ export function getAssignmentsByState(assignments = []) {
     hasAcceptedAssignments,
     erroredAssignments,
     hasErroredAssignments,
+    assignmentsForDisplay,
+    hasAssignmentsForDisplay,
   };
 }
