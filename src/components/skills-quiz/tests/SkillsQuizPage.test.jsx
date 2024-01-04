@@ -91,7 +91,7 @@ describe('SkillsQuizPage', () => {
       </SearchData>,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText('Let edX be your guide')).toBeInTheDocument();
+    expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeInTheDocument();
   });
   it('should render null', async () => {
     renderWithRouter(

@@ -5,6 +5,7 @@ import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { Container, Row } from '@edx/paragon';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import { MainContent } from '../layout';
 import SkillsQuizStepper from './SkillsQuizStepper';
@@ -14,7 +15,7 @@ import SkillsQuizV2 from '../skills-quiz-v2/SkillsQuiz';
 const SkillsQuiz = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
-  const v1 = false;
+  const v2 = hasFeatureFlagEnabled('ENABLE_SKILLS_QUIZ_V2'); // Enable the skills quiz v2 design only when enabled via query parameter.
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -23,10 +24,10 @@ const SkillsQuiz = () => {
           <MainContent>
             <SearchData>
               <SkillsContextProvider>
-                {v1 ? (
-                  <SkillsQuizStepper isStyleAutoSuggest={false} />
-                ) : (
+                {v2 ? (
                   <SkillsQuizV2 isStyleAutoSuggest />
+                ) : (
+                  <SkillsQuizStepper isStyleAutoSuggest={false} />
                 )}
               </SkillsContextProvider>
             </SearchData>
