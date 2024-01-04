@@ -4,7 +4,6 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
 import {
   renderWithRouter,
@@ -86,6 +85,6 @@ describe('<SkillsQuiz />', () => {
       </SearchData>,
       { route: '/test/skills-quiz/' },
     );
-    expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeTruthy();
+    expect(screen.getByText('Skills builder')).toBeTruthy();
   });
 });
