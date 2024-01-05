@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -27,7 +27,7 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
   }, []);
 
   if (!hasAssignmentsForDisplay && isFirstDashboardPageVisit()) {
-    return <Redirect to={`/${enterpriseSlug}/search`} />;
+    return <Navigate to={`/${enterpriseSlug}/search`} replace />;
   }
 
   return null;

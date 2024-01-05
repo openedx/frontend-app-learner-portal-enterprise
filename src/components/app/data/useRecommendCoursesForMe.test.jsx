@@ -1,5 +1,5 @@
 import { AppContext } from '@edx/frontend-platform/react';
-import { useParams, useRouteMatch } from 'react-router-dom';
+import { useParams, useMatch } from 'react-router-dom';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 import useRecommendCoursesForMe from './useRecommendCoursesForMe';
@@ -8,7 +8,7 @@ import { useEnterpriseCuration } from '../../search/content-highlights/data';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
-  useRouteMatch: jest.fn(),
+  useMatch: jest.fn(),
 }));
 
 jest.mock('../../search/content-highlights/data', () => ({
@@ -44,17 +44,17 @@ describe('useRecommendCoursesForMe', () => {
 
   it.each([
     {
-      mockRouteMatch: { isExact: false }, // simulates non-search page route
+      mockRouteMatch: null, // simulates non-search page route
       canOnlyViewHighlightSets: false,
       hasRecommendCourseCTA: false,
     },
     {
-      mockRouteMatch: { isExact: true }, // simulates search page route
+      mockRouteMatch: { path: '/search' }, // simulates search page route
       canOnlyViewHighlightSets: false,
       hasRecommendCourseCTA: true,
     },
     {
-      mockRouteMatch: { isExact: true }, // simulates search page route
+      mockRouteMatch: { path: '/search' }, // simulates search page route
       canOnlyViewHighlightSets: true,
       hasRecommendCourseCTA: false,
     },
@@ -63,7 +63,7 @@ describe('useRecommendCoursesForMe', () => {
     canOnlyViewHighlightSets,
     hasRecommendCourseCTA,
   }) => {
-    useRouteMatch.mockReturnValue(mockRouteMatch);
+    useMatch.mockReturnValue(mockRouteMatch);
     useEnterpriseCuration.mockReturnValue({
       enterpriseCuration: {
         canOnlyViewHighlightSets,

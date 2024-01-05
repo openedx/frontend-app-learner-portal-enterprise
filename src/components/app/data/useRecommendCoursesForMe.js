@@ -4,7 +4,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useParams, useRouteMatch } from 'react-router-dom';
+import { useParams, useMatch } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logInfo } from '@edx/frontend-platform/logging';
 
@@ -18,7 +18,7 @@ export default function useRecommendCoursesForMe() {
   const { enterpriseSlug } = useParams();
   const { enterpriseConfig } = useContext(AppContext);
 
-  const routeMatch = useRouteMatch(`/${enterpriseSlug}/search`);
+  const routeMatch = useMatch(`/${enterpriseSlug}/search`);
   const [shouldRecommendCourses, setShouldRecommendCourses] = useState(false);
 
   const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseConfig?.uuid);
@@ -26,7 +26,7 @@ export default function useRecommendCoursesForMe() {
   const showRecommendCourses = useCallback(() => {
     // only show the recommend courses button if the current route is the search page
     // and the user is not restricted to only viewing highlight sets.
-    if (routeMatch?.isExact && !canOnlyViewHighlightSets) {
+    if (routeMatch && !canOnlyViewHighlightSets) {
       setShouldRecommendCourses(true);
     } else {
       logInfo('Cannot show recommend courses button because the current route is not the search page.');

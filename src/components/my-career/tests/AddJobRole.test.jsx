@@ -20,10 +20,12 @@ jest.mock('@edx/frontend-platform/i18n', () => ({
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: () => ({
+    pathname: '',
     state: {
       activationSuccess: true,
     },
   }),
+  useNavigate: () => jest.fn(),
 }));
 
 // eslint-disable-next-line no-console

@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { Link, useMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 
 const SiteHeaderLogos = () => {
-  const courseTypeMatch = useRouteMatch('/:enterpriseSlug/:courseType');
+  const courseTypeMatch = useMatch('/:enterpriseSlug/:courseType/*');
   const courseType = courseTypeMatch?.params?.courseType;
   const { enterpriseConfig } = useContext(AppContext);
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];

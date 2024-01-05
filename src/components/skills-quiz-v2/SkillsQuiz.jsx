@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import {
   ModalDialog, useToggle, ActionRow, Button,
 } from '@edx/paragon';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import {
   SKILL_BUILDER_TITLE,
@@ -20,11 +20,11 @@ import headerImage from '../skills-quiz/images/headerImage.png';
 
 const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
   const { enterpriseConfig } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isOpen, open, close] = useToggle(false);
 
   const handleExit = () => {
-    history.push(`/${enterpriseConfig.slug}/search`);
+    navigate(`/${enterpriseConfig.slug}/search`);
   };
 
   const TITLE = `edx - ${SKILL_BUILDER_TITLE}`;

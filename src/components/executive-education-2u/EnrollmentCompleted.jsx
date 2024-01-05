@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Redirect, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Container } from '@edx/paragon';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -10,7 +10,7 @@ const EnrollmentCompleted = () => {
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
   if (!location.state?.data) {
-    return <Redirect to={`/${enterpriseConfig.slug}`} />;
+    return <Navigate to={`/${enterpriseConfig.slug}`} replace />;
   }
   return (
     <div className="fill-vertical-space page-light-bg">

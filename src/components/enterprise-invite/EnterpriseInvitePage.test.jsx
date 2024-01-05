@@ -1,17 +1,16 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import * as logging from '@edx/frontend-platform/logging';
+import { MemoryRouter } from 'react-router-dom';
 import EnterpriseInvitePage, {
   LOADING_MESSAGE,
   CTA_BUTTON_TEXT,
 } from './EnterpriseInvitePage';
 import { postLinkEnterpriseLearner } from './data/service';
 import * as utils from '../../utils/common';
-
-import { renderWithRouter } from '../../utils/tests';
 
 jest.mock('../../utils/common', () => ({
   loginRefresh: jest.fn(),
@@ -26,12 +25,17 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 jest.mock('../error-page', () => ({
   ErrorPage: ({ children }) => <div data-testid="error-page-message">{children}</div>,
 }));
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 const TEST_ENTEPRRISE_SLUG = 'test-enterprise-slug';
 const TEST_INVITE_KEY = '00000000-0000-0000-0000-000000000000';
 const TEST_ROUTE = `/invite/${TEST_INVITE_KEY}`;
 
-const renderEnterpriseInviteComponent = () => renderWithRouter(
+const renderEnterpriseInviteComponent = () => render(
   <AppContext.Provider value={{
     authenticatedUser: {
       userId: 1,
@@ -45,11 +49,10 @@ const renderEnterpriseInviteComponent = () => renderWithRouter(
     },
   }}
   >
-    <EnterpriseInvitePage />
+    <MemoryRouter initialEntries={[TEST_ROUTE]}>
+      <EnterpriseInvitePage />
+    </MemoryRouter>
   </AppContext.Provider>,
-  {
-    route: TEST_ROUTE,
-  },
 );
 
 describe('EnterpriseInvitePage', () => {
@@ -61,7 +64,7 @@ describe('EnterpriseInvitePage', () => {
         enterprise_customer_slug: TEST_ENTEPRRISE_SLUG,
       },
     });
-    const { history } = renderEnterpriseInviteComponent();
+    renderEnterpriseInviteComponent();
 
     // assert component is initially loading but then eventually resolves
     expect(screen.getByText(LOADING_MESSAGE));
@@ -69,7 +72,7 @@ describe('EnterpriseInvitePage', () => {
 
     expect(utils.loginRefresh).toHaveBeenCalledTimes(1);
     // assert we got redirected to enterprise's slug
-    expect(history.location.pathname).toEqual(`/${TEST_ENTEPRRISE_SLUG}`);
+    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTEPRRISE_SLUG}`, { replace: true });
   });
 
   test('redirects to slug if successful linked user even if login refresh fails', async () => {
@@ -78,7 +81,7 @@ describe('EnterpriseInvitePage', () => {
         enterprise_customer_slug: TEST_ENTEPRRISE_SLUG,
       },
     });
-    const { history } = renderEnterpriseInviteComponent();
+    renderEnterpriseInviteComponent();
 
     const loginRefreshError = new Error('login refresh error');
     utils.loginRefresh.mockRejectedValueOnce(loginRefreshError);
@@ -87,14 +90,14 @@ describe('EnterpriseInvitePage', () => {
     expect(logging.logError).toHaveBeenCalledWith(loginRefreshError);
 
     // assert we got redirected to enterprise's slug
-    expect(history.location.pathname).toEqual(`/${TEST_ENTEPRRISE_SLUG}`);
+    expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ENTEPRRISE_SLUG}`, { replace: true });
   });
 
   test('handles error when linking user to enterprise', async () => {
     const error = new Error('oh noes');
     postLinkEnterpriseLearner.mockRejectedValueOnce(error);
 
-    const { history } = renderEnterpriseInviteComponent();
+    renderEnterpriseInviteComponent();
 
     // assert component is initially loading but then eventually resolves
     expect(screen.queryAllByText(LOADING_MESSAGE)).toHaveLength(1);
@@ -104,7 +107,7 @@ describe('EnterpriseInvitePage', () => {
     expect(utils.loginRefresh).not.toHaveBeenCalled();
 
     // assert we did NOT get redirected
-    expect(history.location.pathname).toEqual(TEST_ROUTE);
+    expect(mockNavigate).not.toHaveBeenCalled();
 
     // assert the custom error page messaging renders
     expect(screen.getByText(CTA_BUTTON_TEXT));

@@ -3,7 +3,7 @@ import {
   breakpoints, Container, MediaQuery, Row,
 } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import { MainContent, Sidebar } from '../../layout';
 import CourseHeader from '../course-header/CourseHeader';
@@ -50,7 +50,7 @@ const CourseAbout = () => {
 
   const featuredIsAssignmentOnlyLearner = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isAssignmentOnlyLearner;
   if (!isCourseAssigned && featuredIsAssignmentOnlyLearner) {
-    return <Redirect to={`/${enterpriseConfig.slug}`} />;
+    return <Navigate to={`/${enterpriseConfig.slug}`} replace />;
   }
 
   const shouldShowCourseRecommendations = (

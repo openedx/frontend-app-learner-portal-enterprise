@@ -1,19 +1,32 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import * as reactRouterDom from 'react-router-dom';
-import { Route } from 'react-router-dom';
+import {
+  Route, Routes, MemoryRouter, mockNavigate,
+} from 'react-router-dom';
 import LicenseActivation, { LOADING_MESSAGE } from '../LicenseActivation';
 
-import { renderWithRouter } from '../../../utils/tests';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(() => ({})),
-}));
+jest.mock('react-router-dom', () => {
+  const mockNavigation = jest.fn();
+
+  // eslint-disable-next-line react/prop-types
+  const Navigate = ({ to }) => {
+    mockNavigation(to);
+    return <div />;
+  };
+
+  return {
+    ...jest.requireActual('react-router-dom'),
+    Navigate,
+    mockNavigate: mockNavigation,
+    useLocation: jest.fn(() => ({})),
+  };
+});
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
@@ -35,9 +48,11 @@ const LicenseActivationWithAppContext = ({
     }}
   >
     <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <Route exact path="/:enterpriseSlug/licenses/:activationKey/activate">
-        <LicenseActivation />
-      </Route>
+      <MemoryRouter initialEntries={[TEST_ROUTE]}>
+        <Routes>
+          <Route path="/:enterpriseSlug/licenses/:activationKey/activate" element={<LicenseActivation />} />
+        </Routes>
+      </MemoryRouter>
     </UserSubsidyContext.Provider>
   </AppContext.Provider>
 );
@@ -49,16 +64,11 @@ describe('LicenseActivation', () => {
     // For the initial state, there is no activation success or error
     const mockActivateUserLicense = jest.fn();
 
-    const { history } = renderWithRouter(
-      <LicenseActivationWithAppContext
-        initialUserSubsidyState={{
-          activateUserLicense: mockActivateUserLicense,
-        }}
-      />,
-      {
-        route: TEST_ROUTE,
-      },
-    );
+    render(<LicenseActivationWithAppContext
+      initialUserSubsidyState={{
+        activateUserLicense: mockActivateUserLicense,
+      }}
+    />);
 
     await waitFor(() => {
       expect(mockActivateUserLicense).toHaveBeenCalledWith(false);
@@ -67,7 +77,7 @@ describe('LicenseActivation', () => {
       expect(screen.queryAllByText(LOADING_MESSAGE)).toHaveLength(1);
 
       // assert we did NOT get redirected
-      expect(history.location.pathname).toEqual(TEST_ROUTE);
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -76,15 +86,12 @@ describe('LicenseActivation', () => {
       new Error("Couldn't activate license"),
     );
 
-    const { history } = renderWithRouter(
+    render(
       <LicenseActivationWithAppContext
         initialUserSubsidyState={{
           activateUserLicense: mockActivateUserLicense,
         }}
       />,
-      {
-        route: TEST_ROUTE,
-      },
     );
 
     expect(mockActivateUserLicense).toHaveBeenCalledWith(false);
@@ -94,7 +101,7 @@ describe('LicenseActivation', () => {
       expect(screen.getByRole('alert')).toHaveClass('alert-danger');
 
       // assert we did NOT get redirected
-      expect(history.location.pathname).toEqual(TEST_ROUTE);
+      expect(mockNavigate).not.toHaveBeenCalledWith();
     });
   });
 
@@ -108,20 +115,17 @@ describe('LicenseActivation', () => {
     }
 
     const mockActivateUserLicense = jest.fn();
-    const { history } = renderWithRouter(
+    render(
       <LicenseActivationWithAppContext
         initialUserSubsidyState={{
           activateUserLicense: mockActivateUserLicense,
         }}
       />,
-      {
-        route: TEST_ROUTE,
-      },
     );
 
     await waitFor(() => {
       expect(mockActivateUserLicense).toHaveBeenCalledWith(!!redirectedFrom);
-      expect(history.location.pathname).toEqual(redirectedFrom ?? `/${TEST_ENTERPRISE_SLUG}`);
+      expect(mockNavigate).toHaveBeenCalledWith(redirectedFrom ?? `/${TEST_ENTERPRISE_SLUG}`);
     });
   });
 });

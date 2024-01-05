@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Container, Hyperlink } from '@edx/paragon';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -30,7 +30,7 @@ const EnterpriseInvitePage = () => {
   const { enterpriseCustomerInviteKey } = useParams();
   const [inviteError, setInviteError] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { authenticatedUser, config } = useContext(AppContext);
 
   useEffect(() => {
@@ -60,14 +60,14 @@ const EnterpriseInvitePage = () => {
             logError(error);
           }
 
-          history.replace(redirectTo);
+          navigate(redirectTo, { replace: true });
         }
 
         setIsLoading(false);
       };
       linkEnterpriseLearner();
     }
-  }, [authenticatedUser, enterpriseCustomerInviteKey, history]);
+  }, [authenticatedUser, enterpriseCustomerInviteKey, navigate]);
 
   return (
     <LoginRedirect>

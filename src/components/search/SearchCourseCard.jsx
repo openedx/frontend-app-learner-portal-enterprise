@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -16,7 +16,7 @@ const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const eventName = useMemo(
     () => {
@@ -86,8 +86,7 @@ const SearchCourseCard = ({
         courseKey: course.key,
       },
     );
-
-    history.push(linkToCourse, { parentRoute });
+    navigate(linkToCourse, { state: parentRoute });
   };
 
   return (
