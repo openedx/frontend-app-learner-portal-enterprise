@@ -21,6 +21,12 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
 const PROGRAM_TYPE_DISPLAYED = 'MicroMasters® Program';
@@ -128,7 +134,7 @@ const SearchProgramCardWithContext = ({
 
 describe('<SearchProgramCard />', () => {
   test('renders the correct data', async () => {
-    const { container, history } = renderWithRouter(
+    const { container } = renderWithRouter(
       <SearchProgramCardWithContext
         index={testIndex}
       />,
@@ -152,8 +158,7 @@ describe('<SearchProgramCard />', () => {
 
     // handles click
     userEvent.click(searchProgramCard);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toContain(`${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
   });
 
   test('renders the correct data with skills', async () => {

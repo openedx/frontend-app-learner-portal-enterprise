@@ -80,12 +80,10 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
 
-const mockedPush = jest.fn();
+const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockedPush,
-  }),
+  useNavigate: () => mockedNavigate,
   useLocation: jest.fn(),
 }));
 
@@ -348,9 +346,7 @@ describe('ExecutiveEducation2UPage', () => {
     renderWithRouter(<ExecutiveEducation2UPageWrapper />);
     userEvent.click(screen.getByText('Mock submit enrollment form'));
 
-    expect(mockedPush).toHaveBeenCalledTimes(1);
-    expect(mockedPush).toHaveBeenCalledWith(
-      { pathname: `/${enterpriseSlug}/executive-education-2u/enrollment-completed`, state: { data: {} } },
-    );
+    expect(mockedNavigate).toHaveBeenCalledTimes(1);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${enterpriseSlug}/executive-education-2u/enrollment-completed`, { state: { data: {} } });
   });
 });

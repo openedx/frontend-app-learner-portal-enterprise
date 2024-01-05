@@ -11,12 +11,10 @@ import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../..
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
-const mockHistoryPush = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockHistoryPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('../../data/hooks', () => ({
@@ -167,7 +165,7 @@ describe('ExternalCourseEnrollment', () => {
     };
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
 
-    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
   it.each([

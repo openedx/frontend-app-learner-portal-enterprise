@@ -2,7 +2,7 @@ import React, {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import {
-  useLocation, useParams, useHistory,
+  useLocation, useParams, useNavigate,
 } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Container } from '@edx/paragon';
@@ -63,7 +63,7 @@ const CoursePage = () => {
     },
   } = useEnterpriseCuration(enterpriseUUID);
   const { pathname, search, state } = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const courseRunKey = useMemo(
     () => {
@@ -226,9 +226,9 @@ const CoursePage = () => {
         courseState.course,
         enterpriseSlug,
       );
-      history.replace(newUrl, state);
+      navigate(newUrl, { state, replace: true });
     }
-  }, [enterpriseSlug, history, courseState, pathname, state]);
+  }, [enterpriseSlug, navigate, courseState, pathname, state]);
 
   const subsidyRequestCatalogsApplicableToCourse = useMemo(() => {
     const catalogsContainingCourse = new Set(courseState?.catalog?.catalogList);

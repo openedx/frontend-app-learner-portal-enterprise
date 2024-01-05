@@ -40,9 +40,9 @@ describe('<CourseRecommendations />', () => {
   });
 
   it('clicking takes the user to skills quiz page', () => {
-    const { history } = renderWithRouter(<CourseRecommendationsContext />);
+    renderWithRouter(<CourseRecommendationsContext />);
     const courseRecommendationsButton = screen.getByText('Recommend courses for me');
     userEvent.click(courseRecommendationsButton);
-    expect(history.location.pathname).toEqual('/BearsRUs/skills-quiz');
+    expect(window.location.pathname).toEqual('/BearsRUs/skills-quiz');
   });
 });

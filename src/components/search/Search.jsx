@@ -1,7 +1,7 @@
 import React, {
   useContext, useMemo, useEffect,
 } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -44,7 +44,7 @@ import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-su
 const Search = () => {
   const config = getConfig();
   const { pathwayUUID } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { refinements } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
@@ -168,7 +168,7 @@ const Search = () => {
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
-            history.push(`/${enterpriseConfig.slug}/search`);
+            navigate(`/${enterpriseConfig.slug}/search`);
             onClose();
           }}
         />

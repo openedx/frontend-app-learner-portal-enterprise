@@ -1,4 +1,4 @@
-import { useRouteMatch } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { COURSE_AVAILABILITY_MAP } from '../../../data/constants';
 import useCourseRunCardHeading from './useCourseRunCardHeading';
@@ -26,7 +26,7 @@ const useCourseRunCardData = ({
   subsidyAccessPolicy,
   userCanRequestSubsidyForCourse,
 }) => {
-  const routeMatch = useRouteMatch();
+  const { pathname } = useLocation();
   const {
     key: contentKey,
     availability,
@@ -35,7 +35,7 @@ const useCourseRunCardData = ({
   const isCourseRunCurrent = availability === COURSE_AVAILABILITY_MAP.CURRENT;
   const isUserEnrolled = !!userEnrollment;
   const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
-    currentRouteUrl: routeMatch.url,
+    currentRouteUrl: pathname,
   });
 
   // Get and return course run card data for display

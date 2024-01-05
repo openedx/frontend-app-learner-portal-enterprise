@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -33,7 +33,7 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
 };
 
 const SearchProgramCard = ({ index }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const {
@@ -159,7 +159,7 @@ const SearchProgramCard = ({ index }) => {
         programUuid: programUuids[program.aggregationKey].uuid,
       },
     );
-    history.push(url);
+    navigate(url);
   };
 
   if (hitCount === 0) {

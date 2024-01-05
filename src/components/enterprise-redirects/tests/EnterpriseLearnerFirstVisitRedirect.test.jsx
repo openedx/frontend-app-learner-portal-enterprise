@@ -68,8 +68,10 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
       redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     };
 
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
+    renderWithRouter(
+      <EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />,
+    );
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
   });
 
   test('redirects to search if the course assigned is not active.', async () => {
@@ -78,8 +80,10 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
       redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     };
 
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
+    renderWithRouter(
+      <EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />,
+    );
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
   });
 
   test('Does not redirect the returning user to search.', async () => {

@@ -13,7 +13,7 @@ import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -77,7 +77,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const { name: jobs, current_job: currentJob } = refinements;
   const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const goalNotDefault = goal !== GOAL_DROPDOWN_DEFAULT_OPTION;
   const goalExceptImproveAndJobSelected = goalNotDefault && checkValidGoalAndJobSelected(goal, jobs, false);
@@ -85,7 +85,7 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
   const canContinueToRecommendedCourses = goalExceptImproveAndJobSelected || improveGoalAndCurrentJobSelected;
 
   const closeSkillsQuiz = () => {
-    history.push(`/${enterpriseConfig.slug}/search`);
+    navigate(`/${enterpriseConfig.slug}/search`);
     sendEnterpriseTrackEvent(
       enterpriseConfig.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',

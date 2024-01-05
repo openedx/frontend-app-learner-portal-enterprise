@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -37,7 +37,7 @@ export const ProgramType = ({ type }) => {
 };
 
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
   const program = useMemo(() => {
     if (!hit) {
@@ -90,7 +90,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
         programUuid,
       },
     );
-    history.push(linkToProgram);
+    navigate(linkToProgram);
   };
 
   return (

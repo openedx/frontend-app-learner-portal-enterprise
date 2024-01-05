@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Tab, Tabs } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -18,8 +18,10 @@ import SubscriptionExpirationModal from './SubscriptionExpirationModal';
 import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 
 const DashboardPage = () => {
-  const { state } = useLocation();
-  const history = useHistory();
+  const {
+    pathname, state, search, hash,
+  } = useLocation();
+  const navigate = useNavigate();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
   const { username } = authenticatedUser;
   const {
@@ -49,9 +51,11 @@ const DashboardPage = () => {
     if (state?.activationSuccess) {
       const updatedLocationState = { ...state };
       delete updatedLocationState.activationSuccess;
-      history.replace({ ...history.location, state: updatedLocationState });
+      navigate(pathname, {
+        search, hash, state: updatedLocationState, replace: true,
+      });
     }
-  }, [history, state]);
+  }, [pathname, navigate, state, search, hash]);
 
   const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = `Dashboard - ${enterpriseConfig.name}`;

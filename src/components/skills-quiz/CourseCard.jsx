@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import {
   Badge, Card, Stack, Truncate,
 } from '@edx/paragon';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -17,7 +17,7 @@ import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants'
 const CourseCard = ({
   isLoading, course, allSkills,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const partnerDetails = useMemo(() => {
@@ -45,7 +45,7 @@ const CourseCard = ({
       { userId, enterprise: slug, selectedCourse: course.key },
     );
 
-    history.push(linkToCourse(course, slug));
+    navigate(linkToCourse(course, slug));
   };
 
   return (

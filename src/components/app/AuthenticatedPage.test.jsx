@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
+import { useLocation, useParams, useMatch } from 'react-router-dom';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
   useParams: jest.fn(),
-  useRouteMatch: jest.fn(),
+  useMatch: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-logistration', () => ({
@@ -47,7 +47,7 @@ const mockAuthenticatedUser = {
 
 useLocation.mockReturnValue(mockLocation);
 useParams.mockReturnValue({ enterpriseSlug: mockEnterpriseSlug });
-useRouteMatch.mockReturnValue({ isExact: false });
+useMatch.mockReturnValue({});
 useRecommendCoursesForMe.mockReturnValue({
   shouldRecommendCourses: false,
 });

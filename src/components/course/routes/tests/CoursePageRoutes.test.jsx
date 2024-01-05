@@ -1,15 +1,8 @@
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
+import { MemoryRouter } from 'react-router-dom';
 import CoursePageRoutes from '../CoursePageRoutes';
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useRouteMatch: jest.fn(() => ({
-    path: '/:enterpriseSlug/course/:courseKey',
-  })),
-}));
 
 jest.mock('../CourseAbout', () => jest.fn(() => (
   <div data-testid="course-about" />
@@ -25,17 +18,17 @@ jest.mock('../ExternalCourseEnrollmentConfirmation', () => jest.fn(() => (
 
 describe('CoursePageRoutes', () => {
   it('renders CourseAbout route', () => {
-    renderWithRouter(<CoursePageRoutes />, { route: '/test-enterprise-slug/course/test-course-key' });
+    render(<MemoryRouter initialEntries={['/']}><CoursePageRoutes /></MemoryRouter>);
     expect(screen.getByTestId('course-about')).toBeInTheDocument();
   });
 
   it('renders ExternalCourseEnrollment route', () => {
-    renderWithRouter(<CoursePageRoutes />, { route: '/test-enterprise-slug/course/test-course-key/enroll' });
+    render(<MemoryRouter initialEntries={['/enroll']}><CoursePageRoutes /></MemoryRouter>);
     expect(screen.getByTestId('external-course-enrollment')).toBeInTheDocument();
   });
 
   it('renders ExternalCourseEnrollmentConfirmation route', () => {
-    renderWithRouter(<CoursePageRoutes />, { route: '/test-enterprise-slug/course/test-course-key/enroll/complete' });
+    render(<MemoryRouter initialEntries={['/enroll/complete']}><CoursePageRoutes /></MemoryRouter>);
     expect(screen.getByTestId('external-course-enrollment-confirmation')).toBeInTheDocument();
   });
 });

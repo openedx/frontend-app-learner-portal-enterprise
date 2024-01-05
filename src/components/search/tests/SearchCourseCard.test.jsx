@@ -10,6 +10,12 @@ import * as courseSearchUtils from '../utils';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 const SearchCourseCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
@@ -43,6 +49,10 @@ const propsForLoading = {
 };
 
 describe('<SearchCourseCard />', () => {
+  beforeEach(() => {
+    mockedNavigate.mockClear();
+  });
+
   test('renders the correct data', () => {
     const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
 
@@ -60,15 +70,14 @@ describe('<SearchCourseCard />', () => {
   });
 
   test('handles card click', () => {
-    const { history } = renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
+    renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-course-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}?`, { state: undefined });
   });
 
   test('renders the loading state', () => {
-    const { container, history } = renderWithRouter(<SearchCourseCardWithAppContext {...propsForLoading} />);
+    const { container } = renderWithRouter(<SearchCourseCardWithAppContext {...propsForLoading} />);
 
     // ensure `Card` was passed `isLoading` by asserting each `Card` subcomponent
     // is treated as a skeleton instead, indicated by `aria-busy="true"`.
@@ -77,7 +86,7 @@ describe('<SearchCourseCard />', () => {
     // does not do anything when clicked
     const cardEl = screen.getByTestId('search-course-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(1);
+    expect(mockedNavigate).not.toHaveBeenCalled();
   });
 
   test('render course_length field in place of course text', () => {
