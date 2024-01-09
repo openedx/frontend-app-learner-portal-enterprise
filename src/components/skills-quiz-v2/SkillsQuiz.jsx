@@ -1,31 +1,42 @@
 import { Helmet } from 'react-helmet';
-import './styles/index.scss';
 import { AppContext } from '@edx/frontend-platform/react';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import PropTypes from 'prop-types';
 import {
   ModalDialog, useToggle, ActionRow, Button,
 } from '@edx/paragon';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import {
   SKILL_BUILDER_TITLE,
   text,
-  webTechBootCamps,
   closeModalText,
 } from './constants';
-import ProgramCard from './ProgramCard';
 import SkillsQuizHeader from './SkillsQuizHeader';
 import SkillQuizForm from './SkillsQuizForm';
 import headerImage from '../skills-quiz/images/headerImage.png';
 
 const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
   const navigate = useNavigate();
   const [isOpen, open, close] = useToggle(false);
 
   const handleExit = () => {
     navigate(`/${enterpriseConfig.slug}/search`);
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.done.clicked',
+      { userId, enterprise: enterpriseConfig.slug },
+    );
   };
+
+  useEffect(() => {
+    sendEnterpriseTrackEvent(
+      enterpriseConfig.uuid,
+      'edx.ui.enterprise.learner_portal.skills_quiz.started',
+      { userId, enterprise: enterpriseConfig.slug },
+    );
+  }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
 
   const TITLE = `edx - ${SKILL_BUILDER_TITLE}`;
   return (
@@ -58,7 +69,7 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
       <ModalDialog
         title="Skills Quiz"
         size="fullscreen"
-        className="bg-light-200 skills-quiz-modal"
+        className="bg-light-200 skills-quiz-modal skills-quiz-v2"
         isOpen
         onClose={open}
       >
@@ -74,16 +85,6 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
               <p className="text-gray-600 text-justify">{text}</p>
             </div>
             <SkillQuizForm isStyleAutoSuggest={isStyleAutoSuggest} />
-            <div className="cards-display">
-              <p className="pgn__form-label">
-                Boot camps for a web technology specialist
-              </p>
-              <div className="card-container">
-                {webTechBootCamps.map((bootcamp) => (
-                  <ProgramCard {...bootcamp} />
-                ))}
-              </div>
-            </div>
           </div>
         </ModalDialog.Body>
       </ModalDialog>

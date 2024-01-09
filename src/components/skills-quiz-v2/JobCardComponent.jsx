@@ -2,42 +2,76 @@ import React, { useContext, useState, useEffect } from 'react';
 import {
   SelectableBox, Chip, Spinner, Stack, Button,
 } from '@edx/paragon';
+import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { logError } from '@edx/frontend-platform/logging';
 import PropTypes from 'prop-types';
 import { SkillsContext } from '../skills-quiz/SkillsContextProvider';
 import { SET_KEY_VALUE } from '../skills-quiz/data/constants';
-import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from '../skills-quiz/constants';
 import TopSkillsOverview from '../skills-quiz/TopSkillsOverview';
 import SearchCourseCard from '../skills-quiz/SearchCourseCard';
 import SearchProgramCard from '../skills-quiz/SearchProgramCard';
 import SearchPathways from '../skills-quiz/SearchPathways';
 import SkillsCourses from '../skills-quiz/SkillsCourses';
+import { fetchCourseEnrollments } from '../skills-quiz/data/service';
+import { saveSkillsGoalsAndJobsUserSelected } from '../skills-quiz/data/utils';
 
 const JobCardComponent = ({
   jobs, isLoading, jobIndex, courseIndex,
 }) => {
   const { dispatch, state } = useContext(SkillsContext);
-  const { goal } = state;
+  const { goal, currentJobRole, interestedJobs } = state;
   const [jobSelected, setJobSelected] = useState(undefined);
   const [showMoreRecommendedCourses, setShowMoreRecommendedCourses] = useState(false);
 
   useEffect(() => {
-    if (jobs?.length === 1) {
+    if (jobs?.length > 0) {
       setJobSelected(jobs[0]?.name);
-      dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: jobSelected });
-    } else if (jobs?.length === 0) {
-      setJobSelected(undefined);
-      dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: undefined });
+      dispatch({
+        type: SET_KEY_VALUE,
+        key: 'selectedJob',
+        value: jobs[0]?.name,
+      });
     }
-  }, [jobs, dispatch, jobSelected]);
+  }, [jobs, dispatch]);
+
+  useEffect(() => {
+    if (goal && (currentJobRole || interestedJobs)) {
+      saveSkillsGoalsAndJobsUserSelected(goal, currentJobRole, interestedJobs);
+    }
+  }, [goal, currentJobRole, interestedJobs]);
+
+  useEffect(() => {
+    const fetchLearnerCourseEnrollments = async () => {
+      try {
+        const response = await fetchCourseEnrollments();
+        const enrolledCourses = camelCaseObject(response.data);
+        const enrolledCourseIds = enrolledCourses.map(
+          (course) => course.courseDetails.courseId,
+        );
+        dispatch({
+          type: SET_KEY_VALUE,
+          key: 'enrolledCourseIds',
+          value: enrolledCourseIds,
+        });
+      } catch (error) {
+        logError(error);
+      }
+    };
+
+    if (jobs?.length > 0) {
+      fetchLearnerCourseEnrollments();
+    }
+  }, [dispatch, jobs]);
 
   const handleChange = (e) => {
+    e.preventDefault();
     setJobSelected(e.target.value);
     dispatch({ type: SET_KEY_VALUE, key: 'selectedJob', value: e.target.value });
     setShowMoreRecommendedCourses(false);
   };
 
   return !isLoading ? (
-    <>
+    <div className="skills-quiz-v2-job-card">
       <SelectableBox.Set
         type="radio"
         value={jobSelected}
@@ -68,7 +102,7 @@ const JobCardComponent = ({
           </SelectableBox>
         ))}
       </SelectableBox.Set>
-      {(jobSelected || goal === DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE) && (
+      {jobs?.length > 0 && (
         <>
           <TopSkillsOverview index={jobIndex} />
           <Stack gap={4}>
@@ -89,7 +123,7 @@ const JobCardComponent = ({
           { showMoreRecommendedCourses && <SkillsCourses index={courseIndex} />}
         </>
       )}
-    </>
+    </div>
   ) : (
     <Spinner
       animation="border"

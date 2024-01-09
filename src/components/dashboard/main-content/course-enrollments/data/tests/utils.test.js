@@ -233,4 +233,11 @@ describe('sortAssignmentsByAssignmentStatus', () => {
 
     expect(sortedAssignments).toEqual(expectedSortedAssignments);
   });
+
+  it('returns empty array for null assignments', () => {
+    const assignments = null;
+    const expectedAssignments = [];
+    const sortedAssignments = sortAssignmentsByAssignmentStatus(assignments);
+    expect(sortedAssignments).toEqual(expectedAssignments);
+  });
 });

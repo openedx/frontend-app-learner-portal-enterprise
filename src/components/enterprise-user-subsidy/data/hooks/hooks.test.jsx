@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import * as logging from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { logError } from '@edx/frontend-platform/logging';
 
 import {
   useCouponCodes,
@@ -349,6 +350,9 @@ describe('useCustomerAgreementData', () => {
   });
 
   it('handles no customer agreement data for enterprise', async () => {
+    jest.mock('@edx/frontend-platform/logging', () => ({
+      logError: jest.fn(),
+    }));
     fetchCustomerAgreementData.mockResolvedValueOnce({
       data: { results: [] },
     });
@@ -362,6 +366,20 @@ describe('useCustomerAgreementData', () => {
       null,
       false, // isLoading
     ]);
+  });
+
+  it('handles errors in fetching customer agreement data', async () => {
+    const mockError = new Error('error');
+    fetchCustomerAgreementData.mockRejectedValueOnce(mockError);
+
+    const { result, waitForNextUpdate } = renderHook(() => useCustomerAgreementData(TEST_ENTERPRISE_UUID));
+
+    expect(result.current).toEqual([undefined, true]);
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual([null, false]);
+    expect(logError).toHaveBeenCalledWith(new Error(mockError));
   });
 });
 

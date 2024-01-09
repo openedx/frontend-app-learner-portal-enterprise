@@ -28,6 +28,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn(),
 }));
 
 const defaultCouponCodesState = {
@@ -75,7 +76,7 @@ describe('<SkillsQuiz />', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders skills quiz page successfully.', () => {
+  it('renders skills quiz V1 page successfully.', () => {
     renderWithRouter(
       <SearchData>
         <SkillsContextProvider>
@@ -85,5 +86,21 @@ describe('<SkillsQuiz />', () => {
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeTruthy();
+  });
+
+  it('renders skills quiz V2 page successfully for v2', () => {
+    // Set the feature flag to enable v2
+    // eslint-disable-next-line global-require
+    jest.spyOn(require('@edx/frontend-enterprise-utils'), 'hasFeatureFlagEnabled').mockImplementation(() => true);
+
+    renderWithRouter(
+      <SearchData>
+        <SkillsContextProvider>
+          <SkillsQuizWithContext />
+        </SkillsContextProvider>
+      </SearchData>,
+      { route: '/test/skills-quiz/' },
+    );
+    expect(screen.getByText('What roles are you interested in ?')).toBeInTheDocument();
   });
 });
