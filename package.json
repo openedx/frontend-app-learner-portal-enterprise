@@ -9,10 +9,10 @@
   "dependencies": {
     "@edx/brand": "npm:@openedx/brand-openedx@1.2.2",
     "@edx/frontend-component-footer": "12.2.0",
-    "@edx/frontend-enterprise-catalog-search": "5.0.0",
+    "@edx/frontend-enterprise-catalog-search": "5.5.0",
     "@edx/frontend-enterprise-hotjar": "2.0.0",
-    "@edx/frontend-enterprise-logistration": "4.0.0",
-    "@edx/frontend-enterprise-utils": "4.0.0",
+    "@edx/frontend-enterprise-logistration": "4.0.5",
+    "@edx/frontend-enterprise-utils": "4.0.5",
     "@edx/frontend-platform": "5.0.0",
     "@edx/paragon": "20.45.4",
     "@tanstack/react-query": "4.28.0",
