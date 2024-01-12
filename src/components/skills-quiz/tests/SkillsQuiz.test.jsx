@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
@@ -28,7 +29,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
-  hasFeatureFlagEnabled: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn().mockReturnValue(false),
 }));
 
 const defaultCouponCodesState = {
@@ -89,9 +90,7 @@ describe('<SkillsQuiz />', () => {
   });
 
   it('renders skills quiz V2 page successfully for v2', () => {
-    // Set the feature flag to enable v2
-    // eslint-disable-next-line global-require
-    jest.spyOn(require('@edx/frontend-enterprise-utils'), 'hasFeatureFlagEnabled').mockImplementation(() => true);
+    hasFeatureFlagEnabled.mockReturnValue(true);
 
     renderWithRouter(
       <SearchData>

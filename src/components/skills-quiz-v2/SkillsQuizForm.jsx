@@ -41,7 +41,7 @@ const SkillQuizForm = ({ isStyleAutoSuggest }) => {
         <SearchJobDropdown key="search" isStyleSearchBox isChip />
         <Button
           variant="link"
-          className="mb-2 mb-sm-0 advanced-options-btn my-2 mx-n3"
+          className="mb-2 mb-sm-0 text-decoration-none my-2 mx-n3"
           onClick={() => setHide(!hide)}
         >
           {!hide ? 'Hide advanced options' : 'Show advanced options'}
