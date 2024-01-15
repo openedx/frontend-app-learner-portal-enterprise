@@ -72,7 +72,7 @@ const SearchCourseCard = ({ index }) => {
         });
         if (nbHits > 0) {
           const hitsCamelCased = camelCaseObject(hits);
-          const hitsWithoutAlreadyEnrolledCourses = hitsCamelCased.filter(el => !enrolledCourseIds.find(
+          const hitsWithoutAlreadyEnrolledCourses = hitsCamelCased.filter(el => !enrolledCourseIds?.find(
             ele => el.advertisedCourseRun.key === ele,
           ));
 
