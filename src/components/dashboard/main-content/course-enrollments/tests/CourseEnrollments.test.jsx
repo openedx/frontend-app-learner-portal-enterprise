@@ -8,7 +8,9 @@ import userEvent from '@testing-library/user-event';
 
 import { renderWithRouter } from '../../../../../utils/tests';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
-import CourseEnrollments, { COURSE_SECTION_TITLES } from '../CourseEnrollments';
+
+import { COURSE_SECTION_TITLES } from '../../../data/constants';
+import CourseEnrollments from '../CourseEnrollments';
 import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';

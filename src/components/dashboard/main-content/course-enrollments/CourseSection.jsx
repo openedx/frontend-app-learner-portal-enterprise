@@ -15,6 +15,7 @@ import {
 
 import { UpgradeableCourseEnrollmentContextProvider } from './UpgradeableCourseEnrollmentContextProvider';
 import { COURSE_STATUSES, COURSE_MODES } from '../../../../constants';
+import { COURSE_SECTION_TITLES } from '../../data/constants';
 
 const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.upcoming]: UpcomingCourseCard,
@@ -35,7 +36,7 @@ class CourseSection extends React.Component {
 
   getCoursesCount = (isOpen, title, coursesCount) => {
     if (!isOpen) {
-      if (title === 'Assigned Courses') {
+      if (title === COURSE_SECTION_TITLES.assigned || title === COURSE_SECTION_TITLES.firstTimeUserAndAssigned) {
         return <sup><Bubble variant="error">{coursesCount}</Bubble></sup>;
       }
       return `(${coursesCount})`;
