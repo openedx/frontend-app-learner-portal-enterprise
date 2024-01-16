@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { CardGrid, Spinner } from '@edx/paragon';
+import {
+  Button,
+  CardGrid,
+  Spinner,
+} from '@edx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -10,23 +14,53 @@ import {
 } from './data/constants';
 
 const CourseCard = ({
-  courseIndex, academyUUID, academyTitle, academyURL,
+  courseIndex, academyUUID, academyTitle, academyURL, tags,
 }) => {
   const [isAlgoliaLoading, setIsAlgoliaLoading] = useState(true);
   const [courses, setCourses] = useState([]);
 
+  const [selectedTag, setSelectedTag] = useState();
+
   useEffect(
     () => {
+      function contentIntersect(academyContent, tagContent) {
+        const intersect = [];
+        tagContent.forEach((content) => {
+          if (academyContent.some(o => o.aggregation_key === content.aggregation_key)) {
+            intersect.push(content);
+          }
+        });
+        return intersect;
+      }
+
       async function fetchCourses() {
         setIsAlgoliaLoading(true);
 
-        const { hits, nbHits } = await courseIndex.search('', {
+        const { hits: academyHits, nbHits: nbAcademyHits } = await courseIndex.search('', {
           filters: `content_type:course AND academy_uuids:${academyUUID}`, // eslint-disable-line object-shorthand
         });
 
-        if (nbHits > 0) {
-          const hitsCamelCased = camelCaseObject(hits);
-          setCourses(hitsCamelCased);
+        let tagHits;
+        let nbTagHits;
+        if (selectedTag) {
+          const response = await courseIndex.search('', {
+            facetFilters: ['content_type:course', `academy_tags:${selectedTag}`],
+          });
+          ({ hits: tagHits, nbHits: nbTagHits } = response);
+        }
+
+        if (nbAcademyHits > 0) {
+          let allHits;
+          const academyHitsCamelCased = camelCaseObject(academyHits);
+
+          if (nbTagHits > 0) {
+            const tagHitsCamelCased = camelCaseObject(tagHits);
+            allHits = contentIntersect(academyHitsCamelCased, tagHitsCamelCased);
+          } else {
+            allHits = academyHitsCamelCased;
+          }
+
+          setCourses(allHits);
           setIsAlgoliaLoading(false);
         } else {
           setIsAlgoliaLoading(false);
@@ -34,11 +68,25 @@ const CourseCard = ({
       }
       fetchCourses();
     },
-    [courseIndex, academyUUID],
+    [courseIndex, academyUUID, selectedTag],
   );
 
   return (
     <>
+      <div className="academy-tags mb-3">
+        {tags.map(tag => (
+          <Button
+            className="academy-tag"
+            data-testid="academy-tag"
+            key={tag.id}
+            variant="light"
+            onClick={() => setSelectedTag(tag.title)}
+          >
+            {tag.title}
+          </Button>
+        ))}
+      </div>
+
       <div className="academy-exec-ed-courses-container my-4">
         <h3 data-testid="academy-exec-ed-courses-title">{EXECUTIVE_EDUCATION_SECTION.title}</h3>
         <p data-testid="academy-exec-ed-courses-subtitle">{EXECUTIVE_EDUCATION_SECTION.subtitle}</p>
@@ -109,6 +157,13 @@ CourseCard.propTypes = {
   academyUUID: PropTypes.string.isRequired,
   academyTitle: PropTypes.string.isRequired,
   academyURL: PropTypes.string.isRequired,
+  tags: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      description: PropTypes.string,
+      content_metadata: PropTypes.arrayOf(PropTypes.shape({})),
+    }),
+  ).isRequired,
 };
 
 export default CourseCard;
