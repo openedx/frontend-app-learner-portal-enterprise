@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import {
-  Container, Chip, Breadcrumb,
+  Container, Breadcrumb,
   Skeleton, Spinner,
 } from '@edx/paragon';
 import {
@@ -13,6 +13,7 @@ import { useAcademyMetadata } from './data/hooks';
 import CourseCard from './CourseCard';
 import NotFoundPage from '../NotFoundPage';
 import { ACADEMY_NOT_FOUND_TITLE } from './data/constants';
+import './styles/Academy.scss';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
@@ -67,14 +68,6 @@ const AcademyDetailPage = () => {
             ? <Skeleton height={30} count={3} data-testid="academy-description-loading" />
             : <p data-testid="academy-description">{academy?.longDescription}</p>
         }
-        {isAcademyAPILoading ? <Skeleton height={40} className="mt-4 mb-4" data-testid="academy-tags-loading" />
-          : (
-            <div className="academy-tags mb-3">
-              {academy?.tags.map(tag => (
-                <Chip data-testid="academy-tag" key={tag.id} variant="light">{tag.title}</Chip>
-              ))}
-            </div>
-          )}
 
         {isAcademyAPILoading
           ? (
@@ -88,6 +81,7 @@ const AcademyDetailPage = () => {
               academyUUID={academyUUID}
               academyTitle={academy?.title}
               academyURL={academyURL}
+              tags={academy?.tags}
             />
           )}
       </div>
