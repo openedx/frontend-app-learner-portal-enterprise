@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ActionRow, Button, Row, useToggle, TransitionReplace, Icon,
+  ActionRow, Button, Icon, Row, TransitionReplace, useToggle,
 } from '@edx/paragon';
 import { Edit } from '@edx/paragon/icons';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
@@ -17,16 +17,14 @@ const editIcon = () => (
 );
 
 const VisualizeCareer = ({ jobId, submitClickHandler }) => {
-  const { enterpriseConfig: { uuid: enterpriseId }, authenticatedUser: { username } } = useContext(AppContext);
+  const { enterpriseConfig: { uuid: enterpriseId } } = useContext(AppContext);
   const [showInstructions, , , toggleShowInstructions] = useToggle(false);
   const [isEditable, setIsEditable] = useState(false);
-
   const [learnerSkillLevels, learnerSkillLevelsFetchError, isLoading] = useLearnerSkillLevels(jobId);
 
   const editOnClickHandler = () => {
     setIsEditable(true);
     sendEnterpriseTrackEvent(
-      username,
       enterpriseId,
       'edx.ui.enterprise.learner_portal.career_tab.edit_job_button.clicked',
     );

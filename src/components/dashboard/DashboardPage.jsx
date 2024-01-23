@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Tab, Tabs } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -23,7 +23,6 @@ const DashboardPage = () => {
   } = useLocation();
   const navigate = useNavigate();
   const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-  const { username } = authenticatedUser;
   const {
     subscriptionPlan,
     showExpirationNotifications,
@@ -40,7 +39,6 @@ const DashboardPage = () => {
   const onSelectHandler = (key) => {
     if (key === 'my-career') {
       sendEnterpriseTrackEvent(
-        username,
         enterpriseConfig.uuid,
         'edx.ui.enterprise.learner_portal.career_tab.page_visit',
       );
