@@ -13,7 +13,7 @@ import {
   EXECUTIVE_EDUCATION_SECTION, SELF_PACED_SECTION,
 } from './data/constants';
 
-const CourseCard = ({
+const AcademyContentCard = ({
   courseIndex, academyUUID, academyTitle, academyURL, tags,
 }) => {
   const [isAlgoliaLoading, setIsAlgoliaLoading] = useState(true);
@@ -70,6 +70,40 @@ const CourseCard = ({
     },
     [courseIndex, academyUUID, selectedTag],
   );
+  const ocmCourses = courses.filter(course => course.learningType === LEARNING_TYPE_COURSE);
+  const execEdCourses = courses.filter(course => course.learningType === LEARNING_TYPE_EXECUTIVE_EDUCATION);
+
+  const renderableContent = ({
+    content,
+    title,
+    subtitle,
+    additionalClass,
+    titleTestId,
+    subtitleTestId,
+  }) => (
+    content.length > 0 && (
+      <div className={additionalClass}>
+        <h3 data-testid={titleTestId}>{title}</h3>
+        <p data-testid={subtitleTestId}>{subtitle}</p>
+        <CardGrid columnSizes={{
+          xs: 12, md: 6, lg: 4, xl: 3,
+        }}
+        >
+          {content.map(course => (
+            <SearchCourseCard
+              key={`academy-course-${uuidv4()}`}
+              data-testid="academy-course-card"
+              hit={course}
+              parentRoute={{
+                label: academyTitle,
+                to: academyURL,
+              }}
+            />
+          ))}
+        </CardGrid>
+      </div>
+    )
+  );
 
   return (
     <>
@@ -85,70 +119,48 @@ const CourseCard = ({
             {tag.title}
           </Button>
         ))}
+        {selectedTag && (
+          <Button
+            className="tag-clear-button"
+            variant="link"
+            size="sm"
+            onClick={() => setSelectedTag(undefined)}
+          >
+            clear tag filter
+          </Button>
+        )}
       </div>
-
-      <div className="academy-exec-ed-courses-container my-4">
-        <h3 data-testid="academy-exec-ed-courses-title">{EXECUTIVE_EDUCATION_SECTION.title}</h3>
-        <p data-testid="academy-exec-ed-courses-subtitle">{EXECUTIVE_EDUCATION_SECTION.subtitle}</p>
-        {isAlgoliaLoading
-          ? (
-            <div className="d-flex justify-content-center align-items-center">
-              <Spinner animation="border" className="mie-3" screenReaderText="loading" />
-            </div>
-          )
-          : (
-            <CardGrid columnSizes={{
-              xs: 12, md: 6, lg: 4, xl: 3,
-            }}
-            >
-              {courses.filter(course => course.learningType === LEARNING_TYPE_EXECUTIVE_EDUCATION).map(course => (
-                <SearchCourseCard
-                  key={`academy-exec-ed-course-${uuidv4()}`}
-                  data-testid="academy-exec-ed-course-card"
-                  hit={course}
-                  parentRoute={{
-                    label: academyTitle,
-                    to: academyURL,
-                  }}
-                />
-              ))}
-            </CardGrid>
-          )}
-      </div>
-
-      <div className="academy-ocm-courses-container">
-        <h3 data-testid="academy-ocm-courses-title">{SELF_PACED_SECTION.title}</h3>
-        <p data-testid="academy-ocm-courses-subtitle">{SELF_PACED_SECTION.subtitle}</p>
-        {isAlgoliaLoading
-          ? (
-            <div className="d-flex justify-content-center align-items-center">
-              <Spinner animation="border" className="mie-3" screenReaderText="loading" />
-            </div>
-          )
-          : (
-            <CardGrid columnSizes={{
-              xs: 12, md: 6, lg: 4, xl: 3,
-            }}
-            >
-              {courses.filter(course => course.learningType === LEARNING_TYPE_COURSE).map(course => (
-                <SearchCourseCard
-                  key={`academy-ocm-course-${uuidv4()}`}
-                  data-testid="academy-ocm-course-card"
-                  hit={course}
-                  parentRoute={{
-                    label: academyTitle,
-                    to: academyURL,
-                  }}
-                />
-              ))}
-            </CardGrid>
-          )}
-      </div>
+      {
+        isAlgoliaLoading ? (
+          <div className="d-flex justify-content-center align-items-center">
+            <Spinner animation="border" className="mie-3" screenReaderText="loading" />
+          </div>
+        ) : (
+          <>
+            {renderableContent({
+              content: execEdCourses,
+              title: EXECUTIVE_EDUCATION_SECTION.title,
+              subtitle: EXECUTIVE_EDUCATION_SECTION.subtitle,
+              additionalClass: 'academy-exec-ed-courses-container',
+              titleTestId: 'academy-exec-ed-courses-title',
+              subtitleTestId: 'academy-exec-ed-courses-subtitle',
+            })}
+            {renderableContent({
+              content: ocmCourses,
+              title: SELF_PACED_SECTION.title,
+              subtitle: SELF_PACED_SECTION.subtitle,
+              additionalClass: 'academy-ocm-courses-container',
+              titleTestId: 'academy-ocm-courses-title',
+              subtitleTestId: 'academy-ocm-courses-subtitle',
+            })}
+          </>
+        )
+      }
     </>
   );
 };
 
-CourseCard.propTypes = {
+AcademyContentCard.propTypes = {
   courseIndex: PropTypes.shape({
     appId: PropTypes.string,
     indexName: PropTypes.string,
@@ -166,4 +178,4 @@ CourseCard.propTypes = {
   ).isRequired,
 };
 
-export default CourseCard;
+export default AcademyContentCard;

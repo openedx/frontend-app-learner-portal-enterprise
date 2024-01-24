@@ -10,10 +10,10 @@ import { AppContext } from '@edx/frontend-platform/react';
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useAcademyMetadata } from './data/hooks';
-import CourseCard from './CourseCard';
 import NotFoundPage from '../NotFoundPage';
 import { ACADEMY_NOT_FOUND_TITLE } from './data/constants';
 import './styles/Academy.scss';
+import AcademyContentCard from './AcademyContentCard';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
@@ -76,7 +76,7 @@ const AcademyDetailPage = () => {
             </div>
           )
           : (
-            <CourseCard
+            <AcademyContentCard
               courseIndex={courseIndex}
               academyUUID={academyUUID}
               academyTitle={academy?.title}
