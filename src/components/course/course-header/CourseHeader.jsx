@@ -18,6 +18,7 @@ import CourseRunCards from './CourseRunCards';
 import {
   getDefaultProgram,
   formatProgramType,
+  isArchived,
 } from '../data/utils';
 import { useCoursePartners, useIsCourseAssigned } from '../data/hooks';
 import LicenseRequestedAlert from '../LicenseRequestedAlert';
@@ -27,6 +28,7 @@ import CourseReview from '../CourseReview';
 import CoursePreview from './CoursePreview';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { features } from '../../../config';
+import CourseMaterialsButton from '../CourseMaterialsButton';
 
 const CourseHeader = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -39,7 +41,7 @@ const CourseHeader = () => {
   } = useContext(CourseContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
-
+  const isCourseArchived = (course.courseRuns)?.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(course);
 
   const defaultProgram = useMemo(
@@ -118,7 +120,7 @@ const CourseHeader = () => {
             />
           </Col>
           <Col xs={12} lg={12}>
-            {catalog.containsContentItems ? (
+            {catalog.containsContentItems && (
               <>
                 <CourseReview />
                 {defaultProgram && (
@@ -127,7 +129,14 @@ const CourseHeader = () => {
                   </p>
                 )}
               </>
-            ) : (
+            )}
+            {!catalog.containsContentItems && isCourseArchived && (
+              <p className="d-block font-weight-bold mt-3 mb-0">
+                This course is archived.
+                <CourseMaterialsButton course={course} />
+              </p>
+            )}
+            {!catalog.containsContentItems && !isCourseArchived && (
               <p className="font-weight-bold mt-3 mb-0">
                 This course is not part of your company&apos;s curated course catalog.
               </p>

@@ -101,6 +101,7 @@ export const useHighlightedContentCardData = ({
     cardImageUrl,
     authoringOrganizations,
     aggregationKey,
+    courseRunStatuses,
   } = highlightedContent;
 
   cardData.aggregationKey = aggregationKey;
@@ -114,6 +115,6 @@ export const useHighlightedContentCardData = ({
   cardData.title = title;
   cardData.cardImageUrl = cardImageUrl;
   cardData.authoringOrganizations = getAuthoringOrganizations(authoringOrganizations);
-
+  cardData.courseRunStatuses = courseRunStatuses;
   return cardData;
 };
