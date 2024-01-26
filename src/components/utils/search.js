@@ -78,7 +78,7 @@ export const getNoResultsMessage = (title) => {
 export const getSearchErrorMessage = (title) => {
   const lowerCaseTitle = title.toLowerCase();
   return {
-    messageTitle: `An error occured while finding ${lowerCaseTitle} that match your search.`,
+    messageTitle: `An error occurred while finding ${lowerCaseTitle} that match your search.`,
     messageContent: 'Please try again later.',
   };
 };
