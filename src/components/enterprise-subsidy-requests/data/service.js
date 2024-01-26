@@ -3,8 +3,7 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { SUBSIDY_REQUEST_STATE } from '../constants';
 
 export function fetchSubsidyRequestConfiguration(enterpriseUUID) {
-  const config = getConfig();
-  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
   return getAuthenticatedHttpClient().get(url);
 }
 

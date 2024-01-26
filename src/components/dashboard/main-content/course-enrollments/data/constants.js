@@ -19,6 +19,3 @@ export const COURSE_STATUSES = {
 };
 
 export const GETSMARTER_BASE_URL = 'https://www.getsmarter.com';
-
-export const LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT = 'learnerAcknowledgedCancellationAt';
-export const LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT = 'learnerAcknowledgedExpirationAt';

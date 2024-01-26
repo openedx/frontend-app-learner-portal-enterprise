@@ -6,7 +6,16 @@ export const fetchEnterpriseCourseEnrollments = (uuid) => {
     enterprise_id: uuid,
     is_active: true,
   });
-  const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
+  const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
   return getAuthenticatedHttpClient().get(url);
+};
+
+export const acknowledgeContentAssignments = ({
+  assignmentConfigurationId,
+  assignmentIds,
+}) => {
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/assignment-configurations/${assignmentConfigurationId}/acknowledge-assignments/`;
+  return getAuthenticatedHttpClient().post(url, {
+    assignment_uuids: assignmentIds,
+  });
 };

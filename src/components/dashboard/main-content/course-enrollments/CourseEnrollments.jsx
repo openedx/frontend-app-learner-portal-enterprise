@@ -1,10 +1,9 @@
 import React, {
   useContext, useEffect, useState,
 } from 'react';
+import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-
-import PropTypes from 'prop-types';
 
 import CourseSection from './CourseSection';
 import CourseEnrollmentsAlert from './CourseEnrollmentsAlert';
@@ -13,6 +12,7 @@ import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
 import { features } from '../../../../config';
 import { useCourseEnrollmentsBySection, useContentAssignments } from './data';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 const CourseEnrollments = ({ children }) => {
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
@@ -28,8 +28,7 @@ const CourseEnrollments = ({ children }) => {
     assignments,
     showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
-    handleOnCloseCancelAlert,
-    handleOnCloseExpiredAlert,
+    handleAcknowledgeAssignments,
   } = useContentAssignments(redeemableLearnerCreditPolicies);
   const {
     hasCourseEnrollments,
@@ -67,10 +66,22 @@ const CourseEnrollments = ({ children }) => {
   return (
     <>
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
-        <CourseAssignmentAlert showAlert={showCanceledAssignmentsAlert} variant="canceled" onClose={handleOnCloseCancelAlert}> </CourseAssignmentAlert>
+        <CourseAssignmentAlert
+          showAlert={showCanceledAssignmentsAlert}
+          variant={ASSIGNMENT_TYPES.CANCELED}
+          onClose={() => handleAcknowledgeAssignments({
+            assignmentState: ASSIGNMENT_TYPES.CANCELED,
+          })}
+        />
       )}
       {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
-        <CourseAssignmentAlert showAlert={showExpiredAssignmentsAlert} variant="expired" onClose={handleOnCloseExpiredAlert}> </CourseAssignmentAlert>
+        <CourseAssignmentAlert
+          showAlert={showExpiredAssignmentsAlert}
+          variant={ASSIGNMENT_TYPES.EXPIRED}
+          onClose={() => handleAcknowledgeAssignments({
+            assignmentState: ASSIGNMENT_TYPES.EXPIRED,
+          })}
+        />
       )}
       {showMarkCourseCompleteSuccess && (
         <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>

@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
+import { AppContext } from '@edx/frontend-platform/react';
 import { Alert, Button, MailtoLink } from '@edx/paragon';
 import { Info } from '@edx/paragon/icons';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
+
 import { getContactEmail } from '../../../../utils/common';
+import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 const CourseAssignmentAlert = ({
   showAlert,
@@ -12,7 +14,7 @@ const CourseAssignmentAlert = ({
   variant,
 }) => {
   const intl = useIntl();
-  const heading = variant === 'canceled' ? (
+  const heading = variant === ASSIGNMENT_TYPES.CANCELED ? (
     <FormattedMessage
       id="enterprise.dashboard.course.assignment.cancelled.alert.heading"
       defaultMessage="Course assignment canceled"
@@ -26,7 +28,7 @@ const CourseAssignmentAlert = ({
     />
   );
 
-  const text = variant === 'canceled' ? (
+  const text = variant === ASSIGNMENT_TYPES.CANCELED ? (
     <FormattedMessage
       id="enterprise.dashboard.course.assignment.cancelled.alert.text"
       defaultMessage="Your learning administrator canceled one or more course assignments below."
@@ -73,7 +75,7 @@ const CourseAssignmentAlert = ({
 
 CourseAssignmentAlert.propTypes = {
   onClose: PropTypes.func,
-  variant: PropTypes.string,
+  variant: PropTypes.oneOf([ASSIGNMENT_TYPES.CANCELED, ASSIGNMENT_TYPES.EXPIRED]),
   showAlert: PropTypes.bool,
 };
 
