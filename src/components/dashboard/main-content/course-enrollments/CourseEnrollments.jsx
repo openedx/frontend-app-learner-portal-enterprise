@@ -2,6 +2,7 @@ import React, {
   useContext, useEffect, useState,
 } from 'react';
 import Cookies from 'universal-cookie';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import PropTypes from 'prop-types';
 
@@ -12,8 +13,6 @@ import { CourseEnrollmentsContext } from './CourseEnrollmentsContextProvider';
 import { features } from '../../../../config';
 import { useCourseEnrollmentsBySection, useContentAssignments } from './data';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-
-import { COURSE_SECTION_TITLES } from '../../data/constants';
 
 const CourseEnrollments = ({ children }) => {
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
@@ -42,6 +41,7 @@ const CourseEnrollments = ({ children }) => {
     assignments,
   });
   const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const intl = useIntl();
 
   useEffect(() => {
     const cookies = new Cookies();
@@ -55,7 +55,11 @@ const CourseEnrollments = ({ children }) => {
   if (fetchCourseEnrollmentsError) {
     return (
       <CourseEnrollmentsAlert variant="danger">
-        An error occurred while retrieving your course enrollments. Please try again.
+        <FormattedMessage
+          id="enterprise.dashboard.course.enrollments.error"
+          defaultMessage="An error occurred while retrieving your course enrollments. Please try again."
+          description="Error message when an error occurs while retrieving course enrollments."
+        />
       </CourseEnrollmentsAlert>
     );
   }
@@ -70,12 +74,20 @@ const CourseEnrollments = ({ children }) => {
       )}
       {showMarkCourseCompleteSuccess && (
         <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>
-          Your course was saved for later.
+          <FormattedMessage
+            id="enterprise.dashboard.course.enrollment.saved.for.later.alert.text"
+            defaultMessage="Your course was saved for later."
+            description="Message when a course is saved for later."
+          />
         </CourseEnrollmentsAlert>
       )}
       {showMoveToInProgressCourseSuccess && (
         <CourseEnrollmentsAlert variant="success" onClose={() => setShowMoveToInProgressCourseSuccess(false)}>
-          Your course was moved to In Progress.
+          <FormattedMessage
+            id="enterprise.dashboard.course.enrollment.moved.to.progress.alert.text"
+            defaultMessage="Your course was moved to In Progress."
+            description="Message when a course is moved to In Progress."
+          />
         </CourseEnrollmentsAlert>
       )}
       {/*
@@ -87,20 +99,40 @@ const CourseEnrollments = ({ children }) => {
       <>
         {features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && (
           <CourseSection
-            title={isFirstVisit ? COURSE_SECTION_TITLES.firstTimeUserAndAssigned : COURSE_SECTION_TITLES.assigned}
+            title={isFirstVisit ? intl.formatMessage({
+              id: 'enterprise.dashboard.course.enrollments.assigned.section.title.for.first.visit',
+              defaultMessage: 'Your learning journey starts now!',
+              description: 'Title for the assigned courses section when the user visits the dashboard for the first time.',
+            }) : intl.formatMessage({
+              id: 'enterprise.dashboard.course.enrollments.assigned.section.title',
+              defaultMessage: 'Assigned Courses',
+              description: 'Title for the assigned courses section.',
+            })}
             courseRuns={assignments}
           />
         )}
         <CourseSection
-          title={COURSE_SECTION_TITLES.current}
+          title={intl.formatMessage({
+            id: 'enterprise.dashboard.course.enrollments.my.courses.section.title',
+            defaultMessage: 'My courses',
+            description: 'Title for the my courses section.',
+          })}
           courseRuns={currentCourseEnrollments}
         />
         <CourseSection
-          title={COURSE_SECTION_TITLES.completed}
+          title={intl.formatMessage({
+            id: 'enterprise.dashboard.course.enrollments.completed.courses.section.title',
+            defaultMessage: 'Completed courses',
+            description: 'Title for the completed courses section.',
+          })}
           courseRuns={completedCourseEnrollments}
         />
         <CourseSection
-          title={COURSE_SECTION_TITLES.savedForLater}
+          title={intl.formatMessage({
+            id: 'enterprise.dashboard.course.enrollments.save.for.later.courses.section.title',
+            defaultMessage: 'Saved for later',
+            description: 'Title for the saved for later courses section.',
+          })}
           courseRuns={savedForLaterCourseEnrollments}
         />
       </>

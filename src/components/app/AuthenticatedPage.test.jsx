@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation, useParams, useMatch } from 'react-router-dom';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -62,11 +63,13 @@ const AuthenticatedPageWrapper = ({
   children,
   appContextValue = defaultAppContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <AuthenticatedPage>
-      {children}
-    </AuthenticatedPage>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <AuthenticatedPage>
+        {children}
+      </AuthenticatedPage>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('AuthenticatedPage tests', () => {

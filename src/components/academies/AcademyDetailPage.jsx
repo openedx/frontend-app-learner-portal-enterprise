@@ -6,12 +6,12 @@ import {
 import {
   useParams, Link,
 } from 'react-router-dom';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useAcademyMetadata } from './data/hooks';
 import NotFoundPage from '../NotFoundPage';
-import { ACADEMY_NOT_FOUND_TITLE } from './data/constants';
 import './styles/Academy.scss';
 import AcademyContentCard from './AcademyContentCard';
 
@@ -21,6 +21,7 @@ const AcademyDetailPage = () => {
   const { academyUUID } = useParams();
   const [academy, isAcademyAPILoading, academyAPIError] = useAcademyMetadata(academyUUID);
   const academyURL = `/${enterpriseConfig.slug}/academy/${academyUUID}`;
+  const intl = useIntl();
 
   // init algolia index
   const courseIndex = useMemo(
@@ -37,8 +38,16 @@ const AcademyDetailPage = () => {
   if (academyAPIError) {
     return (
       <NotFoundPage
-        pageTitle={ACADEMY_NOT_FOUND_TITLE}
-        errorHeading={ACADEMY_NOT_FOUND_TITLE}
+        pageTitle={intl.formatMessage({
+          id: 'academy.detail.page.academy.not.found.page.title',
+          defaultMessage: 'Academy not found',
+          description: 'Page title for the academy not found page.',
+        })}
+        errorHeading={intl.formatMessage({
+          id: 'academy.detail.page.academy.not.found.page.message',
+          defaultMessage: 'Academy not found',
+          description: 'Error message for the academy not found page.',
+        })}
       />
     );
   }

@@ -7,6 +7,7 @@ import { Button, Card, useToggle } from '@edx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -162,10 +163,26 @@ const CategoryCard = ({ topCategory }) => {
           testid="show-all-less-button"
         >
           {showAll && !showLess && (
-            <span>Show ({subCategorySkillsLength}) &gt;</span>
+            <span>
+              <FormattedMessage
+                id="enterprise.dashboard.my.career.tab.visualize.career.data.show.all.skills"
+                defaultMessage="Show ({totalSkillsCount}) {rightArrowIcon}"
+                description="Label for button to show all skills in a category"
+                values={{
+                  totalSkillsCount: subCategorySkillsLength,
+                  rightArrowIcon: '>',
+                }}
+              />
+            </span>
           )}
           {!showAll && showLess && (
-            <span>Show Less</span>
+            <span>
+              <FormattedMessage
+                id="enterprise.dashboard.my.career.tab.visualize.career.data.show.less.skills"
+                defaultMessage="Show Less"
+                description="Label for button to show less skills in a category"
+              />
+            </span>
           )}
           {
             !showAll && !showLess && (

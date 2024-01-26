@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, act } from '@testing-library/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import {
@@ -11,7 +12,6 @@ import {
 import { renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
-import { EXECUTIVE_EDUCATION_SECTION, SELF_PACED_SECTION } from '../data/constants';
 
 // config
 const APP_CONFIG = {
@@ -106,9 +106,11 @@ jest.mock('algoliasearch/lite', () => {
 const AcademyDetailPageWithContext = ({
   initialAppState = {},
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <AcademyDetailPage />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <AcademyDetailPage />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<AcademyDetailPage />', () => {
@@ -131,10 +133,14 @@ describe('<AcademyDetailPage />', () => {
     expect(screen.getByTestId('academy-description')).toHaveTextContent(ACADEMY_MOCK_DATA.long_description);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);
     expect(academyTags).toEqual(['wowwww', 'boooo']);
-    expect(screen.getByTestId('academy-exec-ed-courses-title')).toHaveTextContent(EXECUTIVE_EDUCATION_SECTION.title);
-    expect(screen.getByTestId('academy-exec-ed-courses-subtitle')).toHaveTextContent(EXECUTIVE_EDUCATION_SECTION.subtitle);
-    expect(screen.getByTestId('academy-ocm-courses-title')).toHaveTextContent(SELF_PACED_SECTION.title);
-    expect(screen.getByTestId('academy-ocm-courses-subtitle')).toHaveTextContent(SELF_PACED_SECTION.subtitle);
+    expect(screen.getByTestId('academy-exec-ed-courses-title')).toHaveTextContent('Executive Education');
+    expect(screen.getByTestId('academy-exec-ed-courses-subtitle')).toHaveTextContent(
+      'A selection of high-impact graduate-level courses that follow a structured schedule and include active interaction with educators and peers.',
+    );
+    expect(screen.getByTestId('academy-ocm-courses-title')).toHaveTextContent('Self-paced courses');
+    expect(screen.getByTestId('academy-ocm-courses-subtitle')).toHaveTextContent(
+      'A collection of courses that cover essential knowledge on the subject. These courses offer flexible schedules and independent study.',
+    );
     expect(screen.getAllByTestId('academy-course-card').length).toEqual(2);
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[0].title)).toBeInTheDocument();
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[1].title)).toBeInTheDocument();

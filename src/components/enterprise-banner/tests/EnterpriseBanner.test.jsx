@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import EnterpriseBanner from '../EnterpriseBanner';
 import AuthenticatedPageContext from '../../app/AuthenticatedPageContext';
@@ -24,11 +25,13 @@ const EnterpriseBannerWrapper = ({
   appContextValue = defaultAppContextValue,
   authenticatedPageContextValue = defaultAuthenticatedPageContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <AuthenticatedPageContext.Provider value={authenticatedPageContextValue}>
-      <EnterpriseBanner />
-    </AuthenticatedPageContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <AuthenticatedPageContext.Provider value={authenticatedPageContextValue}>
+        <EnterpriseBanner />
+      </AuthenticatedPageContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<EnterpriseBanner />', () => {

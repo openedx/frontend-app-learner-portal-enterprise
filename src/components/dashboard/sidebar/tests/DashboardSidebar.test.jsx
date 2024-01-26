@@ -2,6 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar from '../DashboardSidebar';
@@ -52,15 +53,17 @@ const DashboardSidebarWithContext = ({
     courseEnrollmentsByStatus: {},
   },
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
-          <DashboardSidebar />
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
+            <DashboardSidebar />
+          </CourseEnrollmentsContextProvider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<DashboardSidebar />', () => {
