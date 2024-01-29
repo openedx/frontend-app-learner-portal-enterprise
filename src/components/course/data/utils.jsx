@@ -129,9 +129,6 @@ export const numberWithPrecision = (number, precision = 2) => number.toFixed(pre
 // See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
 // for more detailed documentation on course run selection and the enroll button.
 export function getActiveCourseRun(course) {
-  // if (course.key === 'MITx+BUS.161x') {
-  //   course.advertisedCourseRunUuid = 'a25e4d9c-4c67-4f31-9d6d-b25473c06ac6';
-  // }
   return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
 }
 

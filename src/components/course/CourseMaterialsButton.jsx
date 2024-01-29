@@ -11,7 +11,6 @@ const CourseMaterialsButton = () => {
     },
   } = useContext(CourseContext);
 
-  let enrolledCourseRun;
   let userEnrollment;
   for (const courseRun of course.courseRuns) { // eslint-disable-line no-restricted-syntax
     const userEnrollmentForCourseRun = findUserEnrollmentForCourseRun({
@@ -20,12 +19,11 @@ const CourseMaterialsButton = () => {
     });
     if (userEnrollmentForCourseRun) {
       userEnrollment = userEnrollmentForCourseRun;
-      enrolledCourseRun = courseRun;
       break;
     }
   }
 
-  if (!enrolledCourseRun) {
+  if (!userEnrollment) {
     return null;
   }
   return (
