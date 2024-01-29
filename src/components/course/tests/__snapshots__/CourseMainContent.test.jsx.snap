@@ -62,6 +62,7 @@ Array [
           >
             <span
               className="pgn__icon"
+              data-testid="hyperlink-icon"
               style={
                 Object {
                   "height": "1em",
