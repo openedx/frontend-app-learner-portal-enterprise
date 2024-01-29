@@ -135,8 +135,7 @@ describe('<AcademyDetailPage />', () => {
     expect(screen.getByTestId('academy-exec-ed-courses-subtitle')).toHaveTextContent(EXECUTIVE_EDUCATION_SECTION.subtitle);
     expect(screen.getByTestId('academy-ocm-courses-title')).toHaveTextContent(SELF_PACED_SECTION.title);
     expect(screen.getByTestId('academy-ocm-courses-subtitle')).toHaveTextContent(SELF_PACED_SECTION.subtitle);
-    expect(screen.getAllByTestId('academy-exec-ed-course-card').length).toEqual(1);
-    expect(screen.getAllByTestId('academy-ocm-course-card').length).toEqual(1);
+    expect(screen.getAllByTestId('academy-course-card').length).toEqual(2);
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[0].title)).toBeInTheDocument();
     expect(screen.getByText(ALOGLIA_MOCK_DATA.hits[1].title)).toBeInTheDocument();
   });

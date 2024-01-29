@@ -33,7 +33,7 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
 
   const { isLoading: isUpdatingActiveEnterprise } = useUpdateActiveEnterpriseForUser({
     enterpriseId: enterpriseConfig?.uuid,
-    authenticatedUser,
+    user: authenticatedUser,
   });
 
   const contextValue = useMemo(() => ({

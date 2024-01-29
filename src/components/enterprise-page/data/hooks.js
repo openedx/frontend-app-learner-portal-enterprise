@@ -1,10 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import {
+  useMutation, useQuery,
+} from '@tanstack/react-query';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import colors from '../../../colors.scss';
-import { fetchEnterpriseCustomerConfigForSlug, updateUserActiveEnterprise } from './service';
-import { loginRefresh } from '../../../utils/common';
+import {
+  fetchEnterpriseCustomerConfigForSlug,
+  updateUserActiveEnterprise,
+  fetchEnterpriseLearnerData,
+} from './service';
 
 export const defaultPrimaryColor = colors?.primary;
 export const defaultSecondaryColor = colors?.info100;
@@ -109,45 +115,45 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
  * @param {string} [enterpriseId] enterprise UUID
  * @param {object} [user] user object containing JWT roles
  *
- * Sets the user's active enterprise and forces login_refresh to re-order the roles inside the user's JWT.
+ * Sets the user's active enterprise.
  */
 export const useUpdateActiveEnterpriseForUser = ({
   enterpriseId,
   user,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const updateActiveEnterpriseAndRefreshJWT = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      await updateUserActiveEnterprise(enterpriseId);
-      await loginRefresh();
-    } catch (error) {
-      logError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [enterpriseId]);
+  // Sets up POST call to update active enterprise.
+  const { mutate, isLoading: isUpdatingActiveEnterprise } = useMutation({
+    mutationFn: () => updateUserActiveEnterprise(enterpriseId),
+    onError: () => {
+      logError("Failed to update user's active enterprise");
+    },
+  });
+  const { username } = user;
+  const {
+    data,
+    isLoading: isLoadingActiveEnterprise,
+  } = useQuery({
+    queryKey: ['activeLinkedEnterpriseCustomer', username],
+    queryFn: () => fetchEnterpriseLearnerData({ username }),
+    meta: {
+      errorMessage: "Failed to fetch user's active enterprise",
+    },
+  });
 
   useEffect(() => {
-    if (!(enterpriseId && user)) {
+    if (!data || !enterpriseId) { return; }
+    // Ensure that the current enterprise is linked and can be activated for the user
+    if (!data.find(enterprise => enterprise.enterpriseCustomer.uuid === enterpriseId)) {
       return;
     }
-
-    const { roles } = user;
-    // The first learner role corresponds to the currently active enterprise for the user
-    const activeLearnerRole = roles.find(role => role.split(':')[0] === 'enterprise_learner');
-
-    if (activeLearnerRole) {
-      const currentActiveEnterpriseId = activeLearnerRole.split(':')[1];
-      if (currentActiveEnterpriseId !== '*' && currentActiveEnterpriseId !== enterpriseId) {
-        updateActiveEnterpriseAndRefreshJWT();
-      }
+    const activeLinkedEnterprise = data.find(enterprise => enterprise.active);
+    if (!activeLinkedEnterprise) { return; }
+    if (activeLinkedEnterprise.enterpriseCustomer.uuid !== enterpriseId) {
+      mutate(enterpriseId);
     }
-  }, [enterpriseId, user, updateActiveEnterpriseAndRefreshJWT]);
+  }, [data, enterpriseId, mutate]);
 
   return {
-    isLoading,
+    isLoading: isLoadingActiveEnterprise || isUpdatingActiveEnterprise,
   };
 };

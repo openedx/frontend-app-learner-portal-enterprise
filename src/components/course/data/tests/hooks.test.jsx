@@ -2,7 +2,12 @@ import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -60,6 +65,7 @@ import {
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
+import { queryCacheOnErrorHandler } from '../../../../utils/common';
 
 const oldGlobalLocation = global.location;
 
@@ -131,7 +137,11 @@ const createGlobalLocationMock = () => {
 };
 const mockPreventDefault = jest.fn();
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: queryCacheOnErrorHandler,
+  }),
+});
 
 describe('useAllCourseData', () => {
   const basicProps = {

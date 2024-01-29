@@ -6,6 +6,7 @@ import { AppProvider, AuthenticatedPageRoute, PageWrap } from '@edx/frontend-pla
 import { logError } from '@edx/frontend-platform/logging';
 import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
 import {
+  QueryCache,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
@@ -19,6 +20,7 @@ import {
   EnterpriseCustomerRedirect,
   EnterprisePageRedirect,
 } from '../enterprise-redirects';
+import { queryCacheOnErrorHandler, defaultQueryClientRetryHandler } from '../../utils/common';
 import { EnterpriseInvitePage } from '../enterprise-invite';
 import { ExecutiveEducation2UPage } from '../executive-education-2u';
 import { ToastsProvider, Toasts } from '../Toasts';
@@ -26,7 +28,22 @@ import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
 import { UserSubsidy } from '../enterprise-user-subsidy';
 
 // Create a query client for @tanstack/react-query
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: queryCacheOnErrorHandler,
+  }),
+  defaultOptions: {
+    queries: {
+      retry: defaultQueryClientRetryHandler,
+      // Specifying a longer `staleTime` of 60 seconds means queries will not refetch their data
+      // as often; mitigates making duplicate queries when within the `staleTime` window, instead
+      // relying on the cached data until the `staleTime` window has exceeded. This may be modified
+      // per-query, as needed, if certain queries expect to be more up-to-date than others. Allows
+      // `useQuery` to be used as a state manager.
+      staleTime: 1000 * 60,
+    },
+  },
+});
 
 const TruncatedLocation = () => {
   const location = useLocation();
