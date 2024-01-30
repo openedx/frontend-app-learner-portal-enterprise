@@ -19,6 +19,7 @@ const mockHighlightedContentItem = {
   cardImageUrl: 'https://fake.image',
   authoringOrganizations: [],
   aggregationKey: 'course:edX+DemoX',
+  courseRunStatuses: ['published'],
 };
 const mockHighlightSet = {
   uuid: 'test-highlightset-uuid',

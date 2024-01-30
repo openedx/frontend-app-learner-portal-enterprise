@@ -22,7 +22,7 @@ const {
 
 /**
  * Returns correct enroll button component as per the spec at:
- * https://openedx.atlassian.net/wiki/spaces/SOL/pages/2178875970/Enroll+Button+logic+for+Enterprise+Learner+Portal
+ * https://2u-internal.atlassian.net/wiki/spaces/SOL/pages/15152032/Enroll+Button+logic+for+Enterprise+Learner+Portal
  *
  * @param {object} args Arguments.
  * @param {string} args.enrollmentType type of enrollment
