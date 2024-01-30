@@ -26,6 +26,15 @@ export const COURSE_AVAILABILITY_MAP = {
   ARCHIVED: 'Archived',
 };
 
+export const COURSE_RUN_AVAILABILITY = {
+  UNPUBLISHED: 'unpublished',
+  LEGAL_REVIEW: 'review_by_legal',
+  INTERNAL_REVIEW: 'review_by_internal',
+  REVIEWED: 'reviewed',
+  PUBLISHED: 'published',
+  ARCHIVED: 'archived',
+};
+
 export const SKILL_DESCRIPTION_PLACEHOLDER = 'No description available.';
 export const SKILL_DESCRIPTION_CUTOFF_LIMIT = 950;
 export const ELLIPSIS_STR = '...';

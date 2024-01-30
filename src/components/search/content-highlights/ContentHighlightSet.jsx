@@ -13,6 +13,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import { CARDGRID_COLUMN_SIZES } from '../constants';
 import HighlightedContentCard from './HighlightedContentCard';
+import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
 
 const ContentHighlightSet = ({ highlightSet }) => {
   const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
@@ -29,7 +30,7 @@ const ContentHighlightSet = ({ highlightSet }) => {
       courseRunStatuses,
     } = highlightedContent[i];
     if (courseRunStatuses) {
-      if (courseRunStatuses?.every(status => status === 'archived')) {
+      if (courseRunStatuses?.every(status => status === COURSE_RUN_AVAILABILITY.ARCHIVED)) {
         archivedContent.push(highlightedContent[i]);
       } else {
         activeContent.push(highlightedContent[i]);

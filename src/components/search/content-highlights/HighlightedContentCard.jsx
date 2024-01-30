@@ -8,6 +8,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import cardImageCapFallbackSrc from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
 import { useHighlightedContentCardData } from './data';
+import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
 
 const HighlightedContentCard = ({
   highlightSetUUID,
@@ -37,7 +38,7 @@ const HighlightedContentCard = ({
     highlightedContent,
   });
 
-  const archivedCourse = courseRunStatuses?.every(status => status === 'archived');
+  const archivedCourse = courseRunStatuses?.every(status => status === COURSE_RUN_AVAILABILITY.ARCHIVED);
 
   const handleContentCardClick = () => {
     if (!href) {
