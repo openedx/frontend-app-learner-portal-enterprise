@@ -161,6 +161,7 @@ const Search = () => {
               index={courseIndex}
               filters={filters}
               enterpriseConfig={enterpriseConfig}
+              isPreQueryEnabled={config.FEATURE_PREQUERY_SEARCH_SUGGESTIONS}
             />
           </div>
         )}
