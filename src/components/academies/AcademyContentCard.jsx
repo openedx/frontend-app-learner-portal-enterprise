@@ -7,11 +7,12 @@ import {
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
-import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION } from '@edx/frontend-enterprise-catalog-search/data/constants';
+import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION, LEARNING_TYPE_PATHWAY } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import SearchCourseCard from '../search/SearchCourseCard';
 import {
-  EXECUTIVE_EDUCATION_SECTION, SELF_PACED_SECTION,
+  EXECUTIVE_EDUCATION_SECTION, PATHWAYS_SECTION, SELF_PACED_SECTION,
 } from './data/constants';
+import SearchPathwayCard from '../pathway/SearchPathwayCard';
 
 const AcademyContentCard = ({
   courseIndex, academyUUID, academyTitle, academyURL, tags,
@@ -32,19 +33,19 @@ const AcademyContentCard = ({
         });
         return intersect;
       }
-
       async function fetchCourses() {
         setIsAlgoliaLoading(true);
 
         const { hits: academyHits, nbHits: nbAcademyHits } = await courseIndex.search('', {
-          filters: `content_type:course AND academy_uuids:${academyUUID}`, // eslint-disable-line object-shorthand
+          filters: `(content_type:course OR content_type:learnerpathway) AND academy_uuids:${academyUUID}`, // eslint-disable-line object-shorthand
+          hitsPerPage: 100,
+          page: 0,
         });
-
         let tagHits;
         let nbTagHits;
         if (selectedTag) {
           const response = await courseIndex.search('', {
-            facetFilters: ['content_type:course', `academy_tags:${selectedTag}`],
+            facetFilters: [['content_type:course', 'content_type:learnerpathway'], `academy_tags:${selectedTag}`],
           });
           ({ hits: tagHits, nbHits: nbTagHits } = response);
         }
@@ -52,10 +53,11 @@ const AcademyContentCard = ({
         if (nbAcademyHits > 0) {
           let allHits;
           const academyHitsCamelCased = camelCaseObject(academyHits);
-
           if (nbTagHits > 0) {
             const tagHitsCamelCased = camelCaseObject(tagHits);
             allHits = contentIntersect(academyHitsCamelCased, tagHitsCamelCased);
+          } else if (nbTagHits === 0) {
+            allHits = [];
           } else {
             allHits = academyHitsCamelCased;
           }
@@ -72,9 +74,10 @@ const AcademyContentCard = ({
   );
   const ocmCourses = courses.filter(course => course.learningType === LEARNING_TYPE_COURSE);
   const execEdCourses = courses.filter(course => course.learningType === LEARNING_TYPE_EXECUTIVE_EDUCATION);
-
+  const pathways = courses.filter(course => course.learningType === LEARNING_TYPE_PATHWAY);
   const renderableContent = ({
     content,
+    contentType,
     title,
     subtitle,
     additionalClass,
@@ -89,17 +92,25 @@ const AcademyContentCard = ({
           xs: 12, md: 6, lg: 4, xl: 3,
         }}
         >
-          {content.map(course => (
-            <SearchCourseCard
-              key={`academy-course-${uuidv4()}`}
-              data-testid="academy-course-card"
-              hit={course}
-              parentRoute={{
-                label: academyTitle,
-                to: academyURL,
-              }}
-            />
-          ))}
+          {contentType !== LEARNING_TYPE_PATHWAY
+            ? content.map(course => (
+              <SearchCourseCard
+                key={`academy-course-${uuidv4()}`}
+                data-testid="academy-course-card"
+                hit={course}
+                parentRoute={{
+                  label: academyTitle,
+                  to: academyURL,
+                }}
+              />
+            ))
+            : content.map(pathway => (
+              <SearchPathwayCard
+                key={pathway.uuid}
+                data-testid="academy-pathways-card"
+                hit={pathway}
+              />
+            ))}
         </CardGrid>
       </div>
     )
@@ -139,6 +150,7 @@ const AcademyContentCard = ({
           <>
             {renderableContent({
               content: execEdCourses,
+              contentType: LEARNING_TYPE_COURSE,
               title: EXECUTIVE_EDUCATION_SECTION.title,
               subtitle: EXECUTIVE_EDUCATION_SECTION.subtitle,
               additionalClass: 'academy-exec-ed-courses-container',
@@ -147,11 +159,21 @@ const AcademyContentCard = ({
             })}
             {renderableContent({
               content: ocmCourses,
+              contentType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
               title: SELF_PACED_SECTION.title,
               subtitle: SELF_PACED_SECTION.subtitle,
               additionalClass: 'academy-ocm-courses-container',
               titleTestId: 'academy-ocm-courses-title',
               subtitleTestId: 'academy-ocm-courses-subtitle',
+            })}
+            {renderableContent({
+              content: pathways,
+              contentType: LEARNING_TYPE_PATHWAY,
+              title: PATHWAYS_SECTION.title,
+              subtitle: PATHWAYS_SECTION.subtitle,
+              additionalClass: 'academy-pathways-container',
+              titleTestId: 'academy-pathway-title',
+              subtitleTestId: 'academy-pathway-subtitle',
             })}
           </>
         )

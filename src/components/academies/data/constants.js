@@ -7,3 +7,7 @@ export const SELF_PACED_SECTION = {
   title: 'Self-paced courses',
   subtitle: 'A collection of courses that cover essential knowledge on the subject. These courses offer flexible schedules and independent study.',
 };
+export const PATHWAYS_SECTION = {
+  title: 'Pathways',
+  subtitle: 'Not sure where to start? Try one of our recommended learning tracks.',
+};
