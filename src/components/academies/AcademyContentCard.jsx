@@ -106,9 +106,10 @@ const AcademyContentCard = ({
             ))
             : content.map(pathway => (
               <SearchPathwayCard
-                key={pathway.uuid}
+                key={`academy-pathway-${uuidv4()}`}
                 data-testid="academy-pathways-card"
                 hit={pathway}
+                isAcademyPathway
               />
             ))}
         </CardGrid>

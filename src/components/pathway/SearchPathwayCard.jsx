@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
-  Badge, Card, Stack, Truncate,
+  Badge, Card, Stack, Truncate, useToggle,
 } from '@edx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -15,6 +15,7 @@ import {
   PATHWAY_SEARCH_EVENT_NAME,
   PATHWAY_SKILL_QUIZ_EVENT_NAME,
 } from './constants';
+import PathwayModal from './PathwayModal';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -49,9 +50,11 @@ const SearchPathwayCard = ({
   hit,
   isLoading,
   isSkillQuizResult,
+  isAcademyPathway,
   ...rest
 }) => {
   const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const navigate = useNavigate();
 
   const pathway = useMemo(() => {
@@ -95,43 +98,60 @@ const SearchPathwayCard = ({
         pathwayUUID: pathwayUuid,
       },
     );
-    navigate(linkToPathway);
+    if (isAcademyPathway) {
+      openLearnerPathwayModal();
+    } else {
+      navigate(linkToPathway);
+    }
   };
 
   return (
-    <Card
-      data-testid="search-pathway-card"
-      isClickable
-      isLoading={isLoading}
-      onClick={handleCardClick}
-      variant="dark"
-      {...rest}
-    >
-      <Card.ImageCap
-        src={pathway?.cardImageUrl || cardFallbackImg}
-        fallbackSrc={cardFallbackImg}
-        alt=""
-      />
-      <Card.Header
-        title={(
-          <Truncate maxLine={3}>{pathway.title}</Truncate>
-        )}
-      />
-      <Card.Section>
-        {pathway.skillNames && (
-          <Stack direction="horizontal" gap={2} className="flex-wrap">
-            {filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(skillName => (
-              <Badge
-                variant="light"
-                key={skillName}
-              >
-                {skillName}
-              </Badge>
-            ))}
-          </Stack>
-        )}
-      </Card.Section>
-    </Card>
+    <>
+      {isAcademyPathway
+      && (
+        <PathwayModal
+          learnerPathwayUuid={pathwayUuid}
+          isOpen={isLearnerPathwayModalOpen}
+          onClose={() => {
+            // navigate(`/${enterpriseConfig.slug}/search`);
+            onClose();
+          }}
+        />
+      )}
+      <Card
+        data-testid="search-pathway-card"
+        isClickable
+        isLoading={isLoading}
+        onClick={handleCardClick}
+        variant="dark"
+        {...rest}
+      >
+        <Card.ImageCap
+          src={pathway?.cardImageUrl || cardFallbackImg}
+          fallbackSrc={cardFallbackImg}
+          alt=""
+        />
+        <Card.Header
+          title={(
+            <Truncate maxLine={3}>{pathway.title}</Truncate>
+          )}
+        />
+        <Card.Section>
+          {pathway.skillNames && (
+            <Stack direction="horizontal" gap={2} className="flex-wrap">
+              {filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(skillName => (
+                <Badge
+                  variant="light"
+                  key={skillName}
+                >
+                  {skillName}
+                </Badge>
+              ))}
+            </Stack>
+          )}
+        </Card.Section>
+      </Card>
+    </>
   );
 };
 
@@ -148,12 +168,14 @@ SearchPathwayCard.propTypes = {
   }),
   isLoading: PropTypes.bool,
   isSkillQuizResult: PropTypes.bool,
+  isAcademyPathway: PropTypes.bool,
 };
 
 SearchPathwayCard.defaultProps = {
   hit: undefined,
   isLoading: false,
   isSkillQuizResult: false,
+  isAcademyPathway: false,
 };
 
 SearchPathwayCard.Skeleton = SkeletonPathwayCard;
