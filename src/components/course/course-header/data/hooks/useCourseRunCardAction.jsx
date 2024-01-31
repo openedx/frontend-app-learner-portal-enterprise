@@ -60,7 +60,7 @@ const useCourseRunCardAction = ({
 
   const handleRedemptionSuccess = (transaction) => {
     if (!isUserEnrolled && !externalCourseEnrollmentUrl) {
-      toasts?.addToast(`You Enrolled in ${course.title}.`);
+      toasts?.addToast(`You enrolled in ${course.title}.`);
     }
     handleRedeemSuccess(transaction);
   };
