@@ -22,6 +22,7 @@ import { emptyRedeemableLearnerCreditPolicies } from '../../../../../enterprise-
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
+  logInfo: jest.fn(),
 }));
 
 const mockCourseService = {
@@ -382,8 +383,19 @@ describe('useContentAssignments', () => {
     jest.clearAllMocks();
   });
 
+  it('should do nothing if acknowledgeContentAssignments called with unsupported assignment state', async () => {
+    const { result } = renderHook(
+      () => useContentAssignments(mockPoliciesWithAssignments),
+      { wrapper },
+    );
+    expect(result.current.handleAcknowledgeAssignments).toBeInstanceOf(Function);
+    result.current.handleAcknowledgeAssignments({ assignmentState: 'invalid' });
+    expect(logger.logError).toHaveBeenCalledWith('Invalid assignment state (invalid) passed to handleAcknowledgeAssignments.');
+    expect(service.acknowledgeContentAssignments).not.toHaveBeenCalled();
+  });
+
   it('should handle dismissal / acknowledgement of cancelled assignments', async () => {
-    service.acknowledgeContentAssignments.mockReturnValue({
+    service.acknowledgeContentAssignments.mockResolvedValue({
       data: {
         acknowledged_assignments: [],
         already_acknowledged_assignments: [],
