@@ -5,6 +5,7 @@ import {
 } from '@edx/paragon';
 import { Edit } from '@edx/paragon/icons';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useLearnerSkillLevels } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
@@ -60,9 +61,21 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
           {!isEditable ? (
             <div key="edit-job-button">
               <ActionRow>
-                <p>Desired Role</p>
+                <p>
+                  <FormattedMessage
+                    id="enterprise.dashboard.my.career.tab.existing.job.role.description"
+                    defaultMessage="Desired Role"
+                    description="Description shown to learner when learner has an existing desired job role added"
+                  />
+                </p>
                 <ActionRow.Spacer />
-                <Button variant="link" iconBefore={editIcon} onClick={editOnClickHandler}>Edit</Button>
+                <Button variant="link" iconBefore={editIcon} onClick={editOnClickHandler}>
+                  <FormattedMessage
+                    id="enterprise.dashboard.my.career.tab.existing.job.role.edit.button"
+                    defaultMessage="Edit"
+                    description="Button label shown to learner to edit existing job role"
+                  />
+                </Button>
               </ActionRow>
               <ActionRow>
                 <b>{learnerSkillLevels.name}</b>
@@ -78,7 +91,13 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
         {skillCategories && (
           <>
             <ActionRow className="mt-4.5">
-              <p>My Career Chart</p>
+              <p>
+                <FormattedMessage
+                  id="enterprise.dashboard.my.career.tab.existing.job.role.career.chart.heading"
+                  defaultMessage="My Career Chart"
+                  description="Heading shown to learner for existing job role career chart"
+                />
+              </p>
               <ActionRow.Spacer />
             </ActionRow>
             <SpiderChart className="plotly-graph" categories={learnerSkillLevels} />
@@ -93,17 +112,22 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
                 data-testid="reading-instructions-button"
                 onClick={() => toggleShowInstructions()}
               >
-                How do I read this?
+                <FormattedMessage
+                  id="enterprise.dashboard.my.career.tab.existing.job.role.career.chart.reading.instructions.button"
+                  defaultMessage="How do I read this?"
+                  description="Button label shown to learner to read instructions for existing job role career chart"
+                />
               </Button>
               <ActionRow.Spacer />
             </ActionRow>
             {showInstructions && (
               <div className="text-muted skills-chart-reading-instructions">
                 <p>
-                  Using the Lightcast taxonomy, we trace your currently selected job title to the
-                  competencies and skills needed to succeed. As you pass courses on the edX platform
-                  teaching skills relevant to your current job, the graph above shows how you are
-                  growing in the competenices related to your role.
+                  <FormattedMessage
+                    id="enterprise.dashboard.my.career.tab.existing.job.role.career.chart.reading.instructions.description"
+                    defaultMessage="Using the Lightcast taxonomy, we trace your currently selected job title to the competencies and skills needed to succeed. As you pass courses on the edX platform teaching skills relevant to your current job, the graph above shows how you are growing in the competenices related to your role."
+                    description="Description shown to learner for existing job role career chart reading instructions"
+                  />
                 </p>
               </div>
             )}

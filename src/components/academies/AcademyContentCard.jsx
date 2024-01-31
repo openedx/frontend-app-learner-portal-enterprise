@@ -4,14 +4,12 @@ import {
   CardGrid,
   Spinner,
 } from '@edx/paragon';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { LEARNING_TYPE_COURSE, LEARNING_TYPE_EXECUTIVE_EDUCATION, LEARNING_TYPE_PATHWAY } from '@edx/frontend-enterprise-catalog-search/data/constants';
 import SearchCourseCard from '../search/SearchCourseCard';
-import {
-  EXECUTIVE_EDUCATION_SECTION, PATHWAYS_SECTION, SELF_PACED_SECTION,
-} from './data/constants';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 
 const AcademyContentCard = ({
@@ -21,6 +19,7 @@ const AcademyContentCard = ({
   const [courses, setCourses] = useState([]);
 
   const [selectedTag, setSelectedTag] = useState();
+  const intl = useIntl();
 
   useEffect(
     () => {
@@ -137,7 +136,11 @@ const AcademyContentCard = ({
             size="sm"
             onClick={() => setSelectedTag(undefined)}
           >
-            clear tag filter
+            <FormattedMessage
+              id="academy.detail.page.clear.tag.filter.button"
+              defaultMessage="clear tag filter"
+              description="Label for the clear tag filter button on the academy detail page"
+            />
           </Button>
         )}
       </div>
@@ -151,8 +154,16 @@ const AcademyContentCard = ({
             {renderableContent({
               content: execEdCourses,
               contentType: LEARNING_TYPE_COURSE,
-              title: EXECUTIVE_EDUCATION_SECTION.title,
-              subtitle: EXECUTIVE_EDUCATION_SECTION.subtitle,
+              title: intl.formatMessage({
+                id: 'academy.detail.page.executive.education.courses.section.title',
+                defaultMessage: 'Executive Education',
+                description: 'Title for the executive education courses section on the academy detail page.',
+              }),
+              subtitle: intl.formatMessage({
+                id: 'academy.detail.page.executive.education.courses.section.subtitle',
+                defaultMessage: 'A selection of high-impact graduate-level courses that follow a structured schedule and include active interaction with educators and peers.',
+                description: 'Subtitle for the executive education courses section on the academy detail page.',
+              }),
               additionalClass: 'academy-exec-ed-courses-container',
               titleTestId: 'academy-exec-ed-courses-title',
               subtitleTestId: 'academy-exec-ed-courses-subtitle',
@@ -160,8 +171,16 @@ const AcademyContentCard = ({
             {renderableContent({
               content: ocmCourses,
               contentType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
-              title: SELF_PACED_SECTION.title,
-              subtitle: SELF_PACED_SECTION.subtitle,
+              title: intl.formatMessage({
+                id: 'academy.detail.page.self.paced.courses.section.title',
+                defaultMessage: 'Self-paced courses',
+                description: 'Title for the self-paced courses section on the academy detail page.',
+              }),
+              subtitle: intl.formatMessage({
+                id: 'academy.detail.page.self.paced.courses.section.subtitle',
+                defaultMessage: 'A collection of courses that cover essential knowledge on the subject. These courses offer flexible schedules and independent study.',
+                description: 'Subtitle for the self-paced courses section on the academy detail page.',
+              }),
               additionalClass: 'academy-ocm-courses-container',
               titleTestId: 'academy-ocm-courses-title',
               subtitleTestId: 'academy-ocm-courses-subtitle',
@@ -169,8 +188,16 @@ const AcademyContentCard = ({
             {renderableContent({
               content: pathways,
               contentType: LEARNING_TYPE_PATHWAY,
-              title: PATHWAYS_SECTION.title,
-              subtitle: PATHWAYS_SECTION.subtitle,
+              title: intl.formatMessage({
+                id: 'academy.detail.page.pathways.section.title',
+                defaultMessage: 'Pathways',
+                description: 'Title for the pathways section on the academy detail page.',
+              }),
+              subtitle: intl.formatMessage({
+                id: 'academy.detail.page.pathways.section.subtitle',
+                defaultMessage: 'Not sure where to start? Try one of our recommended learning tracks.',
+                description: 'Subtitle for the pathways section on the academy detail page.',
+              }),
               additionalClass: 'academy-pathways-container',
               titleTestId: 'academy-pathway-title',
               subtitleTestId: 'academy-pathway-subtitle',

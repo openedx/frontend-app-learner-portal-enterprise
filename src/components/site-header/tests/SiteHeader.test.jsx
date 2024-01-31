@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@edx/paragon';
 import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -32,9 +33,11 @@ const appState = {
 const SiteHeaderWithContext = ({
   initialAppState = appState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <SiteHeader />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SiteHeader />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockWindowConfig = {

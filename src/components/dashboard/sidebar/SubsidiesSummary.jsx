@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import PropTypes from 'prop-types';
 import { Button } from '@edx/paragon';
@@ -10,7 +11,6 @@ import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -104,7 +104,11 @@ const SubsidiesSummary = ({
         variant={ctaButtonVariant}
         block
       >
-        {CATALOG_ACCESS_CARD_BUTTON_TEXT}
+        <FormattedMessage
+          id="enterprise.dashboard.sidebar.subsidy.find.course.button"
+          defaultMessage="Find a course"
+          description="Button text for the find a course button on the enterprise dashboard sidebar."
+        />
       </Button>
     )
   );

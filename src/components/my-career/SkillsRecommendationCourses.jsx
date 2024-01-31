@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { CardGrid, Hyperlink } from '@edx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
@@ -84,7 +85,16 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
   }
   return (
     <div>
-      <h5 className="mb-3 mt-n4">More courses that teach you {subCategoryName} Skills</h5>
+      <h5 className="mb-3 mt-n4">
+        <FormattedMessage
+          id="enterprise.dashboard.my.career.tab.visualize.career.data.skill.category.recommended.courses.title"
+          defaultMessage="More courses that teach you {subCategoryName} Skills"
+          description="Title for recommended courses in a category"
+          values={{
+            subCategoryName,
+          }}
+        />
+      </h5>
       <CardGrid>
         {courses.map(course => (
           <SearchCourseCard
@@ -107,7 +117,11 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
           }
         }}
       >
-        Show more courses
+        <FormattedMessage
+          id="enterprise.dashboard.my.career.tab.visualize.career.data.skill.category.show.more.courses"
+          defaultMessage="Show more courses"
+          description="Label for button to show more recommended courses in a category"
+        />
       </Hyperlink>
     </div>
   );
