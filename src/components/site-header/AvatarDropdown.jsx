@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { AvatarButton, Dropdown } from '@edx/paragon';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { isDefinedAndNotNull } from '../../utils/common';
 
 const AvatarDropdown = ({ showLabel }) => {
@@ -15,6 +16,7 @@ const AvatarDropdown = ({ showLabel }) => {
   } = getConfig();
   const { enterpriseConfig, authenticatedUser: { username, profileImage } } = useContext(AppContext);
   const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
+  const intl = useIntl();
 
   const idpPresent = isDefinedAndNotNull(enterpriseConfig.identityProvider);
   // we insert the logout=true in this case to avoid the redirect back to IDP
@@ -36,8 +38,20 @@ const AvatarDropdown = ({ showLabel }) => {
         style={{ maxWidth: 280 }}
         alignRight
       >
-        <Dropdown.Header className="text-uppercase">Switch Dashboard</Dropdown.Header>
-        <Dropdown.Item href={`${LMS_BASE_URL}/dashboard`}>Personal</Dropdown.Item>
+        <Dropdown.Header className="text-uppercase">
+          {intl.formatMessage({
+            id: 'site.header.avatar.dropdown.switch.dashboard.title',
+            defaultMessage: 'Switch Dashboard',
+            description: 'Switch dashboard section title in avatar dropdown.',
+          })}
+        </Dropdown.Header>
+        <Dropdown.Item href={`${LMS_BASE_URL}/dashboard`}>
+          {intl.formatMessage({
+            id: 'site.header.avatar.dropdown.personal.dashboard.title',
+            defaultMessage: 'Personal',
+            description: 'Personal dashboard link title in avatar dropdown.',
+          })}
+        </Dropdown.Item>
         {/* TODO: support multiple enterprises! */}
         <Dropdown.Item
           as={NavLink}
@@ -51,11 +65,34 @@ const AvatarDropdown = ({ showLabel }) => {
           {enterpriseConfig.name}
         </Dropdown.Item>
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={`${LMS_BASE_URL}/u/${username}`}>My profile</Dropdown.Item>
-        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>Account settings</Dropdown.Item>
-        <Dropdown.Item href={LEARNER_SUPPORT_URL}>Help</Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/u/${username}`}>
+          {intl.formatMessage({
+            id: 'site.header.avatar.dropdown.my.profile.title',
+            defaultMessage: 'My profile',
+            description: 'My profile link title in avatar dropdown.',
+          })}
+        </Dropdown.Item>
+        <Dropdown.Item href={`${LMS_BASE_URL}/account/settings`}>
+          {intl.formatMessage({
+            id: 'site.header.avatar.dropdown.account.settings.title',
+            defaultMessage: 'Account settings',
+            description: 'Account settings link title in avatar dropdown.',
+          })}
+        </Dropdown.Item>
+        <Dropdown.Item href={LEARNER_SUPPORT_URL}>
+          {intl.formatMessage({
+            id: 'site.header.avatar.dropdown.help.title',
+            defaultMessage: 'Help',
+            description: 'Help link title in avatar dropdown.',
+          })}
+        </Dropdown.Item>
         <Dropdown.Divider className="border-light" />
-        <Dropdown.Item href={logoutUrl}>Sign out</Dropdown.Item>
+        <Dropdown.Item href={logoutUrl}>{intl.formatMessage({
+          id: 'site.header.avatar.dropdown.sign.out.title',
+          defaultMessage: 'Sign out',
+          description: 'Sign out link title in avatar dropdown.',
+        })}
+        </Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
   );

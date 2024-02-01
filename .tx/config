@@ -1,0 +1,9 @@
+[main]
+host = https://app.transifex.com
+
+[o:2uedx:p:edx-for-business:r:frontend-app-learner-portal-enterprise]
+file_filter            = src/i18n/messages/<lang>.json
+source_file            = src/i18n/transifex_input.json
+source_lang            = en
+type                   = KEYVALUEJSON
+resource_name          = frontend-app-learner-portal-enterprise

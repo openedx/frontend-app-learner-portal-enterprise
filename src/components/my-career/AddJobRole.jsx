@@ -5,6 +5,7 @@ import {
   Row, breakpoints, MediaQuery, TransitionReplace, Button, Icon,
 } from '@edx/paragon';
 import { Plus } from '@edx/paragon/icons';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardSidebar } from '../dashboard/sidebar';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
@@ -56,17 +57,24 @@ const AddJobRole = ({ submitClickHandler }) => {
         />
         <MainContent>
           <div className="job-role">
-            <h2>Visualize your career.</h2>
+            <h2>
+              <FormattedMessage
+                id="enterprise.dashboard.my.career.tab.add.job.role.title"
+                defaultMessage="Visualize your career."
+                description="Title shown to learner when learner has no current or desired job role added"
+              />
+            </h2>
             <div className="row job-role-details">
               <div className="col-lg-6 col-sm-12">
                 <TransitionReplace className="mb-3">
                   {!isEditable ? (
                     <div key="add-job-button">
                       <p>
-                        Take one minute to pick a job title that best describes your
-                        current or desired role. We&apos;ll tell you what skills you
-                        should be looking for when enrolling in courses, and track
-                        your skill growth as you complete courses.
+                        <FormattedMessage
+                          id="enterprise.dashboard.my.career.tab.add.job.role.description"
+                          defaultMessage="Take one minute to pick a job title that best describes your current or desired role. We'll tell you what skills you should be looking for when enrolling in courses, and track your skill growth as you complete courses."
+                          description="Desctiption shown to learner when learner has no current or desired job role added"
+                        />
                       </p>
                       <Button
                         style={{ paddingLeft: 0 }}
@@ -74,7 +82,11 @@ const AddJobRole = ({ submitClickHandler }) => {
                         iconBefore={addIcon}
                         onClick={addRoleClickHandler}
                       >
-                        Add Role
+                        <FormattedMessage
+                          id="enterprise.dashboard.my.career.tab.add.job.role.button"
+                          defaultMessage="Add Role"
+                          description="Label for button to add learner's current or desired job role"
+                        />
                       </Button>
                     </div>
                   ) : (
