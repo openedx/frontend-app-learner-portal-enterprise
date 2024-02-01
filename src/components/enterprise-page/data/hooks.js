@@ -35,7 +35,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
   useEffect(() => {
     fetchEnterpriseCustomerConfigForSlug(enterpriseSlug, useCache)
       .then((response) => {
-        const { results } = camelCaseObject(response.data);
+        const { results, enterpriseFeatures } = camelCaseObject(response.data);
         const config = results.pop();
         if (config?.enableLearnerPortal) {
           const brandingConfiguration = config.brandingConfiguration || defaultBrandingConfig;
@@ -93,6 +93,7 @@ export const useEnterpriseCustomerConfig = (enterpriseSlug, useCache = true) => 
             careerEngagementNetworkMessage,
             enablePathways,
             enablePrograms,
+            enterpriseFeatures,
             enableAcademies,
           });
         } else {
