@@ -127,6 +127,8 @@ jest.mock('../data/utils', () => ({
 }));
 
 describe('Course enrollments', () => {
+  const mockAcknowledgeAssignments = jest.fn();
+
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
@@ -159,13 +161,12 @@ describe('Course enrollments', () => {
       startDate: dayjs().subtract(1, 'day').toISOString(),
       mode: 'verified',
     };
-    const mockCloseCancelAlert = jest.fn();
+
     hooks.useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: true,
       showExpiredAssignmentsAlert: false,
-      handleOnCloseCancelAlert: mockCloseCancelAlert,
-      handleOnCloseExpiredAlert: jest.fn(),
+      handleAcknowledgeAssignments: mockAcknowledgeAssignments,
     });
     renderWithRouter(<CourseEnrollmentsWrapper />);
     // Verify canceled assignment card is visible initially
@@ -176,7 +177,8 @@ describe('Course enrollments', () => {
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
     userEvent.click(dismissButton);
-    expect(mockCloseCancelAlert).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
   });
 
   it('renders alert for expired assignments and renders expired assignment cards with dismiss behavior', async () => {
@@ -194,13 +196,11 @@ describe('Course enrollments', () => {
       startDate: dayjs().subtract(30, 'day').toISOString(),
       mode: 'verified',
     };
-    const mockCloseExpiredAlert = jest.fn();
     hooks.useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: false,
       showExpiredAssignmentsAlert: true,
-      handleOnCloseCancelAlert: jest.fn(),
-      handleOnCloseExpiredAlert: mockCloseExpiredAlert,
+      handleAcknowledgeAssignments: mockAcknowledgeAssignments,
     });
     renderWithRouter(<CourseEnrollmentsWrapper />);
     // Verify canceled assignment card is visible initially
@@ -211,7 +211,8 @@ describe('Course enrollments', () => {
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
     userEvent.click(dismissButton);
-    expect(mockCloseExpiredAlert).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
   });
 
   it('generates course status update on move to in progress action', async () => {

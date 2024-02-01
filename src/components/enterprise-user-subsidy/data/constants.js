@@ -46,6 +46,8 @@ export const emptyRedeemableLearnerCreditPolicies = {
     hasAllocatedAssignments: false,
     canceledAssignments: [],
     hasCanceledAssignments: false,
+    expiredAssignments: [],
+    hasExpiredAssignments: false,
     acceptedAssignments: [],
     hasAcceptedAssignments: false,
     erroredAssignments: [],

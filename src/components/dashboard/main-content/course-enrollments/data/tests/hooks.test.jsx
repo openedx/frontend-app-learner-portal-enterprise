@@ -3,6 +3,7 @@ import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import {
   useContentAssignments,
@@ -11,16 +12,17 @@ import {
   useCourseUpgradeData,
 } from '../hooks';
 import * as service from '../service';
-import { COURSE_STATUSES, LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT } from '../constants';
+import { COURSE_STATUSES } from '../constants';
 import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
-import { ASSIGNMENT_ACTION_TYPES, ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
+  logInfo: jest.fn(),
 }));
 
 const mockCourseService = {
@@ -311,20 +313,32 @@ describe('useContentAssignments', () => {
     enterpriseConfig: {
       slug: 'test-enterprise',
     },
+    authenticatedUser: {
+      userId: 3,
+    },
   };
   const wrapper = ({ children }) => (
-    <AppContext.Provider value={mockAppContextValue}>
-      {children}
-    </AppContext.Provider>
+    <QueryClientProvider client={new QueryClient()}>
+      <AppContext.Provider value={mockAppContextValue}>
+        {children}
+      </AppContext.Provider>
+    </QueryClientProvider>
   );
   const mockRedeemableLearnerCreditPolicies = emptyRedeemableLearnerCreditPolicies;
+  const mockSubsidyExpirationDateStr = dayjs().add(1, 'd').toISOString();
+  const mockAssignmentConfigurationId = 'test-assignment-configuration-id';
   const mockAssignment = {
     contentKey: 'edX+DemoX',
     contentTitle: 'edX Demo Course',
-    subsidyExpirationDate: dayjs().add(1, 'w').toISOString(),
+    subsidyExpirationDate: mockSubsidyExpirationDateStr,
+    assignmentConfiguration: mockAssignmentConfigurationId,
     contentMetadata: {
-      enrollByDate: dayjs().add(1, 'd').toISOString(),
+      enrollByDate: dayjs().add(1, 'w').toISOString(),
       partners: [{ name: 'Test Partner' }],
+    },
+    earliestPossibleExpiration: {
+      date: mockSubsidyExpirationDateStr,
+      reason: 'subsidy_expired',
     },
     actions: [],
   };
@@ -333,20 +347,17 @@ describe('useContentAssignments', () => {
     uuid: 'test-assignment-uuid',
     state: ASSIGNMENT_TYPES.ALLOCATED,
   };
-  const mockAllocatedExpiredAssignment = {
-    ...mockAllocatedAssignment,
+  const mockExpiredAssignment = {
+    ...mockAssignment,
     uuid: 'test-assignment-uuid-2',
-    contentMetadata: {
-      ...mockAllocatedAssignment.contentMetadata,
-      enrollByDate: dayjs().subtract(1, 'w').toISOString(),
-    },
+    state: ASSIGNMENT_TYPES.EXPIRED,
   };
   const mockCanceledAssignment = {
     ...mockAssignment,
     uuid: 'test-assignment-uuid-3',
     state: ASSIGNMENT_TYPES.CANCELED,
     actions: [{
-      actionType: ASSIGNMENT_ACTION_TYPES.CANCELED,
+      actionType: ASSIGNMENT_TYPES.CANCELED,
       completedAt: dayjs().subtract(1, 'w').toISOString(),
     }],
   };
@@ -361,143 +372,156 @@ describe('useContentAssignments', () => {
       ...mockRedeemableLearnerCreditPolicies.learnerContentAssignments,
       allocatedAssignments: [mockAllocatedAssignment],
       hasAllocatedAssignments: true,
-      canceledAssignments: [mockCanceledAssignment],
-      hasCanceledAssignments: true,
       acceptedAssignments: [mockAcceptedAssignment],
       hasAcceptedAssignments: true,
-      assignmentsForDisplay: [mockAllocatedAssignment, mockCanceledAssignment],
+      assignmentsForDisplay: [mockAllocatedAssignment],
       hasAssignmentsForDisplay: true,
     },
   };
 
-  afterEach(() => {
-    window.localStorage.removeItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT);
-    window.localStorage.removeItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it.each([
-    { hasDismissedCanceledAssignmentsAlert: false },
-    { hasDismissedCanceledAssignmentsAlert: true },
-  ])('should return only allocated and canceled assignments, handling dismiss behavior (%s)', async ({
-    hasDismissedCanceledAssignmentsAlert,
-  }) => {
-    if (hasDismissedCanceledAssignmentsAlert) {
-      window.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, new Date());
-    }
+  it('should do nothing if acknowledgeContentAssignments called with unsupported assignment state', async () => {
     const { result } = renderHook(
       () => useContentAssignments(mockPoliciesWithAssignments),
       { wrapper },
     );
+    expect(result.current.handleAcknowledgeAssignments).toBeInstanceOf(Function);
+    result.current.handleAcknowledgeAssignments({ assignmentState: 'invalid' });
+    expect(logger.logError).toHaveBeenCalledWith('Invalid assignment state (invalid) passed to handleAcknowledgeAssignments.');
+    expect(service.acknowledgeContentAssignments).not.toHaveBeenCalled();
+  });
+
+  it('should handle dismissal / acknowledgement of cancelled assignments', async () => {
+    service.acknowledgeContentAssignments.mockResolvedValue({
+      data: {
+        acknowledged_assignments: [],
+        already_acknowledged_assignments: [],
+        unacknowledged_assignments: [],
+      },
+    });
+    const mockPoliciesWithCanceledAssignments = {
+      ...mockPoliciesWithAssignments,
+      learnerContentAssignments: {
+        ...mockPoliciesWithAssignments.learnerContentAssignments,
+        canceledAssignments: [mockCanceledAssignment],
+        hasCanceledAssignments: true,
+        assignmentsForDisplay: [
+          ...mockPoliciesWithAssignments.learnerContentAssignments.assignmentsForDisplay,
+          mockCanceledAssignment,
+        ],
+      },
+    };
+    const { result, waitForNextUpdate } = renderHook(
+      () => useContentAssignments(mockPoliciesWithCanceledAssignments),
+      { wrapper },
+    );
     const expectedAssignments = [
       {
+        uuid: mockAllocatedAssignment.uuid,
         courseRunStatus: COURSE_STATUSES.assigned,
-        enrollBy: dayjs(mockAllocatedAssignment.contentMetadata.enrollByDate).toDate(),
+        enrollBy: dayjs(mockAllocatedAssignment.earliestPossibleExpiration.date).toISOString(),
         title: mockAllocatedAssignment.contentTitle,
         isCanceledAssignment: false,
         isExpiredAssignment: false,
+        assignmentConfiguration: mockAllocatedAssignment.assignmentConfiguration,
       },
-    ];
-    if (!hasDismissedCanceledAssignmentsAlert) {
-      expectedAssignments.push({
+      {
+        uuid: mockCanceledAssignment.uuid,
         courseRunStatus: COURSE_STATUSES.assigned,
-        enrollBy: dayjs(mockCanceledAssignment.contentMetadata.enrollByDate).toDate(),
+        enrollBy: dayjs(mockCanceledAssignment.earliestPossibleExpiration.date).toISOString(),
         title: mockCanceledAssignment.contentTitle,
         isCanceledAssignment: true,
         isExpiredAssignment: false,
-      });
-    }
+        assignmentConfiguration: mockCanceledAssignment.assignmentConfiguration,
+      },
+    ];
+
     expect(result.current).toEqual(
       expect.objectContaining({
         assignments: expectedAssignments.map((assignment) => expect.objectContaining(assignment)),
-        showCanceledAssignmentsAlert: !hasDismissedCanceledAssignmentsAlert,
+        showCanceledAssignmentsAlert: true,
         showExpiredAssignmentsAlert: false,
-        handleOnCloseCancelAlert: expect.any(Function),
-        handleOnCloseExpiredAlert: expect.any(Function),
+        handleAcknowledgeAssignments: expect.any(Function),
       }),
     );
 
-    // If canceled assignments have not yet been dismissed/acknowledged, then
-    // dismiss the canceled assignments alert and verify that the canceled
-    // assignments are no longer returned.
-    if (!hasDismissedCanceledAssignmentsAlert) {
-      act(() => result.current.handleOnCloseCancelAlert());
-      expect(window.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT)).toBeTruthy();
-      expect(result.current).toEqual(
-        expect.objectContaining({
-          assignments: expectedAssignments
-            .filter((assignment) => !assignment.isCanceledAssignment)
-            .map((assignment) => expect.objectContaining(assignment)),
-          showCanceledAssignmentsAlert: false,
-        }),
-      );
-    }
+    // Dismiss the canceled assignments alert and verify the `credits_available` query cache is invalidated.
+    result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
+    await waitForNextUpdate();
+    expect(service.acknowledgeContentAssignments).toHaveBeenCalledTimes(1);
+    expect(service.acknowledgeContentAssignments).toHaveBeenCalledWith({
+      assignmentConfigurationId: mockAssignmentConfigurationId,
+      assignmentIds: expectedAssignments
+        .filter((assignment) => assignment.isCanceledAssignment)
+        .map((assignment) => assignment.uuid),
+    });
   });
 
-  it.each([
-    { hasDismissedExpiredAssignmentsAlert: false },
-    { hasDismissedExpiredAssignmentsAlert: true },
-  ])('should return only allocated and expired assignments, handling dismiss behavior (%s)', async ({
-    hasDismissedExpiredAssignmentsAlert,
-  }) => {
+  it('should handle dismissal / acknowledgement of expired assignments', async () => {
+    service.acknowledgeContentAssignments.mockReturnValue({
+      data: {
+        acknowledged_assignments: [],
+        already_acknowledged_assignments: [],
+        unacknowledged_assignments: [],
+      },
+    });
     const mockPoliciesWithExpiredAssignments = {
       ...mockPoliciesWithAssignments,
       learnerContentAssignments: {
         ...mockPoliciesWithAssignments.learnerContentAssignments,
-        allocatedAssignments: [mockAllocatedAssignment, mockAllocatedExpiredAssignment],
-        hasAllocatedAssignments: true,
-        assignmentsForDisplay: [mockAllocatedAssignment, mockAllocatedExpiredAssignment],
-        hasAssignmentsForDisplay: true,
+        expiredAssignments: [mockExpiredAssignment],
+        hasExpiredAssignments: true,
+        assignmentsForDisplay: [
+          ...mockPoliciesWithAssignments.learnerContentAssignments.assignmentsForDisplay,
+          mockExpiredAssignment,
+        ],
       },
     };
-    if (hasDismissedExpiredAssignmentsAlert) {
-      window.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT, new Date());
-    }
-    const { result } = renderHook(
+    const { result, waitForNextUpdate } = renderHook(
       () => useContentAssignments(mockPoliciesWithExpiredAssignments),
       { wrapper },
     );
     const expectedAssignments = [
       {
+        uuid: mockAllocatedAssignment.uuid,
         courseRunStatus: COURSE_STATUSES.assigned,
-        enrollBy: dayjs(mockAllocatedAssignment.contentMetadata.enrollByDate).toDate(),
+        enrollBy: dayjs(mockAllocatedAssignment.earliestPossibleExpiration.date).toISOString(),
         title: mockAllocatedAssignment.contentTitle,
         isCanceledAssignment: false,
         isExpiredAssignment: false,
+        assignmentConfiguration: mockAllocatedAssignment.assignmentConfiguration,
       },
-    ];
-    if (!hasDismissedExpiredAssignmentsAlert) {
-      expectedAssignments.push({
+      {
+        uuid: mockExpiredAssignment.uuid,
         courseRunStatus: COURSE_STATUSES.assigned,
-        enrollBy: dayjs(mockAllocatedExpiredAssignment.contentMetadata.enrollByDate).toDate(),
-        title: mockAllocatedExpiredAssignment.contentTitle,
+        enrollBy: dayjs(mockExpiredAssignment.earliestPossibleExpiration.date).toISOString(),
+        title: mockExpiredAssignment.contentTitle,
         isCanceledAssignment: false,
         isExpiredAssignment: true,
-      });
-    }
+        assignmentConfiguration: mockExpiredAssignment.assignmentConfiguration,
+      },
+    ];
     expect(result.current).toEqual(
       expect.objectContaining({
         assignments: expectedAssignments.map((assignment) => expect.objectContaining(assignment)),
-        showExpiredAssignmentsAlert: !hasDismissedExpiredAssignmentsAlert,
-        handleOnCloseCancelAlert: expect.any(Function),
-        handleOnCloseExpiredAlert: expect.any(Function),
+        showExpiredAssignmentsAlert: true,
+        handleAcknowledgeAssignments: expect.any(Function),
       }),
     );
 
-    // If expired assignments have not yet been dismissed/acknowledged, then
-    // dismiss the expired assignments alert and verify that the expired
-    // assignments are no longer returned.
-    if (!hasDismissedExpiredAssignmentsAlert) {
-      act(() => result.current.handleOnCloseExpiredAlert());
-      expect(window.localStorage.getItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT)).toBeTruthy();
-      expect(result.current).toEqual(
-        expect.objectContaining({
-          assignments: expectedAssignments
-            .filter((assignment) => !assignment.isExpiredAssignment)
-            .map((assignment) => expect.objectContaining(assignment)),
-          showExpiredAssignmentsAlert: false,
-        }),
-      );
-    }
+    // Dismiss the expired assignments alert and verify that the `credits_available` query cache is invalidated.
+    result.current.handleAcknowledgeAssignments({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
+    await waitForNextUpdate();
+    expect(service.acknowledgeContentAssignments).toHaveBeenCalledTimes(1);
+    expect(service.acknowledgeContentAssignments).toHaveBeenCalledWith({
+      assignmentConfigurationId: mockAssignmentConfigurationId,
+      assignmentIds: expectedAssignments
+        .filter((assignment) => assignment.isExpiredAssignment)
+        .map((assignment) => assignment.uuid),
+    });
   });
 });
 

@@ -1,9 +1,10 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logError } from '@edx/frontend-platform/logging';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
@@ -15,11 +16,7 @@ import {
   sortedEnrollmentsByEnrollmentDate,
   transformCourseEnrollment,
 } from './utils';
-import {
-  COURSE_STATUSES,
-  LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
-  LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
-} from './constants';
+import { COURSE_STATUSES } from './constants';
 import CourseService from '../../../../course/data/service';
 import {
   createEnrollWithCouponCodeUrl,
@@ -31,10 +28,9 @@ import {
 import {
   getHasUnacknowledgedCanceledAssignments,
   getHasUnacknowledgedExpiredAssignments,
-  isCanceledAssignmentAcknowledged,
-  isExpiredAssignmentAcknowledged,
 } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { enterpriseUserSubsidyQueryKeys } from '../../../../enterprise-user-subsidy/data/constants';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
@@ -205,6 +201,40 @@ export const useCourseUpgradeData = ({
   };
 };
 
+export function useAcknowledgeContentAssignments({
+  enterpriseId,
+  userId,
+}) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      assignmentsByAssignmentConfiguration,
+    }) => {
+      const promisesToAcknowledge = [];
+      Object.entries(assignmentsByAssignmentConfiguration).forEach(
+        ([assignmentConfiguration, assignmentsForConfiguration]) => {
+          const assignmentIds = assignmentsForConfiguration.map(assignment => assignment.uuid);
+          promisesToAcknowledge.push(
+            service.acknowledgeContentAssignments({
+              assignmentConfigurationId: assignmentConfiguration,
+              assignmentIds,
+            }),
+          );
+        },
+      );
+      const responses = await Promise.all(promisesToAcknowledge);
+      return responses.map(response => camelCaseObject(response.data));
+    },
+    onSuccess: () => {
+      // Invalidate the query for the redeemable policies in order to trigger refetch of `credits_available` API,
+      // returning the updated assignments list per policy, excluding now-acknowledged assignments.
+      queryClient.invalidateQueries({
+        queryKey: enterpriseUserSubsidyQueryKeys.redeemablePolicies(enterpriseId, userId),
+      });
+    },
+  });
+}
+
 /**
  * - Parses list of redeemable learner credit policies to extract a list of learner content
  * assignments across all policies.
@@ -218,39 +248,67 @@ export const useCourseUpgradeData = ({
  * - assignments: Array of transformed assignments for display.
  * - showCanceledAssignmentsAlert: Boolean indicating whether to display the canceled assignments alert.
  * - showExpiredAssignmentsAlert: Boolean indicating whether to display the expired assignments alert.
- * - handleOnCloseCancelAlert: Function to handle dismissal of the canceled assignments alert.
- * - handleOnCloseExpiredAlert: Function to handle dismissal of the expired assignments alert.
+ * - handleAcknowledgeAssignments: Function to handle dismissal of canceled/expired assignments from the dashboard.
  */
 export function useContentAssignments(redeemableLearnerCreditPolicies) {
   const {
-    enterpriseConfig: { slug: enterpriseSlug },
+    enterpriseConfig: {
+      uuid: enterpriseId,
+      slug: enterpriseSlug,
+    },
+    authenticatedUser: { userId },
   } = useContext(AppContext);
 
   const [assignments, setAssignments] = useState([]);
   const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
 
-  /**
-   * On dismiss of the canceled assignments alert, remove all canceled
-   * assignments from the displayed list of assignments. Set the localStorage
-   * key to the current date of the acknowledgement.
-   */
-  const handleOnCloseCancelAlert = useCallback(() => {
-    setAssignments((prevState) => prevState.filter((assignment) => !assignment.isCanceledAssignment));
-    setShowCanceledAssignmentsAlert(false);
-    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT, new Date());
-  }, []);
+  const {
+    mutate,
+    isLoading: isLoadingMutation,
+  } = useAcknowledgeContentAssignments({ enterpriseId, userId });
 
-  /**
-   * On dismiss of the expired assignments alert, remove all expired
-   * assignments from the displayed list of assignments. Set the localStorage
-   * key to the current date of the acknowledgement.
-   */
-  const handleOnCloseExpiredAlert = useCallback(() => {
-    setAssignments((prevState) => prevState.filter((assignment) => !assignment.isExpiredAssignment));
-    setShowExpiredAssignmentsAlert(false);
-    global.localStorage.setItem(LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT, new Date());
-  }, []);
+  const handleAcknowledgeAssignments = useCallback(({ assignmentState }) => {
+    const assignmentStateMap = {
+      [ASSIGNMENT_TYPES.CANCELED]: 'isCanceledAssignment',
+      [ASSIGNMENT_TYPES.EXPIRED]: 'isExpiredAssignment',
+    };
+
+    // Fail early if mutation is already in progress.
+    if (isLoadingMutation) {
+      logInfo('Attempted to acknowledge assignments while mutation is in progress.');
+      return;
+    }
+
+    // Invalid assignment state passed to function.
+    const assignmentStateProperty = assignmentStateMap[assignmentState];
+    if (!assignmentStateProperty) {
+      logError(`Invalid assignment state (${assignmentState}) passed to handleAcknowledgeAssignments.`);
+      return;
+    }
+
+    // Otherwise, perform the mutation to acknowledge assignments.
+    const assignmentsByAssignmentConfiguration = {};
+    assignments.forEach((assignment) => {
+      const { assignmentConfiguration } = assignment;
+      const isRequestedStateActive = !!assignment[assignmentStateProperty];
+
+      // Check whether assignment is in requested state. If not, skip.
+      if (!isRequestedStateActive) {
+        return;
+      }
+
+      // Initialize assignment list for AssignmentConfiguration, if necessary.
+      if (!assignmentsByAssignmentConfiguration[assignmentConfiguration]) {
+        assignmentsByAssignmentConfiguration[assignmentConfiguration] = [];
+      }
+      // Append the assignment to the AssignmentConfiguration.
+      assignmentsByAssignmentConfiguration[assignmentConfiguration].push(assignment);
+    });
+
+    // POST to `acknowledge-assignments` API for each AssignmentConfiguration.
+    mutate({ assignmentsByAssignmentConfiguration });
+  }, [mutate, assignments, isLoadingMutation]);
 
   /**
    * Parses the learner content assignments from the redeemableLearnerCreditPolicies
@@ -259,41 +317,13 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
    */
   useEffect(() => {
     const {
-      allocatedAssignments,
-      canceledAssignments,
       assignmentsForDisplay,
+      canceledAssignments,
+      expiredAssignments,
     } = redeemableLearnerCreditPolicies.learnerContentAssignments;
 
-    const lastCanceledAlertDismissedTime = global.localStorage.getItem(
-      LEARNER_ACKNOWLEDGED_ASSIGNMENT_CANCELLATION_ALERT,
-    );
-    const lastExpiredAlertDismissedTime = global.localStorage.getItem(
-      LEARNER_ACKNOWLEDGED_ASSIGNMENT_EXPIRATION_ALERT,
-    );
-
-    const filteredAssignmentsForDisplay = assignmentsForDisplay.filter((assignment) => {
-      // Filter out already-dismissed canceled assignments
-      if (lastCanceledAlertDismissedTime) {
-        const { isCanceled, hasDismissedCancelation } = isCanceledAssignmentAcknowledged(assignment);
-        if (isCanceled && hasDismissedCancelation) {
-          return false;
-        }
-      }
-
-      // Filter out already-dismissed expired assignments
-      if (lastExpiredAlertDismissedTime) {
-        const { isExpired, hasDismissedExpiration } = isExpiredAssignmentAcknowledged(assignment);
-        if (isExpired && hasDismissedExpiration) {
-          return false;
-        }
-      }
-
-      // No canceled/expired assignments have been acknowledged (dismissed) yet; keep assignment for display.
-      return true;
-    });
-
     // Sort and transform the list of assignments for display.
-    const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(filteredAssignmentsForDisplay);
+    const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
     const transformedAssignmentsForDisplay = getTransformedAllocatedAssignments(
       sortedAssignmentsForDisplay,
       enterpriseSlug,
@@ -305,7 +335,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
 
     // Determine whether there are unacknowledged expired assignments. If so, display alert.
-    const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedExpiredAssignments(allocatedAssignments);
+    const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedExpiredAssignments(expiredAssignments);
     setShowExpiredAssignmentsAlert(hasUnacknowledgedExpiredAssignments);
   }, [redeemableLearnerCreditPolicies, enterpriseSlug]);
 
@@ -313,8 +343,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     assignments,
     showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
-    handleOnCloseCancelAlert,
-    handleOnCloseExpiredAlert,
+    handleAcknowledgeAssignments,
   };
 }
 

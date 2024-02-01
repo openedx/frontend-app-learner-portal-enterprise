@@ -19,8 +19,7 @@ import {
 } from '../service';
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
-import { transformRedeemablePoliciesData } from '../utils';
-import { getAssignmentsByState } from '../../../dashboard/data/utils';
+import { transformRedeemablePoliciesData, getAssignmentsByState } from '../utils';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the

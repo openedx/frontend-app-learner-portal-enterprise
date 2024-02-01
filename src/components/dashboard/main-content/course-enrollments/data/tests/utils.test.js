@@ -1,5 +1,4 @@
 import { camelCaseObject } from '@edx/frontend-platform';
-import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
 import { COURSE_STATUSES } from '../constants';
@@ -10,7 +9,6 @@ import {
   sortAssignmentsByAssignmentStatus,
 } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
-import { isAssignmentExpired } from '../../../../data/utils';
 
 describe('transformCourseEnrollment', () => {
   it('should transform a course enrollment', () => {
@@ -123,78 +121,6 @@ describe('groupCourseEnrollmentsByStatus', () => {
   });
 });
 
-describe('isAssignmentExpired', () => {
-  const currentDate = '2023-04-20';
-  const futureDate = '2024-04-20';
-  const pastDate = '2022-04-20';
-
-  beforeAll(() => {
-    MockDate.set(currentDate);
-  });
-
-  afterAll(() => {
-    MockDate.reset();
-  });
-
-  it('handles null/undefined assignment', () => {
-    expect(isAssignmentExpired(null)).toEqual({
-      isExpired: false,
-      enrollByDeadline: undefined,
-    });
-    expect(isAssignmentExpired(undefined)).toEqual({
-      isExpired: false,
-      enrollByDeadline: undefined,
-    });
-  });
-
-  it.each([
-    {
-      created: pastDate,
-      enrollByDate: pastDate,
-      subsidyExpirationDate: futureDate,
-      isExpired: true,
-    },
-    {
-      created: currentDate,
-      enrollByDate: pastDate,
-      subsidyExpirationDate: futureDate,
-      isExpired: true,
-    },
-    {
-      created: currentDate,
-      enrollByDate: futureDate,
-      subsidyExpirationDate: pastDate,
-      isExpired: true,
-    },
-    {
-      created: currentDate,
-      enrollByDate: futureDate,
-      subsidyExpirationDate: futureDate,
-      isExpired: false,
-    },
-  ])('checks whether assignment is expired (%s)', ({
-    created,
-    enrollByDate,
-    subsidyExpirationDate,
-    isExpired,
-  }) => {
-    const allocatedAssignment = {
-      created,
-      contentMetadata: { enrollByDate },
-      subsidyExpirationDate,
-    };
-    const earliestAssignmentExpiryDate = [
-      dayjs(created).add(90, 'd'),
-      dayjs(enrollByDate),
-      dayjs(subsidyExpirationDate),
-    ].sort((a, b) => (dayjs(a).isAfter(b) ? 1 : -1))[0];
-    expect(isAssignmentExpired(allocatedAssignment)).toEqual({
-      isExpired,
-      enrollByDeadline: earliestAssignmentExpiryDate.toDate(),
-    });
-  });
-});
-
 describe('sortAssignmentsByAssignmentStatus', () => {
   beforeAll(() => {
     MockDate.set('2023-04-20');
@@ -232,12 +158,5 @@ describe('sortAssignmentsByAssignmentStatus', () => {
     ]);
 
     expect(sortedAssignments).toEqual(expectedSortedAssignments);
-  });
-
-  it('returns empty array for null assignments', () => {
-    const assignments = null;
-    const expectedAssignments = [];
-    const sortedAssignments = sortAssignmentsByAssignmentStatus(assignments);
-    expect(sortedAssignments).toEqual(expectedAssignments);
   });
 });
