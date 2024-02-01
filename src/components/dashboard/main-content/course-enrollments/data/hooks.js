@@ -4,7 +4,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { logError, logInfo } from '@edx/frontend-platform/logging';
+import { logError } from '@edx/frontend-platform/logging';
 import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
@@ -276,7 +276,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
 
     // Fail early if mutation is already in progress.
     if (isLoadingMutation) {
-      logInfo('Attempted to acknowledge assignments while mutation is in progress.');
+      logError('Attempted to acknowledge assignments while mutation is already in progress.');
       return;
     }
 
