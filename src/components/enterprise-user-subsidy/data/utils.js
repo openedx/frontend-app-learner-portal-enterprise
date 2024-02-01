@@ -1,3 +1,5 @@
+import { logError } from '@edx/frontend-platform/logging';
+
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../enterprise-offers/data/constants';
 import { LICENSE_STATUS } from './constants';
 
@@ -87,7 +89,6 @@ export const determineLearnerHasContentAssignmentsOnly = ({
 * }}
 */
 export function getAssignmentsByState(assignments = []) {
-  const allAssignments = [];
   const allocatedAssignments = [];
   const acceptedAssignments = [];
   const canceledAssignments = [];
@@ -96,25 +97,29 @@ export function getAssignmentsByState(assignments = []) {
   const assignmentsForDisplay = [];
 
   assignments.forEach((assignment) => {
-    allAssignments.push(assignment);
-    if (assignment.state === ASSIGNMENT_TYPES.ALLOCATED) {
-      allocatedAssignments.push(assignment);
-    }
-    if (assignment.state === ASSIGNMENT_TYPES.ACCEPTED) {
-      acceptedAssignments.push(assignment);
-    }
-    if (assignment.state === ASSIGNMENT_TYPES.CANCELED) {
-      canceledAssignments.push(assignment);
-    }
-    if (assignment.state === ASSIGNMENT_TYPES.EXPIRED) {
-      expiredAssignments.push(assignment);
-    }
-    if (assignment.state === ASSIGNMENT_TYPES.ERRORED) {
-      erroredAssignments.push(assignment);
+    switch (assignment.state) {
+      case ASSIGNMENT_TYPES.ALLOCATED:
+        allocatedAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.ACCEPTED:
+        acceptedAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.CANCELED:
+        canceledAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.EXPIRED:
+        expiredAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.ERRORED:
+        erroredAssignments.push(assignment);
+        break;
+      default:
+        logError(`[getAssignmentsByState] Unsupported state ${assignment.state} for assignment ${assignment.uuid}`);
+        break;
     }
   });
 
-  const hasAssignments = allAssignments.length > 0;
+  const hasAssignments = assignments.length > 0;
   const hasAllocatedAssignments = allocatedAssignments.length > 0;
   const hasAcceptedAssignments = acceptedAssignments.length > 0;
   const hasCanceledAssignments = canceledAssignments.length > 0;
