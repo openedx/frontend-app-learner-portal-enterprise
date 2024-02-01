@@ -276,7 +276,7 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
 
     // Fail early if mutation is already in progress.
     if (isLoadingMutation) {
-      logInfo('Attempted to acknowledge assignments while mutation is in progress.');
+      logError('Attempted to acknowledge assignments while mutation is already in progress.');
       return;
     }
 
