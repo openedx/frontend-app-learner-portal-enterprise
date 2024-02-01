@@ -101,10 +101,16 @@ export const sortAssignmentsByAssignmentStatus = (assignments) => {
 };
 
 /**
- * Transforms a learner assignment into the shape expected by CourseCard component(s).
- * @param {*} assignments - Array of assignments to be transformed.
- * @param {*} enterpriseSlug - Slug of the enterprise.
- * @returns {array} - Returns the transformed array of assignments.
+ * Transforms a learner assignment into a shape consistent with course
+ * enrollments, including additional fields specific to learner content
+ * assignments (e.g., isCanceledAssignment, isExpiredAssignment,
+ * assignmentConfiguration). Used for the display of CourseCard component(s)
+ * while acknowledging canceled/expired assignments via the
+ * `useAcknowledgeContentAssignments` hook.
+ *
+ * @param {Array} assignments - Array of assignments to be transformed.
+ * @param {String} enterpriseSlug - Slug of the enterprise.
+ * @returns {Array} - Returns the transformed array of assignments.
  */
 export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) => {
   const updatedAssignments = assignments.map((item) => {

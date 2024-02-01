@@ -248,8 +248,7 @@ export function useAcknowledgeContentAssignments({
  * - assignments: Array of transformed assignments for display.
  * - showCanceledAssignmentsAlert: Boolean indicating whether to display the canceled assignments alert.
  * - showExpiredAssignmentsAlert: Boolean indicating whether to display the expired assignments alert.
- * - handleOnCloseCancelAlert: Function to handle dismissal of the canceled assignments alert.
- * - handleOnCloseExpiredAlert: Function to handle dismissal of the expired assignments alert.
+ * - handleAcknowledgeAssignments: Function to handle dismissal of canceled/expired assignments from the dashboard.
  */
 export function useContentAssignments(redeemableLearnerCreditPolicies) {
   const {
