@@ -92,7 +92,10 @@
     "start:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && npm run start",
     "start:stage:with-theme": "THEME=npm:@edx/brand-edx.org@latest npm run install-theme && npm run start:stage",
     "test": "fedx-scripts jest --coverage --passWithNoTests --maxWorkers=50%",
-    "test:watch": "npm run test -- --watch"
+    "test:watch": "npm run test -- --watch",
+    "serve": "fedx-scripts serve",
+    "build:serve": "npm run build && npm run serve",
+    "build:with-theme:serve": "npm run build:with-theme && npm run serve"
   },
   "repository": {
     "type": "git",
