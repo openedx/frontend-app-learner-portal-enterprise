@@ -53,6 +53,8 @@ initialize({
         ENTERPRISE_SUBSIDY_BASE_URL: process.env.ENTERPRISE_SUBSIDY_BASE_URL || null,
         EXPERIMENT_2_ID: process.env.EXPERIMENT_2_ID || null,
         EXPERIMENT_2_VARIANT_2_ID: process.env.EXPERIMENT_2_VARIANT_2_ID || null,
+        EXPERIMENT_3_ID: process.env.EXPERIMENT_3_ID || null,
+        EXPERIMENT_3_VARIANT_3_ID: process.env.EXPERIMENT_3_VARIANT_3_ID || null,
       });
     },
   },

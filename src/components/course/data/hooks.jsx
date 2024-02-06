@@ -446,6 +446,18 @@ export const useTrackSearchConversionClickHandler = ({ href = undefined, eventNa
 };
 
 /**
+ * Returns a function to be used as a click handler that emits an optimizely prequery suggestion click event.
+ *
+ * @param {string} args.courseRunKey Id of the course run
+ *
+ * @returns null
+ */
+export const useOptimizelyPrequerySuggestionClickHandler = ({ courseRunKey }) => {
+  pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKey: courseRunKey });
+  return null;
+};
+
+/**
  * Returns a function to be used as a click handler that emits an optimizely enrollment click event.
  *
  * @param {string} [args.href] Optional: If click handler is used on a hyperlink, this is the destination url.
