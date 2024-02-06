@@ -17,9 +17,15 @@ const AcademyContentCard = ({
 }) => {
   const [isAlgoliaLoading, setIsAlgoliaLoading] = useState(true);
   const [courses, setCourses] = useState([]);
+  const [showAllExecEdCourses, setShowAllExecEdCourses] = useState(false);
+  const [showAllOcmCourses, setShowAllOcmCourses] = useState(false);
 
   const [selectedTag, setSelectedTag] = useState();
   const intl = useIntl();
+  const ocmCourses = [];
+  const execEdCourses = [];
+  const pathways = [];
+  const maxCoursesToShow = 4;
 
   useEffect(
     () => {
@@ -71,28 +77,74 @@ const AcademyContentCard = ({
     },
     [courseIndex, academyUUID, selectedTag],
   );
-  const ocmCourses = courses.filter(course => course.learningType === LEARNING_TYPE_COURSE);
-  const execEdCourses = courses.filter(course => course.learningType === LEARNING_TYPE_EXECUTIVE_EDUCATION);
-  const pathways = courses.filter(course => course.learningType === LEARNING_TYPE_PATHWAY);
+
+  courses.forEach(course => {
+    if (course.learningType === LEARNING_TYPE_COURSE) {
+      ocmCourses.push(course);
+    } else if (course.learningType === LEARNING_TYPE_EXECUTIVE_EDUCATION) {
+      execEdCourses.push(course);
+    } else if (course.learningType === LEARNING_TYPE_PATHWAY) {
+      pathways.push(course);
+    }
+  });
+
+  const toggleShowMore = (contentType) => () => {
+    if (contentType === LEARNING_TYPE_EXECUTIVE_EDUCATION) {
+      setShowAllExecEdCourses(prevState => !prevState);
+    } else {
+      setShowAllOcmCourses(prevState => !prevState);
+    }
+  };
+  const visibleExecEdCourses = showAllExecEdCourses
+    ? execEdCourses
+    : execEdCourses.slice(0, maxCoursesToShow);
+
+  const visibleOcmCourses = showAllOcmCourses
+    ? ocmCourses
+    : ocmCourses.slice(0, maxCoursesToShow);
+
+  const showMoreButton = (contentType) => {
+    if (contentType === LEARNING_TYPE_EXECUTIVE_EDUCATION) {
+      return showAllExecEdCourses;
+    }
+    return showAllOcmCourses;
+  };
   const renderableContent = ({
     content,
+    contentLength,
     contentType,
     title,
     subtitle,
     additionalClass,
     titleTestId,
     subtitleTestId,
-  }) => (
-    content.length > 0 && (
+  }) => {
+    if (contentLength <= 0) {
+      return null;
+    }
+
+    return (
       <div className={additionalClass}>
-        <h3 data-testid={titleTestId}>{title}</h3>
+        <div className="d-flex flex-row align-items-center justify-content-between">
+          <h3 data-testid={titleTestId}>{title}</h3>
+          {contentType !== LEARNING_TYPE_PATHWAY && contentLength > 4 && (
+            <Button
+              className=""
+              variant="link"
+              size="xl"
+              onClick={toggleShowMore(contentType)}
+            >
+              {showMoreButton(contentType) ? '< Show Less' : `Show More (${contentLength}) >`}
+            </Button>
+          )}
+        </div>
         <p data-testid={subtitleTestId}>{subtitle}</p>
         <CardGrid columnSizes={{
           xs: 12, md: 6, lg: 4, xl: 3,
         }}
         >
           {contentType !== LEARNING_TYPE_PATHWAY
-            ? content.map(course => (
+            ? content?.map(course => (
               <SearchCourseCard
                 key={`academy-course-${uuidv4()}`}
                 data-testid="academy-course-card"
@@ -103,7 +155,7 @@ const AcademyContentCard = ({
                 }}
               />
             ))
-            : content.map(pathway => (
+            : content?.map(pathway => (
               <SearchPathwayCard
                 key={`academy-pathway-${uuidv4()}`}
                 data-testid="academy-pathways-card"
@@ -113,9 +165,14 @@ const AcademyContentCard = ({
             ))}
         </CardGrid>
       </div>
-    )
-  );
+    );
+  };
 
+  const clearTag = () => {
+    setSelectedTag(undefined);
+    setShowAllExecEdCourses(false);
+    setShowAllOcmCourses(false);
+  };
   return (
     <>
       <div className="academy-tags mb-3">
@@ -135,7 +192,7 @@ const AcademyContentCard = ({
             className="tag-clear-button"
             variant="link"
             size="sm"
-            onClick={() => setSelectedTag(undefined)}
+            onClick={() => clearTag()}
           >
             <FormattedMessage
               id="academy.detail.page.clear.tag.filter.button"
@@ -153,8 +210,9 @@ const AcademyContentCard = ({
         ) : (
           <>
             {renderableContent({
-              content: execEdCourses,
-              contentType: LEARNING_TYPE_COURSE,
+              content: visibleExecEdCourses,
+              contentLength: execEdCourses?.length,
+              contentType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
               title: intl.formatMessage({
                 id: 'academy.detail.page.executive.education.courses.section.title',
                 defaultMessage: 'Executive Education',
@@ -170,8 +228,9 @@ const AcademyContentCard = ({
               subtitleTestId: 'academy-exec-ed-courses-subtitle',
             })}
             {renderableContent({
-              content: ocmCourses,
-              contentType: LEARNING_TYPE_EXECUTIVE_EDUCATION,
+              content: visibleOcmCourses,
+              contentLength: ocmCourses?.length,
+              contentType: LEARNING_TYPE_COURSE,
               title: intl.formatMessage({
                 id: 'academy.detail.page.self.paced.courses.section.title',
                 defaultMessage: 'Self-paced courses',
@@ -188,6 +247,7 @@ const AcademyContentCard = ({
             })}
             {renderableContent({
               content: pathways,
+              contentLength: pathways?.length,
               contentType: LEARNING_TYPE_PATHWAY,
               title: intl.formatMessage({
                 id: 'academy.detail.page.pathways.section.title',
