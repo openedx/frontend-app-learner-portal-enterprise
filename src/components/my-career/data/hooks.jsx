@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import Plotly from 'plotly.js-dist';
 
-import { getLearnerSkillLevels, getLearnerProfileInfo } from './service';
+import { getLearnerProfileInfo, getLearnerSkillLevels } from './service';
 import { getSpiderChartData, prepareSpiderChartData } from './utils';
 
 export function useLearnerProfileData(username) {
@@ -56,9 +55,11 @@ export function useLearnerSkillLevels(jobId) {
 }
 
 export function usePlotlySpiderChart(categories) {
+  const [spiderChartResults, setSpiderChartResults] = useState();
+
   useEffect(() => { // eslint-disable-line consistent-return
     if (!categories) {
-      return [];
+      return;
     }
 
     const [
@@ -67,14 +68,27 @@ export function usePlotlySpiderChart(categories) {
       averageScores,
       learnerScores,
     ] = prepareSpiderChartData(categories);
-
     const [data, layout, config] = getSpiderChartData(
       jobName,
       topCategories,
       averageScores,
       learnerScores,
     );
-
-    Plotly.newPlot('skill-levels-spider', data, layout, config);
+    setSpiderChartResults({
+      data,
+      layout,
+      config,
+    });
   }, [categories]);
+
+  useEffect(() => {
+    if (!spiderChartResults) {
+      return;
+    }
+    import(
+      /* webpackChunkName: "plotly" */'plotly.js-dist'
+    ).then(
+      Plotly => Plotly.newPlot('skill-levels-spider', spiderChartResults.data, spiderChartResults.layout, spiderChartResults.config),
+    );
+  }, [spiderChartResults]);
 }

@@ -10,7 +10,7 @@ function resolvePrivateEnvConfig(filePath) {
       process.env[key] = value;
     });
   }
-};
+}
 resolvePrivateEnvConfig('.env.private');
 
 // Create/extend the Webpack configuration
