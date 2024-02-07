@@ -45,6 +45,7 @@ const CoursePage = () => {
   const {
     uuid: enterpriseUUID,
     adminUsers: enterpriseAdminUsers,
+    contactEmail,
   } = enterpriseConfig;
   const {
     subscriptionPlan,
@@ -203,6 +204,7 @@ const CoursePage = () => {
     onSubscriptionLicenseForCourseValidationError,
     missingSubsidyAccessPolicyReason,
     enterpriseAdminUsers,
+    contactEmail,
     courseListPrice,
     customerAgreementConfig,
   });
