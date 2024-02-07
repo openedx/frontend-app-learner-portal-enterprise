@@ -24,14 +24,18 @@ const config = createConfig('webpack-prod', {
       // parsed size, not Gzipped size.
       maxSize: 244 * 1024,
       cacheGroups: {
-        // Disable the default vendors cache group.
-        defaultVendors: false,
+        // Disable the default cache group. The default vendors cache group is overriden below.
+        default: false,
         // Split out the vendor code from the application code.
         vendors: {
           test: /[\\/]node_modules[\\/]/,
           name(module, chunks, cacheGroupKey) {
-            // Get the name of the chunk from the module, and prepend the cache group key.
-            return `${cacheGroupKey}-${chunks[0].name}`;
+            // Get the name of the chunk, if any.
+            const allChunksNames = chunks.map((item) => item.name).join('~');
+            if (allChunksNames) {
+              return `${cacheGroupKey}-${allChunksNames}`;
+            }
+            return cacheGroupKey;
           },
           chunks: 'all',
           priority: 0, // Lower priority than other cache groups.
