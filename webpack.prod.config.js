@@ -19,7 +19,7 @@ const config = createConfig('webpack-prod', {
     moduleIds: 'deterministic',
     splitChunks: {
       // `maxSize` applies to all cache groups. Note, per the Webpack documentation, `maxSize` is intended to be used with
-      // HTTP/2 and long term caching, due to increasing the request count for better caching. `maxSize` takes precedence
+      // HTTP/2 and long-term caching, due to increasing the request count for better caching. `maxSize` takes precedence
       // over `maxInitialRequests` and `maxAsyncRequests`. Note, the 244 KiB value for `maxSize` listed below is based on
       // parsed size, not Gzipped size.
       maxSize: 244 * 1024,
@@ -29,7 +29,10 @@ const config = createConfig('webpack-prod', {
         // Split out the vendor code from the application code.
         vendors: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
+          name(module, chunks, cacheGroupKey) {
+            // Get the name of the chunk from the module, and prepend the cache group key.
+            return `${cacheGroupKey}-${chunks[0].name}`;
+          },
           chunks: 'all',
           priority: 0, // Lower priority than other cache groups.
         },
