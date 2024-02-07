@@ -17,7 +17,7 @@ import {
 import { useInProgressPathwaysData } from '../../pathway-progress/data/hooks';
 import { useLearnerProgramsListData } from '../../program-progress/data/hooks';
 
-const useDashboardTab = ({
+const useDashboardTabs = ({
   canOnlyViewHighlightSets,
 }) => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -110,4 +110,4 @@ const useDashboardTab = ({
   };
 };
 
-export default useDashboardTab;
+export default useDashboardTabs;
