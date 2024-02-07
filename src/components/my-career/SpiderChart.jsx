@@ -1,11 +1,20 @@
-import React from 'react';
-
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 import { usePlotlySpiderChart } from './data/hooks';
 
 const SpiderChart = ({ categories }) => {
-  usePlotlySpiderChart(categories);
-
+  const [data, layout, config] = usePlotlySpiderChart(categories);
+  useEffect(() => {
+    if (categories) {
+      // Plotly.newPlot('skill-levels-spider', data, layout, config);
+      import(
+        /* webpackChunkName: "plotly" */
+        'plotly.js-dist'
+      ).then(
+        Plotly => Plotly.newPlot('skill-levels-spider', data, layout, config),
+      );
+    }
+  }, [categories, config, data, layout]);
   return <div id="skill-levels-spider" data-testid="skill-levels-spider" />;
 };
 

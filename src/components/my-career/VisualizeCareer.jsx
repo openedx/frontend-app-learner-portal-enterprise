@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import loadable from '@loadable/component';
+
 import {
   ActionRow, Button, Icon, Row, TransitionReplace, useToggle,
 } from '@edx/paragon';
@@ -9,9 +11,10 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useLearnerSkillLevels } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
-import SpiderChart from './SpiderChart';
 import CategoryCard from './CategoryCard';
 import SearchJobRole from './SearchJobRole';
+
+const SpiderChart = loadable(() => import(/* webpackChunkName: "SpiderChart" */'./SpiderChart'));
 
 const editIcon = () => (
   <Icon src={Edit} className="edit-job-role-icon" screenReaderText="Edit Role" />
