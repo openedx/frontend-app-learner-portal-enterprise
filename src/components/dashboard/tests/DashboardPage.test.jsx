@@ -258,12 +258,23 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy();
   });
 
-  it('renders a sidebar on a large screen', () => {
+  it('renders a courses sidebar on a large screen', async () => {
     window.matchMedia.setConfig(mockWindowConfig);
     renderWithRouter(
       <DashboardWithContext />,
     );
     expect(screen.getByTestId('courses-tab-sidebar')).toBeInTheDocument();
+  });
+
+  it('renders a add job sidebar on a large screen', async () => {
+    features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
+    window.matchMedia.setConfig(mockWindowConfig);
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+
+    userEvent.click(screen.getByText('My Career'));
+
     expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument();
   });
 
