@@ -1,7 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { ActionRow, Button, Icon, Row, TransitionReplace, useToggle, } from '@edx/paragon';
+import {
+  ActionRow, Button, Icon, Row, TransitionReplace, useToggle,
+} from '@edx/paragon';
 import { Edit } from '@edx/paragon/icons';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';

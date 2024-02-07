@@ -82,7 +82,7 @@ export function usePlotlySpiderChart(categories) {
   }, [categories]);
 
   useEffect(() => {
-    if (!result) {
+    if (!spiderChartResults) {
       return;
     }
     import(
@@ -90,5 +90,5 @@ export function usePlotlySpiderChart(categories) {
     ).then(
       Plotly => Plotly.newPlot('skill-levels-spider', spiderChartResults.data, spiderChartResults.layout, spiderChartResults.config),
     );
-  }, [result]);
+  }, [spiderChartResults]);
 }
