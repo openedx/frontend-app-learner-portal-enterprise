@@ -578,10 +578,12 @@ export const getEnterpriseOffersDisabledEnrollmentReasonType = ({
  * @param {object} args
  * @param {string} args.reasonType Reason type for the missing subsidy.
  * @param {array} args.enterpriseAdminUsers List of enterprise admin users.
+ * @param {string} args.contactEmail String of customer admin contact email as POC
  */
 export const getMissingSubsidyReasonActions = ({
   reasonType,
   enterpriseAdminUsers,
+  contactEmail,
 }) => {
   const hasLimitsLearnMoreCTA = [
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
@@ -639,7 +641,14 @@ export const getMissingSubsidyReasonActions = ({
     if (enterpriseAdminUsers?.length === 0) {
       return null;
     }
-    const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+
+    let adminEmails = null;
+    if (contactEmail) {
+      adminEmails = contactEmail;
+    } else if (enterpriseAdminUsers.length >= 1) {
+      adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+    }
+
     return (
       <Button
         as={MailtoLink}
@@ -660,6 +669,7 @@ export const getMissingSubsidyReasonActions = ({
 
 export const getMissingApplicableSubsidyReason = ({
   enterpriseAdminUsers,
+  contactEmail,
   catalogsWithCourse,
   couponCodes,
   couponsOverview,
@@ -728,6 +738,7 @@ export const getMissingApplicableSubsidyReason = ({
     actions: getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers,
+      contactEmail,
     }),
   };
 };
