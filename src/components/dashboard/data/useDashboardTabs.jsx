@@ -101,7 +101,7 @@ const useDashboardTabs = ({
         {activeTab === DASHBOARD_MY_CAREER_TAB && <MyCareerTab />}
       </Tab>
     ),
-  ].filter(tab => tab); // Filtering done for truthy values
+  ].filter(tab => tab); // Filtering for truthy values
 
   return {
     tabs: allTabs,

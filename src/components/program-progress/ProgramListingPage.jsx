@@ -32,7 +32,7 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, progra
   }
 
   return (
-    <div className="py-5">
+    <div className="py-5" data-testid="program-listing-page">
       {programsListData.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
           {programsListData.map((program) => <ProgramListingCard program={program} key={program.title} />)}
