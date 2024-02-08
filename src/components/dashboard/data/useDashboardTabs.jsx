@@ -19,10 +19,33 @@ import {
 import { useInProgressPathwaysData } from '../../pathway-progress/data/hooks';
 import { useLearnerProgramsListData } from '../../program-progress/data/hooks';
 
+const MyCareerTabSkeleton = () => (
+  <div className="py-3">
+    <header>
+      <h2>
+        <Skeleton width={200} />
+      </h2>
+    </header>
+    <section className="row">
+      <div className="col-lg-8">
+        <Skeleton count={5} />
+      </div>
+      <aside className="card col-lg-4 p-3">
+        <h3>
+          <Skeleton count={1} />
+        </h3>
+        <p>
+          <Skeleton count={3} />
+        </p>
+      </aside>
+    </section>
+  </div>
+);
+
 const MyCareerTab = loadable(() => import(
   '../../my-career/MyCareerTab'
 ), {
-  fallback: <Skeleton height={30} />,
+  fallback: <MyCareerTabSkeleton />,
 });
 
 const useDashboardTabs = ({
