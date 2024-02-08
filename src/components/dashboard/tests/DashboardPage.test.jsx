@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@edx/paragon';
@@ -318,7 +318,7 @@ describe('<Dashboard />', () => {
 
     userEvent.click(screen.getByText('My Career'));
 
-    expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument());
   });
 
   it('renders pathway tab', () => {
