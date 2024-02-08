@@ -32,11 +32,13 @@ We will extend the default production Webpack configuration from ``@openedx/fron
 
 1. We will explicitly set `moduleIds: 'deterministic'`. This ensures that Webpack generates module IDs based on the content of the module, meaning that if the content of a module remains the same, its module ID will also remain consistent across builds.
 1. We will configure ``maxSize`` to be 244 KiB, per Webpack's recommendation. Note, this takes precedence over the Webpack options ``maxInitialRequest`` and ``maxAsyncRequests``. ``maxSize`` should only be used alongside HTTP/2 which has improved support for managing multiple small requests in parallel compared to HTTP/1.1.
-1. We will introduce the following custom ``cacheGroups`` (all inherit the ``maxSize`` described above):
-    * ``vendors``. Handles third-party dependencies (i.e., ``node_modules``), given them the lowest priority of the configured cache groups. This ``priority`` is slightly higher than the ``priority`` set in the ``defaultVendors`` option (disabled).
-    * ``reactVendor``. Bundles React and its related libraries (ReactDOM, React Router) into a single chunk that has highest priority.
-    * ``paragonVendor``. Co-locates Paragon related imports such that chunks specific to Paragon only get cache invalidated due to explicit Paragon upgrades.
-    * ``edXVendor``. Combines ``@edx`` and ``@openedx`` shared NPM libraries (e.g., ``@openedx/frontend-platform``). Similar to ``paragonVendor``, this helps with long-term caching such that these chunks will only be invalidated and re-downloaded if the relevant packages are explicitly upgraded.
+1. We will continue to rely on the default ``cacheGroups`` provided by Webpack, though all will inherit the ``maxSize`` described above.
+
+By setting ``maxSize``, Webpack will make its best effort to keep chunk sizes below 244 KiB (parsed size). We will not modify default ``cacheGroups`` such that default chunk naming conventions and behavior continues to work.
+
+These changed are intended to be used alongside dynamic imports (e.g., with ``lazy`` and ``Suspense``) within the application to lazy load or defer chunks until relevant in the users' interaction (e.g., Plotly.js should only be loaded if rendering the associated spider chart). We will adopt route splitting such that Webpack generates chunks specific to individual page routes, whereby only the application code and/or third-party dependencies relevant to the individual, rendered page are included. 
+
+For example, the course page route depends on a relatively large library, ``video.js``; only the course page relies on ``video.js``. Before this ADR, when a page route other than the course page is viewed, all the course page related code still needs to load. Through this ADR and route splitting, the course page has its own chunks specific to the individual route, including a ``vendors-course-<hash>.<hash>.js`` file containing ``video.js``. Note, this generated chunk for ``video.js`` is still only loaded when viewing the course page route.
 
 
 ## Consequences
@@ -47,5 +49,6 @@ We will extend the default production Webpack configuration from ``@openedx/fron
 
 ## Alternatives Considered
 
-* Only rely on more application/code implementation changes (e.g., with dynamic imports and `React.lazy` with `Suspense`) when working with code splitting. This was ruled out as there are opportunities for paralleling a larger number of small requests even if those chunks are not dynamically imported.
+* Only rely on more application/code implementation changes (e.g., with dynamic imports and `lazy` with `Suspense`) when working with code splitting. This was ruled out as there are opportunities for parallelizing a larger number of small requests even if those chunks are not dynamically imported.
+* Define custom Webpack ``cacheGroups`` through ``SplitChunksPlugin``. This was decided against as it creates chunks containing components not relevant to all page routes and/or user interactions. For instance, if we defined a ``paragonVendor`` cache group with the intent to co-locate all Paragon components together, this would mean users need to essentially download code for all Paragon components, even ones unused for the given page route. Instead, we rather rely on default Webpack behavior whereby only the actual components necessary for the active page route and/or user interaction are included in the dynamic, lazily loaded chunk instead. More concretely, we would like to defer the loading of any Paragon components not currently used to reduce blocking network requests on initial page load.
 * Ensure the ``npm run serve`` command can utilize the HTTP/2 protocol. This was ruled out as it would require engineers to run the application under SSL and may need additional changes to get around issues regarding configuration and CORS.
