@@ -1,5 +1,7 @@
-import { Tab } from '@edx/paragon';
+import { Skeleton, Tab } from '@edx/paragon';
 import React, { useContext, useState } from 'react';
+import loadable from '@loadable/component';
+
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -7,15 +9,21 @@ import CoursesTabComponent from '../main-content/CoursesTabComponent';
 import { ProgramListingPage } from '../../program-progress';
 import PathwayProgressListingPage from '../../pathway-progress/PathwayProgressListingPage';
 import { features } from '../../../config';
-import { MyCareerTab } from '../../my-career';
+
 import {
   DASHBOARD_COURSES_TAB, DASHBOARD_MY_CAREER_TAB,
   DASHBOARD_PATHWAYS_TAB,
   DASHBOARD_PROGRAMS_TAB,
-  DASHBOARD_TABS_SEGMENT_KEY,
+  DASHBOARD_TABS_SEGMENT_KEY, PREFETCH_TAB_ENABLED,
 } from './constants';
 import { useInProgressPathwaysData } from '../../pathway-progress/data/hooks';
 import { useLearnerProgramsListData } from '../../program-progress/data/hooks';
+
+const MyCareerTab = loadable(() => import(
+  '../../my-career/MyCareerTab'
+), {
+  fallback: <Skeleton height={30} />,
+});
 
 const useDashboardTabs = ({
   canOnlyViewHighlightSets,
@@ -33,6 +41,15 @@ const useDashboardTabs = ({
       enterpriseConfig.uuid,
           `edx.ui.enterprise.learner_portal.${DASHBOARD_TABS_SEGMENT_KEY[tabName]}.page_visit`,
     );
+  };
+
+  // Creates prefetch logic based on loadable-components, "component splitting" capability expose to Tabs component
+  const prefetchTab = (e) => {
+    const eventTarget = e.target;
+    const eventKey = eventTarget.dataset.rbEventKey;
+    if (PREFETCH_TAB_ENABLED[eventKey] && eventKey === DASHBOARD_MY_CAREER_TAB) {
+      MyCareerTab.preload();
+    }
   };
 
   // Defines the tab components and rendered child, and filters based on active features
@@ -107,6 +124,7 @@ const useDashboardTabs = ({
     tabs: allTabs,
     onSelectHandler,
     activeTab,
+    prefetchTab,
   };
 };
 

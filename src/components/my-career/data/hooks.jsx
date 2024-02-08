@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import Plotly from 'plotly.js-dist';
 import { getLearnerProfileInfo, getLearnerSkillLevels } from './service';
 import { getSpiderChartData, prepareSpiderChartData } from './utils';
 
@@ -85,10 +86,6 @@ export function usePlotlySpiderChart(categories) {
     if (!spiderChartResults) {
       return;
     }
-    import(
-      /* webpackChunkName: "plotly" */'plotly.js-dist'
-    ).then(
-      Plotly => Plotly.newPlot('skill-levels-spider', spiderChartResults.data, spiderChartResults.layout, spiderChartResults.config),
-    );
+    Plotly.newPlot('skill-levels-spider', spiderChartResults.data, spiderChartResults.layout, spiderChartResults.config);
   }, [spiderChartResults]);
 }
