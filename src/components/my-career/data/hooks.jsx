@@ -57,11 +57,10 @@ export function useLearnerSkillLevels(jobId) {
 export function usePlotlySpiderChart(categories) {
   const [spiderChartResults, setSpiderChartResults] = useState();
 
-  useEffect(() => { // eslint-disable-line consistent-return
+  useEffect(() => {
     if (!categories) {
       return;
     }
-
     const [
       jobName,
       topCategories,
@@ -86,9 +85,14 @@ export function usePlotlySpiderChart(categories) {
       return;
     }
     import(
-      /* webpackChunkName: "plotly" */'plotly.js-dist'
-    ).then(
-      Plotly => Plotly.newPlot('skill-levels-spider', spiderChartResults.data, spiderChartResults.layout, spiderChartResults.config),
-    );
+      /* webpackChunkName: "plotly" */
+      /* webpackPrefetch: true */
+      'plotly.js-dist'
+    ).then(Plotly => Plotly.newPlot(
+      'skill-levels-spider',
+      spiderChartResults.data,
+      spiderChartResults.layout,
+      spiderChartResults.config,
+    ));
   }, [spiderChartResults]);
 }

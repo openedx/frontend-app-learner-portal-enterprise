@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../loading-spinner';
 import VisualizeCareer from './VisualizeCareer';
 import { extractCurrentJobID } from './data/utils';
 import AddJobRole from './AddJobRole';
+import SpiderChart from './SpiderChart';
 
 const MyCareerTab = () => {
   const { authenticatedUser: { username } } = useContext(AppContext);
@@ -40,7 +41,8 @@ const MyCareerTab = () => {
     <div>
       <SearchData>
         { !learnerCurrentJobID ? (
-          <AddJobRole submitClickHandler={setLearnerProfileState} />
+          // <AddJobRole submitClickHandler={setLearnerProfileState} />
+          <SpiderChart categories={{}} />
         ) : (
           <VisualizeCareer jobId={learnerCurrentJobID} submitClickHandler={setLearnerProfileState} />
         )}
