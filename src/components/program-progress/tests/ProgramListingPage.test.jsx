@@ -51,7 +51,6 @@ const dummyProgramData = {
     completed: 2,
     notStarted: 3,
   },
-
 };
 
 jest.mock('@edx/frontend-platform/react', () => ({
