@@ -21,11 +21,11 @@ export function prepareSpiderChartData(categories) {
   const averageScores = [];
   const learnerScores = [];
 
-  // categories.skillCategories.forEach((skillCategory) => {
-  //   topCategories.push(skillCategory.name);
-  //   averageScores.push(skillCategory.edxAverageScore || 0);
-  //   learnerScores.push(skillCategory.userScore || 0);
-  // });
+  categories.skillCategories.forEach((skillCategory) => {
+    topCategories.push(skillCategory.name);
+    averageScores.push(skillCategory.edxAverageScore || 0);
+    learnerScores.push(skillCategory.userScore || 0);
+  });
 
   return [jobName, topCategories, averageScores, learnerScores];
 }
