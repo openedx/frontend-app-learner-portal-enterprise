@@ -56,8 +56,6 @@ export function useLearnerSkillLevels(jobId) {
 }
 
 export function usePlotlySpiderChart(categories) {
-  const [spiderChartResults, setSpiderChartResults] = useState();
-
   useEffect(() => { // eslint-disable-line consistent-return
     if (!categories) {
       return;
@@ -75,17 +73,7 @@ export function usePlotlySpiderChart(categories) {
       averageScores,
       learnerScores,
     );
-    setSpiderChartResults({
-      data,
-      layout,
-      config,
-    });
-  }, [categories]);
 
-  useEffect(() => {
-    if (!spiderChartResults) {
-      return;
-    }
-    Plotly.newPlot('skill-levels-spider', spiderChartResults.data, spiderChartResults.layout, spiderChartResults.config);
-  }, [spiderChartResults]);
+    Plotly.newPlot('skill-levels-spider', data, layout, config);
+  }, [categories]);
 }

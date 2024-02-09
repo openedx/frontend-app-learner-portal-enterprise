@@ -19,10 +19,3 @@ export const DASHBOARD_TABS_SEGMENT_KEY = {
   [DASHBOARD_PATHWAYS_TAB]: 'pathways_tab',
   [DASHBOARD_MY_CAREER_TAB]: 'career_tab',
 };
-
-export const PREFETCH_TAB_ENABLED = {
-  [DASHBOARD_COURSES_TAB]: false,
-  [DASHBOARD_PROGRAMS_TAB]: false,
-  [DASHBOARD_PATHWAYS_TAB]: false,
-  [DASHBOARD_MY_CAREER_TAB]: true,
-};

@@ -1,4 +1,4 @@
-import { Skeleton, Tab } from '@edx/paragon';
+import { Tab } from '@edx/paragon';
 import React, { useContext, useState } from 'react';
 import loadable from '@loadable/component';
 
@@ -11,36 +11,15 @@ import PathwayProgressListingPage from '../../pathway-progress/PathwayProgressLi
 import { features } from '../../../config';
 
 import {
-  DASHBOARD_COURSES_TAB, DASHBOARD_MY_CAREER_TAB,
+  DASHBOARD_COURSES_TAB,
+  DASHBOARD_MY_CAREER_TAB,
   DASHBOARD_PATHWAYS_TAB,
   DASHBOARD_PROGRAMS_TAB,
-  DASHBOARD_TABS_SEGMENT_KEY, PREFETCH_TAB_ENABLED,
+  DASHBOARD_TABS_SEGMENT_KEY,
 } from './constants';
 import { useInProgressPathwaysData } from '../../pathway-progress/data/hooks';
 import { useLearnerProgramsListData } from '../../program-progress/data/hooks';
-
-const MyCareerTabSkeleton = () => (
-  <div className="py-3">
-    <header>
-      <h2>
-        <Skeleton width={200} />
-      </h2>
-    </header>
-    <section className="row">
-      <div className="col-lg-8">
-        <Skeleton count={5} />
-      </div>
-      <aside className="card col-lg-4 p-3">
-        <h3>
-          <Skeleton count={1} />
-        </h3>
-        <p>
-          <Skeleton count={3} />
-        </p>
-      </aside>
-    </section>
-  </div>
-);
+import MyCareerTabSkeleton from '../../my-career/MyCareerTabSkeleton';
 
 const MyCareerTab = loadable(() => import(
   '../../my-career/MyCareerTab'
@@ -69,8 +48,10 @@ const useDashboardTabs = ({
   // Creates prefetch logic based on loadable-components, "component splitting" capability expose to Tabs component
   const prefetchTab = (e) => {
     const eventTarget = e.target;
+
+    // `rbEventKey` is added by Paragon's usage of `react-bootstrap` in the `Tabs` component.
     const eventKey = eventTarget.dataset.rbEventKey;
-    if (PREFETCH_TAB_ENABLED[eventKey] && eventKey === DASHBOARD_MY_CAREER_TAB) {
+    if (eventKey === DASHBOARD_MY_CAREER_TAB) {
       MyCareerTab.preload();
     }
   };
