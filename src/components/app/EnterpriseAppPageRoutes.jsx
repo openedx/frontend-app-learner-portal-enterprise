@@ -1,13 +1,10 @@
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { PageWrap } from '@edx/frontend-platform/react';
 import { Route, Routes } from 'react-router-dom';
 
 import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import { features } from '../../config';
-
-function extractNamedExport(importPromise, namedExport) {
-  return importPromise.then((module) => ({ default: module[namedExport] }));
-}
+import extractNamedExport from '../../utils/codeSplitting';
 
 const DashboardPage = lazy(() => extractNamedExport(import(/* webpackChunkName: "dashboard" */ '../dashboard'), 'DashboardPage'));
 const SearchPage = lazy(() => extractNamedExport(import(/* webpackChunkName: "search" */ '../search'), 'SearchPage'));
