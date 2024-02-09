@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import Plotly from 'plotly.js-dist';
-
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
+import Plotly from 'plotly.js-dist';
 import { getLearnerProfileInfo, getLearnerSkillLevels } from './service';
 import { getSpiderChartData, prepareSpiderChartData } from './utils';
 

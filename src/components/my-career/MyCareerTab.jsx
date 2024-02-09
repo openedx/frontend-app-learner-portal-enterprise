@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useState,
+} from 'react';
 
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
@@ -7,7 +9,6 @@ import { LoadingSpinner } from '../loading-spinner';
 import VisualizeCareer from './VisualizeCareer';
 import { extractCurrentJobID } from './data/utils';
 import AddJobRole from './AddJobRole';
-import SpiderChart from './SpiderChart';
 
 const MyCareerTab = () => {
   const { authenticatedUser: { username } } = useContext(AppContext);
@@ -41,8 +42,7 @@ const MyCareerTab = () => {
     <div>
       <SearchData>
         { !learnerCurrentJobID ? (
-          // <AddJobRole submitClickHandler={setLearnerProfileState} />
-          <SpiderChart categories={{}} />
+          <AddJobRole submitClickHandler={setLearnerProfileState} />
         ) : (
           <VisualizeCareer jobId={learnerCurrentJobID} submitClickHandler={setLearnerProfileState} />
         )}

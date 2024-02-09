@@ -31,7 +31,9 @@ const DashboardPage = () => {
   } = useEnterpriseCuration(enterpriseConfig.uuid);
   const intl = useIntl();
 
-  const { tabs, onSelectHandler, activeTab } = useDashboardTabs({ canOnlyViewHighlightSets });
+  const {
+    tabs, onSelectHandler, activeTab, prefetchTab,
+  } = useDashboardTabs({ canOnlyViewHighlightSets });
 
   useEffect(() => {
     if (state?.activationSuccess) {
@@ -83,6 +85,7 @@ const DashboardPage = () => {
         <Tabs
           activeKey={activeTab}
           onSelect={onSelectHandler}
+          onMouseOverCapture={prefetchTab}
         >
           {tabs}
         </Tabs>
