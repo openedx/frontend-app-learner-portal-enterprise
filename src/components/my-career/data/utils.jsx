@@ -21,7 +21,6 @@ export function prepareSpiderChartData(categories) {
   const averageScores = [];
   const learnerScores = [];
 
-  // eslint-disable-next-line react/prop-types
   categories.skillCategories.forEach((skillCategory) => {
     topCategories.push(skillCategory.name);
     averageScores.push(skillCategory.edxAverageScore || 0);

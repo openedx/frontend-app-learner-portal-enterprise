@@ -56,11 +56,10 @@ export function useLearnerSkillLevels(jobId) {
 }
 
 export function usePlotlySpiderChart(categories) {
-  useEffect(() => { // eslint-disable-line consistent-return
+  useEffect(() => {
     if (!categories) {
       return;
     }
-
     const [
       jobName,
       topCategories,
