@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import { features } from '../../config';
 import extractNamedExport from '../../utils/codeSplitting';
+import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 
 const DashboardPage = lazy(() => extractNamedExport(import(/* webpackChunkName: "dashboard" */ '../dashboard'), 'DashboardPage'));
 const SearchPage = lazy(() => extractNamedExport(import(/* webpackChunkName: "search" */ '../search'), 'SearchPage'));
@@ -21,7 +22,12 @@ const AcademyDetailPage = lazy(() => extractNamedExport(import(/* webpackChunkNa
 // to reduce API calls by 2 (DashboardPage, CoursePage, SearchPage) or by 3 ( + AuthenticatedPage) if created in App.jsx
 const EnterpriseAppPageRoutes = () => (
   <AuthenticatedUserSubsidyPage>
-    <Suspense fallback={<h1>LOADING!!!</h1>}>
+    <Suspense fallback={(
+      <DelayedFallbackContainer
+        className="py-5 d-flex justify-content-center align-items-center"
+      />
+    )}
+    >
       <Routes>
         <Route path="/" element={<PageWrap><DashboardPage /></PageWrap>} />
         {['search', 'search/:pathwayUUID'].map(route => (

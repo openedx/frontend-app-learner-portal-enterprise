@@ -15,6 +15,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NoticesProvider from '../notices-provider';
 import { queryCacheOnErrorHandler, defaultQueryClientRetryHandler } from '../../utils/common';
 import { ToastsProvider, Toasts } from '../Toasts';
+import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
 const EnterprisePageRedirect = lazy(() => import(/* webpackChunkName: "enterprise-page-redirect" */ '../enterprise-redirects/EnterprisePageRedirect'));
@@ -75,7 +76,12 @@ const App = () => {
             {/* always remove trailing slashes from any route */}
             <TruncatedLocation />
             {/* page routes for the app */}
-            <Suspense fallback={<h1>LOADING...</h1>}>
+            <Suspense fallback={(
+              <DelayedFallbackContainer
+                className="py-5 d-flex justify-content-center align-items-center"
+              />
+            )}
+            >
               <Routes>
                 <Route path="/" element={<AuthenticatedPageRoute><EnterpriseCustomerRedirect /></AuthenticatedPageRoute>} />
                 <Route path="/r/*" element={<AuthenticatedPageRoute><EnterprisePageRedirect /></AuthenticatedPageRoute>} />
