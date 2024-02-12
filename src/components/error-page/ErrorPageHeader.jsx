@@ -17,7 +17,8 @@ import { AppContext } from '@edx/frontend-platform/react';
  */
 const ErrorPageHeader = () => {
   const { authenticatedUser, config } = useContext(AppContext);
-  const { username, profileImage } = authenticatedUser || { username: '', profileImage: '' };
+  const { username, name, profileImage } = authenticatedUser || { username: '', name: '', profileImage: '' };
+  const hideUsername = config.HIDE_USERNAME_FROM_HEADER;
 
   return (
     <header>
@@ -41,9 +42,9 @@ const ErrorPageHeader = () => {
                   id="error-page-header-avatar-button-dropdown-toggle"
                   as={AvatarButton}
                   src={profileImage?.imageUrlMedium}
-                  showLabel
+                  showLabel={!hideUsername}
                 >
-                  {username}
+                  {hideUsername ? name : username}
                 </Dropdown.Toggle>
                 <Dropdown.Menu
                   style={{ maxWidth: 280 }}

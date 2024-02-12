@@ -53,6 +53,7 @@ initialize({
         ENTERPRISE_SUBSIDY_BASE_URL: process.env.ENTERPRISE_SUBSIDY_BASE_URL || null,
         EXPERIMENT_2_ID: process.env.EXPERIMENT_2_ID || null,
         EXPERIMENT_2_VARIANT_2_ID: process.env.EXPERIMENT_2_VARIANT_2_ID || null,
+        HIDE_USERNAME_FROM_HEADER: process.env.HIDE_USERNAME_FROM_HEADER || null,
       });
     },
   },

@@ -10,11 +10,12 @@ import { isDefinedAndNotNull } from '../../utils/common';
 const AvatarDropdown = ({ showLabel }) => {
   const {
     BASE_URL,
+    HIDE_USERNAME_FROM_HEADER,
     LMS_BASE_URL,
     LOGOUT_URL,
     LEARNER_SUPPORT_URL,
   } = getConfig();
-  const { enterpriseConfig, authenticatedUser: { username, profileImage } } = useContext(AppContext);
+  const { enterpriseConfig, authenticatedUser: { username, name, profileImage } } = useContext(AppContext);
   const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
   const intl = useIntl();
 
@@ -32,7 +33,7 @@ const AvatarDropdown = ({ showLabel }) => {
         src={profileImage.imageUrlMedium}
         id="site-header-avatar-dropdown-toggle"
       >
-        {username}
+        {HIDE_USERNAME_FROM_HEADER ? name : username}
       </Dropdown.Toggle>
       <Dropdown.Menu
         style={{ maxWidth: 280 }}

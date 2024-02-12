@@ -32,7 +32,7 @@ const SiteHeader = () => {
                 description: 'Help link in site header navigation.',
               })}
             </a>
-            <AvatarDropdown />
+            <AvatarDropdown showLabel={!config.HIDE_USERNAME_FROM_HEADER} />
           </nav>
         </div>
       </Container>

@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@edx/paragon';
 import userEvent from '@testing-library/user-event';
+import { mergeConfig } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -26,6 +27,7 @@ const appState = {
   },
   authenticatedUser: {
     username: 'papa',
+    name: 'my name',
     profileImage: 'papa-bear-image',
   },
 };
@@ -57,6 +59,25 @@ describe('<SiteHeader />', () => {
     expect(screen.getByTestId('header-logo-image-id'));
     expect(screen.getByTestId('header-logo-link-id'));
   });
+
+  test('does not render username when HIDE_USERNAME_FROM_HEADER is set to true', () => {
+    mergeConfig({
+      HIDE_USERNAME_FROM_HEADER: true,
+    });
+
+    const component = renderWithRouter(
+      <SiteHeaderWithContext />,
+    );
+
+    const userAvatarToggle = component.container.querySelector('#site-header-avatar-dropdown-toggle');
+    // Verify that the alt attribute of the image is set to user's name
+    expect(userAvatarToggle.querySelector('img').getAttribute('alt')).toBe('my name');
+
+    mergeConfig({
+      HIDE_USERNAME_FROM_HEADER: '',
+    });
+  });
+
   test('does not render link with logo to dashboard when search is disabled', () => {
     const disableSearchAppState = {
       ...appState,
