@@ -1,7 +1,7 @@
 import { screen, waitFor, render } from '@testing-library/react';
 import DelayedFallbackContainer from './DelayedFallbackContainer';
 
-describe('<DelayedFallbackContainer', () => {
+describe('<DelayedFallbackContainer />', () => {
   it('renders the default spinner', async () => {
     render(<DelayedFallbackContainer />);
 

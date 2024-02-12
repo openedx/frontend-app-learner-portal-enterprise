@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import AuthenticatedUserSubsidyPage from './AuthenticatedUserSubsidyPage';
 import { features } from '../../config';
-import extractNamedExport from '../../utils/codeSplitting';
+import extractNamedExport from '../../utils/extract-named-export';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 
 const DashboardPage = lazy(() => extractNamedExport(import(/* webpackChunkName: "dashboard" */ '../dashboard'), 'DashboardPage'));
