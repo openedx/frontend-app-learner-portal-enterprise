@@ -15,16 +15,22 @@ const DelayedFallbackContainer = ({
       clearTimeout(timeout);
     };
   }, [delay]);
-  return (
-    <div
-      className={classNames(className)}
-    >
-      {displayComponent && children}
-    </div>
-  );
+
+  if (displayComponent) {
+    return (
+      <div
+        className={classNames(className)}
+        data-testid="delayed-fallback-container"
+      >
+        {children}
+      </div>
+    );
+  }
+
+  return null;
 };
 
-const defaultSpinner = <Spinner animation="border" screenReaderText="loading" />;
+const defaultSpinner = <Spinner animation="border" screenReaderText="loading" data-testid="suspense-spinner" />;
 
 DelayedFallbackContainer.propTypes = {
   delay: PropTypes.number,
