@@ -30,7 +30,12 @@ const ContentHighlightSet = ({ highlightSet }) => {
       courseRunStatuses,
     } = highlightedContent[i];
     if (courseRunStatuses) {
-      if (courseRunStatuses?.every(status => status === COURSE_RUN_AVAILABILITY.ARCHIVED)) {
+      if (courseRunStatuses.length === 1
+        && courseRunStatuses.includes(COURSE_RUN_AVAILABILITY.ARCHIVED)) {
+        archivedContent.push(highlightedContent[i]);
+      } if (courseRunStatuses.length === 2
+        && courseRunStatuses.includes(COURSE_RUN_AVAILABILITY.ARCHIVED
+        && courseRunStatuses.includes(COURSE_RUN_AVAILABILITY.UNPUBLISHED))) {
         archivedContent.push(highlightedContent[i]);
       } else {
         activeContent.push(highlightedContent[i]);

@@ -137,7 +137,7 @@ const archivedCourseState = {
     catalogList: [],
   },
   courseRunKeys: ['test-course-run-key'],
-  courseRunStatuses: ['archived'],
+  courseRunStatuses: ['archived', 'unpublished'],
 };
 
 const defaultUserSubsidyState = {
