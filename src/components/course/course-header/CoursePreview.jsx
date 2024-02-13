@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { PlayCircleFilled } from '@edx/paragon/icons';
 import { useToggle, Image } from '@edx/paragon';
-import { VideoPlayer } from '../../video';
+
+import VideoPlayer from '../../video/VideoPlayer';
 
 const CoursePreview = ({ previewImage, previewVideoURL }) => {
   const [isVideoPlaying, playVideo] = useToggle(false);
-
   return (
     <div className="course-preview-wrapper">
       {previewVideoURL ? (
