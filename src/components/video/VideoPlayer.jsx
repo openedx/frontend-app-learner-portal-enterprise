@@ -1,11 +1,7 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
+import VideoJS from './VideoJS';
 
-const VideoJS = lazy(() => import(
-  /* webpackChunkName: "videojs" */
-  './VideoJS'
-));
 const hlsExtension = '.m3u8';
 const defaultOptions = {
   autoplay: true,
@@ -36,13 +32,7 @@ const VideoPlayer = ({ videoURL, onReady }) => {
 
   return (
     <div className="video-player-container">
-      <Suspense
-        fallback={
-          <DelayedFallbackContainer className="py-5 d-flex justify-content-center align-items-center" />
-        }
-      >
-        <VideoJS options={videoDetails} onReady={onReady} />
-      </Suspense>
+      <VideoJS options={videoDetails} onReady={onReady} />
     </div>
   );
 };
