@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-
 import VideoJS from './VideoJS';
 
 const hlsExtension = '.m3u8';
