@@ -44,13 +44,9 @@ detect_changed_source_translations:
 push_translations:
 	# Pushing strings to Transifex...
 	tx push -s
-	# Fetching hashes from Transifex...
-	./node_modules/@edx/reactifex/bash_scripts/get_hashed_strings_v3.sh
-	# Writing out comments to file...
-	$(transifex_utils) $(transifex_temp) --comments --v3-scripts-path
-	# Pushing comments to Transifex...
-	./node_modules/@edx/reactifex/bash_scripts/put_comments_v3.sh
 
+pull_translations:
+	tx pull -t -f --mode reviewed --languages=$(transifex_langs)
 ifeq ($(OPENEDX_ATLAS_PULL),)
 # Pulls translations from Transifex.
 pull_translations:

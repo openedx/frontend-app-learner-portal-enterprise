@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@edx/paragon';
@@ -8,6 +8,7 @@ import Cookies from 'universal-cookie';
 import userEvent from '@testing-library/user-event';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { CourseContextProvider } from '../../course/CourseContextProvider';
 import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
@@ -16,6 +17,7 @@ import { features } from '../../../config';
 import * as courseEnrollmentsHooks from '../main-content/course-enrollments/data/hooks';
 import * as myCareerHooks from '../../my-career/data/hooks';
 import * as pathwayProgressHooks from '../../pathway-progress/data/hooks';
+import * as programsHooks from '../../program-progress/data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
@@ -25,6 +27,46 @@ import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../ente
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
+import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
+
+const dummyProgramData = {
+  uuid: 'test-uuid',
+  title: 'Test Program Title',
+  type: 'MicroMasters',
+  bannerImage: {
+    large: {
+      url: 'www.example.com/large',
+      height: 123,
+      width: 455,
+    },
+    medium: {
+      url: 'www.example.com/medium',
+      height: 123,
+      width: 455,
+    },
+    small: {
+      url: 'www.example.com/small',
+      height: 123,
+      width: 455,
+    },
+    xSmall: {
+      url: 'www.example.com/xSmall',
+      height: 123,
+      width: 455,
+    },
+  },
+  authoringOrganizations: [
+    {
+      key: 'test-key',
+      logoImageUrl: '/media/organization/logos/shield.png',
+    },
+  ],
+  progress: {
+    inProgress: 1,
+    completed: 2,
+    notStarted: 3,
+  },
+};
 
 const defaultCouponCodesState = {
   couponCodes: [],
@@ -184,6 +226,7 @@ jest.mock('universal-cookie');
 jest.mock('../main-content/course-enrollments/data/hooks');
 jest.mock('../../my-career/data/hooks');
 jest.mock('../../pathway-progress/data/hooks');
+jest.mock('../../program-progress/data/hooks');
 courseEnrollmentsHooks.useCourseEnrollments.mockReturnValue({
   courseEnrollmentsByStatus: {
     inProgress: [],
@@ -210,7 +253,7 @@ courseEnrollmentsHooks.useCourseEnrollmentsBySection.mockReturnValue({
 });
 myCareerHooks.useLearnerProfileData.mockReturnValue([{}, null, false]);
 pathwayProgressHooks.useInProgressPathwaysData.mockReturnValue([{}, null, false]);
-
+programsHooks.useLearnerProgramsListData.mockReturnValue([[], null]);
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
@@ -258,13 +301,61 @@ describe('<Dashboard />', () => {
     expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy();
   });
 
-  it('renders a sidebar on a large screen', () => {
+  it('renders a courses sidebar on a large screen', async () => {
     window.matchMedia.setConfig(mockWindowConfig);
     renderWithRouter(
       <DashboardWithContext />,
     );
     expect(screen.getByTestId('courses-tab-sidebar')).toBeInTheDocument();
-    expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument();
+  });
+
+  it('renders a add job sidebar on a large screen', async () => {
+    features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
+    window.matchMedia.setConfig(mockWindowConfig);
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+
+    userEvent.click(screen.getByText('My Career'));
+
+    await waitFor(() => expect(screen.getByTestId('add-job-role-sidebar')).toBeInTheDocument());
+  });
+
+  it('renders pathway tab', () => {
+    pathwayProgressHooks.useInProgressPathwaysData.mockReturnValue([camelCaseObject(learnerPathwayData), null]);
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        ...defaultAppState.enterpriseConfig,
+        enablePathways: true,
+      },
+    };
+
+    renderWithRouter(
+      <DashboardWithContext initialAppState={appState} />,
+    );
+
+    userEvent.click(screen.getByText('Pathways'));
+
+    expect(screen.getByTestId('pathway-listing-page')).toBeInTheDocument();
+  });
+
+  it('renders programs tab', async () => {
+    programsHooks.useLearnerProgramsListData.mockImplementation(() => [[dummyProgramData], null]);
+    const appState = {
+      ...defaultAppState,
+      enterpriseConfig: {
+        ...defaultAppState.enterpriseConfig,
+        enablePrograms: true,
+      },
+    };
+    renderWithRouter(
+      <DashboardWithContext initialAppState={appState} />,
+    );
+
+    userEvent.click(screen.getByText('Programs'));
+
+    expect(screen.getByTestId('program-listing-page')).toBeInTheDocument();
   });
 
   it('renders subsidies summary on a small screen', () => {

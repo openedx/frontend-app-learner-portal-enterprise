@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import Plotly from 'plotly.js-dist';
 
-import { getLearnerSkillLevels, getLearnerProfileInfo } from './service';
+import Plotly from 'plotly.js-dist';
+import { getLearnerProfileInfo, getLearnerSkillLevels } from './service';
 import { getSpiderChartData, prepareSpiderChartData } from './utils';
 
 export function useLearnerProfileData(username) {
@@ -56,18 +56,16 @@ export function useLearnerSkillLevels(jobId) {
 }
 
 export function usePlotlySpiderChart(categories) {
-  useEffect(() => { // eslint-disable-line consistent-return
+  useEffect(() => {
     if (!categories) {
-      return [];
+      return;
     }
-
     const [
       jobName,
       topCategories,
       averageScores,
       learnerScores,
     ] = prepareSpiderChartData(categories);
-
     const [data, layout, config] = getSpiderChartData(
       jobName,
       topCategories,

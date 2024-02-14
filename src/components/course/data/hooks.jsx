@@ -666,6 +666,7 @@ export const useUserSubsidyApplicableToCourse = ({
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
   enterpriseAdminUsers: fallbackAdminUsers,
+  contactEmail,
   courseListPrice,
   customerAgreementConfig,
 }) => {
@@ -728,6 +729,7 @@ export const useUserSubsidyApplicableToCourse = ({
         );
         missingApplicableSubsidyReason = getMissingApplicableSubsidyReason({
           enterpriseAdminUsers,
+          contactEmail,
           catalogsWithCourse,
           couponCodes,
           couponsOverview,
@@ -769,6 +771,7 @@ export const useUserSubsidyApplicableToCourse = ({
     isPolicyRedemptionEnabled,
     missingSubsidyAccessPolicyReason,
     fallbackAdminUsers,
+    contactEmail,
     couponsOverview,
   ]);
 

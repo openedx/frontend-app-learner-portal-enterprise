@@ -1,14 +1,14 @@
 import React, {
-  useContext, useState, useEffect,
+  useContext, useEffect, useState,
 } from 'react';
 
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { useLearnerProfileData } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
-import AddJobRole from './AddJobRole';
 import VisualizeCareer from './VisualizeCareer';
 import { extractCurrentJobID } from './data/utils';
+import AddJobRole from './AddJobRole';
 
 const MyCareerTab = () => {
   const { authenticatedUser: { username } } = useContext(AppContext);

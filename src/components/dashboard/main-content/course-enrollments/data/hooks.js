@@ -316,6 +316,10 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
    * acknowledged (dismissed) by the learner.
    */
   useEffect(() => {
+    if (!redeemableLearnerCreditPolicies) {
+      // No policies available (yet). Return early.
+      return;
+    }
     const {
       assignmentsForDisplay,
       canceledAssignments,

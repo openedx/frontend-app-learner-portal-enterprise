@@ -61,6 +61,66 @@ const ProgramCTA = () => {
   const programDuration = getProgramDuration(program);
   const availableCourses = getAvailableCourses();
 
+  const getEnrollButtonText = () => {
+    const messages = defineMessages({
+      'enterprise.program.main.enroll.context.singularCourseWithDuration': {
+        id: 'enterprise.program.main.enroll.context.singularCourseWithDuration',
+        description: 'Context for the enroll button stating the singular course and estimated duration.',
+        defaultMessage: '1 course in {estimatedDuration}',
+      },
+      'enterprise.program.main.enroll.context.pluralCourseWithDuration': {
+        id: 'enterprise.program.main.enroll.context.pluralCourseWithDuration',
+        description: 'Context for the enroll button stating the 0 or multiple courses and estimated duration.',
+        defaultMessage: '{courseCount} courses in {estimatedDuration}',
+      },
+      'enterprise.program.main.enroll.context.singularCourse': {
+        id: 'enterprise.program.main.enroll.context.singularCourse',
+        description: 'Context for the enroll button stating the singular course.',
+        defaultMessage: '1 course present in this program',
+      },
+      'enterprise.program.main.enroll.context.pluralCourses': {
+        id: 'enterprise.program.main.enroll.context.pluralCourses',
+        description: 'Context for the enroll button stating the 0 or multiple courses.',
+        defaultMessage: '{courseCount} courses present in this program',
+      },
+    });
+
+    if (courseCount === 1) {
+      if (programDuration) {
+        return intl.formatMessage(
+          messages['enterprise.program.main.enroll.context.singularCourseWithDuration'],
+          {
+            estimatedDuration: programDuration,
+          },
+        );
+      }
+
+      return intl.formatMessage(
+        messages['enterprise.program.main.enroll.context.singularCourse'],
+        {
+          estimatedDuration: programDuration,
+        },
+      );
+    }
+
+    if (programDuration) {
+      return intl.formatMessage(
+        messages['enterprise.program.main.enroll.context.pluralCourseWithDuration'],
+        {
+          courseCount,
+          estimatedDuration: programDuration,
+        },
+      );
+    }
+    return intl.formatMessage(
+      messages['enterprise.program.main.enroll.context.pluralCourses'],
+      {
+        courseCount,
+        estimatedDuration: programDuration,
+      },
+    );
+  };
+
   return (
     <div className={
       classNames(
@@ -88,18 +148,7 @@ const ProgramCTA = () => {
           </span>
         </div>
       </div>
-      <FormattedMessage
-        id="enterprise.program.main.enroll.context"
-        description="Context for the enroll button stating the number of courses and estimated duration."
-        defaultMessage={
-          `{courseCount} ${courseCount > 1 ? 'courses' : 'course' } ${programDuration ? 'in {estimatedDuration}' : 'present in this program'}`
-        }
-        values={{
-          courseCount,
-          estimatedDuration: programDuration,
-        }}
-      >{text => <div className="enroll-context">{text}</div>}
-      </FormattedMessage>
+      <div className="enroll-context">{getEnrollButtonText()}</div>
 
       <div className="program-details-btn">
         <Dropdown className="enroll-btn btn btn-brand w-100">

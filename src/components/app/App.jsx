@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import {
   Routes, Route, Navigate, useLocation,
 } from 'react-router-dom';
@@ -12,20 +12,16 @@ import {
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import AuthenticatedPage from './AuthenticatedPage';
-import EnterpriseAppPageRoutes from './EnterpriseAppPageRoutes';
-import NotFoundPage from '../NotFoundPage';
 import NoticesProvider from '../notices-provider';
-import {
-  EnterpriseCustomerRedirect,
-  EnterprisePageRedirect,
-} from '../enterprise-redirects';
 import { queryCacheOnErrorHandler, defaultQueryClientRetryHandler } from '../../utils/common';
-import { EnterpriseInvitePage } from '../enterprise-invite';
-import { ExecutiveEducation2UPage } from '../executive-education-2u';
 import { ToastsProvider, Toasts } from '../Toasts';
-import EnrollmentCompleted from '../executive-education-2u/EnrollmentCompleted';
-import { UserSubsidy } from '../enterprise-user-subsidy';
+import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
+
+const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
+const EnterprisePageRedirect = lazy(() => import(/* webpackChunkName: "enterprise-page-redirect" */ '../enterprise-redirects/EnterprisePageRedirect'));
+const NotFoundPage = lazy(() => import(/* webpackChunkName: "not-found" */ '../NotFoundPage'));
+const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
+const EnterpriseInvitePage = lazy(() => import(/* webpackChunkName: "enterprise-invite" */ '../enterprise-invite'));
 
 // Create a query client for @tanstack/react-query
 const queryClient = new QueryClient({
@@ -80,37 +76,20 @@ const App = () => {
             {/* always remove trailing slashes from any route */}
             <TruncatedLocation />
             {/* page routes for the app */}
-            <Routes>
-              <Route path="/" element={<AuthenticatedPageRoute><EnterpriseCustomerRedirect /></AuthenticatedPageRoute>} />
-              <Route path="/r/*" element={<AuthenticatedPageRoute><EnterprisePageRedirect /></AuthenticatedPageRoute>} />
-              <Route path="/invite/:enterpriseCustomerInviteKey" element={<PageWrap><EnterpriseInvitePage /></PageWrap>} />
-              <Route
-                path="/:enterpriseSlug/executive-education-2u"
-                element={(
-                  <PageWrap>
-                    <AuthenticatedPage>
-                      <UserSubsidy>
-                        <ExecutiveEducation2UPage />
-                      </UserSubsidy>
-                    </AuthenticatedPage>
-                  </PageWrap>
-                )}
+            <Suspense fallback={(
+              <DelayedFallbackContainer
+                className="py-5 d-flex justify-content-center align-items-center"
               />
-              <Route
-                path="/:enterpriseSlug/executive-education-2u/enrollment-completed"
-                element={(
-                  <PageWrap>
-                    <AuthenticatedPage>
-                      <UserSubsidy>
-                        <EnrollmentCompleted />
-                      </UserSubsidy>
-                    </AuthenticatedPage>
-                  </PageWrap>
-                )}
-              />
-              <Route path="/:enterpriseSlug/*" element={<EnterpriseAppPageRoutes />} />
-              <Route path="*" element={<PageWrap><NotFoundPage /></PageWrap>} />
-            </Routes>
+            )}
+            >
+              <Routes>
+                <Route path="/" element={<AuthenticatedPageRoute><EnterpriseCustomerRedirect /></AuthenticatedPageRoute>} />
+                <Route path="/r/*" element={<AuthenticatedPageRoute><EnterprisePageRedirect /></AuthenticatedPageRoute>} />
+                <Route path="/invite/:enterpriseCustomerInviteKey" element={<PageWrap><EnterpriseInvitePage /></PageWrap>} />
+                <Route path="/:enterpriseSlug/*" element={<EnterpriseAppPageRoutes />} />
+                <Route path="*" element={<PageWrap><NotFoundPage /></PageWrap>} />
+              </Routes>
+            </Suspense>
           </ToastsProvider>
         </NoticesProvider>
       </AppProvider>

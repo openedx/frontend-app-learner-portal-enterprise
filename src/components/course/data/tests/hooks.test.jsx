@@ -1039,6 +1039,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     },
     enterpriseAdminUsers: [],
     customerAgreementConfig: undefined,
+    contactEmail: undefined,
   };
   const argsWithMissingCourse = {
     ...baseArgs,
