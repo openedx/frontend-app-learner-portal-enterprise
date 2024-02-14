@@ -11,15 +11,16 @@ import {
   fetchEnterpriseLearnerData,
 } from './service';
 
+// TODO: Co-locate this and its sister variable in a single location ./layout/data/hooks
 const colors = {
   primary: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-primary'),
   info100: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-info-100'),
   info500: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-info-500'),
 };
 
-export const defaultPrimaryColor = colors?.primary;
-export const defaultSecondaryColor = colors?.info100;
-export const defaultTertiaryColor = colors?.info500;
+export const defaultPrimaryColor = colors.primary;
+export const defaultSecondaryColor = colors.info100;
+export const defaultTertiaryColor = colors.info500;
 
 const defaultBrandingConfig = {
   logo: null,
