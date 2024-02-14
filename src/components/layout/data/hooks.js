@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 import Color from 'color';
 
-import colors from '../../../colors.scss';
-
 import { isDefinedAndNotNull, isDefined } from '../../../utils/common';
 
 const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
@@ -14,15 +12,17 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
         return undefined;
       }
 
-      const { branding } = enterpriseConfig;
+      const colors = {
+        white: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-white'),
+        dark: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-dark'),
+      };
 
+      const { branding } = enterpriseConfig;
       const primaryColor = Color(branding.colors.primary);
       const secondaryColor = Color(branding.colors.secondary);
       const tertiaryColor = Color(branding.colors.tertiary);
-
       const whiteColor = Color(colors?.white);
       const darkColor = Color(colors?.dark);
-
       const getA11yTextColor = color => (color.isDark() ? whiteColor : darkColor);
 
       return {
