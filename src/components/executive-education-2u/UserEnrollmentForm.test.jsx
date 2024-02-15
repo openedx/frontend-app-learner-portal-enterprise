@@ -11,13 +11,14 @@ import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import UserEnrollmentForm, { formValidationMessages } from './UserEnrollmentForm';
+import UserEnrollmentForm from './UserEnrollmentForm';
 import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './data';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
 
-const termsLabelText = 'I agree to GetSmarter\'s Terms and Conditions for Students';
+const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
+const termsAndConsitionCTA = 'Terms and Conditions';
 const dataSharingConsentLabelText = 'I have read and accepted GetSmarter\'s data sharing consent';
 
 const mockEnterpriseId = 'test-enterprise-id';
@@ -119,11 +120,11 @@ describe('UserEnrollmentForm', () => {
     // validation
     userEvent.click(screen.getByText('Confirm registration'));
 
-    expect(await screen.findByText(formValidationMessages.firstNameRequired)).toBeInTheDocument();
-    expect(await screen.findByText(formValidationMessages.lastNameRequired)).toBeInTheDocument();
-    expect(await screen.findByText(formValidationMessages.dateOfBirthRequired)).toBeInTheDocument();
-    expect(await screen.findByText(formValidationMessages.dataSharingConsentRequired)).toBeInTheDocument();
-    expect(await screen.findByText(formValidationMessages.studentTermsAndConditionsRequired)).toBeInTheDocument();
+    expect(await screen.findByText('First name is required')).toBeInTheDocument();
+    expect(await screen.findByText('Last name is required')).toBeInTheDocument();
+    expect(await screen.findByText('Date of birth is required')).toBeInTheDocument();
+    expect(await screen.findByText("Please agree to GetSmarter's data sharing consent")).toBeInTheDocument();
+    expect(await screen.findByText('Please agree to Terms and Conditions for Students')).toBeInTheDocument();
 
     // typing in fields after form submission clears validation
     userEvent.type(screen.getByLabelText('Date of birth *'), mockDateOfBirth);
@@ -131,13 +132,14 @@ describe('UserEnrollmentForm', () => {
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     userEvent.click(screen.getByLabelText(termsLabelText));
+    userEvent.click(screen.getByText(termsAndConsitionCTA));
 
     await waitFor(() => {
-      expect(screen.queryByText(formValidationMessages.firstNameRequired)).not.toBeInTheDocument();
-      expect(screen.queryByText(formValidationMessages.lastNameRequired)).not.toBeInTheDocument();
-      expect(screen.queryByText(formValidationMessages.dateOfBirthRequired)).not.toBeInTheDocument();
-      expect(screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
-      expect(screen.queryByText(formValidationMessages.studentTermsAndConditionsRequired)).not.toBeInTheDocument();
+      expect(screen.queryByText('First name is required')).not.toBeInTheDocument();
+      expect(screen.queryByText('Last name is required')).not.toBeInTheDocument();
+      expect(screen.queryByText('Date of birth is required')).not.toBeInTheDocument();
+      expect(screen.queryByText("Please agree to GetSmarter's data sharing consent")).not.toBeInTheDocument();
+      expect(screen.queryByText('Please agree to Terms and Conditions for Students')).not.toBeInTheDocument();
     });
   });
 
@@ -149,12 +151,12 @@ describe('UserEnrollmentForm', () => {
 
     // validation
     userEvent.click(screen.getByText('Confirm registration'));
-    expect(await screen.findByText(formValidationMessages.studentTermsAndConditionsRequired)).toBeInTheDocument();
+    expect(await screen.findByText('Please agree to Terms and Conditions for Students')).toBeInTheDocument();
 
     // checking the checkbox after form submission clears validation
     userEvent.click(screen.getByLabelText(termsLabelText));
     await waitFor(() => {
-      expect(screen.queryByText(formValidationMessages.studentTermsAndConditionsRequired)).not.toBeInTheDocument();
+      expect(screen.queryByText('Please agree to Terms and Conditions for Students')).not.toBeInTheDocument();
     });
   });
 
@@ -166,12 +168,12 @@ describe('UserEnrollmentForm', () => {
 
     // validation
     userEvent.click(screen.getByText('Confirm registration'));
-    expect(await screen.findByText(formValidationMessages.dataSharingConsentRequired)).toBeInTheDocument();
+    expect(await screen.findByText("Please agree to GetSmarter's data sharing consent")).toBeInTheDocument();
 
     // checking the checkbox after form submission clears validation
     userEvent.click(screen.getByLabelText(dataSharingConsentLabelText));
     await waitFor(() => {
-      expect(screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
+      expect(screen.queryByText("Please agree to GetSmarter's data sharing consent")).not.toBeInTheDocument();
     });
   });
 
@@ -198,7 +200,7 @@ describe('UserEnrollmentForm', () => {
     // validation
     userEvent.click(screen.getByText('Confirm registration'));
     await waitFor(() => {
-      expect(screen.queryByText(formValidationMessages.dataSharingConsentRequired)).not.toBeInTheDocument();
+      expect(screen.queryByText("Please agree to GetSmarter's data sharing consent")).not.toBeInTheDocument();
     });
   });
 
