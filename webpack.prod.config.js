@@ -1,6 +1,7 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
 const { createConfig } = require('@edx/frontend-build');
+const { addPreconnectDomainsToHtmlWebpackPlugin } = require('./config');
 
 // Note: copied from `@openedx/frontend-build`
 function resolvePrivateEnvConfig(filePath) {
@@ -25,6 +26,13 @@ const config = createConfig('webpack-prod', {
       maxSize: 244 * 1024,
     },
   },
+});
+
+config.plugins = config.plugins.map((plugin) => {
+  if (plugin.constructor.name === 'HtmlWebpackPlugin') {
+    return addPreconnectDomainsToHtmlWebpackPlugin(plugin);
+  }
+  return plugin;
 });
 
 module.exports = config;
