@@ -16,12 +16,13 @@ import NoticesProvider from '../notices-provider';
 import { queryCacheOnErrorHandler, defaultQueryClientRetryHandler } from '../../utils/common';
 import { ToastsProvider, Toasts } from '../Toasts';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
+import extractNamedExport from '../../utils/extract-named-export';
 
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
 const EnterprisePageRedirect = lazy(() => import(/* webpackChunkName: "enterprise-page-redirect" */ '../enterprise-redirects/EnterprisePageRedirect'));
 const NotFoundPage = lazy(() => import(/* webpackChunkName: "not-found" */ '../NotFoundPage'));
 const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
-const EnterpriseInvitePage = lazy(() => import(/* webpackChunkName: "enterprise-invite" */ '../enterprise-invite'));
+const EnterpriseInvitePage = lazy(() => extractNamedExport(import(/* webpackChunkName: "enterprise-invite" */ '../enterprise-invite'), 'EnterpriseInvitePage'));
 
 // Create a query client for @tanstack/react-query
 const queryClient = new QueryClient({
