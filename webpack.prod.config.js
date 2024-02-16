@@ -1,6 +1,8 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
 const { createConfig } = require('@edx/frontend-build');
+const glob = require('glob')
+const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
 
 // Note: copied from `@openedx/frontend-build`
 function resolvePrivateEnvConfig(filePath) {
@@ -12,6 +14,17 @@ function resolvePrivateEnvConfig(filePath) {
   }
 }
 resolvePrivateEnvConfig('.env.private');
+
+const plugins = []
+// PurgeCSS
+if (process.env.USE_PURGECSS) {
+  plugins.push(
+    new PurgeCSSPlugin({
+      paths: [glob.sync('node_modules/@edx/paragon/**/*', {nodir: true})],
+      whitelistPatterns: [/pgn[-_]/]
+    })
+    )
+}
 
 // Create/extend the Webpack configuration
 const config = createConfig('webpack-prod', {
@@ -25,6 +38,7 @@ const config = createConfig('webpack-prod', {
       maxSize: 244 * 1024,
     },
   },
+  plugins: plugins
 });
 
 module.exports = config;
