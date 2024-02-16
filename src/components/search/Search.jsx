@@ -80,8 +80,8 @@ const Search = () => {
   const intl = useIntl();
 
   const isExperimentVariation = isExperimentVariant(
-    config.EXPERIMENT_3_ID,
-    config.EXPERIMENT_3_VARIANT_3_ID,
+    config.PREQUERY_SEARCH_EXPERIMENT_ID,
+    config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
   );
 
   const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
@@ -156,9 +156,9 @@ const Search = () => {
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
-  const optimizelyPrequerySuggestionClickHandler = (hit) => {
+  const optimizelyPrequerySuggestionClickHandler = (courseKey) => {
     if (isExperimentVariation) {
-      pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKey: hit.key });
+      pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKey });
     }
   };
 
