@@ -2,6 +2,7 @@ import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import ProgramProgressSidebar from '../ProgramProgressSidebar';
 import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramCertImage } from '../data/utils';
@@ -10,9 +11,11 @@ import progSampleCertImage from '../images/sample-cert.png';
 const ProgramProgressSideBarWithContext = ({
   initialProgramProgressContext = {},
 }) => (
-  <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-    <ProgramProgressSidebar />
-  </ProgramProgressContext.Provider>
+  <IntlProvider locale="en">
+    <ProgramProgressContext.Provider value={initialProgramProgressContext}>
+      <ProgramProgressSidebar />
+    </ProgramProgressContext.Provider>
+  </IntlProvider>
 );
 
 const testProgramData = {
