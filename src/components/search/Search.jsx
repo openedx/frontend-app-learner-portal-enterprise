@@ -1,13 +1,14 @@
 import React, {
   useContext, useMemo, useEffect,
 } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useToggle, Stack } from '@openedx/paragon';
+import { useIntl } from '@edx/frontend-platform/i18n';
 
 import algoliasearch from 'algoliasearch/lite';
 import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
@@ -17,7 +18,6 @@ import {
   CONTENT_TYPE_PROGRAM,
   COURSE_TITLE,
   PROGRAM_TITLE,
-  HEADER_TITLE,
   CONTENT_TYPE_PATHWAY,
   PATHWAY_TITLE,
 } from './constants';
@@ -38,14 +38,13 @@ import PathwayModal from '../pathway/PathwayModal';
 import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
-import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
-import { POLICY_TYPES } from '../enterprise-user-subsidy/enterprise-offers/data/constants';
 import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
+import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
 
 const Search = () => {
   const config = getConfig();
   const { pathwayUUID } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { refinements } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
@@ -77,6 +76,7 @@ const Search = () => {
     enterpriseConfig,
     searchCatalogs,
   });
+  const intl = useIntl();
 
   const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
   const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
@@ -104,38 +104,39 @@ const Search = () => {
     }
   }, [openLearnerPathwayModal, pathwayUUID]);
 
-  const PAGE_TITLE = `${HEADER_TITLE} - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = intl.formatMessage({
+    id: 'enterprise.search.page.title',
+    defaultMessage: 'Search Courses and Programs - {entrepriseName}',
+    description: 'Title for the enterprise search page.',
+  }, {
+    entrepriseName: enterpriseConfig.name,
+  });
+  const HEADER_TITLE = intl.formatMessage({
+    id: 'enterprise.search.page.header.title',
+    defaultMessage: 'Search Courses and Programs',
+    description: 'Title for the enterprise search page header.',
+  });
 
-  // Determine whether learner has only content assignments available to them, based on the presence of:
-  // - active content assignments
-  // - no auto-applied budgets
-  // - no current enterprise offers
-  // - no active license or license requests
-  // - no assigned codes or code requests
-  const hasActiveLicense = subscriptionPlan && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-  const hasActiveLicenseOrLicenseRequest = hasActiveLicense || licenseRequests.length > 0;
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
-  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.filter(
-    policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
-  ).length > 0;
-  const hasContentAssignmentsOnly = !!(
-    redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments
-    && !hasCurrentEnterpriseOffers
-    && !hasActiveLicenseOrLicenseRequest
-    && !hasAssignedCodesOrCodeRequests
-    && !hasAutoAppliedLearnerCreditPolicies
-  );
+  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
+    subscriptionPlan,
+    subscriptionLicense,
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
+  });
 
   useEffect(() => {
-    if (hasContentAssignmentsOnly) {
+    if (isAssignmentOnlyLearner) {
       hideRecommendCourses();
     } else {
       showRecommendCourses();
     }
-  }, [showRecommendCourses, hideRecommendCourses, hasContentAssignmentsOnly]);
+  }, [showRecommendCourses, hideRecommendCourses, isAssignmentOnlyLearner]);
 
   // If learner only has content assignments available, show the assignments-only empty state.
-  if (hasContentAssignmentsOnly) {
+  if (isAssignmentOnlyLearner) {
     return (
       <>
         <Helmet title={PAGE_TITLE} />
@@ -179,7 +180,7 @@ const Search = () => {
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
-            history.push(`/${enterpriseConfig.slug}/search`);
+            navigate(`/${enterpriseConfig.slug}/search`);
             onClose();
           }}
         />
@@ -189,7 +190,7 @@ const Search = () => {
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
-            {canOnlyViewHighlightSets === false && <SearchAcademy />}
+            {canOnlyViewHighlightSets === false && enterpriseConfig.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }

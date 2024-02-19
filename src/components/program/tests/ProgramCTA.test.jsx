@@ -19,10 +19,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ programUuid }),
 }));
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ userId }),
-}));
 jest.mock('@edx/frontend-enterprise-utils', () => {
   const originalModule = jest.requireActual('@edx/frontend-enterprise-utils');
   return ({
@@ -52,6 +48,9 @@ describe('<ProgramCTA />', () => {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
       uuid: enterpriseUuid,
+    },
+    authenticatedUser: {
+      userId,
     },
   };
   const initialProgramState = {

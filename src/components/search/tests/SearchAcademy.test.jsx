@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, act } from '@testing-library/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { renderWithRouter } from '../../../utils/tests';
@@ -73,9 +74,11 @@ describe('<SearchAcademy />', () => {
 
   it('renders search academy section correctly.', async () => {
     await act(async () => renderWithRouter(
-      <SearchAcademyWithContext
-        initialAppState={initialAppState}
-      />,
+      <IntlProvider locale="en">
+        <SearchAcademyWithContext
+          initialAppState={initialAppState}
+        />
+      </IntlProvider>,
     ));
     expect(screen.getByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
     expect(screen.getByText('My Awesome Academy')).toBeInTheDocument();

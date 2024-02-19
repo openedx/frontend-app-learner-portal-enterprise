@@ -2,17 +2,18 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  Skeleton,
+  breakpoints,
   CardCarousel,
   CardDeck,
+  Skeleton,
   useMediaQuery,
-  breakpoints,
 } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CARDGRID_COLUMN_SIZES } from '../constants';
 import HighlightedContentCard from './HighlightedContentCard';
+import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
 
 const ContentHighlightSet = ({ highlightSet }) => {
   const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
@@ -22,13 +23,38 @@ const ContentHighlightSet = ({ highlightSet }) => {
     title,
   } = highlightSet;
 
-  const transformedTighlightedContent = useMemo(() => highlightedContent.map(highlightedContentItem => (
+  const archivedContent = useMemo(() => [], []);
+  const activeContent = useMemo(() => [], []);
+  for (let i = 0; i < highlightedContent.length; i++) {
+    const {
+      courseRunStatuses,
+    } = highlightedContent[i];
+    if (courseRunStatuses) {
+      if (courseRunStatuses?.every(status => status === COURSE_RUN_AVAILABILITY.ARCHIVED)) {
+        archivedContent.push(highlightedContent[i]);
+      } else {
+        activeContent.push(highlightedContent[i]);
+      }
+    } else {
+      activeContent.push(highlightedContent[i]);
+    }
+  }
+
+  const activeHighlightedContent = useMemo(() => activeContent.map(highlightedContentItem => (
     <HighlightedContentCard
       key={uuidv4()}
       highlightedContent={highlightedContentItem}
       highlightSetUUID={highlightSetUUID}
     />
-  )), [highlightSetUUID, highlightedContent]);
+  )), [highlightSetUUID, activeContent]);
+
+  const archivedHighlightedContent = useMemo(() => archivedContent.map(highlightedContentItem => (
+    <HighlightedContentCard
+      key={uuidv4()}
+      highlightedContent={highlightedContentItem}
+      highlightSetUUID={highlightSetUUID}
+    />
+  )), [highlightSetUUID, archivedContent]);
 
   const isMobileWindowSize = useMediaQuery({
     query: `(max-width: ${breakpoints.medium.maxWidth}px)`,
@@ -67,7 +93,8 @@ const ContentHighlightSet = ({ highlightSet }) => {
         canScrollHorizontal={isMobileWindowSize}
         hasInteractiveChildren
       >
-        {transformedTighlightedContent}
+        {activeHighlightedContent}
+        {archivedHighlightedContent}
       </CardCarousel>
     </div>
   );
@@ -100,6 +127,7 @@ ContentHighlightSet.propTypes = {
         name: PropTypes.string.isRequired,
         logoImageUrl: PropTypes.string,
       })).isRequired,
+      courseRunStatuses: PropTypes.arrayOf(PropTypes.string),
     })).isRequired,
   }).isRequired,
 };

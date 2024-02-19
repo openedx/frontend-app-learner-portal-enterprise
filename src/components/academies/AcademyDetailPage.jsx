@@ -1,18 +1,19 @@
 import React, { useContext, useMemo } from 'react';
 import {
-  Container, Chip, Breadcrumb,
+  Container, Breadcrumb,
   Skeleton, Spinner,
 } from '@openedx/paragon';
 import {
   useParams, Link,
 } from 'react-router-dom';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useAcademyMetadata } from './data/hooks';
-import CourseCard from './CourseCard';
 import NotFoundPage from '../NotFoundPage';
-import { ACADEMY_NOT_FOUND_TITLE } from './data/constants';
+import './styles/Academy.scss';
+import AcademyContentCard from './AcademyContentCard';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
@@ -20,6 +21,7 @@ const AcademyDetailPage = () => {
   const { academyUUID } = useParams();
   const [academy, isAcademyAPILoading, academyAPIError] = useAcademyMetadata(academyUUID);
   const academyURL = `/${enterpriseConfig.slug}/academy/${academyUUID}`;
+  const intl = useIntl();
 
   // init algolia index
   const courseIndex = useMemo(
@@ -36,8 +38,16 @@ const AcademyDetailPage = () => {
   if (academyAPIError) {
     return (
       <NotFoundPage
-        pageTitle={ACADEMY_NOT_FOUND_TITLE}
-        errorHeading={ACADEMY_NOT_FOUND_TITLE}
+        pageTitle={intl.formatMessage({
+          id: 'academy.detail.page.academy.not.found.page.title',
+          defaultMessage: 'Academy not found',
+          description: 'Page title for the academy not found page.',
+        })}
+        errorHeading={intl.formatMessage({
+          id: 'academy.detail.page.academy.not.found.page.message',
+          defaultMessage: 'Academy not found',
+          description: 'Error message for the academy not found page.',
+        })}
       />
     );
   }
@@ -67,14 +77,6 @@ const AcademyDetailPage = () => {
             ? <Skeleton height={30} count={3} data-testid="academy-description-loading" />
             : <p data-testid="academy-description">{academy?.longDescription}</p>
         }
-        {isAcademyAPILoading ? <Skeleton height={40} className="mt-4 mb-4" data-testid="academy-tags-loading" />
-          : (
-            <div className="academy-tags mb-3">
-              {academy?.tags.map(tag => (
-                <Chip data-testid="academy-tag" key={tag.id} variant="light">{tag.title}</Chip>
-              ))}
-            </div>
-          )}
 
         {isAcademyAPILoading
           ? (
@@ -83,11 +85,12 @@ const AcademyDetailPage = () => {
             </div>
           )
           : (
-            <CourseCard
+            <AcademyContentCard
               courseIndex={courseIndex}
               academyUUID={academyUUID}
               academyTitle={academy?.title}
               academyURL={academyURL}
+              tags={academy?.tags}
             />
           )}
       </div>

@@ -3,10 +3,12 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { mount } from 'enzyme';
 import ReactDOM from 'react-dom';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
 import { StatefulButton } from '@openedx/paragon';
 
+import { AppContext } from '@edx/frontend-platform/react';
 import { fetchJobDetailsFromAlgolia, patchProfile } from '../data/service';
 import { renderWithRouter } from '../../../utils/tests';
 import SearchJobRole from '../SearchJobRole';
@@ -15,11 +17,6 @@ import SearchJobRole from '../SearchJobRole';
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
   deleteRefinementAction: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'edx' }),
 }));
 
 jest.mock('../../utils/hooks', () => ({
@@ -43,9 +40,13 @@ patchProfile.mockReturnValue(
 console.error = jest.fn();
 
 const SearchJobRoleWithContext = ({ initialProps, defaultSearchContext }) => (
-  <SearchContext.Provider value={defaultSearchContext}>
-    <SearchJobRole {...initialProps} />
-  </SearchContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
+      <SearchContext.Provider value={defaultSearchContext}>
+        <SearchJobRole {...initialProps} />
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<SearchJobRole />', () => {
@@ -73,9 +74,13 @@ describe('<SearchJobRole />', () => {
 
   it('Save button component state is initially set to default and disabled', () => {
     const wrapper = mount((
-      <SearchContext.Provider value={defaultSearchContext}>
-        <SearchJobRole {...initialProps} />
-      </SearchContext.Provider>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
+          <SearchContext.Provider value={defaultSearchContext}>
+            <SearchJobRole {...initialProps} />
+          </SearchContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>
     ));
 
     const defaultState = 'default';
@@ -90,9 +95,13 @@ describe('<SearchJobRole />', () => {
     };
 
     const wrapper = mount((
-      <SearchContext.Provider value={defaultSearchContextWithJob}>
-        <SearchJobRole {...initialProps} />
-      </SearchContext.Provider>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
+          <SearchContext.Provider value={defaultSearchContextWithJob}>
+            <SearchJobRole {...initialProps} />
+          </SearchContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>
     ));
 
     const defaultState = 'default';
@@ -107,9 +116,13 @@ describe('<SearchJobRole />', () => {
       dispatch: () => jest.fn(),
     };
     const wrapper = mount((
-      <SearchContext.Provider value={defaultSearchContextWithJob}>
-        <SearchJobRole {...initialProps} />
-      </SearchContext.Provider>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
+          <SearchContext.Provider value={defaultSearchContextWithJob}>
+            <SearchJobRole {...initialProps} />
+          </SearchContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>
     ));
     wrapper.find(FacetListRefinement).simulate('change', { target: { value: 'Software Engineer' } });
     wrapper.find(StatefulButton).simulate('click');
@@ -125,9 +138,13 @@ describe('<SearchJobRole />', () => {
       dispatch: () => jest.fn(),
     };
     const wrapper = mount((
-      <SearchContext.Provider value={defaultSearchContextWithJob}>
-        <SearchJobRole {...initialProps} />
-      </SearchContext.Provider>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={{ authenticatedUser: { username: 'edx' } }}>
+          <SearchContext.Provider value={defaultSearchContextWithJob}>
+            <SearchJobRole {...initialProps} />
+          </SearchContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>
     ));
     wrapper.find('.cancel-btn').hostNodes().simulate('click');
     wrapper.update();

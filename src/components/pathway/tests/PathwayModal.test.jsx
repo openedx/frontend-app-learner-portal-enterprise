@@ -11,12 +11,6 @@ import { TEST_ENTERPRISE_SLUG, TEST_PATHWAY_DATA } from './constants';
 
 import { renderWithRouter } from '../../../utils/tests';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
-  getAuthenticatedHttpClient: jest.fn(),
-}));
-
 jest.mock('../data/hooks', () => ({
   useLearnerPathwayData: jest.fn(),
 }));

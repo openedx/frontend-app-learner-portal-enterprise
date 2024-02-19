@@ -126,7 +126,7 @@ export function getProgramIcon(type) {
 
 export const numberWithPrecision = (number, precision = 2) => number.toFixed(precision);
 
-// See https://openedx.atlassian.net/wiki/spaces/WS/pages/1045200922/Enroll+button+and+Course+Run+Selector+Logic
+// See https://2u-internal.atlassian.net/wiki/spaces/WS/pages/8749811/Enroll+button+and+Course+Run+Selector+Logic
 // for more detailed documentation on course run selection and the enroll button.
 export function getActiveCourseRun(course) {
   return course.courseRuns.find(courseRun => courseRun.uuid === course.advertisedCourseRunUuid);
@@ -578,10 +578,12 @@ export const getEnterpriseOffersDisabledEnrollmentReasonType = ({
  * @param {object} args
  * @param {string} args.reasonType Reason type for the missing subsidy.
  * @param {array} args.enterpriseAdminUsers List of enterprise admin users.
+ * @param {string} args.contactEmail String of customer admin contact email as POC
  */
 export const getMissingSubsidyReasonActions = ({
   reasonType,
   enterpriseAdminUsers,
+  contactEmail,
 }) => {
   const hasLimitsLearnMoreCTA = [
     DISABLED_ENROLL_REASON_TYPES.LEARNER_MAX_SPEND_REACHED,
@@ -639,7 +641,14 @@ export const getMissingSubsidyReasonActions = ({
     if (enterpriseAdminUsers?.length === 0) {
       return null;
     }
-    const adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+
+    let adminEmails = null;
+    if (contactEmail) {
+      adminEmails = contactEmail;
+    } else if (enterpriseAdminUsers.length >= 1) {
+      adminEmails = enterpriseAdminUsers.map(({ email }) => email).join(',');
+    }
+
     return (
       <Button
         as={MailtoLink}
@@ -660,6 +669,7 @@ export const getMissingSubsidyReasonActions = ({
 
 export const getMissingApplicableSubsidyReason = ({
   enterpriseAdminUsers,
+  contactEmail,
   catalogsWithCourse,
   couponCodes,
   couponsOverview,
@@ -728,6 +738,7 @@ export const getMissingApplicableSubsidyReason = ({
     actions: getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers,
+      contactEmail,
     }),
   };
 };

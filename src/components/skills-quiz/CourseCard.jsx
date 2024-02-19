@@ -2,10 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import {
   Badge, Card, Stack, Truncate,
 } from '@openedx/paragon';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
@@ -18,8 +17,8 @@ import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants'
 const CourseCard = ({
   isLoading, course, allSkills,
 }) => {
-  const history = useHistory();
-  const { enterpriseConfig } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
   const { slug, uuid } = enterpriseConfig;
   const partnerDetails = useMemo(() => {
     if (!Object.keys(course).length || !isDefinedAndNotNull(course.partners)) {
@@ -40,14 +39,13 @@ const CourseCard = ({
     if (isLoading) {
       return;
     }
-    const { userId } = getAuthenticatedUser();
     sendEnterpriseTrackEvent(
       uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
       { userId, enterprise: slug, selectedCourse: course.key },
     );
 
-    history.push(linkToCourse(course, slug));
+    navigate(linkToCourse(course, slug));
   };
 
   return (

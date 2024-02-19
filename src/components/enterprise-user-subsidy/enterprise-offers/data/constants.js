@@ -34,12 +34,8 @@ export const ASSIGNMENT_TYPES = {
   ACCEPTED: 'accepted',
   ALLOCATED: 'allocated',
   CANCELED: 'cancelled',
+  EXPIRED: 'expired',
   ERRORED: 'errored',
-};
-
-export const ASSIGNMENT_ACTION_TYPES = {
-  CANCELED: 'cancelled',
-  AUTOMATIC_CANCELATION: 'automatic_cancellation',
 };
 
 export const POLICY_TYPES = {

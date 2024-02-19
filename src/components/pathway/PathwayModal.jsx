@@ -73,7 +73,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
   return (
     <MarketingModal
       className="learner-pathway-modal"
-      title={isLoading ? '' : pathway.name}
+      title={isLoading ? '' : (pathway.name || pathway.title)}
       isOpen={isOpen}
       onClose={onClose}
       size="xl"

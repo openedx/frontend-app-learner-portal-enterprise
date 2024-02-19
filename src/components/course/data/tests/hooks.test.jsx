@@ -1,8 +1,13 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, useRouteMatch } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -60,14 +65,12 @@ import {
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
+import { queryCacheOnErrorHandler } from '../../../../utils/common';
 
 const oldGlobalLocation = global.location;
 
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
-}));
-jest.mock('@edx/frontend-platform/auth', () => ({
-  getAuthenticatedUser: jest.fn(() => ({ id: mockLmsUserId })),
 }));
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -103,15 +106,12 @@ jest.mock('../utils', () => ({
   getMissingApplicableSubsidyReason: jest.fn(),
 }));
 
-const mockUseHistoryPush = jest.fn();
-const mockUseHistoryReplace = jest.fn();
+const mockNavigate = jest.fn();
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-    replace: mockUseHistoryReplace,
-  }),
-  useRouteMatch: jest.fn(),
+  useNavigate: () => mockNavigate,
+  useLocation: jest.fn(),
 }
 ));
 
@@ -137,7 +137,11 @@ const createGlobalLocationMock = () => {
 };
 const mockPreventDefault = jest.fn();
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: queryCacheOnErrorHandler,
+  }),
+});
 
 describe('useAllCourseData', () => {
   const basicProps = {
@@ -255,10 +259,8 @@ describe('useCourseEnrollmentUrl', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    useRouteMatch.mockReturnValue({
-      path: '/:enterpriseSlug/course/:courseKey',
-      url: '/enterprise-slug/course/edX+DemoX',
+    useLocation.mockReturnValue({
+      pathname: '/enterprise-slug/course/edX+DemoX',
     });
   });
 
@@ -345,18 +347,19 @@ describe('useCourseEnrollmentUrl', () => {
           },
         },
       });
-      useRouteMatch.mockReturnValueOnce({
-        path: '/:enterpriseSlug/:courseType/course/:courseKey',
-        url: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
+      useLocation.mockReturnValue({
+        pathname: `/enterprise-slug/executive-education-2u/course/${mockCourseKey}`,
       });
     });
     test('handles executive education-2u course type', () => {
       const mockSku = 'ABC123';
-      const { result } = renderHook(() => useCourseEnrollmentUrl({
-        ...noLicenseEnrollmentInputs,
-        isExecutiveEducation2UCourse: true,
-        sku: mockSku,
-      }));
+      const { result } = renderHook(() => (
+        useCourseEnrollmentUrl({
+          ...noLicenseEnrollmentInputs,
+          isExecutiveEducation2UCourse: true,
+          sku: mockSku,
+        })
+      ));
       expect(result.current).toContain(`/executive-education-2u/course/${mockCourseKey}/enroll`);
       expect(result.current).toContain(mockCourseKey);
     });
@@ -858,6 +861,14 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
       </div>
     );
   };
+
+  beforeEach(() => {
+    useLocation.mockReturnValue({
+      pathname: '/',
+      search: '?queryId=123&objectId=abc',
+    });
+  });
+
   it('should display the queryId and objectId from the URL search params', () => {
     render(
       <MemoryRouter initialEntries={['/?queryId=123&objectId=abc']}>
@@ -866,16 +877,18 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
     );
     expect(screen.getByText('Query ID: 123')).toBeTruthy();
     expect(screen.getByText('Object ID: abc')).toBeTruthy();
-    expect(mockUseHistoryReplace).toHaveBeenCalledTimes(1);
-    expect(mockUseHistoryReplace).toHaveBeenCalledWith({ search: '' });
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true, search: '' });
   });
 });
 
 describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   const wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <AppContext.Provider value={{ authenticatedUser: { userId: mockLmsUserId } }}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </AppContext.Provider>
   );
 
   const baseArgs = {
@@ -1026,6 +1039,7 @@ describe('useUserSubsidyApplicableToCourse', () => {
     },
     enterpriseAdminUsers: [],
     customerAgreementConfig: undefined,
+    contactEmail: undefined,
   };
   const argsWithMissingCourse = {
     ...baseArgs,
@@ -1545,20 +1559,21 @@ describe('useMinimalCourseMetadata', () => {
 describe('useIsCourseAssigned', () => {
   const mockContentKey = 'edX+DemoX';
 
-  it('should return false if there are no active assignments', () => {
+  it('should return false if there are no allocated assignments', () => {
     const learnerContentAssignments = {
-      hasActiveAssignments: false,
+      hasAllocatedAssignments: false,
     };
     const { result } = renderHook(() => useIsCourseAssigned(learnerContentAssignments));
     expect(result.current).toEqual(false);
   });
 
-  it('should return false if there is NO matching assignment to the course key', () => {
+  it('should return false if there is NO matching allocated assignment to the course key', () => {
     const learnerContentAssignments = {
-      hasActiveAssignments: true,
-      activeAssignments: [
+      hasAllocatedAssignments: true,
+      allocatedAssignments: [
         {
           contentKey: mockContentKey,
+          state: 'allocated',
         },
       ],
     };
@@ -1568,8 +1583,10 @@ describe('useIsCourseAssigned', () => {
 
   it('should return false if matching assignment(s) are canceled', () => {
     const learnerContentAssignments = {
-      hasActiveAssignments: true,
-      activeAssignments: [
+      hasAllocatedAssignments: false,
+      allocatedAssignments: [],
+      hasCanceledAssignments: true,
+      canceledAssignments: [
         {
           contentKey: mockContentKey,
           state: 'cancelled',
@@ -1582,8 +1599,8 @@ describe('useIsCourseAssigned', () => {
 
   it('should return true if there is a matching allocated assignment to the course key', () => {
     const learnerContentAssignments = {
-      hasActiveAssignments: true,
-      activeAssignments: [
+      hasAllocatedAssignments: true,
+      allocatedAssignments: [
         {
           contentKey: mockContentKey,
           state: 'allocated',

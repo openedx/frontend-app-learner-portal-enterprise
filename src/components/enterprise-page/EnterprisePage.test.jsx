@@ -1,15 +1,17 @@
 import React, { useContext } from 'react';
 import { mount } from 'enzyme';
-import * as auth from '@edx/frontend-platform/auth';
 import { ErrorPage, AppContext } from '@edx/frontend-platform/react';
+import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import EnterprisePage from './EnterprisePage';
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 import * as hooks from './data/hooks';
+import { queryCacheOnErrorHandler } from '../../utils/common';
 
 const mockUser = {
   profileImage: 'http://fake.image',
+  username: 'joe_shmoe',
 };
 jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -25,47 +27,86 @@ describe('<EnterprisePage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+  const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: queryCacheOnErrorHandler,
+    }),
+  });
+
+  const defaultAppContextValue = { authenticatedUser: { ...mockUser } };
+
+  const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={appContextValue}>
+        <EnterprisePage>
+          {children}
+        </EnterprisePage>
+      </AppContext.Provider>
+    </QueryClientProvider>
+  );
+
   describe('renders loading state', () => {
     it('while fetching enterprise config', () => {
-      jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
       // mock hook as if async call to fetch enterprise config is still resolving
       jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [undefined, undefined]);
-      const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+      const wrapper = mount(
+        <EnterprisePageWrapper>
+          <div className="did-i-render" />
+        </EnterprisePageWrapper>,
+      );
       expect(wrapper.find(LoadingSpinner)).toBeTruthy();
     });
     it('while hydrating user metadata', () => {
-      jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => ({}));
       // mock hook as if async call to fetch enterprise config is fully resolved
       jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [{}, undefined]);
-      const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+      const wrapper = mount(
+        <EnterprisePageWrapper appContextValue={{ authenticatedUser: {} }}>
+          <div className="did-i-render" />
+        </EnterprisePageWrapper>,
+      );
       expect(wrapper.find(LoadingSpinner)).toBeTruthy();
     });
   });
   it('renders error state when unable to fetch enterprise config', () => {
-    jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
     // mock hook as if async call to fetch enterprise config is fully resolved
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error('test error')]);
-    const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
     expect(wrapper.find(ErrorPage)).toBeTruthy();
   });
   it('renders not found page when no enterprise config is found', () => {
-    jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
     // mock hook as if async call to fetch enterprise config is fully resolved
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(<EnterprisePage><div className="did-i-render" /></EnterprisePage>);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
     expect(wrapper.find(NotFoundPage)).toBeTruthy();
   });
   it('populates AppContext with expected values', () => {
-    jest.spyOn(auth, 'getAuthenticatedUser').mockImplementation(() => mockUser);
     const mockEnterpriseConfig = {
       slug: 'test-slug',
+      uuid: 'test-uuid',
     };
+    const isLoading = false;
+
+    jest.spyOn(hooks, 'useUpdateActiveEnterpriseForUser').mockImplementation(() => ({ isLoading }));
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [mockEnterpriseConfig, undefined]);
+
     const ChildComponent = () => {
       const contextValue = useContext(AppContext);
       return <div className="did-i-render" data-contextvalue={contextValue} />;
     };
-    const wrapper = mount(<EnterprisePage><ChildComponent /></EnterprisePage>);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <ChildComponent />
+      </EnterprisePageWrapper>,
+    );
+
     const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
     expect(actualContextValue).toEqual(
       expect.objectContaining({

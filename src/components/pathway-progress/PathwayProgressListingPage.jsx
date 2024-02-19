@@ -36,7 +36,7 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayProgressD
   }
 
   return (
-    <div className="py-5">
+    <div className="py-5" data-testid="pathway-listing-page">
       {pathwayProgressData.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
           {pathwayProgressData.map((pathway) => (

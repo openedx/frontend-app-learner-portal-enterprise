@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card, Truncate } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -15,7 +15,7 @@ export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partn
 const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
-  const history = useHistory();
+  const navigate = useNavigate();
   const cachedLinkToCourse = useMemo(
     () => linkToCourse(course, slug),
     [course, slug],
@@ -49,7 +49,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
             courseKey: course.key,
           },
         );
-        history.push(cachedLinkToCourse);
+        navigate(cachedLinkToCourse);
       }}
     >
       <Card.ImageCap

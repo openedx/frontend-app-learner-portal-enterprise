@@ -9,7 +9,6 @@ import {
   sortAssignmentsByAssignmentStatus,
 } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
-import { isAssignmentExpired } from '../../../../data/utils';
 
 describe('transformCourseEnrollment', () => {
   it('should transform a course enrollment', () => {
@@ -119,78 +118,6 @@ describe('groupCourseEnrollmentsByStatus', () => {
         assigned: [],
       },
     );
-  });
-});
-
-describe('isAssignmentExpired', () => {
-  const currentDate = '2023-04-20';
-  const futureDate = '2024-04-20';
-  const pastDate = '2022-04-20';
-
-  beforeAll(() => {
-    MockDate.set(currentDate);
-  });
-
-  afterAll(() => {
-    MockDate.reset();
-  });
-
-  it('handles null/undefined assignment', () => {
-    expect(isAssignmentExpired(null)).toEqual({
-      isExpired: false,
-      enrollByDeadline: undefined,
-    });
-    expect(isAssignmentExpired(undefined)).toEqual({
-      isExpired: false,
-      enrollByDeadline: undefined,
-    });
-  });
-
-  it.each([
-    {
-      created: pastDate,
-      enrollByDate: pastDate,
-      subsidyExpirationDate: futureDate,
-      isExpired: true,
-    },
-    {
-      created: currentDate,
-      enrollByDate: pastDate,
-      subsidyExpirationDate: futureDate,
-      isExpired: true,
-    },
-    {
-      created: currentDate,
-      enrollByDate: futureDate,
-      subsidyExpirationDate: pastDate,
-      isExpired: true,
-    },
-    {
-      created: currentDate,
-      enrollByDate: futureDate,
-      subsidyExpirationDate: futureDate,
-      isExpired: false,
-    },
-  ])('checks whether assignment is expired (%s)', ({
-    created,
-    enrollByDate,
-    subsidyExpirationDate,
-    isExpired,
-  }) => {
-    const allocatedAssignment = {
-      created,
-      contentMetadata: { enrollByDate },
-      subsidyExpirationDate,
-    };
-    const earliestAssignmentExpiryDate = [
-      new Date(created),
-      new Date(enrollByDate),
-      new Date(subsidyExpirationDate),
-    ].sort()[0];
-    expect(isAssignmentExpired(allocatedAssignment)).toEqual({
-      isExpired,
-      enrollByDeadline: earliestAssignmentExpiryDate,
-    });
   });
 });
 

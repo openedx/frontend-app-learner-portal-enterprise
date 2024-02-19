@@ -1,12 +1,11 @@
 import {
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
-import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -47,7 +46,6 @@ import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
-import { ASSIGNMENT_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -287,7 +285,7 @@ export const useCourseEnrollmentUrl = ({
   userSubsidyApplicableToCourse,
   isExecutiveEducation2UCourse,
 }) => {
-  const routeMatch = useRouteMatch();
+  const { pathname } = useLocation();
   const config = getConfig();
 
   const baseQueryParams = useMemo(() => {
@@ -333,7 +331,7 @@ export const useCourseEnrollmentUrl = ({
 
       if (isExecutiveEducation2UCourse) {
         const externalCourseEnrollmentUrl = getExternalCourseEnrollmentUrl({
-          currentRouteUrl: routeMatch.url,
+          currentRouteUrl: pathname,
         });
         return externalCourseEnrollmentUrl;
       }
@@ -354,7 +352,7 @@ export const useCourseEnrollmentUrl = ({
       courseRunKey,
       enterpriseConfig.uuid,
       isExecutiveEducation2UCourse,
-      routeMatch.url,
+      pathname,
       location,
     ],
   );
@@ -369,8 +367,8 @@ export const useCourseEnrollmentUrl = ({
  * @returns An object containing the Algolia objectId and queryId that led to a page view of the Course page.
  */
 export const useExtractAndRemoveSearchParamsFromURL = () => {
-  const { search } = useLocation();
-  const history = useHistory();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const [algoliaSearchParams, setAlgoliaSearchParams] = useState({});
 
   const queryParams = useMemo(
@@ -387,12 +385,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
         });
         queryParams.delete('queryId');
         queryParams.delete('objectId');
-        history.replace({
+        navigate(pathname, {
           search: queryParams.toString(),
+          replace: true,
         });
       }
     },
-    [history, queryParams],
+    [navigate, queryParams, pathname],
   );
 
   return algoliaSearchParams;
@@ -598,7 +597,7 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
   isQueryEnabled,
   queryOptions,
 }) => {
-  const { id: lmsUserId } = getAuthenticatedUser();
+  const { authenticatedUser: { userId: lmsUserId } } = useContext(AppContext);
   const isEnabled = !!(isQueryEnabled && activeCourseRunKey && courseRunKeys.length > 0);
   return useQuery({
     ...queryOptions,
@@ -655,6 +654,7 @@ export const useUserSubsidyApplicableToCourse = ({
   enterpriseOffers,
   onSubscriptionLicenseForCourseValidationError,
   enterpriseAdminUsers: fallbackAdminUsers,
+  contactEmail,
   courseListPrice,
   customerAgreementConfig,
 }) => {
@@ -717,6 +717,7 @@ export const useUserSubsidyApplicableToCourse = ({
         );
         missingApplicableSubsidyReason = getMissingApplicableSubsidyReason({
           enterpriseAdminUsers,
+          contactEmail,
           catalogsWithCourse,
           couponCodes,
           couponsOverview,
@@ -758,6 +759,7 @@ export const useUserSubsidyApplicableToCourse = ({
     isPolicyRedemptionEnabled,
     missingSubsidyAccessPolicyReason,
     fallbackAdminUsers,
+    contactEmail,
     couponsOverview,
   ]);
 
@@ -851,17 +853,19 @@ export const useExternalEnrollmentFailureReason = () => {
   ]);
 };
 
+/**
+ * Checks if a course is assigned to a learner based on their allocated content assignments.
+ *
+ * @param {Object} learnerContentAssignments - The content assignments of the learner.
+ * @param {string} courseKey - The key of the course to check.
+ * @returns {boolean} - Returns true if the course is assigned to the learner, false otherwise.
+ */
 export const useIsCourseAssigned = (learnerContentAssignments, courseKey) => {
-  if (!learnerContentAssignments.hasActiveAssignments) {
+  if (!learnerContentAssignments.hasAllocatedAssignments) {
     return false;
   }
-  const isCourseAssigned = learnerContentAssignments.activeAssignments.some(
-    (assignment) => {
-      const isCourseKeyMatching = assignment.contentKey === courseKey;
-      const isAssignmentCanceled = assignment.state === ASSIGNMENT_TYPES.CANCELED;
-      return isCourseKeyMatching && !isAssignmentCanceled;
-    },
+  const isCourseAssigned = learnerContentAssignments.allocatedAssignments.some(
+    (assignment) => assignment.contentKey === courseKey,
   );
-
   return isCourseAssigned;
 };

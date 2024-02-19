@@ -1,6 +1,7 @@
 import Cookies from 'universal-cookie';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform/config';
+import { logError } from '@edx/frontend-platform/logging';
 import dayjs from './dayjs';
 
 export const isCourseEnded = endDate => dayjs(endDate) < dayjs();
@@ -90,3 +91,19 @@ export const getContactEmail = (config) => {
   if (adminEmails.length >= 1) { return adminEmails; }
   return null;
 };
+
+/**
+ * Logs a react-query query error message on failure
+ */
+export function queryCacheOnErrorHandler(error, query) {
+  if (query.meta?.errorMessage) {
+    logError(query.meta?.errorMessage);
+  }
+}
+
+export function defaultQueryClientRetryHandler(failureCount, err) {
+  if (failureCount >= 3 || err.customAttributes?.httpErrorStatus === 404) {
+    return false;
+  }
+  return true;
+}

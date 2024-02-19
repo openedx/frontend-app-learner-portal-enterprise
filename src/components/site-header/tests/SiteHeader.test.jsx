@@ -1,10 +1,12 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@openedx/paragon';
 import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { AppContext } from '@edx/frontend-platform/react';
+import { MemoryRouter } from 'react-router-dom';
 import SiteHeader from '../SiteHeader';
 
 import { renderWithRouter } from '../../../utils/tests';
@@ -31,9 +33,11 @@ const appState = {
 const SiteHeaderWithContext = ({
   initialAppState = appState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <SiteHeader />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SiteHeader />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockWindowConfig = {
@@ -103,11 +107,10 @@ describe('<SiteHeader />', () => {
   }])('renders getSmarter logo when on /executive-education-2u path', ({
     route,
   }) => {
-    renderWithRouter(
-      <SiteHeaderWithContext initialAppState={appState} />,
-      {
-        route,
-      },
+    render(
+      <MemoryRouter initialEntries={[route]}>
+        <SiteHeaderWithContext initialAppState={appState} />,
+      </MemoryRouter>,
     );
 
     const getSmarterLogo = screen.queryByTestId('partner-header-logo-image-id');

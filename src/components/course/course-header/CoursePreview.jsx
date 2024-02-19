@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import loadable from '@loadable/component';
+
 import { PlayCircleFilled } from '@openedx/paragon/icons';
-import { useToggle, Image } from '@openedx/paragon';
-import { VideoPlayer } from '../../video';
+import { useToggle, Image, Skeleton } from '@openedx/paragon';
+import DelayedFallbackContainer from '../../DelayedFallback/DelayedFallbackContainer';
+
+const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../../video/VideoPlayer'), {
+  fallback: (
+    <DelayedFallbackContainer>
+      <Skeleton height={200} />
+    </DelayedFallbackContainer>
+  ),
+});
 
 const CoursePreview = ({ previewImage, previewVideoURL }) => {
   const [isVideoPlaying, playVideo] = useToggle(false);
+
+  useEffect(() => {
+    if (previewVideoURL) {
+      VideoPlayer.preload();
+    }
+  }, [previewVideoURL]);
 
   return (
     <div className="course-preview-wrapper">

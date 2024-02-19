@@ -18,11 +18,6 @@ import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
@@ -33,6 +28,9 @@ describe('<SkillsQuizStepper />', () => {
   const defaultAppState = {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
+    },
+    authenticatedUser: {
+      username: 'myspace-tom',
     },
   };
   const defaultCouponCodesState = {

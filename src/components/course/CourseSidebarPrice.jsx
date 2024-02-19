@@ -8,9 +8,8 @@ import { numberWithPrecision } from './data/utils';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { useIsCourseAssigned } from './data/hooks';
-import { features } from '../../config';
+import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
 export const ASSIGNED_COURSE_MESSAGE = 'This course is assigned to you. The price of this course is already covered by your organization.';
@@ -29,7 +28,10 @@ const CourseSidebarPrice = () => {
     },
   } = useContext(CourseContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(
+    redeemableLearnerCreditPolicies?.learnerContentAssignments,
+    course?.key,
+  );
 
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
@@ -44,17 +46,6 @@ const CourseSidebarPrice = () => {
       <span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}
     </del>
   );
-
-  if (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && coursePrice && isCourseAssigned) {
-    return (
-      <>
-        <div>
-          {crossedOutOriginalPrice}
-        </div>
-        <span className="small">{ASSIGNED_COURSE_MESSAGE}</span>
-      </>
-    );
-  }
 
   // Case 1: License subsidy found
   if (userSubsidyApplicableToCourse?.subsidyType === LICENSE_SUBSIDY_TYPE) {
@@ -76,6 +67,7 @@ const CourseSidebarPrice = () => {
     subsidyRequestCatalogsApplicableToCourse,
     userSubsidyApplicableToCourse,
   });
+
   // Case 2: No subsidies found but learner can request a subsidy
   if (!hasDiscountedPrice && canRequestSubsidy) {
     return (
@@ -95,12 +87,18 @@ const CourseSidebarPrice = () => {
     );
   }
 
+  // Case 4: subsidy found
   const learnerCreditSubsidyTypes = [ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE];
   const shouldShowLearnerCreditMessage = learnerCreditSubsidyTypes.includes(userSubsidyApplicableToCourse?.subsidyType);
-  const discountedPriceMessage = shouldShowLearnerCreditMessage ? COVERED_BY_ENTERPRISE_OFFER_MESSAGE : `Sponsored by ${enterpriseConfig.name}`;
-
-  // Case 4: subsidy found
+  let discountedPriceMessage = `Sponsored by ${enterpriseConfig.name}`;
+  if (shouldShowLearnerCreditMessage) {
+    discountedPriceMessage = COVERED_BY_ENTERPRISE_OFFER_MESSAGE;
+    if (isCourseAssigned) {
+      discountedPriceMessage = ASSIGNED_COURSE_MESSAGE;
+    }
+  }
   const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
+
   return (
     <>
       <div className={classNames({ 'mb-2': coursePrice.discounted > 0 || showOrigPrice })}>

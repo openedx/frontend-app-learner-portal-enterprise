@@ -51,14 +51,7 @@ const dummyProgramData = {
     completed: 2,
     notStarted: 3,
   },
-
 };
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
-  getAuthenticatedHttpClient: jest.fn(),
-}));
 
 jest.mock('@edx/frontend-platform/react', () => ({
   ...jest.requireActual('@edx/frontend-platform/react'),
@@ -156,15 +149,15 @@ describe('<ProgramListing />', () => {
     useLearnerProgramsListData.mockImplementation(() => ([[], null]));
 
     await act(async () => {
-      const { history } = renderWithRouter(
+      renderWithRouter(
         <ProgramListingWithContext
           initialAppState={initialAppState}
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
       userEvent.click(screen.getByText('Explore programs'));
-      expect(history.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
-      expect(history.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
+      expect(window.location.pathname).toEqual(`/${initialAppState.enterpriseConfig.slug}/search`);
+      expect(window.location.search).toEqual(`?content_type=${CONTENT_TYPE_PROGRAM}`);
     });
   });
 

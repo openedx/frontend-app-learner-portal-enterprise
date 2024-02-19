@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
 import { useParams, useLocation } from 'react-router-dom';
 
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { Hyperlink } from '@openedx/paragon';
 import { EnterprisePage } from '../enterprise-page';
@@ -21,7 +21,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   const { enterpriseSlug } = useParams();
   const isLogoutWorkflow = params.get('logout');
   const config = getConfig();
-  const user = getAuthenticatedUser();
+  const { authenticatedUser } = useContext(AppContext);
 
   const recommendCoursesForMeContextValue = useRecommendCoursesForMe();
 
@@ -29,7 +29,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
     ...recommendCoursesForMeContextValue,
   }), [recommendCoursesForMeContextValue]);
 
-  if (!user) {
+  if (!authenticatedUser) {
     // if user is not authenticated, remove cookie that controls whether the user will see
     // the integration warning modal on their next visit. the expected behavior is to only
     // see the modal once per authenticated session.
@@ -41,7 +41,7 @@ const AuthenticatedPage = ({ children, useEnterpriseConfigCache }) => {
   // flow, we can show the logout message safely
   // not rendering the SiteFooter here since it looks like it requires additional setup
   // not available in the logged out state (errors with InjectIntl errors)
-  if (!user && isLogoutWorkflow) {
+  if (!authenticatedUser && isLogoutWorkflow) {
     return (
       <ErrorPage title="You are now logged out." showSiteFooter={false}>
         Please log back in {' '}

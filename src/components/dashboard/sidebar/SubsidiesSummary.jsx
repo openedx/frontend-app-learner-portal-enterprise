@@ -1,8 +1,7 @@
-import React, {
-  useContext, useEffect, useMemo, useState,
-} from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
@@ -12,12 +11,11 @@ import SubscriptionSummaryCard from './SubscriptionSummaryCard';
 import LearnerCreditSummaryCard from './LearnerCreditSummaryCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { CATALOG_ACCESS_CARD_BUTTON_TEXT } from './data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
-import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);
@@ -63,9 +61,7 @@ const SubsidiesSummary = ({
     redeemableLearnerCreditPolicies,
   });
 
-  const {
-    requestsBySubsidyType,
-  } = useContext(SubsidyRequestsContext);
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
 
   // if there are course enrollments, the cta button below will be the only one on the page
   const ctaButtonVariant = useMemo(
@@ -85,28 +81,16 @@ const SubsidiesSummary = ({
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData
   );
-  const hasAutoAppliedLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies
-    .filter(policy => policy.policyType !== POLICY_TYPES.ASSIGNED_CREDIT).length > 0;
 
-  const [assignmentOnlyLearner, setAssignmentOnlyLearner] = useState(false);
-  useEffect(() => {
-    const hasActiveAssignments = redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments;
-    if (
-      hasActiveAssignments
-      && !hasActiveLicenseOrLicenseRequest
-      && !hasAssignedCodesOrCodeRequests
-      && !hasCurrentEnterpriseOffers
-      && !hasAutoAppliedLearnerCreditPolicies
-    ) {
-      setAssignmentOnlyLearner(true);
-    }
-  }, [
+  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
+    subscriptionPlan,
+    subscriptionLicense: userSubscriptionLicense,
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
     redeemableLearnerCreditPolicies,
     hasCurrentEnterpriseOffers,
-    hasAssignedCodesOrCodeRequests,
-    hasActiveLicenseOrLicenseRequest,
-    hasAutoAppliedLearnerCreditPolicies,
-  ]);
+  });
 
   if (!hasAvailableSubsidyOrRequests) {
     return null;
@@ -120,7 +104,11 @@ const SubsidiesSummary = ({
         variant={ctaButtonVariant}
         block
       >
-        {CATALOG_ACCESS_CARD_BUTTON_TEXT}
+        <FormattedMessage
+          id="enterprise.dashboard.sidebar.subsidy.find.course.button"
+          defaultMessage="Find a course"
+          description="Button text for the find a course button on the enterprise dashboard sidebar."
+        />
       </Button>
     )
   );
@@ -155,11 +143,11 @@ const SubsidiesSummary = ({
           <LearnerCreditSummaryCard
             className="border-0 shadow-none"
             expirationDate={learnerCreditSummaryCardData.expirationDate}
-            assignmentOnlyLearner={assignmentOnlyLearner}
+            assignmentOnlyLearner={isAssignmentOnlyLearner}
           />
         )}
       </div>
-      {(searchCoursesCta && !assignmentOnlyLearner) && (
+      {(searchCoursesCta && !isAssignmentOnlyLearner) && (
         <SidebarCard cardClassNames="border-0 shadow-none">
           {searchCoursesCta}
         </SidebarCard>

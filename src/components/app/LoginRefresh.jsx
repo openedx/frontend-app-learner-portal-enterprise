@@ -7,8 +7,7 @@ import { LoadingSpinner } from '../loading-spinner';
 import { loginRefresh } from '../../utils/common';
 
 const LoginRefresh = ({ children }) => {
-  const { authenticatedUser } = useContext(AppContext);
-  const { roles } = authenticatedUser;
+  const { authenticatedUser: { roles } } = useContext(AppContext);
 
   // If the user has not refreshed their JWT since they created their account,
   // we should refresh it so that they'll have appropriate roles (if available),

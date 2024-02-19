@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { useOptimizelyEnrollmentClickHandler, useTrackSearchConversionClickHandler } from '../../../course/data/hooks';
 import { EVENT_NAMES } from '../../../course/data/constants';
@@ -51,6 +51,7 @@ const useStatefulEnroll = ({
       setTransaction(undefined);
     },
   });
+  const { authenticatedUser } = useContext(AppContext);
 
   const handleSuccess = async (newTransaction) => {
     setTransaction(newTransaction);
@@ -86,7 +87,7 @@ const useStatefulEnroll = ({
     const makeRedemption = async () => {
       try {
         await redemptionMutation.mutateAsync({
-          userId: getAuthenticatedUser().id,
+          userId: authenticatedUser.userId,
           contentKey,
           policyRedemptionUrl: subsidyAccessPolicy.policyRedemptionUrl,
           metadata,

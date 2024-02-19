@@ -28,11 +28,6 @@ const mockProductSKU = 'ABC123';
 const mockEmail = 'edx@example.com';
 const mockOnCheckoutSuccess = jest.fn();
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ id: 1, email: mockEmail }),
-}));
-
 const mockLogInfo = jest.fn();
 const mockLogError = jest.fn();
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -59,7 +54,7 @@ const initialAppContextValue = {
     enableExecutiveEducation2UFulfillment: true,
     enableDataSharingConsent: true,
   },
-  authenticatedUser: { id: 1 },
+  authenticatedUser: { userId: 1, email: mockEmail },
 };
 
 const mockActiveCourseRun = {

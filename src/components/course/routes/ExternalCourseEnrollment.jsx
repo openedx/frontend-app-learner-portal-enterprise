@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
+import { generatePath, useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
 } from '@openedx/paragon';
@@ -19,8 +19,8 @@ import { features } from '../../../config';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
-  const history = useHistory();
-  const routeMatch = useRouteMatch();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const {
     state: {
       activeCourseRun,
@@ -36,7 +36,7 @@ const ExternalCourseEnrollment = () => {
   } = useContext(AppContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const completeEnrollmentUrl = generatePath(
-      `${routeMatch.path}/complete`,
+      `${pathname}/complete`,
       { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
   );
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
@@ -72,9 +72,9 @@ const ExternalCourseEnrollment = () => {
     // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
     //  it will run this conditional and perform the redirect
     if (hasSuccessfulRedemption) {
-      history.push(completeEnrollmentUrl);
+      navigate(completeEnrollmentUrl);
     }
-  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, history, routeMatch.path, slug]);
+  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, navigate, pathname, slug]);
 
   return (
     <div className="fill-vertical-space page-light-bg">

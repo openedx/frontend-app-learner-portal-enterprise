@@ -12,19 +12,21 @@ import { TEST_ENTERPRISE_SLUG } from './constants';
 const userId = 'batman';
 const enterpriseUuid = '11111111-1111-1111-1111-111111111111';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne', userId }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
 }));
 
 const SearchProgramCardWithAppContext = (props) => (
   <AppContext.Provider
     value={{
       enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
+      authenticatedUser: { username: 'b.wayne', userId },
     }}
   >
     <SearchProgramCard {...props} />
@@ -90,11 +92,10 @@ describe('<SearchProgramCard />', () => {
   });
 
   test('handles card click', () => {
-    const { history } = renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
+    renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
     userEvent.click(cardEl);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
   });
 
   test.each(Object.keys(programTypes))('renders the correct program type: %s', (type) => {

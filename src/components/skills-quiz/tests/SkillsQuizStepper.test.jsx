@@ -22,11 +22,6 @@ import {
 import edxLogo from '../images/edx-logo.svg';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
@@ -48,6 +43,7 @@ const defaultAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
+  authenticatedUser: { username: 'myspace-tom' },
 };
 
 const defaultCouponCodesState = {

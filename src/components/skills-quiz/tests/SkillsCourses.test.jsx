@@ -14,11 +14,6 @@ import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
@@ -54,6 +49,9 @@ const testIndex = {
 const defaultAppState = {
   enterpriseConfig: {
     slug: 'test-enterprise-slug',
+  },
+  authenticatedUser: {
+    username: 'myspace-tom',
   },
 };
 
@@ -119,7 +117,7 @@ const SkillsCoursesWithContext = ({
 
 describe('<SkillsCourses />', () => {
   test('renders the correct data', async () => {
-    const { container, history } = renderWithRouter(
+    const { container } = renderWithRouter(
       <SkillsCoursesWithContext
         index={testIndex}
       />,
@@ -139,8 +137,7 @@ describe('<SkillsCourses />', () => {
     });
 
     userEvent.click(screen.getByTestId('skills-quiz-course-card'));
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(window.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders an alert in case of no courses returned', async () => {

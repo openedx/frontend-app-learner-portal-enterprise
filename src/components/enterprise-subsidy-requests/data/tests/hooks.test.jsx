@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import * as logger from '@edx/frontend-platform/logging';
+import { AppContext } from '@edx/frontend-platform/react';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../../constants';
 import {
   useCatalogsForSubsidyRequests,
@@ -12,11 +13,13 @@ const mockEmail = 'edx@example.com';
 const mockEnterpriseUUID = 'enterprise-uuid';
 
 jest.mock('../service');
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ email: mockEmail }),
-}));
 jest.mock('../../../enterprise-user-subsidy/coupons/data/service');
+
+const wrapper = ({ children }) => (
+  <AppContext.Provider value={{ authenticatedUser: { email: mockEmail } }}>
+    {children}
+  </AppContext.Provider>
+);
 
 describe('useSubsidyRequestConfiguration', () => {
   afterEach(() => jest.clearAllMocks());
@@ -66,7 +69,7 @@ describe('useSubsidyRequests', () => {
     subsidyRequestsEnabled: true,
     subsidyType: undefined,
   }])('should not do anything if subsidy requests are disabled', async (subsidyRequestsConfiguration) => {
-    renderHook(() => useSubsidyRequests(subsidyRequestsConfiguration));
+    renderHook(() => useSubsidyRequests(subsidyRequestsConfiguration), { wrapper });
     expect(service.fetchCouponCodeRequests).not.toHaveBeenCalled();
     expect(service.fetchLicenseRequests).not.toHaveBeenCalled();
   });
@@ -88,7 +91,7 @@ describe('useSubsidyRequests', () => {
       subsidyType: SUBSIDY_TYPE.COUPON,
       enterpriseCustomerUuid: mockEnterpriseUUID,
     };
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args));
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args), { wrapper });
     await waitForNextUpdate();
     expect(service.fetchCouponCodeRequests).toHaveBeenCalledWith({
       enterpriseUUID: mockEnterpriseUUID,
@@ -124,7 +127,7 @@ describe('useSubsidyRequests', () => {
       subsidyType: SUBSIDY_TYPE.COUPON,
       enterpriseCustomerUuid: mockEnterpriseUUID,
     };
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args));
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args), { wrapper });
     await waitForNextUpdate();
 
     expect(service.fetchCouponCodeRequests).toHaveBeenCalledWith({
@@ -163,7 +166,7 @@ describe('useSubsidyRequests', () => {
       subsidyType: SUBSIDY_TYPE.LICENSE,
       enterpriseCustomerUuid: mockEnterpriseUUID,
     };
-    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args));
+    const { result, waitForNextUpdate } = renderHook(() => useSubsidyRequests(args), { wrapper });
     await waitForNextUpdate();
 
     expect(service.fetchCouponCodeRequests).not.toHaveBeenCalled();

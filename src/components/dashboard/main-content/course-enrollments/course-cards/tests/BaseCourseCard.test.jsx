@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Skeleton } from '@openedx/paragon';
 
@@ -14,11 +13,11 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform/auth');
-getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
-
 const enterpriseConfig = {
   name: 'test-enterprise-name',
+};
+const authenticatedUser = {
+  username: 'test-username',
 };
 
 describe('<BaseCourseCard />', () => {
@@ -29,7 +28,7 @@ describe('<BaseCourseCard />', () => {
       jest.clearAllMocks();
 
       wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
+        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
           <BaseCourseCard
             type="completed"
             title="edX Demonstration Course"
@@ -58,7 +57,7 @@ describe('<BaseCourseCard />', () => {
       jest.clearAllMocks();
 
       wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
+        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
           <ToastsContext.Provider value={{ addToast: mockAddToast }}>
             <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
               <BaseCourseCard
@@ -87,7 +86,7 @@ describe('<BaseCourseCard />', () => {
 
   it('should render Skeleton if isLoading = true', () => {
     wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig }}>
+      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
         <BaseCourseCard
           type="completed"
           title="edX Demonstration Course"
@@ -114,7 +113,7 @@ describe('<BaseCourseCard />', () => {
       const isCourseStarted = dayjs(startDate) <= dayjs();
 
       wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig }}>
+        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
           <BaseCourseCard
             type="in_progress"
             title="edX Demonstration Course"
@@ -148,7 +147,7 @@ describe('<BaseCourseCard />', () => {
     const type = 'in_progress';
 
     wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig }}>
+      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
         <BaseCourseCard
           type={type}
           title="edX Demonstration Course"
@@ -179,7 +178,7 @@ describe('<BaseCourseCard />', () => {
     const courseRunStatus = 'assigned';
 
     wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig }}>
+      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
         <BaseCourseCard
           courseRunStatus={courseRunStatus}
           title="edX Demonstration Course"

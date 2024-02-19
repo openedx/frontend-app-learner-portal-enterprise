@@ -67,3 +67,7 @@ dist/
 # Emacs
 *~
 .projectile
+
+# Transifex
+src/i18n/transifex_input.json
+temp

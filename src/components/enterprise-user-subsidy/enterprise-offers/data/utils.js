@@ -1,15 +1,12 @@
 import isNil from 'lodash.isnil';
+
 import {
-  ASSIGNMENT_TYPES,
   ENTERPRISE_OFFER_LOW_BALANCE_THRESHOLD_RATIO,
   ENTERPRISE_OFFER_LOW_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_NO_BALANCE_USER_THRESHOLD_DOLLARS,
   ENTERPRISE_OFFER_TYPE,
-  POLICY_TYPES,
 } from './constants';
-
-import { LICENSE_STATUS } from '../../data/constants';
 
 export const offerHasBookingsLimit = offer => (
   !isNil(offer.maxDiscount) || !isNil(offer.maxUserDiscount)
@@ -102,56 +99,4 @@ export const transformEnterpriseOffer = (offer) => {
     isLowOnBalance: isOfferLowOnBalance(transformedOffer),
     isOutOfBalance: isOfferOutOfBalance(transformedOffer),
   };
-};
-
-/**
- * Determines whether course search should be disabled based on the provided criteria.
- * Criteria:
- * -> Is assigned a course,
- * -> And has no other subsidy,If they had a subscription,
- *    but the license is no longer relevant, we would not want to count that.
- * @param {Object} redeemableLearnerCreditPolicies - Object containing list of redeemable
- *  policies and learner content assignments.
- * @param {Array} enterpriseOffers - Array of enterprise offers.
- * @param {Object} subscriptionPlan - Subscription plan object.
- * @param {Object} subscriptionLicense - Subscription license object.
- * @param {Array} couponCodes - Array of couponCodes from the UserSubsidyContext, couponCodes.couponCodes
- *
- * @returns {boolean} Returns true if course search should be disabled, otherwise false.
- */
-export const isDisableCourseSearch = (
-  redeemableLearnerCreditPolicies,
-  enterpriseOffers,
-  subscriptionPlan,
-  subscriptionLicense,
-  couponCodes,
-) => {
-  const {
-    redeemablePolicies,
-    learnerContentAssignments,
-  } = redeemableLearnerCreditPolicies || {};
-  const nonAssignablePolicyTypes = redeemablePolicies.filter(
-    item => item.policyType !== POLICY_TYPES.ASSIGNED_CREDIT,
-  );
-  if (nonAssignablePolicyTypes.length > 0) {
-    return false;
-  }
-
-  const hasActiveSubPlan = subscriptionPlan?.isActive && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED;
-  const hasCouponCodes = couponCodes.filter(code => !!code?.available).length > 0;
-  const allocatedOrAcceptedAssignments = learnerContentAssignments.assignments
-    .filter(item => [ASSIGNMENT_TYPES.ALLOCATED, ASSIGNMENT_TYPES.ACCEPTED].includes(item.state));
-  const activeOffers = enterpriseOffers?.filter(item => item?.isCurrent);
-
-  if (hasActiveSubPlan) {
-    return false;
-  }
-  if (hasCouponCodes) {
-    return false;
-  }
-  if (allocatedOrAcceptedAssignments?.length === 0) {
-    return false;
-  }
-
-  return activeOffers?.length > 0 || allocatedOrAcceptedAssignments?.length > 0;
 };

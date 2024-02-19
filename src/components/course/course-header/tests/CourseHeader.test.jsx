@@ -13,6 +13,7 @@ import CourseHeader from '../CourseHeader';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -97,6 +98,48 @@ const defaultCourseState = {
     totalEnrollments: 4444,
   },
 };
+
+const archivedCourseState = {
+  course: {
+    subjects: [{
+      name: 'Old course',
+      slug: 'old-course-slug',
+    }],
+    key: 'old-course-key',
+    shortDescription: 'teeny tiny short description',
+    title: 'Wow what a nice course this is!',
+    owners: [TEST_OWNER],
+    programs: [],
+    image: {
+      src: 'http://test-image.url',
+    },
+    skills: [],
+    courseRuns: [
+      {
+        key: 'test-course-run-key',
+        availability: 'Archived',
+      },
+
+    ],
+  },
+  activeCourseRun: {
+    isEnrollable: true,
+    key: 'test-course-run-key',
+    pacingType: COURSE_PACING_MAP.SELF_PACED,
+    start: '2020-09-09T04:00:00Z',
+    availability: 'Archived',
+    courseUuid: 'Foo',
+  },
+  userEnrollments: [],
+  userEntitlements: [],
+  catalog: {
+    containsContentItems: false,
+    catalogList: [],
+  },
+  courseRunKeys: ['test-course-run-key'],
+  courseRunStatuses: ['archived'],
+};
+
 const defaultUserSubsidyState = {
   subscriptionLicense: {
     uuid: 'test-license-uuid',
@@ -105,15 +148,7 @@ const defaultUserSubsidyState = {
     couponCodes: [],
     couponCodesCount: 0,
   },
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 
 const CourseHeaderWrapper = ({
@@ -268,6 +303,34 @@ describe('<CourseHeader />', () => {
       expect(screen.queryByText(expectedMessage, { exact: false })).toBeInTheDocument();
     },
   );
+
+  test('renders archived warning', () => {
+    render(<CourseHeaderWrapper courseState={archivedCourseState} />);
+    const messaging = 'This course is not part of your company\'s curated course catalog.';
+    expect(screen.queryByText(messaging)).not.toBeInTheDocument();
+    expect(screen.queryByText('This course is archived.')).toBeInTheDocument();
+  });
+
+  test('renders view course materials button if previously enrolled', () => {
+    const courseStateWithEnrollment = {
+      ...archivedCourseState,
+      userEnrollments: [
+        {
+          id: 1,
+          isEnrollmentActive: true,
+          isRevoked: false,
+          courseRunId: 'test-course-run-key',
+          courseRunUrl: 'http://course.url',
+        },
+      ],
+    };
+    render(<CourseHeaderWrapper courseState={courseStateWithEnrollment} />);
+    expect(screen.queryByText('This course is archived.')).toBeInTheDocument();
+    const button = screen.queryByText('View course materials');
+    expect(button).toBeInTheDocument();
+    const href = button.closest('a').getAttribute('href');
+    expect(href).toEqual('http://course.url');
+  });
 
   describe('renders program messaging', () => {
     const courseStateWithProgramType = (type) => ({
