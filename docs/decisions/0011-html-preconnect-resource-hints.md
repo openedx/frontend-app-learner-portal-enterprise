@@ -29,7 +29,7 @@ Given this, connections are blocked by request waterfalls. There is an opportuni
 
 ## Decision
 
-We will extend the default production Webpack configuration provided by ``@edx/frontend-build`` to modify the options passed to ``HtmlWebpackPlugin``. By passing ``preconnect`` as an option, it becomes available for use within this micro-frontend's custom ``public/index.html`` file.
+We will extend the default production Webpack configuration provided by ``@openedx/frontend-build`` to modify the options passed to ``HtmlWebpackPlugin``. By passing ``preconnect`` as an option, it becomes available for use within this micro-frontend's custom ``public/index.html`` file.
 
 The ``public/index.html`` file will be modified to iterate over all domains/origins passed through the ``preconnect`` option, creating the following ``<link>`` elements:
 

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
-const { createConfig } = require('@edx/frontend-build');
+const { createConfig } = require('@openedx/frontend-build');
 const { addPreconnectDomainsToHtmlWebpackPlugin } = require('./config');
 
 // Note: copied from `@openedx/frontend-build`
