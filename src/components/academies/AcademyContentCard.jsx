@@ -3,7 +3,7 @@ import {
   Button,
   CardGrid,
   Spinner,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { v4 as uuidv4 } from 'uuid';

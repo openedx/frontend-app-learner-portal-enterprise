@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {
   SelectableBox, Chip, Spinner, Stack, Button,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 import PropTypes from 'prop-types';
