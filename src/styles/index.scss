@@ -5,7 +5,10 @@
 @import "~@edx/frontend-enterprise-catalog-search";
 @import "@edx/brand/paragon/overrides";
 
+// NProgress customizations
+@import "./nprogress";
 
+// Component styles
 @import "./components/layout/styles/Layout";
 @import "./components/course/styles/CourseHeader";
 @import "./components/course/styles/CourseReview";

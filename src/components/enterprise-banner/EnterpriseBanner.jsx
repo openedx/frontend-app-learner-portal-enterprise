@@ -7,18 +7,20 @@ import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
 
 import './styles/EnterpriseBanner.scss';
 
+import { useEnterpriseLearner } from '../app/App';
+
 const EnterpriseBanner = () => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const { shouldRecommendCourses } = useContext(AuthenticatedPageContext);
+  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
+  // const { shouldRecommendCourses } = useContext(AuthenticatedPageContext);
 
   return (
     <div className="enterprise-banner bg-brand-secondary border-brand-tertiary">
       <Container size="lg">
         <div className="row banner-content">
           <h1 className="h2 mb-0 py-3 pl-3 text-brand-secondary">
-            {enterpriseConfig.name}
+            {activeEnterpriseCustomer.name}
           </h1>
-          {shouldRecommendCourses && (
+          {/* {shouldRecommendCourses && (
             <Button
               as={Link}
               to={generatePath('/:enterpriseSlug/skills-quiz', { enterpriseSlug: enterpriseConfig.slug })}
@@ -31,7 +33,7 @@ const EnterpriseBanner = () => {
                 description="Recommend courses for me button label."
               />
             </Button>
-          )}
+          )} */}
         </div>
       </Container>
     </div>

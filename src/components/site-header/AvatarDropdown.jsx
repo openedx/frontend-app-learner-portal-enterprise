@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
+import { NavLink, generatePath, useLocation } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
 import { AvatarButton, Dropdown } from '@edx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { isDefinedAndNotNull } from '../../utils/common';
+import { useEnterpriseLearner } from '../app/App';
 
 const AvatarDropdown = ({ showLabel }) => {
   const {
@@ -14,11 +15,20 @@ const AvatarDropdown = ({ showLabel }) => {
     LOGOUT_URL,
     LEARNER_SUPPORT_URL,
   } = getConfig();
-  const { enterpriseConfig, authenticatedUser: { username, profileImage } } = useContext(AppContext);
-  const enterpriseDashboardLink = `/${enterpriseConfig.slug}`;
+  const {
+    authenticatedUser: { username, profileImage },
+  } = useContext(AppContext);
+  const {
+    data: {
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+    },
+  } = useEnterpriseLearner();
+  const enterpriseDashboardLink = `/${activeEnterpriseCustomer.slug}`;
   const intl = useIntl();
+  const location = useLocation();
 
-  const idpPresent = isDefinedAndNotNull(enterpriseConfig.identityProvider);
+  const idpPresent = isDefinedAndNotNull(activeEnterpriseCustomer.identityProvider);
   // we insert the logout=true in this case to avoid the redirect back to IDP
   // which brings the user right back in, disallowing a proper logout
   const logoutHint = idpPresent ? `${encodeURIComponent('?')}logout=true` : '';
@@ -52,18 +62,21 @@ const AvatarDropdown = ({ showLabel }) => {
             description: 'Personal dashboard link title in avatar dropdown.',
           })}
         </Dropdown.Item>
-        {/* TODO: support multiple enterprises! */}
-        <Dropdown.Item
-          as={NavLink}
-          to={enterpriseDashboardLink}
-          style={{
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {enterpriseConfig.name}
-        </Dropdown.Item>
+        {allLinkedEnterpriseCustomerUsers
+          .sort((a, b) => a.enterpriseCustomer.name.localeCompare(b.enterpriseCustomer.name))
+          .map((enterpriseCustomerUser) => (
+            <Dropdown.Item
+              key={enterpriseCustomerUser.enterpriseCustomer.slug}
+              as={NavLink}
+              to={generatePath('/:enterpriseSlug/*', {
+                enterpriseSlug: enterpriseCustomerUser.enterpriseCustomer.slug,
+                '*': location.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
+              })}
+              className="text-wrap"
+            >
+              {enterpriseCustomerUser.enterpriseCustomer.name}
+            </Dropdown.Item>
+          ))}
         <Dropdown.Divider className="border-light" />
         <Dropdown.Item href={`${LMS_BASE_URL}/u/${username}`}>
           {intl.formatMessage({

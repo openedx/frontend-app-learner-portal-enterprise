@@ -7,17 +7,35 @@ import ReactDOM from 'react-dom';
 import {
   APP_INIT_ERROR, APP_READY, initialize, subscribe,
 } from '@edx/frontend-platform';
+import {
+  AxiosJwtAuthService,
+  configure as configureAuth,
+} from '@edx/frontend-platform/auth';
+import {
+  NewRelicLoggingService,
+  configure as configureLogging,
+  getLoggingService,
+} from '@edx/frontend-platform/logging';
 import { ErrorPage } from '@edx/frontend-platform/react';
-import { mergeConfig } from '@edx/frontend-platform/config';
+import { getConfig, mergeConfig } from '@edx/frontend-platform/config';
 import { messages as footerMessages } from '@edx/frontend-component-footer';
 import { messages as paragonMessages } from '@edx/paragon';
 
 import { App } from './components/app';
 
-import './index.scss';
+import './styles/index.scss';
+
+const ApplicationLoggingService = NewRelicLoggingService;
+const ApplicationAuthService = AxiosJwtAuthService;
 
 subscribe(APP_READY, () => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.render(
+    <App
+      loggingService={ApplicationLoggingService}
+      authService={ApplicationAuthService}
+    />,
+    document.getElementById('root'),
+  );
 });
 
 subscribe(APP_INIT_ERROR, (error) => {
@@ -25,6 +43,8 @@ subscribe(APP_INIT_ERROR, (error) => {
 });
 
 initialize({
+  loggingService: ApplicationLoggingService,
+  authService: ApplicationAuthService,
   handlers: {
     config: () => {
       mergeConfig({
