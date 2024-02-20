@@ -5,12 +5,11 @@ import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
 
 import PathwayNode from './PathwayNode';
 
-const PathwayStep = ({ index, minRequirements, nodes }) => {
+const PathwayStep = ({ index, nodes }) => {
   const [isOpen, setIsOpen] = useState(true);
-
   return (
     <Collapsible
-      title={`Requirement ${index}: Choose any ${minRequirements} of the following.`}
+      title={`Requirement ${index + 1}${nodes?.length > 1 ? `: Choose any ${nodes.length} of the following` : ''}`}
       open={isOpen}
       styling="card-lg"
       className="collapsible shadow-lg pathway-step"
@@ -29,7 +28,6 @@ export default PathwayStep;
 
 PathwayStep.propTypes = {
   index: PropTypes.number.isRequired,
-  minRequirements: PropTypes.number.isRequired,
   nodes: PropTypes.arrayOf(PropTypes.shape({
     title: PropTypes.string,
     description: PropTypes.string,

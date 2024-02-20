@@ -62,7 +62,7 @@ describe('<PathwayModal />', () => {
     // verify Collapsibles
     for (let i = 0; i < TEST_PATHWAY_DATA.steps.length; i++) {
       const step = TEST_PATHWAY_DATA.steps[i];
-      const collapsibleTitle = `Requirement ${i + 1}: Choose any ${step.min_requirement} of the following`;
+      const collapsibleTitle = `Requirement ${i + 1}`;
       expect(screen.getByText(collapsibleTitle)).toBeInTheDocument();
       userEvent.click(screen.getByText(collapsibleTitle));
 
