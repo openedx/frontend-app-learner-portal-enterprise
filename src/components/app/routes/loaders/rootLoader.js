@@ -36,9 +36,16 @@ function fetchCouponCodeRequests({
   return getAuthenticatedHttpClient().get(url);
 }
 
-const fetchSubsidyRequestConfiguration = (enterpriseUUID) => {
+const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
-  return getAuthenticatedHttpClient().get(url);
+  try {
+    return await getAuthenticatedHttpClient().get(url);
+  } catch (error) {
+    if (error.response.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 };
 
 const fetchEnterpriseOffers = (enterpriseId, options = {}) => {
@@ -149,6 +156,7 @@ const fetchEnterpriseLearnerData = async (username, options = {}) => {
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
   };
 };
+
 export const makeEnterpriseLearnerQuery = (username) => ({
   queryKey: ['enterprise', 'linked-enterprise-customer-users', username],
   queryFn: async () => fetchEnterpriseLearnerData(username),
@@ -169,6 +177,7 @@ const fetchSubscriptions = async (enterpriseUuid) => {
     subscriptionLicenses: results[1].data,
   };
 };
+
 export const makeSubscriptionsQuery = (enterpriseUuid) => ({
   queryKey: ['enterprise', 'subscriptions', enterpriseUuid],
   queryFn: async () => fetchSubscriptions(enterpriseUuid),
@@ -180,9 +189,8 @@ export const makeSubscriptionsQuery = (enterpriseUuid) => ({
  * @param {*} param0
  * @returns
  */
-const fetchPolicies = async ({ enterpriseUuid, lmsUserId }) => ({
-  redeemablePolicies: await fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
-});
+const fetchPolicies = async ({ enterpriseUuid, lmsUserId }) => fetchRedeemablePolicies(enterpriseUuid, lmsUserId);
+
 export const makeRedeemablePoliciesQuery = ({ enterpriseUuid, lmsUserId }) => ({
   queryKey: ['enterprise', 'redeemable-policies', enterpriseUuid, lmsUserId],
   queryFn: async () => fetchPolicies({ enterpriseUuid, lmsUserId }),
@@ -204,6 +212,7 @@ const fetchCouponCodes = async (enterpriseUuid) => {
     couponCodeAssignments: results[1].data,
   };
 };
+
 export const makeCouponCodesQuery = (enterpriseUuid) => ({
   queryKey: ['enterprise', 'coupon-codes', enterpriseUuid],
   queryFn: async () => fetchCouponCodes(enterpriseUuid),
@@ -218,6 +227,7 @@ export const makeCouponCodesQuery = (enterpriseUuid) => ({
 const fetchEnterpriseLearnerOffers = async (enterpriseUuid) => ({
   enterpriseOffers: await fetchEnterpriseOffers(enterpriseUuid),
 });
+
 export const makeEnterpriseLearnerOffersQuery = (enterpriseUuid) => ({
   queryKey: ['enterprise', 'enterprise-learner-offers', enterpriseUuid],
   queryFn: async () => fetchEnterpriseLearnerOffers(enterpriseUuid),
@@ -241,12 +251,14 @@ const fetchBrowseAndRequestConfiguration = async (enterpriseUuid, userEmail) => 
       userEmail,
     }),
   ]);
+
   return {
-    subsidyRequestConfiguration: results[0].data,
+    subsidyRequestConfiguration: results[0]?.data,
     couponCodeRequests: results[1].data,
     licenseRequests: results[2].data,
   };
 };
+
 export const makeBrowseAndRequestConfigurationQuery = (enterpriseUuid, userEmail) => ({
   queryKey: ['enterprise', enterpriseUuid, 'browse-and-request-configuration', userEmail],
   queryFn: async () => fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail),
@@ -264,11 +276,20 @@ const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
     ...options,
   });
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-curations/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  const data = camelCaseObject(response.data);
-  // Return first result, given that there should only be one result, if any.
-  return data.results[0];
+
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    const data = camelCaseObject(response.data);
+    // Return first result, given that there should only be one result, if any.
+    return data.results[0] ?? null;
+  } catch (error) {
+    if (error.response.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 };
+
 export const makeContentHighlightsConfigurationQuery = (enterpriseUUID) => ({
   queryKey: ['enterprise', enterpriseUUID, 'content-highlights', 'configuration'],
   queryFn: () => fetchEnterpriseCuration(enterpriseUUID),

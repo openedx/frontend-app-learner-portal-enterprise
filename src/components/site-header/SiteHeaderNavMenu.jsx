@@ -25,7 +25,7 @@ const SiteHeaderNavMenu = () => {
           description: 'Dashboard link title in site header navigation.',
         })}
       </NavLink>
-      {!contentHighlightsConfiguration.canOnlyViewHighlightSets && (
+      {!contentHighlightsConfiguration?.canOnlyViewHighlightSets && (
         <NavLink to={`/${activeEnterpriseCustomer.slug}/search`} className={mainMenuLinkClassName}>
           {intl.formatMessage({
             id: 'site.header.nav.search.title',
