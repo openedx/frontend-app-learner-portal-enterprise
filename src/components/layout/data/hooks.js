@@ -18,10 +18,10 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
         dark: getComputedStyle(document.documentElement).getPropertyValue('--pgn-color-dark'),
       };
 
-      const { branding } = enterpriseConfig;
-      const primaryColor = Color(branding.colors.primary);
-      const secondaryColor = Color(branding.colors.secondary);
-      const tertiaryColor = Color(branding.colors.tertiary);
+      const { brandingConfiguration } = enterpriseConfig;
+      const primaryColor = Color(brandingConfiguration.primaryColor);
+      const secondaryColor = Color(brandingConfiguration.secondaryColor);
+      const tertiaryColor = Color(brandingConfiguration.tertiaryColor);
       const whiteColor = Color(colors.white);
       const darkColor = Color(colors.dark);
       const getA11yTextColor = color => (color.isDark() ? whiteColor : darkColor);

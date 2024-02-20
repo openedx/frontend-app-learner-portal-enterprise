@@ -4,25 +4,28 @@ import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@edx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
+import { useEnterpriseLearner } from '../app/App';
 
 const SiteHeaderLogos = () => {
-  const courseTypeMatch = useMatch('/:enterpriseSlug/:courseType/*');
+  const courseTypeMatch = useMatch('/:enterpriseSlug/:courseType?/course/*');
   const courseType = courseTypeMatch?.params?.courseType;
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
+
+  console.log('SiteHeaderLogos', activeEnterpriseCustomer);
 
   let mainLogo = (
     <img
       className="logo"
-      src={enterpriseConfig.branding.logo || edXLogo}
-      alt={`${enterpriseConfig.name} logo`}
+      src={activeEnterpriseCustomer.brandingConfiguration?.logo || edXLogo}
+      alt={`${activeEnterpriseCustomer.name} logo`}
       data-testid="header-logo-image-id"
     />
   );
 
-  if (!enterpriseConfig.disableSearch) {
+  if (!activeEnterpriseCustomer.disableSearch) {
     mainLogo = (
-      <Link to={`/${enterpriseConfig.slug}`} data-testid="header-logo-link-id">
+      <Link to={`/${activeEnterpriseCustomer.slug}`} data-testid="header-logo-link-id">
         {mainLogo}
       </Link>
     );
