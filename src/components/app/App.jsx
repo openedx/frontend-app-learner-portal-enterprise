@@ -184,6 +184,7 @@ const Dashboard = () => {
     isLoading: isLoadingEnterpriseCourseEnrollments,
     isFetching: isFetchingEnterpriseCourseEnrollments,
   } = useEnterpriseCourseEnrollments();
+
   return (
     <Container size="lg" className="py-4">
       <h2>Dashboard</h2>
@@ -260,7 +261,6 @@ const Course = () => {
 };
 
 const CourseContents = () => {
-  const { courseKey } = useParams();
   const {
     data: courseMetadata,
   } = useCourseMetadata();

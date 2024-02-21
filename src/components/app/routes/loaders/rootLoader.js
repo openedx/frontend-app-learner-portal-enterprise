@@ -7,7 +7,7 @@ import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../e
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 
-function fetchLicenseRequests({
+async function fetchLicenseRequests({
   enterpriseUUID,
   userEmail,
   state = SUBSIDY_REQUEST_STATE.REQUESTED,
@@ -19,11 +19,11 @@ function fetchLicenseRequests({
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
-  const response = getAuthenticatedHttpClient().get(url);
+  const response = await getAuthenticatedHttpClient().get(url);
   return response.data;
 }
 
-function fetchCouponCodeRequests({
+async function fetchCouponCodeRequests({
   enterpriseUUID,
   userEmail,
   state = SUBSIDY_REQUEST_STATE.REQUESTED,
@@ -35,7 +35,7 @@ function fetchCouponCodeRequests({
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
-  const response = getAuthenticatedHttpClient().get(url);
+  const response = await getAuthenticatedHttpClient().get(url);
   return response.data;
 }
 
@@ -66,7 +66,7 @@ const fetchEnterpriseOffers = (enterpriseId, options = {}) => {
   return getAuthenticatedHttpClient().get(url);
 };
 
-const fetchCouponCodeAssignments = (enterpriseId, options = {}) => {
+const fetchCouponCodeAssignments = async (enterpriseId, options = {}) => {
   const queryParams = new URLSearchParams({
     enterprise_uuid: enterpriseId,
     full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
@@ -75,10 +75,11 @@ const fetchCouponCodeAssignments = (enterpriseId, options = {}) => {
   });
   const config = getConfig();
   const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
+  const response = await getAuthenticatedHttpClient().get(url);
+  return response.data;
 };
 
-const fetchCouponsOverview = (enterpriseId, options = {}) => {
+const fetchCouponsOverview = async (enterpriseId, options = {}) => {
   const queryParams = new URLSearchParams({
     page: 1,
     page_size: 100,
@@ -86,7 +87,8 @@ const fetchCouponsOverview = (enterpriseId, options = {}) => {
   });
   const config = getConfig();
   const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
+  const response = await getAuthenticatedHttpClient().get(url);
+  return response.data;
 };
 
 function fetchRedeemablePolicies(enterpriseUUID, userID) {
@@ -99,23 +101,25 @@ function fetchRedeemablePolicies(enterpriseUUID, userID) {
   return getAuthenticatedHttpClient().get(url);
 }
 
-function fetchSubscriptionLicensesForUser(enterpriseUUID) {
+async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     include_revoked: true,
   });
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
+  const response = await getAuthenticatedHttpClient().get(url);
+  return response.data;
 }
 
-function fetchCustomerAgreementData(enterpriseUUID) {
+async function fetchCustomerAgreementData(enterpriseUUID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
   });
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
+  const response = await getAuthenticatedHttpClient().get(url);
+  return response.data;
 }
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
@@ -178,8 +182,8 @@ const fetchSubscriptions = async (enterpriseUuid) => {
     fetchSubscriptionLicensesForUser(enterpriseUuid),
   ]);
   return {
-    customerAgreement: results[0].data,
-    subscriptionLicenses: results[1].data,
+    customerAgreement: results[0],
+    subscriptionLicenses: results[1],
   };
 };
 
@@ -215,8 +219,8 @@ const fetchCouponCodes = async (enterpriseUuid) => {
     fetchCouponCodeAssignments(enterpriseUuid),
   ]);
   return {
-    couponsOverview: results[0].data,
-    couponCodeAssignments: results[1].data,
+    couponsOverview: results[0],
+    couponCodeAssignments: results[1],
   };
 };
 
@@ -231,9 +235,10 @@ export const makeCouponCodesQuery = (enterpriseUuid) => ({
  * @param {*} param0
  * @returns
  */
-const fetchEnterpriseLearnerOffers = async (enterpriseUuid) => ({
-  enterpriseOffers: await fetchEnterpriseOffers(enterpriseUuid),
-});
+const fetchEnterpriseLearnerOffers = async (enterpriseUuid) => {
+  const response = await fetchEnterpriseOffers(enterpriseUuid);
+  return response.data;
+};
 
 export const makeEnterpriseLearnerOffersQuery = (enterpriseUuid) => ({
   queryKey: ['enterprise', 'enterprise-learner-offers', enterpriseUuid],

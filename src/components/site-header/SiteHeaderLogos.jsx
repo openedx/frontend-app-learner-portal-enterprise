@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@edx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
+
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 import { useEnterpriseLearner } from '../app/App';
 
@@ -11,8 +11,6 @@ const SiteHeaderLogos = () => {
   const courseType = courseTypeMatch?.params?.courseType;
   const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
-
-  console.log('SiteHeaderLogos', activeEnterpriseCustomer);
 
   let mainLogo = (
     <img
