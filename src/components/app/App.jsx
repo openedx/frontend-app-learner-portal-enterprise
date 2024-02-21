@@ -10,8 +10,6 @@ import {
   RouterProvider,
   Route,
   Outlet,
-  useLoaderData,
-  Await,
   useRouteError,
   useParams,
   ScrollRestoration,
@@ -20,6 +18,8 @@ import {
   generatePath,
   useAsyncError,
   Link,
+  useLoaderData,
+  Await,
 } from 'react-router-dom';
 import NProgress from 'nprogress';
 import { Helmet } from 'react-helmet';
@@ -56,7 +56,6 @@ import makeRootLoader, {
   makeSubscriptionsQuery,
 } from './routes/loaders/rootLoader';
 import makeCourseLoader, {
-  makeCanRedeemCourseLoader,
   makeCanRedeemQuery,
   makeCourseMetadataQuery,
   makeEnterpriseCourseEnrollmentsQuery,
@@ -67,12 +66,16 @@ import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
 import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
+import makeDashboardLoader from './routes/loaders/dashboardLoader';
+import makeUpdateActiveEnterpriseCustomerUserLoader from './routes/loaders/updateActiveEnterpriseCustomerUserLoader';
 
+/* eslint-disable no-unused-vars */
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
 const EnterprisePageRedirect = lazy(() => import(/* webpackChunkName: "enterprise-page-redirect" */ '../enterprise-redirects/EnterprisePageRedirect'));
 const NotFoundPage = lazy(() => import(/* webpackChunkName: "not-found" */ '../NotFoundPage'));
 const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
 const EnterpriseInvitePage = lazy(() => extractNamedExport(import(/* webpackChunkName: "enterprise-invite" */ '../enterprise-invite'), 'EnterpriseInvitePage'));
+/* eslint-enable no-unused-vars */
 
 // Create a query client for @tanstack/react-query
 const queryClient = new QueryClient({
@@ -92,22 +95,40 @@ const queryClient = new QueryClient({
   },
 });
 
-const Root = () => (
-  <NoticesProvider>
-    <ToastsProvider>
-      <Toasts />
-      <Suspense fallback={<DelayedFallbackContainer />}>
-        <Outlet />
-      </Suspense>
-    </ToastsProvider>
-    <ScrollRestoration />
-  </NoticesProvider>
-);
+const Root = () => {
+  const navigation = useNavigation();
+  const fetchers = useFetchers();
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const fetchersIdle = fetchers.every((f) => f.state === 'idle');
+      if (navigation.state === 'idle' && fetchersIdle) {
+        NProgress.done();
+      } else {
+        NProgress.start();
+      }
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [navigation, fetchers]);
+
+  return (
+    <NoticesProvider>
+      <ToastsProvider>
+        <Toasts />
+        <Suspense fallback={<DelayedFallbackContainer />}>
+          <Outlet />
+        </Suspense>
+      </ToastsProvider>
+      <ScrollRestoration />
+    </NoticesProvider>
+  );
+};
 
 export const useEnterpriseLearner = () => {
   const { authenticatedUser } = useContext(AppContext);
+  const { enterpriseSlug } = useParams();
   return useQuery(
-    makeEnterpriseLearnerQuery(authenticatedUser.username),
+    makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug),
   );
 };
 
@@ -134,7 +155,7 @@ export const useEnterpriseCustomerUserSubsidies = () => {
       redeemablePolicies: queries[1].data,
       couponCodes: queries[2].data,
       enterpriseLearnerOffers: queries[3].data,
-      browseAndRequestConfiguration: queries[4].data,
+      browseAndRequest: queries[4].data,
     },
   };
 };
@@ -227,44 +248,13 @@ const Search = () => {
   );
 };
 
-const CourseWrapper = () => {
-  const loaderData = useLoaderData();
-  return (
-    <Suspense
-      fallback={(
-        <DelayedFallbackContainer
-          className="py-5 text-center"
-          screenReaderText="Loading course details. Please wait."
-        />
-      )}
-    >
-      <Await
-        resolve={loaderData.courseMetadata}
-        errorElement={<RouteErrorBoundary />}
-      >
-        <Outlet />
-      </Await>
-    </Suspense>
-  );
-};
-
 const Course = () => {
-  const loaderData = useLoaderData();
-  return (
-    <Await
-      resolve={loaderData?.canRedeem}
-      errorElement={<RouteErrorBoundary />}
-    >
-      <CourseContents />
-    </Await>
-  );
-};
-
-const CourseContents = () => {
   const {
     data: courseMetadata,
   } = useCourseMetadata();
-  const { data: courseRedemptionEligiblity } = useCourseRedemptionEligibility();
+  const {
+    data: courseRedemptionEligiblity,
+  } = useCourseRedemptionEligibility();
   const {
     data: enterpriseCourseEnrollments,
     isLoading: isLoadingEnterpriseCourseEnrollments,
@@ -315,137 +305,45 @@ const CourseContents = () => {
 
 const Layout = () => {
   const loaderData = useLoaderData();
-  const navigation = useNavigation();
-  const fetchers = useFetchers();
 
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
   const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.activeEnterpriseCustomer);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (navigation.state === 'idle' && fetchersIdle) {
-        NProgress.done();
-      } else {
-        NProgress.start();
-      }
-    }, 300);
-    return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers]);
-
-  // TODO: possibly related to unauthorized access 404 instead of redirect to logistration?
+  // Authenticated user is NOT linked an enterprise customer, so
+  // render the not found page.
   if (!enterpriseLearnerData.activeEnterpriseCustomer) {
     return <NotFoundPage />;
   }
 
+  // User is authenticated with an active enterprise customer, but
+  // the user account API data is still hydrating. If it is still
+  // hydrating, render a loading state.
   if (!authenticatedUser.profileImage) {
     return (
       <DelayedFallbackContainer
         className="py-5 text-center"
-        screenReaderText="Loading account details. Please wait."
+        screenReaderText="Loading your account details. Please wait."
       />
     );
   }
 
   return (
-    <Suspense
-      fallback={(
-        <DelayedFallbackContainer
-          className="py-5 text-center"
-          screenReaderText="Loading details for your organization. Please wait."
-        />
-      )}
-    >
-      <Await
-        resolve={loaderData.enterpriseAppData}
-        errorElement={<RouteErrorBoundary />}
-      >
-        <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
-          <html lang="en" />
-          {brandStyles.map(({ key, styles }) => (
-            <style key={key} type="text/css">{styles}</style>
-          ))}
-        </Helmet>
-        <SiteHeader />
-        <EnterpriseBanner />
-        <main id="content" className="fill-vertical-space">
-          <Outlet />
-        </main>
-        <SiteFooter />
-        {/* <Container size="lg" className="py-4">
-          <h5><code>exec-ed-2u-integration-qa</code></h5>
-          <nav>
-            <ul>
-              <li>
-                <NavLink
-                  to={generatePath('/:enterpriseSlug', {
-                    enterpriseSlug: 'exec-ed-2u-integration-qa',
-                  })}
-                  end
-                >
-                  Dashboard
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={generatePath('/:enterpriseSlug/search', {
-                    enterpriseSlug: 'exec-ed-2u-integration-qa',
-                  })}
-                >
-                  Search
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={generatePath('/:enterpriseSlug/course/:courseKey', {
-                    enterpriseSlug: 'exec-ed-2u-integration-qa',
-                    courseKey: 'edx+tr1012',
-                  })}
-                >
-                  Course
-                </NavLink>
-              </li>
-            </ul>
-          </nav>
-          <h5><code>pied-piper</code></h5>
-          <nav>
-            <ul>
-              <li>
-                <NavLink
-                  to={generatePath('/:enterpriseSlug', {
-                    enterpriseSlug: 'pied-piper',
-                  })}
-                  end
-                >
-                  Dashboard
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={generatePath('/:enterpriseSlug/search', {
-                    enterpriseSlug: 'pied-piper',
-                  })}
-                >
-                  Search
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={generatePath('/:enterpriseSlug/course/:courseKey', {
-                    enterpriseSlug: 'pied-piper',
-                    courseKey: 'edX+DemoX',
-                  })}
-                >
-                  Course
-                </NavLink>
-              </li>
-            </ul>
-          </nav>
-        </Container> */}
-      </Await>
-    </Suspense>
+    <>
+      <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
+        <html lang="en" />
+        {brandStyles.map(({ key, styles }) => (
+          <style key={key} type="text/css">{styles}</style>
+        ))}
+      </Helmet>
+      <SiteHeader />
+      <EnterpriseBanner />
+      <main id="content" className="fill-vertical-space">
+        <Outlet />
+      </main>
+      <SiteFooter />
+    </>
   );
 };
 
@@ -488,29 +386,30 @@ const router = createBrowserRouter(
     >
       <Route
         path="/:enterpriseSlug?"
-        loader={makeRootLoader(queryClient)}
-        element={<Layout />}
+        loader={makeUpdateActiveEnterpriseCustomerUserLoader(queryClient)}
+        element={<Outlet />}
       >
         <Route
-          index
-          element={<Dashboard />}
-        />
-        <Route
-          path="search"
-          element={<Search />}
-        />
-        <Route
-          path=":courseType?/course/:courseKey/*"
-          element={<CourseWrapper />}
-          loader={makeCourseLoader(queryClient)}
+          path=""
+          loader={makeRootLoader(queryClient)}
+          element={<Layout />}
         >
           <Route
             index
-            element={<Course />}
-            loader={makeCanRedeemCourseLoader(queryClient)}
+            element={<Dashboard />}
+            loader={makeDashboardLoader(queryClient)}
           />
+          <Route
+            path="search"
+            element={<Search />}
+          />
+          <Route
+            path=":courseType?/course/:courseKey/*"
+            element={<Course />}
+            loader={makeCourseLoader(queryClient)}
+          />
+          <Route path="" element={<NotFoundPage />} />
         </Route>
-        <Route path="*" element={<NotFoundPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>,
