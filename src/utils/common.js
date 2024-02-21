@@ -93,7 +93,20 @@ export const getContactEmail = (config) => {
 };
 
 /**
- * Logs a react-query query error message on failure
+ * Given an error, returns the status code from the custom attributes (Axios error)
+ * or the standard JS error response.
+ * @param {Error} error An error object
+ * @returns {number} The status code (e.g., 404)
+ */
+export function getErrorResponseStatusCode(error) {
+  return error.customAttributes?.httpErrorStatus || error.response?.status;
+}
+
+/**
+ * Logs a react-query query error message on failure, if present.
+ * @param {Error} error An error object
+ * @param {Query} query The query object
+ * @returns {void}
  */
 export function queryCacheOnErrorHandler(error, query) {
   if (query.meta?.errorMessage) {
@@ -101,9 +114,39 @@ export function queryCacheOnErrorHandler(error, query) {
   }
 }
 
-export function defaultQueryClientRetryHandler(failureCount, err) {
-  if (failureCount >= 3 || err.customAttributes?.httpErrorStatus === 404 || err.response.status === 404) {
+/**
+ * Determines whether a React Query query should be retried on failure.
+ *
+ * @param {number} failureCount The number of times the query has failed
+ * @param {Error} error The error that caused the query to fail
+ * @returns {boolean} Whether the query should be retried
+ */
+export function defaultQueryClientRetryHandler(failureCount, error) {
+  if (failureCount >= 3 || getErrorResponseStatusCode(error) === 404) {
     return false;
   }
   return true;
+}
+
+/**
+ * Given a CSS variable name, returns the computed value of the CSS variable.
+ * @param {string} cssVariableName A string representing a CSS variable.
+ * @returns {string} The computed value of the CSS variable.
+ */
+export function getComputedStylePropertyCSSVariable(cssVariableName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(cssVariableName);
+}
+
+/**
+ * Returns the brand colors from the CSS variables.
+ * @returns {Object} The brand colors from the CSS variables.
+ */
+export function getBrandColorsFromCSSVariables() {
+  return {
+    primary: getComputedStylePropertyCSSVariable('--pgn-color-primary'),
+    info100: getComputedStylePropertyCSSVariable('--pgn-color-info-100'),
+    info500: getComputedStylePropertyCSSVariable('--pgn-color-info-500'),
+    white: getComputedStylePropertyCSSVariable('--pgn-color-white'),
+    dark: getComputedStylePropertyCSSVariable('--pgn-color-dark'),
+  };
 }

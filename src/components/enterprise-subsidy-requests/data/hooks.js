@@ -11,6 +11,7 @@ import {
   fetchCouponCodeRequests,
 } from './service';
 import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
 export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();
@@ -23,7 +24,7 @@ export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
         const config = camelCaseObject(response.data);
         setSubsidyRequestConfiguration(config);
       } catch (error) {
-        const httpErrorStatus = error.customAttributes?.httpErrorStatus;
+        const httpErrorStatus = getErrorResponseStatusCode(error);
         if (httpErrorStatus === 404) {
           // Customer configuration does not exist, subsidy requests are turned off.
           setSubsidyRequestConfiguration(null);

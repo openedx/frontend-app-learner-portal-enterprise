@@ -1,11 +1,4 @@
-import React, { useContext } from 'react';
-import { Link, generatePath } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
-import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { Button, Container } from '@edx/paragon';
-import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
-
-import './styles/EnterpriseBanner.scss';
+import { Container } from '@edx/paragon';
 
 import { useEnterpriseLearner } from '../app/App';
 
