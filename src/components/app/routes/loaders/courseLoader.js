@@ -1,4 +1,3 @@
-import { defer } from 'react-router-dom';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
@@ -101,7 +100,7 @@ export async function extractActiveEnterpriseId({
 }) {
   // Retrieve linked enterprise customers for the current user from query cache
   // or fetch from the server if not available.
-  const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(authenticatedUser.username);
+  const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug);
   const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
   const {
     activeEnterpriseCustomer,
@@ -139,46 +138,21 @@ export default function makeCourseLoader(queryClient) {
       enterpriseSlug,
     });
 
-    // Seed the requisite metadata for the course page, including:
-    // - course run metadata (awaited)
-    // - enterprise course enrollments
-    // - user entitlements
-    // - whether the enterprise customer contains the specified content
-    return defer({
-      courseMetadata: Promise.all([
-        queryClient.fetchQuery(makeCourseMetadataQuery(enterpriseId, courseKey)),
-      ]),
-      enterpriseCourseEnrollments: Promise.all([
-        queryClient.fetchQuery(makeEnterpriseCourseEnrollmentsQuery(enterpriseId)),
-        queryClient.fetchQuery(makeUserEntitlementsQuery()),
-      ]),
-    });
-  };
-}
-
-export function makeCanRedeemCourseLoader(queryClient) {
-  return async function canRedeemCourseLoader({ params = {} }) {
-    const authenticatedUser = await ensureAuthenticatedUser();
-    const { courseKey, enterpriseSlug } = params;
-
-    const enterpriseId = await extractActiveEnterpriseId({
-      queryClient,
-      authenticatedUser,
-      enterpriseSlug,
-    });
-
     const contentMetadataQuery = makeCourseMetadataQuery(enterpriseId, courseKey);
-    const courseMetadata = await queryClient.fetchQuery(contentMetadataQuery);
 
-    if (!courseMetadata) {
-      return null;
-    }
+    await Promise.all([
+      queryClient.fetchQuery(contentMetadataQuery).then((courseMetadata) => {
+        if (!courseMetadata) {
+          return null;
+        }
+        return queryClient.fetchQuery(
+          makeCanRedeemQuery(enterpriseId, courseMetadata),
+        );
+      }),
+      queryClient.fetchQuery(makeEnterpriseCourseEnrollmentsQuery(enterpriseId)),
+      queryClient.fetchQuery(makeUserEntitlementsQuery()),
+    ]);
 
-    // Seed the can redeem query.
-    return defer({
-      canRedeem: queryClient.fetchQuery(
-        makeCanRedeemQuery(enterpriseId, courseMetadata),
-      ),
-    });
+    return null;
   };
 }
