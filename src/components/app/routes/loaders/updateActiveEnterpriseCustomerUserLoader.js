@@ -14,7 +14,6 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl);
     const { username, userId, email: userEmail } = authenticatedUser;
     const { enterpriseSlug: nextEnterpriseSlug } = params;
-    const currentEnterpriseSlug = global.location.pathname.split('/').filter(pathPart => !!pathPart)[0];
 
     const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, nextEnterpriseSlug);
     const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
