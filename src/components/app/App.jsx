@@ -93,6 +93,11 @@ const queryClient = new QueryClient({
   },
 });
 
+// Determines amount of time that must elapse before the
+// NProgress loader is shown in the UI. No need to show it
+// for quick route transitions.
+const NPROGRESS_DELAY_MS = 300;
+
 const Root = () => {
   const navigation = useNavigation();
   const fetchers = useFetchers();
@@ -105,7 +110,7 @@ const Root = () => {
       } else {
         NProgress.start();
       }
-    }, 300);
+    }, NPROGRESS_DELAY_MS);
     return () => clearTimeout(timeoutId);
   }, [navigation, fetchers]);
 
