@@ -159,27 +159,19 @@ function shouldRefetchEnterpriseLearnerData(activeEnterpriseCustomer, enterprise
 export const useEnterpriseLearner = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
-
-  const [shouldRefetchEnterpriseLearner, setShouldRefetchEnterpriseLearner] = useState(true);
-
-  const queryResults = useQuery({
+  return useQuery({
     ...makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug),
-    refetchOnWindowFocus: shouldRefetchEnterpriseLearner,
-    refetchOnMount: shouldRefetchEnterpriseLearner,
-    refetchOnReconnect: shouldRefetchEnterpriseLearner,
+    // Disable refetch on window focus, mount, and reconnect to prevent
+    // unnecessary refetches when the active enterprise customer changes
+    // from external sources (e.g., Admin Portal, Learner Portal for a
+    // different customer in a separate window/tab). The tradeoff is that
+    // the user must perform a full-page refresh  to retrieve updated enterprise
+    // customer metadata (e.g., title, branding). However, all other queries should
+    // continue to have the default refetch behavior.
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
-
-  /**
-   * Determine if the enterprise learner data should be refetched.
-   */
-  useEffect(() => {
-    const activeEnterpriseCustomer = queryResults.data?.activeEnterpriseCustomer;
-    if (shouldRefetchEnterpriseLearnerData(activeEnterpriseCustomer, enterpriseSlug)) {
-      setShouldRefetchEnterpriseLearner(false);
-    }
-  }, [enterpriseSlug, queryResults.data?.activeEnterpriseCustomer]);
-
-  return queryResults;
 };
 
 /**
@@ -381,7 +373,7 @@ const Layout = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
-  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.activeEnterpriseCustomer);
+  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData?.activeEnterpriseCustomer);
 
   // Authenticated user is NOT linked an enterprise customer, so
   // render the not found page.

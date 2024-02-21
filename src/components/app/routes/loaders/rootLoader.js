@@ -155,6 +155,12 @@ const fetchEnterpriseLearnerData = async (username, options = {}) => {
   };
 };
 
+/**
+ * TODO
+ * @param {*} username
+ * @param {*} enterpriseSlug
+ * @returns
+ */
 export const makeEnterpriseLearnerQuery = (username, enterpriseSlug) => ({
   queryKey: ['enterprise', 'linked-enterprise-customer-users', username, enterpriseSlug],
   queryFn: async () => fetchEnterpriseLearnerData(username),
@@ -313,27 +319,26 @@ export function getEnterpriseAppData({
 }) {
   return [
     // Enterprise Customer User Subsidies
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeSubscriptionsQuery(enterpriseCustomer.uuid),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeRedeemablePoliciesQuery({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: userId,
       }),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeCouponCodesQuery(enterpriseCustomer.uuid),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeEnterpriseLearnerOffersQuery(enterpriseCustomer.uuid),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeBrowseAndRequestConfigurationQuery(enterpriseCustomer.uuid, userEmail),
     ),
     // Content Highlights
-    // TODO: delete a content highlights configuration record and re-test.
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeContentHighlightsConfigurationQuery(enterpriseCustomer.uuid),
     ),
   ];
@@ -354,7 +359,7 @@ export default function makeRootLoader(queryClient) {
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
     const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
-    const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
+    const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const { activeEnterpriseCustomer } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer; return early.

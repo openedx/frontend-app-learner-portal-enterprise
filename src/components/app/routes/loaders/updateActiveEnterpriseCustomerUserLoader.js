@@ -16,7 +16,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     const { enterpriseSlug } = params;
 
     const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
-    const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
+    const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const {
       activeEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
