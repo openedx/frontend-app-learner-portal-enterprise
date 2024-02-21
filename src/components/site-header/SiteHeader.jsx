@@ -1,6 +1,4 @@
-import { useContext } from 'react';
 import { HashLink } from 'react-router-hash-link';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MenuIcon } from '@edx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';

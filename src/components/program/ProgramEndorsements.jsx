@@ -39,10 +39,9 @@ const ProgramEndorsements = () => {
                     )}
                     {!image && <h3 className="h3">{corporation}</h3>}
                     <p className="endorsement">{quote}</p>
-                    <div className="attribution d-flex align-items-center">
-                      <div
-                        className="attribution-label"
-                      >{formatAuthorFullName(endorser)} {title(endorser).length > 0 && `, ${title(endorser)}`}
+                    <div className="small d-flex align-items-center">
+                      <div>
+                        {formatAuthorFullName(endorser)} {title(endorser).length > 0 && `, ${title(endorser)}`}
                       </div>
                     </div>
                   </div>
