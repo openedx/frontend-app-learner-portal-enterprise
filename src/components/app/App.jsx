@@ -130,28 +130,6 @@ const Root = () => {
 };
 
 /**
- * Determines whether the enterprise learner data should be refetched in the query options.
- *
- * True when activeEnterpriseCustomer doesn't exist or the activeEnterpriseCustomer's slug matches the
- * current slug from the page route params. Otherwise, false.
- *
- * This prevents unnecessary refetches when the enterprise learner data when the active enterprise customer
- * is changed external from the current page view (e.g., a page view to another Enterprise Customer in the Learner
- * Portal or Admin Portal). Without this, the refetches data would be for a different enterprise customer than
- * is reflected is in the current page route params.
- *
- * @param {Object} activeEnterpriseCustomer The active enterprise customer for the authenticated user.
- * @param {string} enterpriseSlug The current enterprise slug in the route params.
- * @returns {boolean} Whether the enterprise learner data should be refetched.
- */
-function shouldRefetchEnterpriseLearnerData(activeEnterpriseCustomer, enterpriseSlug) {
-  if (!activeEnterpriseCustomer) {
-    return true;
-  }
-  return activeEnterpriseCustomer.slug === enterpriseSlug;
-}
-
-/**
  * Retrieves the enterprise learner data for the authenticated user.
  *
  * @returns {UseQueryResult} The query results for the enterprise learner data.
