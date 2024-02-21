@@ -28,17 +28,6 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
       return null;
     }
 
-    console.log({
-      currentEnterpriseSlug,
-      nextEnterpriseSlug,
-      activeEnterpriseCustomerSlug: activeEnterpriseCustomer?.slug,
-    });
-
-    // Return early (do nothing) if the enterprise slug matches the active enterprise customer.
-    // if (currentEnterpriseSlug === nextEnterpriseSlug && nextEnterpriseSlug === activeEnterpriseCustomer?.slug) {
-    //   return null;
-    // }
-
     if (nextEnterpriseSlug !== activeEnterpriseCustomer.slug) {
       // Otherwise, try to find the enterprise customer for the given slug and update it as the active
       // enterprise customer for the learner.
