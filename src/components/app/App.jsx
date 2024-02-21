@@ -385,7 +385,7 @@ const Layout = () => {
 
   // Authenticated user is NOT linked an enterprise customer, so
   // render the not found page.
-  if (!enterpriseLearnerData?.activeEnterpriseCustomer) {
+  if (!enterpriseLearnerData.activeEnterpriseCustomer) {
     return <NotFoundPage />;
   }
 
