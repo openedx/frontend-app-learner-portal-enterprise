@@ -18,8 +18,6 @@ import {
   generatePath,
   useAsyncError,
   Link,
-  useLoaderData,
-  Await,
 } from 'react-router-dom';
 import NProgress from 'nprogress';
 import { Helmet } from 'react-helmet';
@@ -304,8 +302,6 @@ const Course = () => {
 };
 
 const Layout = () => {
-  const loaderData = useLoaderData();
-
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
