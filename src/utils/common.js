@@ -102,7 +102,7 @@ export function queryCacheOnErrorHandler(error, query) {
 }
 
 export function defaultQueryClientRetryHandler(failureCount, err) {
-  if (failureCount >= 3 || err.customAttributes?.httpErrorStatus === 404) {
+  if (failureCount >= 3 || err.customAttributes?.httpErrorStatus === 404 || err.response.status === 404) {
     return false;
   }
   return true;
