@@ -3,7 +3,6 @@ import {
   Suspense,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import {
   createBrowserRouter,
@@ -32,7 +31,6 @@ import {
 import { logError } from '@edx/frontend-platform/logging';
 import SiteFooter from '@edx/frontend-component-footer';
 import {
-  UseQueryResult,
   QueryCache,
   QueryClient,
   QueryClientProvider,
@@ -68,6 +66,10 @@ import { useStylesForCustomBrandColors } from '../layout/data/hooks';
 import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
 import makeDashboardLoader from './routes/loaders/dashboardLoader';
 import makeUpdateActiveEnterpriseCustomerUserLoader from './routes/loaders/updateActiveEnterpriseCustomerUserLoader';
+
+/**
+ * @typedef {import('@tanstack/react-query').UseQueryResult} UseQueryResult
+ */
 
 /* eslint-disable no-unused-vars */
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
