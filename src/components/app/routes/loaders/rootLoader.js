@@ -1,4 +1,3 @@
-import { defer, generatePath, redirect } from 'react-router-dom';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
@@ -20,7 +19,7 @@ async function fetchLicenseRequests({
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return response.data;
+  return camelCaseObject(response.data);
 }
 
 async function fetchCouponCodeRequests({
@@ -36,14 +35,14 @@ async function fetchCouponCodeRequests({
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return response.data;
+  return camelCaseObject(response.data);
 }
 
 const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
-    return response.data;
+    return camelCaseObject(response.data);
   } catch (error) {
     const errorResponseStatusCode = getErrorResponseStatusCode(error);
     if (errorResponseStatusCode === 404) {
@@ -76,7 +75,7 @@ const fetchCouponCodeAssignments = async (enterpriseId, options = {}) => {
   const config = getConfig();
   const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return response.data;
+  return camelCaseObject(response.data);
 };
 
 const fetchCouponsOverview = async (enterpriseId, options = {}) => {
@@ -88,18 +87,8 @@ const fetchCouponsOverview = async (enterpriseId, options = {}) => {
   const config = getConfig();
   const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return response.data;
+  return camelCaseObject(response.data);
 };
-
-function fetchRedeemablePolicies(enterpriseUUID, userID) {
-  const queryParams = new URLSearchParams({
-    enterprise_customer_uuid: enterpriseUUID,
-    lms_user_id: userID,
-  });
-  const config = getConfig();
-  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
-}
 
 async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   const queryParams = new URLSearchParams({
@@ -109,7 +98,7 @@ async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return response.data;
+  return camelCaseObject(response.data);
 }
 
 async function fetchCustomerAgreementData(enterpriseUUID) {
@@ -119,7 +108,7 @@ async function fetchCustomerAgreementData(enterpriseUUID) {
   const config = getConfig();
   const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return response.data;
+  return camelCaseObject(response.data);
 }
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
@@ -166,8 +155,8 @@ const fetchEnterpriseLearnerData = async (username, options = {}) => {
   };
 };
 
-export const makeEnterpriseLearnerQuery = (username) => ({
-  queryKey: ['enterprise', 'linked-enterprise-customer-users', username],
+export const makeEnterpriseLearnerQuery = (username, enterpriseSlug) => ({
+  queryKey: ['enterprise', 'linked-enterprise-customer-users', username, enterpriseSlug],
   queryFn: async () => fetchEnterpriseLearnerData(username),
 });
 
@@ -195,16 +184,23 @@ export const makeSubscriptionsQuery = (enterpriseUuid) => ({
 
 /**
  * TODO
- * @param {*} param0
+ * @param {*} enterpriseUUID
+ * @param {*} userID
  * @returns
  */
-const fetchPolicies = async ({ enterpriseUuid, lmsUserId }) => {
-  const response = await fetchRedeemablePolicies(enterpriseUuid, lmsUserId);
-  return response.data;
-};
+async function fetchRedeemablePolicies(enterpriseUUID, userID) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    lms_user_id: userID,
+  });
+  const config = getConfig();
+  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
 export const makeRedeemablePoliciesQuery = ({ enterpriseUuid, lmsUserId }) => ({
   queryKey: ['enterprise', 'redeemable-policies', enterpriseUuid, lmsUserId],
-  queryFn: async () => fetchPolicies({ enterpriseUuid, lmsUserId }),
+  queryFn: async () => fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
   enabled: !!enterpriseUuid,
 });
 
@@ -237,7 +233,7 @@ export const makeCouponCodesQuery = (enterpriseUuid) => ({
  */
 const fetchEnterpriseLearnerOffers = async (enterpriseUuid) => {
   const response = await fetchEnterpriseOffers(enterpriseUuid);
-  return response.data;
+  return camelCaseObject(response.data);
 };
 
 export const makeEnterpriseLearnerOffersQuery = (enterpriseUuid) => ({
@@ -309,7 +305,7 @@ export const makeContentHighlightsConfigurationQuery = (enterpriseUUID) => ({
   enabled: !!enterpriseUUID,
 });
 
-function getEnterpriseAppData({
+export function getEnterpriseAppData({
   enterpriseCustomer,
   userId,
   userEmail,
@@ -357,59 +353,21 @@ export default function makeRootLoader(queryClient) {
 
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
-    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username);
+    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
-    const {
-      activeEnterpriseCustomer,
-      allLinkedEnterpriseCustomerUsers,
-    } = enterpriseLearnerData;
+    const { activeEnterpriseCustomer } = enterpriseLearnerData;
 
-    // User has no active, linked enterprise customer; return no data.
+    // User has no active, linked enterprise customer; return early.
     if (!activeEnterpriseCustomer) {
-      return defer({ enterpriseAppData: null });
+      return null;
     }
 
-    if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
-      const foundEnterpriseCustomerForSlug = allLinkedEnterpriseCustomerUsers.find(
-        enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
-      );
-      if (foundEnterpriseCustomerForSlug) {
-        await updateUserActiveEnterprise({
-          enterpriseCustomer: foundEnterpriseCustomerForSlug.enterpriseCustomer,
-        });
-        queryClient.setQueryData(linkedEnterpriseCustomersQuery.queryKey, {
-          activeEnterpriseCustomer: foundEnterpriseCustomerForSlug.enterpriseCustomer,
-          activeEnterpriseCustomerUserRoleAssignments: foundEnterpriseCustomerForSlug.roleAssignments,
-          allLinkedEnterpriseCustomerUsers: allLinkedEnterpriseCustomerUsers.map(
-            enterpriseCustomerUser => ({
-              ...enterpriseCustomerUser,
-              active: enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
-            }),
-          ),
-        });
-        return defer({
-          enterpriseAppData: Promise.all(getEnterpriseAppData({
-            enterpriseCustomer: foundEnterpriseCustomerForSlug.enterpriseCustomer,
-            userId,
-            userEmail,
-            queryClient,
-          })),
-        });
-      }
-
-      return redirect(generatePath('/:enterpriseSlug/*', {
-        enterpriseSlug: activeEnterpriseCustomer.slug,
-        '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
-      }));
-    }
-
-    return defer({
-      enterpriseAppData: Promise.all(getEnterpriseAppData({
-        enterpriseCustomer: activeEnterpriseCustomer,
-        userId,
-        userEmail,
-        queryClient,
-      })),
-    });
+    await Promise.all(getEnterpriseAppData({
+      enterpriseCustomer: activeEnterpriseCustomer,
+      userId,
+      userEmail,
+      queryClient,
+    }));
+    return null;
   };
 }
