@@ -4,7 +4,6 @@ import { useEnterpriseLearner } from '../app/App';
 
 const EnterpriseBanner = () => {
   const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
-  // const { shouldRecommendCourses } = useContext(AuthenticatedPageContext);
 
   return (
     <div className="enterprise-banner bg-brand-secondary border-brand-tertiary">

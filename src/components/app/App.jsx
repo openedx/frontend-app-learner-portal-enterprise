@@ -3,6 +3,7 @@ import {
   Suspense,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import {
   createBrowserRouter,
@@ -31,6 +32,7 @@ import {
 import { logError } from '@edx/frontend-platform/logging';
 import SiteFooter from '@edx/frontend-component-footer';
 import {
+  UseQueryResult,
   QueryCache,
   QueryClient,
   QueryClientProvider,
@@ -127,14 +129,63 @@ const Root = () => {
   );
 };
 
+/**
+ * Determines whether the enterprise learner data should be refetched in the query options.
+ *
+ * True when activeEnterpriseCustomer doesn't exist or the activeEnterpriseCustomer's slug matches the
+ * current slug from the page route params. Otherwise, false.
+ *
+ * This prevents unnecessary refetches when the enterprise learner data when the active enterprise customer
+ * is changed external from the current page view (e.g., a page view to another Enterprise Customer in the Learner
+ * Portal or Admin Portal). Without this, the refetches data would be for a different enterprise customer than
+ * is reflected is in the current page route params.
+ *
+ * @param {Object} activeEnterpriseCustomer The active enterprise customer for the authenticated user.
+ * @param {string} enterpriseSlug The current enterprise slug in the route params.
+ * @returns {boolean} Whether the enterprise learner data should be refetched.
+ */
+function shouldRefetchEnterpriseLearnerData(activeEnterpriseCustomer, enterpriseSlug) {
+  if (!activeEnterpriseCustomer) {
+    return true;
+  }
+  return activeEnterpriseCustomer.slug === enterpriseSlug;
+}
+
+/**
+ * Retrieves the enterprise learner data for the authenticated user.
+ *
+ * @returns {UseQueryResult} The query results for the enterprise learner data.
+ */
 export const useEnterpriseLearner = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
-  return useQuery(
-    makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug),
-  );
+
+  const [shouldRefetchEnterpriseLearner, setShouldRefetchEnterpriseLearner] = useState(true);
+
+  const queryResults = useQuery({
+    ...makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug),
+    refetchOnWindowFocus: shouldRefetchEnterpriseLearner,
+    refetchOnMount: shouldRefetchEnterpriseLearner,
+    refetchOnReconnect: shouldRefetchEnterpriseLearner,
+  });
+
+  /**
+   * Determine if the enterprise learner data should be refetched.
+   */
+  useEffect(() => {
+    const activeEnterpriseCustomer = queryResults.data?.activeEnterpriseCustomer;
+    if (shouldRefetchEnterpriseLearnerData(activeEnterpriseCustomer, enterpriseSlug)) {
+      setShouldRefetchEnterpriseLearner(false);
+    }
+  }, [enterpriseSlug, queryResults.data?.activeEnterpriseCustomer]);
+
+  return queryResults;
 };
 
+/**
+ * Retrieves the subsidies present for the active enterprise customer user.
+ * @returns {UseQueryResult} The query results for the enterprise customer user subsidies.
+ */
 export const useEnterpriseCustomerUserSubsidies = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { userId, email } = authenticatedUser;
@@ -163,6 +214,10 @@ export const useEnterpriseCustomerUserSubsidies = () => {
   };
 };
 
+/**
+ * Retrieves the course metadata for the given enterprise customer and course key.
+ * @returns {UseQueryResult} The query results for the course metadata.
+ */
 const useCourseMetadata = () => {
   const { courseKey } = useParams();
   const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
@@ -172,6 +227,10 @@ const useCourseMetadata = () => {
   );
 };
 
+/**
+ * Retrieves the course redemption eligibility for the given enterprise customer and course key.
+ * @returns {UseQueryResult} The query results for the course redemption eligibility.
+ */
 const useCourseRedemptionEligibility = () => {
   const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
   const { data: courseMetadata } = useCourseMetadata();
@@ -181,6 +240,10 @@ const useCourseRedemptionEligibility = () => {
   );
 };
 
+/**
+ * Retrieves the enterprise course enrollments for the active enterprise customer user.
+ * @returns {UseQueryResult} The query results for the enterprise course enrollments.
+ */
 const useEnterpriseCourseEnrollments = () => {
   const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
   const enterpriseId = activeEnterpriseCustomer.uuid;
@@ -189,10 +252,18 @@ const useEnterpriseCourseEnrollments = () => {
   );
 };
 
+/**
+ * Retrieves the user entitlements.
+ * @returns {UseQueryResult} The query results for the user entitlements.
+ */
 const useUserEntitlements = () => useQuery(
   makeUserEntitlementsQuery(),
 );
 
+/**
+ * Retrieves the content highlights configuration for the active enterprise customer user.
+ * @returns {UseQueryResult} The query results for the content highlights configuration.
+ */
 export const useContentHighlightsConfiguration = () => {
   const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
   const enterpriseId = activeEnterpriseCustomer.uuid;
@@ -314,7 +385,7 @@ const Layout = () => {
 
   // Authenticated user is NOT linked an enterprise customer, so
   // render the not found page.
-  if (!enterpriseLearnerData.activeEnterpriseCustomer) {
+  if (!enterpriseLearnerData?.activeEnterpriseCustomer) {
     return <NotFoundPage />;
   }
 

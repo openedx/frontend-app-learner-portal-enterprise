@@ -13,9 +13,9 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     const requestUrl = new URL(request.url);
     const authenticatedUser = await ensureAuthenticatedUser(requestUrl);
     const { username, userId, email: userEmail } = authenticatedUser;
-    const { enterpriseSlug: nextEnterpriseSlug } = params;
+    const { enterpriseSlug } = params;
 
-    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, nextEnterpriseSlug);
+    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
     const {
       activeEnterpriseCustomer,
@@ -27,11 +27,11 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
       return null;
     }
 
-    if (nextEnterpriseSlug !== activeEnterpriseCustomer.slug) {
+    if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
       // Otherwise, try to find the enterprise customer for the given slug and update it as the active
       // enterprise customer for the learner.
       const foundEnterpriseCustomerForSlug = allLinkedEnterpriseCustomerUsers.find(
-        enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === nextEnterpriseSlug,
+        enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
       );
       if (foundEnterpriseCustomerForSlug) {
         await updateUserActiveEnterprise({
