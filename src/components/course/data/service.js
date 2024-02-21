@@ -5,6 +5,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { EVENT_NAMES } from './constants';
 import { getActiveCourseRun, getAvailableCourseRuns } from './utils';
+import { getErrorResponseStatusCode } from '../../../utils/common';
 
 export default class CourseService {
   constructor(options = {}) {
@@ -162,7 +163,7 @@ export default class CourseService {
 
     const url = `${this.config.LICENSE_MANAGER_URL}/api/v1/license-subsidy/?${queryParams.toString()}`;
     return this.authenticatedHttpClient.get(url).catch(error => {
-      const httpErrorStatus = error.customAttributes?.httpErrorStatus;
+      const httpErrorStatus = getErrorResponseStatusCode(error);
       if (httpErrorStatus === 404) {
         // 404 means the user's license is not applicable for the course, return undefined instead of throwing an error
         return {

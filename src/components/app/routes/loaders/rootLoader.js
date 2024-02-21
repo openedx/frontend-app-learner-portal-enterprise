@@ -5,6 +5,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
+import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 function fetchLicenseRequests({
   enterpriseUUID,
@@ -18,7 +19,8 @@ function fetchLicenseRequests({
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
+  const response = getAuthenticatedHttpClient().get(url);
+  return response.data;
 }
 
 function fetchCouponCodeRequests({
@@ -33,15 +35,18 @@ function fetchCouponCodeRequests({
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
-  return getAuthenticatedHttpClient().get(url);
+  const response = getAuthenticatedHttpClient().get(url);
+  return response.data;
 }
 
 const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
   try {
-    return await getAuthenticatedHttpClient().get(url);
+    const response = await getAuthenticatedHttpClient().get(url);
+    return response.data;
   } catch (error) {
-    if (error.response.status === 404) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
       return null;
     }
     throw error;
@@ -189,8 +194,10 @@ export const makeSubscriptionsQuery = (enterpriseUuid) => ({
  * @param {*} param0
  * @returns
  */
-const fetchPolicies = async ({ enterpriseUuid, lmsUserId }) => fetchRedeemablePolicies(enterpriseUuid, lmsUserId);
-
+const fetchPolicies = async ({ enterpriseUuid, lmsUserId }) => {
+  const response = await fetchRedeemablePolicies(enterpriseUuid, lmsUserId);
+  return response.data;
+};
 export const makeRedeemablePoliciesQuery = ({ enterpriseUuid, lmsUserId }) => ({
   queryKey: ['enterprise', 'redeemable-policies', enterpriseUuid, lmsUserId],
   queryFn: async () => fetchPolicies({ enterpriseUuid, lmsUserId }),
@@ -253,9 +260,9 @@ const fetchBrowseAndRequestConfiguration = async (enterpriseUuid, userEmail) => 
   ]);
 
   return {
-    subsidyRequestConfiguration: results[0]?.data,
-    couponCodeRequests: results[1].data,
-    licenseRequests: results[2].data,
+    subsidyRequestConfiguration: results[0],
+    couponCodeRequests: results[1],
+    licenseRequests: results[2],
   };
 };
 
@@ -283,7 +290,8 @@ const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
     // Return first result, given that there should only be one result, if any.
     return data.results[0] ?? null;
   } catch (error) {
-    if (error.response.status === 404) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
       return null;
     }
     throw error;

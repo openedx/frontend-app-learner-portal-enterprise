@@ -17,7 +17,6 @@ import { useAllProgramData } from './data/hooks';
 import ProgramEndorsements from './ProgramEndorsements';
 import ProgramFAQ from './ProgramFAQ';
 import ProgramCTA from './ProgramCTA';
-import './styles/index.scss';
 import NotFoundPage from '../NotFoundPage';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from './data/constants';
 import ProgramDataBar from './ProgramDataBar';

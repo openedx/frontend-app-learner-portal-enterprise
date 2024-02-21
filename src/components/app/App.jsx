@@ -19,8 +19,11 @@ import {
   useNavigation,
   generatePath,
   useAsyncError,
+  Link,
 } from 'react-router-dom';
 import NProgress from 'nprogress';
+import { Helmet } from 'react-helmet';
+import { Container } from '@edx/paragon';
 import {
   AppContext,
   AppProvider,
@@ -63,10 +66,7 @@ import makeCourseLoader, {
 import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
-import { Helmet } from 'react-helmet';
 import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
-import { Container } from '@edx/paragon';
-import { Link } from 'react-router-dom';
 
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
 const EnterprisePageRedirect = lazy(() => import(/* webpackChunkName: "enterprise-page-redirect" */ '../enterprise-redirects/EnterprisePageRedirect'));
@@ -111,7 +111,7 @@ export const useEnterpriseLearner = () => {
   );
 };
 
-const useEnterpriseCustomerUserSubsidies = () => {
+export const useEnterpriseCustomerUserSubsidies = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { userId, email } = authenticatedUser;
   const { data } = useEnterpriseLearner();

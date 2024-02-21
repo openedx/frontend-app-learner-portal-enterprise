@@ -5,6 +5,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import { makeEnterpriseLearnerQuery } from './rootLoader';
 import { getAvailableCourseRuns } from '../../../course/data/utils';
+import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Service method to determine whether the authenticated user can redeem the specified course run(s).
@@ -24,7 +25,8 @@ const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
     const response = await getAuthenticatedHttpClient().get(urlWithParams);
     return camelCaseObject(response.data);
   } catch (error) {
-    if (error.response?.status === 404) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
       return [];
     }
     throw error;
@@ -54,7 +56,8 @@ const fetchCourseMetadata = async (enterpriseId, courseKey, options = {}) => {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    if (error.response?.status === 404) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
       return null;
     }
     throw error;
