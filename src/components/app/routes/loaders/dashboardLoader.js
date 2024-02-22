@@ -1,4 +1,5 @@
-import { extractActiveEnterpriseId, makeEnterpriseCourseEnrollmentsQuery } from './courseLoader';
+import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
+import { extractActiveEnterpriseId } from './courseLoader';
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 
 /**
