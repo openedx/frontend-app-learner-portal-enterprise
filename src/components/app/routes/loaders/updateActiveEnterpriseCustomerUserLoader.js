@@ -19,6 +19,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const {
       activeEnterpriseCustomer,
+      activeEnterpriseCustomerUserRoleAssignments,
       allLinkedEnterpriseCustomerUsers,
     } = enterpriseLearnerData;
 
@@ -30,27 +31,27 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
       // Otherwise, try to find the enterprise customer for the given slug and update it as the active
       // enterprise customer for the learner.
-      const foundEnterpriseCustomerForSlug = allLinkedEnterpriseCustomerUsers.find(
+      const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
         enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
       );
-      if (foundEnterpriseCustomerForSlug) {
+      if (foundEnterpriseCustomerUserForSlug) {
         await updateUserActiveEnterprise({
-          enterpriseCustomer: foundEnterpriseCustomerForSlug.enterpriseCustomer,
+          enterpriseCustomer: foundEnterpriseCustomerUserForSlug.enterpriseCustomer,
         });
         queryClient.setQueryData(linkedEnterpriseCustomersQuery.queryKey, {
           ...enterpriseLearnerData,
-          activeEnterpriseCustomer: foundEnterpriseCustomerForSlug.enterpriseCustomer,
+          activeEnterpriseCustomer: foundEnterpriseCustomerUserForSlug.enterpriseCustomer,
           allLinkedEnterpriseCustomerUsers: allLinkedEnterpriseCustomerUsers.map(
             ecu => ({
               ...ecu,
               active: (
-                ecu.enterpriseCustomer.uuid === foundEnterpriseCustomerForSlug.enterpriseCustomer.uuid
+                ecu.enterpriseCustomer.uuid === foundEnterpriseCustomerUserForSlug.enterpriseCustomer.uuid
               ),
             }),
           ),
         });
         await Promise.all(getEnterpriseAppData({
-          enterpriseCustomer: foundEnterpriseCustomerForSlug.enterpriseCustomer,
+          enterpriseCustomer: foundEnterpriseCustomerUserForSlug.enterpriseCustomer,
           userId,
           userEmail,
           queryClient,
@@ -58,6 +59,14 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
         return null;
       }
 
+      const nextEnterpriseLearnerQuery = makeEnterpriseLearnerQuery(username, activeEnterpriseCustomer.slug);
+      queryClient.setQueryData(nextEnterpriseLearnerQuery.queryKey, {
+        enterpriseCustomer: activeEnterpriseCustomer,
+        enterpriseCustomerUserRoleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+        activeEnterpriseCustomer,
+        activeEnterpriseCustomerUserRoleAssignments,
+        allLinkedEnterpriseCustomerUsers,
+      });
       return redirect(generatePath('/:enterpriseSlug/*', {
         enterpriseSlug: activeEnterpriseCustomer.slug,
         '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),

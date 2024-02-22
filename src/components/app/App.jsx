@@ -319,7 +319,7 @@ const Course = () => {
             },
             redeemableSubsidyAccessPolicy: courseRedemptionEligiblity.find(
               ({ canRedeem }) => canRedeem,
-            )?.redeemableSubsidyAccessPolicy?.uuid,
+            )?.redeemableSubsidyAccessPolicy?.uuid ?? null,
             enterpriseCourseEnrollments: {
               isLoading: isLoadingEnterpriseCourseEnrollments,
               isFetching: isFetchingEnterpriseCourseEnrollments,
@@ -343,7 +343,7 @@ const Layout = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
-  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData?.enterpriseCustomer);
+  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
 
   // Authenticated user is NOT linked an enterprise customer, so
   // render the not found page.
