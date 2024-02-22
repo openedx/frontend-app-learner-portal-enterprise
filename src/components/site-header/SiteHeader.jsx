@@ -7,6 +7,7 @@ import { Container, MediaQuery } from '@edx/paragon';
 import SiteHeaderLogos from './SiteHeaderLogos';
 import SiteHeaderNavMenu from './SiteHeaderNavMenu';
 import { Menu, MenuTrigger, MenuContent } from './menu';
+import { useEnterpriseLearner } from '../app/data';
 import AvatarDropdown from './AvatarDropdown';
 import { useEnterpriseLearner } from '../app/App';
 

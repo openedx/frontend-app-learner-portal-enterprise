@@ -40,6 +40,7 @@ import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
 import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
+import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 
 const Search = () => {
   const config = getConfig();
@@ -77,6 +78,11 @@ const Search = () => {
     searchCatalogs,
   });
   const intl = useIntl();
+
+  const isExperimentVariation = isExperimentVariant(
+    config.PREQUERY_SEARCH_EXPERIMENT_ID,
+    config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
+  );
 
   const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
   const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
@@ -150,6 +156,12 @@ const Search = () => {
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
+  const optimizelyPrequerySuggestionClickHandler = (courseKey) => {
+    if (isExperimentVariation) {
+      pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKey });
+    }
+  };
+
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -173,6 +185,7 @@ const Search = () => {
               index={courseIndex}
               filters={filters}
               enterpriseConfig={enterpriseConfig}
+              optimizelyPrequerySuggestionClickHandler={optimizelyPrequerySuggestionClickHandler}
             />
           </div>
         )}

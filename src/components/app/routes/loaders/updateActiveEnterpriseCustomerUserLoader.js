@@ -1,7 +1,8 @@
 import { redirect, generatePath } from 'react-router-dom';
 
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
-import { getEnterpriseAppData, makeEnterpriseLearnerQuery, updateUserActiveEnterprise } from './rootLoader';
+import { getEnterpriseAppData, updateUserActiveEnterprise } from './rootLoader';
+import { makeEnterpriseLearnerQuery } from '../queries';
 
 /**
  * TODO

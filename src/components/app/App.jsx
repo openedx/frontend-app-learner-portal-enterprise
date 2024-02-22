@@ -1,9 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useContext,
-  useEffect,
-} from 'react';
+import { lazy, useEffect } from 'react';
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -11,25 +6,17 @@ import {
   Route,
   Outlet,
   useRouteError,
-  useParams,
-  ScrollRestoration,
-  useFetchers,
-  useNavigation,
   generatePath,
   useAsyncError,
   Link,
 } from 'react-router-dom';
-import NProgress from 'nprogress';
-import { Helmet } from 'react-helmet';
 import { Container } from '@edx/paragon';
 import {
-  AppContext,
   AppProvider,
   AuthenticatedPageRoute,
   ErrorPage,
 } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
-import SiteFooter from '@edx/frontend-component-footer';
 import {
   QueryCache,
   QueryClient,
@@ -39,37 +26,24 @@ import {
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import NoticesProvider from '../notices-provider';
 import { queryCacheOnErrorHandler, defaultQueryClientRetryHandler } from '../../utils/common';
-import { ToastsProvider, Toasts } from '../Toasts';
-import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import extractNamedExport from '../../utils/extract-named-export';
-import makeRootLoader, {
-  makeBrowseAndRequestConfigurationQuery,
-  makeContentHighlightsConfigurationQuery,
-  makeCouponCodesQuery,
-  makeEnterpriseLearnerOffersQuery,
-  makeEnterpriseLearnerQuery,
-  makeRedeemablePoliciesQuery,
-  makeSubscriptionsQuery,
-} from './routes/loaders/rootLoader';
-import makeCourseLoader, {
-  makeCanRedeemQuery,
-  makeCourseMetadataQuery,
-  makeEnterpriseCourseEnrollmentsQuery,
-  makeUserEntitlementsQuery,
-} from './routes/loaders/courseLoader';
-
-import { SiteHeader } from '../site-header';
-import { EnterpriseBanner } from '../enterprise-banner';
-import { useStylesForCustomBrandColors } from '../layout/data/hooks';
-import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
-import makeDashboardLoader from './routes/loaders/dashboardLoader';
-import makeUpdateActiveEnterpriseCustomerUserLoader from './routes/loaders/updateActiveEnterpriseCustomerUserLoader';
-
-/**
- * @typedef {import('@tanstack/react-query').UseQueryResult} UseQueryResult
- */
+import {
+  makeDashboardLoader,
+  makeUpdateActiveEnterpriseCustomerUserLoader,
+  makeCourseLoader,
+  makeRootLoader,
+} from './routes/loaders';
+import {
+  useEnterpriseLearner,
+  useCourseRedemptionEligibility,
+  useEnterpriseCustomerUserSubsidies,
+  useCourseMetadata,
+  useEnterpriseCourseEnrollments,
+  useUserEntitlements,
+} from './data';
+import Root from './Root';
+import Layout from './Layout';
 
 /* eslint-disable no-unused-vars */
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
@@ -96,143 +70,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Determines amount of time that must elapse before the
-// NProgress loader is shown in the UI. No need to show it
-// for quick route transitions.
-const NPROGRESS_DELAY_MS = 300;
-
-const Root = () => {
-  const navigation = useNavigation();
-  const fetchers = useFetchers();
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (navigation.state === 'idle' && fetchersIdle) {
-        NProgress.done();
-      } else {
-        NProgress.start();
-      }
-    }, NPROGRESS_DELAY_MS);
-    return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers]);
-
-  return (
-    <NoticesProvider>
-      <ToastsProvider>
-        <Toasts />
-        <Suspense fallback={<DelayedFallbackContainer />}>
-          <Outlet />
-        </Suspense>
-      </ToastsProvider>
-      <ScrollRestoration />
-    </NoticesProvider>
-  );
-};
-
-/**
- * Retrieves the enterprise learner data for the authenticated user.
- *
- * @returns {UseQueryResult} The query results for the enterprise learner data.
- */
-export const useEnterpriseLearner = () => {
-  const { authenticatedUser } = useContext(AppContext);
-  const { enterpriseSlug } = useParams();
-  return useQuery(
-    makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug),
-  );
-};
-
-/**
- * Retrieves the subsidies present for the active enterprise customer user.
- * @returns {UseQueryResult} The query results for the enterprise customer user subsidies.
- */
-export const useEnterpriseCustomerUserSubsidies = () => {
-  const { authenticatedUser } = useContext(AppContext);
-  const { userId, email } = authenticatedUser;
-  const { data } = useEnterpriseLearner();
-  const enterpriseId = data.enterpriseCustomer.uuid;
-  const queries = useQueries({
-    queries: [
-      makeSubscriptionsQuery(enterpriseId),
-      makeRedeemablePoliciesQuery({
-        enterpriseUuid: enterpriseId,
-        lmsUserId: userId,
-      }),
-      makeCouponCodesQuery(enterpriseId),
-      makeEnterpriseLearnerOffersQuery(enterpriseId),
-      makeBrowseAndRequestConfigurationQuery(enterpriseId, email),
-    ],
-  });
-  return {
-    data: {
-      subscriptions: queries[0].data,
-      redeemablePolicies: queries[1].data,
-      couponCodes: queries[2].data,
-      enterpriseLearnerOffers: queries[3].data,
-      browseAndRequest: queries[4].data,
-    },
-  };
-};
-
-/**
- * Retrieves the course metadata for the given enterprise customer and course key.
- * @returns {UseQueryResult} The query results for the course metadata.
- */
-const useCourseMetadata = () => {
-  const { courseKey } = useParams();
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-  const enterpriseId = enterpriseCustomer.uuid;
-  return useQuery(
-    makeCourseMetadataQuery(enterpriseId, courseKey),
-  );
-};
-
-/**
- * Retrieves the course redemption eligibility for the given enterprise customer and course key.
- * @returns {UseQueryResult} The query results for the course redemption eligibility.
- */
-const useCourseRedemptionEligibility = () => {
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-  const { data: courseMetadata } = useCourseMetadata();
-  const enterpriseId = enterpriseCustomer.uuid;
-  return useQuery(
-    makeCanRedeemQuery(enterpriseId, courseMetadata),
-  );
-};
-
-/**
- * Retrieves the enterprise course enrollments for the active enterprise customer user.
- * @returns {UseQueryResult} The query results for the enterprise course enrollments.
- */
-const useEnterpriseCourseEnrollments = () => {
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-  const enterpriseId = enterpriseCustomer.uuid;
-  return useQuery(
-    makeEnterpriseCourseEnrollmentsQuery(enterpriseId),
-  );
-};
-
-/**
- * Retrieves the user entitlements.
- * @returns {UseQueryResult} The query results for the user entitlements.
- */
-const useUserEntitlements = () => useQuery(
-  makeUserEntitlementsQuery(),
-);
-
-/**
- * Retrieves the content highlights configuration for the active enterprise customer user.
- * @returns {UseQueryResult} The query results for the content highlights configuration.
- */
-export const useContentHighlightsConfiguration = () => {
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-  const enterpriseId = enterpriseCustomer.uuid;
-  return useQuery(
-    makeContentHighlightsConfigurationQuery(enterpriseId),
-  );
-};
 
 const Dashboard = () => {
   const { data: enterpriseCustomerUserSubsidies } = useEnterpriseCustomerUserSubsidies();
@@ -285,12 +122,8 @@ const Search = () => {
 };
 
 const Course = () => {
-  const {
-    data: courseMetadata,
-  } = useCourseMetadata();
-  const {
-    data: courseRedemptionEligiblity,
-  } = useCourseRedemptionEligibility();
+  const { data: courseMetadata } = useCourseMetadata();
+  const { data: courseRedemptionEligiblity } = useCourseRedemptionEligibility();
   const {
     data: enterpriseCourseEnrollments,
     isLoading: isLoadingEnterpriseCourseEnrollments,
@@ -336,48 +169,6 @@ const Course = () => {
         )}
       </pre>
     </Container>
-  );
-};
-
-const Layout = () => {
-  const { authenticatedUser } = useContext(AppContext);
-  const { data: enterpriseLearnerData } = useEnterpriseLearner();
-
-  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
-
-  // Authenticated user is NOT linked an enterprise customer, so
-  // render the not found page.
-  if (!enterpriseLearnerData.enterpriseCustomer) {
-    return <NotFoundPage />;
-  }
-
-  // User is authenticated with an active enterprise customer, but
-  // the user account API data is still hydrating. If it is still
-  // hydrating, render a loading state.
-  if (!authenticatedUser.profileImage) {
-    return (
-      <DelayedFallbackContainer
-        className="py-5 text-center"
-        screenReaderText="Loading your account details. Please wait."
-      />
-    );
-  }
-
-  return (
-    <>
-      <Helmet titleTemplate={TITLE_TEMPLATE} defaultTitle={DEFAULT_TITLE}>
-        <html lang="en" />
-        {brandStyles.map(({ key, styles }) => (
-          <style key={key} type="text/css">{styles}</style>
-        ))}
-      </Helmet>
-      <SiteHeader />
-      <EnterpriseBanner />
-      <main id="content" className="fill-vertical-space">
-        <Outlet />
-      </main>
-      <SiteFooter />
-    </>
   );
 };
 

@@ -4,7 +4,7 @@ import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@edx/paragon';
 
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
-import { useEnterpriseLearner } from '../app/App';
+import { useEnterpriseLearner } from '../app/data';
 
 const SiteHeaderLogos = () => {
   const courseTypeMatch = useMatch('/:enterpriseSlug/:courseType?/course/*');

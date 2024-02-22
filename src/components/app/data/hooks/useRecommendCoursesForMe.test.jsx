@@ -3,7 +3,7 @@ import { useParams, useMatch } from 'react-router-dom';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 import useRecommendCoursesForMe from './useRecommendCoursesForMe';
-import { useEnterpriseCuration } from '../../search/content-highlights/data';
+import { useEnterpriseCuration } from '../../../search/content-highlights/data';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

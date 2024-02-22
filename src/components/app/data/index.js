@@ -1,1 +1,1 @@
-export { default as useRecommendCoursesForMe } from './useRecommendCoursesForMe';
+export * from './hooks';
