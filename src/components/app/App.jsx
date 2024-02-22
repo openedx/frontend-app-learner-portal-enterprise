@@ -442,7 +442,7 @@ const router = createBrowserRouter(
             element={<Course />}
             loader={makeCourseLoader(queryClient)}
           />
-          <Route path="" element={<NotFoundPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
