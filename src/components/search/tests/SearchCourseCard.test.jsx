@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import SearchCourseCard from '../SearchCourseCard';
 import * as courseSearchUtils from '../utils';
 
@@ -17,13 +18,15 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const SearchCourseCardWithAppContext = (props) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-    }}
-  >
-    <SearchCourseCard {...props} />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+      }}
+    >
+      <SearchCourseCard {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
