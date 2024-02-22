@@ -176,11 +176,9 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
     enterpriseCustomer,
     roleAssignments,
   } = determineEnterpriseCustomerUserForDisplay();
-  const enterpriseCustomerUserRoleAssignments = roleAssignments;
-
   return {
     enterpriseCustomer,
-    enterpriseCustomerUserRoleAssignments,
+    enterpriseCustomerUserRoleAssignments: roleAssignments,
     activeEnterpriseCustomer,
     activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
