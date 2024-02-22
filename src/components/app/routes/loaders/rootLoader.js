@@ -135,7 +135,7 @@ async function fetchData(url, linkedEnterprises = []) {
  * @param {*} param0
  * @returns
  */
-const fetchEnterpriseLearnerData = async (username, options = {}) => {
+const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}) => {
   const config = getConfig();
   const enterpriseLearnerUrl = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
@@ -148,7 +148,41 @@ const fetchEnterpriseLearnerData = async (username, options = {}) => {
   const activeLinkedEnterpriseCustomerUser = linkedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
   const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
   const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
+
+  // Find enterprise customer metadata for the currently viewed
+  // enterprise slug in the page route params.
+  const foundEnterpriseCustomerUserForCurrentSlug = linkedEnterpriseCustomersUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+  );
+
+  const determineEnterpriseCustomerUserForDisplay = () => {
+    if (!enterpriseSlug) {
+      return {
+        enterpriseCustomer: activeEnterpriseCustomer,
+        roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+      };
+    }
+    if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+      return {
+        enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
+        roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
+      };
+    }
+    return {
+      enterpriseCustomer: null,
+      roleAssignments: null,
+    };
+  };
+
+  const {
+    enterpriseCustomer,
+    roleAssignments,
+  } = determineEnterpriseCustomerUserForDisplay();
+  const enterpriseCustomerUserRoleAssignments = roleAssignments;
+
   return {
+    enterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments,
     activeEnterpriseCustomer,
     activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
@@ -163,7 +197,7 @@ const fetchEnterpriseLearnerData = async (username, options = {}) => {
  */
 export const makeEnterpriseLearnerQuery = (username, enterpriseSlug) => ({
   queryKey: ['enterprise', 'linked-enterprise-customer-users', username, enterpriseSlug],
-  queryFn: async () => fetchEnterpriseLearnerData(username),
+  queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
 });
 
 /**
