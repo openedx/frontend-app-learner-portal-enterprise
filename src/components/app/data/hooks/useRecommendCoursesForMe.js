@@ -8,7 +8,7 @@ import { useParams, useMatch } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logInfo } from '@edx/frontend-platform/logging';
 
-import { useEnterpriseCuration } from '../../search/content-highlights/data';
+import { useEnterpriseCuration } from '../../../search/content-highlights/data';
 
 /**
  * Keeps track of whether the enterprise banner should include the "Recommend courses for me" button.

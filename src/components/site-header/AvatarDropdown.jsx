@@ -6,7 +6,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { AvatarButton, Dropdown } from '@edx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { isDefinedAndNotNull } from '../../utils/common';
-import { useEnterpriseLearner } from '../app/App';
+import { useEnterpriseLearner } from '../app/data';
 
 const AvatarDropdown = ({ showLabel }) => {
   const {

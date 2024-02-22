@@ -1,6 +1,5 @@
 import { Container } from '@edx/paragon';
-
-import { useEnterpriseLearner } from '../app/App';
+import { useEnterpriseLearner } from '../app/data';
 
 const EnterpriseBanner = () => {
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
