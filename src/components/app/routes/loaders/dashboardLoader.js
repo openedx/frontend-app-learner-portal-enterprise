@@ -4,6 +4,7 @@ import extractEnterpriseId from './extractEnterpriseId';
 
 /**
  * TODO
+ * @param {*} queryClient
  * @returns
  */
 export default function makeDashboardLoader(queryClient) {
