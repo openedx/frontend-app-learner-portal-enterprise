@@ -5,6 +5,7 @@ import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 async function fetchLicenseRequests({
   enterpriseUUID,
@@ -192,14 +193,14 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
  * @returns
  */
 export const makeEnterpriseLearnerQuery = (username, enterpriseSlug) => ({
-  queryKey: ['enterprise', 'linked-enterprise-customer-users', username, enterpriseSlug],
+  queryKey: enterpriseQueryKeys.enterpriseLearner(username, enterpriseSlug),
   queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
 });
 
 /**
  * TODO
- * @param {*} param0
  * @returns
+ * @param enterpriseUuid
  */
 const fetchSubscriptions = async (enterpriseUuid) => {
   const results = await Promise.all([
@@ -213,7 +214,7 @@ const fetchSubscriptions = async (enterpriseUuid) => {
 };
 
 export const makeSubscriptionsQuery = (enterpriseUuid) => ({
-  queryKey: ['enterprise', 'subscriptions', enterpriseUuid],
+  queryKey: enterpriseQueryKeys.subscriptions(enterpriseUuid),
   queryFn: async () => fetchSubscriptions(enterpriseUuid),
   enabled: !!enterpriseUuid,
 });
@@ -235,7 +236,7 @@ async function fetchRedeemablePolicies(enterpriseUUID, userID) {
   return camelCaseObject(response.data);
 }
 export const makeRedeemablePoliciesQuery = ({ enterpriseUuid, lmsUserId }) => ({
-  queryKey: ['enterprise', 'redeemable-policies', enterpriseUuid, lmsUserId],
+  queryKey: enterpriseQueryKeys.redeemablePolicies(enterpriseUuid, lmsUserId),
   queryFn: async () => fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
   enabled: !!enterpriseUuid,
 });
@@ -257,7 +258,7 @@ const fetchCouponCodes = async (enterpriseUuid) => {
 };
 
 export const makeCouponCodesQuery = (enterpriseUuid) => ({
-  queryKey: ['enterprise', 'coupon-codes', enterpriseUuid],
+  queryKey: enterpriseQueryKeys.couponCodes(enterpriseUuid),
   queryFn: async () => fetchCouponCodes(enterpriseUuid),
   enabled: !!enterpriseUuid,
 });
@@ -273,7 +274,7 @@ const fetchEnterpriseLearnerOffers = async (enterpriseUuid) => {
 };
 
 export const makeEnterpriseLearnerOffersQuery = (enterpriseUuid) => ({
-  queryKey: ['enterprise', 'enterprise-learner-offers', enterpriseUuid],
+  queryKey: enterpriseQueryKeys.offers(enterpriseUuid),
   queryFn: async () => fetchEnterpriseLearnerOffers(enterpriseUuid),
   enabled: !!enterpriseUuid,
 });
@@ -304,7 +305,7 @@ const fetchBrowseAndRequestConfiguration = async (enterpriseUuid, userEmail) => 
 };
 
 export const makeBrowseAndRequestConfigurationQuery = (enterpriseUuid, userEmail) => ({
-  queryKey: ['enterprise', enterpriseUuid, 'browse-and-request-configuration', userEmail],
+  queryKey: enterpriseQueryKeys.browseAndRequestConfiguration(enterpriseUuid, userEmail),
   queryFn: async () => fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail),
   enabled: !!enterpriseUuid,
 });
@@ -335,10 +336,10 @@ const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
   }
 };
 
-export const makeContentHighlightsConfigurationQuery = (enterpriseUUID) => ({
-  queryKey: ['enterprise', enterpriseUUID, 'content-highlights', 'configuration'],
-  queryFn: () => fetchEnterpriseCuration(enterpriseUUID),
-  enabled: !!enterpriseUUID,
+export const makeContentHighlightsConfigurationQuery = (enterpriseUuid) => ({
+  queryKey: enterpriseQueryKeys.enterpriseCurationConfiguration(enterpriseUuid),
+  queryFn: () => fetchEnterpriseCuration(enterpriseUuid),
+  enabled: !!enterpriseUuid,
 });
 
 export function getEnterpriseAppData({
