@@ -15,7 +15,7 @@ export default function makeDashboardLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    await queryClient.fetchQuery(makeEnterpriseCourseEnrollmentsQuery(enterpriseId));
+    await queryClient.ensureQueryData(makeEnterpriseCourseEnrollmentsQuery(enterpriseId));
     return null;
   };
 }

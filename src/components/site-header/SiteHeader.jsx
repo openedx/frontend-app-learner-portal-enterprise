@@ -12,7 +12,7 @@ import { useEnterpriseLearner } from '../app/App';
 
 const SiteHeader = () => {
   const config = getConfig();
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const intl = useIntl();
 
   const renderDesktopHeader = () => (
@@ -60,12 +60,12 @@ const SiteHeader = () => {
               aria-label="Main"
               className="nav flex-column pin-left pin-right border-top shadow py-2"
             >
-              <SiteHeaderNavMenu enterpriseConfig={activeEnterpriseCustomer} />
+              <SiteHeaderNavMenu enterpriseConfig={enterpriseCustomer} />
             </MenuContent>
           </Menu>
         </div>
         <div className="w-100 d-flex justify-content-center">
-          <SiteHeaderLogos enterpriseConfig={activeEnterpriseCustomer} />
+          <SiteHeaderLogos enterpriseConfig={enterpriseCustomer} />
         </div>
         <div className="w-100 d-flex justify-content-end">
           <AvatarDropdown showLabel={false} />

@@ -67,6 +67,10 @@ import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
 import makeDashboardLoader from './routes/loaders/dashboardLoader';
 import makeUpdateActiveEnterpriseCustomerUserLoader from './routes/loaders/updateActiveEnterpriseCustomerUserLoader';
 
+/**
+ * @typedef {import('@tanstack/react-query').UseQueryResult} UseQueryResult
+ */
+
 /* eslint-disable no-unused-vars */
 const EnterpriseCustomerRedirect = lazy(() => import(/* webpackChunkName: "enterprise-customer-redirect" */ '../enterprise-redirects/EnterpriseCustomerRedirect'));
 const EnterprisePageRedirect = lazy(() => import(/* webpackChunkName: "enterprise-page-redirect" */ '../enterprise-redirects/EnterprisePageRedirect'));
@@ -83,12 +87,12 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: defaultQueryClientRetryHandler,
-      // Specifying a longer `staleTime` of 60 seconds means queries will not refetch their data
+      // Specifying a longer `staleTime` of 20 seconds means queries will not refetch their data
       // as often; mitigates making duplicate queries when within the `staleTime` window, instead
       // relying on the cached data until the `staleTime` window has exceeded. This may be modified
       // per-query, as needed, if certain queries expect to be more up-to-date than others. Allows
       // `useQuery` to be used as a state manager.
-      staleTime: 1000 * 60,
+      staleTime: 1000 * 20,
     },
   },
 });
@@ -127,6 +131,11 @@ const Root = () => {
   );
 };
 
+/**
+ * Retrieves the enterprise learner data for the authenticated user.
+ *
+ * @returns {UseQueryResult} The query results for the enterprise learner data.
+ */
 export const useEnterpriseLearner = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
@@ -135,11 +144,15 @@ export const useEnterpriseLearner = () => {
   );
 };
 
+/**
+ * Retrieves the subsidies present for the active enterprise customer user.
+ * @returns {UseQueryResult} The query results for the enterprise customer user subsidies.
+ */
 export const useEnterpriseCustomerUserSubsidies = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { userId, email } = authenticatedUser;
   const { data } = useEnterpriseLearner();
-  const enterpriseId = data.activeEnterpriseCustomer.uuid;
+  const enterpriseId = data.enterpriseCustomer.uuid;
   const queries = useQueries({
     queries: [
       makeSubscriptionsQuery(enterpriseId),
@@ -163,39 +176,59 @@ export const useEnterpriseCustomerUserSubsidies = () => {
   };
 };
 
+/**
+ * Retrieves the course metadata for the given enterprise customer and course key.
+ * @returns {UseQueryResult} The query results for the course metadata.
+ */
 const useCourseMetadata = () => {
   const { courseKey } = useParams();
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
-  const enterpriseId = activeEnterpriseCustomer.uuid;
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
     makeCourseMetadataQuery(enterpriseId, courseKey),
   );
 };
 
+/**
+ * Retrieves the course redemption eligibility for the given enterprise customer and course key.
+ * @returns {UseQueryResult} The query results for the course redemption eligibility.
+ */
 const useCourseRedemptionEligibility = () => {
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const { data: courseMetadata } = useCourseMetadata();
-  const enterpriseId = activeEnterpriseCustomer.uuid;
+  const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
     makeCanRedeemQuery(enterpriseId, courseMetadata),
   );
 };
 
+/**
+ * Retrieves the enterprise course enrollments for the active enterprise customer user.
+ * @returns {UseQueryResult} The query results for the enterprise course enrollments.
+ */
 const useEnterpriseCourseEnrollments = () => {
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
-  const enterpriseId = activeEnterpriseCustomer.uuid;
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
     makeEnterpriseCourseEnrollmentsQuery(enterpriseId),
   );
 };
 
+/**
+ * Retrieves the user entitlements.
+ * @returns {UseQueryResult} The query results for the user entitlements.
+ */
 const useUserEntitlements = () => useQuery(
   makeUserEntitlementsQuery(),
 );
 
+/**
+ * Retrieves the content highlights configuration for the active enterprise customer user.
+ * @returns {UseQueryResult} The query results for the content highlights configuration.
+ */
 export const useContentHighlightsConfiguration = () => {
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
-  const enterpriseId = activeEnterpriseCustomer.uuid;
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
     makeContentHighlightsConfigurationQuery(enterpriseId),
   );
@@ -232,13 +265,13 @@ const Dashboard = () => {
 
 const Search = () => {
   const { data: enterpriseCustomerUserSubsidies } = useEnterpriseCustomerUserSubsidies();
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   return (
     <Container size="lg" className="py-4">
       <h2>Search</h2>
       <Link
         to={generatePath('/:enterpriseSlug/course/:courseKey', {
-          enterpriseSlug: activeEnterpriseCustomer.slug,
+          enterpriseSlug: enterpriseCustomer.slug,
           courseKey: 'edX+DemoX',
         })}
       >
@@ -286,7 +319,7 @@ const Course = () => {
             },
             redeemableSubsidyAccessPolicy: courseRedemptionEligiblity.find(
               ({ canRedeem }) => canRedeem,
-            )?.redeemableSubsidyAccessPolicy?.uuid,
+            )?.redeemableSubsidyAccessPolicy?.uuid ?? null,
             enterpriseCourseEnrollments: {
               isLoading: isLoadingEnterpriseCourseEnrollments,
               isFetching: isFetchingEnterpriseCourseEnrollments,
@@ -310,11 +343,11 @@ const Layout = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
-  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.activeEnterpriseCustomer);
+  const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
 
   // Authenticated user is NOT linked an enterprise customer, so
   // render the not found page.
-  if (!enterpriseLearnerData.activeEnterpriseCustomer) {
+  if (!enterpriseLearnerData.enterpriseCustomer) {
     return <NotFoundPage />;
   }
 
