@@ -14,7 +14,7 @@ const PathwayRequirements = () => {
         <div className="pathway-requirements">
           {learnerPathwayProgress.steps.map(
             (step, index) => (
-              <PathwayStep index={index} minRequirements={step.minRequirement} nodes={getStepNodes(step)} />
+              <PathwayStep index={index} nodes={getStepNodes(step)} />
             ),
           )}
         </div>

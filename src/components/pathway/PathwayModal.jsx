@@ -165,7 +165,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
         ) : pathway.steps.map((step, index) => (
           <Collapsible
             styling="card"
-            title={`Requirement ${index + 1}: Choose any ${step.minRequirement} of the following`}
+            title={`Requirement ${index + 1}${(step.courses.length + step.programs.length) > 1 ? `: Choose any ${step.courses.length + step.programs.length} of the following` : ''}`}
             className="mb-4"
             key={step.uuid}
           >
