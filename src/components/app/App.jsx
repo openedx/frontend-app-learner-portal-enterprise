@@ -21,8 +21,6 @@ import {
   QueryCache,
   QueryClient,
   QueryClientProvider,
-  useQueries,
-  useQuery,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 

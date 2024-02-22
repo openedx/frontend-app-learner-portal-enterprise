@@ -9,7 +9,6 @@ import SiteHeaderNavMenu from './SiteHeaderNavMenu';
 import { Menu, MenuTrigger, MenuContent } from './menu';
 import { useEnterpriseLearner } from '../app/data';
 import AvatarDropdown from './AvatarDropdown';
-import { useEnterpriseLearner } from '../app/App';
 
 const SiteHeader = () => {
   const config = getConfig();
