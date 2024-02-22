@@ -21,7 +21,7 @@ import createAppRouter from './data/createAppRouter';
 /* eslint-enable no-unused-vars */
 
 // Create a query client for @tanstack/react-query
-export const queryClient = new QueryClient({
+const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: queryCacheOnErrorHandler,
   }),
