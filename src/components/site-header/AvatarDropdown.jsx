@@ -20,15 +20,15 @@ const AvatarDropdown = ({ showLabel }) => {
   } = useContext(AppContext);
   const {
     data: {
-      activeEnterpriseCustomer,
+      enterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
     },
   } = useEnterpriseLearner();
-  const enterpriseDashboardLink = `/${activeEnterpriseCustomer.slug}`;
+  const enterpriseDashboardLink = `/${enterpriseCustomer.slug}`;
   const intl = useIntl();
   const location = useLocation();
 
-  const idpPresent = isDefinedAndNotNull(activeEnterpriseCustomer.identityProvider);
+  const idpPresent = isDefinedAndNotNull(enterpriseCustomer.identityProvider);
   // we insert the logout=true in this case to avoid the redirect back to IDP
   // which brings the user right back in, disallowing a proper logout
   const logoutHint = idpPresent ? `${encodeURIComponent('?')}logout=true` : '';

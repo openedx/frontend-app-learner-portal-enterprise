@@ -4,24 +4,25 @@ import { NavLink } from 'react-router-dom';
 import { useEnterpriseLearner } from '../app/App';
 
 const SiteHeaderNavMenu = () => {
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const intl = useIntl();
   const mainMenuLinkClassName = 'nav-link';
 
-  if (activeEnterpriseCustomer.disableSearch) {
+  // TODO: handle `disableSearch` upstream
+  if (enterpriseCustomer.disableSearch) {
     return null;
   }
 
   return (
     <>
-      <NavLink to={`/${activeEnterpriseCustomer.slug}`} className={mainMenuLinkClassName} end>
+      <NavLink to={`/${enterpriseCustomer.slug}`} className={mainMenuLinkClassName} end>
         {intl.formatMessage({
           id: 'site.header.nav.dashboard.title',
           defaultMessage: 'Dashboard',
           description: 'Dashboard link title in site header navigation.',
         })}
       </NavLink>
-      <NavLink to={`/${activeEnterpriseCustomer.slug}/search`} className={mainMenuLinkClassName}>
+      <NavLink to={`/${enterpriseCustomer.slug}/search`} className={mainMenuLinkClassName}>
         {intl.formatMessage({
           id: 'site.header.nav.search.title',
           defaultMessage: 'Find a Course',

@@ -135,7 +135,7 @@ async function fetchData(url, linkedEnterprises = []) {
  * @param {*} param0
  * @returns
  */
-const fetchEnterpriseLearnerData = async (username, options = {}) => {
+const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}) => {
   const config = getConfig();
   const enterpriseLearnerUrl = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
@@ -148,16 +148,52 @@ const fetchEnterpriseLearnerData = async (username, options = {}) => {
   const activeLinkedEnterpriseCustomerUser = linkedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
   const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
   const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
+
+  // Find enterprise customer metadata for the currently viewed
+  // enterprise slug in the page route params.
+  const foundEnterpriseCustomerUserForCurrentSlug = linkedEnterpriseCustomersUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+  );
+
+  const determineEnterpriseCustomerUserForDisplay = () => {
+    const activeEnterpriseCustomerUser = {
+      enterpriseCustomer: activeEnterpriseCustomer,
+      roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+    };
+    if (!enterpriseSlug) {
+      return activeEnterpriseCustomerUser;
+    }
+    if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+      return {
+        enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
+        roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
+      };
+    }
+    return activeEnterpriseCustomerUser;
+  };
+
+  const {
+    enterpriseCustomer,
+    roleAssignments,
+  } = determineEnterpriseCustomerUserForDisplay();
   return {
+    enterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments: roleAssignments,
     activeEnterpriseCustomer,
     activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
   };
 };
 
+/**
+ * TODO
+ * @param {*} username
+ * @param {*} enterpriseSlug
+ * @returns
+ */
 export const makeEnterpriseLearnerQuery = (username, enterpriseSlug) => ({
   queryKey: ['enterprise', 'linked-enterprise-customer-users', username, enterpriseSlug],
-  queryFn: async () => fetchEnterpriseLearnerData(username),
+  queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
 });
 
 /**
@@ -313,27 +349,26 @@ export function getEnterpriseAppData({
 }) {
   return [
     // Enterprise Customer User Subsidies
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeSubscriptionsQuery(enterpriseCustomer.uuid),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeRedeemablePoliciesQuery({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: userId,
       }),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeCouponCodesQuery(enterpriseCustomer.uuid),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeEnterpriseLearnerOffersQuery(enterpriseCustomer.uuid),
     ),
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeBrowseAndRequestConfigurationQuery(enterpriseCustomer.uuid, userEmail),
     ),
     // Content Highlights
-    // TODO: delete a content highlights configuration record and re-test.
-    queryClient.fetchQuery(
+    queryClient.ensureQueryData(
       makeContentHighlightsConfigurationQuery(enterpriseCustomer.uuid),
     ),
   ];
@@ -354,7 +389,7 @@ export default function makeRootLoader(queryClient) {
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
     const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
-    const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
+    const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const { activeEnterpriseCustomer } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer; return early.

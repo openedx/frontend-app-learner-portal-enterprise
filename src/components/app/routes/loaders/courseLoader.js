@@ -101,7 +101,7 @@ export async function extractActiveEnterpriseId({
   // Retrieve linked enterprise customers for the current user from query cache
   // or fetch from the server if not available.
   const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug);
-  const enterpriseLearnerData = await queryClient.fetchQuery(linkedEnterpriseCustomersQuery);
+  const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
   const {
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
@@ -112,7 +112,7 @@ export async function extractActiveEnterpriseId({
   }
 
   const foundEnterpriseIdForSlug = allLinkedEnterpriseCustomerUsers.find(
-    (enterprise) => enterprise.enterpriseCustomer.slug === enterpriseSlug,
+    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   )?.enterpriseCustomer.uuid;
 
   if (foundEnterpriseIdForSlug) {
@@ -141,16 +141,16 @@ export default function makeCourseLoader(queryClient) {
     const contentMetadataQuery = makeCourseMetadataQuery(enterpriseId, courseKey);
 
     await Promise.all([
-      queryClient.fetchQuery(contentMetadataQuery).then((courseMetadata) => {
+      queryClient.ensureQueryData(contentMetadataQuery).then((courseMetadata) => {
         if (!courseMetadata) {
           return null;
         }
-        return queryClient.fetchQuery(
+        return queryClient.ensureQueryData(
           makeCanRedeemQuery(enterpriseId, courseMetadata),
         );
       }),
-      queryClient.fetchQuery(makeEnterpriseCourseEnrollmentsQuery(enterpriseId)),
-      queryClient.fetchQuery(makeUserEntitlementsQuery()),
+      queryClient.ensureQueryData(makeEnterpriseCourseEnrollmentsQuery(enterpriseId)),
+      queryClient.ensureQueryData(makeUserEntitlementsQuery()),
     ]);
 
     return null;

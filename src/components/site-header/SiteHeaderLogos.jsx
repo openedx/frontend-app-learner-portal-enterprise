@@ -9,21 +9,22 @@ import { useEnterpriseLearner } from '../app/App';
 const SiteHeaderLogos = () => {
   const courseTypeMatch = useMatch('/:enterpriseSlug/:courseType?/course/*');
   const courseType = courseTypeMatch?.params?.courseType;
-  const { data: { activeEnterpriseCustomer } } = useEnterpriseLearner();
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
 
   let mainLogo = (
     <img
       className="logo"
-      src={activeEnterpriseCustomer.brandingConfiguration?.logo || edXLogo}
-      alt={`${activeEnterpriseCustomer.name} logo`}
+      src={enterpriseCustomer.brandingConfiguration?.logo || edXLogo}
+      alt={`${enterpriseCustomer.name} logo`}
       data-testid="header-logo-image-id"
     />
   );
 
-  if (!activeEnterpriseCustomer.disableSearch) {
+  // TODO: handle `disableSearch` for enterprise customers in new routing paradigm.
+  if (!enterpriseCustomer.disableSearch) {
     mainLogo = (
-      <Link to={`/${activeEnterpriseCustomer.slug}`} data-testid="header-logo-link-id">
+      <Link to={`/${enterpriseCustomer.slug}`} data-testid="header-logo-link-id">
         {mainLogo}
       </Link>
     );
