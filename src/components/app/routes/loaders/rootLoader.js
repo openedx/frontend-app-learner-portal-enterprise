@@ -156,11 +156,12 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
   );
 
   const determineEnterpriseCustomerUserForDisplay = () => {
+    const activeEnterpriseCustomerUser = {
+      enterpriseCustomer: activeEnterpriseCustomer,
+      roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+    };
     if (!enterpriseSlug) {
-      return {
-        enterpriseCustomer: activeEnterpriseCustomer,
-        roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
-      };
+      return activeEnterpriseCustomerUser;
     }
     if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
       return {
@@ -168,10 +169,7 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
         roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
       };
     }
-    return {
-      enterpriseCustomer: null,
-      roleAssignments: null,
-    };
+    return activeEnterpriseCustomerUser;
   };
 
   const {
