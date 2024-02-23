@@ -2,7 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { enterpriseQueryKeys } from "../../../../../utils/react-query-factory";
+import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
 
 async function fetchEnterpriseOffers(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({

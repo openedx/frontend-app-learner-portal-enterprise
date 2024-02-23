@@ -13,13 +13,13 @@ export const queryKeys = {
   enterpriseCuration: (enterpriseUuid) => [...queryKeys.enterprise(enterpriseUuid), 'content-highlights'],
   enterpriseCurationConfiguration: (enterpriseUuid) => [...queryKeys.enterprise(enterpriseUuid), 'configuration'],
   // All user subsidy related queries - subscriptions, policies, codes and offers
-  allUserSubsidies: () => [...queryKeys.all, 'user-subsidy'],
+  allEnterpriseCustomerUserSubsidies: () => [...queryKeys.all, 'user-subsidy'],
   // Subsidy specific keys
-  subscriptions: () => [...queryKeys.allUserSubsidies(), 'subscriptions'],
-  policy: () => [...queryKeys.allUserSubsidies(), 'policy'],
-  couponCodes: () => [...queryKeys.allUserSubsidies(), 'coupon-codes'],
-  offers: () => [...queryKeys.allUserSubsidies(), 'enterprise-learner-offers'],
-  browseAndRequest: () => [...queryKeys.allUserSubsidies(), 'browse-and-request'],
+  subscriptions: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'subscriptions'],
+  policy: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'policy'],
+  couponCodes: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'coupon-codes'],
+  offers: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'enterprise-learner-offers'],
+  browseAndRequest: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'browse-and-request'],
   // policy specific endpoints
   redeemablePolicies: () => [...queryKeys.policy(), 'redeemable-policies'],
   // browse and request endpoints

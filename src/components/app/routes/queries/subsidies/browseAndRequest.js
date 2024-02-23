@@ -3,7 +3,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
-import { enterpriseQueryKeys } from "../../../../../utils/react-query-factory";
+import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
 
 /**
  * TODO

@@ -2,7 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
-import { enterpriseQueryKeys, queryKeys } from "../../../../utils/react-query-factory";
+import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 /**
  * TODO
