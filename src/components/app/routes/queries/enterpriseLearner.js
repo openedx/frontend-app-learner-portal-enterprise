@@ -1,5 +1,6 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+import { enterpriseQueryKeys } from "../../../../utils/react-query-factory";
 
 /**
  * Recursive function to fetch all linked enterprise customer users, traversing paginated results.
@@ -85,7 +86,7 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
  */
 export default function makeEnterpriseLearnerQuery(username, enterpriseSlug) {
   return {
-    queryKey: ['enterprise', 'linked-enterprise-customer-users', username, enterpriseSlug],
+    queryKey: enterpriseQueryKeys.enterpriseLearner(username, enterpriseSlug),
     queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
   };
 }

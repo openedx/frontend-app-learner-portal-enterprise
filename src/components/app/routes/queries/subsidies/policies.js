@@ -1,5 +1,6 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { enterpriseQueryKeys } from "../../../../../utils/react-query-factory";
 
 /**
  * TODO
@@ -25,7 +26,7 @@ async function fetchRedeemablePolicies(enterpriseUUID, userID) {
  */
 export function makeRedeemablePoliciesQuery({ enterpriseUuid, lmsUserId }) {
   return {
-    queryKey: ['enterprise', 'redeemable-policies', enterpriseUuid, lmsUserId],
+    queryKey: enterpriseQueryKeys.redeemablePolicies(enterpriseUuid, lmsUserId),
     queryFn: async () => fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
     enabled: !!enterpriseUuid,
   };

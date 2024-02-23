@@ -2,6 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { enterpriseQueryKeys } from "../../../../utils/react-query-factory";
 
 /**
  * Content Highlights Configuration
@@ -32,10 +33,10 @@ const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
 /**
  * TODO
  */
-export default function makeContentHighlightsConfigurationQuery(enterpriseUUID) {
+export default function makeContentHighlightsConfigurationQuery(enterpriseUuid) {
   return {
-    queryKey: ['enterprise', enterpriseUUID, 'content-highlights', 'configuration'],
-    queryFn: () => fetchEnterpriseCuration(enterpriseUUID),
-    enabled: !!enterpriseUUID,
+    queryKey: enterpriseQueryKeys.enterpriseCurationConfiguration(enterpriseUuid),
+    queryFn: () => fetchEnterpriseCuration(enterpriseUuid),
+    enabled: !!enterpriseUuid,
   };
 }

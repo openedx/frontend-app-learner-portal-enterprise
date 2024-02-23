@@ -2,6 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { enterpriseQueryKeys, queryKeys } from "../../../../utils/react-query-factory";
 
 /**
  * TODO
@@ -28,14 +29,14 @@ const fetchCourseMetadata = async (enterpriseId, courseKey, options = {}) => {
 
 /**
  * TODO
- * @param {*} enterpriseId
+ * @param enterpriseUuid
  * @param {*} courseKey
  * @returns
  */
-export default function makeCourseMetadataQuery(enterpriseId, courseKey) {
+export default function makeCourseMetadataQuery(enterpriseUuid, courseKey) {
   return {
-    queryKey: ['enterprise', enterpriseId, 'course', courseKey],
-    queryFn: async () => fetchCourseMetadata(enterpriseId, courseKey),
-    enabled: !!enterpriseId,
+    queryKey: enterpriseQueryKeys.enterpriseCourseMetadata(enterpriseUuid, courseKey),
+    queryFn: async () => fetchCourseMetadata(enterpriseUuid, courseKey),
+    enabled: !!enterpriseUuid,
   };
 }

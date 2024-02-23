@@ -1,5 +1,6 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { enterpriseQueryKeys } from "../../../../../utils/react-query-factory";
 
 async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({
@@ -44,7 +45,7 @@ async function fetchCouponCodes(enterpriseUuid) {
 
 export function makeCouponCodesQuery(enterpriseUuid) {
   return {
-    queryKey: ['enterprise', 'coupon-codes', enterpriseUuid],
+    queryKey: enterpriseQueryKeys.couponCodes(enterpriseUuid),
     queryFn: async () => fetchCouponCodes(enterpriseUuid),
     enabled: !!enterpriseUuid,
   };

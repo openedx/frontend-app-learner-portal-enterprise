@@ -1,5 +1,6 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 /**
  * TODO
@@ -19,13 +20,13 @@ const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
 
 /**
  * TODO
- * @param {*} enterpriseId
  * @returns
+ * @param enterpriseUuid
  */
-export default function makeEnterpriseCourseEnrollmentsQuery(enterpriseId) {
+export default function makeEnterpriseCourseEnrollmentsQuery(enterpriseUuid) {
   return {
-    queryKey: ['enterprise', enterpriseId, 'enrollments'],
-    queryFn: async () => fetchEnterpriseCourseEnrollments(enterpriseId),
-    enabled: !!enterpriseId,
+    queryKey: enterpriseQueryKeys.enterpriseCourseEnrollments(enterpriseUuid),
+    queryFn: async () => fetchEnterpriseCourseEnrollments(enterpriseUuid),
+    enabled: !!enterpriseUuid,
   };
 }
