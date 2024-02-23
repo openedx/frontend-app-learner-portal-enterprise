@@ -18,23 +18,22 @@ async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
  * @returns
  */
 async function fetchSubscriptions(enterpriseUuid) {
-  const results = await Promise.all([
-    fetchSubscriptionLicensesForUser(enterpriseUuid),
-  ]);
-  camelCaseObject(results);
+  const response = await fetchSubscriptionLicensesForUser(enterpriseUuid);
 
   // Refactor response to match current state of the world before
   // reintegrating components
   const customerAgreement = {
-    results: [results[0].results[0].customerAgreement],
+    ...response,
+    results: [response.results[0].customerAgreement],
   };
-  customerAgreement.results[0].subscriptionPlan = results[0].results[0].subscriptionPlan;
-  delete results[0].results[0].subscriptionPlan;
-  delete results[0].results[0].customerAgreement;
+  customerAgreement.results[0].subscriptionPlan = response.results[0].subscriptionPlan;
+  delete response.results[0].subscriptionPlan;
+  delete response.results[0].customerAgreement;
 
+  console.log(customerAgreement, response)
   return {
     customerAgreement,
-    subscriptionLicenses: results[0],
+    subscriptionLicenses: response,
   };
 }
 
