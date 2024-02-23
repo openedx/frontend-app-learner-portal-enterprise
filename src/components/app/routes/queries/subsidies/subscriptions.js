@@ -12,16 +12,6 @@ async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   return camelCaseObject(response.data);
 }
 
-async function fetchCustomerAgreementData(enterpriseUUID) {
-  const queryParams = new URLSearchParams({
-    enterprise_customer_uuid: enterpriseUUID,
-  });
-  const config = getConfig();
-  const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
-}
-
 /**
  * TODO
  * @param {*} param0
@@ -29,12 +19,22 @@ async function fetchCustomerAgreementData(enterpriseUUID) {
  */
 async function fetchSubscriptions(enterpriseUuid) {
   const results = await Promise.all([
-    fetchCustomerAgreementData(enterpriseUuid),
     fetchSubscriptionLicensesForUser(enterpriseUuid),
   ]);
+  camelCaseObject(results);
+
+  // Refactor response to match current state of the world before
+  // reintegrating components
+  const customerAgreement = {
+    results: [results[0].results[0].customerAgreement],
+  };
+  customerAgreement.results[0].subscriptionPlan = results[0].results[0].subscriptionPlan;
+  delete results[0].results[0].subscriptionPlan;
+  delete results[0].results[0].customerAgreement;
+
   return {
-    customerAgreement: results[0],
-    subscriptionLicenses: results[1],
+    customerAgreement,
+    subscriptionLicenses: results[0],
   };
 }
 
