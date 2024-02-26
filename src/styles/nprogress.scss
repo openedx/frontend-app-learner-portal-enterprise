@@ -1,14 +1,15 @@
 @import "nprogress/nprogress";
 
 #nprogress .bar {
-  background: $primary;
+  background: $brand-500;
+  height: 3px;
 }
 
 #nprogress .peg {
-  box-shadow: 0 0 10px $primary, 0 0 5px $primary;
+  box-shadow: 0 0 10px $brand-500, 0 0 5px $brand-500;
 }
 
 #nprogress .spinner-icon {
-  border-top-color: $primary;
-  border-left-color: $primary;
+  border-top-color: $brand-500;
+  border-left-color: $brand-500;
 }
