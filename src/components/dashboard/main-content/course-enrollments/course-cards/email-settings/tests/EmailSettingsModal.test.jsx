@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { StatefulButton } from '@edx/paragon';
+import { StatefulButton } from '@openedx/paragon';
 
 import { EmailSettingsModal } from '../EmailSettingsModal';
 import { updateEmailSettings } from '../data';

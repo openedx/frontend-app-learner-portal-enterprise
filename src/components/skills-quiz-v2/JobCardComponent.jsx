@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {
   SelectableBox, Chip, Spinner, Stack, Button,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 import PropTypes from 'prop-types';
@@ -79,6 +79,7 @@ const JobCardComponent = ({
         name="industry"
         columns="3"
         className="selectable-box mt-4"
+        ariaLabelledby="skills quiz v2 job card"
       >
         {jobs.map((job) => (
           <SelectableBox

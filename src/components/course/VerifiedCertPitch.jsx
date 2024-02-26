@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Icon } from '@edx/paragon';
-import { ContentPasteGo, RocketLaunch } from '@edx/paragon/icons';
+import { Icon } from '@openedx/paragon';
+import { ContentPasteGo, RocketLaunch } from '@openedx/paragon/icons';
 
 import './styles/VerifiedCertPitch.scss';
 

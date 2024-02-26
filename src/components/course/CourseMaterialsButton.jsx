@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button } from '@edx/paragon';
+import { Button } from '@openedx/paragon';
 import { findUserEnrollmentForCourseRun } from './data/utils';
 import { CourseContext } from './CourseContextProvider';
 

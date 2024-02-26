@@ -6,8 +6,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
   Badge, Card, Icon, Truncate,
-} from '@edx/paragon';
-import { Program } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Program } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';

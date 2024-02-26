@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { Alert } from '@edx/paragon';
-import { Error } from '@edx/paragon/icons';
+import { Alert } from '@openedx/paragon';
+import { Error } from '@openedx/paragon/icons';
 
 import MoveToInProgressModalContext from './MoveToInProgressModalContext';
 

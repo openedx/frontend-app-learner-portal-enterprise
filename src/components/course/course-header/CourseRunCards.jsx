@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { CardGrid } from '@edx/paragon';
+import { CardGrid } from '@openedx/paragon';
 
 import { CourseContext } from '../CourseContextProvider';
 import CourseRunCard from './CourseRunCard';

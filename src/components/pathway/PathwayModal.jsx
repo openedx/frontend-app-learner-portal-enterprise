@@ -13,8 +13,8 @@ import {
   ModalDialog,
   Row,
   Skeleton,
-} from '@edx/paragon';
-import { Assignment, BookOpen, VerifiedBadge } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Assignment, BookOpen, VerifiedBadge } from '@openedx/paragon/icons';
 import DOMPurify from 'dompurify';
 import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';

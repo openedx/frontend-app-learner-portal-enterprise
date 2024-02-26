@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Card, Badge } from '@edx/paragon';
+import { Card, Badge } from '@openedx/paragon';
 
 import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';

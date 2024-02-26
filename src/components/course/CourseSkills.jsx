@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import {
   Badge, OverlayTrigger, Popover,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';

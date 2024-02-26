@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, useToggle } from '@edx/paragon';
-import { WarningFilled } from '@edx/paragon/icons';
+import { Badge, useToggle } from '@openedx/paragon';
+import { WarningFilled } from '@openedx/paragon/icons';
 
 import SidebarCard from './SidebarCard';
 import {

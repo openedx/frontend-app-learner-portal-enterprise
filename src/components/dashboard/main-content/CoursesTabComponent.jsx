@@ -6,7 +6,7 @@ import {
   Alert,
   MediaQuery,
   breakpoints,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { CourseEnrollmentsContextProvider } from './course-enrollments';

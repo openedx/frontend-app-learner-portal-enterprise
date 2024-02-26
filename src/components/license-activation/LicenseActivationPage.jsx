@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logInfo } from '@edx/frontend-platform/logging';
-import { Alert } from '@edx/paragon';
+import { Alert } from '@openedx/paragon';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
