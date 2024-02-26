@@ -5,11 +5,15 @@ import { breakpoints } from '@edx/paragon';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { MemoryRouter } from 'react-router-dom';
 import SiteHeader from '../SiteHeader';
 
 import { renderWithRouter } from '../../../utils/tests';
+import { useEnterpriseLearner } from '../../app/data';
+
+jest.mock('../../app/data');
 
 const appState = {
   enterpriseConfig: {
@@ -30,13 +34,23 @@ const appState = {
   },
 };
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
 const SiteHeaderWithContext = ({
   initialAppState = appState,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <SiteHeader />
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={initialAppState}>
+        <SiteHeader />
+      </AppContext.Provider>
+    </QueryClientProvider>
   </IntlProvider>
 );
 
@@ -46,11 +60,23 @@ const mockWindowConfig = {
   height: 800,
 };
 
+const baseEnterpriseLearner = {
+  enterpriseCustomer: {
+    name: 'BearsRUs',
+    brandingConfiguration: {
+      logo: 'test-logo',
+    },
+  },
+  allLinkedEnterpriseCustomerUsers: [],
+};
+
 describe('<SiteHeader />', () => {
   beforeEach(() => {
     window.matchMedia.setConfig(mockWindowConfig);
   });
   test('renders link with logo to dashboard', () => {
+    useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
+
     renderWithRouter(
       <SiteHeaderWithContext />,
     );
@@ -58,6 +84,17 @@ describe('<SiteHeader />', () => {
     expect(screen.getByTestId('header-logo-link-id'));
   });
   test('does not render link with logo to dashboard when search is disabled', () => {
+    const disabledSearchEnterpriseLearner = {
+      enterpriseCustomer: {
+        brandingConfiguration: {
+          logo: 'logo',
+        },
+        disabledSearch: true,
+      },
+    };
+    useEnterpriseLearner.mockReturnValue({ data: disabledSearchEnterpriseLearner });
+
+
     const disableSearchAppState = {
       ...appState,
     };
