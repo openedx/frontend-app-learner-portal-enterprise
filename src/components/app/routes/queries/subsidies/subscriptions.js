@@ -12,6 +12,32 @@ async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   return camelCaseObject(response.data);
 }
 
+const transformSubscriptionLicenseResponse = (response) => {
+  // Deep copies the response from learner-licenses
+  const subscriptionLicenses = structuredClone(response);
+  // Create and assign the customer agreement object
+  const customerAgreement = {
+    results: [response.results[0].customerAgreement],
+  };
+  // Create subscriptions object
+  const subscriptions = {
+    ...subscriptionLicenses,
+    results: [],
+  };
+  // Pushes each subscriptions results and removes the
+  // sub plan and customer agreement from the subscriptionLicenses object
+  subscriptionLicenses.results.forEach((license, index) => {
+    subscriptions.results.push(license.subscriptionPlan);
+    delete subscriptionLicenses.results[index].subscriptionPlan;
+    delete subscriptionLicenses.results[index].customerAgreement;
+  });
+  return {
+    subscriptionLicenses,
+    customerAgreement,
+    subscriptions,
+  };
+};
+
 /**
  * TODO
  * @param {*} param0
@@ -19,21 +45,11 @@ async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
  */
 async function fetchSubscriptions(enterpriseUuid) {
   const response = await fetchSubscriptionLicensesForUser(enterpriseUuid);
-
-  // Refactor response to match current state of the world before
-  // reintegrating components
-  const customerAgreement = {
-    ...response,
-    results: [response.results[0].customerAgreement],
-  };
-  customerAgreement.results[0].subscriptionPlan = response.results[0].subscriptionPlan;
-  delete response.results[0].subscriptionPlan;
-  delete response.results[0].customerAgreement;
-
-  console.log(customerAgreement, response)
+  const { subscriptions, customerAgreement, subscriptionLicenses } = transformSubscriptionLicenseResponse(response);
   return {
+    subscriptions,
     customerAgreement,
-    subscriptionLicenses: response,
+    subscriptionLicenses,
   };
 }
 
