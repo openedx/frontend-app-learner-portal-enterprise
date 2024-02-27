@@ -35,7 +35,7 @@ Now quickly check the .env.development file for which services are used by the a
 
 ## Serving production builds
 
-During production builds, the NPM script ``npm run build`` is executived, which runs the production Webpack configuration (``webpack.prod.config.js``) to generate output files in the ``dist`` directory. However, these output files cannot be loaded directly into the browser. Instead, to preview a production build locally, these output files must be served via a server that can associate any URL route to the ``index.html`` entry-point of the application. The ``@openedx/frontend-build`` package supports a ``serve`` command, which runs the generated production output from Webpack with a Node.js Express server.
+During production builds, the NPM script ``npm run build`` is executed, which runs the production Webpack configuration (``webpack.prod.config.js``) to generate output files in the ``dist`` directory. However, these output files cannot be loaded directly into the browser. Instead, to preview a production build locally, these output files must be served via a server that can associate any URL route to the ``index.html`` entry-point of the application. The ``@openedx/frontend-build`` package supports a ``serve`` command, which runs the generated production output from Webpack with a Node.js Express server.
 
 To serve a production build, the build must include the appropriate environment variables. The custom ``webpack.prod.config.js`` file in this project attempts to load all environment variables configured via the Git-ignored ``.env.private`` file, such that the production build can point to localhost URLs, etc.
 

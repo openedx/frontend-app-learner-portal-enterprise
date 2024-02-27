@@ -79,7 +79,7 @@ const JobCardComponent = ({
         name="industry"
         columns="3"
         className="selectable-box mt-4"
-        ariaLabelledby="skills quiz v2 job card"
+        aria-label="Select a job"
       >
         {jobs.map((job) => (
           <SelectableBox
