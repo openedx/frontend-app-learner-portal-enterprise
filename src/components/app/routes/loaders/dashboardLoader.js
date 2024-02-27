@@ -1,6 +1,7 @@
-import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
+// import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
 import { extractActiveEnterpriseId } from './courseLoader';
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
+import { makeEnterpriseCourseEnrollmentsQuery } from '../data/services';
 
 /**
  * TODO

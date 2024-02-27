@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { makeCanRedeemQuery } from '../../routes/queries';
+// import { makeCanRedeemQuery } from '../../routes/queries';
 import useCourseMetadata from './useCourseMetadata';
 import useEnterpriseLearner from './useEnterpriseLearner';
+import { makeCanRedeemQuery } from '../../routes/data/services';
 
 /**
  * Retrieves the course redemption eligibility for the given enterprise customer and course key.

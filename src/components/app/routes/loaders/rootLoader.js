@@ -10,7 +10,16 @@ import {
   makeRedeemablePoliciesQuery,
   makeSubscriptionsQuery,
   makeContentHighlightsConfigurationQuery,
-} from '../queries';
+} from '../data/services';
+// import {
+//   makeBrowseAndRequestConfigurationQuery,
+//   makeCouponCodesQuery,
+//   makeEnterpriseLearnerOffersQuery,
+//   makeEnterpriseLearnerQuery,
+//   makeRedeemablePoliciesQuery,
+//   makeSubscriptionsQuery,
+//   makeContentHighlightsConfigurationQuery,
+// } from '../queries';
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
   const config = getConfig();

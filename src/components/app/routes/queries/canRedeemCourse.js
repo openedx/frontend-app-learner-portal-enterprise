@@ -2,7 +2,6 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
-import { getAvailableCourseRuns } from '../../../course/data/utils';
 
 /**
  * Service method to determine whether the authenticated user can redeem the specified course run(s).

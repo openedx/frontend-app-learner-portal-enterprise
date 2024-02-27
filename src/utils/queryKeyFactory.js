@@ -1,4 +1,4 @@
-import { createQueryKeyStore, mergeQueryKeys } from '@lukemorales/query-key-factory';
+import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
 import { fetchCourseMetadata } from '../components/app/routes/queries/courseMetadata';
 import { fetchUserEntitlements } from '../components/app/routes/queries/userEntitlements';
 import { fetchCanRedeem } from '../components/app/routes/queries/canRedeemCourse';
@@ -11,9 +11,7 @@ import { fetchCouponCodes } from '../components/app/routes/queries/subsidies/cou
 import { fetchEnterpriseOffers } from '../components/app/routes/queries/subsidies/enterpriseOffers';
 import { fetchEnterpriseCuration } from '../components/app/routes/queries/contentHighlights';
 
-// The keys that map to enterpriseQueryKeys that is used to define specific queries
-// and used to specifically invalidate queries
-export const enterprise = createQueryKeyStore('enterprise', {
+export const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
     contextQueries: {
@@ -26,19 +24,19 @@ export const enterprise = createQueryKeyStore('enterprise', {
           },
         },
       },
-      course: (courseKey) => ({
-        queryKey: [courseKey],
+      course: {
+        queryKey: null,
         contextQueries: {
-          contentMetadata: {
-            queryKey: null,
-            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
-          },
+          contentMetadata: (courseKey) => ({
+            queryKey: [courseKey],
+            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], courseKey),
+          }),
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
         },
-      }),
+      },
       enrollments: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
@@ -46,15 +44,15 @@ export const enterprise = createQueryKeyStore('enterprise', {
       subsidies: {
         queryKey: null,
         contextQueries: {
-          browseAndRequest: {
-            queryKey: null,
+          browseAndRequest: (userEmail) => ({
+            queryKey: [userEmail],
             contextQueries: {
-              configuration: (userEmail) => ({
-                queryKey: [userEmail],
-                queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2], userEmail),
-              }),
+              configuration: {
+                queryKey: null,
+                queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2], queryKey[4]),
+              },
             },
-          },
+          }),
           couponCodes: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchCouponCodes(queryKey[2]),
@@ -86,10 +84,11 @@ export const enterprise = createQueryKeyStore('enterprise', {
   }),
 });
 
-export const user = createQueryKeyStore('user', {
+export const user = createQueryKeys('user', {
   entitlements: {
     queryKey: null,
     queryFn: async () => fetchUserEntitlements(),
   },
 });
+
 export const queries = mergeQueryKeys(enterprise, user);

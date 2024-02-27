@@ -1,11 +1,12 @@
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import {
+  makeUserEntitlementsQuery,
   makeCanRedeemQuery,
   makeCourseMetadataQuery,
   makeEnterpriseCourseEnrollmentsQuery,
   makeEnterpriseLearnerQuery,
-  makeUserEntitlementsQuery,
-} from '../queries';
+} from '../data/services';
+
 
 // TODO: abstract out somewhere more common
 export async function extractActiveEnterpriseId({
