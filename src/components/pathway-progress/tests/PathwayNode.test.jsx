@@ -4,6 +4,7 @@ import {
   screen, render,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -39,11 +40,13 @@ const pathwaySteps = camelCaseObject(
 );
 
 const PathwayNodeWithContext = ({ pathwayNodedData }) => (
-  <AppContext.Provider value={appState}>
-    <UserSubsidyContext.Provider value={userSubsidyState}>
-      <PathwayNode node={pathwayNodedData} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appState}>
+      <UserSubsidyContext.Provider value={userSubsidyState}>
+        <PathwayNode node={pathwayNodedData} />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<PathwayNode />', () => {

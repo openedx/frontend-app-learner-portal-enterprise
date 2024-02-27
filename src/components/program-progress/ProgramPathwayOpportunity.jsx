@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 const ProgramPathwayOpportunity = ({ pathways, title, pathwayClass }) => (
   <div className={pathwayClass}>
@@ -20,7 +21,11 @@ const ProgramPathwayOpportunity = ({ pathways, title, pathwayClass }) => (
                   data-pathway-uuid={pathway.uuid}
                   data-pathway-name={pathway.name}
                 >
-                  Learn more
+                  <FormattedMessage
+                    id="enterprise.dashboard.program.pathway.opportunity.learn.more"
+                    defaultMessage="Learn more"
+                    description="Label for the learn more button associated with a pathway opportunity on the programs about page. Clicking this button opens the pathway detail page."
+                  />
                 </Button>
               </a>
             </div>

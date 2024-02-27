@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Breadcrumb } from '@openedx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import { useParams } from 'react-router-dom';
 import { PathwayProgressContext } from './PathwayProgressContextProvider';
@@ -26,11 +27,21 @@ const PathwayProgressHeader = () => {
           <br />
         </div>
         <section>
-          <h2 className="">Pathway Progress</h2>
+          <h2 className="">
+            <FormattedMessage
+              id="enterprise.dashboard.pathways.progress.page.pathway.progress.heading"
+              defaultMessage="Pathway Progress"
+              description="Heading displayed on the pathway progress page to indicate the progress of a pathway"
+            />
+          </h2>
           <div className="row">
             <p className="col-6">
-              Review your progress through the pathway and plan for key deadlines to ensure you finish.
-              To complete the pathway, you must complete each of the requirements.
+              <FormattedMessage
+                id="enterprise.dashboard.pathways.progress.page.pathway.progress.subheading"
+                defaultMessage="Review your progress through the pathway and plan for key deadlines to ensure you finish.
+                To complete the pathway, you must complete each of the requirements."
+                description="Subheading displayed on the pathway progress page for reviewing progress and meeting pathway requirements."
+              />
             </p>
           </div>
           <SubscriptionStatusCard />

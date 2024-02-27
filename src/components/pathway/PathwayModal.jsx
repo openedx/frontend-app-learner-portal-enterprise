@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Button,
   Col,
@@ -64,11 +65,42 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
 });
 
 const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
+  const intl = useIntl();
+
   const { enterpriseConfig: { slug } } = useContext(AppContext);
   const pathwayUuid = isOpen ? learnerPathwayUuid : null;
   const [pathway, isLoading] = useLearnerPathwayData({ learnerPathwayUuid: pathwayUuid });
 
   if (isOpen === false) { return null; }
+
+  const getPathwayStepsTitle = (step, index) => {
+    const totalCoursesAndPrograms = (step?.courses?.length || 0) + (step?.programs?.length || 0);
+
+    const requirementsTitleWithSingleStep = intl.formatMessage(
+      {
+        id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title',
+        defaultMessage: 'Requirement {index}',
+        description: 'Title indicating a single requirement step for a pathway on the pathway progress page.',
+      },
+      {
+        index: index + 1,
+      },
+    );
+
+    const requirementsTitleWithMultipleSteps = intl.formatMessage(
+      {
+        id: 'enterprise.dashboard.pathways.progress.page.pathway.requirements.step.title',
+        defaultMessage: 'Requirement {index}: Choose any {count} of the following',
+        description: 'Title indicating multiple requirements steps for a pathway on the pathway progress page.',
+      },
+      {
+        index: index + 1,
+        count: totalCoursesAndPrograms,
+      },
+    );
+
+    return totalCoursesAndPrograms > 1 ? requirementsTitleWithMultipleSteps : requirementsTitleWithSingleStep;
+  };
 
   return (
     <MarketingModal
@@ -108,10 +140,18 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
                 <Icon src={VerifiedBadge} className="mr-1" />
                 <div>
                   <h4 className="mb-0">
-                    Verified
+                    <FormattedMessage
+                      id="enterprise.pathway.modal.verified.label"
+                      defaultMessage="Verified"
+                      description="Verified label displayed on the pathway modal."
+                    />
                   </h4>
                   <span className="font-weight-light" style={{ fontSize: '16px' }}>
-                    Curated by learning professionals
+                    <FormattedMessage
+                      id="enterprise.pathway.modal.curated.by.professionals.label"
+                      defaultMessage="Curated by learning professionals"
+                      description="Label displayed on the pathway modal indicating that the pathway is curated by learning professionals."
+                    />
                   </span>
                 </div>
               </div>
@@ -126,7 +166,14 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
                     {coursesAndProgramsText(pathway)}
                   </h4>
                   <span className="font-weight-light" style={{ fontSize: '16px' }}>
-                    {`Across ${pathway.steps.length} requirements`}
+                    <FormattedMessage
+                      id="enterprise.pathway.modal.course.and.programs.requirements.count.label"
+                      defaultMessage="Across {pathwayStepsCount} requirements"
+                      description="Label displayed on the pathway modal indicating the number of requirements for programs and courses."
+                      values={{
+                        pathwayStepsCount: pathway.steps.length,
+                      }}
+                    />
                   </span>
                 </div>
               </div>
@@ -138,10 +185,18 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
                 <Icon src={BookOpen} className="mr-1" />
                 <div>
                   <h4 className="mb-0">
-                    Included with catalog
+                    <FormattedMessage
+                      id="enterprise.pathway.modal.catalog.label"
+                      defaultMessage="Included with catalog"
+                      description="Label displayed on the pathway modal indicating the pathway is included with catalog."
+                    />
                   </h4>
                   <span className="font-weight-light" style={{ fontSize: '16px' }}>
-                    Learn at zero cost to you
+                    <FormattedMessage
+                      id="enterprise.pathway.modal.learn.at.zero.cost.label"
+                      defaultMessage="Learn at zero cost to you"
+                      description="Label displayed on the pathway modal describing that the learner can learn at zero cost."
+                    />
                   </span>
                 </div>
               </div>
@@ -165,7 +220,7 @@ const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
         ) : pathway.steps.map((step, index) => (
           <Collapsible
             styling="card"
-            title={`Requirement ${index + 1}${(step.courses.length + step.programs.length) > 1 ? `: Choose any ${step.courses.length + step.programs.length} of the following` : ''}`}
+            title={getPathwayStepsTitle(step, index)}
             className="mb-4"
             key={step.uuid}
           >

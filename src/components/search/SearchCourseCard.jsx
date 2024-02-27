@@ -8,8 +8,8 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card, Truncate } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
-import { GENERAL_LENGTH_COURSE, SHORT_LENGTH_COURSE } from './data/constants';
 import { isShortCourse } from './utils';
 
 const SearchCourseCard = ({
@@ -119,7 +119,21 @@ const SearchCourseCard = ({
       <Card.Section />
       <Card.Footer textElement={(
         <span className="text-muted">
-          { isShortLengthCourse ? SHORT_LENGTH_COURSE : GENERAL_LENGTH_COURSE }
+          { isShortLengthCourse
+            ? (
+              <FormattedMessage
+                id="enterprise.search.course.card.short.length.course"
+                defaultMessage="Short Course"
+                description="Label for short length course on course card"
+              />
+            )
+            : (
+              <FormattedMessage
+                id="enterprise.search.course.card.general.length.course"
+                defaultMessage="Course"
+                description="Label for general length course on course card"
+              />
+            )}
         </span>
       )}
       />

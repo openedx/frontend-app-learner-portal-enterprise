@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import PathwayRequirements from '../PathwayRequirements';
 import { PathwayProgressContext } from '../PathwayProgressContextProvider';
 import '@testing-library/jest-dom';
@@ -53,9 +54,11 @@ const mockLearnerPathwayProgress = {
 
 test('renders pathway requirements correctly', () => {
   render(
-    <PathwayProgressContext.Provider value={{ learnerPathwayProgress: mockLearnerPathwayProgress }}>
-      <PathwayRequirements />
-    </PathwayProgressContext.Provider>,
+    <IntlProvider locale="en">
+      <PathwayProgressContext.Provider value={{ learnerPathwayProgress: mockLearnerPathwayProgress }}>
+        <PathwayRequirements />
+      </PathwayProgressContext.Provider>,
+    </IntlProvider>,
   );
 
   expect(screen.getByText('Pathway Requirements:')).toBeInTheDocument();
@@ -66,9 +69,11 @@ test('renders pathway requirements correctly', () => {
 
 test('renders pathway steps correctly', () => {
   render(
-    <PathwayProgressContext.Provider value={{ learnerPathwayProgress: mockLearnerPathwayProgress }}>
-      <PathwayRequirements />
-    </PathwayProgressContext.Provider>,
+    <IntlProvider locale="en">
+      <PathwayProgressContext.Provider value={{ learnerPathwayProgress: mockLearnerPathwayProgress }}>
+        <PathwayRequirements />
+      </PathwayProgressContext.Provider>
+    </IntlProvider>,
   );
 
   expect(screen.getByText('Requirement 1: Choose any 2 of the following')).toBeInTheDocument();

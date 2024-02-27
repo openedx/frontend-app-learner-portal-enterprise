@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import userEvent from '@testing-library/user-event';
 import PathwayModal from '../PathwayModal';
@@ -21,13 +22,15 @@ jest.mock('react-loading-skeleton', () => ({
 }));
 
 const PathwayModalWithAppContext = (props) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-    }}
-  >
-    <PathwayModal {...props} />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+      }}
+    >
+      <PathwayModal {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const defaultProps = {

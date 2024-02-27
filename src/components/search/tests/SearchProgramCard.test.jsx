@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import SearchProgramCard from '../SearchProgramCard';
 
 import { renderWithRouter } from '../../../utils/tests';
@@ -23,14 +24,16 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const SearchProgramCardWithAppContext = (props) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
-      authenticatedUser: { username: 'b.wayne', userId },
-    }}
-  >
-    <SearchProgramCard {...props} />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: enterpriseUuid },
+        authenticatedUser: { username: 'b.wayne', userId },
+      }}
+    >
+      <SearchProgramCard {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
