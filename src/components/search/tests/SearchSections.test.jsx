@@ -91,7 +91,7 @@ describe('<Search />', () => {
         </AppContext.Provider>
       </IntlProvider>,
     );
-    expect(screen.getByText('Courses (2 Results)')).toBeInTheDocument();
+    expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
   });
   test('renders the programe section with the correct title', () => {
     renderWithRouter(
@@ -103,7 +103,7 @@ describe('<Search />', () => {
         </AppContext.Provider>
       </IntlProvider>,
     );
-    expect(screen.getByText('Programs (2 Results)')).toBeInTheDocument();
+    expect(screen.getByText('Programs (2 results)')).toBeInTheDocument();
   });
 
   test('renders the pathways section with the correct title', () => {
@@ -116,7 +116,7 @@ describe('<Search />', () => {
         </AppContext.Provider>
       </IntlProvider>,
     );
-    expect(screen.getByText('Pathways (2 Results)')).toBeInTheDocument();
+    expect(screen.getByText('Pathways (2 results)')).toBeInTheDocument();
   });
   test('renders the course search component with the correct title', () => {
     renderWithRouter(
@@ -134,7 +134,7 @@ describe('<Search />', () => {
         </AppContext.Provider>
       </IntlProvider>,
     );
-    expect(screen.getByText('Courses (2 Results)')).toBeInTheDocument();
+    expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
   });
   test('renders the program search component with the correct title', () => {
     renderWithRouter(
@@ -152,7 +152,7 @@ describe('<Search />', () => {
         </AppContext.Provider>
       </IntlProvider>,
     );
-    expect(screen.getByText('Programs (2 Results)')).toBeInTheDocument();
+    expect(screen.getByText('Programs (2 results)')).toBeInTheDocument();
   });
   test('renders the pathway search component with the correct title', () => {
     renderWithRouter(
@@ -170,6 +170,6 @@ describe('<Search />', () => {
         </AppContext.Provider>
       </IntlProvider>,
     );
-    expect(screen.getByText('Pathways (2 Results)')).toBeInTheDocument();
+    expect(screen.getByText('Pathways (2 results)')).toBeInTheDocument();
   });
 });

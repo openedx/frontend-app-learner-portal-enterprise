@@ -89,12 +89,12 @@ const SearchResults = ({
       const resultsLabel = nbHits === 0 || nbHits > 1
         ? intl.formatMessage({
           id: 'enterprise.search.page.content.results',
-          defaultMessage: 'Results',
+          defaultMessage: 'results',
           description: 'Label for the search results count when we have more than one result.',
         })
         : intl.formatMessage({
           id: 'enterprise.search.page.content.result',
-          defaultMessage: 'Result',
+          defaultMessage: 'result',
           description: 'Label for the search result count when we have only one result.',
         });
       return (
