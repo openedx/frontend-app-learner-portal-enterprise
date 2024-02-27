@@ -22,10 +22,10 @@ export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {
  * @returns
  * @param enterpriseUuid
  */
-export default function makeEnterpriseCourseEnrollmentsQuery(enterpriseUuid) {
-  return {
-    queryKey: enterpriseQueryKeys.enterpriseCourseEnrollments(enterpriseUuid),
-    queryFn: async () => fetchEnterpriseCourseEnrollments(enterpriseUuid),
-    enabled: !!enterpriseUuid,
-  };
-}
+// export default function makeEnterpriseCourseEnrollmentsQuery(enterpriseUuid) {
+//   return {
+//     queryKey: enterpriseQueryKeys.enterpriseCourseEnrollments(enterpriseUuid),
+//     queryFn: async () => fetchEnterpriseCourseEnrollments(enterpriseUuid),
+//     enabled: !!enterpriseUuid,
+//   };
+// }
