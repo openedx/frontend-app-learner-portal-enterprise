@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
 
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -46,13 +47,15 @@ const subsidyRequestsState = {
 const ProgramProgressCoursesWithContext = ({
   initialAppState, initialUserSubsidyState, courseData, initialSubsidyRequestsState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <ProgramProgressCourses courseData={courseData} />
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <ProgramProgressCourses courseData={courseData} />
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<ProgramProgressCourses />', () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -19,11 +20,13 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const PathwayProgressListingCardWithContext = ({ initialAppState, initialUserSubsidyState, pathwayData }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <PathwayProgressCard pathway={pathwayData} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <PathwayProgressCard pathway={pathwayData} />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const appState = {

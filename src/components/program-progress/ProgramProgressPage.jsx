@@ -5,6 +5,7 @@ import {
   breakpoints, Container, Row, MediaQuery,
 } from '@edx/paragon';
 import { ErrorPage } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { LoadingSpinner } from '../loading-spinner';
 import {
   ProgramProgressContextProvider,
@@ -89,15 +90,51 @@ const ProgramProgressPage = () => {
                 {allCoursesCompleted
                   ? (
                     <>
-                      <h3>Congratulations!</h3>
-                      <p>You have successfully completed all the requirements for the {PROGRAM_TITLE}.</p>
+                      <h3>
+                        <FormattedMessage
+                          id="enterprise.dashboard.programs.about.page.all.courses.completed.message"
+                          defaultMessage="Congratulations!"
+                          description="Message for all courses completed on programs about page"
+                        />
+                      </h3>
+                      <p>
+                        <FormattedMessage
+                          id="enterprise.dashboard.programs.about.page.all.course.requirements.completed.message"
+                          defaultMessage="You have successfully completed all the requirements for the {programTitle}."
+                          description="Message shown when a learner has completed all course requirements for a program."
+                          values={{
+                            programTitle: PROGRAM_TITLE,
+                          }}
+                        />
+                      </p>
                     </>
                   )
                   : (
                     <>
-                      <h3> Your Program Journey</h3>
-                      <p>Track and plan your progress through the {totalCoursesInProgram} courses in this program.</p>
-                      <p>To complete the program, you must earn a verified certificate for each course.</p>
+                      <h3>
+                        <FormattedMessage
+                          id="enterprise.dashboard.programs.about.page.program.journey.message"
+                          defaultMessage="Your Program Journey"
+                          description="Message for program journey on programs about page"
+                        />
+                      </h3>
+                      <p>
+                        <FormattedMessage
+                          id="eenterprise.dashboard.programs.about.page.course.progress.tracking.message"
+                          defaultMessage="Track and plan your progress through the {totalCoursesInProgram} courses in this program."
+                          description="Message for courses progress tracking on programs about page"
+                          values={{
+                            totalCoursesInProgram,
+                          }}
+                        />
+                      </p>
+                      <p>
+                        <FormattedMessage
+                          id="enterprise.dashboard.programs.about.page.verified.certificate.message"
+                          defaultMessage="To complete the program, you must earn a verified certificate for each course."
+                          description="Message for verified certificate on programs about page"
+                        />
+                      </p>
                     </>
                   )}
                 <SubsidiesSummary

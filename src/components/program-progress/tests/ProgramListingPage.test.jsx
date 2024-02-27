@@ -10,7 +10,6 @@ import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
-import { NO_PROGRAMS_ERROR_MESSAGE } from '../data/constants';
 import { renderWithRouter } from '../../../utils/tests';
 import { CONTENT_TYPE_PROGRAM } from '../../search/constants';
 
@@ -140,7 +139,7 @@ describe('<ProgramListing />', () => {
           initialUserSubsidyState={initialUserSubsidyState}
         />,
       );
-      expect(screen.getByText(NO_PROGRAMS_ERROR_MESSAGE)).toBeInTheDocument();
+      expect(screen.getByText('You are not enrolled in any programs yet.')).toBeInTheDocument();
       expect(screen.getByText('Explore programs')).toBeInTheDocument();
     });
   });

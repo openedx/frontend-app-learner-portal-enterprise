@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Badge, Card } from '@edx/paragon';
 import { useParams } from 'react-router-dom';
 import capitalize from 'lodash.capitalize';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import { CONTENT_TYPES, IN_PROGRESS } from './constants';
 import { linkToCourse, shortenString } from '../course/data/utils';
@@ -41,7 +42,15 @@ const PathwayNode = ({ node }) => {
               <div className="col-7">
                 <div className="row">
                   <h3>{node.title}</h3>&nbsp;
-                  {node.status === IN_PROGRESS && <Badge variant="success">In Progress</Badge>}
+                  {node.status === IN_PROGRESS && (
+                    <Badge variant="success">
+                      <FormattedMessage
+                        id="enterprise.dashboard.pathways.progress.page.pathway.node.in.progress.badge"
+                        defaultMessage="In Progress"
+                        description="In progress badge label displayed for a pathway card on the pathway progress page."
+                      />
+                    </Badge>
+                  )}
                 </div>
                 <p
                   className="row lead font-weight-normal"
@@ -52,9 +61,28 @@ const PathwayNode = ({ node }) => {
               <div className="col-2">
                 {
                   node.status === IN_PROGRESS ? (
-                    <a href={linkToNode} type="button" className="btn btn-primary"> Resume {capitalize(node.contentType)}</a>
+                    <a href={linkToNode} type="button" className="btn btn-primary">
+                      <FormattedMessage
+                        id="enterprise.dashboard.pathways.progress.page.pathway.node.resume.course.or.program.button.text"
+                        defaultMessage="Resume {contentType}"
+                        description="Button text for resuming a course or program on the pathway card within the pathway progress page."
+                        values={{
+                          contentType: capitalize(node.contentType),
+                        }}
+                      />
+
+                    </a>
                   ) : (
-                    <a href={linkToNode} type="button" className="btn btn-secondary"> View {capitalize(node.contentType)}</a>
+                    <a href={linkToNode} type="button" className="btn btn-secondary">
+                      <FormattedMessage
+                        id="enterprise.dashboard.pathways.progress.page.pathway.node.view.course.or.program.button.text"
+                        defaultMessage="View {contentType}"
+                        description="Button text for viewing a course or program on the pathway card within the pathway progress page."
+                        values={{
+                          contentType: capitalize(node.contentType),
+                        }}
+                      />
+                    </a>
                   )
                 }
               </div>
