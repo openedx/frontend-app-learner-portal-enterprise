@@ -5,8 +5,10 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
+import { QueryClientProvider } from '@tanstack/react-query';
 import AuthenticatedPage from './AuthenticatedPage';
-import { useRecommendCoursesForMe } from './data';
+import { useEnterpriseLearner, useRecommendCoursesForMe } from './data';
+import { queryClient } from '../../utils/tests';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -32,6 +34,7 @@ jest.mock('../layout', () => ({
 
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
+  useEnterpriseLearner: jest.fn(),
   useRecommendCoursesForMe: jest.fn(),
 }));
 
@@ -64,13 +67,31 @@ const AuthenticatedPageWrapper = ({
   appContextValue = defaultAppContextValue,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <AuthenticatedPage>
-        {children}
-      </AuthenticatedPage>
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={appContextValue}>
+        <AuthenticatedPage>
+          {children}
+        </AuthenticatedPage>
+      </AppContext.Provider>
+    </QueryClientProvider>
   </IntlProvider>
 );
+
+const baseEnterpriseLearner = {
+  enterpriseCustomer: {
+    name: 'Test Enterprise Name',
+    brandingConfiguration: {
+      logo: 'test-logo',
+    },
+  },
+  allLinkedEnterpriseCustomerUsers: [
+    {
+      enterpriseCustomer: {
+        name: 'Test Enterprise Name',
+      },
+    }],
+};
+useEnterpriseLearner.mockImplementation(() => ({ data: baseEnterpriseLearner }));
 
 describe('AuthenticatedPage tests', () => {
   beforeEach(() => {

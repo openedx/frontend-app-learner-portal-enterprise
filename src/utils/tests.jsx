@@ -4,6 +4,7 @@ import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 
 export function renderWithRouter(
   ui,
@@ -79,3 +80,11 @@ export const A_100_PERCENT_COUPON_CODE = {
   couponStartDate: dayjs().subtract(1, 'w').toISOString(),
   couponEndDate: dayjs().add(8, 'w').toISOString(),
 };
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});

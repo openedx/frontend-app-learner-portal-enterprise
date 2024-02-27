@@ -5,15 +5,17 @@ import { breakpoints } from '@edx/paragon';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { MemoryRouter } from 'react-router-dom';
 import SiteHeader from '../SiteHeader';
 
-import { renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter, queryClient } from '../../../utils/tests';
 import { useEnterpriseLearner } from '../../app/data';
 
-jest.mock('../../app/data');
+jest.mock('../../app/data', () => ({
+  useEnterpriseLearner: jest.fn(),
+}));
 
 const appState = {
   enterpriseConfig: {
@@ -33,14 +35,6 @@ const appState = {
     profileImage: 'papa-bear-image',
   },
 };
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
 
 const SiteHeaderWithContext = ({
   initialAppState = appState,
@@ -63,20 +57,31 @@ const mockWindowConfig = {
 const baseEnterpriseLearner = {
   enterpriseCustomer: {
     name: 'BearsRUs',
+    slug: 'bears-r-us',
     brandingConfiguration: {
       logo: 'test-logo',
     },
+    disableSearch: false,
   },
-  allLinkedEnterpriseCustomerUsers: [],
+  allLinkedEnterpriseCustomerUsers: [
+    {
+      enterpriseCustomer: {
+        name: 'BearsRUs',
+        slug: 'bears-r-us',
+      },
+    }],
 };
 
 describe('<SiteHeader />', () => {
   beforeEach(() => {
     window.matchMedia.setConfig(mockWindowConfig);
+    jest.clearAllMocks();
   });
+
+  useEnterpriseLearner.mockImplementation(() => ({ data: baseEnterpriseLearner }));
+
   test('renders link with logo to dashboard', () => {
     useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
-
     renderWithRouter(
       <SiteHeaderWithContext />,
     );
@@ -85,16 +90,13 @@ describe('<SiteHeader />', () => {
   });
   test('does not render link with logo to dashboard when search is disabled', () => {
     const disabledSearchEnterpriseLearner = {
+      ...baseEnterpriseLearner,
       enterpriseCustomer: {
-        brandingConfiguration: {
-          logo: 'logo',
-        },
-        disabledSearch: true,
+        ...baseEnterpriseLearner.enterpriseCustomer,
+        disableSearch: true,
       },
     };
     useEnterpriseLearner.mockReturnValue({ data: disabledSearchEnterpriseLearner });
-
-
     const disableSearchAppState = {
       ...appState,
     };
@@ -108,6 +110,7 @@ describe('<SiteHeader />', () => {
     expect(screen.queryByTestId('header-logo-link-id')).toBeFalsy();
   });
   test('renders regular logout link in absence of IDP', () => {
+    useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
     renderWithRouter(
       <SiteHeaderWithContext initialAppState={appState} />,
     );
@@ -119,6 +122,14 @@ describe('<SiteHeader />', () => {
     expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us');
   });
   test('renders logout-specific logout link in presence of IDP', () => {
+    const idpEnterpriseLearner = {
+      ...baseEnterpriseLearner,
+      enterpriseCustomer: {
+        ...baseEnterpriseLearner.enterpriseCustomer,
+        identityProvider: 'a-provider',
+      }
+    }
+    useEnterpriseLearner.mockReturnValue({ data: idpEnterpriseLearner });
     const appStateWithIDP = {
       ...appState,
       enterpriseConfig: {
@@ -144,6 +155,7 @@ describe('<SiteHeader />', () => {
   }])('renders getSmarter logo when on /executive-education-2u path', ({
     route,
   }) => {
+    useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
     render(
       <MemoryRouter initialEntries={[route]}>
         <SiteHeaderWithContext initialAppState={appState} />,
