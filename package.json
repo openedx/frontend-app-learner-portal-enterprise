@@ -15,7 +15,7 @@
     "@edx/frontend-enterprise-utils": "6.0.0",
     "@edx/frontend-platform": "7.1.0",
     "@loadable/component": "5.16.3",
-    "@openedx/paragon": "21.5.7",
+    "@openedx/paragon": "^21.5.7",
     "@tanstack/react-query": "4.28.0",
     "@tanstack/react-query-devtools": "4.29.0",
     "algoliasearch": "4.6.0",
@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@edx/browserslist-config": "1.1.1",
-    "@openedx/frontend-build": "13.0.15",
+    "@openedx/frontend-build": "13.0.28",
     "@tanstack/eslint-plugin-query": "4.29.9",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "12.1.5",
