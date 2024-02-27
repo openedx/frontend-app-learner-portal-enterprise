@@ -127,4 +127,24 @@ describe('<EnterprisePage />', () => {
       }),
     );
   });
+  it('renders error page when there is a fetch error', () => {
+    const errorMessage = 'Test fetch error';
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error(errorMessage)]);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(wrapper.find(ErrorPage).prop('message')).toEqual(errorMessage);
+  });
+
+  it('renders not found page when enterprise config is defined and null', () => {
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(wrapper.find(NotFoundPage)).toBeTruthy();
+  });
 });

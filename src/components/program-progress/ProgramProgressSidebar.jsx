@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { Button } from '@edx/paragon';
 import { v4 as uuidv4 } from 'uuid';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { ProgramProgressContext } from './ProgramProgressContextProvider';
 
 import ProgramProgressCircle from './ProgramProgressCircle';
@@ -37,7 +38,16 @@ const ProgramProgressSideBar = () => {
       {!programCertificate && <ProgramProgressCircle /> }
       {programCertificate && programCertificate.img && (
         <div>
-          <h2 className="progress-heading certificate-heading"> {`Your ${programData.type} Certificate`}</h2>
+          <h2 className="progress-heading certificate-heading">
+            <FormattedMessage
+              id="enterprise.dashboard.program.sidebar.your.certificate"
+              defaultMessage="Your {certificateType} Certificate"
+              description="Label for program certificate on program sidebar"
+              values={{
+                certificateType: programData.type,
+              }}
+            />
+          </h2>
           <a href={programCertificate.url} className="program-cert-link">
             <img
               src={programCertificate.img}
@@ -49,7 +59,13 @@ const ProgramProgressSideBar = () => {
       )}
       {courseCertificates.length > 0 && (
         <div className="certificate-container">
-          <h2 className="course-list-heading">Earned Certificates</h2>
+          <h2 className="course-list-heading">
+            <FormattedMessage
+              id="enterprise.dashboard.program.sidebar.earned.certificates"
+              defaultMessage="Earned Certificates"
+              description="Label for earned certificates on program sidebar"
+            />
+          </h2>
           <ul className="certificate-list">
             {courseCertificates.map((certificate) => (
               <li key={uuidv4()} data-testid="certificate-item" className="certificate">
@@ -63,12 +79,20 @@ const ProgramProgressSideBar = () => {
         </div>
       )}
       <div className="program-record">
-        <h2 className="divider-heading">Program Record</h2>
+        <h2 className="divider-heading">
+          <FormattedMessage
+            id="enterprise.dashboard.program.sidebar.program.record"
+            defaultMessage="Program Record"
+            description="Label for program record on program sidebar"
+          />
+        </h2>
         <div className="motivating-section">
           <p className="motivating-message">
-            Once you complete one of the program requirements you have a program record.
-            This record is marked complete once you meet all program requirements.
-            A program record can be used to continue your learning journey and demonstrate your learning to others.
+            <FormattedMessage
+              id="enterprise.dashboard.program.sidebar.message"
+              defaultMessage="Once you complete one of the program requirements you have a program record. This record is marked complete once you meet all program requirements. A program record can be used to continue your learning journey and demonstrate your learning to others."
+              description="Message displayed in the program sidebar for providing information on program completion."
+            />
           </p>
         </div>
         { programRecordUrl && (
@@ -78,7 +102,11 @@ const ProgramProgressSideBar = () => {
                 variant="outline-primary"
                 className="btn sidebar-button"
               >
-                View Program Record
+                <FormattedMessage
+                  id="enterprise.dashboard.program.sidebar.view.program.record"
+                  defaultMessage="View Program Record"
+                  description="Button text for viewing the program record on program sidebar"
+                />
               </Button>
             </a>
           </div>
@@ -87,14 +115,26 @@ const ProgramProgressSideBar = () => {
       {creditPathways.length > 0 && (
         <ProgramPathwayOpportunity
           pathways={creditPathways}
-          title="Additional Credit Opportunities"
+          title={(
+            <FormattedMessage
+              id="enterprise.dashboard.program.sidebar.credit.opportunities"
+              defaultMessage="Additional Credit Opportunities"
+              description="Title for additional credit opportunities on program sidebar"
+            />
+          )}
           pathwayClass="program-credit-pathways"
         />
       )}
       {industryPathways.length > 0 && (
         <ProgramPathwayOpportunity
           pathways={industryPathways}
-          title="Additional Professional Opportunities"
+          title={(
+            <FormattedMessage
+              id="program.sidebar.professional.opportunities"
+              defaultMessage="Additional Professional Opportunities"
+              description="Title for additional professional opportunities on program sidebar"
+            />
+          )}
           pathwayClass="program-industry-pathways"
         />
       )}

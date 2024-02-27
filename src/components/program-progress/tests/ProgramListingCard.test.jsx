@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   screen, render,
 } from '@testing-library/react';
@@ -18,11 +19,13 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const ProgramListingCardWithContext = ({ initialAppState, initialUserSubsidyState, programData }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramListingCard program={programData} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <ProgramListingCard program={programData} />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const appState = {

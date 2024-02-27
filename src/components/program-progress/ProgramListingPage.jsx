@@ -6,13 +6,13 @@ import {
   CardGrid,
 } from '@edx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { Search } from '@edx/paragon/icons';
 
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
 
-import { NO_PROGRAMS_ERROR_MESSAGE } from './data/constants';
 import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
@@ -39,10 +39,22 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, progra
         </CardGrid>
       ) : (
         <div className="no-content-message">
-          <h2>{NO_PROGRAMS_ERROR_MESSAGE}</h2>
+          <h2>
+            <FormattedMessage
+              id="enterprise.dashboard.programs.no.programs.error.message"
+              defaultMessage="You are not enrolled in any programs yet."
+              description="Error message for no programs found."
+            />
+          </h2>
           {(canOnlyViewHighlightSets === false) && (
             <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
-              <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">Explore programs</Button>
+              <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">
+                <FormattedMessage
+                  id="enterprise.dashboard.programs.explore.programs.button.text"
+                  defaultMessage="Explore programs"
+                  description="Text for explore programs button on programs page"
+                />
+              </Button>
             </Link>
           )}
         </div>
