@@ -16,7 +16,11 @@ process.env.LMS_BASE_URL = 'http://localhost:18000';
 process.env.ECOMMERCE_BASE_URL = 'http://ecommerce.url';
 process.env.MARKETING_SITE_BASE_URL = 'http://marketing.url';
 process.env.LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL = 'http://limits.url';
+process.env.LOGIN_URL = 'http://localhost:18000/login';
 process.env.LOGOUT_URL = 'http://localhost:18000/logout';
+process.env.REFRESH_ACCESS_TOKEN_ENDPOINT = 'http://localhost:18000/login_refresh';
+process.env.ACCESS_TOKEN_COOKIE_NAME = 'edx-jwt-cookie-header-payload';
+process.env.CSRF_TOKEN_API_PATH = '/csrf/api/v1/token';
 process.env.BASE_URL = 'http://localhost:8734';
 process.env.ENTERPRISE_ACCESS_BASE_URL = 'http://enterprise-access.url';
 

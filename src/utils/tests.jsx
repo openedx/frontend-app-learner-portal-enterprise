@@ -5,12 +5,24 @@ import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
 
-export function renderWithRouterProvider(children, routes = []) {
+/**
+ * TODO
+ * @param {*} children
+ * @param {*} routes
+ * @returns
+ */
+export function renderWithRouterProvider(
+  children,
+  {
+    routes = [],
+    initialEntries,
+  },
+) {
   const options = isValidElement(children)
     ? { element: children, path: '/' }
     : children;
   const router = createMemoryRouter([{ ...options }, ...routes], {
-    initialEntries: [options.path],
+    initialEntries: ['/', ...(initialEntries ?? [options.path])],
     initialIndex: 1,
   });
   return render(<RouterProvider router={router} />);

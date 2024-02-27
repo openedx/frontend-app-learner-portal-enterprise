@@ -1,6 +1,6 @@
 import { getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { ensureEnterpriseAppQueries } from '../queries';
+import { ensureEnterpriseAppData } from '../queries';
 
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
@@ -9,7 +9,7 @@ import { ensureEnterpriseAppQueries } from '../queries';
  * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
  * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
  */
-const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
+export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
   const config = getConfig();
   const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
   const formData = new FormData();
@@ -36,7 +36,6 @@ export async function updateActiveEnterpriseCustomerUser({
   userId,
   userEmail,
   queryClient,
-
 }) {
   // Makes the POST API request to update the active enterprise customer
   // for the learner in the backend for future sessions.
@@ -59,7 +58,7 @@ export async function updateActiveEnterpriseCustomerUser({
     ),
   });
   // Refetch all enterprise app data for the new active enterprise customer.
-  await Promise.all(ensureEnterpriseAppQueries({
+  await Promise.all(ensureEnterpriseAppData({
     enterpriseCustomer: enterpriseCustomerUser.enterpriseCustomer,
     userId,
     userEmail,

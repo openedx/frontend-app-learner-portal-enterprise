@@ -1,4 +1,4 @@
-import { ensureEnterpriseAppQueries, makeEnterpriseLearnerQuery } from '../queries';
+import { ensureEnterpriseAppData, makeEnterpriseLearnerQuery } from '../queries';
 import {
   ensureAuthenticatedUser,
   redirectToSearchPageForNewUser,
@@ -28,7 +28,7 @@ export default function makeRootLoader(queryClient) {
     }
 
     // Begin fetching all enterprise app data.
-    const enterpriseAppData = await Promise.all(ensureEnterpriseAppQueries({
+    const enterpriseAppData = await Promise.all(ensureEnterpriseAppData({
       enterpriseCustomer: activeEnterpriseCustomer,
       userId,
       userEmail,

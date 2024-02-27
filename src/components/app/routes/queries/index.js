@@ -1,4 +1,4 @@
-export { default as ensureEnterpriseAppQueries } from './ensureEnterpriseAppQueries';
+export { default as ensureEnterpriseAppData } from './ensureEnterpriseAppData';
 export { default as makeEnterpriseLearnerQuery } from './enterpriseLearner';
 export { default as makeContentHighlightsConfigurationQuery } from './contentHighlights';
 export { default as makeCourseMetadataQuery } from './courseMetadata';

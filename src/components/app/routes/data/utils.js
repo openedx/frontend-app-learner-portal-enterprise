@@ -117,10 +117,9 @@ export async function ensureAuthenticatedUser(requestUrl) {
     loggingService: getLoggingService(),
     config: getConfig(),
   });
-
   const authenticatedUser = await fetchAuthenticatedUser();
   if (!authenticatedUser) {
-    // TODO: why is this no longer seeming to work?
+    // User is not authenticated. Redirect to the login page.
     throw redirect(getLoginRedirectUrl(requestUrl.href));
   }
   return authenticatedUser;
