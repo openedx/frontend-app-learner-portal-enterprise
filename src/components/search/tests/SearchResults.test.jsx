@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import SearchResults from '../SearchResults';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchProgramCard from '../SearchProgramCard';
@@ -76,15 +77,17 @@ const initialSubsidyRequestsState = {
 };
 
 const SearchResultsWithContext = (props) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <SearchContext.Provider value={searchContext}>
-          <SearchResults {...props} />
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <SearchContext.Provider value={searchContext}>
+            <SearchResults {...props} />
+          </SearchContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
