@@ -5,6 +5,8 @@ import matchMediaMock from 'match-media-mock';
 import ResizeObserverPolyfill from 'resize-observer-polyfill';
 import 'jest-canvas-mock';
 
+import jestFetchMock from 'jest-fetch-mock';
+
 import { configure } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 
@@ -31,3 +33,5 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 global.ResizeObserver = ResizeObserverPolyfill;
+
+jestFetchMock.enableMocks();

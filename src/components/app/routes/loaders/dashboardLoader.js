@@ -1,11 +1,10 @@
+import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
 import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
-import ensureAuthenticatedUser from './ensureAuthenticatedUser';
-import extractEnterpriseId from './extractEnterpriseId';
 
 /**
- * TODO
- * @param {*} queryClient
- * @returns
+ * Returns a loader function responsible for loading the dashboard related data.
+ * @param {object} queryClient - The query client.
+ * @returns {Promise} A loader function.
  */
 export default function makeDashboardLoader(queryClient) {
   return async function dashboardLoader({ params = {} }) {

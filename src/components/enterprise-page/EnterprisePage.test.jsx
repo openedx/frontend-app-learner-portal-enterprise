@@ -1,13 +1,11 @@
 import React, { useContext } from 'react';
 import { mount } from 'enzyme';
 import { ErrorPage, AppContext } from '@edx/frontend-platform/react';
-import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import EnterprisePage from './EnterprisePage';
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
 import * as hooks from './data/hooks';
-import { queryCacheOnErrorHandler } from '../../utils/common';
 
 const mockUser = {
   profileImage: 'http://fake.image',
@@ -27,22 +25,15 @@ describe('<EnterprisePage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  const queryClient = new QueryClient({
-    queryCache: new QueryCache({
-      onError: queryCacheOnErrorHandler,
-    }),
-  });
 
   const defaultAppContextValue = { authenticatedUser: { ...mockUser } };
 
   const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
-    <QueryClientProvider client={queryClient}>
-      <AppContext.Provider value={appContextValue}>
-        <EnterprisePage>
-          {children}
-        </EnterprisePage>
-      </AppContext.Provider>
-    </QueryClientProvider>
+    <AppContext.Provider value={appContextValue}>
+      <EnterprisePage>
+        {children}
+      </EnterprisePage>
+    </AppContext.Provider>
   );
 
   describe('renders loading state', () => {
@@ -92,9 +83,6 @@ describe('<EnterprisePage />', () => {
       slug: 'test-slug',
       uuid: 'test-uuid',
     };
-    const isLoading = false;
-
-    jest.spyOn(hooks, 'useUpdateActiveEnterpriseForUser').mockImplementation(() => ({ isLoading }));
     jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [mockEnterpriseConfig, undefined]);
 
     const ChildComponent = () => {

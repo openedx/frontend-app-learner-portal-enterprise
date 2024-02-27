@@ -1,62 +1,13 @@
-import { getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-
-import ensureAuthenticatedUser from './ensureAuthenticatedUser';
+import { ensureEnterpriseAppQueries, makeEnterpriseLearnerQuery } from '../queries';
 import {
-  makeBrowseAndRequestConfigurationQuery,
-  makeCouponCodesQuery,
-  makeEnterpriseLearnerOffersQuery,
-  makeEnterpriseLearnerQuery,
-  makeRedeemablePoliciesQuery,
-  makeSubscriptionsQuery,
-  makeContentHighlightsConfigurationQuery,
-} from '../queries';
-
-export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
-  const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
-  const formData = new FormData();
-  formData.append('enterprise', enterpriseCustomer.uuid);
-  return getAuthenticatedHttpClient().post(url, formData);
-};
-
-export function getEnterpriseAppData({
-  enterpriseCustomer,
-  userId,
-  userEmail,
-  queryClient,
-}) {
-  return [
-    // Enterprise Customer User Subsidies
-    queryClient.ensureQueryData(
-      makeSubscriptionsQuery(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      makeRedeemablePoliciesQuery({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: userId,
-      }),
-    ),
-    queryClient.ensureQueryData(
-      makeCouponCodesQuery(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      makeEnterpriseLearnerOffersQuery(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      makeBrowseAndRequestConfigurationQuery(enterpriseCustomer.uuid, userEmail),
-    ),
-    // Content Highlights
-    queryClient.ensureQueryData(
-      makeContentHighlightsConfigurationQuery(enterpriseCustomer.uuid),
-    ),
-  ];
-}
+  ensureAuthenticatedUser,
+  redirectToSearchPageForNewUser,
+} from '../data';
 
 /**
- * TODO
- * @param {*} queryClient
- * @returns
+ * Root loader for the enterprise learner portal.
+ * @param {Object} queryClient - The query client.
+ * @returns A loader function.
  */
 export default function makeRootLoader(queryClient) {
   return async function rootLoader({ params = {}, request }) {
@@ -76,12 +27,21 @@ export default function makeRootLoader(queryClient) {
       return null;
     }
 
-    await Promise.all(getEnterpriseAppData({
+    // Begin fetching all enterprise app data.
+    const enterpriseAppData = await Promise.all(ensureEnterpriseAppQueries({
       enterpriseCustomer: activeEnterpriseCustomer,
       userId,
       userEmail,
       queryClient,
     }));
+
+    // Redirect user to search page, for first-time users with no assignments.
+    redirectToSearchPageForNewUser({
+      enterpriseSlug,
+      enterpriseAppData,
+      requestUrl,
+    });
+
     return null;
   };
 }

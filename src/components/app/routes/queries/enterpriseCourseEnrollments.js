@@ -7,7 +7,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
  * @param {*} options
  * @returns
  */
-const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
+async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
     ...options,
@@ -15,7 +15,7 @@ const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
-};
+}
 
 /**
  * TODO
