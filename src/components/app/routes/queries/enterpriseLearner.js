@@ -1,6 +1,5 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 /**
  * Recursive function to fetch all linked enterprise customer users, traversing paginated results.
@@ -28,7 +27,7 @@ async function fetchData(url, linkedEnterprises = []) {
  * @param {Object} [options] Additional query options.
  * @returns
  */
-const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}) => {
+export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}) => {
   const config = getConfig();
   const enterpriseLearnerUrl = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
@@ -84,9 +83,9 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
  * @param {string} enterpriseSlug The slug of the enterprise customer to display.
  * @returns {Object} The query object for fetching the enterprise learner data.
  */
-export default function makeEnterpriseLearnerQuery(username, enterpriseSlug) {
-  return {
-    queryKey: enterpriseQueryKeys.enterpriseLearner(username, enterpriseSlug),
-    queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
-  };
-}
+// export default function makeEnterpriseLearnerQuery(username, enterpriseSlug) {
+//   return {
+//     queryKey: enterpriseQueryKeys.enterpriseLearner(username, enterpriseSlug),
+//     queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
+//   };
+// }

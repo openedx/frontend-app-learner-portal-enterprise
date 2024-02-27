@@ -2,14 +2,13 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
-import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 /**
  * Content Highlights Configuration
  * @param {*} enterpriseUUID
  * @returns
  */
-const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
+export const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
     ...options,
@@ -33,10 +32,10 @@ const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
 /**
  * TODO
  */
-export default function makeContentHighlightsConfigurationQuery(enterpriseUuid) {
-  return {
-    queryKey: enterpriseQueryKeys.enterpriseCurationConfiguration(enterpriseUuid),
-    queryFn: () => fetchEnterpriseCuration(enterpriseUuid),
-    enabled: !!enterpriseUuid,
-  };
-}
+// export default function makeContentHighlightsConfigurationQuery(enterpriseUuid) {
+//   return {
+//     queryKey: enterpriseQueryKeys.enterpriseCurationConfiguration(enterpriseUuid),
+//     queryFn: () => fetchEnterpriseCuration(enterpriseUuid),
+//     enabled: !!enterpriseUuid,
+//   };
+// }

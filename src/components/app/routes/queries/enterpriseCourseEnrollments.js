@@ -1,6 +1,5 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 /**
  * TODO
@@ -8,7 +7,7 @@ import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
  * @param {*} options
  * @returns
  */
-const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
+export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
     ...options,

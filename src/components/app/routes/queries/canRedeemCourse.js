@@ -3,7 +3,6 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { getAvailableCourseRuns } from '../../../course/data/utils';
-import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
 
 /**
  * Service method to determine whether the authenticated user can redeem the specified course run(s).
@@ -12,7 +11,7 @@ import { enterpriseQueryKeys } from '../../../../utils/react-query-factory';
  * @param {array} courseRunKeys List of course run keys.
  * @returns Promise for get request from the authenticated http client.
  */
-const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
+export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
   const queryParams = new URLSearchParams();
   courseRunKeys.forEach((courseRunKey) => {
     queryParams.append('content_key', courseRunKey);
@@ -37,11 +36,11 @@ const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
  * @param {*} courseMetadata
  * @returns
  */
-export default function makeCanRedeemQuery(enterpriseUuid, courseMetadata) {
-  const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
-  return {
-    queryKey: enterpriseQueryKeys.canRedeem(enterpriseUuid, availableCourseRunKeys),
-    queryFn: async () => fetchCanRedeem(enterpriseUuid, availableCourseRunKeys),
-    enabled: !!enterpriseUuid && availableCourseRunKeys.length > 0,
-  };
-}
+// export default function makeCanRedeemQuery(enterpriseUuid, courseMetadata) {
+//   const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
+//   return {
+//     queryKey: enterpriseQueryKeys.canRedeem(enterpriseUuid, availableCourseRunKeys),
+//     queryFn: async () => fetchCanRedeem(enterpriseUuid, availableCourseRunKeys),
+//     enabled: !!enterpriseUuid && availableCourseRunKeys.length > 0,
+//   };
+// }

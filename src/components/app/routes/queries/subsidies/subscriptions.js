@@ -1,6 +1,5 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
 
 async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
   const queryParams = new URLSearchParams({
@@ -28,7 +27,7 @@ async function fetchCustomerAgreementData(enterpriseUUID) {
  * @param {*} param0
  * @returns
  */
-async function fetchSubscriptions(enterpriseUuid) {
+export async function fetchSubscriptions(enterpriseUuid) {
   const results = await Promise.all([
     fetchCustomerAgreementData(enterpriseUuid),
     fetchSubscriptionLicensesForUser(enterpriseUuid),
@@ -39,10 +38,10 @@ async function fetchSubscriptions(enterpriseUuid) {
   };
 }
 
-export function makeSubscriptionsQuery(enterpriseUuid) {
-  return {
-    queryKey: enterpriseQueryKeys.subscriptions(enterpriseUuid),
-    queryFn: async () => fetchSubscriptions(enterpriseUuid),
-    enabled: !!enterpriseUuid,
-  };
-}
+// export function makeSubscriptionsQuery(enterpriseUuid) {
+//   return {
+//     queryKey: enterpriseQueryKeys.subscriptions(enterpriseUuid),
+//     queryFn: async () => fetchSubscriptions(enterpriseUuid),
+//     enabled: !!enterpriseUuid,
+//   };
+// }

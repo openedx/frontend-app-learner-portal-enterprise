@@ -1,72 +1,93 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { createQueryKeyStore } from '@lukemorales/query-key-factory';
+import { fetchCourseMetadata } from '../components/app/routes/queries/courseMetadata';
+import { fetchUserEntitlements } from '../components/app/routes/queries/userEntitlements';
+import { fetchCanRedeem } from '../components/app/routes/queries/canRedeemCourse';
+import { fetchEnterpriseLearnerData } from '../components/app/routes/queries/enterpriseLearner';
+import { fetchEnterpriseCourseEnrollments } from '../components/app/routes/queries/enterpriseCourseEnrollments';
+import { fetchBrowseAndRequestConfiguration } from '../components/app/routes/queries/subsidies/browseAndRequest';
+import { fetchRedeemablePolicies } from '../components/app/routes/queries/subsidies/policies';
+import { fetchSubscriptions } from '../components/app/routes/queries/subsidies/subscriptions';
+import { fetchCouponCodes } from '../components/app/routes/queries/subsidies/couponCodes';
+import { fetchEnterpriseOffers } from '../components/app/routes/queries/subsidies/enterpriseOffers';
+import { fetchEnterpriseCuration } from '../components/app/routes/queries/contentHighlights';
+
 // The keys that map to enterpriseQueryKeys that is used to define specific queries
 // and used to specifically invalidate queries
-export const queryKeys = {
-  // Global key to all queries
-  all: ['enterprise'],
-  enterprise: (enterpriseUuid) => [...queryKeys.all, enterpriseUuid],
-  entitlements: ['user', 'entitlements'],
-  enterpriseLearner: () => [...queryKeys.all, 'linked-enterprise-customer-users'],
-  enterpriseCourseEnrollments: (enterpriseUuid) => [...queryKeys.enterprise(enterpriseUuid), 'enrollments'],
-  enterpriseCourseMetadata: (enterpriseUuid) => [...queryKeys.enterprise(enterpriseUuid), 'course'],
-  canRedeem: (enterpriseUuid) => [...queryKeys.enterpriseCourseMetadata(enterpriseUuid), 'can-redeem'],
-  // By feature prepended by enterpriseUuid
-  enterpriseCuration: (enterpriseUuid) => [...queryKeys.enterprise(enterpriseUuid), 'content-highlights'],
-  enterpriseCurationConfiguration: (enterpriseUuid) => [...queryKeys.enterprise(enterpriseUuid), 'configuration'],
-  // All user subsidy related queries - subscriptions, policies, codes and offers
-  allEnterpriseCustomerUserSubsidies: () => [...queryKeys.all, 'user-subsidy'],
-  // Subsidy specific keys
-  subscriptions: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'subscriptions'],
-  policy: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'policy'],
-  couponCodes: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'coupon-codes'],
-  offers: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'enterprise-learner-offers'],
-  browseAndRequest: () => [...queryKeys.allEnterpriseCustomerUserSubsidies(), 'browse-and-request'],
-  // policy specific endpoints
-  redeemablePolicies: () => [...queryKeys.policy(), 'redeemable-policies'],
-  // browse and request endpoints
-  browseAndRequestConfiguration: (enterpriseUuid) => [...queryKeys.browseAndRequest(), enterpriseUuid, 'configuration'],
-};
-
-// The queryKey for useQuery hook
-export const enterpriseQueryKeys = {
-  entitlements: queryKeys.entitlements,
-  enterpriseLearner: (username, enterpriseSlug) => [
-    ...queryKeys.enterpriseLearner(),
-    username,
-    enterpriseSlug,
-  ],
-  enterpriseCourseEnrollments: (enterpriseUuid) => [
-    ...queryKeys.enterpriseCourseEnrollments(enterpriseUuid),
-  ],
-  enterpriseCourseMetadata: (enterpriseUuid, courseKey) => [
-    ...queryKeys.enterpriseCourseMetadata(enterpriseUuid),
-    courseKey,
-  ],
-  canRedeem: (enterpriseUuid, availableCourseRunKeys) => [
-    ...queryKeys.canRedeem(enterpriseUuid),
-    availableCourseRunKeys,
-  ],
-  browseAndRequestConfiguration: (enterpriseUuid, userEmail) => [
-    ...queryKeys.browseAndRequestConfiguration(enterpriseUuid),
-    userEmail,
-  ],
-  enterpriseCurationConfiguration: (enterpriseUuid) => [
-    ...queryKeys.enterpriseCurationConfiguration((enterpriseUuid)),
-  ],
-  subscriptions: (enterpriseUuid) => [
-    ...queryKeys.subscriptions(),
-    enterpriseUuid,
-  ],
-  redeemablePolicies: (enterpriseUuid, lmsUserId) => [
-    ...queryKeys.redeemablePolicies(),
-    enterpriseUuid,
-    lmsUserId,
-  ],
-  couponCodes: (enterpriseUuid) => [
-    ...queryKeys.couponCodes(),
-    enterpriseUuid,
-  ],
-  offers: (enterpriseUuid) => [
-    ...queryKeys.offers(),
-    enterpriseUuid,
-  ],
-};
+const enterprise = createQueryKeyStore('enterprise', {
+  enterpriseCustomer: (enterpriseUuid) => ({
+    queryKey: [enterpriseUuid],
+    contextQueries: {
+      course: (courseKey) => ({
+        queryKey: [courseKey],
+        contextQueries: {
+          contentMetadata: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+          },
+          canRedeem: (availableCourseRunKeys) => ({
+            queryKey: [availableCourseRunKeys],
+            queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
+          }),
+        },
+      }),
+      user: {
+        queryKey: ['entitlements'],
+        queryFn: async () => fetchUserEntitlements(),
+      },
+      enrollments: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
+      },
+      contentHighlights: {
+        queryKey: null,
+        contextQueries: {
+          configuration: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchEnterpriseCuration(queryKey[2]),
+          },
+        },
+      },
+    },
+  }),
+  enterpriseLearner: (username, enterpriseSlug) => ({
+    queryKey: [username, enterpriseSlug],
+    queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
+  }),
+  userSubsidy: (enterpriseUuid) => ({
+    queryKey: [enterpriseUuid],
+    contextQueries: {
+      browseAndRequest: {
+        queryKey: null,
+        contextQueries: {
+          configuration: (userEmail) => ({
+            queryKey: [userEmail],
+            queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2], userEmail),
+          }),
+        },
+      },
+      subscriptions: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchSubscriptions(queryKey[2]),
+      },
+      policy: {
+        queryKey: null,
+        contextQueries: {
+          redeemablePolicies: (lmsUserId) => ({
+            queryKey: [lmsUserId],
+            queryFn: async ({ queryKey }) => fetchRedeemablePolicies(queryKey[2], lmsUserId),
+          }),
+        },
+      },
+      couponCodes: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchCouponCodes(queryKey[2]),
+      },
+      offers: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchEnterpriseOffers(queryKey[2]),
+      },
+    },
+  }),
+});
+export default enterprise;

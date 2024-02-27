@@ -3,7 +3,6 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { getErrorResponseStatusCode } from '../../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
-import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
 
 /**
  * TODO
@@ -61,7 +60,7 @@ async function fetchCouponCodeRequests({
  * @param {*} param0
  * @returns
  */
-async function fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
+export async function fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
   const results = await Promise.all([
     fetchSubsidyRequestConfiguration(enterpriseUuid),
     fetchCouponCodeRequests({
@@ -81,10 +80,10 @@ async function fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
   };
 }
 
-export function makeBrowseAndRequestConfigurationQuery(enterpriseUuid, userEmail) {
-  return {
-    queryKey: enterpriseQueryKeys.browseAndRequestConfiguration(enterpriseUuid, userEmail),
-    queryFn: async () => fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail),
-    enabled: !!enterpriseUuid,
-  };
-}
+// export function makeBrowseAndRequestConfigurationQuery(enterpriseUuid, userEmail) {
+//   return {
+//     queryKey: enterpriseQueryKeys.browseAndRequestConfiguration(enterpriseUuid, userEmail),
+//     queryFn: async () => fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail),
+//     enabled: !!enterpriseUuid,
+//   };
+// }

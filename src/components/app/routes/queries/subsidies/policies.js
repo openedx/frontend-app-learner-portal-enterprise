@@ -1,6 +1,5 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
 
 /**
  * TODO
@@ -8,7 +7,7 @@ import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
  * @param {*} userID
  * @returns
  */
-async function fetchRedeemablePolicies(enterpriseUUID, userID) {
+export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     lms_user_id: userID,
@@ -24,10 +23,10 @@ async function fetchRedeemablePolicies(enterpriseUUID, userID) {
  * @param {*} param0
  * @returns
  */
-export function makeRedeemablePoliciesQuery({ enterpriseUuid, lmsUserId }) {
-  return {
-    queryKey: enterpriseQueryKeys.redeemablePolicies(enterpriseUuid, lmsUserId),
-    queryFn: async () => fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
-    enabled: !!enterpriseUuid,
-  };
-}
+// export function makeRedeemablePoliciesQuery({ enterpriseUuid, lmsUserId }) {
+//   return {
+//     queryKey: enterpriseQueryKeys.redeemablePolicies(enterpriseUuid, lmsUserId),
+//     queryFn: async () => fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
+//     enabled: !!enterpriseUuid,
+//   };
+// }

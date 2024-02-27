@@ -1,6 +1,5 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { enterpriseQueryKeys } from '../../../../../utils/react-query-factory';
 
 async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({
@@ -32,7 +31,7 @@ async function fetchCouponsOverview(enterpriseId, options = {}) {
  * @param {*} param0
  * @returns
  */
-async function fetchCouponCodes(enterpriseUuid) {
+export async function fetchCouponCodes(enterpriseUuid) {
   const results = await Promise.all([
     fetchCouponsOverview(enterpriseUuid),
     fetchCouponCodeAssignments(enterpriseUuid),
@@ -43,10 +42,10 @@ async function fetchCouponCodes(enterpriseUuid) {
   };
 }
 
-export function makeCouponCodesQuery(enterpriseUuid) {
-  return {
-    queryKey: enterpriseQueryKeys.couponCodes(enterpriseUuid),
-    queryFn: async () => fetchCouponCodes(enterpriseUuid),
-    enabled: !!enterpriseUuid,
-  };
-}
+// export function makeCouponCodesQuery(enterpriseUuid) {
+//   return {
+//     queryKey: enterpriseQueryKeys.couponCodes(enterpriseUuid),
+//     queryFn: async () => fetchCouponCodes(enterpriseUuid),
+//     enabled: !!enterpriseUuid,
+//   };
+// }
