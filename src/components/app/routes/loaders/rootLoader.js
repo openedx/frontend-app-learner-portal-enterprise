@@ -1,6 +1,7 @@
 import { ensureEnterpriseAppData, makeEnterpriseLearnerQuery } from '../queries';
 import {
   ensureAuthenticatedUser,
+  redirectToRemoveTrailingSlash,
   redirectToSearchPageForNewUser,
 } from '../data';
 
@@ -41,6 +42,9 @@ export default function makeRootLoader(queryClient) {
       enterpriseAppData,
       requestUrl,
     });
+
+    // Redirect to the same URL without a trailing slash, if applicable.
+    redirectToRemoveTrailingSlash(requestUrl);
 
     return null;
   };

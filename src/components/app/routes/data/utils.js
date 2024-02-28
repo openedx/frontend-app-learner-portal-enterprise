@@ -62,6 +62,19 @@ export function redirectToSearchPageForNewUser({ enterpriseSlug, enterpriseAppDa
 }
 
 /**
+ * Redirects to the same URL without a trailing slash.
+ * @param {URL} requestUrl - The request URL.
+ * @returns {void} - Throws a redirect if the URL has a trailing
+ *  slash to remove trailing slash.
+ */
+export function redirectToRemoveTrailingSlash(requestUrl) {
+  if (!requestUrl.pathname.endsWith('/')) {
+    return;
+  }
+  throw redirect(requestUrl.pathname.slice(0, -1));
+}
+
+/**
  * Extracts the appropriate enterprise ID for the current user and enterprise slug.
  * @param {Object} params - The parameters object.
  * @param {Object} params.queryClient - The query client.

@@ -11,9 +11,11 @@ import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContaine
 import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
 import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
+import { SystemWideWarningBanner } from '../system-wide-banner';
+import { isSystemMaintenanceAlertOpen } from './data/utils';
 
 const Layout = () => {
-  const { authenticatedUser } = useContext(AppContext);
+  const { authenticatedUser, config } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
   const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
@@ -44,6 +46,11 @@ const Layout = () => {
           <style key={key} type="text/css">{styles}</style>
         ))}
       </Helmet>
+      {isSystemMaintenanceAlertOpen(config) && (
+        <SystemWideWarningBanner>
+          {config.MAINTENANCE_ALERT_MESSAGE}
+        </SystemWideWarningBanner>
+      )}
       <SiteHeader />
       <EnterpriseBanner />
       <main id="content" className="fill-vertical-space">
