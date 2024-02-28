@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useParams, useMatch } from 'react-router-dom';
 
 // import { useEnterpriseCuration } from '../../../search/content-highlights/data';
@@ -16,8 +15,7 @@ export default function useRecommendCoursesForMe() {
   const { data: contentHighlightsConfiguration } = useContentHighlightsConfiguration();
   const canOnlyViewHighlightSets = !!contentHighlightsConfiguration?.canOnlyViewHighlightSets;
 
-  const { data: subsidies } = useEnterpriseCustomerUserSubsidies();
-  console.log('subsidies', subsidies);
+  // const { data: subsidies } = useEnterpriseCustomerUserSubsidies();
 
   // If user is not on the search page route, or users are restricted to only viewing highlight sets,
   // the "Recommend courses for me" button should not be shown.
@@ -54,14 +52,4 @@ export default function useRecommendCoursesForMe() {
   // const hideRecommendCourses = useCallback(() => {
   //   setShouldRecommendCourses(false);
   // }, []);
-
-  // return useMemo(() => ({
-  //   shouldRecommendCourses,
-  //   showRecommendCourses,
-  //   hideRecommendCourses,
-  // }), [
-  //   shouldRecommendCourses,
-  //   showRecommendCourses,
-  //   hideRecommendCourses,
-  // ]);
 }
