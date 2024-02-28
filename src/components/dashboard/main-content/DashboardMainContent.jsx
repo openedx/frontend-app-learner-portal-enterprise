@@ -4,7 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
   Button, breakpoints, MediaQuery,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import PropTypes from 'prop-types';
 
 import { CourseEnrollments } from './course-enrollments';

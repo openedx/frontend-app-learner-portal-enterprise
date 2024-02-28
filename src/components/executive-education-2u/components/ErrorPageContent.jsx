@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Button, Col, Row } from '@edx/paragon';
+import { Button, Col, Row } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEventWithDelay } from '@edx/frontend-enterprise-utils';
-import { ArrowBack } from '@edx/paragon/icons';
+import { ArrowBack } from '@openedx/paragon/icons';
 
 import { ErrorPage } from '../../error-page';
 import ExecutiveEducation2UErrorIllustration from

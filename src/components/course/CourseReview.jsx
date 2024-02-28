@@ -1,8 +1,8 @@
 import {
   Col, Container, Icon, Row,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import React, { useContext, useState } from 'react';
-import { StarFilled } from '@edx/paragon/icons';
+import { StarFilled } from '@openedx/paragon/icons';
 import { fixDecimalNumber } from './data/utils';
 import { CourseContext } from './CourseContextProvider';
 import { REVIEW_SECTION_CONTENT } from './data/constants';

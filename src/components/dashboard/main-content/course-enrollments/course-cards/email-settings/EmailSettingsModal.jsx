@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   Input, Modal, Alert, StatefulButton,
-} from '@edx/paragon';
-import { Error } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Error } from '@openedx/paragon/icons';
 
 import { updateEmailSettings } from './data';
 

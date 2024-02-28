@@ -7,7 +7,7 @@ import { Configure, InstantSearch } from 'react-instantsearch-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { useToggle, Stack } from '@edx/paragon';
+import { useToggle, Stack } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import algoliasearch from 'algoliasearch/lite';
@@ -211,15 +211,45 @@ const Search = () => {
         )}
 
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
-          <SearchResults className="py-5" hitComponent={SearchPathwayCard} title={PATHWAY_TITLE} contentType={CONTENT_TYPE_PATHWAY} />
+          <SearchResults
+            className="py-5"
+            hitComponent={SearchPathwayCard}
+            title={PATHWAY_TITLE}
+            translatedTitle={intl.formatMessage({
+              id: 'enterprise.search.page.show.more.pathway.section.translated.title',
+              defaultMessage: 'Pathways',
+              description: 'Translated title for the enterprise search page show all pathways section',
+            })}
+            contentType={CONTENT_TYPE_PATHWAY}
+          />
         )}
 
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (
-          <SearchResults className="py-5" hitComponent={SearchProgramCard} title={PROGRAM_TITLE} contentType={CONTENT_TYPE_PROGRAM} />
+          <SearchResults
+            className="py-5"
+            hitComponent={SearchProgramCard}
+            title={PROGRAM_TITLE}
+            translatedTitle={intl.formatMessage({
+              id: 'enterprise.search.page.show.more.program.section.translated.title',
+              defaultMessage: 'Programs',
+              description: 'Translated title for the enterprise search page show all programs section.',
+            })}
+            contentType={CONTENT_TYPE_PROGRAM}
+          />
         )}
 
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (
-          <SearchResults className="py-5" hitComponent={SearchCourseCard} title={COURSE_TITLE} contentType={CONTENT_TYPE_COURSE} />
+          <SearchResults
+            className="py-5"
+            hitComponent={SearchCourseCard}
+            title={COURSE_TITLE}
+            translatedTitle={intl.formatMessage({
+              id: 'enterprise.search.page.show.more.course.section.translated.title',
+              defaultMessage: 'Courses',
+              description: 'Translated title for the enterprise search page show all courses section.',
+            })}
+            contentType={CONTENT_TYPE_COURSE}
+          />
         )}
       </InstantSearch>
       <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />

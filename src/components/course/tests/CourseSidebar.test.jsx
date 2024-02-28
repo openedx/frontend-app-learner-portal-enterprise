@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent, renderWithRouter } from '@edx/frontend-enterprise-utils';
 import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
-} from '@edx/paragon/icons';
+} from '@openedx/paragon/icons';
 
 import CourseSidebar from '../CourseSidebar';
 import CourseSidebarListItem from '../CourseSidebarListItem';

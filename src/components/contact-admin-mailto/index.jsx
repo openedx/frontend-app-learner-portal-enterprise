@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { MailtoLink } from '@edx/paragon';
+import { MailtoLink } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { getContactEmail } from '../../utils/common';
 

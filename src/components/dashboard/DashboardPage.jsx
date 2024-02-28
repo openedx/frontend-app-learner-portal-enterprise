@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Container, Tabs } from '@edx/paragon';
+import { Container, Tabs } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { useEnterpriseCuration } from '../search/content-highlights/data';

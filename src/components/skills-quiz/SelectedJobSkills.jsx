@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from '@edx/paragon';
+import { Badge } from '@openedx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 
 const SelectedJobSkills = ({ heading, skills, industrySkills }) => {

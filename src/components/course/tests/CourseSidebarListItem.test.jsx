@@ -1,7 +1,7 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom/extend-expect';
-import { Person } from '@edx/paragon/icons';
+import { Person } from '@openedx/paragon/icons';
 
 import CourseSidebarListItem from '../CourseSidebarListItem';
 

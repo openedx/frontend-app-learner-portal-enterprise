@@ -10,7 +10,7 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Button, Form, StatefulButton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { CURRENT_JOB_FACET, JOB_FILTERS } from '../skills-quiz/constants';
 import { patchProfile, fetchJobDetailsFromAlgolia } from './data/service';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from './data/constants';

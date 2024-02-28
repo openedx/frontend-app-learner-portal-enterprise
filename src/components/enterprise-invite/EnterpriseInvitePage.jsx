@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Container, Hyperlink } from '@edx/paragon';
+import { Button, Container, Hyperlink } from '@openedx/paragon';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';

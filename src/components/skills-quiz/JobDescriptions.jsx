@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { InfoOutline } from '@edx/paragon/icons';
-import { Skeleton } from '@edx/paragon';
+import { InfoOutline } from '@openedx/paragon/icons';
+import { Skeleton } from '@openedx/paragon';
 import { useJobPathDescription } from './data/hooks';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, JOB_DESCRIPTION_DISCLAIMER } from './constants';
 

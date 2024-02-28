@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Collapsible, Hyperlink } from '@edx/paragon';
-import { AddCircle, RemoveCircle } from '@edx/paragon/icons';
+import { Collapsible, Hyperlink } from '@openedx/paragon';
+import { AddCircle, RemoveCircle } from '@openedx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramStaff = ({ program }) => {

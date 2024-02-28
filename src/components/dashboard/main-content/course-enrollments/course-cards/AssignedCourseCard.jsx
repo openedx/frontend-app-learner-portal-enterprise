@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@edx/paragon';
+import { Button } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
