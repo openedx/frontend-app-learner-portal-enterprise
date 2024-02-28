@@ -76,7 +76,7 @@ export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatur
     primaryColor,
     secondaryColor,
     tertiaryColor,
-  } = enterpriseCustomer?.brandingConfiguration || {};
+  } = enterpriseCustomer.brandingConfiguration || {};
 
   return {
     ...enterpriseCustomer,
