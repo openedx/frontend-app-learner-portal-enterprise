@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { SelectableBox } from '@edx/paragon';
+import { SelectableBox } from '@openedx/paragon';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
 import { formatStringAsNumber } from '../../utils/common';

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Card, Truncate } from '@edx/paragon';
+import { Card, Truncate } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { FormattedMessage } from '@edx/frontend-platform/i18n';

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
   breakpoints, Container, MediaQuery, Row,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Navigate } from 'react-router-dom';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { StatefulButton } from '@edx/paragon';
+import { StatefulButton } from '@openedx/paragon';
 import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 
 import { useStatefulEnroll } from './data';

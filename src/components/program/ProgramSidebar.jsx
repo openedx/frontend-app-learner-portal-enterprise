@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
   AccessTime, LibraryBooks, Person, Speed,
-} from '@edx/paragon/icons';
+} from '@openedx/paragon/icons';
 import ProgramSidebarListItem from './ProgramSidebarListItem';
 import { ProgramContext } from './ProgramContextProvider';
 import {

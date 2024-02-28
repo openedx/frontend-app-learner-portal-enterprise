@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 import { useCourseEnrollments } from './data/hooks';
 import { LoadingSpinner } from '../../../loading-spinner';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';

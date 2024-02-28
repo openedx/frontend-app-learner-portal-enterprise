@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { CardGrid } from '@edx/paragon';
+import { CardGrid } from '@openedx/paragon';
 
 import { SkillsContext } from './SkillsContextProvider';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';

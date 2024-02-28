@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Col, Row } from '@edx/paragon';
+import { Icon, Col, Row } from '@openedx/paragon';
 
 const ProgramSidebarListItem = ({
   icon,

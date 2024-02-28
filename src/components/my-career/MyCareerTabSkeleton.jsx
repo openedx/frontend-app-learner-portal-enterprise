@@ -3,7 +3,7 @@ import {
   Col,
   Row,
   Skeleton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import React from 'react';
 
 const MyCareerTabSkeleton = () => (

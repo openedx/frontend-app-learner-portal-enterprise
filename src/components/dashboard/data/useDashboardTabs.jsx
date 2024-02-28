@@ -1,4 +1,4 @@
-import { Tab } from '@edx/paragon';
+import { Tab } from '@openedx/paragon';
 import React, { useContext, useState } from 'react';
 import loadable from '@loadable/component';
 

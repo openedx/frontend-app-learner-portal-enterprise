@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext, deleteRefinementAction } from '@edx/frontend-enterprise-catalog-search';
 import FacetListRefinement from '@edx/frontend-enterprise-catalog-search/FacetListRefinement';
-import { StatefulButton } from '@edx/paragon';
+import { StatefulButton } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { fetchJobDetailsFromAlgolia, patchProfile } from '../data/service';

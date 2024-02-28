@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Chip } from '@edx/paragon';
+import { Chip } from '@openedx/paragon';
 
 const LevelBars = ({ skillLevel }) => {
   let level = skillLevel;
