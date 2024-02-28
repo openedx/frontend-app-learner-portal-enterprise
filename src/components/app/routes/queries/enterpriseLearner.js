@@ -1,5 +1,6 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
 
 /**
  * Recursive function to fetch all linked enterprise customer users, traversing paginated results.
@@ -15,7 +16,80 @@ async function fetchData(url, linkedEnterprises = []) {
   if (responseData.next) {
     return fetchData(responseData.next, linkedEnterprisesCopy);
   }
-  return linkedEnterprisesCopy;
+  return {
+    results: linkedEnterprisesCopy,
+    enterpriseFeatures: responseData.enterpriseFeatures,
+  };
+}
+
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+function determineEnterpriseCustomerUserForDisplay({
+  activeEnterpriseCustomer,
+  activeEnterpriseCustomerUserRoleAssignments,
+  enterpriseSlug,
+  foundEnterpriseCustomerUserForCurrentSlug,
+}) {
+  const activeEnterpriseCustomerUser = {
+    enterpriseCustomer: activeEnterpriseCustomer,
+    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+  };
+  if (!enterpriseSlug) {
+    return activeEnterpriseCustomerUser;
+  }
+  if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+    return {
+      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
+      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
+    };
+  }
+  return activeEnterpriseCustomerUser;
+}
+
+/**
+ * TODO
+ * @param {Object} enterpriseCustomer
+ * @param {Object} enterpriseFeatures
+ * @returns
+ */
+function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures) {
+  // If the learner portal is not enabled for the displayed enterprise customer, return null. This
+  // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
+  if (!enterpriseCustomer.enableLearnerPortal) {
+    return null;
+  }
+
+  // Otherwise, learner portal is enabled, so transform the enterprise customer data.
+  const disableSearch = !!(
+    !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch
+    && enterpriseCustomer.identityProvider
+  );
+  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.identityProvider);
+  const brandColors = getBrandColorsFromCSSVariables();
+  const defaultPrimaryColor = brandColors.primary;
+  const defaultSecondaryColor = brandColors.info100;
+  const defaultTertiaryColor = brandColors.info500;
+  const {
+    primaryColor,
+    secondaryColor,
+    tertiaryColor,
+  } = enterpriseCustomer?.brandingConfiguration || {};
+
+  return {
+    ...enterpriseCustomer,
+    brandingConfiguration: {
+      ...enterpriseCustomer.brandingConfiguration,
+      primaryColor: primaryColor || defaultPrimaryColor,
+      secondaryColor: secondaryColor || defaultSecondaryColor,
+      tertiaryColor: tertiaryColor || defaultTertiaryColor,
+    },
+    disableSearch,
+    showIntegrationWarning,
+    enterpriseFeatures,
+  };
 }
 
 /**
@@ -36,7 +110,10 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
     page: 1,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
-  const linkedEnterpriseCustomersUsers = await fetchData(url);
+  const {
+    results: linkedEnterpriseCustomersUsers,
+    enterpriseFeatures,
+  } = await fetchData(url);
   const activeLinkedEnterpriseCustomerUser = linkedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
   const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
   const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
@@ -47,29 +124,18 @@ const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}
     enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   );
 
-  const determineEnterpriseCustomerUserForDisplay = () => {
-    const activeEnterpriseCustomerUser = {
-      enterpriseCustomer: activeEnterpriseCustomer,
-      roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
-    };
-    if (!enterpriseSlug) {
-      return activeEnterpriseCustomerUser;
-    }
-    if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
-      return {
-        enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-        roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
-      };
-    }
-    return activeEnterpriseCustomerUser;
-  };
-
   const {
     enterpriseCustomer,
     roleAssignments,
-  } = determineEnterpriseCustomerUserForDisplay();
+  } = determineEnterpriseCustomerUserForDisplay({
+    activeEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments,
+    enterpriseSlug,
+    foundEnterpriseCustomerUserForCurrentSlug,
+  });
+
   return {
-    enterpriseCustomer,
+    enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures),
     enterpriseCustomerUserRoleAssignments: roleAssignments,
     activeEnterpriseCustomer,
     activeEnterpriseCustomerUserRoleAssignments,

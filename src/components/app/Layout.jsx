@@ -20,6 +20,8 @@ const Layout = () => {
   const { authenticatedUser, config } = useContext(AppContext);
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
+  console.log('Layout', 'enterpriseCustomer', enterpriseLearnerData.enterpriseCustomer);
+
   const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
 
   // Authenticated user is NOT linked an enterprise customer, so
