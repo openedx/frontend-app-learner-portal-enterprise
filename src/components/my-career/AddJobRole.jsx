@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Row, breakpoints, MediaQuery, TransitionReplace, Button, Icon,
-} from '@edx/paragon';
-import { Plus } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Plus } from '@openedx/paragon/icons';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { MainContent, Sidebar } from '../layout';
 import { DashboardSidebar } from '../dashboard/sidebar';

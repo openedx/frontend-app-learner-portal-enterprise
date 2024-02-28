@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Icon, Row } from '@edx/paragon';
+import { Col, Icon, Row } from '@openedx/paragon';
 
 const CourseSidebarListItem = ({
   icon,

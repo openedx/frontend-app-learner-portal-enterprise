@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
-import { Modal, Button } from '@edx/paragon';
+import { Modal, Button } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { MODAL_BUTTON_TEXT, MODAL_TITLE } from './data/constants';
 import ModalBody from './ModalBody';

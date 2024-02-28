@@ -10,7 +10,7 @@ import {
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { mergeConfig } from '@edx/frontend-platform/config';
 import { messages as footerMessages } from '@edx/frontend-component-footer';
-import { messages as paragonMessages } from '@edx/paragon';
+import { messages as paragonMessages } from '@openedx/paragon';
 
 import { App } from './components/app';
 

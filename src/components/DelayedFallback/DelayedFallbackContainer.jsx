@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Spinner } from '@edx/paragon';
+import { Spinner } from '@openedx/paragon';
 import { useEffect, useState } from 'react';
 
 /**

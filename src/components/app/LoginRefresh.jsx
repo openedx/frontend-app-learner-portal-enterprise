@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import { loginRefresh } from '../../utils/common';

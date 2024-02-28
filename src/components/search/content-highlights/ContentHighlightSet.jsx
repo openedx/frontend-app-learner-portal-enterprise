@@ -7,7 +7,7 @@ import {
   CardDeck,
   Skeleton,
   useMediaQuery,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 

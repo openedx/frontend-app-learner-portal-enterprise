@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Chip } from '@edx/paragon';
-import { Close } from '@edx/paragon/icons';
+import { Chip } from '@openedx/paragon';
+import { Close } from '@openedx/paragon/icons';
 
 const TagCloud = ({ tags, onRemove }) => (
   <div className="skills-tag">

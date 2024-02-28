@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card } from '@edx/paragon';
+import { Card } from '@openedx/paragon';
 
 const SidebarCard = ({
   title,

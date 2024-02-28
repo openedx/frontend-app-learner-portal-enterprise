@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import {
   ActionRow, Button, Icon, Row, TransitionReplace, useToggle,
-} from '@edx/paragon';
-import { Edit } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Edit } from '@openedx/paragon/icons';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';

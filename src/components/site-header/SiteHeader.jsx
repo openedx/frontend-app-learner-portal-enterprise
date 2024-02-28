@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { MenuIcon } from '@edx/paragon/icons';
+import { MenuIcon } from '@openedx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { Container, MediaQuery } from '@edx/paragon';
+import { Container, MediaQuery } from '@openedx/paragon';
 
 import SiteHeaderLogos from './SiteHeaderLogos';
 import SiteHeaderNavMenu from './SiteHeaderNavMenu';
