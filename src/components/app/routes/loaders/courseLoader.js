@@ -4,7 +4,6 @@ import {
   makeCanRedeemQuery,
   makeCourseMetadataQuery,
   makeEnterpriseCourseEnrollmentsQuery,
-  makeEnterpriseLearnerQuery,
 } from '../data/services';
 
 import extractEnterpriseId from './extractEnterpriseId';

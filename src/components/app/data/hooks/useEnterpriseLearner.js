@@ -4,8 +4,6 @@ import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { makeEnterpriseLearnerQuery } from '../../routes/data/services';
 
-// import { makeEnterpriseLearnerQuery } from '../../routes/queries';
-
 /**
  * Retrieves the enterprise learner data for the authenticated user.
  *
