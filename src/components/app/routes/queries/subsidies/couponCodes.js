@@ -41,11 +41,3 @@ export async function fetchCouponCodes(enterpriseUuid) {
     couponCodeAssignments: results[1],
   };
 }
-
-// export function makeCouponCodesQuery(enterpriseUuid) {
-//   return {
-//     queryKey: enterpriseQueryKeys.couponCodes(enterpriseUuid),
-//     queryFn: async () => fetchCouponCodes(enterpriseUuid),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

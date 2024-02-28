@@ -25,17 +25,3 @@ export const fetchCourseMetadata = async (enterpriseId, courseKey, options = {})
     throw error;
   }
 };
-
-/**
- * TODO
- * @param enterpriseUuid
- * @param {*} courseKey
- * @returns
- */
-// export default function makeCourseMetadataQuery(enterpriseUuid, courseKey) {
-//   return {
-//     queryKey: enterpriseQueryKeys.enterpriseCourseMetadata(enterpriseUuid, courseKey),
-//     queryFn: async () => fetchCourseMetadata(enterpriseUuid, courseKey),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

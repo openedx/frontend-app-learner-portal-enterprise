@@ -10,14 +10,3 @@ export async function fetchUserEntitlements() {
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
 }
-
-/**
- * TODO
- * @returns
- */
-// export default function makeUserEntitlementsQuery() {
-//   return {
-//     queryKey: enterpriseQueryKeys.entitlements,
-//     queryFn: fetchUserEntitlements,
-//   };
-// }

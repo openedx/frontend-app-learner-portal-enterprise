@@ -76,16 +76,3 @@ export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, optio
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
   };
 };
-
-/**
- * Creates a query object to fetch the enterprise learner data for the authenticated user.
- * @param {string} username The username of the authenticated user.
- * @param {string} enterpriseSlug The slug of the enterprise customer to display.
- * @returns {Object} The query object for fetching the enterprise learner data.
- */
-// export default function makeEnterpriseLearnerQuery(username, enterpriseSlug) {
-//   return {
-//     queryKey: enterpriseQueryKeys.enterpriseLearner(username, enterpriseSlug),
-//     queryFn: async () => fetchEnterpriseLearnerData(username, enterpriseSlug),
-//   };
-// }

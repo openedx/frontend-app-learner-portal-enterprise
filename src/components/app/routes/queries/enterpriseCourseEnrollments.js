@@ -16,16 +16,3 @@ export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
 };
-
-/**
- * TODO
- * @returns
- * @param enterpriseUuid
- */
-// export default function makeEnterpriseCourseEnrollmentsQuery(enterpriseUuid) {
-//   return {
-//     queryKey: enterpriseQueryKeys.enterpriseCourseEnrollments(enterpriseUuid),
-//     queryFn: async () => fetchEnterpriseCourseEnrollments(enterpriseUuid),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

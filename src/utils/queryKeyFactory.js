@@ -4,14 +4,17 @@ import { fetchUserEntitlements } from '../components/app/routes/queries/userEnti
 import { fetchCanRedeem } from '../components/app/routes/queries/canRedeemCourse';
 import { fetchEnterpriseLearnerData } from '../components/app/routes/queries/enterpriseLearner';
 import { fetchEnterpriseCourseEnrollments } from '../components/app/routes/queries/enterpriseCourseEnrollments';
-import { fetchBrowseAndRequestConfiguration } from '../components/app/routes/queries/subsidies/browseAndRequest';
+import {
+  fetchBrowseAndRequestConfiguration,
+  fetchCouponCodeRequests,
+  fetchLicenseRequests,
+} from '../components/app/routes/queries/subsidies/browseAndRequest';
 import { fetchRedeemablePolicies } from '../components/app/routes/queries/subsidies/policies';
 import { fetchSubscriptions } from '../components/app/routes/queries/subsidies/subscriptions';
 import { fetchCouponCodes } from '../components/app/routes/queries/subsidies/couponCodes';
 import { fetchEnterpriseOffers } from '../components/app/routes/queries/subsidies/enterpriseOffers';
 import { fetchEnterpriseCuration } from '../components/app/routes/queries/contentHighlights';
 import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
-import { fetchCouponCodeRequests, fetchLicenseRequests } from '../components/enterprise-subsidy-requests/data/service';
 
 export const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({

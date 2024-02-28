@@ -23,7 +23,7 @@ const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
   }
 };
 
-async function fetchLicenseRequests({
+export async function fetchLicenseRequests({
   enterpriseUUID,
   userEmail,
   state = SUBSIDY_REQUEST_STATE.REQUESTED,
@@ -39,7 +39,7 @@ async function fetchLicenseRequests({
   return camelCaseObject(response.data);
 }
 
-async function fetchCouponCodeRequests({
+export async function fetchCouponCodeRequests({
   enterpriseUUID,
   userEmail,
   state = SUBSIDY_REQUEST_STATE.REQUESTED,
@@ -79,11 +79,3 @@ export async function fetchBrowseAndRequestConfiguration(enterpriseUuid, userEma
     licenseRequests: results[2],
   };
 }
-
-// export function makeBrowseAndRequestConfigurationQuery(enterpriseUuid, userEmail) {
-//   return {
-//     queryKey: enterpriseQueryKeys.browseAndRequestConfiguration(enterpriseUuid, userEmail),
-//     queryFn: async () => fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

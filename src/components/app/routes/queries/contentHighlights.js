@@ -28,14 +28,3 @@ export const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
     throw error;
   }
 };
-
-/**
- * TODO
- */
-// export default function makeContentHighlightsConfigurationQuery(enterpriseUuid) {
-//   return {
-//     queryKey: enterpriseQueryKeys.enterpriseCurationConfiguration(enterpriseUuid),
-//     queryFn: () => fetchEnterpriseCuration(enterpriseUuid),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

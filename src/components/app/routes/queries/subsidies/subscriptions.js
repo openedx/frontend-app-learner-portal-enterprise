@@ -37,11 +37,3 @@ export async function fetchSubscriptions(enterpriseUuid) {
     subscriptionLicenses: results[1],
   };
 }
-
-// export function makeSubscriptionsQuery(enterpriseUuid) {
-//   return {
-//     queryKey: enterpriseQueryKeys.subscriptions(enterpriseUuid),
-//     queryFn: async () => fetchSubscriptions(enterpriseUuid),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

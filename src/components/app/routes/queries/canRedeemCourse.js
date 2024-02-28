@@ -28,18 +28,3 @@ export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
     throw error;
   }
 };
-
-/**
- * TODO
- * @param enterpriseUuid
- * @param {*} courseMetadata
- * @returns
- */
-// export default function makeCanRedeemQuery(enterpriseUuid, courseMetadata) {
-//   const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
-//   return {
-//     queryKey: enterpriseQueryKeys.canRedeem(enterpriseUuid, availableCourseRunKeys),
-//     queryFn: async () => fetchCanRedeem(enterpriseUuid, availableCourseRunKeys),
-//     enabled: !!enterpriseUuid && availableCourseRunKeys.length > 0,
-//   };
-// }

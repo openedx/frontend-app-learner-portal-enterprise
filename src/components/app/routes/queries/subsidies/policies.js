@@ -17,16 +17,3 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
 }
-
-/**
- * TODO
- * @param {*} param0
- * @returns
- */
-// export function makeRedeemablePoliciesQuery({ enterpriseUuid, lmsUserId }) {
-//   return {
-//     queryKey: enterpriseQueryKeys.redeemablePolicies(enterpriseUuid, lmsUserId),
-//     queryFn: async () => fetchRedeemablePolicies(enterpriseUuid, lmsUserId),
-//     enabled: !!enterpriseUuid,
-//   };
-// }

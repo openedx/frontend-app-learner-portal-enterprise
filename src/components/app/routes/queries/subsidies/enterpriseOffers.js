@@ -16,11 +16,3 @@ export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
 }
-
-// export function makeEnterpriseLearnerOffersQuery(enterpriseUuid) {
-//   return {
-//     queryKey: enterpriseQueryKeys.offers(enterpriseUuid),
-//     queryFn: async () => fetchEnterpriseOffers(enterpriseUuid),
-//     enabled: !!enterpriseUuid,
-//   };
-// }
