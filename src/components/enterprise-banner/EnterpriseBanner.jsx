@@ -11,7 +11,6 @@ import { useEnterpriseLearner, useRecommendCoursesForMe } from '../app/data';
 
 const EnterpriseBanner = () => {
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-
   const { shouldRecommendCourses } = useRecommendCoursesForMe();
 
   return (
