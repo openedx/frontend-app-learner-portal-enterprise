@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 /**
  * Check if system maintenance alert is open, based on configuration.
  * @param {Object} config
@@ -14,8 +16,13 @@ export function isSystemMaintenanceAlertOpen(config) {
     return false;
   }
   const startTimestamp = config.MAINTENANCE_ALERT_START_TIMESTAMP;
-  if (startTimestamp) {
-    return new Date() > new Date(startTimestamp);
+
+  // Given no start timestamp, the system maintenance alert should be open, as
+  // it's enabled and has a message.
+  if (!startTimestamp) {
+    return true;
   }
-  return true;
+
+  // Otherwise, check whether today's date is after the defined start date.
+  return dayjs().isAfter(dayjs(startTimestamp));
 }

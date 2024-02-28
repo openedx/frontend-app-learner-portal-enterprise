@@ -38,6 +38,8 @@ const mockQueryClient = {
 describe('rootLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    localStorage.clear();
   });
 
   it('ensures only the enterprise-learner query is called if there is no active enterprise customer user', async () => {
@@ -63,9 +65,9 @@ describe('rootLoader', () => {
   });
 
   it.each([
-    // { shouldRedirectToSearch: false },
+    { shouldRedirectToSearch: false },
     { shouldRedirectToSearch: true },
-  ])('ensures all requisite root loader queries are resolved with an active enterprise customer user', async ({ shouldRedirectToSearch }) => {
+  ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({ shouldRedirectToSearch }) => {
     const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
     // Mock the enterprise-learner query to return an active enterprise customer user.
     when(mockQueryClient.ensureQueryData).calledWith(
