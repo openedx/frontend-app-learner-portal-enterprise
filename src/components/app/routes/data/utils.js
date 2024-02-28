@@ -15,7 +15,6 @@ import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
 import { makeEnterpriseLearnerQuery } from '../queries';
-import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
