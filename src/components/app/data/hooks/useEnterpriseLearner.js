@@ -2,7 +2,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { makeEnterpriseLearnerQuery } from '../../routes/data/services';
+import { queryEnterpriseLearner } from '../../routes/data/services';
 
 /**
  * Retrieves the enterprise learner data for the authenticated user.
@@ -13,6 +13,6 @@ export default function useEnterpriseLearner() {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
   return useQuery(
-    makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug),
+    queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
   );
 }

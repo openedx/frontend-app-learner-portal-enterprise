@@ -13,7 +13,7 @@ export function makeUserEntitlementsQuery() {
 
 // 'contentHighlights' context layer START
 // 'contentHighlights' contextQueries START
-export function makeContentHighlightsConfigurationQuery(enterpriseUuid) {
+export function queryContentHighlightsConfiguration(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -24,14 +24,14 @@ export function makeContentHighlightsConfigurationQuery(enterpriseUuid) {
 
 // 'course' context layer START
 // 'course' contextQueries START
-export function makeCourseMetadataQuery(enterpriseUuid, courseKey) {
+export function queryCourseMetadata(enterpriseUuid, courseKey) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course
     ._ctx.contentMetadata(courseKey);
 }
-export function makeCanRedeemQuery(enterpriseUuid, courseMetadata) {
+export function queryCanRedeem(enterpriseUuid, courseMetadata) {
   const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
   return queries
     .enterprise
@@ -43,7 +43,7 @@ export function makeCanRedeemQuery(enterpriseUuid, courseMetadata) {
 // 'course' context layer START
 
 // 'enrollments' context layer START
-export function makeEnterpriseCourseEnrollmentsQuery(enterpriseUuid) {
+export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -56,7 +56,7 @@ export function makeEnterpriseCourseEnrollmentsQuery(enterpriseUuid) {
 
 // 'browseAndRequest' context layer START
 // 'browseAndRequest' contextQueries START
-export function makeBrowseAndRequestConfigurationQuery(enterpriseUuid, userEmail) {
+export function queryBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -93,7 +93,7 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
 // 'browseAndRequest' context layer END
 
 // 'couponCodes' context layer START
-export function makeCouponCodesQuery(enterpriseUuid) {
+export function queryCouponCodes(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -103,7 +103,7 @@ export function makeCouponCodesQuery(enterpriseUuid) {
 // 'couponCodes' context layer END
 
 // 'enterpriseOffers' context layer START
-export function makeEnterpriseLearnerOffersQuery(enterpriseUuid) {
+export function queryEnterpriseLearnerOffers(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -114,7 +114,7 @@ export function makeEnterpriseLearnerOffersQuery(enterpriseUuid) {
 
 // 'policy' context layer START
 // 'policy' contextQueries START
-export function makeRedeemablePoliciesQuery({ enterpriseUuid, lmsUserId }) {
+export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -126,7 +126,7 @@ export function makeRedeemablePoliciesQuery({ enterpriseUuid, lmsUserId }) {
 // 'policy' context layer END
 
 // 'subscriptions' context layer START
-export function makeSubscriptionsQuery(enterpriseUuid) {
+export function querySubscriptions(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
@@ -140,7 +140,7 @@ export function makeSubscriptionsQuery(enterpriseUuid) {
 // 'enterpriseCustomer' context layer END
 
 // enterpriseLearner context layer START
-export function makeEnterpriseLearnerQuery(username, enterpriseSlug) {
+export function queryEnterpriseLearner(username, enterpriseSlug) {
   return queries
     .enterprise
     .enterpriseLearner(username, enterpriseSlug);

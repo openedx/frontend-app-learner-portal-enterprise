@@ -2,7 +2,7 @@ import { redirect, generatePath } from 'react-router-dom';
 
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import { getEnterpriseAppData, updateUserActiveEnterprise } from './rootLoader';
-import { makeEnterpriseLearnerQuery } from '../data/services';
+import { queryEnterpriseLearner } from '../data/services';
 /**
  * TODO
  * @param {*} queryClient
@@ -15,7 +15,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     const { username, userId, email: userEmail } = authenticatedUser;
     const { enterpriseSlug } = params;
 
-    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
+    const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const {
       activeEnterpriseCustomer,
@@ -59,7 +59,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
         return null;
       }
 
-      const nextEnterpriseLearnerQuery = makeEnterpriseLearnerQuery(username, activeEnterpriseCustomer.slug);
+      const nextEnterpriseLearnerQuery = queryEnterpriseLearner(username, activeEnterpriseCustomer.slug);
       queryClient.setQueryData(nextEnterpriseLearnerQuery.queryKey, {
         enterpriseCustomer: activeEnterpriseCustomer,
         enterpriseCustomerUserRoleAssignments: activeEnterpriseCustomerUserRoleAssignments,

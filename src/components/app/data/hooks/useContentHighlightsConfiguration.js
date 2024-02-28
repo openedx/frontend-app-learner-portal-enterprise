@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
-import { makeContentHighlightsConfigurationQuery } from '../../routes/data/services';
+import { queryContentHighlightsConfiguration } from '../../routes/data/services';
 
 /**
  * Retrieves the content highlights configuration for the active enterprise customer user.
@@ -11,6 +11,6 @@ export default function useContentHighlightsConfiguration() {
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
-    makeContentHighlightsConfigurationQuery(enterpriseId),
+    queryContentHighlightsConfiguration(enterpriseId),
   );
 }

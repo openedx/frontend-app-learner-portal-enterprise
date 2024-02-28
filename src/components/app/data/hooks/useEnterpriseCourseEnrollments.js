@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
-import { makeEnterpriseCourseEnrollmentsQuery } from '../../routes/data/services';
+import { queryEnterpriseCourseEnrollments } from '../../routes/data/services';
 
 /**
  * Retrieves the enterprise course enrollments for the active enterprise customer user.
@@ -11,6 +11,6 @@ export default function useEnterpriseCourseEnrollments() {
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
-    makeEnterpriseCourseEnrollmentsQuery(enterpriseId),
+    queryEnterpriseCourseEnrollments(enterpriseId),
   );
 }

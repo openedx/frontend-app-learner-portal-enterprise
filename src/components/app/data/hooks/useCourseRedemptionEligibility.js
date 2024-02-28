@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import useCourseMetadata from './useCourseMetadata';
 import useEnterpriseLearner from './useEnterpriseLearner';
-import { makeCanRedeemQuery } from '../../routes/data/services';
+import { queryCanRedeem } from '../../routes/data/services';
 
 /**
  * Retrieves the course redemption eligibility for the given enterprise customer and course key.
@@ -13,6 +13,6 @@ export default function useCourseRedemptionEligibility() {
   const { data: courseMetadata } = useCourseMetadata();
   const enterpriseId = enterpriseCustomer.uuid;
   return useQuery(
-    makeCanRedeemQuery(enterpriseId, courseMetadata),
+    queryCanRedeem(enterpriseId, courseMetadata),
   );
 }

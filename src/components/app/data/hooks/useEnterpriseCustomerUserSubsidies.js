@@ -4,11 +4,11 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
 import {
-  makeCouponCodesQuery,
-  makeSubscriptionsQuery,
-  makeRedeemablePoliciesQuery,
-  makeEnterpriseLearnerOffersQuery,
-  makeBrowseAndRequestConfigurationQuery,
+  queryCouponCodes,
+  querySubscriptions,
+  queryRedeemablePolicies,
+  queryEnterpriseLearnerOffers,
+  queryBrowseAndRequestConfiguration,
 } from '../../routes/data/services';
 
 /**
@@ -22,14 +22,14 @@ export default function useEnterpriseCustomerUserSubsidies() {
   const enterpriseId = data.enterpriseCustomer.uuid;
   const queries = useQueries({
     queries: [
-      makeSubscriptionsQuery(enterpriseId),
-      makeRedeemablePoliciesQuery({
+      querySubscriptions(enterpriseId),
+      queryRedeemablePolicies({
         enterpriseUuid: enterpriseId,
         lmsUserId: userId,
       }),
-      makeCouponCodesQuery(enterpriseId),
-      makeEnterpriseLearnerOffersQuery(enterpriseId),
-      makeBrowseAndRequestConfigurationQuery(enterpriseId, email),
+      queryCouponCodes(enterpriseId),
+      queryEnterpriseLearnerOffers(enterpriseId),
+      queryBrowseAndRequestConfiguration(enterpriseId, email),
     ],
   });
   return {
