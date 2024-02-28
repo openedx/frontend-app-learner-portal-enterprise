@@ -1,266 +1,379 @@
-/* eslint-disable no-underscore-dangle */
-import { queries } from '../../../../utils/queryKeyFactory';
-import { getAvailableCourseRuns } from '../../../course/data/utils';
+import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import {
+  ENTERPRISE_OFFER_STATUS,
+  ENTERPRISE_OFFER_USAGE_TYPE,
+} from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 
-/**
- * Helper function to assist querying with useQuery package
- * queries.user.entitlements
- * @returns
- */
-export function queryUserEntitlements() {
-  return queries.user.entitlements;
+// Enterprise Course Enrollments
+export async function fetchUserEntitlements() {
+  const url = `${getConfig().LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
 
-// 'enterprise' context layer START
-// 'enterpriseCustomer' context layer START
-// 'enterpriseCustomer' contextQueries START
-
-// 'contentHighlights' context layer START
-// 'contentHighlights' contextQueries START
+// Enterprise Learner
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.contentHighlights
- * ._ctx.configuration
- * @returns
+ * Recursive function to fetch all linked enterprise customer users, traversing paginated results.
+ * @param {string} url Request URL
+ * @param {Array} [linkedEnterprises] Array of linked enterprise customer users
+ * @returns Array of all linked enterprise customer users for authenticated user.
  */
-export function queryContentHighlightsConfiguration(enterpriseUuid) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.contentHighlights
-    ._ctx.configuration;
-}
-// 'contentHighlights' contextQueries END
-
-// 'course' context layer START
-// 'course' contextQueries START
-/**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
- * ._ctx.contentMetadata(courseKey)
- * @returns
- */
-export function queryCourseMetadata(enterpriseUuid, courseKey) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
-    ._ctx.contentMetadata(courseKey);
+async function fetchData(url, linkedEnterprises = []) {
+  const response = await getAuthenticatedHttpClient().get(url);
+  const responseData = camelCaseObject(response.data);
+  const linkedEnterprisesCopy = [...linkedEnterprises];
+  linkedEnterprisesCopy.push(...responseData.results);
+  if (responseData.next) {
+    return fetchData(responseData.next, linkedEnterprisesCopy);
+  }
+  return linkedEnterprisesCopy;
 }
 
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.course
- * ._ctx.canRedeem(availableCourseRunKeys)
+ * Fetches the enterprise learner data for the authenticated user, including all
+ * linked enterprise customer users.
+ *
+ * @param {string} username The username of the authenticated user.
+ * @param {string} enterpriseSlug The slug of the enterprise customer to display.
+ * @param {Object} [options] Additional query options.
  * @returns
  */
-export function queryCanRedeem(enterpriseUuid, courseMetadata) {
-  const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
-    ._ctx.canRedeem(availableCourseRunKeys);
-}
-// 'course' contextQueries END
-// 'course' context layer START
+export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}) => {
+  const config = getConfig();
+  const enterpriseLearnerUrl = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
+  const queryParams = new URLSearchParams({
+    username,
+    ...options,
+    page: 1,
+  });
+  const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
+  const linkedEnterpriseCustomersUsers = await fetchData(url);
+  const activeLinkedEnterpriseCustomerUser = linkedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
+  const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
+  const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
 
-// 'enrollments' context layer START
+  // Find enterprise customer metadata for the currently viewed
+  // enterprise slug in the page route params.
+  const foundEnterpriseCustomerUserForCurrentSlug = linkedEnterpriseCustomersUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+  );
+
+  const determineEnterpriseCustomerUserForDisplay = () => {
+    const activeEnterpriseCustomerUser = {
+      enterpriseCustomer: activeEnterpriseCustomer,
+      roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+    };
+    if (!enterpriseSlug) {
+      return activeEnterpriseCustomerUser;
+    }
+    if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+      return {
+        enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
+        roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
+      };
+    }
+    return activeEnterpriseCustomerUser;
+  };
+
+  const {
+    enterpriseCustomer,
+    roleAssignments,
+  } = determineEnterpriseCustomerUserForDisplay();
+  return {
+    enterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments: roleAssignments,
+    activeEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments,
+    allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
+  };
+};
+
+// Course Enrollments
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.enrollments
+ * TODO
+ * @param {*} enterpriseId
+ * @param {*} options
  * @returns
  */
-export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.enrollments;
-}
-// 'enrollments' context layer END
+export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
+  const queryParams = new URLSearchParams({
+    enterprise_id: enterpriseId,
+    ...options,
+  });
+  const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+};
 
-// 'subsidies' context layer START
-// 'subsidies' contextQueries START
-
-// 'browseAndRequest' context layer START
-// 'browseAndRequest' contextQueries START
+// Course Metadata
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.browseAndRequest(userEmail)
- * ._ctx.configuration
+ * TODO
+ * @param {*} param0
  * @returns
  */
-export function queryBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.browseAndRequest(userEmail)
-    ._ctx.configuration;
-}
+export const fetchCourseMetadata = async (enterpriseId, courseKey, options = {}) => {
+  const contentMetadataUrl = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/content-metadata/${courseKey}/`;
+  const queryParams = new URLSearchParams({
+    ...options,
+  });
+  const url = `${contentMetadataUrl}?${queryParams.toString()}`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
 
-// 'endpoints' context layer START
-// 'endpoint contextQueries START
+// Content Highlights
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.browseAndRequest(userEmail)
- * ._ctx.endpoints(state)
- * ._ctx.licenseRequests
+ * Content Highlights Configuration
+ * @param {*} enterpriseUUID
  * @returns
  */
-export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.browseAndRequest(userEmail)
-    ._ctx.endpoints(state)
-    ._ctx.licenseRequests;
+export const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
+  const queryParams = new URLSearchParams({
+    enterprise_customer: enterpriseUUID,
+    ...options,
+  });
+  const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-curations/?${queryParams.toString()}`;
+
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    const data = camelCaseObject(response.data);
+    // Return first result, given that there should only be one result, if any.
+    return data.results[0] ?? null;
+  } catch (error) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+// Can Redeem
+/**
+ * Service method to determine whether the authenticated user can redeem the specified course run(s).
+ *
+ * @param {object} args
+ * @param {array} courseRunKeys List of course run keys.
+ * @returns Promise for get request from the authenticated http client.
+ */
+export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
+  const queryParams = new URLSearchParams();
+  courseRunKeys.forEach((courseRunKey) => {
+    queryParams.append('content_key', courseRunKey);
+  });
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${enterpriseId}/can-redeem/`;
+  const urlWithParams = `${url}?${queryParams.toString()}`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(urlWithParams);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
+      return [];
+    }
+    throw error;
+  }
+};
+
+// Subsidies
+
+// Browse and Request
+/**
+ * TODO
+ * @param {*} enterpriseUUID
+ * @returns
+ */
+const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
+  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+export async function fetchLicenseRequests({
+  enterpriseUUID,
+  userEmail,
+  state = SUBSIDY_REQUEST_STATE.REQUESTED,
+}) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    user__email: userEmail,
+    state,
+  });
+  const config = getConfig();
+  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
+
+export async function fetchCouponCodeRequests({
+  enterpriseUUID,
+  userEmail,
+  state = SUBSIDY_REQUEST_STATE.REQUESTED,
+}) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    user__email: userEmail,
+    state,
+  });
+  const config = getConfig();
+  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
 
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.browseAndRequest(userEmail)
- * ._ctx.endpoints(state)
- * ._ctx.couponCodeRequests
+ * TODO
+ * @param {*} param0
  * @returns
  */
-export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.browseAndRequest(userEmail)
-    ._ctx.endpoints(state)
-    ._ctx.couponCodeRequests;
+export async function fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
+  const results = await Promise.all([
+    fetchSubsidyRequestConfiguration(enterpriseUuid),
+    fetchCouponCodeRequests({
+      enterpriseUUID: enterpriseUuid,
+      userEmail,
+    }),
+    fetchLicenseRequests({
+      enterpriseUUID: enterpriseUuid,
+      userEmail,
+    }),
+  ]);
+
+  return {
+    subsidyRequestConfiguration: results[0],
+    couponCodeRequests: results[1],
+    licenseRequests: results[2],
+  };
 }
-// 'endpoint' contextQueries END
-// 'endpoint' context layer END
 
-// 'browseAndRequest' contextQueries END
-// 'browseAndRequest' context layer END
+// Coupon Codes
+async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
+  const queryParams = new URLSearchParams({
+    enterprise_uuid: enterpriseId,
+    full_discount_only: 'True', // Must be a string because the API does a string compare not a true JSON boolean compare.
+    is_active: 'True',
+    ...options,
+  });
+  const config = getConfig();
+  const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
 
-// 'couponCodes' context layer START
+async function fetchCouponsOverview(enterpriseId, options = {}) {
+  const queryParams = new URLSearchParams({
+    page: 1,
+    page_size: 100,
+    ...options,
+  });
+  const config = getConfig();
+  const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
+
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.couponCodes
+ * TODO
+ * @param {*} param0
  * @returns
  */
-export function queryCouponCodes(enterpriseUuid) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.couponCodes;
+export async function fetchCouponCodes(enterpriseUuid) {
+  const results = await Promise.all([
+    fetchCouponsOverview(enterpriseUuid),
+    fetchCouponCodeAssignments(enterpriseUuid),
+  ]);
+  return {
+    couponsOverview: results[0],
+    couponCodeAssignments: results[1],
+  };
 }
-// 'couponCodes' context layer END
 
-// 'enterpriseOffers' context layer START
-/**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.enterpriseOffers
- * @returns
- */
-export function queryEnterpriseLearnerOffers(enterpriseUuid) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.enterpriseOffers;
+// Enterprise Offers
+export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
+  const queryParams = new URLSearchParams({
+    usage_type: ENTERPRISE_OFFER_USAGE_TYPE.PERCENTAGE,
+    discount_value: 100,
+    status: ENTERPRISE_OFFER_STATUS.OPEN,
+    page_size: 100,
+    ...options,
+  });
+  const config = getConfig();
+  const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/${enterpriseId}/enterprise-learner-offers/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
-// 'enterpriseOffers' context layer END
 
-// 'policy' context layer START
-// 'policy' contextQueries START
+// Policies
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.policy
- * ._ctx.redeemablePolicies(lmsUserId)
+ * TODO
+ * @param {*} enterpriseUUID
+ * @param {*} userID
  * @returns
  */
-export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.policy
-    ._ctx.redeemablePolicies(lmsUserId);
+export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    lms_user_id: userID,
+  });
+  const config = getConfig();
+  const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
-// 'policy' contextQueries END
-// 'policy' context layer END
 
-// 'subscriptions' context layer START
-/**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.subscriptions
- * @returns
- */
-export function querySubscriptions(enterpriseUuid) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.subscriptions;
+// Subscriptions
+async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    include_revoked: true,
+  });
+  const config = getConfig();
+  const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
 }
-// 'subscriptions' context layer END
-// 'subsidies' contextQueries END
-// 'subsidies' context layer END
-//  'enterpriseCustomer' contextQueries END
-// 'enterpriseCustomer' context layer END
 
-// enterpriseLearner context layer START
+async function fetchCustomerAgreementData(enterpriseUUID) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+  });
+  const config = getConfig();
+  const url = `${config.LICENSE_MANAGER_URL}/api/v1/customer-agreement/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
+
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseLearner(username, enterpriseSlug)
+ * TODO
+ * @param {*} param0
  * @returns
  */
-export function queryEnterpriseLearner(username, enterpriseSlug) {
-  return queries
-    .enterprise
-    .enterpriseLearner(username, enterpriseSlug);
+export async function fetchSubscriptions(enterpriseUuid) {
+  const results = await Promise.all([
+    fetchCustomerAgreementData(enterpriseUuid),
+    fetchSubscriptionLicensesForUser(enterpriseUuid),
+  ]);
+  return {
+    customerAgreement: results[0],
+    subscriptionLicenses: results[1],
+  };
 }
-// 'enterpriseLearner' context layer END
-// 'enterprise' context layer END

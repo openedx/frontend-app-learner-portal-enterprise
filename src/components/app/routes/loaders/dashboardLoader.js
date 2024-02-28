@@ -1,6 +1,6 @@
-import { queryEnterpriseCourseEnrollments } from '../data/services';
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import extractEnterpriseId from './extractEnterpriseId';
+import { queryEnterpriseCourseEnrollments } from '../queries';
 
 /**
  * TODO

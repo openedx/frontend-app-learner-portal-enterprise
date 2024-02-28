@@ -10,7 +10,7 @@ import {
   queryRedeemablePolicies,
   querySubscriptions,
   queryContentHighlightsConfiguration,
-} from '../data/services';
+} from '../queries';
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
   const config = getConfig();

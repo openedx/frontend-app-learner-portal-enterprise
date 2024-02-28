@@ -1,19 +1,22 @@
+/* eslint-disable no-underscore-dangle */
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
-import { fetchCourseMetadata } from '../components/app/routes/queries/courseMetadata';
-import { fetchUserEntitlements } from '../components/app/routes/queries/userEntitlements';
-import { fetchCanRedeem } from '../components/app/routes/queries/canRedeemCourse';
-import { fetchEnterpriseLearnerData } from '../components/app/routes/queries/enterpriseLearner';
-import { fetchEnterpriseCourseEnrollments } from '../components/app/routes/queries/enterpriseCourseEnrollments';
 import {
+  fetchCourseMetadata,
+  fetchUserEntitlements,
+  fetchCanRedeem,
+  fetchEnterpriseLearnerData,
+  fetchEnterpriseCourseEnrollments,
   fetchBrowseAndRequestConfiguration,
-  fetchCouponCodeRequests,
   fetchLicenseRequests,
-} from '../components/app/routes/queries/subsidies/browseAndRequest';
-import { fetchRedeemablePolicies } from '../components/app/routes/queries/subsidies/policies';
-import { fetchSubscriptions } from '../components/app/routes/queries/subsidies/subscriptions';
-import { fetchCouponCodes } from '../components/app/routes/queries/subsidies/couponCodes';
-import { fetchEnterpriseOffers } from '../components/app/routes/queries/subsidies/enterpriseOffers';
-import { fetchEnterpriseCuration } from '../components/app/routes/queries/contentHighlights';
+  fetchRedeemablePolicies,
+  fetchSubscriptions,
+  fetchCouponCodes,
+  fetchEnterpriseOffers,
+  fetchEnterpriseCuration,
+  fetchCouponCodeRequests,
+} from '../components/app/routes/data/services';
+
+import { getAvailableCourseRuns } from '../components/course/data/utils';
 import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
 
 export const enterprise = createQueryKeys('enterprise', {
@@ -56,7 +59,7 @@ export const enterprise = createQueryKeys('enterprise', {
                 queryKey: null,
                 queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2], queryKey[4]),
               },
-              endpoints: (state = SUBSIDY_REQUEST_STATE.REQUESTED) => ({
+              requests: (state = SUBSIDY_REQUEST_STATE.REQUESTED) => ({
                 queryKey: [state],
                 contextQueries: {
                   licenseRequests: {

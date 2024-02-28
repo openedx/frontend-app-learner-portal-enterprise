@@ -1,18 +1,17 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+/* eslint-disable no-underscore-dangle */
+import { queries } from '../../../../utils/queryKeyFactory';
 
 /**
- * TODO
- * @param {*} enterpriseId
- * @param {*} options
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.enrollments
  * @returns
  */
-export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
-  const queryParams = new URLSearchParams({
-    enterprise_id: enterpriseId,
-    ...options,
-  });
-  const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
-};
+export default function queryEnterpriseCourseEnrollments(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.enrollments;
+}

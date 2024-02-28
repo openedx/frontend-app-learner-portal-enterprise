@@ -1,30 +1,21 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-
-import { getErrorResponseStatusCode } from '../../../../utils/common';
+/* eslint-disable no-underscore-dangle */
+import { getAvailableCourseRuns } from '../../../course/data/utils';
+import { queries } from '../../../../utils/queryKeyFactory';
 
 /**
- * Service method to determine whether the authenticated user can redeem the specified course run(s).
- *
- * @param {object} args
- * @param {array} courseRunKeys List of course run keys.
- * @returns Promise for get request from the authenticated http client.
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.course
+ * ._ctx.canRedeem(availableCourseRunKeys)
+ * @returns
  */
-export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
-  const queryParams = new URLSearchParams();
-  courseRunKeys.forEach((courseRunKey) => {
-    queryParams.append('content_key', courseRunKey);
-  });
-  const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/enterprise-customer/${enterpriseId}/can-redeem/`;
-  const urlWithParams = `${url}?${queryParams.toString()}`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(urlWithParams);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return [];
-    }
-    throw error;
-  }
-};
+export default function queryCanRedeem(enterpriseUuid, courseMetadata) {
+  const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course
+    ._ctx.canRedeem(availableCourseRunKeys);
+}

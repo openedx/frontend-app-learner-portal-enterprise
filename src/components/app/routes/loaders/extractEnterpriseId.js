@@ -1,4 +1,4 @@
-import { queryEnterpriseLearner } from '../data/services';
+import { queryEnterpriseLearner } from '../queries';
 
 export default async function extractEnterpriseId({
   queryClient,

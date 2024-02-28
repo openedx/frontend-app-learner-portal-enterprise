@@ -2,7 +2,7 @@ import { redirect, generatePath } from 'react-router-dom';
 
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import { getEnterpriseAppData, updateUserActiveEnterprise } from './rootLoader';
-import { queryEnterpriseLearner } from '../data/services';
+import { queryEnterpriseLearner } from '../queries';
 /**
  * TODO
  * @param {*} queryClient

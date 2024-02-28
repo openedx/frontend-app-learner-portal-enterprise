@@ -1,27 +1,19 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-
-import { getErrorResponseStatusCode } from '../../../../utils/common';
+/* eslint-disable no-underscore-dangle */
+import { queries } from '../../../../utils/queryKeyFactory';
 
 /**
- * TODO
- * @param {*} param0
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.course
+ * ._ctx.contentMetadata(courseKey)
  * @returns
  */
-export const fetchCourseMetadata = async (enterpriseId, courseKey, options = {}) => {
-  const contentMetadataUrl = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/content-metadata/${courseKey}/`;
-  const queryParams = new URLSearchParams({
-    ...options,
-  });
-  const url = `${contentMetadataUrl}?${queryParams.toString()}`;
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
-  } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return null;
-    }
-    throw error;
-  }
-};
+export default function queryCourseMetadata(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course
+    ._ctx.contentMetadata(courseKey);
+}

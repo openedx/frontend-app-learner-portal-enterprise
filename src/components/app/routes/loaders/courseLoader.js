@@ -4,7 +4,7 @@ import {
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
-} from '../data/services';
+} from '../queries';
 
 import extractEnterpriseId from './extractEnterpriseId';
 

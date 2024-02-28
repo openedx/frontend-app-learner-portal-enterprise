@@ -1,12 +1,10 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { queries } from '../../../../utils/queryKeyFactory';
 
 /**
- * TODO
+ * Helper function to assist querying with useQuery package
+ * queries.user.entitlements
  * @returns
  */
-export async function fetchUserEntitlements() {
-  const url = `${getConfig().LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+export default function queryUserEntitlements() {
+  return queries.user.entitlements;
 }
