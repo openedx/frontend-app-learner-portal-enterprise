@@ -4,6 +4,8 @@ import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
+import { QueryCache, QueryClient } from '@tanstack/react-query';
+import { queryCacheOnErrorHandler } from './common';
 
 export function renderWithRouter(
   ui,
@@ -79,3 +81,17 @@ export const A_100_PERCENT_COUPON_CODE = {
   couponStartDate: dayjs().subtract(1, 'w').toISOString(),
   couponEndDate: dayjs().add(8, 'w').toISOString(),
 };
+
+export function queryClient(options = {}) {
+  return new QueryClient({
+    queryCache: new QueryCache({
+      onError: queryCacheOnErrorHandler,
+    }),
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      ...options,
+    },
+  });
+}
