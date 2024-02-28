@@ -3,7 +3,7 @@ import { useParams, useMatch } from 'react-router-dom';
 // import { useEnterpriseCuration } from '../../../search/content-highlights/data';
 import useContentHighlightsConfiguration from './useContentHighlightsConfiguration';
 // import { determineLearnerHasContentAssignmentsOnly } from '../../../enterprise-user-subsidy/data/utils';
-import useEnterpriseCustomerUserSubsidies from './useEnterpriseCustomerUserSubsidies';
+// import useEnterpriseCustomerUserSubsidies from './useEnterpriseCustomerUserSubsidies';
 
 /**
  * Keeps track of whether the enterprise banner should include the "Recommend courses for me" button.
