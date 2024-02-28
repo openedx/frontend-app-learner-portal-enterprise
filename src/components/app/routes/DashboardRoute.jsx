@@ -1,4 +1,4 @@
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 
 import { useEnterpriseCourseEnrollments, useEnterpriseCustomerUserSubsidies } from '../data';
 
