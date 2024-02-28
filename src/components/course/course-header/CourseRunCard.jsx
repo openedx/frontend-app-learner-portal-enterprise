@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Card } from '@edx/paragon';
+import { Card } from '@openedx/paragon';
 
 import { CourseContext } from '../CourseContextProvider';
 import { findUserEnrollmentForCourseRun } from '../data/utils';

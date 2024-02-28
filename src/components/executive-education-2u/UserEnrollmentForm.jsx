@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Alert, Card, CheckboxControl, Col, Form, Hyperlink, MailtoLink, Row, StatefulButton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { Form as FormikForm, Formik } from 'formik';
 import isNil from 'lodash.isnil';
 import { AppContext } from '@edx/frontend-platform/react';

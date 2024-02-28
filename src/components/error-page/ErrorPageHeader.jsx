@@ -4,7 +4,7 @@ import {
   Container,
   Navbar,
   Dropdown,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
 import { AppContext } from '@edx/frontend-platform/react';
 

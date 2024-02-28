@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import {
   Badge, Card, Stack, Truncate,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';

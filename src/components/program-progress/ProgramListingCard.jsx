@@ -1,6 +1,6 @@
 import {
   breakpoints, Card, Truncate,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { FormattedMessage, FormattedDate } from '@edx/frontend-platform/i18n';
 
-import { Button } from '@edx/paragon';
+import { Button } from '@openedx/paragon';
 import BaseCourseCard from './BaseCourseCard';
 
 const UpcomingCourseCard = (props) => {

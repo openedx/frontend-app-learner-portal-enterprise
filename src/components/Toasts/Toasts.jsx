@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Toast } from '@edx/paragon';
+import { Toast } from '@openedx/paragon';
 
 import { ToastsContext } from './ToastsProvider';
 

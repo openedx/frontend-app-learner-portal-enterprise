@@ -1,5 +1,5 @@
 import { React, useContext } from 'react';
-import { Button, Container, Hyperlink } from '@edx/paragon';
+import { Button, Container, Hyperlink } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 

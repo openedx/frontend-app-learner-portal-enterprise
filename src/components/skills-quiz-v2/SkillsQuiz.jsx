@@ -4,7 +4,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import PropTypes from 'prop-types';
 import {
   ModalDialog, useToggle, ActionRow, Button,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
 import {

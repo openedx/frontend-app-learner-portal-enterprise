@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Card, Col, Hyperlink, Row,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import GetSmarterLogo from '../../../assets/icons/get-smarter-logo-black.svg';
 import { features } from '../../../config';

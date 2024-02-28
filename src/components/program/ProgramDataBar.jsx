@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { Container } from '@edx/paragon';
-import { ExpandCircleDown } from '@edx/paragon/icons';
+import { Container } from '@openedx/paragon';
+import { ExpandCircleDown } from '@openedx/paragon/icons';
 import classNames from 'classnames';
 import { Link } from 'react-scroll';
 import { ProgramContext } from './ProgramContextProvider';

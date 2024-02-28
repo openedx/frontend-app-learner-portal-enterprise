@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import loadable from '@loadable/component';
 
-import { PlayCircleFilled } from '@edx/paragon/icons';
-import { useToggle, Image, Skeleton } from '@edx/paragon';
+import { PlayCircleFilled } from '@openedx/paragon/icons';
+import { useToggle, Image, Skeleton } from '@openedx/paragon';
 import DelayedFallbackContainer from '../../DelayedFallback/DelayedFallbackContainer';
 
 const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../../video/VideoPlayer'), {

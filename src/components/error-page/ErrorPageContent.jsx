@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Container,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import classNames from 'classnames';
 
 /**

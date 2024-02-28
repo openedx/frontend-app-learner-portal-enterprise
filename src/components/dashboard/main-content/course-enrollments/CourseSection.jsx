@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Bubble, Collapsible } from '@edx/paragon';
+import { Bubble, Collapsible } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import {
