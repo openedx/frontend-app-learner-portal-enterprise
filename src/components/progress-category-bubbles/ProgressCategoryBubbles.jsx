@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bubble, Stack } from '@edx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 
 const ProgressCategoryBubbles = ({ notStarted, inProgress, completed }) => (
@@ -7,17 +8,35 @@ const ProgressCategoryBubbles = ({ notStarted, inProgress, completed }) => (
     <Bubble className="remaining-courses" data-testid="remaining-count">
       {notStarted}
     </Bubble>
-    <div>Remaining</div>
+    <div>
+      <FormattedMessage
+        id="enterprise.dashboard.programs.program.listing.card.remaining.courses.count"
+        defaultMessage="Remaining"
+        description="Label for remaining courses count on program card"
+      />
+    </div>
 
     <Bubble className="in-progress-courses" data-testid="in-progress-count">
       {inProgress}
     </Bubble>
-    <div>In progress</div>
+    <div>
+      <FormattedMessage
+        id="enterprise.dashboard.programs.program.listing.card.inProgress.courses.count"
+        defaultMessage="In progress"
+        description="Label for in progress courses count on program card"
+      />
+    </div>
 
     <Bubble className="completed-courses" data-testid="completed-count">
       {completed}
     </Bubble>
-    <div>Completed</div>
+    <div>
+      <FormattedMessage
+        id="enterprise.dashboard.programs.program.listing.card.completed.courses.count"
+        defaultMessage="Completed"
+        description="Label for completed courses count on program card"
+      />
+    </div>
   </Stack>
 );
 

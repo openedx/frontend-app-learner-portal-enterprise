@@ -1,7 +1,6 @@
-// import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
-import { extractActiveEnterpriseId } from './courseLoader';
-import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import { makeEnterpriseCourseEnrollmentsQuery } from '../data/services';
+import ensureAuthenticatedUser from './ensureAuthenticatedUser';
+import extractEnterpriseId from './extractEnterpriseId';
 
 /**
  * TODO
@@ -12,7 +11,7 @@ export default function makeDashboardLoader(queryClient) {
   return async function dashboardLoader({ params = {} }) {
     const authenticatedUser = await ensureAuthenticatedUser();
     const { enterpriseSlug } = params;
-    const enterpriseId = await extractActiveEnterpriseId({
+    const enterpriseId = await extractEnterpriseId({
       queryClient,
       authenticatedUser,
       enterpriseSlug,
