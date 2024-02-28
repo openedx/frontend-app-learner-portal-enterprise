@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 
-// import { makeCanRedeemQuery } from '../../routes/queries';
 import useCourseMetadata from './useCourseMetadata';
 import useEnterpriseLearner from './useEnterpriseLearner';
 import { makeCanRedeemQuery } from '../../routes/data/services';

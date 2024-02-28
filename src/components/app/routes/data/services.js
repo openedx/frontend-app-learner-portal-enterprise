@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { queries } from '../../../../utils/queryKeyFactory';
 import { getAvailableCourseRuns } from '../../../course/data/utils';
+import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 
 export function makeUserEntitlementsQuery() {
   return queries.user.entitlements;
@@ -63,6 +64,31 @@ export function makeBrowseAndRequestConfigurationQuery(enterpriseUuid, userEmail
     ._ctx.browseAndRequest(userEmail)
     ._ctx.configuration;
 }
+
+// 'endpoints' context layer START
+// 'endpoint contextQueries START
+export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest(userEmail)
+    ._ctx.endpoints(state)
+    ._ctx.licenseRequests;
+}
+
+export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest(userEmail)
+    ._ctx.endpoints(state)
+    ._ctx.couponCodeRequests;
+}
+// 'endpoint' contextQueries END
+// 'endpoint' context layer END
+
 // 'browseAndRequest' contextQueries END
 // 'browseAndRequest' context layer END
 

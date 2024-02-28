@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
 import { makeCourseMetadataQuery } from '../../routes/data/services';
-// import { makeCourseMetadataQuery } from '../../routes/queries';
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.

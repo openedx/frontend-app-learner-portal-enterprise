@@ -3,12 +3,6 @@ import { useQueries } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
-// import {
-//   makeSubscriptionsQuery,
-//   makeRedeemablePoliciesQuery,
-//   makeEnterpriseLearnerOffersQuery,
-//   makeBrowseAndRequestConfigurationQuery,
-// } from '../../routes/queries';
 import {
   makeCouponCodesQuery,
   makeSubscriptionsQuery,

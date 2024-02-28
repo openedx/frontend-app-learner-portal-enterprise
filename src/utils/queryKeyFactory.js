@@ -10,6 +10,8 @@ import { fetchSubscriptions } from '../components/app/routes/queries/subsidies/s
 import { fetchCouponCodes } from '../components/app/routes/queries/subsidies/couponCodes';
 import { fetchEnterpriseOffers } from '../components/app/routes/queries/subsidies/enterpriseOffers';
 import { fetchEnterpriseCuration } from '../components/app/routes/queries/contentHighlights';
+import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
+import { fetchCouponCodeRequests, fetchLicenseRequests } from '../components/enterprise-subsidy-requests/data/service';
 
 export const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
@@ -51,6 +53,19 @@ export const enterprise = createQueryKeys('enterprise', {
                 queryKey: null,
                 queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2], queryKey[4]),
               },
+              endpoints: (state = SUBSIDY_REQUEST_STATE.REQUESTED) => ({
+                queryKey: [state],
+                contextQueries: {
+                  licenseRequests: {
+                    queryKey: null,
+                    queryFn: async ({ queryKey }) => fetchLicenseRequests(queryKey[2], queryKey[4], queryKey[5]),
+                  },
+                  couponCodeRequests: {
+                    queryKey: null,
+                    queryFn: async ({ queryKey }) => fetchCouponCodeRequests(queryKey[2], queryKey[4], queryKey[5]),
+                  },
+                },
+              }),
             },
           }),
           couponCodes: {
