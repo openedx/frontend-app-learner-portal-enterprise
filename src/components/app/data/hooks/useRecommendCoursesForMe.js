@@ -1,14 +1,10 @@
-import {
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { useMemo } from 'react';
 import { useParams, useMatch } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
-import { logInfo } from '@edx/frontend-platform/logging';
 
-import { useEnterpriseCuration } from '../../../search/content-highlights/data';
+// import { useEnterpriseCuration } from '../../../search/content-highlights/data';
+import useContentHighlightsConfiguration from './useContentHighlightsConfiguration';
+// import { determineLearnerHasContentAssignmentsOnly } from '../../../enterprise-user-subsidy/data/utils';
+import useEnterpriseCustomerUserSubsidies from './useEnterpriseCustomerUserSubsidies';
 
 /**
  * Keeps track of whether the enterprise banner should include the "Recommend courses for me" button.
@@ -16,34 +12,56 @@ import { useEnterpriseCuration } from '../../../search/content-highlights/data';
  */
 export default function useRecommendCoursesForMe() {
   const { enterpriseSlug } = useParams();
-  const { enterpriseConfig } = useContext(AppContext);
+  const isSearchPage = useMatch(`/${enterpriseSlug}/search/*`);
+  const { data: contentHighlightsConfiguration } = useContentHighlightsConfiguration();
+  const canOnlyViewHighlightSets = !!contentHighlightsConfiguration?.canOnlyViewHighlightSets;
 
-  const routeMatch = useMatch(`/${enterpriseSlug}/search`);
-  const [shouldRecommendCourses, setShouldRecommendCourses] = useState(false);
+  const { data: subsidies } = useEnterpriseCustomerUserSubsidies();
+  console.log('subsidies', subsidies);
 
-  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseConfig?.uuid);
+  // If user is not on the search page route, or users are restricted to only viewing highlight sets,
+  // the "Recommend courses for me" button should not be shown.
+  if (!isSearchPage || !canOnlyViewHighlightSets) {
+    return {
+      shouldRecommendCourses: false,
+    };
+  }
 
-  const showRecommendCourses = useCallback(() => {
-    // only show the recommend courses button if the current route is the search page
-    // and the user is not restricted to only viewing highlight sets.
-    if (routeMatch && !canOnlyViewHighlightSets) {
-      setShouldRecommendCourses(true);
-    } else {
-      logInfo('Cannot show recommend courses button because the current route is not the search page.');
-    }
-  }, [routeMatch, canOnlyViewHighlightSets]);
+  // const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
+  //   subscriptionPlan: subsidies.subscriptionPlan,
+  //   subscriptionLicense,
+  //   licenseRequests,
+  //   couponCodesCount,
+  //   couponCodeRequests,
+  //   redeemableLearnerCreditPolicies,
+  //   hasCurrentEnterpriseOffers,
+  // });
 
-  const hideRecommendCourses = useCallback(() => {
-    setShouldRecommendCourses(false);
-  }, []);
+  return {
+    shouldRecommendCourses: !false, // isAssignmentOnlyLearner,
+  };
 
-  return useMemo(() => ({
-    shouldRecommendCourses,
-    showRecommendCourses,
-    hideRecommendCourses,
-  }), [
-    shouldRecommendCourses,
-    showRecommendCourses,
-    hideRecommendCourses,
-  ]);
+  // const showRecommendCourses = useCallback(() => {
+  //   // only show the recommend courses button if the current route is the search page
+  //   // and the user is not restricted to only viewing highlight sets.
+  //   if (routeMatch && !canOnlyViewHighlightSets) {
+  //     setShouldRecommendCourses(true);
+  //   } else {
+  //     logInfo('Cannot show recommend courses button because the current route is not the search page.');
+  //   }
+  // }, [routeMatch, canOnlyViewHighlightSets]);
+
+  // const hideRecommendCourses = useCallback(() => {
+  //   setShouldRecommendCourses(false);
+  // }, []);
+
+  // return useMemo(() => ({
+  //   shouldRecommendCourses,
+  //   showRecommendCourses,
+  //   hideRecommendCourses,
+  // }), [
+  //   shouldRecommendCourses,
+  //   showRecommendCourses,
+  //   hideRecommendCourses,
+  // ]);
 }

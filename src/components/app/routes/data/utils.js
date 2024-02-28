@@ -11,6 +11,8 @@ import {
   getLoggingService,
   NewRelicLoggingService,
 } from '@edx/frontend-platform/logging';
+import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
+import Cookies from 'universal-cookie';
 
 import { makeEnterpriseLearnerQuery } from '../queries';
 
@@ -122,7 +124,7 @@ export async function extractEnterpriseId({
  * @param {URL} requestUrl - The current request URL to redirect back to if the
  *  user is not authenticated.
  */
-export async function ensureAuthenticatedUser(requestUrl) {
+export async function ensureAuthenticatedUser(requestUrl, params) {
   configureLogging(NewRelicLoggingService, {
     config: getConfig(),
   });
@@ -130,10 +132,45 @@ export async function ensureAuthenticatedUser(requestUrl) {
     loggingService: getLoggingService(),
     config: getConfig(),
   });
-  const authenticatedUser = await fetchAuthenticatedUser();
+
+  const {
+    enterpriseSlug,
+    enterpriseCustomerInviteKey,
+  } = params;
+  let authenticatedUser = await fetchAuthenticatedUser();
+
+  // User is not authenticated. Redirect to the login page.
   if (!authenticatedUser) {
-    // User is not authenticated. Redirect to the login page.
-    throw redirect(getLoginRedirectUrl(requestUrl.href));
+    // Remove cookie that controls whether the user will see the integration warning
+    // modal on their next visit. The expected behavior is to only see the modal once
+    // per authenticated session.
+    const cookies = new Cookies();
+    cookies.remove(getConfig().INTEGRATION_WARNING_DISMISSED_COOKIE_NAME);
+
+    // Check whether to redirect to logistration or show the logout message for IDP customers. If
+    // the request URL contains the `?logout=true` query parameter, show the logout message and do
+    // not redirect to logistration. This is to avoid the redirect back to the enterprise customer's
+    // IDP which brings the user right back in, disallowing a proper logout.
+    const queryParams = new URLSearchParams(requestUrl.search);
+    if (queryParams.get('logout')) {
+      return null;
+    }
+    let redirectUrl = getLoginRedirectUrl(requestUrl.href);
+    if (enterpriseSlug) {
+      redirectUrl = getProxyLoginUrl(enterpriseSlug, enterpriseCustomerInviteKey);
+    }
+    throw redirect(redirectUrl);
   }
+
+  // User is authenticated so return the authenticated user, but after calling `login_refresh`
+  // to ensure that the user's session is refreshed if it contains 0 roles in the JWT, an unexpected
+  // case given enterprise users should have at least one role.
+  const userRoles = authenticatedUser.roles;
+  if (!userRoles || userRoles.length === 0) {
+    authenticatedUser = await fetchAuthenticatedUser({
+      forceRefresh: true,
+    });
+  }
+
   return authenticatedUser;
 }

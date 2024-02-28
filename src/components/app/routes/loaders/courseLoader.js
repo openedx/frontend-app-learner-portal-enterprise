@@ -12,8 +12,14 @@ import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
  * @returns {Function} - A loader function.
  */
 export default function makeCourseLoader(queryClient) {
-  return async function courseLoader({ params = {} }) {
-    const authenticatedUser = await ensureAuthenticatedUser();
+  return async function courseLoader({ params = {}, request }) {
+    const requestUrl = new URL(request.url);
+    const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
+      return null;
+    }
+
     const { courseKey, enterpriseSlug } = params;
 
     const enterpriseId = await extractEnterpriseId({

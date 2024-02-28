@@ -6,3 +6,4 @@ export { default as useEnterpriseCustomerUserSubsidies } from './useEnterpriseCu
 export { default as useEnterpriseCourseEnrollments } from './useEnterpriseCourseEnrollments';
 export { default as useUserEntitlements } from './useUserEntitlements';
 export { default as useRecommendCoursesForMe } from './useRecommendCoursesForMe';
+export { default as useBrowseAndRequestConfiguration } from './useBrowseAndRequestConfiguration';
