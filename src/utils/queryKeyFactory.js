@@ -16,7 +16,6 @@ import {
   fetchCouponCodeRequests,
 } from '../components/app/routes/data/services';
 
-import { getAvailableCourseRuns } from '../components/course/data/utils';
 import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
 
 export const enterprise = createQueryKeys('enterprise', {
