@@ -1,6 +1,6 @@
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import {
-  makeUserEntitlementsQuery,
+  queryUserEntitlements,
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
@@ -36,7 +36,7 @@ export default function makeCourseLoader(queryClient) {
         );
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
-      queryClient.ensureQueryData(makeUserEntitlementsQuery()),
+      queryClient.ensureQueryData(queryUserEntitlements()),
     ]);
 
     return null;
