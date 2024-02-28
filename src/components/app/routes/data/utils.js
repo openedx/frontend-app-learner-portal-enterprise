@@ -15,6 +15,7 @@ import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
 import { makeEnterpriseLearnerQuery } from '../queries';
+import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
@@ -173,4 +174,47 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
   }
 
   return authenticatedUser;
+}
+
+/**
+ * TODO
+ * @param {Object} enterpriseCustomer
+ * @param {Object} enterpriseFeatures
+ * @returns
+ */
+export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures) {
+  // If the learner portal is not enabled for the displayed enterprise customer, return null. This
+  // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
+  if (!enterpriseCustomer.enableLearnerPortal) {
+    return null;
+  }
+
+  // Otherwise, learner portal is enabled, so transform the enterprise customer data.
+  const disableSearch = !!(
+    !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch
+    && enterpriseCustomer.identityProvider
+  );
+  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.identityProvider);
+  const brandColors = getBrandColorsFromCSSVariables();
+  const defaultPrimaryColor = brandColors.primary;
+  const defaultSecondaryColor = brandColors.info100;
+  const defaultTertiaryColor = brandColors.info500;
+  const {
+    primaryColor,
+    secondaryColor,
+    tertiaryColor,
+  } = enterpriseCustomer?.brandingConfiguration || {};
+
+  return {
+    ...enterpriseCustomer,
+    brandingConfiguration: {
+      ...enterpriseCustomer.brandingConfiguration,
+      primaryColor: primaryColor || defaultPrimaryColor,
+      secondaryColor: secondaryColor || defaultSecondaryColor,
+      tertiaryColor: tertiaryColor || defaultTertiaryColor,
+    },
+    disableSearch,
+    showIntegrationWarning,
+    enterpriseFeatures,
+  };
 }

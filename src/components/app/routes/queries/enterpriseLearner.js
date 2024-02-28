@@ -55,7 +55,7 @@ function determineEnterpriseCustomerUserForDisplay({
  * @param {Object} enterpriseFeatures
  * @returns
  */
-function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures) {
+export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures) {
   // If the learner portal is not enabled for the displayed enterprise customer, return null. This
   // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
   if (!enterpriseCustomer.enableLearnerPortal) {
