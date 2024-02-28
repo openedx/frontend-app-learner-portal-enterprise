@@ -23,7 +23,7 @@ const appState = {
     uuid: 'BearsRUs',
     slug: 'bears-r-us',
     branding: {
-      logo: 'the-logo',
+      logo: 'the-logo.jpg',
     },
     disableSearch: false,
   },
@@ -40,7 +40,7 @@ const SiteHeaderWithContext = ({
   initialAppState = appState,
 }) => (
   <IntlProvider locale="en">
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={initialAppState}>
         <SiteHeader />
       </AppContext.Provider>
@@ -59,7 +59,7 @@ const baseEnterpriseLearner = {
     name: 'BearsRUs',
     slug: 'bears-r-us',
     brandingConfiguration: {
-      logo: 'test-logo',
+      logo: 'test-logo.jpg',
     },
     disableSearch: false,
   },
@@ -78,7 +78,6 @@ describe('<SiteHeader />', () => {
     jest.clearAllMocks();
   });
 
-  useEnterpriseLearner.mockImplementation(() => ({ data: baseEnterpriseLearner }));
 
   test('renders link with logo to dashboard', () => {
     useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
@@ -127,8 +126,8 @@ describe('<SiteHeader />', () => {
       enterpriseCustomer: {
         ...baseEnterpriseLearner.enterpriseCustomer,
         identityProvider: 'a-provider',
-      }
-    }
+      },
+    };
     useEnterpriseLearner.mockReturnValue({ data: idpEnterpriseLearner });
     const appStateWithIDP = {
       ...appState,

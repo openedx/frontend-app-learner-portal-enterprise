@@ -21,9 +21,8 @@ async function fetchSubscriptions(enterpriseUuid) {
   const response = await fetchSubscriptionLicensesForUser(enterpriseUuid);
   // Extracts customer agreement and removes it from the original response object
   const { customerAgreement } = response;
-  delete response.customerAgreement;
   return {
-    subscriptionLicenses: response,
+    subscriptionLicenses: response.results,
     customerAgreement,
   };
 }
