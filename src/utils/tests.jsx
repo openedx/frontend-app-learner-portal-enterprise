@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
 import { QueryCache, QueryClient } from '@tanstack/react-query';
-import { queryCacheOnErrorHandler } from "./common";
+import { queryCacheOnErrorHandler } from './common';
 
 export function renderWithRouter(
   ui,

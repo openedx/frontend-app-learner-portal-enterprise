@@ -67,7 +67,7 @@ const AuthenticatedPageWrapper = ({
   appContextValue = defaultAppContextValue,
 }) => (
   <IntlProvider locale="en">
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={appContextValue}>
         <AuthenticatedPage>
           {children}

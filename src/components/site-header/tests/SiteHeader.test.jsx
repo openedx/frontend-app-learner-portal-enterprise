@@ -78,7 +78,6 @@ describe('<SiteHeader />', () => {
     jest.clearAllMocks();
   });
 
-
   test('renders link with logo to dashboard', () => {
     useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
     renderWithRouter(
