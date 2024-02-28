@@ -8,7 +8,7 @@ import {
   Container,
   Form,
   Stack,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import algoliasearch from 'algoliasearch/lite';
 import { InstantSearch } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';

@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   Badge, Col, Dropdown, Icon, IconButton, OverlayTrigger, Row, Skeleton, Tooltip,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
 import camelCase from 'lodash.camelcase';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { Info, InfoOutline, MoreVert } from '@edx/paragon/icons';
+import { Info, InfoOutline, MoreVert } from '@openedx/paragon/icons';
 
 import dayjs from '../../../../../utils/dayjs';
 import { EmailSettingsModal } from './email-settings';

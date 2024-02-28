@@ -1,4 +1,4 @@
-import { Button } from '@edx/paragon';
+import { Button } from '@openedx/paragon';
 import { useState, useMemo } from 'react';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';

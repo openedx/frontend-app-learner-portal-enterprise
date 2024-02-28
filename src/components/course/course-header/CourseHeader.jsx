@@ -6,7 +6,7 @@ import {
   Row,
   Col,
   Badge,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 

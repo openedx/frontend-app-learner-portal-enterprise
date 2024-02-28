@@ -4,11 +4,11 @@ import React, {
 import {
   Button,
   CardGrid,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
-import { Search } from '@edx/paragon/icons';
+import { Search } from '@openedx/paragon/icons';
 
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';

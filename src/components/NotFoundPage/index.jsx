@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 
 const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
   const { enterpriseConfig } = useContext(AppContext);

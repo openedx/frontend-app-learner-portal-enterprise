@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { NavLink, generatePath, useLocation } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
-import { AvatarButton, Dropdown } from '@edx/paragon';
+import { AvatarButton, Dropdown } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { useEnterpriseLearner } from '../app/data';

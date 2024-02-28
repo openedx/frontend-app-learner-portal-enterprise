@@ -8,8 +8,8 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
   Badge, Card, Icon, Alert, CardGrid, Stack, Truncate,
-} from '@edx/paragon';
-import { Program, ZoomOut } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Program, ZoomOut } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card } from '@edx/paragon';
-import { Lock } from '@edx/paragon/icons';
+import { Card } from '@openedx/paragon';
+import { Lock } from '@openedx/paragon/icons';
 
 import { DISABLED_ENROLL_REASON_TYPES } from '../data/constants';
 

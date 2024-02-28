@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert } from '@edx/paragon';
-import { ZoomOut } from '@edx/paragon/icons';
+import { Alert } from '@openedx/paragon';
+import { ZoomOut } from '@openedx/paragon/icons';
 
 import { PopularResults } from './popular-results';
 import { getNoResultsMessage } from '../utils/search';

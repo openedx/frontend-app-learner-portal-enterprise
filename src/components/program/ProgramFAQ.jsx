@@ -1,6 +1,6 @@
 import { useContext } from 'react';
-import { Collapsible, Icon } from '@edx/paragon';
-import { ExpandLess, ExpandMore } from '@edx/paragon/icons';
+import { Collapsible, Icon } from '@openedx/paragon';
+import { ExpandLess, ExpandMore } from '@openedx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramFAQ = () => {

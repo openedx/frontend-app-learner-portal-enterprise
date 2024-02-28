@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
   Card, Hyperlink, Image,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 

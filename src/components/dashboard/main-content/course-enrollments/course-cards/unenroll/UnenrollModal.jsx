@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   AlertModal, Alert, StatefulButton, Button, ActionRow,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';

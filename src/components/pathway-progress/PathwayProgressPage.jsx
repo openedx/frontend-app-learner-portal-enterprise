@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import {
   Container,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 
 import { LoadingSpinner } from '../loading-spinner';
 import { useLearnerPathwayProgressData } from './data/hooks';

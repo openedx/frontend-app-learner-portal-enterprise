@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Col,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 
 import SiteFooter from '@edx/frontend-component-footer';
 import ErrorPageHeader from './ErrorPageHeader';

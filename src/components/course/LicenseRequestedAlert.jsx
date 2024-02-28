@@ -1,5 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { Container, Alert } from '@edx/paragon';
+import { Container, Alert } from '@openedx/paragon';
 import Cookies from 'universal-cookie';
 import PropTypes from 'prop-types';
 

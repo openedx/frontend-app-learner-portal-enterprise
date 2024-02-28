@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Button, Icon } from '@edx/paragon';
-import { AddCircle, RemoveCircle } from '@edx/paragon/icons';
+import { Button, Icon } from '@openedx/paragon';
+import { AddCircle, RemoveCircle } from '@openedx/paragon/icons';
 
 const PreviewExpand = ({
   className,

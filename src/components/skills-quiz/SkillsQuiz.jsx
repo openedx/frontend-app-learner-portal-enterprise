@@ -4,7 +4,7 @@ import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import { Container, Row } from '@edx/paragon';
+import { Container, Row } from '@openedx/paragon';
 
 import { getConfig } from '@edx/frontend-platform/config';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
