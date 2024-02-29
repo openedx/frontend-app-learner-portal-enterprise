@@ -1,5 +1,5 @@
 import { generatePath, Link } from 'react-router-dom';
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 
 import { useEnterpriseCustomerUserSubsidies, useEnterpriseLearner } from '../data';
 

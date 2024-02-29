@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
-import { Stack } from '@edx/paragon';
+import { Stack } from '@openedx/paragon';
 
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 import { useEnterpriseLearner } from '../app/data';

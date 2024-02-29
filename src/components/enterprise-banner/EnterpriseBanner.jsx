@@ -1,4 +1,4 @@
-import { Container } from '@edx/paragon';
+import { Container } from '@openedx/paragon';
 import { useEnterpriseLearner } from '../app/data';
 
 const EnterpriseBanner = () => {
