@@ -1,10 +1,11 @@
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import {
-  makeCanRedeemQuery,
-  makeCourseMetadataQuery,
-  makeEnterpriseCourseEnrollmentsQuery,
-  makeUserEntitlementsQuery,
+  queryUserEntitlements,
+  queryCanRedeem,
+  queryCourseMetadata,
+  queryEnterpriseCourseEnrollments,
 } from '../queries';
+
 import extractEnterpriseId from './extractEnterpriseId';
 
 /**
@@ -23,7 +24,7 @@ export default function makeCourseLoader(queryClient) {
       enterpriseSlug,
     });
 
-    const contentMetadataQuery = makeCourseMetadataQuery(enterpriseId, courseKey);
+    const contentMetadataQuery = queryCourseMetadata(enterpriseId, courseKey);
 
     await Promise.all([
       queryClient.ensureQueryData(contentMetadataQuery).then((courseMetadata) => {
@@ -31,11 +32,11 @@ export default function makeCourseLoader(queryClient) {
           return null;
         }
         return queryClient.ensureQueryData(
-          makeCanRedeemQuery(enterpriseId, courseMetadata),
+          queryCanRedeem(enterpriseId, courseMetadata),
         );
       }),
-      queryClient.ensureQueryData(makeEnterpriseCourseEnrollmentsQuery(enterpriseId)),
-      queryClient.ensureQueryData(makeUserEntitlementsQuery()),
+      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
+      queryClient.ensureQueryData(queryUserEntitlements()),
     ]);
 
     return null;

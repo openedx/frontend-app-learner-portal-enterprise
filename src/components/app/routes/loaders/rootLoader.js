@@ -3,13 +3,15 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import {
-  makeBrowseAndRequestConfigurationQuery,
-  makeCouponCodesQuery,
-  makeEnterpriseLearnerOffersQuery,
-  makeEnterpriseLearnerQuery,
-  makeRedeemablePoliciesQuery,
-  makeSubscriptionsQuery,
-  makeContentHighlightsConfigurationQuery,
+  queryCouponCodes,
+  queryEnterpriseLearnerOffers,
+  queryEnterpriseLearner,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  queryContentHighlightsConfiguration,
+  querySubsidyRequestConfiguration,
+  queryLicenseRequests,
+  queryCouponCodeRequests,
 } from '../queries';
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
@@ -29,26 +31,32 @@ export function getEnterpriseAppData({
   return [
     // Enterprise Customer User Subsidies
     queryClient.ensureQueryData(
-      makeSubscriptionsQuery(enterpriseCustomer.uuid),
+      querySubscriptions(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      makeRedeemablePoliciesQuery({
+      queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: userId,
       }),
     ),
     queryClient.ensureQueryData(
-      makeCouponCodesQuery(enterpriseCustomer.uuid),
+      queryCouponCodes(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      makeEnterpriseLearnerOffersQuery(enterpriseCustomer.uuid),
+      queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      makeBrowseAndRequestConfigurationQuery(enterpriseCustomer.uuid, userEmail),
+      querySubsidyRequestConfiguration(enterpriseCustomer.uuid),
+    ),
+    queryClient.ensureQueryData(
+      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
+    ),
+    queryClient.ensureQueryData(
+      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
     ),
     // Content Highlights
     queryClient.ensureQueryData(
-      makeContentHighlightsConfigurationQuery(enterpriseCustomer.uuid),
+      queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
   ];
 }
@@ -67,7 +75,7 @@ export default function makeRootLoader(queryClient) {
 
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
-    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
+    const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const { activeEnterpriseCustomer } = enterpriseLearnerData;
 

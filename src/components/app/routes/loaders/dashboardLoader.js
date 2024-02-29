@@ -1,6 +1,6 @@
-import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import extractEnterpriseId from './extractEnterpriseId';
+import { queryEnterpriseCourseEnrollments } from '../queries';
 
 /**
  * TODO
@@ -16,7 +16,7 @@ export default function makeDashboardLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    await queryClient.ensureQueryData(makeEnterpriseCourseEnrollmentsQuery(enterpriseId));
+    await queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId));
     return null;
   };
 }
