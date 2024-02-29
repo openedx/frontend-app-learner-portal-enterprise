@@ -13,6 +13,7 @@ export default class CourseService {
       courseKey,
       courseRunKey,
       enterpriseUuid,
+      isEnrollableBufferDays,
     } = options;
     this.config = getConfig();
 
@@ -25,6 +26,7 @@ export default class CourseService {
     this.courseRunKey = courseRunKey;
     this.enterpriseUuid = enterpriseUuid;
     this.activeCourseRun = activeCourseRun;
+    this.isEnrollableBufferDays = isEnrollableBufferDays;
   }
 
   async fetchAllCourseData() {
@@ -50,7 +52,10 @@ export default class CourseService {
     // Check for the course_run_key URL param and remove all other course run data
     // if the given course run key is for an available course run.
     if (this.courseRunKey) {
-      const availableCourseRuns = getAvailableCourseRuns(courseDetails);
+      const availableCourseRuns = getAvailableCourseRuns({
+        course: courseDetails,
+        isEnrollableBufferDays: this.isEnrollableBufferDays,
+      });
       const availableCourseRunKeys = availableCourseRuns.map(({ key }) => key);
       if (availableCourseRunKeys.includes(this.courseRunKey)) {
         courseDetails.canonicalCourseRunKey = this.courseRunKey;

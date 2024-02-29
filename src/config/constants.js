@@ -18,3 +18,6 @@ export const SUBSCRIPTION_EXPIRED = 0;
 // Prefix for cookies that determine if the user has seen the modal for that range of expiration
 // Using the same cookie name as Admin Portal so an Admin/Learner only sees the notification once
 export const SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX = 'seen-expiration-modal-';
+
+// [ENT-8519] Late enrollments feature
+export const LATE_ENROLLMENTS_BUFFER_DAYS = 60;
