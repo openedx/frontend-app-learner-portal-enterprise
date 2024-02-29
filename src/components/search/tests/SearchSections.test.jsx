@@ -12,7 +12,6 @@ import SearchPathway from '../SearchPathway';
 import Search from '../Search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { useIsAssignmentsOnlyLearner } from '../../app/data';
 
 const APP_CONFIG = {
   ALGOLIA_INDEX_NAME: 'test-index-name',
