@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { getAvailableCourseRuns } from '../../../course/data/utils';
 import { queries } from '../../../../utils/queryKeyFactory';
 

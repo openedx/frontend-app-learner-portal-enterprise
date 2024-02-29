@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { queries } from '../../../../../utils/queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
 

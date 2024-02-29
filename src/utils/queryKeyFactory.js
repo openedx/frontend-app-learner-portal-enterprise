@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
 import {
   fetchCourseMetadata,
