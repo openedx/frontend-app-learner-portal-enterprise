@@ -18,8 +18,8 @@ import {
 export default function useEnterpriseCustomerUserSubsidies() {
   const { authenticatedUser } = useContext(AppContext);
   const { userId, email } = authenticatedUser;
-  const { data } = useEnterpriseLearner();
-  const enterpriseId = data.enterpriseCustomer.uuid;
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const enterpriseId = enterpriseCustomer.uuid;
   const queries = useQueries({
     queries: [
       makeSubscriptionsQuery(enterpriseId),
