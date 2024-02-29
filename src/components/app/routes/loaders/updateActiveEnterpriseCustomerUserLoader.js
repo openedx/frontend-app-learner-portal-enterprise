@@ -36,7 +36,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
         enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
       );
       if (foundEnterpriseCustomerUserForSlug) {
-        updateActiveEnterpriseCustomerUser({
+        await updateActiveEnterpriseCustomerUser({
           queryClient,
           enterpriseCustomerUser: foundEnterpriseCustomerUserForSlug,
           userId,
