@@ -8,7 +8,9 @@ import {
   querySubscriptions,
   queryRedeemablePolicies,
   queryEnterpriseLearnerOffers,
-  queryBrowseAndRequestConfiguration,
+  querySubsidyRequestConfiguration,
+  queryLicenseRequests,
+  queryCouponCodeRequests,
 } from '../../routes/queries';
 /**
  * Retrieves the subsidies present for the active enterprise customer user.
@@ -28,7 +30,9 @@ export default function useEnterpriseCustomerUserSubsidies() {
       }),
       queryCouponCodes(enterpriseId),
       queryEnterpriseLearnerOffers(enterpriseId),
-      queryBrowseAndRequestConfiguration(enterpriseId, email),
+      querySubsidyRequestConfiguration(enterpriseId),
+      queryLicenseRequests(enterpriseId, email),
+      queryCouponCodeRequests(enterpriseId, email),
     ],
   });
   return {
@@ -37,7 +41,11 @@ export default function useEnterpriseCustomerUserSubsidies() {
       redeemablePolicies: queries[1].data,
       couponCodes: queries[2].data,
       enterpriseLearnerOffers: queries[3].data,
-      browseAndRequest: queries[4].data,
+      browseAndRequest: {
+        subsidyRequestConfiguration: queries[4].data,
+        licenseRequests: queries[5].data,
+        couponCodeRequests: queries[6].data,
+      },
     },
   };
 }

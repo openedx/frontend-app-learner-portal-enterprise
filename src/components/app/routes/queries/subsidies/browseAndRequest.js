@@ -21,8 +21,24 @@ export function queryBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
     ._ctx.configuration;
 }
 
-// 'requests' context layer START
-// 'requests' contextQueries START
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.subsidyRequestConfiguration
+ * @returns
+ */
+export function querySubsidyRequestConfiguration(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.subsidyRequestConfiguration;
+}
+
 /**
  * Helper function to assist querying with useQuery package
  * queries

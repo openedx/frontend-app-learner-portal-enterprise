@@ -3,13 +3,15 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import {
-  queryBrowseAndRequestConfiguration,
   queryCouponCodes,
   queryEnterpriseLearnerOffers,
   queryEnterpriseLearner,
   queryRedeemablePolicies,
   querySubscriptions,
   queryContentHighlightsConfiguration,
+  querySubsidyRequestConfiguration,
+  queryLicenseRequests,
+  queryCouponCodeRequests,
 } from '../queries';
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
@@ -44,7 +46,13 @@ export function getEnterpriseAppData({
       queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid, userEmail),
+      querySubsidyRequestConfiguration(enterpriseCustomer.uuid),
+    ),
+    queryClient.ensureQueryData(
+      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
+    ),
+    queryClient.ensureQueryData(
+      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
     ),
     // Content Highlights
     queryClient.ensureQueryData(

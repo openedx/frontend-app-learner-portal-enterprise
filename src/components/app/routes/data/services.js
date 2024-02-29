@@ -194,7 +194,7 @@ export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
  * @param {*} enterpriseUUID
  * @returns
  */
-const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
+export const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
@@ -208,11 +208,11 @@ const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
   }
 };
 
-export async function fetchLicenseRequests({
+export async function fetchLicenseRequests(
   enterpriseUUID,
   userEmail,
   state = SUBSIDY_REQUEST_STATE.REQUESTED,
-}) {
+) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     user__email: userEmail,
@@ -224,11 +224,11 @@ export async function fetchLicenseRequests({
   return camelCaseObject(response.data);
 }
 
-export async function fetchCouponCodeRequests({
+export async function fetchCouponCodeRequests(
   enterpriseUUID,
   userEmail,
   state = SUBSIDY_REQUEST_STATE.REQUESTED,
-}) {
+) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     user__email: userEmail,
