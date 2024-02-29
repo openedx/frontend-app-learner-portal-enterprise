@@ -7,3 +7,4 @@ export { default as useEnterpriseCourseEnrollments } from './useEnterpriseCourse
 export { default as useUserEntitlements } from './useUserEntitlements';
 export { default as useRecommendCoursesForMe } from './useRecommendCoursesForMe';
 export { default as useBrowseAndRequestConfiguration } from './useBrowseAndRequestConfiguration';
+export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLearner';

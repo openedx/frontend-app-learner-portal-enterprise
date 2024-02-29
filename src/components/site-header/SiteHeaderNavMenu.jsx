@@ -1,7 +1,6 @@
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { NavLink } from 'react-router-dom';
-import { useEnterpriseLearner } from '../app/data';
-import useIsAssignmentsOnlyLearner from '../app/data/hooks/useIsAssignmentsOnlyLearner';
+import { useEnterpriseLearner, useIsAssignmentsOnlyLearner } from '../app/data';
 
 const SiteHeaderNavMenu = () => {
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@openedx/paragon';
 import userEvent from '@testing-library/user-event';
@@ -7,14 +7,14 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { MemoryRouter } from 'react-router-dom';
 import SiteHeader from '../SiteHeader';
 
-import { renderWithRouter, queryClient } from '../../../utils/tests';
+import { renderWithRouter, queryClient, renderWithRouterProvider } from '../../../utils/tests';
 import { useEnterpriseLearner } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
   useEnterpriseLearner: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn(),
 }));
 
 const appState = {
@@ -146,22 +146,26 @@ describe('<SiteHeader />', () => {
     expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us%3Flogout=true');
   });
 
-  test.each([{
-    route: '/slug/executive-education-2u/course/id',
-  }, {
-    route: '/slug/course/id',
-  }])('renders getSmarter logo when on /executive-education-2u path', ({
+  test.each([
+    {
+      route: '/slug/course/id',
+      path: '/:enterpriseSlug/course/:courseKey',
+    },
+    {
+      route: '/slug/executive-education-2u/course/id',
+      path: '/:enterpriseSlug/:courseType/course/:courseKey',
+    },
+  ])('renders getSmarter logo only when on /executive-education-2u path', ({
     route,
   }) => {
     useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
-    render(
-      <MemoryRouter initialEntries={[route]}>
-        <SiteHeaderWithContext initialAppState={appState} />,
-      </MemoryRouter>,
-    );
-
+    renderWithRouterProvider({
+      element: <SiteHeaderWithContext initialAppState={appState} />,
+      path: '/:enterpriseSlug/:courseType?/course/:courseKey',
+    }, {
+      initialEntries: [route],
+    });
     const getSmarterLogo = screen.queryByTestId('partner-header-logo-image-id');
-
     if (route.includes('executive-education-2u')) {
       expect(getSmarterLogo).toBeInTheDocument();
     } else {

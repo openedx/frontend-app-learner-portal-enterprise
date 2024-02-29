@@ -39,7 +39,7 @@ import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
-import useIsAssignmentsOnlyLearner from '../app/data/hooks/useIsAssignmentsOnlyLearner';
+import { useIsAssignmentsOnlyLearner } from '../app/data';
 
 const Search = () => {
   const config = getConfig();

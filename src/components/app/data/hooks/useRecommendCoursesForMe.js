@@ -1,4 +1,4 @@
-import { useMatch, useLocation } from 'react-router-dom';
+import { useMatch } from 'react-router-dom';
 
 import useContentHighlightsConfiguration from './useContentHighlightsConfiguration';
 import useIsAssignmentsOnlyLearner from './useIsAssignmentsOnlyLearner';
@@ -8,8 +8,7 @@ import useIsAssignmentsOnlyLearner from './useIsAssignmentsOnlyLearner';
  * @returns {Object} An object containing the current value of `shouldRecommendCourses` and functions to update it.
  */
 export default function useRecommendCoursesForMe() {
-  const { pathname } = useLocation();
-  const isSearchPage = useMatch('/:enterpriseSlug/search/*', pathname);
+  const isSearchPage = useMatch('/:enterpriseSlug/search/*');
   const { data: contentHighlightsConfiguration } = useContentHighlightsConfiguration();
   const canOnlyViewHighlightSets = !!contentHighlightsConfiguration?.canOnlyViewHighlightSets;
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();

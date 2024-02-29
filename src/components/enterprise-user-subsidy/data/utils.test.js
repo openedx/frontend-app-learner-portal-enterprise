@@ -6,15 +6,15 @@ describe('transformRedeemablePoliciesData', () => {
   test('transforms policies data by attaching subsidy expiration date to assignments', () => {
     const mockPolicies = [
       {
-        subsidy_expiration_date: '2024-03-15T18:48:26Z',
-        learner_content_assignments: [
+        subsidyExpirationDate: '2024-03-15T18:48:26Z',
+        learnerContentAssignments: [
           { assignmentId: 1 },
           { assignmentId: 2 },
         ],
       },
       {
-        subsidy_expiration_date: '2023-12-31T23:59:59Z',
-        learner_content_assignments: [
+        subsidyExpirationDate: '2023-12-31T23:59:59Z',
+        learnerContentAssignments: [
           { assignmentId: 3 },
         ],
       },
@@ -22,16 +22,16 @@ describe('transformRedeemablePoliciesData', () => {
 
     const expectedTransformedData = [
       {
-        subsidy_expiration_date: '2024-03-15T18:48:26Z',
-        learner_content_assignments: [
-          { assignmentId: 1, subsidy_expiration_date: '2024-03-15T18:48:26Z' },
-          { assignmentId: 2, subsidy_expiration_date: '2024-03-15T18:48:26Z' },
+        subsidyExpirationDate: '2024-03-15T18:48:26Z',
+        learnerContentAssignments: [
+          { assignmentId: 1, subsidyExpirationDate: '2024-03-15T18:48:26Z' },
+          { assignmentId: 2, subsidyExpirationDate: '2024-03-15T18:48:26Z' },
         ],
       },
       {
-        subsidy_expiration_date: '2023-12-31T23:59:59Z',
-        learner_content_assignments: [
-          { assignmentId: 3, subsidy_expiration_date: '2023-12-31T23:59:59Z' },
+        subsidyExpirationDate: '2023-12-31T23:59:59Z',
+        learnerContentAssignments: [
+          { assignmentId: 3, subsidyExpirationDate: '2023-12-31T23:59:59Z' },
         ],
       },
     ];
