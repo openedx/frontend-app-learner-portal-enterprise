@@ -17,7 +17,6 @@ const initialPathname = `/${TEST_ENTERPRISE_SLUG}`;
 jest.mock('react-router-dom', () => {
   const mockNavigation = jest.fn();
 
-  // eslint-disable-next-line react/prop-types
   const Navigate = ({ to, state }) => {
     mockNavigation(to, state);
     return <div />;
@@ -46,7 +45,7 @@ const AutoActivateLicenseWrapper = ({ subscriptionLicense }) => (
 );
 
 describe('<AutoActivationLicense />', () => {
-  afterEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.clearAllMocks());
 
   it('does not render when no license exists', () => {
     const { history } = renderWithRouter(<AutoActivateLicenseWrapper subscriptionLicense={null} />, {
@@ -59,6 +58,14 @@ describe('<AutoActivationLicense />', () => {
     ['activated', 'revoked'],
   )('does not render when license status is %s', (status) => {
     const subscriptionLicense = { status };
+    const { history } = renderWithRouter(<AutoActivateLicenseWrapper subscriptionLicense={subscriptionLicense} />, {
+      route: initialPathname,
+    });
+    expect(history.location.pathname).toEqual(initialPathname);
+  });
+
+  test('does not render when user is on the license activation page', () => {
+    const subscriptionLicense = { status: 'assigned', activationKey: 'test-uuid' };
     const { history } = renderWithRouter(<AutoActivateLicenseWrapper subscriptionLicense={subscriptionLicense} />, {
       route: initialPathname,
     });
