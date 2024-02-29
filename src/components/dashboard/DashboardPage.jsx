@@ -49,7 +49,7 @@ const DashboardPage = () => {
   const PAGE_TITLE = intl.formatMessage(
     {
       id: 'enterprise.dashboard.page.title',
-      defaultMessage: 'Dashboard - {enterpriseName}!',
+      defaultMessage: 'Dashboard - {enterpriseName}',
       description: 'Page title for an enterprise dashboard.',
     },
     {
@@ -87,7 +87,7 @@ const DashboardPage = () => {
           onSelect={onSelectHandler}
           onMouseOverCapture={prefetchTab}
         >
-          {tabs}
+          {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
         </Tabs>
         {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
         {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
