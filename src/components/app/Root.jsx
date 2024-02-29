@@ -2,7 +2,7 @@ import {
   Outlet, ScrollRestoration, useFetchers, useNavigation, useParams,
 } from 'react-router-dom';
 import { Suspense, useContext, useEffect } from 'react';
-import NProgress from 'nprogress';
+import NProgress from 'accessible-nprogress';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { getLoginRedirectUrl } from '@edx/frontend-platform/auth';
@@ -55,7 +55,7 @@ const Root = () => {
     );
   }
 
-  // User is authenticated, so render the app.
+  // User is authenticated, so render the child routes (rest of the app).
   return (
     <NoticesProvider>
       <ToastsProvider>
