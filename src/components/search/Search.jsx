@@ -51,13 +51,8 @@ const Search = () => {
   const {
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes: {
-      couponCodes,
-      // TODO: can we nix this in favor of couponCodes.length?
-      // couponCodesCount,
-    },
+    couponCodes: { couponCodes },
     enterpriseOffers,
-    // hasCurrentEnterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
@@ -65,7 +60,6 @@ const Search = () => {
   } = useContext(UserSubsidyContext);
   const {
     catalogsForSubsidyRequests,
-    // requestsBySubsidyType,
   } = useContext(SubsidyRequestsContext);
   const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
@@ -86,9 +80,6 @@ const Search = () => {
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
   );
-
-  // const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  // const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
 
   // Flag to toggle highlights visibility
   const enterpriseUUID = enterpriseConfig.uuid;
