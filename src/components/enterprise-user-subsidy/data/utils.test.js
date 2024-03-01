@@ -1,6 +1,8 @@
 import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../enterprise-offers/data/constants';
-import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from './constants';
+import { LICENSE_STATUS } from './constants';
 import { determineLearnerHasContentAssignmentsOnly, transformRedeemablePoliciesData } from './utils';
+
+import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
 
 describe('transformRedeemablePoliciesData', () => {
   test('transforms policies data by attaching subsidy expiration date to assignments', () => {
