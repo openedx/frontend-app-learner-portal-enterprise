@@ -10,7 +10,6 @@ import { useEnterpriseCuration } from '../search/content-highlights/data';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 import useDashboardTabs from './data/useDashboardTabs';
 
 const DashboardPage = () => {
@@ -81,7 +80,6 @@ const DashboardPage = () => {
               })
           }
         </h2>
-        <EnterpriseLearnerFirstVisitRedirect />
         <Tabs
           activeKey={activeTab}
           onSelect={onSelectHandler}

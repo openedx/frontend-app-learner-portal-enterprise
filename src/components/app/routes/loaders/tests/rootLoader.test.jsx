@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { when } from 'jest-when';
+import { useLocation } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
@@ -15,6 +17,7 @@ import {
   queryEnterpriseLearnerOffers,
   queryLicenseRequests,
   queryRedeemablePolicies,
+  querySubscriptions,
 } from '../../data';
 
 jest.mock('../../data', () => ({
@@ -101,30 +104,40 @@ describe('rootLoader', () => {
       }),
     ).mockResolvedValue(mockRedeemablePolicies);
 
+    let locationPathname;
+    const ComponentWithLocation = () => {
+      const { pathname } = useLocation();
+      useEffect(() => {
+        locationPathname = pathname;
+      }, [pathname]);
+      return null;
+    };
+
     renderWithRouterProvider({
       path: '/:enterpriseSlug/*',
-      element: <div>hello world</div>,
+      element: <ComponentWithLocation />,
       loader: makeRootLoader(mockQueryClient),
     }, {
       routes: [
         {
-          route: '/:enterpriseSlug/search',
-          element: <div>search page</div>,
+          path: '/:enterpriseSlug/search',
+          element: <ComponentWithLocation />,
         },
       ],
-      initialEntries: [`/${mockEnterpriseSlug}`, `/${mockEnterpriseSlug}/search`],
+      initialEntries: [`/${mockEnterpriseSlug}`],
     });
 
     await waitFor(() => {
-      // Assert that the expected number of queries were made.
-      if (shouldRedirectToSearch) {
-        // There are 7 queries, and with the redirect to the search route, each `ensureQueryData` will be called twice.
-        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(18);
-      } else {
-        // There are 7 queries and no redirect to search page route.
-        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
-      }
+      // There are 9 queries.
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
     });
+
+    // Assert that the expected number of queries were made.
+    if (shouldRedirectToSearch) {
+      expect(locationPathname).toEqual(`/${mockEnterpriseSlug}/search`);
+    } else {
+      expect(locationPathname).toEqual(`/${mockEnterpriseSlug}`);
+    }
 
     // Enterprise learner query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
@@ -138,6 +151,15 @@ describe('rootLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: redeemablePoliciesQuery.queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
+
+    // Subscriptions query
+    const subscriptionsQuery = querySubscriptions(mockEnterpriseId);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: subscriptionsQuery.queryKey,
         queryFn: expect.any(Function),
       }),
     );
