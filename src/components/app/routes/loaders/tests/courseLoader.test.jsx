@@ -6,10 +6,10 @@ import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeCourseLoader from '../courseLoader';
 import { extractEnterpriseId } from '../../data';
 import {
-  makeCanRedeemQuery,
-  makeCourseMetadataQuery,
-  makeEnterpriseCourseEnrollmentsQuery,
-  makeUserEntitlementsQuery,
+  queryCanRedeem,
+  queryCourseMetadata,
+  queryEnterpriseCourseEnrollments,
+  queryUserEntitlements,
 } from '../../queries';
 
 jest.mock('../../data', () => ({
@@ -47,7 +47,7 @@ describe('courseLoader', () => {
     // When `ensureQueryData` is called with the course metadata
     // query, ensure its mock return value is the course metadata
     // for the dependent course redemption eligibility query.
-    const courseMetadataQuery = makeCourseMetadataQuery(mockEnterpriseId, 'edX+DemoX');
+    const courseMetadataQuery = queryCourseMetadata(mockEnterpriseId, 'edX+DemoX');
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: courseMetadataQuery.queryKey,
@@ -71,7 +71,7 @@ describe('courseLoader', () => {
     // Course metadata query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: makeCourseMetadataQuery(mockEnterpriseId, mockCourseMetadata.key).queryKey,
+        queryKey: queryCourseMetadata(mockEnterpriseId, mockCourseMetadata.key).queryKey,
         queryFn: expect.any(Function),
         enabled: true,
       }),
@@ -81,7 +81,7 @@ describe('courseLoader', () => {
     if (hasCourseMetadata) {
       expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: makeCanRedeemQuery(mockEnterpriseId, mockCourseMetadata).queryKey,
+          queryKey: queryCanRedeem(mockEnterpriseId, mockCourseMetadata).queryKey,
           queryFn: expect.any(Function),
           enabled: true,
         }),
@@ -89,7 +89,7 @@ describe('courseLoader', () => {
     } else {
       expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: makeCanRedeemQuery(mockEnterpriseId, mockCourseMetadata).queryKey,
+          queryKey: queryCanRedeem(mockEnterpriseId, mockCourseMetadata).queryKey,
           queryFn: expect.any(Function),
           enabled: true,
         }),
@@ -99,7 +99,7 @@ describe('courseLoader', () => {
     // Course enrollments query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: makeEnterpriseCourseEnrollmentsQuery(mockEnterpriseId).queryKey,
+        queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
         enabled: true,
       }),
@@ -108,7 +108,7 @@ describe('courseLoader', () => {
     // User entitlements query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: makeUserEntitlementsQuery().queryKey,
+        queryKey: queryUserEntitlements().queryKey,
         queryFn: expect.any(Function),
       }),
     );

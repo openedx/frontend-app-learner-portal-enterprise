@@ -6,12 +6,11 @@ import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeRootLoader from '../rootLoader';
 import { ensureAuthenticatedUser, extractEnterpriseId } from '../../data';
 import {
-  makeBrowseAndRequestConfigurationQuery,
-  makeContentHighlightsConfigurationQuery,
-  makeCouponCodesQuery,
-  makeEnterpriseLearnerOffersQuery,
-  makeEnterpriseLearnerQuery,
-  makeRedeemablePoliciesQuery,
+  queryBrowseAndRequestConfiguration,
+  queryContentHighlightsConfiguration,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryEnterpriseLearner, queryEnterpriseLearnerOffers, queryLicenseRequests, queryRedeemablePolicies,
 } from '../../queries';
 
 jest.mock('../../data', () => ({
@@ -43,7 +42,7 @@ describe('rootLoader', () => {
   });
 
   it('ensures only the enterprise-learner query is called if there is no active enterprise customer user', async () => {
-    const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
@@ -68,7 +67,7 @@ describe('rootLoader', () => {
     { shouldRedirectToSearch: false },
     { shouldRedirectToSearch: true },
   ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({ shouldRedirectToSearch }) => {
-    const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
     // Mock the enterprise-learner query to return an active enterprise customer user.
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
@@ -88,7 +87,7 @@ describe('rootLoader', () => {
         hasAssignmentsForDisplay: !shouldRedirectToSearch,
       },
     };
-    const redeemablePoliciesQuery = makeRedeemablePoliciesQuery({
+    const redeemablePoliciesQuery = queryRedeemablePolicies({
       enterpriseUuid: mockEnterpriseId,
       lmsUserId: 3,
     });
@@ -141,7 +140,7 @@ describe('rootLoader', () => {
     );
 
     // Coupon codes query
-    const couponCodesQuery = makeCouponCodesQuery(mockEnterpriseId);
+    const couponCodesQuery = queryCouponCodes(mockEnterpriseId);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: couponCodesQuery.queryKey,
@@ -151,7 +150,7 @@ describe('rootLoader', () => {
     );
 
     // Enterprise offers query
-    const enterpriseOffersQuery = makeEnterpriseLearnerOffersQuery(mockEnterpriseId);
+    const enterpriseOffersQuery = queryEnterpriseLearnerOffers(mockEnterpriseId);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: enterpriseOffersQuery.queryKey,
@@ -161,7 +160,7 @@ describe('rootLoader', () => {
     );
 
     // Browse and Request configuration query
-    const browseAndRequestConfigQuery = makeBrowseAndRequestConfigurationQuery(mockEnterpriseId, mockUserEmail);
+    const browseAndRequestConfigQuery = queryBrowseAndRequestConfiguration(mockEnterpriseId, mockUserEmail);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: browseAndRequestConfigQuery.queryKey,
@@ -170,8 +169,28 @@ describe('rootLoader', () => {
       }),
     );
 
+    // Browse and Request license requests query
+    const licenseRequestsQuery = queryLicenseRequests(mockEnterpriseId, mockUserEmail);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: licenseRequestsQuery.queryKey,
+        queryFn: expect.any(Function),
+        enabled: true,
+      }),
+    );
+
+    // Browse and Request coupon codes requests query
+    const couponCodeRequestsQuery = queryCouponCodeRequests(mockEnterpriseId, mockUserEmail);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: couponCodeRequestsQuery.queryKey,
+        queryFn: expect.any(Function),
+        enabled: true,
+      }),
+    );
+
     // Content Highlights configuration query
-    const contentHighlightsConfigQuery = makeContentHighlightsConfigurationQuery(mockEnterpriseId);
+    const contentHighlightsConfigQuery = queryContentHighlightsConfiguration(mockEnterpriseId);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: contentHighlightsConfigQuery.queryKey,
