@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeDashboardLoader from '../dashboardLoader';
 import { extractEnterpriseId } from '../../data';
-import { makeEnterpriseCourseEnrollmentsQuery } from '../../queries';
+import { queryEnterpriseCourseEnrollments } from '../../queries';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -40,7 +40,7 @@ describe('dashboardLoader', () => {
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: makeEnterpriseCourseEnrollmentsQuery(mockEnterpriseId).queryKey,
+        queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
         enabled: true,
       }),

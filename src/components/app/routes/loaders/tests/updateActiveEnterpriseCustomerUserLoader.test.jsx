@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeUpdateActiveEnterpriseCustomerUserLoader from '../updateActiveEnterpriseCustomerUserLoader';
 import { ensureAuthenticatedUser, extractEnterpriseId, updateActiveEnterpriseCustomerUser } from '../../data';
-import { makeEnterpriseLearnerQuery } from '../../queries';
+import { queryEnterpriseLearner } from '../../queries';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -37,7 +37,7 @@ describe('updateActiveEnterpriseCustomerUserLoader', () => {
   });
 
   it('ensures only the enterprise-learner query is called if there is no active enterprise customer user', async () => {
-    const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
@@ -59,7 +59,7 @@ describe('updateActiveEnterpriseCustomerUserLoader', () => {
   });
 
   it('ensures only the enterprise-learner query is called when there active enterprise customer user matches the current enterprise slug', async () => {
-    const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
     when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
@@ -85,7 +85,7 @@ describe('updateActiveEnterpriseCustomerUserLoader', () => {
   });
 
   it('updates the active enterprise customer user when the enterprise slug does not match the active enterprise customer and the user is linked', async () => {
-    const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
     const activeEnterpriseCustomer = {
       slug: 'other-enterprise-slug',
     };
@@ -125,7 +125,7 @@ describe('updateActiveEnterpriseCustomerUserLoader', () => {
   });
 
   it('updates the active enterprise customer user when the enterprise slug does not match the active enterprise customer and the user is NOT linked', async () => {
-    const enterpriseLearnerQuery = makeEnterpriseLearnerQuery(mockUsername, mockEnterpriseSlug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
     const activeEnterpriseCustomer = {
       slug: 'other-enterprise-slug',
     };
