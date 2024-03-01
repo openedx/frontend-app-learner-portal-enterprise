@@ -23,11 +23,12 @@ import DashboardPage from '../DashboardPage';
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
-import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
+import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
