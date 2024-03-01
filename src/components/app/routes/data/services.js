@@ -194,7 +194,7 @@ export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
  * @param {*} enterpriseUUID
  * @returns
  */
-export const fetchSubsidyRequestConfiguration = async (enterpriseUUID) => {
+export const fetchBrowseAndRequestConfiguration = async (enterpriseUUID) => {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
@@ -238,31 +238,6 @@ export async function fetchCouponCodeRequests(
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
-}
-
-/**
- * TODO
- * @param {*} param0
- * @returns
- */
-export async function fetchBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
-  const results = await Promise.all([
-    fetchSubsidyRequestConfiguration(enterpriseUuid),
-    fetchCouponCodeRequests({
-      enterpriseUUID: enterpriseUuid,
-      userEmail,
-    }),
-    fetchLicenseRequests({
-      enterpriseUUID: enterpriseUuid,
-      userEmail,
-    }),
-  ]);
-
-  return {
-    subsidyRequestConfiguration: results[0],
-    couponCodeRequests: results[1],
-    licenseRequests: results[2],
-  };
 }
 
 // Coupon Codes
@@ -365,4 +340,19 @@ export async function fetchSubscriptions(enterpriseUuid) {
     subscriptionLicenses: response.results,
     customerAgreement,
   };
+}
+
+/**
+ * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
+ * request, updating the active enterprise customer for the learner.
+ * @param {Object} params - The parameters object.
+ * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
+ * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
+ */
+export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
+  const formData = new FormData();
+  formData.append('enterprise', enterpriseCustomer.uuid);
+  return getAuthenticatedHttpClient().post(url, formData);
 }

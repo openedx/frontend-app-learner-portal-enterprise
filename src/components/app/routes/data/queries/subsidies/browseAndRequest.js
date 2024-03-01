@@ -1,5 +1,5 @@
-import { queries } from '../../../../../utils/queryKeyFactory';
-import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
+import { queries } from '../../../../../../utils/queryKeyFactory';
+import { SUBSIDY_REQUEST_STATE } from '../../../../../enterprise-subsidy-requests';
 
 /**
  * Helper function to assist querying with useQuery package
@@ -11,31 +11,13 @@ import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
  * ._ctx.configuration
  * @returns
  */
-export function queryBrowseAndRequestConfiguration(enterpriseUuid, userEmail) {
+export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
-    ._ctx.browseAndRequest(userEmail)
+    ._ctx.browseAndRequest
     ._ctx.configuration;
-}
-
-/**
- * Helper function to assist querying with useQuery package
- * queries
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.subsidyRequestConfiguration
- * @returns
- */
-export function querySubsidyRequestConfiguration(enterpriseUuid) {
-  return queries
-    .enterprise
-    .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.subsidyRequestConfiguration;
 }
 
 /**
@@ -54,8 +36,8 @@ export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
-    ._ctx.browseAndRequest(userEmail)
-    ._ctx.requests(state)
+    ._ctx.browseAndRequest
+    ._ctx.requests(userEmail, state)
     ._ctx.licenseRequests;
 }
 
@@ -75,7 +57,7 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
-    ._ctx.browseAndRequest(userEmail)
-    ._ctx.requests(state)
+    ._ctx.browseAndRequest
+    ._ctx.requests(userEmail, state)
     ._ctx.couponCodeRequests;
 }

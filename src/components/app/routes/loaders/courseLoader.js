@@ -1,17 +1,15 @@
-import ensureAuthenticatedUser from './ensureAuthenticatedUser';
 import {
   queryUserEntitlements,
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
-} from '../queries';
-
-import extractEnterpriseId from './extractEnterpriseId';
+} from '../data/queries';
+import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
 
 /**
- * TODO
- * @param {*} queryClient
- * @returns
+ * Course loader for the course related page routes.
+ * @param {Object} queryClient - The query client.
+ * @returns {Function} - A loader function.
  */
 export default function makeCourseLoader(queryClient) {
   return async function courseLoader({ params = {} }) {
@@ -27,6 +25,9 @@ export default function makeCourseLoader(queryClient) {
     const contentMetadataQuery = queryCourseMetadata(enterpriseId, courseKey);
 
     await Promise.all([
+      // Fetch course metadata, and then check if the user can redeem the course.
+      // TODO: This should be refactored such that `can-redeem` can be called independently
+      // of `course-metadata` to avoid an unnecessary request waterfall.
       queryClient.ensureQueryData(contentMetadataQuery).then((courseMetadata) => {
         if (!courseMetadata) {
           return null;

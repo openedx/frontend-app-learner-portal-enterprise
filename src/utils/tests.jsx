@@ -1,11 +1,34 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import React, { isValidElement } from 'react';
+import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { queryCacheOnErrorHandler } from './common';
+
+/**
+ * TODO
+ * @param {*} children
+ * @param {*} routes
+ * @returns
+ */
+export function renderWithRouterProvider(
+  children,
+  {
+    routes = [],
+    initialEntries,
+  },
+) {
+  const options = isValidElement(children)
+    ? { element: children, path: '/' }
+    : children;
+  const router = createMemoryRouter([{ ...options }, ...routes], {
+    initialEntries: ['/', ...(initialEntries ?? [options.path])],
+    initialIndex: 1,
+  });
+  return render(<RouterProvider router={router} />);
+}
 
 export function renderWithRouter(
   ui,

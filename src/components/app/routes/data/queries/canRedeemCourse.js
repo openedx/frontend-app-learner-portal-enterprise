@@ -1,5 +1,5 @@
-import { getAvailableCourseRuns } from '../../../course/data/utils';
-import { queries } from '../../../../utils/queryKeyFactory';
+import { getAvailableCourseRuns } from '../../../../course/data/utils';
+import { queries } from '../../../../../utils/queryKeyFactory';
 
 /**
  * Helper function to assist querying with useQuery package

@@ -2,7 +2,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { queryEnterpriseLearner } from '../../routes/queries';
+import { queryEnterpriseLearner } from '../../routes/data/queries';
 
 /**
  * Retrieves the enterprise learner data for the authenticated user.

@@ -1,70 +1,14 @@
-import { getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-
-import ensureAuthenticatedUser from './ensureAuthenticatedUser';
+import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../data/queries';
 import {
-  queryCouponCodes,
-  queryEnterpriseLearnerOffers,
-  queryEnterpriseLearner,
-  queryRedeemablePolicies,
-  querySubscriptions,
-  queryContentHighlightsConfiguration,
-  querySubsidyRequestConfiguration,
-  queryLicenseRequests,
-  queryCouponCodeRequests,
-} from '../queries';
-
-export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
-  const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
-  const formData = new FormData();
-  formData.append('enterprise', enterpriseCustomer.uuid);
-  return getAuthenticatedHttpClient().post(url, formData);
-};
-
-export function getEnterpriseAppData({
-  enterpriseCustomer,
-  userId,
-  userEmail,
-  queryClient,
-}) {
-  return [
-    // Enterprise Customer User Subsidies
-    queryClient.ensureQueryData(
-      querySubscriptions(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      queryRedeemablePolicies({
-        enterpriseUuid: enterpriseCustomer.uuid,
-        lmsUserId: userId,
-      }),
-    ),
-    queryClient.ensureQueryData(
-      queryCouponCodes(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      querySubsidyRequestConfiguration(enterpriseCustomer.uuid),
-    ),
-    queryClient.ensureQueryData(
-      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
-    ),
-    queryClient.ensureQueryData(
-      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
-    ),
-    // Content Highlights
-    queryClient.ensureQueryData(
-      queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
-    ),
-  ];
-}
+  ensureAuthenticatedUser,
+  redirectToRemoveTrailingSlash,
+  redirectToSearchPageForNewUser,
+} from '../data';
 
 /**
- * TODO
- * @param {*} queryClient
- * @returns
+ * Root loader for the enterprise learner portal.
+ * @param {Object} queryClient - The query client.
+ * @returns A loader function.
  */
 export default function makeRootLoader(queryClient) {
   return async function rootLoader({ params = {}, request }) {
@@ -84,12 +28,24 @@ export default function makeRootLoader(queryClient) {
       return null;
     }
 
-    await Promise.all(getEnterpriseAppData({
+    // Begin fetching all enterprise app data.
+    const enterpriseAppData = await Promise.all(ensureEnterpriseAppData({
       enterpriseCustomer: activeEnterpriseCustomer,
       userId,
       userEmail,
       queryClient,
     }));
+
+    // Redirect user to search page, for first-time users with no assignments.
+    redirectToSearchPageForNewUser({
+      enterpriseSlug,
+      enterpriseAppData,
+      requestUrl,
+    });
+
+    // Redirect to the same URL without a trailing slash, if applicable.
+    redirectToRemoveTrailingSlash(requestUrl);
+
     return null;
   };
 }

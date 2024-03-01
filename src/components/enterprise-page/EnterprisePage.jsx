@@ -14,7 +14,7 @@ import {
   isDefinedAndNull,
 } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
-import { useUpdateActiveEnterpriseForUser, useEnterpriseCustomerConfig } from './data/hooks';
+import { useEnterpriseCustomerConfig } from './data/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
 
 const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
@@ -30,11 +30,6 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
       pushUserCustomerAttributes(enterpriseConfig);
     }
   }, [enterpriseConfig]);
-
-  const { isLoading: isUpdatingActiveEnterprise } = useUpdateActiveEnterpriseForUser({
-    enterpriseId: enterpriseConfig?.uuid,
-    user: authenticatedUser,
-  });
 
   const contextValue = useMemo(() => ({
     authenticatedUser,
@@ -54,7 +49,7 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   }), [config, enterpriseConfig, searchClient, searchIndex, authenticatedUser]);
 
   // Render the app as loading while waiting on the configuration or additional user metadata
-  if (!isDefined([enterpriseConfig, profileImage]) || isUpdatingActiveEnterprise) {
+  if (!isDefined([enterpriseConfig, profileImage])) {
     return (
       <Container className="py-5">
         <LoadingSpinner screenReaderText="loading organization and user details" />

@@ -13,7 +13,6 @@ import {
   fetchEnterpriseOffers,
   fetchEnterpriseCuration,
   fetchCouponCodeRequests,
-  fetchSubsidyRequestConfiguration,
 } from '../components/app/routes/data/services';
 
 import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
@@ -51,19 +50,15 @@ export const enterprise = createQueryKeys('enterprise', {
       subsidies: {
         queryKey: null,
         contextQueries: {
-          subsidyRequestConfiguration: {
+          browseAndRequest: {
             queryKey: null,
-            queryFn: async ({ queryKey }) => fetchSubsidyRequestConfiguration(queryKey[2]),
-          },
-          browseAndRequest: (userEmail) => ({
-            queryKey: [userEmail],
             contextQueries: {
               configuration: {
                 queryKey: null,
-                queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2], queryKey[4]),
+                queryFn: async ({ queryKey }) => fetchBrowseAndRequestConfiguration(queryKey[2]),
               },
-              requests: (state = SUBSIDY_REQUEST_STATE.REQUESTED) => ({
-                queryKey: [state],
+              requests: (userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) => ({
+                queryKey: [userEmail, state],
                 contextQueries: {
                   licenseRequests: {
                     queryKey: null,
@@ -76,7 +71,7 @@ export const enterprise = createQueryKeys('enterprise', {
                 },
               }),
             },
-          }),
+          },
           couponCodes: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchCouponCodes(queryKey[2]),
