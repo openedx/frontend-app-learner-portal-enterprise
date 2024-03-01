@@ -1,4 +1,4 @@
-import { ensureEnterpriseAppData, makeEnterpriseLearnerQuery } from '../queries';
+import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../queries';
 import {
   ensureAuthenticatedUser,
   redirectToRemoveTrailingSlash,
@@ -19,7 +19,7 @@ export default function makeRootLoader(queryClient) {
 
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
-    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
+    const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const { activeEnterpriseCustomer } = enterpriseLearnerData;
 

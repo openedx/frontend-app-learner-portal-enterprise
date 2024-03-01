@@ -35,8 +35,7 @@ const LicenseActivation = () => {
   }, [activateUserLicense, fromLocation]);
 
   if (activationSuccess) {
-    const redirectToPath = location.state?.from ?? `/${enterpriseConfig.slug}`;
-
+    const redirectToPath = fromLocation ?? `/${enterpriseConfig.slug}`;
     return (
       <Navigate
         to={redirectToPath}

@@ -9,13 +9,13 @@ import { ensureEnterpriseAppData } from '../queries';
  * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
  * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
  */
-export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
+export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
   const config = getConfig();
   const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
   const formData = new FormData();
   formData.append('enterprise', enterpriseCustomer.uuid);
   return getAuthenticatedHttpClient().post(url, formData);
-};
+}
 
 /**
  * Updates the active enterprise customer for the learner.
