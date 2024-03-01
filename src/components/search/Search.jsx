@@ -42,6 +42,14 @@ import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
 import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 
+export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
+  if (isPreQueryEnabled) {
+    pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKeyMetadata });
+  } else {
+    pushEvent(EVENTS.SEARCH_SUGGESTION_CLICK, { courseKeyMetadata });
+  }
+};
+
 const Search = () => {
   const config = getConfig();
   const { pathwayUUID } = useParams();
@@ -154,12 +162,17 @@ const Search = () => {
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
   const { content_type: contentType } = refinements;
-  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
+  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0
+    && (contentType !== undefined ? contentType.length > 0 : true);
 
-  const optimizelyPrequerySuggestionClickHandler = (courseKey) => {
-    if (isExperimentVariation) {
-      pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKey });
-    }
+  const isPreQueryEnabled = enterpriseConfig.enterpriseFeatures?.featurePrequerySearchSuggestions
+    && isExperimentVariation;
+
+  const optimizelySuggestionClickHandler = (courseKey) => {
+    // Programs pass in a list of keys. Optimizely does not accept array values
+    // so we are joining the items in the array.
+    const courseKeyMetadata = Array.isArray(courseKey) ? courseKey.join(', ') : courseKey;
+    sendPushEvent(isPreQueryEnabled, courseKeyMetadata);
   };
 
   return (
@@ -185,7 +198,8 @@ const Search = () => {
               index={courseIndex}
               filters={filters}
               enterpriseConfig={enterpriseConfig}
-              optimizelyPrequerySuggestionClickHandler={optimizelyPrequerySuggestionClickHandler}
+              optimizelySuggestionClickHandler={optimizelySuggestionClickHandler}
+              isPreQueryEnabled={isPreQueryEnabled}
             />
           </div>
         )}
