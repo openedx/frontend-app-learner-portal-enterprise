@@ -10,7 +10,7 @@ import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-r
 import { renderWithRouter } from '../../../utils/tests';
 import { features } from '../../../config';
 import { useContentAssignments } from './course-enrollments/data';
-import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
 
 jest.mock('../../search/content-highlights/data', () => ({
   useEnterpriseCuration: jest.fn(() => ({

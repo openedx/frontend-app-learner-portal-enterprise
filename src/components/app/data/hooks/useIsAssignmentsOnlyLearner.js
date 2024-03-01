@@ -1,4 +1,4 @@
-import { determineLearnerHasContentAssignmentsOnly } from '../../../enterprise-user-subsidy/data/utils';
+import { determineLearnerHasContentAssignmentsOnly } from '../utils';
 import useEnterpriseCustomerUserSubsidies from './useEnterpriseCustomerUserSubsidies';
 
 export default function useIsAssignmentsOnlyLearner() {

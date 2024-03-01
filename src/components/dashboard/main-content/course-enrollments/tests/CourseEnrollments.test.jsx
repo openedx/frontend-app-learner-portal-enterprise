@@ -21,7 +21,7 @@ import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests'
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../../enterprise-user-subsidy/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils');
 

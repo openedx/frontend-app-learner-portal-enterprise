@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints, ResponsiveContext } from '@openedx/paragon';
 
@@ -6,9 +7,14 @@ import { AppContext } from '@edx/frontend-platform/react';
 import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { renderWithRouter } from '../../../../utils/tests';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
+import { queryClient, renderWithRouter } from '../../../../utils/tests';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useIsAssignmentsOnlyLearner: jest.fn(() => false),
+}));
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
   <div data-testid="course-header" />
@@ -52,6 +58,9 @@ const appContextValues = {
   enterpriseConfig: {
     disableSearch: false,
   },
+  authenticatedUser: {
+    userId: 3,
+  },
 };
 
 const initialUserSubsidyState = {
@@ -77,17 +86,19 @@ const CourseAboutWrapper = ({
   initialAppState = appContextValues,
   subsidyRequestsContextValue = defaultSubsidyRequestsContextValue,
 }) => (
-  <ResponsiveContext.Provider value={responsiveContextValue}>
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
-          <CourseContext.Provider value={courseContextValue}>
-            <CourseAbout />
-          </CourseContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </ResponsiveContext.Provider>
+  <QueryClientProvider client={queryClient()}>
+    <ResponsiveContext.Provider value={responsiveContextValue}>
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
+            <CourseContext.Provider value={courseContextValue}>
+              <CourseAbout />
+            </CourseContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>
+    </ResponsiveContext.Provider>
+  </QueryClientProvider>
 );
 
 describe('CourseAbout', () => {
