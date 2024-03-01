@@ -1,10 +1,12 @@
-import makeContentHighlightsConfigurationQuery from './contentHighlights';
+import queryContentHighlightsConfiguration from './contentHighlights';
 import {
-  makeBrowseAndRequestConfigurationQuery,
-  makeCouponCodesQuery,
-  makeEnterpriseLearnerOffersQuery,
-  makeRedeemablePoliciesQuery,
-  makeSubscriptionsQuery,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  querySubsidyRequestConfiguration,
 } from './subsidies';
 
 export default function ensureEnterpriseAppData({
@@ -16,26 +18,32 @@ export default function ensureEnterpriseAppData({
   return [
     // Enterprise Customer User Subsidies
     queryClient.ensureQueryData(
-      makeSubscriptionsQuery(enterpriseCustomer.uuid),
+      querySubscriptions(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      makeRedeemablePoliciesQuery({
+      queryRedeemablePolicies({
         enterpriseUuid: enterpriseCustomer.uuid,
         lmsUserId: userId,
       }),
     ),
     queryClient.ensureQueryData(
-      makeCouponCodesQuery(enterpriseCustomer.uuid),
+      queryCouponCodes(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      makeEnterpriseLearnerOffersQuery(enterpriseCustomer.uuid),
+      queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      makeBrowseAndRequestConfigurationQuery(enterpriseCustomer.uuid, userEmail),
+      querySubsidyRequestConfiguration(enterpriseCustomer.uuid),
+    ),
+    queryClient.ensureQueryData(
+      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
+    ),
+    queryClient.ensureQueryData(
+      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
     ),
     // Content Highlights
     queryClient.ensureQueryData(
-      makeContentHighlightsConfigurationQuery(enterpriseCustomer.uuid),
+      queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
   ];
 }

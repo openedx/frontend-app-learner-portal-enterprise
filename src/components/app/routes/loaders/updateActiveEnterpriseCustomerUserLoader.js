@@ -1,8 +1,7 @@
 import { redirect, generatePath } from 'react-router-dom';
 
-import { makeEnterpriseLearnerQuery } from '../queries';
 import { ensureAuthenticatedUser, updateActiveEnterpriseCustomerUser } from '../data';
-
+import { queryEnterpriseLearner } from '../queries';
 /**
  * Updates the active enterprise customer for the learner, when the user navigates to a different enterprise
  * customer's page.
@@ -21,7 +20,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
     const { username, userId, email: userEmail } = authenticatedUser;
     const { enterpriseSlug } = params;
 
-    const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(username, enterpriseSlug);
+    const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
     const {
       activeEnterpriseCustomer,
@@ -55,7 +54,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
       // data. The only difference is that the query key now contains the enterprise slug (it was
       // previousy `undefined`), so we can proactively set the query cache for with the enterprise
       // learner data we already have before performing the redirect.
-      const nextEnterpriseLearnerQuery = makeEnterpriseLearnerQuery(username, activeEnterpriseCustomer.slug);
+      const nextEnterpriseLearnerQuery = queryEnterpriseLearner(username, activeEnterpriseCustomer.slug);
       queryClient.setQueryData(nextEnterpriseLearnerQuery.queryKey, {
         enterpriseCustomer: activeEnterpriseCustomer,
         enterpriseCustomerUserRoleAssignments: activeEnterpriseCustomerUserRoleAssignments,

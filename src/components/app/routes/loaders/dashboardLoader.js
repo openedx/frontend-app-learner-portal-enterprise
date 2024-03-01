@@ -1,5 +1,5 @@
 import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
-import { makeEnterpriseCourseEnrollmentsQuery } from '../queries';
+import { queryEnterpriseCourseEnrollments } from '../queries';
 
 /**
  * Returns a loader function responsible for loading the dashboard related data.
@@ -21,7 +21,7 @@ export default function makeDashboardLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    await queryClient.ensureQueryData(makeEnterpriseCourseEnrollmentsQuery(enterpriseId));
+    await queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId));
     return null;
   };
 }

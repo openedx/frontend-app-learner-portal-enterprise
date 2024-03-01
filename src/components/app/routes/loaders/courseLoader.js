@@ -1,8 +1,8 @@
 import {
-  makeCanRedeemQuery,
-  makeCourseMetadataQuery,
-  makeEnterpriseCourseEnrollmentsQuery,
-  makeUserEntitlementsQuery,
+  queryUserEntitlements,
+  queryCanRedeem,
+  queryCourseMetadata,
+  queryEnterpriseCourseEnrollments,
 } from '../queries';
 import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
 
@@ -27,7 +27,8 @@ export default function makeCourseLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    const contentMetadataQuery = makeCourseMetadataQuery(enterpriseId, courseKey);
+
+    const contentMetadataQuery = queryCourseMetadata(enterpriseId, courseKey);
 
     await Promise.all([
       // Fetch course metadata, and then check if the user can redeem the course.
@@ -38,13 +39,11 @@ export default function makeCourseLoader(queryClient) {
           return null;
         }
         return queryClient.ensureQueryData(
-          makeCanRedeemQuery(enterpriseId, courseMetadata),
+          queryCanRedeem(enterpriseId, courseMetadata),
         );
       }),
-      // Fetch enterprise course enrollments.
-      queryClient.ensureQueryData(makeEnterpriseCourseEnrollmentsQuery(enterpriseId)),
-      // Fetch user entitlements.
-      queryClient.ensureQueryData(makeUserEntitlementsQuery()),
+      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
+      queryClient.ensureQueryData(queryUserEntitlements()),
     ]);
 
     return null;

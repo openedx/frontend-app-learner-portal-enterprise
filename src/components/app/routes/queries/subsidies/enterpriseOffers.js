@@ -1,26 +1,18 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { queries } from '../../../../../utils/queryKeyFactory';
 
-import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-
-async function fetchEnterpriseOffers(enterpriseId, options = {}) {
-  const queryParams = new URLSearchParams({
-    usage_type: ENTERPRISE_OFFER_USAGE_TYPE.PERCENTAGE,
-    discount_value: 100,
-    status: ENTERPRISE_OFFER_STATUS.OPEN,
-    page_size: 100,
-    ...options,
-  });
-  const config = getConfig();
-  const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/${enterpriseId}/enterprise-learner-offers/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
-}
-
-export function makeEnterpriseLearnerOffersQuery(enterpriseUuid) {
-  return {
-    queryKey: ['enterprise', 'enterprise-learner-offers', enterpriseUuid],
-    queryFn: async () => fetchEnterpriseOffers(enterpriseUuid),
-    enabled: !!enterpriseUuid,
-  };
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.enterpriseOffers
+ * @returns
+ */
+export default function queryEnterpriseLearnerOffers(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.enterpriseOffers;
 }

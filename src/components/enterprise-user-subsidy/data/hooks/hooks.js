@@ -167,11 +167,10 @@ export function useSubscriptionLicense({
           autoActivated,
         },
       );
-
-      setLicense({
-        ...license,
+      setLicense((prevLicense) => ({
+        ...prevLicense,
         status: LICENSE_STATUS.ACTIVATED,
-      });
+      }));
     } catch (error) {
       logError(error);
       throw error;

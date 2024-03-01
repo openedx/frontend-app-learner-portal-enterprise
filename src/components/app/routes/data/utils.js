@@ -14,7 +14,8 @@ import {
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
-import { makeEnterpriseLearnerQuery } from '../queries';
+import { queryEnterpriseLearner } from '../queries';
+import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
@@ -91,7 +92,7 @@ export async function extractEnterpriseId({
 }) {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
-  const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug);
+  const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
   const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
   const {
     activeEnterpriseCustomer,
@@ -173,4 +174,75 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
   }
 
   return authenticatedUser;
+}
+
+/**
+ * Helper function to determine which linked enterprise customer user record
+ * should be used for display in the UI.
+ * @param {*} param0
+ * @returns
+ */
+export function determineEnterpriseCustomerUserForDisplay({
+  activeEnterpriseCustomer,
+  activeEnterpriseCustomerUserRoleAssignments,
+  enterpriseSlug,
+  foundEnterpriseCustomerUserForCurrentSlug,
+}) {
+  const activeEnterpriseCustomerUser = {
+    enterpriseCustomer: activeEnterpriseCustomer,
+    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+  };
+  if (!enterpriseSlug) {
+    return activeEnterpriseCustomerUser;
+  }
+  if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+    return {
+      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
+      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
+    };
+  }
+  return activeEnterpriseCustomerUser;
+}
+
+/**
+ * Transform enterprise customer metadata for use by consuming UI components.
+ * @param {Object} enterpriseCustomer
+ * @param {Object} enterpriseFeatures
+ * @returns
+ */
+export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures) {
+  // If the learner portal is not enabled for the displayed enterprise customer, return null. This
+  // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
+  if (!enterpriseCustomer.enableLearnerPortal) {
+    return null;
+  }
+
+  // Otherwise, learner portal is enabled, so transform the enterprise customer data.
+  const disableSearch = !!(
+    !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch
+    && enterpriseCustomer.identityProvider
+  );
+  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.identityProvider);
+  const brandColors = getBrandColorsFromCSSVariables();
+  const defaultPrimaryColor = brandColors.primary;
+  const defaultSecondaryColor = brandColors.info100;
+  const defaultTertiaryColor = brandColors.info500;
+  const {
+    primaryColor,
+    secondaryColor,
+    tertiaryColor,
+  } = enterpriseCustomer.brandingConfiguration || {};
+
+  return {
+    ...enterpriseCustomer,
+    brandingConfiguration: {
+      ...enterpriseCustomer.brandingConfiguration,
+      primaryColor: primaryColor || defaultPrimaryColor,
+      secondaryColor: secondaryColor || defaultSecondaryColor,
+      tertiaryColor: tertiaryColor || defaultTertiaryColor,
+    },
+    disableSearch,
+    showIntegrationWarning,
+    enterpriseFeatures,
+  };
 }

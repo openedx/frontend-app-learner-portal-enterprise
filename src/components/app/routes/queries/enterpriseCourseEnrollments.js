@@ -1,31 +1,16 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { queries } from '../../../../utils/queryKeyFactory';
 
 /**
- * TODO
- * @param {*} enterpriseId
- * @param {*} options
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.enrollments
  * @returns
  */
-async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
-  const queryParams = new URLSearchParams({
-    enterprise_id: enterpriseId,
-    ...options,
-  });
-  const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
-}
-
-/**
- * TODO
- * @param {*} enterpriseId
- * @returns
- */
-export default function makeEnterpriseCourseEnrollmentsQuery(enterpriseId) {
-  return {
-    queryKey: ['enterprise', enterpriseId, 'enrollments'],
-    queryFn: async () => fetchEnterpriseCourseEnrollments(enterpriseId),
-    enabled: !!enterpriseId,
-  };
+export default function queryEnterpriseCourseEnrollments(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.enrollments;
 }
