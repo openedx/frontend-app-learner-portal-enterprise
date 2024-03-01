@@ -63,6 +63,7 @@ export async function updateActiveEnterpriseCustomerUser({
     queryClient,
   }));
 }
+<<<<<<< HEAD
 
 /**
  * Extracts the appropriate enterprise ID for the current user and enterprise slug.
@@ -106,3 +107,5 @@ export async function extractEnterpriseId({
   // If no enterprise customer is found for the given user/slug, throw an error.
   throw new Error(`Could not find enterprise customer for user ${authenticatedUser.userId} and slug ${enterpriseSlug}`);
 }
+=======
+>>>>>>> feat/react-query-route-loaders
