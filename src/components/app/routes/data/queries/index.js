@@ -16,7 +16,6 @@ export * from './subsidies';
  * Updates the active enterprise customer for the learner.
  * @param {Object} params - The parameters object.
  * @param {Object} params.enterpriseCustomerUser - The enterprise customer user.
- * @param {Object} params.enterpriseLearnerData - The enterprise learner data.
  * @param {Object[]} params.allLinkedEnterpriseCustomerUsers - All linked enterprise customer users.
  * @param {string} params.userId - The user ID.
  * @param {string} params.userEmail - The user email.
@@ -27,7 +26,6 @@ export * from './subsidies';
  */
 export async function updateActiveEnterpriseCustomerUser({
   enterpriseCustomerUser,
-  enterpriseLearnerData,
   allLinkedEnterpriseCustomerUsers,
   userId,
   userEmail,
@@ -44,8 +42,10 @@ export async function updateActiveEnterpriseCustomerUser({
   // cache for with the enterprise learner data we already have before resolving the loader.
   const enterpriseLearnerQuery = queryEnterpriseLearner(username, enterpriseCustomerUser.enterpriseCustomer.slug);
   queryClient.setQueryData(enterpriseLearnerQuery.queryKey, {
-    ...enterpriseLearnerData,
+    enterpriseCustomer: enterpriseCustomerUser.enterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments: enterpriseCustomerUser.roleAssignments,
     activeEnterpriseCustomer: enterpriseCustomerUser.enterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments: enterpriseCustomerUser.roleAssignments,
     allLinkedEnterpriseCustomerUsers: allLinkedEnterpriseCustomerUsers.map(
       ecu => ({
         ...ecu,
