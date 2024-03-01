@@ -12,7 +12,7 @@ import {
   NewRelicLoggingService,
 } from '@edx/frontend-platform/logging';
 
-import { makeEnterpriseLearnerQuery } from '../queries';
+import { queryEnterpriseLearner } from '../queries';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
@@ -89,7 +89,7 @@ export async function extractEnterpriseId({
 }) {
   // Retrieve linked enterprise customers for the current user from query cache, or
   // fetch from the server if not available.
-  const linkedEnterpriseCustomersQuery = makeEnterpriseLearnerQuery(authenticatedUser.username, enterpriseSlug);
+  const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug);
   const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
   const {
     activeEnterpriseCustomer,
