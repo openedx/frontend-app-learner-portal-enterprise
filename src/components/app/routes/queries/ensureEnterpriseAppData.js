@@ -6,7 +6,7 @@ import {
   queryLicenseRequests,
   queryRedeemablePolicies,
   querySubscriptions,
-  querySubsidyRequestConfiguration,
+  queryBrowseAndRequestConfiguration,
 } from './subsidies';
 
 export default function ensureEnterpriseAppData({
@@ -33,7 +33,7 @@ export default function ensureEnterpriseAppData({
       queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
-      querySubsidyRequestConfiguration(enterpriseCustomer.uuid),
+      queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
     ),
     queryClient.ensureQueryData(
       queryLicenseRequests(enterpriseCustomer.uuid, userEmail),

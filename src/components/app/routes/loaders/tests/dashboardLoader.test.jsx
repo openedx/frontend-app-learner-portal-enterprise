@@ -42,7 +42,6 @@ describe('dashboardLoader', () => {
       expect.objectContaining({
         queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
   });
