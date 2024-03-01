@@ -40,7 +40,7 @@ const CourseHeader = () => {
     isPolicyRedemptionEnabled,
   } = useContext(CourseContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
   const isCourseArchived = (course.courseRuns)?.every((courseRun) => isArchived(courseRun));
   const [partners] = useCoursePartners(course);
 

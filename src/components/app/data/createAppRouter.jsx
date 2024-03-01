@@ -1,4 +1,4 @@
-import { AuthenticatedPageRoute } from '@edx/frontend-platform/react';
+import { PageWrap } from '@edx/frontend-platform/react';
 import {
   Outlet,
   Route,
@@ -27,7 +27,7 @@ export default function createAppRouter(queryClient) {
     createRoutesFromElements(
       <Route
         path="/"
-        element={<AuthenticatedPageRoute><Root /></AuthenticatedPageRoute>}
+        element={<PageWrap><Root /></PageWrap>}
         errorElement={<RouteErrorBoundary />}
       >
         <Route

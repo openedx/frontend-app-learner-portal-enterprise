@@ -8,10 +8,12 @@ import { useEnterpriseLearner, isSystemMaintenanceAlertOpen } from './data';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
 import NotFoundPage from '../NotFoundPage';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
-import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
 import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { SystemWideWarningBanner } from '../system-wide-banner';
+
+export const TITLE_TEMPLATE = '%s - edX';
+export const DEFAULT_TITLE = 'edX';
 
 const Layout = () => {
   const { authenticatedUser, config } = useContext(AppContext);

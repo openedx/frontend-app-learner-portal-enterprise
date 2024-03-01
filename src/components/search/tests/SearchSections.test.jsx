@@ -10,13 +10,17 @@ import '@testing-library/jest-dom';
 import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
 import Search from '../Search';
-import AuthenticatedPageContext from '../../app/AuthenticatedPageContext';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const APP_CONFIG = {
   ALGOLIA_INDEX_NAME: 'test-index-name',
 };
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
+}));
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -51,10 +55,6 @@ const initialAppState = {
     },
   },
 };
-const defaultAuthenticatedPageContextValue = {
-  shouldRecommendCourses: true,
-  showRecommendCourses: () => null,
-};
 
 const defaultCouponCodesState = {
   couponCodes: [],
@@ -85,7 +85,7 @@ describe('<Search />', () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <AppContext.Provider value={initialAppState}>
-          <SearchContext .Provider value={searchContext1}>
+          <SearchContext.Provider value={searchContext1}>
             <SearchCourse filter={mockFilter} />
           </SearchContext.Provider>
         </AppContext.Provider>
@@ -97,7 +97,7 @@ describe('<Search />', () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <AppContext.Provider value={initialAppState}>
-          <SearchContext .Provider value={searchContext1}>
+          <SearchContext.Provider value={searchContext1}>
             <SearchProgram filter={mockFilter} />
           </SearchContext.Provider>
         </AppContext.Provider>
@@ -110,7 +110,7 @@ describe('<Search />', () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <AppContext.Provider value={initialAppState}>
-          <SearchContext .Provider value={searchContext1}>
+          <SearchContext.Provider value={searchContext1}>
             <SearchPathway filter={mockFilter} />
           </SearchContext.Provider>
         </AppContext.Provider>
@@ -124,11 +124,9 @@ describe('<Search />', () => {
         <AppContext.Provider value={initialAppState}>
           <UserSubsidyContext.Provider value={initialUserSubsidyState}>
             <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-              <AuthenticatedPageContext.Provider value={defaultAuthenticatedPageContextValue}>
-                <SearchContext.Provider value={searchContext1}>
-                  <Search />
-                </SearchContext.Provider>
-              </AuthenticatedPageContext.Provider>
+              <SearchContext.Provider value={searchContext1}>
+                <Search />
+              </SearchContext.Provider>
             </SubsidyRequestsContext.Provider>
           </UserSubsidyContext.Provider>
         </AppContext.Provider>
@@ -142,11 +140,9 @@ describe('<Search />', () => {
         <AppContext.Provider value={initialAppState}>
           <UserSubsidyContext.Provider value={initialUserSubsidyState}>
             <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-              <AuthenticatedPageContext.Provider value={defaultAuthenticatedPageContextValue}>
-                <SearchContext.Provider value={searchContext2}>
-                  <Search />
-                </SearchContext.Provider>
-              </AuthenticatedPageContext.Provider>
+              <SearchContext.Provider value={searchContext2}>
+                <Search />
+              </SearchContext.Provider>
             </SubsidyRequestsContext.Provider>
           </UserSubsidyContext.Provider>
         </AppContext.Provider>
@@ -160,11 +156,9 @@ describe('<Search />', () => {
         <AppContext.Provider value={initialAppState}>
           <UserSubsidyContext.Provider value={initialUserSubsidyState}>
             <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-              <AuthenticatedPageContext.Provider value={defaultAuthenticatedPageContextValue}>
-                <SearchContext.Provider value={searchContext3}>
-                  <Search />
-                </SearchContext.Provider>
-              </AuthenticatedPageContext.Provider>
+              <SearchContext.Provider value={searchContext3}>
+                <Search />
+              </SearchContext.Provider>
             </SubsidyRequestsContext.Provider>
           </UserSubsidyContext.Provider>
         </AppContext.Provider>

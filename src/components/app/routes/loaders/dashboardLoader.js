@@ -10,8 +10,14 @@ import {
  * @returns {Promise} A loader function.
  */
 export default function makeDashboardLoader(queryClient) {
-  return async function dashboardLoader({ params = {} }) {
-    const authenticatedUser = await ensureAuthenticatedUser();
+  return async function dashboardLoader({ params = {}, request }) {
+    const requestUrl = new URL(request.url);
+    const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
+      return null;
+    }
+
     const { enterpriseSlug } = params;
     const enterpriseId = await extractEnterpriseId({
       queryClient,

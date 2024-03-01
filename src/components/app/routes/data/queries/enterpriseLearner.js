@@ -5,10 +5,8 @@ import { queries } from '../../../../../utils/queryKeyFactory';
  * queries
  * .enterprise
  * .enterpriseLearner(username, enterpriseSlug)
- * @returns
+ * @returns {Types.}
  */
 export default function queryEnterpriseLearner(username, enterpriseSlug) {
-  return queries
-    .enterprise
-    .enterpriseLearner(username, enterpriseSlug);
+  return queries.enterprise.enterpriseLearner(username, enterpriseSlug);
 }

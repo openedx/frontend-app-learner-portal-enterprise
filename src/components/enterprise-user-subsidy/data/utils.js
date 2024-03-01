@@ -10,7 +10,7 @@ import { LICENSE_STATUS } from './constants';
  * @returns {object} - Returns modified policies data with subsidy expiration dates attached to assignments.
  */
 export const transformRedeemablePoliciesData = (policies = []) => policies.map((policy) => {
-  const assignmentsWithSubsidyExpiration = policy.learnerContentAssignments.map(assignment => ({
+  const assignmentsWithSubsidyExpiration = policy.learnerContentAssignments?.map(assignment => ({
     ...assignment,
     subsidyExpirationDate: policy.subsidyExpirationDate,
   }));
@@ -54,12 +54,12 @@ export const determineLearnerHasContentAssignmentsOnly = ({
     POLICY_TYPES.PER_LEARNER_CREDIT,
     POLICY_TYPES.PER_ENROLLMENT_CREDIT,
   ];
-  const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies?.redeemablePolicies.filter(
+  const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies.redeemablePolicies?.filter(
     policy => autoAppliedPolicyTypes.includes(policy.policyType),
   ).length > 0;
   const hasAllocatedOrAcceptedAssignments = !!(
-    redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAllocatedAssignments
-    || redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAcceptedAssignments
+    redeemableLearnerCreditPolicies.learnerContentAssignments?.hasAllocatedAssignments
+    || redeemableLearnerCreditPolicies.learnerContentAssignments?.hasAcceptedAssignments
   );
 
   return (

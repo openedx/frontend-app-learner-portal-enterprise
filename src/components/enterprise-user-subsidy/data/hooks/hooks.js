@@ -250,11 +250,11 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
   const enterpriseId = queryKey[3];
   const userID = queryKey[4];
   const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
-  const redeemablePolicies = camelCaseObject(transformRedeemablePoliciesData(response.data));
+  const responseData = camelCaseObject(response.data);
+  const redeemablePolicies = transformRedeemablePoliciesData(responseData);
   const learnerContentAssignments = getAssignmentsByState(
     redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
   );
-
   return {
     redeemablePolicies,
     learnerContentAssignments,

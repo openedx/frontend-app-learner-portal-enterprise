@@ -6,30 +6,47 @@ import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import EnterpriseBanner from '../EnterpriseBanner';
-import AuthenticatedPageContext from '../../app/AuthenticatedPageContext';
+import {
+  useEnterpriseLearner,
+  useRecommendCoursesForMe,
+} from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseLearner: jest.fn(),
+  useRecommendCoursesForMe: jest.fn(),
+}));
+useEnterpriseLearner.mockReturnValue({
+  data: {
+    enterpriseCustomer: {
+      name: 'Test Enterprise',
+      slug: 'test-enterprise-slug',
+    },
+  },
+});
+useRecommendCoursesForMe.mockReturnValue({
+  shouldRecommendCourses: false,
+});
 
 const mockEnterpriseSlug = 'test-enterprise-slug';
 
 const defaultAppContextValue = {
+  authenticatedUser: {
+    username: 'edx',
+    userId: 3,
+  },
   enterpriseConfig: {
     slug: mockEnterpriseSlug,
     uuid: 'uuid',
   },
 };
 
-const defaultAuthenticatedPageContextValue = {
-  shouldRecommendCourses: false,
-};
-
 const EnterpriseBannerWrapper = ({
   appContextValue = defaultAppContextValue,
-  authenticatedPageContextValue = defaultAuthenticatedPageContextValue,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={appContextValue}>
-      <AuthenticatedPageContext.Provider value={authenticatedPageContextValue}>
-        <EnterpriseBanner />
-      </AuthenticatedPageContext.Provider>
+      <EnterpriseBanner />
     </AppContext.Provider>
   </IntlProvider>
 );
@@ -41,11 +58,10 @@ describe('<EnterpriseBanner />', () => {
   });
 
   it('renders recommend courses for me when appropriate', () => {
-    const mockAuthenticatedPageContextValue = {
-      ...defaultAuthenticatedPageContextValue,
+    useRecommendCoursesForMe.mockReturnValue({
       shouldRecommendCourses: true,
-    };
-    renderWithRouter(<EnterpriseBannerWrapper authenticatedPageContextValue={mockAuthenticatedPageContextValue} />);
+    });
+    renderWithRouter(<EnterpriseBannerWrapper />);
     const recommendCoursesCTA = screen.getByText('Recommend courses for me', { selector: 'a' });
     expect(recommendCoursesCTA).toBeInTheDocument();
     expect(recommendCoursesCTA).toHaveAttribute('href', `/${mockEnterpriseSlug}/skills-quiz`);

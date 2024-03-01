@@ -15,7 +15,7 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
   const { enterpriseSlug } = useParams();
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const hasAssignmentsForDisplay = (
-    !!redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAssignmentsForDisplay
+    !!redeemableLearnerCreditPolicies.learnerContentAssignments?.hasAssignmentsForDisplay
   );
 
   useEffect(() => {

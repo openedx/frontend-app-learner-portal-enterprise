@@ -2,20 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import AuthenticatedPage from './AuthenticatedPage';
-import {
-  AutoActivateLicense,
-  UserSubsidy,
-} from '../enterprise-user-subsidy';
-import { SubsidyRequestsContextProvider } from '../enterprise-subsidy-requests';
+import { AutoActivateLicense } from '../enterprise-user-subsidy';
 
 const AuthenticatedUserSubsidyPage = ({ children }) => (
   <AuthenticatedPage>
-    <UserSubsidy>
-      <SubsidyRequestsContextProvider>
-        <AutoActivateLicense />
-        {children}
-      </SubsidyRequestsContextProvider>
-    </UserSubsidy>
+    <AutoActivateLicense />
+    {children}
   </AuthenticatedPage>
 );
 

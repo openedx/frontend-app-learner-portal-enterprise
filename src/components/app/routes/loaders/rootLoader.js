@@ -13,7 +13,12 @@ import {
 export default function makeRootLoader(queryClient) {
   return async function rootLoader({ params = {}, request }) {
     const requestUrl = new URL(request.url);
-    const authenticatedUser = await ensureAuthenticatedUser(requestUrl);
+    const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
+    // User is not authenticated, so we can't do anything in this loader.
+    if (!authenticatedUser) {
+      return null;
+    }
+
     const { username, userId, email: userEmail } = authenticatedUser;
     const { enterpriseSlug } = params;
 

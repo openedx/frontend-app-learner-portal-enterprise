@@ -7,6 +7,8 @@ import { LICENSE_STATUS } from './data/constants';
 
 /**
  * Redirects users to the license activation page if they have an assigned license.
+ *
+ * TODO: move to route loader when we pick up work to migrate license activation route.
  */
 const AutoActivateLicense = () => {
   const { enterpriseConfig } = useContext(AppContext);

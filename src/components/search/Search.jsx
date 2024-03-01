@@ -33,14 +33,13 @@ import { IntegrationWarningModal } from '../integration-warning-modal';
 import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import PathwayModal from '../pathway/PathwayModal';
 import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
-import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
-import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
+import { useIsAssignmentsOnlyLearner } from '../app/data';
 
 const Search = () => {
   const config = getConfig();
@@ -49,13 +48,11 @@ const Search = () => {
   const { refinements } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { enterpriseConfig, algolia } = useContext(AppContext);
-  const { showRecommendCourses, hideRecommendCourses } = useContext(AuthenticatedPageContext);
   const {
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes: { couponCodes, couponCodesCount },
+    couponCodes: { couponCodes },
     enterpriseOffers,
-    hasCurrentEnterpriseOffers,
     canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
@@ -63,7 +60,6 @@ const Search = () => {
   } = useContext(UserSubsidyContext);
   const {
     catalogsForSubsidyRequests,
-    requestsBySubsidyType,
   } = useContext(SubsidyRequestsContext);
   const searchCatalogs = useSearchCatalogs({
     subscriptionPlan,
@@ -77,15 +73,13 @@ const Search = () => {
     enterpriseConfig,
     searchCatalogs,
   });
+  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const intl = useIntl();
 
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
   );
-
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
 
   // Flag to toggle highlights visibility
   const enterpriseUUID = enterpriseConfig.uuid;
@@ -122,24 +116,6 @@ const Search = () => {
     defaultMessage: 'Search Courses and Programs',
     description: 'Title for the enterprise search page header.',
   });
-
-  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
-    subscriptionPlan,
-    subscriptionLicense,
-    licenseRequests,
-    couponCodesCount,
-    couponCodeRequests,
-    redeemableLearnerCreditPolicies,
-    hasCurrentEnterpriseOffers,
-  });
-
-  useEffect(() => {
-    if (isAssignmentOnlyLearner) {
-      hideRecommendCourses();
-    } else {
-      showRecommendCourses();
-    }
-  }, [showRecommendCourses, hideRecommendCourses, isAssignmentOnlyLearner]);
 
   // If learner only has content assignments available, show the assignments-only empty state.
   if (isAssignmentOnlyLearner) {

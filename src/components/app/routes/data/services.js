@@ -6,6 +6,7 @@ import {
 } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
+import { determineEnterpriseCustomerUserForDisplay, transformEnterpriseCustomer } from './utils';
 
 // Enterprise Course Enrollments
 export async function fetchUserEntitlements() {
@@ -29,7 +30,10 @@ async function fetchData(url, linkedEnterprises = []) {
   if (responseData.next) {
     return fetchData(responseData.next, linkedEnterprisesCopy);
   }
-  return linkedEnterprisesCopy;
+  return {
+    results: linkedEnterprisesCopy,
+    enterpriseFeatures: responseData.enterpriseFeatures,
+  };
 }
 
 /**
@@ -41,7 +45,7 @@ async function fetchData(url, linkedEnterprises = []) {
  * @param {Object} [options] Additional query options.
  * @returns
  */
-export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, options = {}) => {
+export async function fetchEnterpriseLearnerData(username, enterpriseSlug, options = {}) {
   const config = getConfig();
   const enterpriseLearnerUrl = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
@@ -50,7 +54,10 @@ export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, optio
     page: 1,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
-  const linkedEnterpriseCustomersUsers = await fetchData(url);
+  const {
+    results: linkedEnterpriseCustomersUsers,
+    enterpriseFeatures,
+  } = await fetchData(url);
   const activeLinkedEnterpriseCustomerUser = linkedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
   const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
   const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
@@ -61,35 +68,23 @@ export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, optio
     enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   );
 
-  const determineEnterpriseCustomerUserForDisplay = () => {
-    const activeEnterpriseCustomerUser = {
-      enterpriseCustomer: activeEnterpriseCustomer,
-      roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
-    };
-    if (!enterpriseSlug) {
-      return activeEnterpriseCustomerUser;
-    }
-    if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
-      return {
-        enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-        roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
-      };
-    }
-    return activeEnterpriseCustomerUser;
-  };
-
   const {
     enterpriseCustomer,
     roleAssignments,
-  } = determineEnterpriseCustomerUserForDisplay();
+  } = determineEnterpriseCustomerUserForDisplay({
+    activeEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments,
+    enterpriseSlug,
+    foundEnterpriseCustomerUserForCurrentSlug,
+  });
   return {
-    enterpriseCustomer,
+    enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures),
     enterpriseCustomerUserRoleAssignments: roleAssignments,
     activeEnterpriseCustomer,
     activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
   };
-};
+}
 
 // Course Enrollments
 /**
@@ -98,7 +93,7 @@ export const fetchEnterpriseLearnerData = async (username, enterpriseSlug, optio
  * @param {*} options
  * @returns
  */
-export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {}) => {
+export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
     ...options,
@@ -106,7 +101,7 @@ export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
-};
+}
 
 // Course Metadata
 /**
@@ -114,7 +109,7 @@ export const fetchEnterpriseCourseEnrollments = async (enterpriseId, options = {
  * @param {*} param0
  * @returns
  */
-export const fetchCourseMetadata = async (enterpriseId, courseKey, options = {}) => {
+export async function fetchCourseMetadata(enterpriseId, courseKey, options = {}) {
   const contentMetadataUrl = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/content-metadata/${courseKey}/`;
   const queryParams = new URLSearchParams({
     ...options,
@@ -130,7 +125,7 @@ export const fetchCourseMetadata = async (enterpriseId, courseKey, options = {})
     }
     throw error;
   }
-};
+}
 
 // Content Highlights
 /**
@@ -138,7 +133,7 @@ export const fetchCourseMetadata = async (enterpriseId, courseKey, options = {})
  * @param {*} enterpriseUUID
  * @returns
  */
-export const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
+export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_customer: enterpriseUUID,
     ...options,
@@ -157,7 +152,7 @@ export const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
     }
     throw error;
   }
-};
+}
 
 // Can Redeem
 /**
@@ -167,7 +162,7 @@ export const fetchEnterpriseCuration = async (enterpriseUUID, options = {}) => {
  * @param {array} courseRunKeys List of course run keys.
  * @returns Promise for get request from the authenticated http client.
  */
-export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
+export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
   const queryParams = new URLSearchParams();
   courseRunKeys.forEach((courseRunKey) => {
     queryParams.append('content_key', courseRunKey);
@@ -184,7 +179,7 @@ export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
     }
     throw error;
   }
-};
+}
 
 // Subsidies
 
@@ -194,7 +189,7 @@ export const fetchCanRedeem = async (enterpriseId, courseRunKeys) => {
  * @param {*} enterpriseUUID
  * @returns
  */
-export const fetchBrowseAndRequestConfiguration = async (enterpriseUUID) => {
+export async function fetchBrowseAndRequestConfiguration(enterpriseUUID) {
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/customer-configurations/${enterpriseUUID}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
@@ -206,8 +201,15 @@ export const fetchBrowseAndRequestConfiguration = async (enterpriseUUID) => {
     }
     throw error;
   }
-};
+}
 
+/**
+ * TODO
+ * @param {*} enterpriseUUID
+ * @param {*} userEmail
+ * @param {*} state
+ * @returns
+ */
 export async function fetchLicenseRequests(
   enterpriseUUID,
   userEmail,
@@ -224,6 +226,13 @@ export async function fetchLicenseRequests(
   return camelCaseObject(response.data);
 }
 
+/**
+ * TODO
+ * @param {*} enterpriseUUID
+ * @param {*} userEmail
+ * @param {*} state
+ * @returns
+ */
 export async function fetchCouponCodeRequests(
   enterpriseUUID,
   userEmail,

@@ -393,7 +393,7 @@ describe('useRedeemableLearnerCreditPolicies', () => {
   it('fetches and returns redeemable learner credit policies', async () => {
     const mockBaseAssignment = {
       uuid: 'test-assignment-uuid',
-      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
+      subsidyExpirationDate: camelCaseObject(mockLearnerCreditPolicy).subsidyExpirationDate,
     };
     const mockAllocatedAssignment = {
       ...mockBaseAssignment,
@@ -417,7 +417,7 @@ describe('useRedeemableLearnerCreditPolicies', () => {
     };
     const mockAssignablePolicy = {
       ...mockLearnerCreditPolicy,
-      learner_content_assignments: [
+      learnerContentAssignments: [
         mockAllocatedAssignment,
         mockCanceledAssignment,
         mockAcceptedAssignment,

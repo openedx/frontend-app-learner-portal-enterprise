@@ -32,7 +32,7 @@ const CourseAbout = () => {
     subscriptionLicense,
     couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
   const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
 
   const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
