@@ -1,4 +1,4 @@
-import { transformEnterpriseCustomer } from '../enterpriseLearner';
+import { transformEnterpriseCustomer } from './utils';
 
 const mockEnterpriseFeatures = {
   'example-feature': true,

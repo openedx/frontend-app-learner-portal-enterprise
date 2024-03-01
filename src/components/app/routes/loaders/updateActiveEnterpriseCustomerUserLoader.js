@@ -1,7 +1,7 @@
 import { redirect, generatePath } from 'react-router-dom';
 
 import { ensureAuthenticatedUser, updateActiveEnterpriseCustomerUser } from '../data';
-import { queryEnterpriseLearner } from '../queries';
+import { queryEnterpriseLearner } from '../data/queries';
 /**
  * Updates the active enterprise customer for the learner, when the user navigates to a different enterprise
  * customer's page.
@@ -45,6 +45,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
           enterpriseCustomerUser: foundEnterpriseCustomerUserForSlug,
           userId,
           userEmail,
+          username,
           allLinkedEnterpriseCustomerUsers,
         });
         return null;

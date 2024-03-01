@@ -3,7 +3,7 @@ import {
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
-} from '../queries';
+} from '../data/queries';
 import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
 
 /**

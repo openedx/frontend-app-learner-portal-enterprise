@@ -10,7 +10,7 @@ import {
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
   queryUserEntitlements,
-} from '../../queries';
+} from '../../data/queries';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -73,7 +73,6 @@ describe('courseLoader', () => {
       expect.objectContaining({
         queryKey: queryCourseMetadata(mockEnterpriseId, mockCourseMetadata.key).queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
@@ -83,7 +82,6 @@ describe('courseLoader', () => {
         expect.objectContaining({
           queryKey: queryCanRedeem(mockEnterpriseId, mockCourseMetadata).queryKey,
           queryFn: expect.any(Function),
-          enabled: true,
         }),
       );
     } else {
@@ -91,7 +89,6 @@ describe('courseLoader', () => {
         expect.objectContaining({
           queryKey: queryCanRedeem(mockEnterpriseId, mockCourseMetadata).queryKey,
           queryFn: expect.any(Function),
-          enabled: true,
         }),
       );
     }
@@ -101,7 +98,6 @@ describe('courseLoader', () => {
       expect.objectContaining({
         queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 

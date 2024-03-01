@@ -4,8 +4,12 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeUpdateActiveEnterpriseCustomerUserLoader from '../updateActiveEnterpriseCustomerUserLoader';
-import { ensureAuthenticatedUser, extractEnterpriseId, updateActiveEnterpriseCustomerUser } from '../../data';
-import { queryEnterpriseLearner } from '../../queries';
+import {
+  ensureAuthenticatedUser,
+  extractEnterpriseId,
+  updateActiveEnterpriseCustomerUser,
+  queryEnterpriseLearner,
+} from '../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),

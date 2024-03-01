@@ -5,14 +5,12 @@ import { queries } from '../../../../../utils/queryKeyFactory';
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.subscriptions
+ * ._ctx.enrollments
  * @returns
  */
-export default function querySubscriptions(enterpriseUuid) {
+export default function queryEnterpriseCourseEnrollments(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.subscriptions;
+    ._ctx.enrollments;
 }

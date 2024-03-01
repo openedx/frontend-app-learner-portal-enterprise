@@ -4,14 +4,18 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeRootLoader from '../rootLoader';
-import { ensureAuthenticatedUser, extractEnterpriseId } from '../../data';
 import {
+  ensureAuthenticatedUser,
+  extractEnterpriseId,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
-  queryEnterpriseLearner, queryEnterpriseLearnerOffers, queryLicenseRequests, queryRedeemablePolicies,
-} from '../../queries';
+  queryEnterpriseLearner,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+} from '../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -115,10 +119,10 @@ describe('rootLoader', () => {
       // Assert that the expected number of queries were made.
       if (shouldRedirectToSearch) {
         // There are 7 queries, and with the redirect to the search route, each `ensureQueryData` will be called twice.
-        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(14);
+        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(18);
       } else {
         // There are 7 queries and no redirect to search page route.
-        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(7);
+        expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
       }
     });
 
@@ -135,7 +139,6 @@ describe('rootLoader', () => {
       expect.objectContaining({
         queryKey: redeemablePoliciesQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
@@ -145,7 +148,6 @@ describe('rootLoader', () => {
       expect.objectContaining({
         queryKey: couponCodesQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
@@ -155,17 +157,15 @@ describe('rootLoader', () => {
       expect.objectContaining({
         queryKey: enterpriseOffersQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
     // Browse and Request configuration query
-    const browseAndRequestConfigQuery = queryBrowseAndRequestConfiguration(mockEnterpriseId, mockUserEmail);
+    const browseAndRequestConfigQuery = queryBrowseAndRequestConfiguration(mockEnterpriseId);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: browseAndRequestConfigQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
@@ -175,7 +175,6 @@ describe('rootLoader', () => {
       expect.objectContaining({
         queryKey: licenseRequestsQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
@@ -185,7 +184,6 @@ describe('rootLoader', () => {
       expect.objectContaining({
         queryKey: couponCodeRequestsQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
 
@@ -195,7 +193,6 @@ describe('rootLoader', () => {
       expect.objectContaining({
         queryKey: contentHighlightsConfigQuery.queryKey,
         queryFn: expect.any(Function),
-        enabled: true,
       }),
     );
   });
