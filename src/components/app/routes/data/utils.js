@@ -9,12 +9,14 @@ import {
 import {
   configure as configureLogging,
   getLoggingService,
+  logError,
   NewRelicLoggingService,
 } from '@edx/frontend-platform/logging';
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
 import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
+import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
@@ -200,5 +202,102 @@ export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatur
     disableSearch,
     showIntegrationWarning,
     enterpriseFeatures,
+  };
+}
+
+/**
+ * Transforms the redeemable policies data by attaching the subsidy expiration date
+ * to each assignment within the policies, if available.
+ * @param {object[]} [policies] - Array of policy objects containing learner assignments.
+ * @returns {object} - Returns modified policies data with subsidy expiration dates attached to assignments.
+ */
+export function transformRedeemablePoliciesData(policies = []) {
+  return policies.map((policy) => {
+    const assignmentsWithSubsidyExpiration = policy.learnerContentAssignments?.map(assignment => ({
+      ...assignment,
+      subsidyExpirationDate: policy.subsidyExpirationDate,
+    }));
+    return {
+      ...policy,
+      learnerContentAssignments: assignmentsWithSubsidyExpiration,
+    };
+  });
+}
+
+/**
+ * Takes a flattened array of assignments and returns an object containing
+ * lists of assignments for each assignment state.
+ *
+ * @param {Array} assignments - List of content assignments.
+ * @returns {{
+*  assignments: Array,
+*  hasAssignments: Boolean,
+*  allocatedAssignments: Array,
+*  hasAllocatedAssignments: Boolean,
+*  canceledAssignments: Array,
+*  hasCanceledAssignments: Boolean,
+*  acceptedAssignments: Array,
+*  hasAcceptedAssignments: Boolean,
+* }}
+*/
+export function getAssignmentsByState(assignments = []) {
+  const allocatedAssignments = [];
+  const acceptedAssignments = [];
+  const canceledAssignments = [];
+  const expiredAssignments = [];
+  const erroredAssignments = [];
+  const assignmentsForDisplay = [];
+
+  assignments.forEach((assignment) => {
+    switch (assignment.state) {
+      case ASSIGNMENT_TYPES.ALLOCATED:
+        allocatedAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.ACCEPTED:
+        acceptedAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.CANCELED:
+        canceledAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.EXPIRED:
+        expiredAssignments.push(assignment);
+        break;
+      case ASSIGNMENT_TYPES.ERRORED:
+        erroredAssignments.push(assignment);
+        break;
+      default:
+        logError(`[getAssignmentsByState] Unsupported state ${assignment.state} for assignment ${assignment.uuid}`);
+        break;
+    }
+  });
+
+  const hasAssignments = assignments.length > 0;
+  const hasAllocatedAssignments = allocatedAssignments.length > 0;
+  const hasAcceptedAssignments = acceptedAssignments.length > 0;
+  const hasCanceledAssignments = canceledAssignments.length > 0;
+  const hasExpiredAssignments = expiredAssignments.length > 0;
+  const hasErroredAssignments = erroredAssignments.length > 0;
+
+  // Concatenate all assignments for display (includes allocated and canceled assignments)
+  assignmentsForDisplay.push(...allocatedAssignments);
+  assignmentsForDisplay.push(...canceledAssignments);
+  assignmentsForDisplay.push(...expiredAssignments);
+  const hasAssignmentsForDisplay = assignmentsForDisplay.length > 0;
+
+  return {
+    assignments,
+    hasAssignments,
+    allocatedAssignments,
+    hasAllocatedAssignments,
+    acceptedAssignments,
+    hasAcceptedAssignments,
+    canceledAssignments,
+    hasCanceledAssignments,
+    expiredAssignments,
+    hasExpiredAssignments,
+    erroredAssignments,
+    hasErroredAssignments,
+    assignmentsForDisplay,
+    hasAssignmentsForDisplay,
   };
 }

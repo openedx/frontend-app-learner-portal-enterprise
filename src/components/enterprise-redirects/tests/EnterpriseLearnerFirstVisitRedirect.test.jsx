@@ -4,7 +4,8 @@ import Cookies from 'universal-cookie';
 import { renderWithRouter } from '../../../utils/tests';
 import EnterpriseLearnerFirstVisitRedirect from '../EnterpriseLearnerFirstVisitRedirect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
+
+import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
 
 const COOKIE_NAME = 'has-user-visited-learner-dashboard';
 const TEST_ENTERPRISE = {

@@ -54,12 +54,12 @@ export const determineLearnerHasContentAssignmentsOnly = ({
     POLICY_TYPES.PER_LEARNER_CREDIT,
     POLICY_TYPES.PER_ENROLLMENT_CREDIT,
   ];
-  const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies.redeemablePolicies?.filter(
+  const hasAutoAppliedLearnerCreditPolicies = !!redeemableLearnerCreditPolicies?.redeemablePolicies?.filter(
     policy => autoAppliedPolicyTypes.includes(policy.policyType),
   ).length > 0;
   const hasAllocatedOrAcceptedAssignments = !!(
-    redeemableLearnerCreditPolicies.learnerContentAssignments?.hasAllocatedAssignments
-    || redeemableLearnerCreditPolicies.learnerContentAssignments?.hasAcceptedAssignments
+    redeemableLearnerCreditPolicies?.learnerContentAssignments?.hasAllocatedAssignments
+    || redeemableLearnerCreditPolicies?.learnerContentAssignments?.hasAcceptedAssignments
   );
 
   return (

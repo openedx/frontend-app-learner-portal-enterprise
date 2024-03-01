@@ -6,7 +6,12 @@ import {
 } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
-import { determineEnterpriseCustomerUserForDisplay, transformEnterpriseCustomer } from './utils';
+import {
+  determineEnterpriseCustomerUserForDisplay,
+  getAssignmentsByState,
+  transformEnterpriseCustomer,
+  transformRedeemablePoliciesData,
+} from './utils';
 
 // Enterprise Course Enrollments
 export async function fetchUserEntitlements() {
@@ -321,7 +326,15 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const responseData = camelCaseObject(response.data);
+  const redeemablePolicies = transformRedeemablePoliciesData(responseData);
+  const learnerContentAssignments = getAssignmentsByState(
+    redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
+  );
+  return {
+    redeemablePolicies,
+    learnerContentAssignments,
+  };
 }
 
 // Subscriptions

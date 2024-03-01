@@ -1,47 +1,7 @@
-import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../enterprise-offers/data/constants';
-import { LICENSE_STATUS } from './constants';
-import { determineLearnerHasContentAssignmentsOnly, transformRedeemablePoliciesData } from './utils';
-
-import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
-
-describe('transformRedeemablePoliciesData', () => {
-  test('transforms policies data by attaching subsidy expiration date to assignments', () => {
-    const mockPolicies = [
-      {
-        subsidyExpirationDate: '2024-03-15T18:48:26Z',
-        learnerContentAssignments: [
-          { assignmentId: 1 },
-          { assignmentId: 2 },
-        ],
-      },
-      {
-        subsidyExpirationDate: '2023-12-31T23:59:59Z',
-        learnerContentAssignments: [
-          { assignmentId: 3 },
-        ],
-      },
-    ];
-
-    const expectedTransformedData = [
-      {
-        subsidyExpirationDate: '2024-03-15T18:48:26Z',
-        learnerContentAssignments: [
-          { assignmentId: 1, subsidyExpirationDate: '2024-03-15T18:48:26Z' },
-          { assignmentId: 2, subsidyExpirationDate: '2024-03-15T18:48:26Z' },
-        ],
-      },
-      {
-        subsidyExpirationDate: '2023-12-31T23:59:59Z',
-        learnerContentAssignments: [
-          { assignmentId: 3, subsidyExpirationDate: '2023-12-31T23:59:59Z' },
-        ],
-      },
-    ];
-
-    const transformedData = transformRedeemablePoliciesData(mockPolicies);
-    expect(transformedData).toEqual(expectedTransformedData);
-  });
-});
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { determineLearnerHasContentAssignmentsOnly } from './utils';
+import { emptyRedeemableLearnerCreditPolicies } from './constants';
 
 describe('determineLearnerHasContentAssignmentsOnly', () => {
   test.each([

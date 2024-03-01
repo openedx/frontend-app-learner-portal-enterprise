@@ -7,8 +7,13 @@ import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../utils/tests';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useIsAssignmentsOnlyLearner: jest.fn(() => false),
+}));
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
   <div data-testid="course-header" />
@@ -51,6 +56,9 @@ const baseCourseContextValue = {
 const appContextValues = {
   enterpriseConfig: {
     disableSearch: false,
+  },
+  authenticatedUser: {
+    userId: 3,
   },
 };
 

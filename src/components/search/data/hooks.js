@@ -24,7 +24,7 @@ export const useSearchCatalogs = ({
 
     // Scope to catalogs from redeemable subsidy access policies, coupons,
     // enterprise offers, or subscription plan associated with learner's license.
-    if (redeemableLearnerCreditPolicies.redeemablePolicies) {
+    if (redeemableLearnerCreditPolicies?.redeemablePolicies) {
       const activePolicies = redeemableLearnerCreditPolicies.redeemablePolicies.filter(policy => policy.active);
       activePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
     }

@@ -5,8 +5,9 @@ import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catal
 import {
   useDefaultSearchFilters, useSearchCatalogs,
 } from '../hooks';
-import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
 
 const {
   SearchContext, SHOW_ALL_NAME,
