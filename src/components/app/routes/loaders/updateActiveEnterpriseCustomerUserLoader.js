@@ -40,6 +40,7 @@ export default function makeUpdateActiveEnterpriseCustomerUserLoader(queryClient
           enterpriseCustomerUser: foundEnterpriseCustomerUserForSlug,
           userId,
           userEmail,
+          username,
           allLinkedEnterpriseCustomerUsers,
         });
         return null;

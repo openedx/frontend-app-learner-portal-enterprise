@@ -1,6 +1,6 @@
 import { getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { ensureEnterpriseAppData } from '../queries';
+import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../queries';
 
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
@@ -25,6 +25,7 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
  * @param {Object[]} params.allLinkedEnterpriseCustomerUsers - All linked enterprise customer users.
  * @param {string} params.userId - The user ID.
  * @param {string} params.userEmail - The user email.
+ * @param {string} params.username - The user username.
  * @param {Object} params.queryClient - The query client.
  * @returns {Promise<void>} - A promise that resolves when the active enterprise customer is updated
  *  and the query cache is updated with fresh data.
@@ -35,6 +36,7 @@ export async function updateActiveEnterpriseCustomerUser({
   allLinkedEnterpriseCustomerUsers,
   userId,
   userEmail,
+  username,
   queryClient,
 }) {
   // Makes the POST API request to update the active enterprise customer
@@ -45,7 +47,8 @@ export async function updateActiveEnterpriseCustomerUser({
   // Perform optimistic update of the query cache to avoid duplicate API request for the same data. The only
   // difference is that the query key now contains the new enterprise slug, so we can proactively set the query
   // cache for with the enterprise learner data we already have before resolving the loader.
-  queryClient.setQueryData(enterpriseCustomerUser.queryKey, {
+  const enterpriseLearnerQuery = queryEnterpriseLearner(username, enterpriseCustomerUser.enterpriseCustomer.slug);
+  queryClient.setQueryData(enterpriseLearnerQuery.queryKey, {
     ...enterpriseLearnerData,
     activeEnterpriseCustomer: enterpriseCustomerUser.enterpriseCustomer,
     allLinkedEnterpriseCustomerUsers: allLinkedEnterpriseCustomerUsers.map(
