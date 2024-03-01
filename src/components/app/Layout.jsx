@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { Outlet } from 'react-router-dom';
 import SiteFooter from '@edx/frontend-component-footer';
 
-import { useEnterpriseLearner } from './data';
+import { useEnterpriseLearner, isSystemMaintenanceAlertOpen } from './data';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
 import NotFoundPage from '../NotFoundPage';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
@@ -12,7 +12,6 @@ import { DEFAULT_TITLE, TITLE_TEMPLATE } from '../layout/Layout';
 import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { SystemWideWarningBanner } from '../system-wide-banner';
-import { isSystemMaintenanceAlertOpen } from './data/utils';
 
 const Layout = () => {
   const { authenticatedUser, config } = useContext(AppContext);

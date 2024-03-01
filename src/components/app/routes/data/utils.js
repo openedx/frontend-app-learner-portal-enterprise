@@ -12,7 +12,7 @@ import {
   NewRelicLoggingService,
 } from '@edx/frontend-platform/logging';
 
-import { queryEnterpriseLearner } from '../queries';
+import { queryEnterpriseLearner } from './queries';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.

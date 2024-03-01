@@ -4,14 +4,18 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeRootLoader from '../rootLoader';
-import { ensureAuthenticatedUser, extractEnterpriseId } from '../../data';
 import {
+  ensureAuthenticatedUser,
+  extractEnterpriseId,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
-  queryEnterpriseLearner, queryEnterpriseLearnerOffers, queryLicenseRequests, queryRedeemablePolicies, querySubsidyRequestConfiguration,
-} from '../../queries';
+  queryEnterpriseLearner,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryRedeemablePolicies,
+} from '../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),

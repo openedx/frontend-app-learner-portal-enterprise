@@ -5,14 +5,14 @@ import { queries } from '../../../../../utils/queryKeyFactory';
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.couponCodes
+ * ._ctx.course
+ * ._ctx.contentMetadata(courseKey)
  * @returns
  */
-export default function queryCouponCodes(enterpriseUuid) {
+export default function queryCourseMetadata(enterpriseUuid, courseKey) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.subsidies
-    ._ctx.couponCodes;
+    ._ctx.course
+    ._ctx.contentMetadata(courseKey);
 }

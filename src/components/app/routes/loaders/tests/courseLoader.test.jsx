@@ -10,7 +10,7 @@ import {
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
   queryUserEntitlements,
-} from '../../queries';
+} from '../../data/queries';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),

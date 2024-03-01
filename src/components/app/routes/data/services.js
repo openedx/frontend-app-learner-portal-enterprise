@@ -341,3 +341,18 @@ export async function fetchSubscriptions(enterpriseUuid) {
     customerAgreement,
   };
 }
+
+/**
+ * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
+ * request, updating the active enterprise customer for the learner.
+ * @param {Object} params - The parameters object.
+ * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
+ * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
+ */
+export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
+  const formData = new FormData();
+  formData.append('enterprise', enterpriseCustomer.uuid);
+  return getAuthenticatedHttpClient().post(url, formData);
+}

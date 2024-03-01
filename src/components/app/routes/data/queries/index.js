@@ -1,21 +1,16 @@
-import { getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../queries';
+import { updateUserActiveEnterprise } from '../services';
+import ensureEnterpriseAppData from './ensureEnterpriseAppData';
+import queryEnterpriseLearner from './enterpriseLearner';
 
-/**
- * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
- * request, updating the active enterprise customer for the learner.
- * @param {Object} params - The parameters object.
- * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
- * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
- */
-export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
-  const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
-  const formData = new FormData();
-  formData.append('enterprise', enterpriseCustomer.uuid);
-  return getAuthenticatedHttpClient().post(url, formData);
-}
+export { default as queryCanRedeem } from './canRedeemCourse';
+export { default as queryContentHighlightsConfiguration } from './contentHighlights';
+export { default as queryCourseMetadata } from './courseMetadata';
+export { default as queryEnterpriseCourseEnrollments } from './enterpriseCourseEnrollments';
+export { default as queryEnterpriseLearner } from './enterpriseLearner';
+export { default as queryUserEntitlements } from './userEntitlements';
+export { default as ensureEnterpriseAppData } from './ensureEnterpriseAppData';
+
+export * from './subsidies';
 
 /**
  * Updates the active enterprise customer for the learner.

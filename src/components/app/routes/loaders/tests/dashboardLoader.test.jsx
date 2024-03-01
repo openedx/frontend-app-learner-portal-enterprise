@@ -3,8 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeDashboardLoader from '../dashboardLoader';
-import { extractEnterpriseId } from '../../data';
-import { queryEnterpriseCourseEnrollments } from '../../queries';
+import { extractEnterpriseId, queryEnterpriseCourseEnrollments } from '../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),

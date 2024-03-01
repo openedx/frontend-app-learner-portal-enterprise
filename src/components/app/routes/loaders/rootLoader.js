@@ -1,4 +1,4 @@
-import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../queries';
+import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../data/queries';
 import {
   ensureAuthenticatedUser,
   redirectToRemoveTrailingSlash,
