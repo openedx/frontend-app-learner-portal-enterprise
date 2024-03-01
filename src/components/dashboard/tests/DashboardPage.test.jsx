@@ -95,10 +95,6 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
 
-jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect', () => jest.fn(
-  () => (<div>enterprise-learner-first-visit-redirect</div>),
-));
-
 const defaultAppState = {
   enterpriseConfig: {
     name: 'BearsRUs',
@@ -477,15 +473,6 @@ describe('<Dashboard />', () => {
     userEvent.click(myCareerTab);
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render redirect component if no cookie and no courseAssignments exist', () => {
-    const noActiveCourseAssignmentUserSubsidyState = {
-      ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-    };
-    renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
-    expect(screen.queryByText('enterprise-learner-first-visit-redirect')).toBeTruthy();
   });
 
   describe('SubscriptionExpirationModal', () => {
