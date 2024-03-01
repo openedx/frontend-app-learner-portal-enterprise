@@ -6,9 +6,12 @@ export { default as queryCanRedeem } from './canRedeemCourse';
 export { default as queryContentHighlightsConfiguration } from './contentHighlights';
 export { default as queryCourseMetadata } from './courseMetadata';
 export { default as queryEnterpriseCourseEnrollments } from './enterpriseCourseEnrollments';
-export { default as queryEnterpriseLearner } from './enterpriseLearner';
 export { default as queryUserEntitlements } from './userEntitlements';
 export { default as ensureEnterpriseAppData } from './ensureEnterpriseAppData';
+
+export {
+  queryEnterpriseLearner,
+};
 
 export * from './subsidies';
 
@@ -63,7 +66,6 @@ export async function updateActiveEnterpriseCustomerUser({
     queryClient,
   }));
 }
-<<<<<<< HEAD
 
 /**
  * Extracts the appropriate enterprise ID for the current user and enterprise slug.
@@ -107,5 +109,3 @@ export async function extractEnterpriseId({
   // If no enterprise customer is found for the given user/slug, throw an error.
   throw new Error(`Could not find enterprise customer for user ${authenticatedUser.userId} and slug ${enterpriseSlug}`);
 }
-=======
->>>>>>> feat/react-query-route-loaders
