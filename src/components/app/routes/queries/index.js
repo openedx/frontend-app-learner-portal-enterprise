@@ -4,5 +4,6 @@ export { default as queryCourseMetadata } from './courseMetadata';
 export { default as queryEnterpriseCourseEnrollments } from './enterpriseCourseEnrollments';
 export { default as queryEnterpriseLearner } from './enterpriseLearner';
 export { default as queryUserEntitlements } from './userEntitlements';
+export { default as queryNotices } from './notices';
 
 export * from './subsidies';

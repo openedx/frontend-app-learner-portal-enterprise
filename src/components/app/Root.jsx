@@ -6,7 +6,7 @@ import NProgress from 'nprogress';
 
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
-import NoticesProvider from '../notices-provider';
+import { useNotices } from './routes/data/hooks';
 
 // Determines amount of time that must elapse before the
 // NProgress loader is shown in the UI. No need to show it
@@ -16,6 +16,7 @@ export const NPROGRESS_DELAY_MS = 300;
 const Root = () => {
   const navigation = useNavigation();
   const fetchers = useFetchers();
+  useNotices();
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -30,7 +31,7 @@ const Root = () => {
   }, [navigation, fetchers]);
 
   return (
-    <NoticesProvider>
+    <>
       <ToastsProvider>
         <Toasts />
         <Suspense fallback={<DelayedFallbackContainer />}>
@@ -38,7 +39,7 @@ const Root = () => {
         </Suspense>
       </ToastsProvider>
       <ScrollRestoration />
-    </NoticesProvider>
+    </>
   );
 };
 

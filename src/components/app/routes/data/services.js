@@ -1,11 +1,12 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import {
   ENTERPRISE_OFFER_STATUS,
   ENTERPRISE_OFFER_USAGE_TYPE,
 } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
+import { logError, logInfo } from "@edx/frontend-platform/logging";
 
 // Enterprise Course Enrollments
 export async function fetchUserEntitlements() {
@@ -365,4 +366,27 @@ export async function fetchSubscriptions(enterpriseUuid) {
     subscriptionLicenses: response.results,
     customerAgreement,
   };
+}
+
+// Notices
+export const fetchNotices = async () => {
+  const authenticatedUser = getAuthenticatedUser();
+  const url = new URL(`${getConfig().LMS_BASE_URL}/notices/api/v1/unacknowledged`);
+  if (authenticatedUser) {
+    try {
+      const { data } = await getAuthenticatedHttpClient().get(url.href, {});
+      console.log(data)
+      return data;
+    } catch (error) {
+      // we will just swallow error, as that probably means the notices app is not installed.
+      // Notices are not necessary for the rest of dashboard to function.
+      const httpErrorStatus = getErrorResponseStatusCode(error);
+      if (httpErrorStatus === 404) {
+        logInfo(`${error}. This probably happened because the notices plugin is not installed on platform.`);
+      } else {
+        logError(error);
+      }
+    }
+  }
+  return null;
 }

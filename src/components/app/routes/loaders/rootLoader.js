@@ -12,6 +12,7 @@ import {
   querySubsidyRequestConfiguration,
   queryLicenseRequests,
   queryCouponCodeRequests,
+  queryNotices,
 } from '../queries';
 
 export const updateUserActiveEnterprise = async ({ enterpriseCustomer }) => {
@@ -28,7 +29,7 @@ export function getEnterpriseAppData({
   userEmail,
   queryClient,
 }) {
-  return [
+  const enterpriseAppData = [
     // Enterprise Customer User Subsidies
     queryClient.ensureQueryData(
       querySubscriptions(enterpriseCustomer.uuid),
@@ -59,6 +60,14 @@ export function getEnterpriseAppData({
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
   ];
+  if (!getConfig().ENABLE_NOTICES) {
+    enterpriseAppData.push(
+      queryClient.ensureQueryData(
+        queryNotices(),
+      ),
+    );
+  }
+  return enterpriseAppData;
 }
 
 /**
