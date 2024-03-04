@@ -55,4 +55,5 @@ export default function ensureEnterpriseAppData({
       ),
     );
   }
+  return enterpriseAppData;
 }
