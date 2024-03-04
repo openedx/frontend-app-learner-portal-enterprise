@@ -7,6 +7,7 @@ import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
 } from '@openedx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
@@ -30,7 +31,7 @@ const CourseSidebar = () => {
   const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);
   const [pacingType, pacingTypeContent] = useCoursePacingType(activeCourseRun);
   const { enterpriseConfig } = useContext(AppContext);
-
+  const intl = useIntl();
   return (
     <>
       <ul className="pl-0 mb-5 course-details-sidebar">
@@ -39,14 +40,26 @@ const CourseSidebar = () => {
             {hasTruthyValue(activeCourseRun.weeksToComplete) && (
               <CourseSidebarListItem
                 icon={AccessTime}
-                label="Length"
+                label={
+                  intl.formatMessage({
+                    id: 'enterprise.course.about.course.sidebar.length',
+                    defaultMessage: 'Length',
+                    description: 'Label for the length of the course in weeks.',
+                  })
+                }
                 content={`${weeksToComplete} ${weeksLabel}`}
               />
             )}
             {hasTruthyValue([activeCourseRun.minEffort, activeCourseRun.maxEffort]) && (
               <CourseSidebarListItem
                 icon={Speed}
-                label="Effort"
+                label={
+                  intl.formatMessage({
+                    id: 'enterprise.course.about.course.sidebar.effort',
+                    defaultMessage: 'Effort',
+                    description: 'Label for the effort required to complete the course. (hours per week)',
+                  })
+                }
                 content={`${activeCourseRun.minEffort}-${activeCourseRun.maxEffort} hours per week`}
               />
             )}
@@ -54,7 +67,13 @@ const CourseSidebar = () => {
         )}
         <CourseSidebarListItem
           icon={Tag}
-          label="Price"
+          label={
+            intl.formatMessage({
+              id: 'enterprise.course.about.course.sidebar.price',
+              defaultMessage: 'Price',
+              description: 'Label for the price of the course. Price will be in USD.',
+            })
+          }
           content={<CourseSidebarPrice />}
         />
         {partners?.length > 0 && (
@@ -84,7 +103,13 @@ const CourseSidebar = () => {
         {primarySubject && (
           <CourseSidebarListItem
             icon={School}
-            label="Subject"
+            label={
+              intl.formatMessage({
+                id: 'enterprise.course.about.course.sidebar.subject',
+                defaultMessage: 'Subject',
+                description: 'Label for the subject of the course.',
+              })
+            }
             content={(
               <Link
                 to={`/${enterpriseConfig.slug}/search?subjects=${encodeURIComponent(primarySubject.name)}`}
@@ -106,14 +131,26 @@ const CourseSidebar = () => {
         {activeCourseRun.levelType && (
           <CourseSidebarListItem
             icon={Equalizer}
-            label="Level"
+            label={
+              intl.formatMessage({
+                id: 'enterprise.course.about.course.sidebar.level',
+                defaultMessage: 'Level',
+                description: 'Label for the level of the course. (Introductory, Intermediate, Advanced)',
+              })
+            }
             content={activeCourseRun.levelType}
           />
         )}
         {activeCourseRun.contentLanguage && (
           <CourseSidebarListItem
             icon={Institution}
-            label="Language"
+            label={
+              intl.formatMessage({
+                id: 'enterprise.course.about.course.sidebar.language',
+                defaultMessage: 'Language',
+                description: 'Label for the language of the course. (English, Spanish, etc.)',
+              })
+            }
             content={ISO6391.getNativeName(activeCourseRun.contentLanguage.slice(0, 2))}
           />
         )}
@@ -129,7 +166,13 @@ const CourseSidebar = () => {
         {pacingType && (
           <CourseSidebarListItem
             icon={Person}
-            label="Course Type"
+            label={
+              intl.formatMessage({
+                id: 'enterprise.course.about.course.sidebar.course.type',
+                defaultMessage: 'Course Type',
+                description: 'Label for the course type. (Self-paced, Instructor-paced, etc.)',
+              })
+            }
             content={pacingTypeContent}
           />
         )}

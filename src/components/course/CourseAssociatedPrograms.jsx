@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Hyperlink } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
 import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
@@ -11,10 +12,15 @@ const CourseAssociatedPrograms = () => {
   const { state } = useContext(CourseContext);
   const { course } = state;
   const { enterpriseConfig } = useContext(AppContext);
-
   return (
     <div className="associated-programs mb-5">
-      <h3>Associated Programs</h3>
+      <h3>
+        <FormattedMessage
+          id="enterprise.course.about.course.sidebar.associated.programs"
+          defaultMessage="Associated Programs"
+          description="Title for the section that lists the programs that are associated with the course."
+        />
+      </h3>
       <ul className="pl-0 list-unstyled">
         {course.programs.map(program => (
           <li key={program.uuid} className="mb-3 row">
