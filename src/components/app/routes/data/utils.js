@@ -12,6 +12,7 @@ import {
   logError,
   NewRelicLoggingService,
 } from '@edx/frontend-platform/logging';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
@@ -82,6 +83,7 @@ export function redirectToRemoveTrailingSlash(requestUrl) {
  * Ensures that the user is authenticated. If not, redirects to the login page.
  * @param {URL} requestUrl - The current request URL to redirect back to if the
  *  user is not authenticated.
+ * @param {Object} params - The parameters object.
  */
 export async function ensureAuthenticatedUser(requestUrl, params) {
   configureLogging(NewRelicLoggingService, {
@@ -135,34 +137,6 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
 }
 
 /**
- * Helper function to determine which linked enterprise customer user record
- * should be used for display in the UI.
- * @param {*} param0
- * @returns
- */
-export function determineEnterpriseCustomerUserForDisplay({
-  activeEnterpriseCustomer,
-  activeEnterpriseCustomerUserRoleAssignments,
-  enterpriseSlug,
-  foundEnterpriseCustomerUserForCurrentSlug,
-}) {
-  const activeEnterpriseCustomerUser = {
-    enterpriseCustomer: activeEnterpriseCustomer,
-    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
-  };
-  if (!enterpriseSlug) {
-    return activeEnterpriseCustomerUser;
-  }
-  if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
-    return {
-      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
-    };
-  }
-  return activeEnterpriseCustomerUser;
-}
-
-/**
  * Transform enterprise customer metadata for use by consuming UI components.
  * @param {Object} enterpriseCustomer
  * @param {Object} enterpriseFeatures
@@ -203,6 +177,107 @@ export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatur
     showIntegrationWarning,
     enterpriseFeatures,
   };
+}
+
+/**
+ * TODO
+ * @param {*} enterpriseSlug
+ * @param {*} activeEnterpriseCustomer
+ * @param {*} allLinkedEnterpriseCustomerUsers
+ * @param {*} requestUrl
+ * @param {*} queryClient
+ * @param {*} updateActiveEnterpriseCustomerUser
+ * @param {*} enterpriseFeatures
+ * @returns
+ */
+export async function ensureActiveEnterpriseCustomerUser({
+  enterpriseSlug,
+  activeEnterpriseCustomer,
+  allLinkedEnterpriseCustomerUsers,
+  requestUrl,
+  queryClient,
+  updateActiveEnterpriseCustomerUser,
+  enterpriseFeatures,
+}) {
+  // If the enterprise slug in the URL matches the active enterprise customer's slug, return early.
+  if (enterpriseSlug === activeEnterpriseCustomer.slug) {
+    return null;
+  }
+
+  // Otherwise, try to find the enterprise customer for the given slug and, if found, update it
+  // as the active enterprise customer for the learner.
+  const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
+  );
+  if (!foundEnterpriseCustomerUserForSlug) {
+    throw redirect(generatePath('/:enterpriseSlug/*', {
+      enterpriseSlug: activeEnterpriseCustomer.slug,
+      '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
+    }));
+  }
+
+  const {
+    enterpriseCustomer: nextActiveEnterpriseCustomer,
+    roleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
+  } = foundEnterpriseCustomerUserForSlug;
+  const transformedNextActiveEnterpriseCustomer = transformEnterpriseCustomer(
+    nextActiveEnterpriseCustomer,
+    enterpriseFeatures,
+  );
+  // Perform POST API request to update the active enterprise customer user.
+  const nextEnterpriseLearnerQuery = await updateActiveEnterpriseCustomerUser(nextActiveEnterpriseCustomer);
+  const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
+    ecu => ({
+      ...ecu,
+      active: (
+        ecu.enterpriseCustomer.uuid === nextActiveEnterpriseCustomer.uuid
+      ),
+    }),
+  );
+
+  // Perform optimistic update of the query cache to avoid duplicate API request for the same data. The only
+  // difference is that the query key now contains the new enterprise slug, so we can proactively set the query
+  // cache for with the enterprise learner data we already have before resolving the loader.
+  queryClient.setQueryData(nextEnterpriseLearnerQuery.queryKey, {
+    enterpriseCustomer: transformedNextActiveEnterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
+    activeEnterpriseCustomer: transformedNextActiveEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
+    allLinkedEnterpriseCustomerUsers: updatedLinkedEnterpriseCustomerUsers,
+  });
+
+  return {
+    enterpriseCustomer: transformedNextActiveEnterpriseCustomer,
+    updatedLinkedEnterpriseCustomerUsers,
+  };
+}
+
+/**
+ * Helper function to determine which linked enterprise customer user record
+ * should be used for display in the UI.
+ * @param {*} param0
+ * @returns
+ */
+export function determineEnterpriseCustomerUserForDisplay({
+  activeEnterpriseCustomer,
+  activeEnterpriseCustomerUserRoleAssignments,
+  enterpriseSlug,
+  foundEnterpriseCustomerUserForCurrentSlug,
+}) {
+  const activeEnterpriseCustomerUser = {
+    enterpriseCustomer: activeEnterpriseCustomer,
+    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
+  };
+  if (!enterpriseSlug) {
+    return activeEnterpriseCustomerUser;
+  }
+  if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
+    return {
+      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
+      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
+    };
+  }
+  return activeEnterpriseCustomerUser;
 }
 
 /**
@@ -300,4 +375,142 @@ export function getAssignmentsByState(assignments = []) {
     assignmentsForDisplay,
     hasAssignmentsForDisplay,
   };
+}
+
+export function redirectToDashboardAfterLicenseActivation({
+  shouldRedirect,
+  enterpriseCustomer,
+}) {
+  // Redirect to the enterprise learner portal dashboard page when user
+  // is on the license activation page. Otherwise, let the user stay on
+  // the current page route.
+  if (shouldRedirect) {
+    throw redirect(generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug }));
+  }
+}
+
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+export async function activateSubscriptionLicense({
+  enterpriseCustomer,
+  subscriptionLicenseToActivate,
+  requestUrl,
+  activateAllocatedSubscriptionLicense,
+}) {
+  // Activate the user's assigned subscription license.
+  const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
+  try {
+    await activateAllocatedSubscriptionLicense(subscriptionLicenseToActivate);
+  } catch (error) {
+    logError(error);
+    redirectToDashboardAfterLicenseActivation({
+      enterpriseCustomer,
+      shouldRedirect: licenseActivationRouteMatch,
+    });
+    return;
+  }
+  sendEnterpriseTrackEvent(
+    enterpriseCustomer.uuid,
+    'edx.ui.enterprise.learner_portal.license-activation.license-activated',
+    {
+      // `autoActivated` is true if the user is on a page route *other* than the license activation route.
+      autoActivated: !licenseActivationRouteMatch,
+    },
+  );
+  redirectToDashboardAfterLicenseActivation({
+    enterpriseCustomer,
+    shouldRedirect: licenseActivationRouteMatch,
+  });
+}
+
+/**
+ * TODO
+ * @param {*} param0
+ */
+export async function getAutoAppliedSubscriptionLicense({
+  subscriptionsData,
+  enterpriseCustomer,
+  requestAutoAppliedSubscriptionLicense,
+}) {
+  const { customerAgreement } = subscriptionsData;
+  const hasSubscriptionForAutoAppliedLicenses = (
+    !!customerAgreement.subscriptionForAutoAppliedLicenses
+    && customerAgreement.netDaysUntilExpiration > 0
+  );
+  const hasIdentityProvider = enterpriseCustomer.identityProvider;
+
+  // If customer agreement has no configured subscription plan for auto-applied
+  // licenses, or the enterprise customer does not have an identity provider,
+  // return early.
+  if (!hasSubscriptionForAutoAppliedLicenses || !hasIdentityProvider) {
+    return;
+  }
+
+  try {
+    await requestAutoAppliedSubscriptionLicense(customerAgreement);
+  } catch (error) {
+    logError(error);
+  }
+}
+
+/**
+ * TODO
+ * @param {*} enterpriseCustomer
+ * @param {*} subscriptionsData
+ * @param {*} queryClient
+ * @param {*} subscriptionsQuery
+ * @param {*} requestUrl
+ * @returns
+ */
+export async function activateOrAutoApplySubscriptionLicense({
+  enterpriseCustomer,
+  subscriptionsData,
+  requestUrl,
+  activateAllocatedSubscriptionLicense,
+  requestAutoAppliedSubscriptionLicense,
+}) {
+  const {
+    customerAgreement,
+    subscriptionLicenses,
+  } = subscriptionsData;
+  if (!customerAgreement || customerAgreement.netDaysUntilExpiration <= 0) {
+    return;
+  }
+
+  // Filter subscription licenses to only be those associated with
+  // subscription plans that are active and current.
+  const currentSubscriptionLicenses = subscriptionLicenses.filter((license) => {
+    const { subscriptionPlan } = license;
+    const { isActive, daysUntilExpiration } = subscriptionPlan;
+    const isCurrent = daysUntilExpiration > 0;
+    return isActive && isCurrent;
+  });
+
+  // Check if learner already has activated license. If so, return early.
+  const activatedSubscriptionLicense = currentSubscriptionLicenses.find((license) => license.status === 'activated');
+  if (activatedSubscriptionLicense) {
+    return;
+  }
+
+  // Otherwise, check if there is an assigned subscription
+  // license to activate OR if the user should request an
+  // auto-applied subscription license.
+  const subscriptionLicenseToActivate = subscriptionLicenses.find((license) => license.status === 'assigned');
+  if (subscriptionLicenseToActivate) {
+    await activateSubscriptionLicense({
+      enterpriseCustomer,
+      subscriptionLicenseToActivate,
+      requestUrl,
+      activateAllocatedSubscriptionLicense,
+    });
+  } else {
+    await getAutoAppliedSubscriptionLicense({
+      enterpriseCustomer,
+      subscriptionsData,
+      requestAutoAppliedSubscriptionLicense,
+    });
+  }
 }

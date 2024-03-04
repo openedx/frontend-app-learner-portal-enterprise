@@ -8,6 +8,8 @@ const SiteHeaderNavMenu = () => {
   const intl = useIntl();
   const mainMenuLinkClassName = 'nav-link';
 
+  console.log('enterpriseCustomer!!!', enterpriseCustomer);
+
   if (enterpriseCustomer.disableSearch) {
     return null;
   }

@@ -1,8 +1,11 @@
-import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../data/queries';
 import {
   ensureAuthenticatedUser,
   redirectToRemoveTrailingSlash,
   redirectToSearchPageForNewUser,
+  ensureEnterpriseAppData,
+  queryEnterpriseLearner,
+  ensureActiveEnterpriseCustomerUser,
+  updateUserActiveEnterprise,
 } from '../data';
 
 /**
@@ -26,20 +29,56 @@ export default function makeRootLoader(queryClient) {
     // or fetch from the server if not available.
     const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
-    const { activeEnterpriseCustomer } = enterpriseLearnerData;
+    let {
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+    } = enterpriseLearnerData;
+    const { enterpriseFeatures } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer; return early.
     if (!activeEnterpriseCustomer) {
       return null;
     }
 
-    // Begin fetching all enterprise app data.
-    const enterpriseAppData = await Promise.all(ensureEnterpriseAppData({
+    // Ensure the active enterprise customer user is updated, when applicable (e.g., the
+    // current enterprise slug in the URL does not match the active enterprise customer's slug).
+    const updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({
+      enterpriseSlug,
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+      queryClient,
+      username,
+      requestUrl,
+      enterpriseFeatures,
+      async updateActiveEnterpriseCustomerUser(nextActiveEnterpriseCustomer) {
+        // Makes the POST API request to update the active enterprise customer
+        // for the learner in the backend for future sessions.
+        await updateUserActiveEnterprise({
+          enterpriseCustomer: nextActiveEnterpriseCustomer,
+        });
+        return queryEnterpriseLearner(username, nextActiveEnterpriseCustomer.slug);
+      },
+    });
+    // If the active enterprise customer user was updated, override the previous active
+    // enterprise customer user data with the new active enterprise customer user data
+    // for subsequent queries.
+    if (updateActiveEnterpriseCustomerUserResult) {
+      const {
+        enterpriseCustomer: nextActiveEnterpriseCustomer,
+        updatedLinkedEnterpriseCustomerUsers,
+      } = updateActiveEnterpriseCustomerUserResult;
+      activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
+      allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
+    }
+
+    // Fetch all enterprise app data.
+    const enterpriseAppData = await ensureEnterpriseAppData({
       enterpriseCustomer: activeEnterpriseCustomer,
       userId,
       userEmail,
       queryClient,
-    }));
+      requestUrl,
+    });
 
     // Redirect user to search page, for first-time users with no assignments.
     redirectToSearchPageForNewUser({

@@ -85,9 +85,10 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
   return {
     enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures),
     enterpriseCustomerUserRoleAssignments: roleAssignments,
-    activeEnterpriseCustomer,
+    activeEnterpriseCustomer: transformEnterpriseCustomer(activeEnterpriseCustomer, enterpriseFeatures),
     activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
+    enterpriseFeatures,
   };
 }
 
@@ -338,30 +339,49 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
 }
 
 // Subscriptions
-async function fetchSubscriptionLicensesForUser(enterpriseUUID) {
+/**
+ * TODO
+ * @returns
+ * @param enterpriseUUID
+ */
+export async function fetchSubscriptions(enterpriseUUID) {
   const queryParams = new URLSearchParams({
     enterprise_customer_uuid: enterpriseUUID,
     include_revoked: true,
   });
-  const config = getConfig();
-  const url = `${config.LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
+  const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
   const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const responseData = camelCaseObject(response.data);
+  // Extracts customer agreement and removes it from the original response object
+  const { customerAgreement } = responseData;
+  const subscriptionsData = {
+    subscriptionLicenses: responseData.results,
+    customerAgreement,
+  };
+  return subscriptionsData;
 }
 
 /**
  * TODO
+ * @param {*} activationKey
  * @returns
- * @param enterpriseUuid
  */
-export async function fetchSubscriptions(enterpriseUuid) {
-  const response = await fetchSubscriptionLicensesForUser(enterpriseUuid);
-  // Extracts customer agreement and removes it from the original response object
-  const { customerAgreement } = response;
-  return {
-    subscriptionLicenses: response.results,
-    customerAgreement,
-  };
+export async function activateLicense(activationKey) {
+  const queryParams = new URLSearchParams({ activation_key: activationKey });
+  const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/license-activation/?${queryParams.toString()}`;
+  return getAuthenticatedHttpClient().post(url);
+}
+
+/**
+ * Attempts to auto-apply a license for the authenticated user and the specified customer agreement.
+ *
+ * @param {string} customerAgreementId The UUID of the customer agreement.
+ * @returns An object representing the auto-applied license or null if no license was auto-applied.
+ */
+export async function requestAutoAppliedUserLicense(customerAgreementId) {
+  const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
+  const response = await getAuthenticatedHttpClient().post(url);
+  return camelCaseObject(response.data);
 }
 
 /**
@@ -372,8 +392,7 @@ export async function fetchSubscriptions(enterpriseUuid) {
  * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
  */
 export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
-  const config = getConfig();
-  const url = `${config.LMS_BASE_URL}/enterprise/select/active/`;
+  const url = `${getConfig().LMS_BASE_URL}/enterprise/select/active/`;
   const formData = new FormData();
   formData.append('enterprise', enterpriseCustomer.uuid);
   return getAuthenticatedHttpClient().post(url, formData);

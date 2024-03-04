@@ -18,23 +18,30 @@ import { ErrorPage } from '../error-page';
 // for quick route transitions.
 export const NPROGRESS_DELAY_MS = 300;
 
-const Root = () => {
+export function useNProgressLoader() {
   const { authenticatedUser } = useContext(AppContext);
   const navigation = useNavigation();
   const fetchers = useFetchers();
-  const { enterpriseSlug } = useParams();
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (navigation.state === 'idle' && fetchersIdle) {
+      const isAuthenticatedUserHydrated = !!authenticatedUser?.profileImage;
+      if (navigation.state === 'idle' && fetchersIdle && isAuthenticatedUserHydrated) {
         NProgress.done();
       } else {
         NProgress.start();
       }
     }, NPROGRESS_DELAY_MS);
     return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers]);
+  }, [navigation, fetchers, authenticatedUser]);
+}
+
+const Root = () => {
+  const { authenticatedUser } = useContext(AppContext);
+  const { enterpriseSlug } = useParams();
+
+  useNProgressLoader();
 
   // in the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely.
@@ -53,6 +60,13 @@ const Root = () => {
         </Hyperlink>
       </ErrorPage>
     );
+  }
+
+  // User is authenticated with an active enterprise customer, but
+  // the user account API data is still hydrating. If the user is
+  // still hydrating, the NProgress loader will not complete.
+  if (!authenticatedUser.profileImage) {
+    return null;
   }
 
   // User is authenticated, so render the child routes (rest of the app).

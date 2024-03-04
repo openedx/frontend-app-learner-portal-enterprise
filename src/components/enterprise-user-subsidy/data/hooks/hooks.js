@@ -63,16 +63,10 @@ const fetchExistingUserLicense = async (enterpriseId) => {
  * @param {string} customerAgreementId The UUID of the customer agreement.
  * @returns An object representing the auto-applied license or null if no license was auto-applied.
  */
-const requestAutoAppliedUserLicense = async (customerAgreementId) => {
-  try {
-    const response = await requestAutoAppliedLicense(customerAgreementId);
-    const license = camelCaseObject(response.data);
-    return license;
-  } catch (error) {
-    logError(error);
-    return null;
-  }
-};
+export async function requestAutoAppliedUserLicense(customerAgreementId) {
+  const response = await requestAutoAppliedLicense(customerAgreementId);
+  return camelCaseObject(response.data);
+}
 
 /**
  * Retrieves a license for the authenticated user, if applicable. First attempts to find any existing licenses
