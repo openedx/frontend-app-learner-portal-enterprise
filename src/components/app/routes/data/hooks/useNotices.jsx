@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform/config';
 import { queryNotices } from '../../queries';
-import { useState } from "react";
 
 export default async function useNotices() {
   const { data } = await useQuery(

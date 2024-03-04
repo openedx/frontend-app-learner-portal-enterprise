@@ -10,7 +10,6 @@ import { useEnterpriseCuration } from '../search/content-highlights/data';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import EnterpriseLearnerFirstVisitRedirect from '../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect';
 import useDashboardTabs from './data/useDashboardTabs';
 
 const DashboardPage = () => {
@@ -49,7 +48,7 @@ const DashboardPage = () => {
   const PAGE_TITLE = intl.formatMessage(
     {
       id: 'enterprise.dashboard.page.title',
-      defaultMessage: 'Dashboard - {enterpriseName}!',
+      defaultMessage: 'Dashboard - {enterpriseName}',
       description: 'Page title for an enterprise dashboard.',
     },
     {
@@ -81,13 +80,12 @@ const DashboardPage = () => {
               })
           }
         </h2>
-        <EnterpriseLearnerFirstVisitRedirect />
         <Tabs
           activeKey={activeTab}
           onSelect={onSelectHandler}
           onMouseOverCapture={prefetchTab}
         >
-          {tabs}
+          {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
         </Tabs>
         {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
         {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}

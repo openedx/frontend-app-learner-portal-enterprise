@@ -8,10 +8,10 @@ import {
   querySubscriptions,
   queryRedeemablePolicies,
   queryEnterpriseLearnerOffers,
-  querySubsidyRequestConfiguration,
+  queryBrowseAndRequestConfiguration,
   queryLicenseRequests,
   queryCouponCodeRequests,
-} from '../../routes/queries';
+} from '../../routes/data/queries';
 /**
  * Retrieves the subsidies present for the active enterprise customer user.
  * @returns {Types.UseQueryResult}} The query results for the enterprise customer user subsidies.
@@ -19,8 +19,8 @@ import {
 export default function useEnterpriseCustomerUserSubsidies() {
   const { authenticatedUser } = useContext(AppContext);
   const { userId, email } = authenticatedUser;
-  const { data } = useEnterpriseLearner();
-  const enterpriseId = data.enterpriseCustomer.uuid;
+  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const enterpriseId = enterpriseCustomer.uuid;
   const queries = useQueries({
     queries: [
       querySubscriptions(enterpriseId),
@@ -30,7 +30,7 @@ export default function useEnterpriseCustomerUserSubsidies() {
       }),
       queryCouponCodes(enterpriseId),
       queryEnterpriseLearnerOffers(enterpriseId),
-      querySubsidyRequestConfiguration(enterpriseId),
+      queryBrowseAndRequestConfiguration(enterpriseId),
       queryLicenseRequests(enterpriseId, email),
       queryCouponCodeRequests(enterpriseId, email),
     ],

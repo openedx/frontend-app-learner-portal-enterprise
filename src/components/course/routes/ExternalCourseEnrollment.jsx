@@ -40,7 +40,7 @@ const ExternalCourseEnrollment = () => {
       `${pathname}/complete`,
       { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
   );
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
 

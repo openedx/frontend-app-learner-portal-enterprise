@@ -17,7 +17,7 @@ import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../../../enterprise-user-subsidy/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../../../app/data';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({

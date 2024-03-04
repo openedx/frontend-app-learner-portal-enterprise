@@ -14,8 +14,7 @@ import { CourseContext } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { useIsCourseAssigned } from '../data/hooks';
 import { features } from '../../../config';
-import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useIsAssignmentsOnlyLearner } from '../../app/data';
 
 const CourseAbout = () => {
   const {
@@ -27,26 +26,9 @@ const CourseAbout = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     redeemableLearnerCreditPolicies,
-    hasCurrentEnterpriseOffers,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
-  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
-
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-
-  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
-    subscriptionPlan,
-    subscriptionLicense,
-    licenseRequests,
-    couponCodesCount,
-    couponCodeRequests,
-    redeemableLearnerCreditPolicies,
-    hasCurrentEnterpriseOffers,
-  });
+  const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
+  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
 
   const featuredIsAssignmentOnlyLearner = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isAssignmentOnlyLearner;
   if (!isCourseAssigned && featuredIsAssignmentOnlyLearner) {

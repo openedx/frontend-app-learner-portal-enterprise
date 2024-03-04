@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useMatch } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@openedx/paragon';
 
@@ -7,8 +7,7 @@ import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
 import { useEnterpriseLearner } from '../app/data';
 
 const SiteHeaderLogos = () => {
-  const courseTypeMatch = useMatch('/:enterpriseSlug/:courseType?/course/*');
-  const courseType = courseTypeMatch?.params?.courseType;
+  const { courseType } = useParams();
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
 
@@ -21,7 +20,6 @@ const SiteHeaderLogos = () => {
     />
   );
 
-  // TODO: handle `disableSearch` for enterprise customers in new routing paradigm.
   if (!enterpriseCustomer.disableSearch) {
     mainLogo = (
       <Link to={`/${enterpriseCustomer.slug}`} data-testid="header-logo-link-id">

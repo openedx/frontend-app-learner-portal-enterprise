@@ -23,11 +23,12 @@ import DashboardPage from '../DashboardPage';
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
 import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
-import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
+import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -93,10 +94,6 @@ jest.mock('../main-content/course-enrollments/data/utils', () => ({
   ...jest.requireActual('../main-content/course-enrollments/data/utils'),
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
-
-jest.mock('../../enterprise-redirects/EnterpriseLearnerFirstVisitRedirect', () => jest.fn(
-  () => (<div>enterprise-learner-first-visit-redirect</div>),
-));
 
 const defaultAppState = {
   enterpriseConfig: {
@@ -476,15 +473,6 @@ describe('<Dashboard />', () => {
     userEvent.click(myCareerTab);
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render redirect component if no cookie and no courseAssignments exist', () => {
-    const noActiveCourseAssignmentUserSubsidyState = {
-      ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-    };
-    renderWithRouter(<DashboardWithContext initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />);
-    expect(screen.queryByText('enterprise-learner-first-visit-redirect')).toBeTruthy();
   });
 
   describe('SubscriptionExpirationModal', () => {

@@ -19,7 +19,7 @@ import {
 } from '../service';
 import { features } from '../../../../config';
 import { fetchCouponsOverview } from '../../coupons/data/service';
-import { transformRedeemablePoliciesData, getAssignmentsByState } from '../utils';
+import { getAssignmentsByState, transformRedeemablePoliciesData } from '../utils';
 
 /**
  * Attempts to fetch any existing licenses associated with the authenticated user and the
@@ -167,11 +167,10 @@ export function useSubscriptionLicense({
           autoActivated,
         },
       );
-
-      setLicense({
-        ...license,
+      setLicense((prevLicense) => ({
+        ...prevLicense,
         status: LICENSE_STATUS.ACTIVATED,
-      });
+      }));
     } catch (error) {
       logError(error);
       throw error;
@@ -251,11 +250,11 @@ const getRedeemablePoliciesData = async ({ queryKey }) => {
   const enterpriseId = queryKey[3];
   const userID = queryKey[4];
   const response = await fetchRedeemableLearnerCreditPolicies(enterpriseId, userID);
-  const redeemablePolicies = camelCaseObject(transformRedeemablePoliciesData(response.data));
+  const responseData = camelCaseObject(response.data);
+  const redeemablePolicies = transformRedeemablePoliciesData(responseData);
   const learnerContentAssignments = getAssignmentsByState(
     redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
   );
-
   return {
     redeemablePolicies,
     learnerContentAssignments,
