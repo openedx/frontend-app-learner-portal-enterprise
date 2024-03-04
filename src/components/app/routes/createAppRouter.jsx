@@ -3,12 +3,12 @@ import {
   Route, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 
-import RouteErrorBoundary from '../routes/RouteErrorBoundary';
+import RouteErrorBoundary from './RouteErrorBoundary';
 import {
   makeCourseLoader,
   makeRootLoader,
   makeDashboardLoader,
-} from '../routes/loaders';
+} from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
 import NotFoundPage from '../../NotFoundPage';
@@ -34,7 +34,7 @@ export default function createAppRouter(queryClient) {
           <Route
             index
             lazy={async () => {
-              const { DashboardRoute } = await import('../routes');
+              const { default: DashboardRoute } = await import('./DashboardRoute');
               return {
                 Component: DashboardRoute,
                 loader: makeDashboardLoader(queryClient),
@@ -44,7 +44,7 @@ export default function createAppRouter(queryClient) {
           <Route
             path="search"
             lazy={async () => {
-              const { SearchRoute } = await import('../routes');
+              const { default: SearchRoute } = await import('./SearchRoute');
               return {
                 Component: SearchRoute,
               };
@@ -53,7 +53,7 @@ export default function createAppRouter(queryClient) {
           <Route
             path=":courseType?/course/:courseKey/*"
             lazy={async () => {
-              const { CourseRoute } = await import('../routes');
+              const { default: CourseRoute } = await import('./CourseRoute');
               return {
                 Component: CourseRoute,
                 loader: makeCourseLoader(queryClient),

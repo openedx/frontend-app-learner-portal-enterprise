@@ -13,8 +13,7 @@ import {
 } from '../../utils/common';
 // import extractNamedExport from '../../utils/extract-named-export';
 
-import createAppRouter from './data/createAppRouter';
-import { useNProgressLoader } from './Root';
+import { RouterFallback, createAppRouter } from './routes';
 
 /* eslint-disable max-len */
 // const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
@@ -40,11 +39,6 @@ const queryClient = new QueryClient({
 });
 
 const router = createAppRouter(queryClient);
-
-const RouterFallback = () => {
-  useNProgressLoader();
-  return null;
-};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
