@@ -18,7 +18,7 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getLoginRedirectUrl: jest.fn().mockReturnValue('http://test-login-redirect-url'),
 }));
 
-const defaultAppContextValue = {
+const baseAppContextValue = {
   config: {},
   authenticatedUser: {
     userId: 3,
@@ -26,14 +26,24 @@ const defaultAppContextValue = {
   },
 };
 
+const hydratedUserAppContextValue = {
+  ...baseAppContextValue,
+  authenticatedUser: {
+    ...baseAppContextValue.authenticatedUser,
+    profileImage: {
+      url: 'http://test-profile-image-url',
+    },
+  },
+};
+
 const unauthenticatedAppContextValue = {
-  ...defaultAppContextValue,
+  ...baseAppContextValue,
   authenticatedUser: null,
 };
 
 const RootWrapper = ({
   children,
-  appContextValue = defaultAppContextValue,
+  appContextValue = hydratedUserAppContextValue,
 }) => (
   <IntlProvider locale="en">
     <QueryClientProvider client={queryClient()}>
@@ -64,6 +74,20 @@ describe('Root tests', () => {
     });
     expect(screen.getByText('You are now logged out.')).toBeInTheDocument();
     expect(screen.queryByTestId('hidden-children')).not.toBeInTheDocument();
+  });
+
+  test('page renders nothing loader when user is authenticated but not hydrated', () => {
+    const { container } = renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: (
+        <RootWrapper appContextValue={baseAppContextValue}>
+          <div data-testid="hidden-children" />
+        </RootWrapper>
+      ),
+    }, {
+      initialEntries: ['/test-enterprise?logout=true'],
+    });
+    expect(container).toBeEmptyDOMElement();
   });
 
   test('page renders child routes', () => {
