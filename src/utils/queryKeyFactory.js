@@ -104,14 +104,14 @@ export const enterprise = createQueryKeys('enterprise', {
   }),
 });
 
-export const user = createQueryKeys('user', {
+const user = createQueryKeys('user', {
   entitlements: {
     queryKey: null,
     queryFn: async () => fetchUserEntitlements(),
   },
 });
 
-export const notices = createQueryKeys('notices', {
+const notices = createQueryKeys('notices', {
   unacknowledged: {
     queryKey: null,
     queryFn: async () => fetchNotices(),

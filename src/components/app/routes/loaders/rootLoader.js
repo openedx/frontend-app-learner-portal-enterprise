@@ -1,6 +1,7 @@
+import { getConfig } from '@edx/frontend-platform/config';
 import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../data/queries';
 import {
-  ensureAuthenticatedUser,
+  ensureAuthenticatedUser, redirectToExternalNoticesPage,
   redirectToRemoveTrailingSlash,
   redirectToSearchPageForNewUser,
 } from '../data';
@@ -40,6 +41,11 @@ export default function makeRootLoader(queryClient) {
       userEmail,
       queryClient,
     }));
+
+    // Redirect user to the notices page from platform-plugin-notices
+    if (getConfig().ENABLE_NOTICES) {
+      redirectToExternalNoticesPage(enterpriseAppData[8]);
+    }
 
     // Redirect user to search page, for first-time users with no assignments.
     redirectToSearchPageForNewUser({

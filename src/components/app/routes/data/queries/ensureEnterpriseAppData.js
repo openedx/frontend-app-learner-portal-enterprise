@@ -48,7 +48,7 @@ export default function ensureEnterpriseAppData({
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
   ];
-  if (!getConfig().ENABLE_NOTICES) {
+  if (getConfig().ENABLE_NOTICES) {
     enterpriseAppData.push(
       queryClient.ensureQueryData(
         queryNotices(),

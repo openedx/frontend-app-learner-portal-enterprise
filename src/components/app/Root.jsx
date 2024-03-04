@@ -10,8 +10,8 @@ import { Hyperlink } from '@openedx/paragon';
 
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
-import { useNotices } from './routes/data/hooks';
 import { ErrorPage } from '../error-page';
+import useNoticesAndRedirect from './routes/data/hooks/useNoticesAndRedirect';
 
 // Determines amount of time that must elapse before the
 // NProgress loader is shown in the UI. No need to show it
@@ -22,7 +22,6 @@ const Root = () => {
   const { authenticatedUser } = useContext(AppContext);
   const navigation = useNavigation();
   const fetchers = useFetchers();
-  useNotices();
   const { enterpriseSlug } = useParams();
 
   useEffect(() => {
@@ -36,6 +35,9 @@ const Root = () => {
     }, NPROGRESS_DELAY_MS);
     return () => clearTimeout(timeoutId);
   }, [navigation, fetchers]);
+
+  // Redirects user if there are unacknowledged notices from platform-plugin-notices
+  useNoticesAndRedirect();
 
   // in the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely.

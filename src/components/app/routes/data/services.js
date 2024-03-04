@@ -372,7 +372,6 @@ export const fetchNotices = async () => {
   if (authenticatedUser) {
     try {
       const { data } = await getAuthenticatedHttpClient().get(url.href, {});
-      console.log(data);
       return data;
     } catch (error) {
       // we will just swallow error, as that probably means the notices app is not installed.

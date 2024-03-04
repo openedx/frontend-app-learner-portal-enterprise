@@ -301,3 +301,12 @@ export function getAssignmentsByState(assignments = []) {
     hasAssignmentsForDisplay,
   };
 }
+
+export function redirectToExternalNoticesPage(data) {
+  if (!data?.results) {
+    return;
+  }
+  if (data.results.length > 0) {
+    window.location.replace(`${data.results[0]}?next=${window.location.href}`);
+  }
+}
