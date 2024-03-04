@@ -15,7 +15,7 @@ describe('RouterFallback', () => {
     jest.clearAllMocks();
   });
 
-  it('renders without crashing', () => {
+  it('renders', () => {
     const { container } = render(<RouterFallback />);
     expect(container).toBeEmptyDOMElement();
     expect(useNProgressLoader).toHaveBeenCalledTimes(1);

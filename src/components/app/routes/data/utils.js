@@ -18,6 +18,7 @@ import Cookies from 'universal-cookie';
 
 import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
 import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { features } from '../../../../config';
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
@@ -435,6 +436,11 @@ export async function getAutoAppliedSubscriptionLicense({
   enterpriseCustomer,
   requestAutoAppliedSubscriptionLicense,
 }) {
+  // If the feature flag for auto-applied licenses is not enabled, return early.
+  if (!features.ENABLE_AUTO_APPLIED_LICENSES) {
+    return;
+  }
+
   const { customerAgreement } = subscriptionsData;
   const hasSubscriptionForAutoAppliedLicenses = (
     !!customerAgreement.subscriptionForAutoAppliedLicenses
