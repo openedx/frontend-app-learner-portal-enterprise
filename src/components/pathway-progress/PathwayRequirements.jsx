@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { PathwayProgressContext } from './PathwayProgressContextProvider';
 import PathwayStep from './PathwayStep';
 
@@ -10,11 +11,17 @@ const PathwayRequirements = () => {
     <div className="container mw-lg pathway-header-container">
       <br />
       <section>
-        <h2>Pathway Requirements:</h2>
+        <h2>
+          <FormattedMessage
+            id="enterprise.dashboard.pathways.progress.page.pathway.requirements.heading"
+            defaultMessage="Pathway Requirements:"
+            description="Heading displayed for pathway requirements on the pathway progress page."
+          />
+        </h2>
         <div className="pathway-requirements">
           {learnerPathwayProgress.steps.map(
             (step, index) => (
-              <PathwayStep index={index} minRequirements={step.minRequirement} nodes={getStepNodes(step)} />
+              <PathwayStep index={index} nodes={getStepNodes(step)} />
             ),
           )}
         </div>

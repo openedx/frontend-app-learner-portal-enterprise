@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Card, Col, Hyperlink, Row,
-} from '@edx/paragon';
+} from '@openedx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import GetSmarterLogo from '../../../assets/icons/get-smarter-logo-black.svg';
 import { features } from '../../../config';
 
@@ -26,37 +27,96 @@ const EnrollmentCompletedSummaryCard = ({
       </Col>
       <Col xs={12} md={9}>
         <Card.Section>
-          <div className="h3 mb-4">What happens next?</div>
+          <div className="h3 mb-4">
+            <FormattedMessage
+              id="executive.education.external.course.enrollment.completed.page.summary.card.title"
+              defaultMessage="What happens next?"
+              description="Title for the executive education course enrollment completed page summary card"
+            />
+          </div>
           <div className="mb-3.5">
-            <div className="mb-1.5 text-black-color">Notified by email</div>
+            <div className="mb-1.5 text-black-color">
+              <FormattedMessage
+                id="executive.education.external.course.enrollment.completed.page.summary.card.course.notified.about.email.section.heading"
+                defaultMessage="Notified by email"
+                description="Heading for the section about being notified by email to the learner"
+              />
+            </div>
             <div className="small mb-2 text-gray-500">
-              GetSmarter will email you when your course starts. Alternatively, you can visit your{' '}
-              <Hyperlink
-                destination={(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
-                  ? dashboardUrl : externalDashboardUrl}
-                target="_blank"
-              >
-                {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) ? 'edX dashboard' : 'GetSmarter learner dashboard'}
-              </Hyperlink>
-              {' '}for course status updates.
+              {
+                (features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
+                  ? (
+                    <FormattedMessage
+                      id="executive.education.external.course.enrollment.completed.page.summary.card.email.section.content.dashboard.link"
+                      defaultMessage="You will receive an email from edX when your course starts. Alternatively, you can visit your <a>edX dashboard</a> for course status updates."
+                      description="Content for the section about being notified by email to the learner with a edx dashboard link. And here edX is brand name"
+                      values={{
+                        // eslint-disable-next-line react/no-unstable-nested-components
+                        a: (chunks) => (
+                          <Hyperlink
+                            destination={dashboardUrl}
+                            target="_blank"
+                          >
+                            {chunks}
+                          </Hyperlink>
+                        ),
+                      }}
+                    />
+                  ) : (
+                    <FormattedMessage
+                      id="executive.education.external.course.enrollment.completed.page.summary.card.email.section.content.with.getsmarter.link"
+                      defaultMessage="GetSmarter will email you when your course starts. Alternatively, you can visit your <a>GetSmarter learner dashboard</a> for course status updates."
+                      description="Content for the section about being notified by email to the learner with a getsmarter dashboard link. And here Getsmarter is brand name"
+                      values={{
+                        // eslint-disable-next-line react/no-unstable-nested-components
+                        a: (chunks) => (
+                          <Hyperlink
+                            destination={externalDashboardUrl}
+                            target="_blank"
+                          >
+                            {chunks}
+                          </Hyperlink>
+                        ),
+                      }}
+                    />
+                  )
+              }
             </div>
           </div>
           <div className="mb-3.5">
-            <div className="mb-1.5 text-black-color">Read the refund policy</div>
+            <div className="mb-1.5 text-black-color">
+              <FormattedMessage
+                id="executive.education.external.course.enrollment.completed.page.summary.card.course.refund.policy.section.heading"
+                defaultMessage="Read the refund policy"
+                description="Heading for the section about the refund policy for the executive education course"
+              />
+            </div>
             <div className="small text-gray-500">
-              As part of our commitment to your professional development, you may request to change
-              your course start date or request your money back if you&apos;re not fully satisfied with
-              14 calendar days of your course start date.
+              <FormattedMessage
+                id="executive.education.external.course.enrollment.completed.page.summary.card.course.refund.policy.section.content"
+                defaultMessage="As part of our commitment to your professional development, you may request to change
+               your course start date or request your money back if you're not fully satisfied with 14 calendar days
+                of your course start date."
+                description="Content for the section about the refund policy for the executive education course"
+              />
             </div>
             <div className="small mb-2 text-gray-500">
-              Read GetSmarter&apos;s{' '}
-              <Hyperlink
-                destination={getStudnetTCUrl}
-                target="_blank"
-              >
-                Terms and Conditions
-              </Hyperlink>
-                &nbsp;for the full course postponement and cancellation policy.
+              <FormattedMessage
+                id="executive.education.external.course.enrollment.completed.page.summary.card.course.refund.policy.section.read.content"
+                defaultMessage="Read GetSmarter's <a>Terms and Conditions</a> for the full course postponement and cancellation policy."
+                description="Content to read more about getsmarter refund policy for the executive education course. And here GetSmarter is brand name"
+                values={{
+                  // eslint-disable-next-line react/no-unstable-nested-components
+                  a: (chunks) => (
+                    <Hyperlink
+                      destination={getStudnetTCUrl}
+                      target="_blank"
+                    >
+                      {chunks}
+                    </Hyperlink>
+                  ),
+                }}
+              />
             </div>
           </div>
         </Card.Section>

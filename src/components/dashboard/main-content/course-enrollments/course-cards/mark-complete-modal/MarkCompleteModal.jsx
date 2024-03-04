@@ -1,6 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, StatefulButton } from '@edx/paragon';
+import { Modal, StatefulButton } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform';
 

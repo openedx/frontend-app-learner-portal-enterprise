@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
@@ -25,14 +26,10 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => (mockLocation),
 }));
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+  hasFeatureFlagEnabled: jest.fn().mockReturnValue(false),
 }));
 
 const defaultCouponCodesState = {
@@ -47,6 +44,9 @@ const defaultAppState = {
   },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+  authenticatedUser: {
+    username: 'myspace-tom',
   },
 };
 
@@ -77,7 +77,7 @@ describe('<SkillsQuiz />', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders skills quiz page successfully.', () => {
+  it('renders skills quiz V1 page successfully.', () => {
     renderWithRouter(
       <SearchData>
         <SkillsContextProvider>
@@ -87,5 +87,19 @@ describe('<SkillsQuiz />', () => {
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeTruthy();
+  });
+
+  it('renders skills quiz V2 page successfully for v2', () => {
+    hasFeatureFlagEnabled.mockReturnValue(true);
+
+    renderWithRouter(
+      <SearchData>
+        <SkillsContextProvider>
+          <SkillsQuizWithContext />
+        </SkillsContextProvider>
+      </SearchData>,
+      { route: '/test/skills-quiz/' },
+    );
+    expect(screen.getByText('What roles are you interested in ?')).toBeInTheDocument();
   });
 });

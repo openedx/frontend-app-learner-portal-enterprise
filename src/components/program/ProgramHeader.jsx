@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Parallax } from 'react-parallax';
-import { breakpoints, Breadcrumb } from '@edx/paragon';
+import { breakpoints, Breadcrumb } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';

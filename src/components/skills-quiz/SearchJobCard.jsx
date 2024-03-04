@@ -5,15 +5,17 @@ import PropTypes from 'prop-types';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from './SkillsContextProvider';
 import { SET_KEY_VALUE } from './data/constants';
+import JobCardComponentV2 from '../skills-quiz-v2/JobCardComponent';
 import JobCardComponent from './JobCardComponent';
 import { JOB_FILTERS } from './constants';
 
-const SearchJobCard = ({ index }) => {
+const SearchJobCard = ({ index, isSkillQuizV2, courseIndex }) => {
   const { refinements } = useContext(SearchContext);
   const { name: jobs, current_job: currentJob } = refinements;
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, state } = useContext(SkillsContext);
   const { interestedJobs } = state;
+
   const jobsToFetch = useMemo(() => {
     const jobsArray = [];
     if (jobs) {
@@ -68,7 +70,11 @@ const SearchJobCard = ({ index }) => {
     }
   }, [dispatch, index, currentJob, jobToFetch]);
 
-  return <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />;
+  return (
+    isSkillQuizV2
+      ? <JobCardComponentV2 jobs={interestedJobs} isLoading={isLoading} jobIndex={index} courseIndex={courseIndex} />
+      : <JobCardComponent jobs={interestedJobs} isLoading={isLoading} />
+  );
 };
 
 SearchJobCard.propTypes = {
@@ -77,6 +83,17 @@ SearchJobCard.propTypes = {
     indexName: PropTypes.string,
     search: PropTypes.func.isRequired,
   }).isRequired,
+  courseIndex: PropTypes.shape({
+    appId: PropTypes.string,
+    indexName: PropTypes.string,
+    search: PropTypes.func.isRequired,
+  }),
+  isSkillQuizV2: PropTypes.bool,
+};
+
+SearchJobCard.defaultProps = {
+  courseIndex: undefined,
+  isSkillQuizV2: false,
 };
 
 export default SearchJobCard;

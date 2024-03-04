@@ -4,6 +4,7 @@ import Cookies from 'universal-cookie';
 import { renderWithRouter } from '../../../utils/tests';
 import EnterpriseLearnerFirstVisitRedirect from '../EnterpriseLearnerFirstVisitRedirect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { emptyRedeemableLearnerCreditPolicies } from '../../enterprise-user-subsidy/data/constants';
 
 const COOKIE_NAME = 'has-user-visited-learner-dashboard';
 const TEST_ENTERPRISE = {
@@ -34,10 +35,15 @@ const defaultUserSubsidyState = {
       },
     ],
     learnerContentAssignments: {
+      ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
       assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
       hasAssignments: true,
-      activeAssignments: [{ state: 'allocated' }, { state: 'cancelled' }],
-      hasActiveAssignments: true,
+      allocatedAssignments: [{ state: 'allocated' }],
+      hasAllocatedAssignments: true,
+      canceledAssignments: [{ state: 'cancelled' }],
+      hasCanceledAssignments: true,
+      assignmentsForDisplay: [{ state: 'allocated' }, { state: 'cancelled' }],
+      hasAssignmentsForDisplay: true,
     },
   },
 };
@@ -59,37 +65,25 @@ describe('<EnterpriseLearnerFirstVisitRedirect />', () => {
   test('redirects to search if user is visiting for the first time.', async () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     };
 
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
+    renderWithRouter(
+      <EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />,
+    );
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
   });
 
   test('redirects to search if the course assigned is not active.', async () => {
     const noActiveCourseAssignmentUserSubsidyState = {
       ...defaultUserSubsidyState,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     };
 
-    const { history } = renderWithRouter(<EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />, { route: `/${TEST_ENTERPRISE.slug}` });
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
+    renderWithRouter(
+      <EnterpriseLearnerFirstVisitRedirectWrapper initialUserSubsidyState={noActiveCourseAssignmentUserSubsidyState} />,
+    );
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE.slug}/search`);
   });
 
   test('Does not redirect the returning user to search.', async () => {

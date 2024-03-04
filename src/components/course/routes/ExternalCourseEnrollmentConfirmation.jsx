@@ -1,8 +1,9 @@
 import { React, useContext } from 'react';
-import { Button, Container, Hyperlink } from '@edx/paragon';
+import { Button, Container, Hyperlink } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCourseMetadata } from '../data/hooks';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
 import EnrollmentCompletedSummaryCard from '../../executive-education-2u/components/EnrollmentCompletedSummaryCard';
@@ -46,13 +47,23 @@ const ExternalCourseEnrollmentConfirmation = () => {
         />
       ) : (
         <Container size="lg" className="py-5 d-flex flex-column">
-          <h2 className="mb-3">Congratulations, you have completed your enrollment for your online course</h2>
+          <h2 className="mb-3">
+            <FormattedMessage
+              id="executive.education.external.course.enrollment.completed.page.title"
+              defaultMessage="Congratulations, you have completed your enrollment for your online course"
+              description="Title for the executive education course enrollment completed page"
+            />
+          </h2>
           <Button
             as={Hyperlink}
             className="mb-3 ml-auto"
             destination={dashboardUrl}
           >
-            Go to dashboard
+            <FormattedMessage
+              id="executive.education.external.course.enrollment.completed.page.go.to.dashboard.button"
+              defaultMessage="Go to dashboard"
+              description="Button that will navigate the learners to learner dashboard"
+            />
           </Button>
           <CourseSummaryCard
             courseMetadata={courseMetadata}

@@ -1,7 +1,7 @@
 import React, {
   useContext, useMemo, useState, useCallback,
 } from 'react';
-import { StatefulButton } from '@edx/paragon';
+import { StatefulButton } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';

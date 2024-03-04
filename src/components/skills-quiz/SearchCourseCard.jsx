@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { Alert, CardGrid } from '@edx/paragon';
-import { ZoomOut } from '@edx/paragon/icons';
+import { Alert, CardGrid } from '@openedx/paragon';
+import { ZoomOut } from '@openedx/paragon/icons';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { SkillsContext } from './SkillsContextProvider';
 
@@ -72,7 +72,7 @@ const SearchCourseCard = ({ index }) => {
         });
         if (nbHits > 0) {
           const hitsCamelCased = camelCaseObject(hits);
-          const hitsWithoutAlreadyEnrolledCourses = hitsCamelCased.filter(el => !enrolledCourseIds.find(
+          const hitsWithoutAlreadyEnrolledCourses = hitsCamelCased.filter(el => !enrolledCourseIds?.find(
             ele => el.advertisedCourseRun.key === ele,
           ));
 

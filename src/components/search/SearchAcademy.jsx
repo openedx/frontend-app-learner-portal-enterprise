@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 
-import { CardGrid, Container, Skeleton } from '@edx/paragon';
+import { CardGrid, Container, Skeleton } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import SearchAcademyCard from '../academies/SearchAcademyCard';
 import { useAcademies } from '../academies/data/hooks';
 import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
@@ -36,10 +37,19 @@ const SearchAcademy = () => {
   return (
     !isLoading && !fetchError && academies?.length > 0 && (
       <Container size="lg" className="search-results py-5">
-        <h2>edX Academies; designed to meet your most critical business needs</h2>
+        <h2>
+          <FormattedMessage
+            id="enterprise.search.page.academies.section.title"
+            defaultMessage="edX Academies; designed to meet your most critical business needs"
+            description="Title of the academies section on the enterprise search page."
+          />
+        </h2>
         <p>
-          Choose from a curated range of programs aligned to the most in demand
-          capability and skill areas crucial to organization success.
+          <FormattedMessage
+            id="enterprise.search.page.academies.section.subtile"
+            defaultMessage="Choose from a curated range of programs aligned to the most in demand capability and skill areas crucial to organization success."
+            description="Subtitle of the academies section on the enterprise search page."
+          />
         </p>
         <div className="academies-grid">
           <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>

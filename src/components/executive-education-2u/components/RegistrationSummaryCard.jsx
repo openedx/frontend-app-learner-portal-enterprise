@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Card, Row, Col,
-} from '@edx/paragon';
+} from '@openedx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { numberWithPrecision } from '../../course/data/utils';
 import { CURRENCY_USD } from '../../course/data/constants';
 
@@ -15,16 +16,32 @@ const RegistrationSummaryCard = ({ priceDetails }) => (
       <Card.Section>
         <Row>
           <Col xs={12} lg={{ span: 5, offset: 0 }}>
-            <h3>Registration summary:</h3>
+            <h3>
+              <FormattedMessage
+                id="executive.education.external.course.enrollment.page.registration.summarycard.title"
+                defaultMessage="Registration summary:"
+                description="Title for the registration summary card on the executive education course enrollment page"
+              />
+            </h3>
             <br />
             <p className="small font-weight-light text-gray-500 font-italic">
-              This course is covered by the Learner Credit provided by your organization.
+              <FormattedMessage
+                id="executive.education.external.course.enrollment.page.course"
+                defaultMessage="This course is covered by the Learner Credit provided by your organization."
+                description="Message about the course being covered by the Learner Credit"
+              />
             </p>
           </Col>
           <Col xs={12} lg={{ span: 5, offset: 2 }}>
             <div className="registration-details rounded-lg border p-3">
               <Row>
-                <Col xs={12} lg={{ span: 6, offset: 0 }} className="small font-weight-light text-gray-500 justify-content-start">Registration total:</Col>
+                <Col xs={12} lg={{ span: 6, offset: 0 }} className="small font-weight-light text-gray-500 justify-content-start">
+                  <FormattedMessage
+                    id="executive.education.external.course.enrollment.page.registration.total.message"
+                    defaultMessage="Registration total:"
+                    description="Total registration cost for the executive education course"
+                  />
+                </Col>
                 <Col xs={12} lg={{ span: 6, offset: 0 }} className="justify-content-end">
                   <div className="d-flex justify-content-end mr-2.5">
                     <del>
@@ -35,7 +52,11 @@ const RegistrationSummaryCard = ({ priceDetails }) => (
                     ${priceDetails?.price ? `${String(0).padStart(priceDetails.price.toString().length, '0') }.00` : '0.00'} {priceDetails?.currency ? priceDetails.currency : CURRENCY_USD}
                   </div>
                   <div className="d-flex justify-content-end small font-weight-light text-gray-500 mr-2.5">
-                    Tax included
+                    <FormattedMessage
+                      id="executive.education.external.course.enrollment.page.registration.tax.included"
+                      defaultMessage="Tax included"
+                      description="Message about tax being included in the registration cost"
+                    />
                   </div>
                 </Col>
               </Row>

@@ -1,0 +1,44 @@
+.skills-quiz-v2-job-card {
+  .selectable-box {
+    .box {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-between;
+      min-height: 400px;
+    }
+
+    .pgn__form-radio-input {
+      min-width: 21px;
+      min-height: 21px;
+    }
+
+    .lead {
+      display: flex;
+      max-width: 250px;
+      min-height: 5rem;
+    }
+  }
+
+  .cards-display {
+    margin: 33px 0;
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+    height: 400px;
+  }
+
+  .card-container {
+    border: none;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+  }
+
+  .card {
+    min-height: 10em;
+  }
+
+  .pgn__searchfield {
+    height: 45px;
+  }
+}

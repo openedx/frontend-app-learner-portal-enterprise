@@ -1,22 +1,22 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { Card, Truncate } from '@edx/paragon';
+import { Card, Truncate } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
-import { GENERAL_LENGTH_COURSE, SHORT_LENGTH_COURSE } from './data/constants';
 import { isShortCourse } from './utils';
 
 const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
   const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const eventName = useMemo(
     () => {
@@ -86,8 +86,7 @@ const SearchCourseCard = ({
         courseKey: course.key,
       },
     );
-
-    history.push(linkToCourse, { parentRoute });
+    navigate(linkToCourse, { state: parentRoute });
   };
 
   return (
@@ -120,7 +119,21 @@ const SearchCourseCard = ({
       <Card.Section />
       <Card.Footer textElement={(
         <span className="text-muted">
-          { isShortLengthCourse ? SHORT_LENGTH_COURSE : GENERAL_LENGTH_COURSE }
+          { isShortLengthCourse
+            ? (
+              <FormattedMessage
+                id="enterprise.search.course.card.short.length.course"
+                defaultMessage="Short Course"
+                description="Label for short length course on course card"
+              />
+            )
+            : (
+              <FormattedMessage
+                id="enterprise.search.course.card.general.length.course"
+                defaultMessage="Course"
+                description="Label for general length course on course card"
+              />
+            )}
         </span>
       )}
       />

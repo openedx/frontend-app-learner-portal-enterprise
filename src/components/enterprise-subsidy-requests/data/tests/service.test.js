@@ -1,6 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { mergeConfig } from '@edx/frontend-platform/config';
 
 import {
   fetchSubsidyRequestConfiguration,
@@ -20,6 +21,12 @@ const mockEnterpriseUUID = 'test-enterprise-id';
 const mockEmail = 'edx@example.com';
 
 describe('fetchSubsidyRequestConfiguration', () => {
+  beforeEach(() => {
+    mergeConfig({
+      ENTERPRISE_ACCESS_BASE_URL: enterpriseAccessBaseUrl,
+    });
+  });
+
   it('fetches subsidy request configuration for the given enterprise', () => {
     fetchSubsidyRequestConfiguration(mockEnterpriseUUID);
     expect(axios.get).toBeCalledWith(`${enterpriseAccessBaseUrl}/api/v1/customer-configurations/${mockEnterpriseUUID}/`);

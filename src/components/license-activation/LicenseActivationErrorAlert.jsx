@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Helmet } from 'react-helmet';
-import { Alert, Container } from '@edx/paragon';
+import { Alert, Container } from '@openedx/paragon';
 
 const LicenseActivationErrorAlert = ({ title, contactHelpText }) => (
   <>

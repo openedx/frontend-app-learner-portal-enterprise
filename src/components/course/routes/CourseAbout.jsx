@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import {
   breakpoints, Container, MediaQuery, Row,
-} from '@edx/paragon';
-
+} from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+
 import { MainContent, Sidebar } from '../../layout';
 import CourseHeader from '../course-header/CourseHeader';
 import CourseMainContent from '../CourseMainContent';
@@ -12,9 +12,10 @@ import CourseSidebar from '../CourseSidebar';
 import CourseRecommendations from '../CourseRecommendations';
 import { CourseContext } from '../CourseContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { isDisableCourseSearch } from '../../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { useIsCourseAssigned } from '../data/hooks';
 import { features } from '../../../config';
+import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const CourseAbout = () => {
   const {
@@ -26,25 +27,37 @@ const CourseAbout = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const {
     redeemableLearnerCreditPolicies,
-    enterpriseOffers,
+    hasCurrentEnterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes,
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
-
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
-  const hideCourseSearch = isDisableCourseSearch(
-    redeemableLearnerCreditPolicies,
-    enterpriseOffers,
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
+
+  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
+  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
+
+  const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes.couponCodes,
-  );
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
+  });
 
-  const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
-  if (!isCourseAssigned && featuredHideCourseSearch) {
-    return <Redirect to={`/${enterpriseConfig.slug}`} />;
+  const featuredIsAssignmentOnlyLearner = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isAssignmentOnlyLearner;
+  if (!isCourseAssigned && featuredIsAssignmentOnlyLearner) {
+    return <Navigate to={`/${enterpriseConfig.slug}`} replace />;
   }
+
+  const shouldShowCourseRecommendations = (
+    !canOnlyViewHighlightSets
+    && !enterpriseConfig.disableSearch
+    && !featuredIsAssignmentOnlyLearner
+  );
 
   return (
     <>
@@ -61,8 +74,7 @@ const CourseAbout = () => {
               </Sidebar>
             )}
           </MediaQuery>
-          {(canOnlyViewHighlightSets === false
-            && !enterpriseConfig.disableSearch && !featuredHideCourseSearch) && <CourseRecommendations />}
+          {shouldShowCourseRecommendations && <CourseRecommendations />}
         </Row>
       </Container>
     </>

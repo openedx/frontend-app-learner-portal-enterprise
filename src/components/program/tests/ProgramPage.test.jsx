@@ -30,7 +30,6 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
@@ -61,6 +60,9 @@ describe('<Program />', () => {
     enterpriseConfig: {
       slug: 'test-enterprise-slug',
       name: 'Test Enterprise',
+    },
+    authenticatedUser: {
+      username: 'b.wayne',
     },
   };
 

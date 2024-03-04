@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -11,6 +11,11 @@ import { fetchEnterpriseCustomerByUUID } from '../data/service';
 import { renderWithRouter } from '../../../utils/tests';
 
 jest.mock('../data/service');
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
 
 const TEST_ENTERPRISES = [
   {
@@ -49,6 +54,10 @@ describe('<EnterprisePageRedirect />', () => {
   });
 
   test('renders NotFoundPage if user is not linked to any Enterprise Customers', async () => {
+    useParams.mockReturnValue({
+      '*': '',
+    });
+
     renderWithRouter(
       <EnterprisePageRedirectWithContext initialAppState={initialAppState} />,
     );
@@ -76,16 +85,16 @@ describe('<EnterprisePageRedirect />', () => {
       },
     };
 
-    const Component = (
-      <Route path="/r/:redirectPath+">
-        <EnterprisePageRedirectWithContext initialAppState={initialState} />;
-      </Route>
-    );
-    const { history } = renderWithRouter(Component, { route: '/r/search' });
+    useParams.mockReturnValue({
+      '*': 'search',
+    });
+
+    const Component = (<EnterprisePageRedirectWithContext initialAppState={initialState} />);
+    renderWithRouter(Component);
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}/search`);
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}/search`);
   });
 
   test('redirects to correct ``redirectPath`` from route params when user is linked to more than 1 Enterprise Customer', async () => {
@@ -108,15 +117,15 @@ describe('<EnterprisePageRedirect />', () => {
       },
     };
 
-    const Component = (
-      <Route path="/r/:redirectPath+">
-        <EnterprisePageRedirectWithContext initialAppState={initialState} />
-      </Route>
-    );
-    const { history } = renderWithRouter(Component, { route: '/r/course/edX+DemoX' });
+    useParams.mockReturnValue({
+      '*': 'course/edX+DemoX',
+    });
+
+    const Component = (<EnterprisePageRedirectWithContext initialAppState={initialState} />);
+    renderWithRouter(Component);
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}/course/edX+DemoX`);
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}/course/edX+DemoX`);
   });
 });

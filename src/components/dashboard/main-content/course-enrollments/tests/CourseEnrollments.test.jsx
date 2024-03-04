@@ -3,13 +3,14 @@ import { screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithRouter } from '../../../../../utils/tests';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
-import CourseEnrollments, { COURSE_SECTION_TITLES } from '../CourseEnrollments';
+
+import { COURSE_SECTION_TITLES } from '../../../data/constants';
+import CourseEnrollments from '../CourseEnrollments';
 import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-in-progress-modal/MoveToInProgressModal';
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
@@ -20,10 +21,9 @@ import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests'
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../../enterprise-user-subsidy/data/constants';
 
-jest.mock('@edx/frontend-platform/auth');
 jest.mock('@edx/frontend-enterprise-utils');
-getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
 
 jest.mock('../course-cards/mark-complete-modal/data/service');
 
@@ -104,20 +104,12 @@ hooks.useCourseEnrollmentsBySection.mockReturnValue({
 });
 
 const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 
 const CourseEnrollmentsWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={{ enterpriseConfig }}>
+    <AppContext.Provider value={{ enterpriseConfig, authenticatedUser: { username: 'test-username' } }}>
       <UserSubsidyContext.Provider value={initialUserSubsidyState}>
         <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
           <CourseEnrollmentsContextProvider>
@@ -135,6 +127,8 @@ jest.mock('../data/utils', () => ({
 }));
 
 describe('Course enrollments', () => {
+  const mockAcknowledgeAssignments = jest.fn();
+
   beforeEach(() => {
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
@@ -167,13 +161,12 @@ describe('Course enrollments', () => {
       startDate: dayjs().subtract(1, 'day').toISOString(),
       mode: 'verified',
     };
-    const mockCloseCancelAlert = jest.fn();
+
     hooks.useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: true,
       showExpiredAssignmentsAlert: false,
-      handleOnCloseCancelAlert: mockCloseCancelAlert,
-      handleOnCloseExpiredAlert: jest.fn(),
+      handleAcknowledgeAssignments: mockAcknowledgeAssignments,
     });
     renderWithRouter(<CourseEnrollmentsWrapper />);
     // Verify canceled assignment card is visible initially
@@ -184,7 +177,8 @@ describe('Course enrollments', () => {
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
     userEvent.click(dismissButton);
-    expect(mockCloseCancelAlert).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.CANCELED });
   });
 
   it('renders alert for expired assignments and renders expired assignment cards with dismiss behavior', async () => {
@@ -202,13 +196,11 @@ describe('Course enrollments', () => {
       startDate: dayjs().subtract(30, 'day').toISOString(),
       mode: 'verified',
     };
-    const mockCloseExpiredAlert = jest.fn();
     hooks.useContentAssignments.mockReturnValue({
       assignments: [mockAssignment],
       showCanceledAssignmentsAlert: false,
       showExpiredAssignmentsAlert: true,
-      handleOnCloseCancelAlert: jest.fn(),
-      handleOnCloseExpiredAlert: mockCloseExpiredAlert,
+      handleAcknowledgeAssignments: mockAcknowledgeAssignments,
     });
     renderWithRouter(<CourseEnrollmentsWrapper />);
     // Verify canceled assignment card is visible initially
@@ -219,7 +211,8 @@ describe('Course enrollments', () => {
     // Handles dismiss behavior
     const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
     userEvent.click(dismissButton);
-    expect(mockCloseExpiredAlert).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledTimes(1);
+    expect(mockAcknowledgeAssignments).toHaveBeenCalledWith({ assignmentState: ASSIGNMENT_TYPES.EXPIRED });
   });
 
   it('generates course status update on move to in progress action', async () => {

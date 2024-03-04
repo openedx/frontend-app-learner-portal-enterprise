@@ -1,8 +1,7 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import {
-  screen, render,
-} from '@testing-library/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -11,22 +10,23 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import PathwayProgressCard from '../PathwayProgressCard';
 import LearnerPathwayProgressData from '../data/__mocks__/PathwayProgressListData.json';
+import { renderWithRouter } from '../../../utils/tests';
 
-const mockedPush = jest.fn();
+const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockedPush,
-  }),
+  useNavigate: () => mockedNavigate,
   useLocation: jest.fn(),
 }));
 
 const PathwayProgressListingCardWithContext = ({ initialAppState, initialUserSubsidyState, pathwayData }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <PathwayProgressCard pathway={pathwayData} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <PathwayProgressCard pathway={pathwayData} />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const appState = {
@@ -48,7 +48,7 @@ const userSubsidyState = {
 const pathwayData = camelCaseObject(LearnerPathwayProgressData[0]);
 describe('<PathwayProgressCard />', () => {
   it('renders all data related to pathway progress correctly', () => {
-    const { getByAltText } = render(<PathwayProgressListingCardWithContext
+    const { getByAltText } = renderWithRouter(<PathwayProgressListingCardWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       pathwayData={pathwayData}
@@ -66,12 +66,12 @@ describe('<PathwayProgressCard />', () => {
   });
 
   it('redirects to correct page when clicked', () => {
-    const { container } = render(<PathwayProgressListingCardWithContext
+    const { container } = renderWithRouter(<PathwayProgressListingCardWithContext
       initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       pathwayData={pathwayData}
     />);
     userEvent.click(container.firstElementChild);
-    expect(mockedPush).toHaveBeenCalledWith('/test-enterprise-slug/pathway/0a017cbe-0f1c-4e5f-9095-2101823fac93/progress');
+    expect(mockedNavigate).toHaveBeenCalledWith('/test-enterprise-slug/pathway/0a017cbe-0f1c-4e5f-9095-2101823fac93/progress');
   });
 });

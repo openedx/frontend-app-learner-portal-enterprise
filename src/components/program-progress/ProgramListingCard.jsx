@@ -1,10 +1,10 @@
 import {
   breakpoints, Card, Truncate,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
@@ -14,10 +14,10 @@ import { ProgressCategoryBubbles } from '../progress-category-bubbles';
 const ProgramListingCard = ({ program }) => {
   const { enterpriseConfig } = useContext(AppContext);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleCardClick = () => {
-    history.push(`/${enterpriseConfig.slug}/program/${program.uuid}/progress`);
+    navigate(`/${enterpriseConfig.slug}/program/${program.uuid}/progress`);
   };
 
   useEffect(() => {

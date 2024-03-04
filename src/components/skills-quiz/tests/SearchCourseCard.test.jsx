@@ -14,14 +14,15 @@ import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'myspace-tom' }),
-}));
-
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
 }));
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -57,6 +58,7 @@ const defaultAppState = {
   enterpriseConfig: {
     slug: 'test-enterprise-slug',
   },
+  authenticatedUser: { username: 'myspace-tom' },
 };
 
 const defaultSearchContext = {
@@ -122,7 +124,7 @@ const SearchCourseCardWithContext = ({
 
 describe('<SearchCourseCard />', () => {
   test('renders the correct data', async () => {
-    const { container, history } = renderWithRouter(
+    const { container } = renderWithRouter(
       <SearchCourseCardWithContext
         index={testIndex}
       />,
@@ -144,8 +146,7 @@ describe('<SearchCourseCard />', () => {
 
     // handles click
     userEvent.click(searchCourseCard);
-    expect(history.entries).toHaveLength(2);
-    expect(history.location.pathname).toContain(`${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders the correct data with skills', async () => {

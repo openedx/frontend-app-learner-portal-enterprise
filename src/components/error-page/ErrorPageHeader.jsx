@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   AvatarButton,
   Container,
   Navbar,
   Dropdown,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import edXLogo from '@edx/brand/logo.svg';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getConfig } from '@edx/frontend-platform/config';
+import { AppContext } from '@edx/frontend-platform/react';
 
 /**
  * React component for the invite page error case. Renders a minimal header
@@ -17,8 +16,7 @@ import { getConfig } from '@edx/frontend-platform/config';
  * non existent variables.
  */
 const ErrorPageHeader = () => {
-  const config = getConfig();
-  const authenticatedUser = getAuthenticatedUser();
+  const { authenticatedUser, config } = useContext(AppContext);
   const { username, profileImage } = authenticatedUser || { username: '', profileImage: '' };
 
   return (

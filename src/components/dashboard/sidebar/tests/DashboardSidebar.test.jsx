@@ -2,6 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import DashboardSidebar from '../DashboardSidebar';
@@ -18,11 +19,18 @@ import {
   NEED_HELP_BLOCK_TITLE,
   SUBSCRIPTION_SUMMARY_CARD_TITLE,
 } from '../data/constants';
-import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 import CourseEnrollmentsContextProvider from '../../main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests/constants';
-import { POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn().mockReturnValue({
+    LEARNER_SUPPORT_URL: 'https://support.url',
+  }),
+}));
 
 const mockEnterpriseOffer = {
   isCurrent: true,
@@ -45,15 +53,17 @@ const DashboardSidebarWithContext = ({
     courseEnrollmentsByStatus: {},
   },
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
-          <DashboardSidebar />
-        </CourseEnrollmentsContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <CourseEnrollmentsContextProvider value={initialCourseEnrollmentsState}>
+            <DashboardSidebar />
+          </CourseEnrollmentsContextProvider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<DashboardSidebar />', () => {
@@ -238,12 +248,7 @@ describe('<DashboardSidebar />', () => {
               subsidyExpirationDate: '2030-01-01 12:00:00Z',
               active: true,
             }],
-            learnerContentAssignments: {
-              assignments: [],
-              hasAssignments: false,
-              activeAssignments: [],
-              hasActiveAssignments: false,
-            },
+            learnerContentAssignments: emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
           },
         }}
       />,
@@ -265,12 +270,7 @@ describe('<DashboardSidebar />', () => {
               subsidyExpirationDate: policyExpirationDate,
               active: true,
             }],
-            learnerContentAssignments: {
-              assignments: [],
-              hasAssignments: false,
-              activeAssignments: [],
-              hasActiveAssignments: false,
-            },
+            learnerContentAssignments: emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
           },
           enterpriseOffers: [{
             uuid: 'enterprise-offer-id',
@@ -285,7 +285,7 @@ describe('<DashboardSidebar />', () => {
     expect(screen.getByText(LEARNER_CREDIT_CARD_SUMMARY)).toBeInTheDocument();
   });
 
-  test('Only learner credit summary card with contact administrator is displayed when enterprise has assigned', () => {
+  test('Only learner credit summary card with contact administrator is displayed when enterprise has assignable policy', () => {
     const policyExpirationDate = '2030-01-01 12:00:00Z';
 
     renderWithRouter(
@@ -295,16 +295,19 @@ describe('<DashboardSidebar />', () => {
           ...defaultUserSubsidyState,
           redeemableLearnerCreditPolicies: {
             redeemablePolicies: [{
-              remainingBalancePerUser: 5,
               subsidyExpirationDate: policyExpirationDate,
               active: true,
               policyType: POLICY_TYPES.ASSIGNED_CREDIT,
+              learnerContentAssignments: [
+                { state: ASSIGNMENT_TYPES.ALLOCATED },
+              ],
             }],
             learnerContentAssignments: {
-              assignments: [],
-              hasAssignments: true,
-              activeAssignments: [],
-              hasActiveAssignments: true,
+              ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+              allocatedAssignments: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+              hasAllocatedAssignments: true,
+              assignmentsForDisplay: [{ state: ASSIGNMENT_TYPES.ALLOCATED }],
+              hasAssignmentsForDisplay: true,
             },
           },
           enterpriseOffers: [],

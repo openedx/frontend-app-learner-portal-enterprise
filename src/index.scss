@@ -1,6 +1,6 @@
 @import "@edx/brand/paragon/fonts";
 @import "@edx/brand/paragon/variables";
-@import "@edx/paragon/scss/core/core";
+@import "@openedx/paragon/scss/core/core";
 // frontend-enterprise-* imports must come before the paragon overrides for correct styling
 @import "~@edx/frontend-enterprise-catalog-search";
 @import "@edx/brand/paragon/overrides";
@@ -28,3 +28,13 @@
 @import "./components/my-career/styles/MyCareer";
 @import "./components/executive-education-2u/styles/ExecutiveEducation2UPage";
 @import "./components/executive-education-2u/styles/ExecutiveEducation2UErrorPage";
+@import "./components/skills-quiz-v2/styles";
+@import "./components/academies/styles/Academy";
+
+:root {
+  --pgn-color-dark: #{$gray-700};
+  --pgn-color-white:  #{$white};
+  --pgn-color-primary: #{$primary};
+  --pgn-color-info-100:  #{$info-100};
+  --pgn-color-info-500:  #{$info-500};
+}

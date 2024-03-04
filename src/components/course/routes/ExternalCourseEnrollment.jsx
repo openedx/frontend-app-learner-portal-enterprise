@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
+import { generatePath, useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert, Button, Col, Container, Hyperlink, Row,
-} from '@edx/paragon';
-import { CheckCircle } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { CheckCircle } from '@openedx/paragon/icons';
 
 import { getConfig } from '@edx/frontend-platform/config';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { isDuplicateExternalCourseOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
 import CourseSummaryCard from '../../executive-education-2u/components/CourseSummaryCard';
@@ -19,8 +20,8 @@ import { features } from '../../../config';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
-  const history = useHistory();
-  const routeMatch = useRouteMatch();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const {
     state: {
       activeCourseRun,
@@ -36,7 +37,7 @@ const ExternalCourseEnrollment = () => {
   } = useContext(AppContext);
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const completeEnrollmentUrl = generatePath(
-      `${routeMatch.path}/complete`,
+      `${pathname}/complete`,
       { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
   );
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies?.learnerContentAssignments, course?.key);
@@ -72,9 +73,9 @@ const ExternalCourseEnrollment = () => {
     // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
     //  it will run this conditional and perform the redirect
     if (hasSuccessfulRedemption) {
-      history.push(completeEnrollmentUrl);
+      navigate(completeEnrollmentUrl);
     }
-  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, history, routeMatch.path, slug]);
+  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, navigate, pathname, slug]);
 
   return (
     <div className="fill-vertical-space page-light-bg">
@@ -89,7 +90,11 @@ const ExternalCourseEnrollment = () => {
           <Row>
             <Col>
               <h2 className="mb-3">
-                Your registration(s)
+                <FormattedMessage
+                  id="executive.education.external.course.enrollment.page.registration.title"
+                  defaultMessage="Your registration(s)"
+                  description="Title for the executive education course registration page"
+                />
               </h2>
               <Alert
                 variant="success"
@@ -98,26 +103,53 @@ const ExternalCourseEnrollment = () => {
                 show={isDuplicateExternalCourseOrder(externalCourseFormSubmissionError)}
                 actions={[
                   <Button as={Hyperlink} target="_blank" destination={externalDashboardUrl}>
-                    Go to dashboard
+                    <FormattedMessage
+                      id="executive.education.external.course.enrollment.page.go.to.dashboard.cta"
+                      defaultMessage="Go to dashboard"
+                      description="Button that will navigate the learners to learner dashboard"
+                    />
                   </Button>,
                 ]}
               >
-                <Alert.Heading>Already Enrolled</Alert.Heading>
+                <Alert.Heading>
+                  <FormattedMessage
+                    id="executive.education.external.course.enrollment.page.already.enrolled.alert.heading"
+                    defaultMessage="Already Enrolled"
+                    description="Heading for the alert when the user is already enrolled"
+                  />
+                </Alert.Heading>
                 <p>
-                  You&apos;re already enrolled. Go to your GetSmarter dashboard to keep learning.
+                  <FormattedMessage
+                    id="executive.education.external.course.enrollment.page.already.enrolled.message"
+                    defaultMessage="You're already enrolled. Go to your GetSmarter dashboard to keep learning."
+                    description="Message displayed when the user is already enrolled in current course"
+                  />
                 </p>
               </Alert>
               {!isDuplicateExternalCourseOrder(externalCourseFormSubmissionError) && (
                 <p className="small bg-light-500 p-3 rounded-lg">
-                  <strong>
-                    This is where you finalize your registration for an edX executive
-                    education course through GetSmarter.
-                  </strong>
-                  &nbsp; Please ensure that the course details below are correct and confirm using Learner
-                  Credit with a &quot;Confirm registration&quot; button.
+                  <FormattedMessage
+                    id="executive.education.external.course.enrollment.page.finalize.registration.message"
+                    defaultMessage='<strong>This is where you finalize your registration for an edX executive education course through GetSmarter.</strong> Please ensure that the course details below are correct and confirm using Learner Credit with a "Confirm registration" button.'
+                    description="Message to finalize registration for an executive education course through GetSmarter."
+                    // eslint-disable-next-line react/no-unstable-nested-components
+                    values={{ strong: (chunks) => <strong>{chunks}</strong> }}
+                  />
                   {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned)
-                    ? 'Your learning administrator already allocated funds towards this registration.'
-                    : 'Your Learner Credit funds will be redeemed at this point.'}
+                    ? (
+                      <FormattedMessage
+                        id="executive.education.external.course.enrollment.page.funds.allocated.message"
+                        defaultMessage="Your learning administrator already allocated funds towards this registration."
+                        description="Message when funds are already allocated for the registration by the administator."
+                      />
+                    )
+                    : (
+                      <FormattedMessage
+                        id="executive.education.external.course.enrollment.page.funds.redeemed.message"
+                        defaultMessage="Your Learner Credit funds will be redeemed at this point."
+                        description="Message when Learner Credit funds will be redeemed"
+                      />
+                    )}
                 </p>
               )}
               <CourseSummaryCard courseMetadata={courseMetadata} />

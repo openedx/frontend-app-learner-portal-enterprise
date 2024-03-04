@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { breakpoints, MediaQuery } from '@edx/paragon';
-import { FormatQuote } from '@edx/paragon/icons';
+import { breakpoints, MediaQuery } from '@openedx/paragon';
+import { FormatQuote } from '@openedx/paragon/icons';
 import { ProgramContext } from './ProgramContextProvider';
 
 const ProgramEndorsements = () => {

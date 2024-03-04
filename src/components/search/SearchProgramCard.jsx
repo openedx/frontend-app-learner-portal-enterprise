@@ -1,16 +1,16 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
   Badge, Card, Icon, Truncate,
-} from '@edx/paragon';
-import { Program } from '@edx/paragon/icons';
+} from '@openedx/paragon';
+import { Program } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
+import { useIntl } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 
 export const ProgramType = ({ type }) => {
@@ -38,8 +38,9 @@ export const ProgramType = ({ type }) => {
 };
 
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
-  const history = useHistory();
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
+  const intl = useIntl();
   const program = useMemo(() => {
     if (!hit) {
       return {};
@@ -77,11 +78,14 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
     if (!numCourses) {
       return undefined;
     }
-    return `${numCourses} ${numCourses > 1 ? 'Courses' : 'Course'}`;
+    return intl.formatMessage({
+      id: 'enterprise.search.program.card.course.count',
+      defaultMessage: '{numCourses, plural, one {# Course} other {# Courses}}',
+      description: 'Footer text for the program card showing the number of courses in the program',
+    }, { numCourses });
   };
 
   const primaryPartnerLogo = getPrimaryPartnerLogo(partnerDetails);
-  const { userId } = getAuthenticatedUser();
 
   const handleCardClick = () => {
     sendEnterpriseTrackEvent(
@@ -92,7 +96,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
         programUuid,
       },
     );
-    history.push(linkToProgram);
+    navigate(linkToProgram);
   };
 
   return (

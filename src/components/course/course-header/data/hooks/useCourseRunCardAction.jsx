@@ -1,4 +1,4 @@
-import { Stack, Button } from '@edx/paragon';
+import { Stack, Button } from '@openedx/paragon';
 
 import { useContext } from 'react';
 import StatefulEnroll from '../../../../stateful-enroll';
@@ -60,7 +60,7 @@ const useCourseRunCardAction = ({
 
   const handleRedemptionSuccess = (transaction) => {
     if (!isUserEnrolled && !externalCourseEnrollmentUrl) {
-      toasts?.addToast(`You Enrolled in ${course.title}.`);
+      toasts?.addToast(`You enrolled in ${course.title}.`);
     }
     handleRedeemSuccess(transaction);
   };

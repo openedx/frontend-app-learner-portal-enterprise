@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import * as logging from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { logError } from '@edx/frontend-platform/logging';
 
 import {
   useCouponCodes,
@@ -349,6 +350,9 @@ describe('useCustomerAgreementData', () => {
   });
 
   it('handles no customer agreement data for enterprise', async () => {
+    jest.mock('@edx/frontend-platform/logging', () => ({
+      logError: jest.fn(),
+    }));
     fetchCustomerAgreementData.mockResolvedValueOnce({
       data: { results: [] },
     });
@@ -363,6 +367,20 @@ describe('useCustomerAgreementData', () => {
       false, // isLoading
     ]);
   });
+
+  it('handles errors in fetching customer agreement data', async () => {
+    const mockError = new Error('error');
+    fetchCustomerAgreementData.mockRejectedValueOnce(mockError);
+
+    const { result, waitForNextUpdate } = renderHook(() => useCustomerAgreementData(TEST_ENTERPRISE_UUID));
+
+    expect(result.current).toEqual([undefined, true]);
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual([null, false]);
+    expect(logError).toHaveBeenCalledWith(new Error(mockError));
+  });
 });
 
 const Wrapper = ({ children }) => (
@@ -373,21 +391,39 @@ const Wrapper = ({ children }) => (
 
 describe('useRedeemableLearnerCreditPolicies', () => {
   it('fetches and returns redeemable learner credit policies', async () => {
-    const mockAllocatedAssignment = {
+    const mockBaseAssignment = {
       uuid: 'test-assignment-uuid',
+      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
+    };
+    const mockAllocatedAssignment = {
+      ...mockBaseAssignment,
       state: ASSIGNMENT_TYPES.ALLOCATED,
     };
-    const mockCanceledssignment = {
-      uuid: 'test-assignment-uuid',
+    const mockCanceledAssignment = {
+      ...mockBaseAssignment,
       state: ASSIGNMENT_TYPES.CANCELED,
     };
     const mockAcceptedAssignment = {
-      uuid: 'test-assignment-uuid',
+      ...mockBaseAssignment,
       state: ASSIGNMENT_TYPES.ACCEPTED,
+    };
+    const mockExpiredAssignment = {
+      ...mockBaseAssignment,
+      state: ASSIGNMENT_TYPES.EXPIRED,
+    };
+    const mockErroredAssignment = {
+      ...mockBaseAssignment,
+      state: ASSIGNMENT_TYPES.ERRORED,
     };
     const mockAssignablePolicy = {
       ...mockLearnerCreditPolicy,
-      learner_content_assignments: [mockAllocatedAssignment, mockCanceledssignment, mockAcceptedAssignment],
+      learner_content_assignments: [
+        mockAllocatedAssignment,
+        mockCanceledAssignment,
+        mockAcceptedAssignment,
+        mockExpiredAssignment,
+        mockErroredAssignment,
+      ],
     };
     fetchRedeemableLearnerCreditPolicies.mockResolvedValueOnce({
       data: [mockLearnerCreditPolicy, mockAssignablePolicy],
@@ -399,46 +435,45 @@ describe('useRedeemableLearnerCreditPolicies', () => {
     await waitForNextUpdate();
     expect(fetchRedeemableLearnerCreditPolicies).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID, TEST_USER_ID);
 
-    const mockAllocatedAssignmentWithPlanExpiration = {
-      ...mockAllocatedAssignment,
-      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
-    };
-    const mockCanceledssignmentWithPlanExpiration = {
-      ...mockCanceledssignment,
-      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
-    };
-    const mockAcceptedAssignmentWithPlanExpiration = {
-      ...mockAcceptedAssignment,
-      subsidyExpirationDate: mockLearnerCreditPolicy.subsidy_expiration_date,
-    };
-
     expect(result.current.data).toEqual({
       redeemablePolicies: [
         camelCaseObject(mockLearnerCreditPolicy),
         camelCaseObject({
           ...mockAssignablePolicy,
           learnerContentAssignments: [
-            mockAllocatedAssignmentWithPlanExpiration,
-            mockCanceledssignmentWithPlanExpiration,
-            mockAcceptedAssignmentWithPlanExpiration,
+            mockAllocatedAssignment,
+            mockCanceledAssignment,
+            mockAcceptedAssignment,
+            mockExpiredAssignment,
+            mockErroredAssignment,
           ],
         }),
       ],
       learnerContentAssignments: {
         assignments: [
-          mockAllocatedAssignmentWithPlanExpiration,
-          mockCanceledssignmentWithPlanExpiration,
-          mockAcceptedAssignmentWithPlanExpiration,
+          mockAllocatedAssignment,
+          mockCanceledAssignment,
+          mockAcceptedAssignment,
+          mockExpiredAssignment,
+          mockErroredAssignment,
         ],
         hasAssignments: true,
-        allocatedAssignments: [mockAllocatedAssignmentWithPlanExpiration],
+        allocatedAssignments: [mockAllocatedAssignment],
         hasAllocatedAssignments: true,
-        canceledAssignments: [mockCanceledssignmentWithPlanExpiration],
+        canceledAssignments: [mockCanceledAssignment],
         hasCanceledAssignments: true,
-        acceptedAssignments: [mockAcceptedAssignmentWithPlanExpiration],
+        expiredAssignments: [mockExpiredAssignment],
+        hasExpiredAssignments: true,
+        acceptedAssignments: [mockAcceptedAssignment],
         hasAcceptedAssignments: true,
-        erroredAssignments: [],
-        hasErroredAssignments: false,
+        erroredAssignments: [mockErroredAssignment],
+        hasErroredAssignments: true,
+        assignmentsForDisplay: [
+          mockAllocatedAssignment,
+          mockCanceledAssignment,
+          mockExpiredAssignment,
+        ],
+        hasAssignmentsForDisplay: true,
       },
     });
   });

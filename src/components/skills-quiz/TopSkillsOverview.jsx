@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useState, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Card } from '@edx/paragon';
+import { Badge, Card } from '@openedx/paragon';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { SkillsContext } from './SkillsContextProvider';
 import { DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE } from './constants';
@@ -53,6 +53,8 @@ const TopSkillsOverview = ({ index }) => {
         });
         if (hits.length > 0) {
           setCurrentJobDetails(hits);
+        } else {
+          setCurrentJobDetails(null);
         }
       }
 
@@ -106,16 +108,22 @@ const TopSkillsOverview = ({ index }) => {
                     goal={goal}
                   />
                 )}
-              <div
-                className={goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0 ? 'col-6' : 'full-max-width'}
-              >
-                <SelectedJobSkills
-                  heading={`Top Skills for ${selectedJob}`}
-                  skills={getJobSkills(selectedJobDetails)}
-                  industrySkills={industrySkills}
-                />
-              </div>
-              {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length !== 0 && currentJobDetails && (
+              { selectedJob && (
+                <div
+                  className={goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE && currentJob?.length > 0 ? 'col-6' : 'full-max-width'}
+                >
+                  <SelectedJobSkills
+                    heading={`Top Skills for ${selectedJob}`}
+                    skills={getJobSkills(selectedJobDetails)}
+                    industrySkills={industrySkills}
+                  />
+                </div>
+              ) }
+              {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE
+              && currentJob
+              && currentJob?.length !== 0
+              && currentJobDetails
+              && (
                 <div className="col-6">
                   <SelectedJobSkills
                     heading={`Skills you might already have as a ${currentJob}`}

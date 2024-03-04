@@ -4,18 +4,25 @@ import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 
 import { AppContext } from '@edx/frontend-platform/react';
 
-import {
-  Container, Row,
-} from '@edx/paragon';
+import { Container, Row } from '@openedx/paragon';
 
+import { getConfig } from '@edx/frontend-platform/config';
+import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { MainContent } from '../layout';
 import SkillsQuizStepper from './SkillsQuizStepper';
 import { SkillsContextProvider } from './SkillsContextProvider';
+import SkillsQuizV2 from '../skills-quiz-v2/SkillsQuiz';
+import { isExperimentVariant } from '../../utils/optimizely';
 
 const SkillsQuiz = () => {
   const { enterpriseConfig } = useContext(AppContext);
   const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
-
+  const config = getConfig();
+  const isExperimentVariationB = isExperimentVariant(
+    config.EXPERIMENT_2_ID,
+    config.EXPERIMENT_2_VARIANT_2_ID,
+  );
+  const v2 = hasFeatureFlagEnabled('ENABLE_SKILLS_QUIZ_V2'); // Enable the skills quiz v2 design only when enabled via query parameter.
   return (
     <>
       <Helmet title={PAGE_TITLE} />
@@ -24,12 +31,15 @@ const SkillsQuiz = () => {
           <MainContent>
             <SearchData>
               <SkillsContextProvider>
-                <SkillsQuizStepper />
+                {(isExperimentVariationB || v2) ? (
+                  <SkillsQuizV2 isStyleAutoSuggest />
+                ) : (
+                  <SkillsQuizStepper isStyleAutoSuggest={false} />
+                )}
               </SkillsContextProvider>
             </SearchData>
           </MainContent>
         </Row>
-
       </Container>
     </>
   );

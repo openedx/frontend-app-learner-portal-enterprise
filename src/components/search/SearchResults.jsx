@@ -7,8 +7,9 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import {
   CardGrid, Container, Skeleton,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
+import { useIntl } from '@edx/frontend-platform/i18n';
 
 import SearchNoResults from './SearchNoResults';
 import SearchError from './SearchError';
@@ -30,11 +31,23 @@ const SearchResults = ({
   hitComponent: HitComponent,
   title,
   contentType,
+  translatedTitle,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
   const hits = searchResults?.hits || [];
-  const linkText = `Show (${nbHits}) >`;
+  const intl = useIntl();
+  const linkText = intl.formatMessage(
+    {
+      id: 'enterprise.search.page.show.all',
+      defaultMessage: 'Show ({totalContentCount}) {rightArrowIcon}',
+      description: 'Link text to show all results for a particular content type.',
+    },
+    {
+      totalContentCount: nbHits,
+      rightArrowIcon: '>',
+    },
+  );
 
   // To prevent from showing same error twice, we only render the StatusAlert when course results are zero */
   const showMessage = (type, heading) => {
@@ -73,14 +86,25 @@ const SearchResults = ({
 
   const resultsHeading = useMemo(
     () => {
-      const resultsLabel = nbHits === 0 || nbHits > 1 ? 'results' : 'result';
+      const resultsLabel = nbHits === 0 || nbHits > 1
+        ? intl.formatMessage({
+          id: 'enterprise.search.page.content.results',
+          defaultMessage: 'results',
+          description: 'Label for the search results count when we have more than one result.',
+        })
+        : intl.formatMessage({
+          id: 'enterprise.search.page.content.result',
+          defaultMessage: 'result',
+          description: 'Label for the search result count when we have only one result.',
+        });
       return (
         <>
-          {title} ({nbHits} {resultsLabel})
+          {translatedTitle || title} ({nbHits} {resultsLabel})
           {query && <>{' '}for &quot;{query}&quot;</>}
         </>
       );
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [nbHits, query, title],
   );
 
@@ -156,6 +180,7 @@ SearchResults.propTypes = {
   contentType: PropTypes.string,
   hitComponent: PropTypes.elementType.isRequired,
   title: PropTypes.string.isRequired,
+  translatedTitle: PropTypes.string,
 };
 
 SearchResults.defaultProps = {
@@ -164,6 +189,7 @@ SearchResults.defaultProps = {
   isSearchStalled: false,
   error: undefined,
   contentType: undefined,
+  translatedTitle: undefined,
 };
 
 export default connectStateResults(SearchResults);

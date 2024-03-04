@@ -11,6 +11,7 @@ process.env.MARKETING_SITE_BASE_URL = 'http://marketing.url';
 process.env.LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL = 'http://limits.url';
 process.env.LOGOUT_URL = 'http://localhost:18000/logout';
 process.env.BASE_URL = 'http://localhost:8734';
+process.env.ENTERPRISE_ACCESS_BASE_URL = 'http://enterprise-access.url';
 
 // testing utility to mock window width, etc.
 global.window.matchMedia = matchMediaMock.create();

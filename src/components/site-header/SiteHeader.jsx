@@ -2,8 +2,9 @@ import React, { useContext } from 'react';
 import { HashLink } from 'react-router-hash-link';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { MenuIcon } from '@edx/paragon/icons';
-import { Container, MediaQuery } from '@edx/paragon';
+import { MenuIcon } from '@openedx/paragon/icons';
+import { useIntl } from '@edx/frontend-platform/i18n';
+import { Container, MediaQuery } from '@openedx/paragon';
 
 import SiteHeaderLogos from './SiteHeaderLogos';
 import SiteHeaderNavMenu from './SiteHeaderNavMenu';
@@ -13,6 +14,7 @@ import AvatarDropdown from './AvatarDropdown';
 const SiteHeader = () => {
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
+  const intl = useIntl();
 
   const renderDesktopHeader = () => (
     <header className="site-header-desktop">
@@ -24,7 +26,11 @@ const SiteHeader = () => {
           </nav>
           <nav aria-label="Secondary" className="nav secondary-menu-container align-items-center ml-auto">
             <a href={config.LEARNER_SUPPORT_URL} className="text-gray-700 mr-3">
-              Help
+              {intl.formatMessage({
+                id: 'site.header.nav.help.title',
+                defaultMessage: 'Help',
+                description: 'Help link in site header navigation.',
+              })}
             </a>
             <AvatarDropdown />
           </nav>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   screen, render,
 } from '@testing-library/react';
@@ -10,21 +11,21 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import ProgramListingCard from '../ProgramListingCard';
 
-const mockedPush = jest.fn();
+const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockedPush,
-  }),
+  useNavigate: () => mockedNavigate,
   useLocation: jest.fn(),
 }));
 
 const ProgramListingCardWithContext = ({ initialAppState, initialUserSubsidyState, programData }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramListingCard program={programData} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <ProgramListingCard program={programData} />
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const appState = {
@@ -139,6 +140,6 @@ describe('<ProgramListingCard />', () => {
       programData={dummyProgramData}
     />);
     userEvent.click(container.firstElementChild);
-    expect(mockedPush).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
+    expect(mockedNavigate).toHaveBeenCalledWith('/test-enterprise-slug/program/test-uuid/progress');
   });
 });

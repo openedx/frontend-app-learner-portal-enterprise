@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-import { Button, Container, Hyperlink } from '@edx/paragon';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Container, Hyperlink } from '@openedx/paragon';
 import { LoginRedirect } from '@edx/frontend-enterprise-logistration';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getConfig } from '@edx/frontend-platform/config';
+import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 
@@ -31,15 +30,14 @@ const EnterpriseInvitePage = () => {
   const { enterpriseCustomerInviteKey } = useParams();
   const [inviteError, setInviteError] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const history = useHistory();
-  const authenticatedUser = getAuthenticatedUser();
-  const config = getConfig();
+  const navigate = useNavigate();
+  const { authenticatedUser, config } = useContext(AppContext);
 
   useEffect(() => {
     // Note: `authenticatedUser.id` is a property that is added once the user account has finished
     // resolving its async request. By using `id` instead of `userId`, we are ensuring the user data
     // is hydrated before showing error page that requires hydrated user data.
-    if (authenticatedUser?.id) {
+    if (authenticatedUser?.userId) {
       const linkEnterpriseLearner = async () => {
         let redirectTo;
 
@@ -62,14 +60,14 @@ const EnterpriseInvitePage = () => {
             logError(error);
           }
 
-          history.replace(redirectTo);
+          navigate(redirectTo, { replace: true });
         }
 
         setIsLoading(false);
       };
       linkEnterpriseLearner();
     }
-  }, [authenticatedUser, enterpriseCustomerInviteKey, history]);
+  }, [authenticatedUser, enterpriseCustomerInviteKey, navigate]);
 
   return (
     <LoginRedirect>

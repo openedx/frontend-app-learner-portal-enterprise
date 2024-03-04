@@ -2,6 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import userEvent from '@testing-library/user-event';
 import {
@@ -28,9 +29,11 @@ const defaultAppState = {
 const CourseRecommendationsContext = ({
   initialAppState = defaultAppState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <CourseRecommendations />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <CourseRecommendations />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<CourseRecommendations />', () => {
@@ -40,9 +43,9 @@ describe('<CourseRecommendations />', () => {
   });
 
   it('clicking takes the user to skills quiz page', () => {
-    const { history } = renderWithRouter(<CourseRecommendationsContext />);
+    renderWithRouter(<CourseRecommendationsContext />);
     const courseRecommendationsButton = screen.getByText('Recommend courses for me');
     userEvent.click(courseRecommendationsButton);
-    expect(history.location.pathname).toEqual('/BearsRUs/skills-quiz');
+    expect(window.location.pathname).toEqual('/BearsRUs/skills-quiz');
   });
 });

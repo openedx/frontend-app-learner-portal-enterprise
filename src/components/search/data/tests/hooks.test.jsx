@@ -5,7 +5,7 @@ import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catal
 import {
   useDefaultSearchFilters, useSearchCatalogs,
 } from '../hooks';
-import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
+import { LICENSE_STATUS, emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
 
 const {
@@ -47,15 +47,7 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     }));
     if (isSubscriptionPlanExpired) {
       expect(result.current).toEqual([]);
@@ -81,15 +73,7 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     }));
     if (isCouponExpired) {
       expect(result.current).toEqual([]);
@@ -109,15 +93,7 @@ describe('useSearchCatalogs', () => {
       }],
       enterpriseOffers: [],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     }));
     expect(result.current).toEqual([]);
   });
@@ -139,15 +115,7 @@ describe('useSearchCatalogs', () => {
         isCurrent: !isExpiredOffer,
       }],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     }));
     if (isExpiredOffer) {
       expect(result.current).toEqual([]);
@@ -167,15 +135,7 @@ describe('useSearchCatalogs', () => {
         enterpriseCatalogUuid: mockEnterpriseOfferCatalog,
       }],
       catalogsForSubsidyRequests: [],
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     }));
     expect(result.current).toEqual([]);
   });
@@ -189,15 +149,7 @@ describe('useSearchCatalogs', () => {
       couponCodes: [],
       enterpriseOffers: [],
       catalogsForSubsidyRequests,
-      redeemableLearnerCreditPolicies: {
-        redeemablePolicies: [],
-        learnerContentAssignments: {
-          assignments: [],
-          hasAssignments: false,
-          activeAssignments: [],
-          hasActiveAssignments: false,
-        },
-      },
+      redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
     }));
     expect(result.current).toEqual(catalogsForSubsidyRequests);
   });

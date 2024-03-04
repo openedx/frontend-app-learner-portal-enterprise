@@ -1,6 +1,5 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import dayjs from '../../../../../../utils/dayjs';
@@ -13,11 +12,11 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform/auth');
-getAuthenticatedUser.mockReturnValue({ username: 'test-username' });
-
 const enterpriseConfig = {
   name: 'test-enterprise-name',
+};
+const authenticatedUser = {
+  username: 'test-username',
 };
 
 describe('<BaseCourseCard />', () => {
@@ -28,7 +27,7 @@ describe('<BaseCourseCard />', () => {
       jest.clearAllMocks();
 
       wrapper = render((
-        <AppContext.Provider value={{ enterpriseConfig }}>
+        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
           <BaseCourseCard
             type="completed"
             title="edX Demonstration Course"
@@ -47,7 +46,7 @@ describe('<BaseCourseCard />', () => {
 
     it('test modal close/cancel', () => {
       fireEvent.click(screen.getAllByText('Close')[1]);
-      expect(screen.getAllByText('Email settings')).toHaveLength(1);
+      expect(screen.getAllByText('Email settings')).toHaveLength(2);
     });
   });
 
@@ -58,7 +57,7 @@ describe('<BaseCourseCard />', () => {
       jest.clearAllMocks();
 
       wrapper = render((
-        <AppContext.Provider value={{ enterpriseConfig }}>
+        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
           <ToastsContext.Provider value={{ addToast: mockAddToast }}>
             <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
               <BaseCourseCard
@@ -87,7 +86,7 @@ describe('<BaseCourseCard />', () => {
 
   it('should render Skeleton if isLoading = true', () => {
     render((
-      <AppContext.Provider value={{ enterpriseConfig }}>
+      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
         <BaseCourseCard
           type="completed"
           title="edX Demonstration Course"
@@ -114,7 +113,7 @@ describe('<BaseCourseCard />', () => {
       const isCourseStarted = dayjs(startDate) <= dayjs();
 
       wrapper = render((
-        <AppContext.Provider value={{ enterpriseConfig }}>
+        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
           <BaseCourseCard
             type="in_progress"
             title="edX Demonstration Course"
@@ -147,7 +146,7 @@ describe('<BaseCourseCard />', () => {
     const type = 'in_progress';
 
     wrapper = render((
-      <AppContext.Provider value={{ enterpriseConfig }}>
+      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
         <BaseCourseCard
           type={type}
           title="edX Demonstration Course"
@@ -177,7 +176,7 @@ describe('<BaseCourseCard />', () => {
     const courseRunStatus = 'assigned';
 
     wrapper = render((
-      <AppContext.Provider value={{ enterpriseConfig }}>
+      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
         <BaseCourseCard
           courseRunStatus={courseRunStatus}
           title="edX Demonstration Course"

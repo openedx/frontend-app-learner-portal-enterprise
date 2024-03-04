@@ -1,6 +1,7 @@
 import React from 'react';
-import { Alert } from '@edx/paragon';
-import { WarningFilled, CheckCircle } from '@edx/paragon/icons';
+import { Alert } from '@openedx/paragon';
+import { WarningFilled, CheckCircle } from '@openedx/paragon/icons';
+import { useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 
 const iconByVariant = {
@@ -14,6 +15,7 @@ const CourseEnrollmentsAlert = ({
   onClose,
 }) => {
   const icon = iconByVariant[variant];
+  const intl = useIntl();
 
   return (
     <Alert
@@ -22,6 +24,11 @@ const CourseEnrollmentsAlert = ({
       icon={icon}
       dismissible={!!onClose}
       onClose={onClose}
+      closeLabel={intl.formatMessage({
+        id: 'enterprise.dashboard.course.enrollment.alert.dismiss.button',
+        defaultMessage: 'Dismiss',
+        description: 'Dismiss button label for the course enrollemnt alert',
+      })}
     >
       {children}
     </Alert>

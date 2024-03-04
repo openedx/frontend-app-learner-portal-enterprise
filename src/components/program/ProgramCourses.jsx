@@ -3,14 +3,13 @@ import React, { useContext } from 'react';
 import dayjs from 'dayjs';
 import {
   Alert, Collapsible, Hyperlink, Icon,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import {
   CalendarMonth, ExpandLess, ExpandMore, LibraryBooks,
   WarningFilled,
-} from '@edx/paragon/icons';
+} from '@openedx/paragon/icons';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 
@@ -26,10 +25,9 @@ const getCourseRun = course => (
 );
 
 const ProgramCourses = () => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
   const { program } = useContext(ProgramContext);
   const { programUuid } = useParams();
-  const { userId } = getAuthenticatedUser();
 
   return (
     <>

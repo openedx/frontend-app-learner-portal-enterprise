@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -14,7 +14,9 @@ export const isFirstDashboardPageVisit = () => {
 const EnterpriseLearnerFirstVisitRedirect = () => {
   const { enterpriseSlug } = useParams();
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const hasActiveContentAssignments = !!redeemableLearnerCreditPolicies?.learnerContentAssignments.hasActiveAssignments;
+  const hasAssignmentsForDisplay = (
+    !!redeemableLearnerCreditPolicies?.learnerContentAssignments.hasAssignmentsForDisplay
+  );
 
   useEffect(() => {
     const cookies = new Cookies();
@@ -24,8 +26,8 @@ const EnterpriseLearnerFirstVisitRedirect = () => {
     }
   }, []);
 
-  if (!hasActiveContentAssignments && isFirstDashboardPageVisit()) {
-    return <Redirect to={`/${enterpriseSlug}/search`} />;
+  if (!hasAssignmentsForDisplay && isFirstDashboardPageVisit()) {
+    return <Navigate to={`/${enterpriseSlug}/search`} replace />;
   }
 
   return null;

@@ -76,11 +76,11 @@ describe('<EnterpriseCustomerRedirect />', () => {
     };
 
     const Component = <EnterpriseCustomerRedirectWithContext initialAppState={initialState} />;
-    const { history } = renderWithRouter(Component, { route: '/' });
+    renderWithRouter(Component, { route: '/' });
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}`);
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISES[0].slug}`);
   });
 
   test('redirects to selected Enterprise Customer when user is linked to more than 1 Enterprise Customer', async () => {
@@ -104,10 +104,10 @@ describe('<EnterpriseCustomerRedirect />', () => {
     };
 
     const Component = <EnterpriseCustomerRedirectWithContext initialAppState={initialState} />;
-    const { history } = renderWithRouter(Component, { route: '/' });
+    renderWithRouter(Component, { route: '/' });
 
     await waitFor(() => expect(fetchEnterpriseCustomerByUUID).toHaveBeenCalledTimes(1));
 
-    expect(history.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}`);
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISES[1].slug}`);
   });
 });

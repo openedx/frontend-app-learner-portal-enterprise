@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { Link, generatePath } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Button, Container } from '@edx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import { Button, Container } from '@openedx/paragon';
 import AuthenticatedPageContext from '../app/AuthenticatedPageContext';
 
 import './styles/EnterpriseBanner.scss';
@@ -24,7 +25,11 @@ const EnterpriseBanner = () => {
               variant="inverse-primary"
               className="skills-quiz-btn"
             >
-              Recommend courses for me
+              <FormattedMessage
+                id="enterprise.banner.recommend.courses"
+                defaultMessage="Recommend courses for me"
+                description="Recommend courses for me button label."
+              />
             </Button>
           )}
         </div>

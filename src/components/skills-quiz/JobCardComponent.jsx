@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Card, CardGrid } from '@edx/paragon';
+import { Card, CardGrid } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { formatStringAsNumber } from '../../utils/common';
 import { NOT_AVAILABLE } from './constants';

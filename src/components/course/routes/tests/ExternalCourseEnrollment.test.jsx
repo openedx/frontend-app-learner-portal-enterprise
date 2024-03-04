@@ -9,13 +9,12 @@ import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../enterprise-user-subsidy/data/constants';
 
-const mockHistoryPush = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockHistoryPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('../../data/hooks', () => ({
@@ -69,19 +68,11 @@ const baseAppContextValue = {
     adminUsers: ['edx@example.com'],
     authOrgId: 'test-uuid',
   },
-  authenticatedUser: { id: 3 },
+  authenticatedUser: { userId: 3 },
 };
 
 const baseUserSubsidyContextValue = {
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [],
-    learnerContentAssignments: {
-      assignments: [],
-      hasAssignments: false,
-      activeAssignments: [],
-      hasActiveAssignments: false,
-    },
-  },
+  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
 };
 
 const ExternalCourseEnrollmentWrapper = ({
@@ -174,7 +165,7 @@ describe('ExternalCourseEnrollment', () => {
     };
     renderWithRouter(<ExternalCourseEnrollmentWrapper courseContextValue={courseContextValue} />);
 
-    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
   it.each([

@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import userEvent from '@testing-library/user-event';
 import PathwayModal from '../PathwayModal';
@@ -10,12 +11,6 @@ import { useLearnerPathwayData } from '../data/hooks';
 import { TEST_ENTERPRISE_SLUG, TEST_PATHWAY_DATA } from './constants';
 
 import { renderWithRouter } from '../../../utils/tests';
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: () => ({ username: 'b.wayne' }),
-  getAuthenticatedHttpClient: jest.fn(),
-}));
 
 jest.mock('../data/hooks', () => ({
   useLearnerPathwayData: jest.fn(),
@@ -27,13 +22,15 @@ jest.mock('react-loading-skeleton', () => ({
 }));
 
 const PathwayModalWithAppContext = (props) => (
-  <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-    }}
-  >
-    <PathwayModal {...props} />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider
+      value={{
+        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
+      }}
+    >
+      <PathwayModal {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const defaultProps = {
@@ -68,7 +65,7 @@ describe('<PathwayModal />', () => {
     // verify Collapsibles
     for (let i = 0; i < TEST_PATHWAY_DATA.steps.length; i++) {
       const step = TEST_PATHWAY_DATA.steps[i];
-      const collapsibleTitle = `Requirement ${i + 1}: Choose any ${step.min_requirement} of the following`;
+      const collapsibleTitle = `Requirement ${i + 1}`;
       expect(screen.getByText(collapsibleTitle)).toBeInTheDocument();
       userEvent.click(screen.getByText(collapsibleTitle));
 

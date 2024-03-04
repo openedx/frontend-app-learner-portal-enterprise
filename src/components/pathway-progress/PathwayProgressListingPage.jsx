@@ -5,12 +5,12 @@ import {
   Container,
   Button,
   CardGrid,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
 import './styles/index.scss';
 import PropTypes from 'prop-types';
 
-import { Search } from '@edx/paragon/icons';
+import { Search } from '@openedx/paragon/icons';
 
 import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../loading-spinner';
@@ -36,7 +36,7 @@ const PathwayProgressListingPage = ({ canOnlyViewHighlightSets, pathwayProgressD
   }
 
   return (
-    <div className="py-5">
+    <div className="py-5" data-testid="pathway-listing-page">
       {pathwayProgressData.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
           {pathwayProgressData.map((pathway) => (

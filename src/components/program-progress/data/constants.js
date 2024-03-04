@@ -1,5 +1,3 @@
-export const NO_PROGRAMS_ERROR_MESSAGE = 'You are not enrolled in any programs yet.';
-
 // ProgramProgressCircle constants
 export const X_AXIS = 22;
 export const Y_AXIS = 22;

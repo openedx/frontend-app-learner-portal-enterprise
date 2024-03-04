@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card } from '@edx/paragon';
+import { Card } from '@openedx/paragon';
 import SupportInformation from './SupportInformation';
 import SubsidiesSummary from './SubsidiesSummary';
 

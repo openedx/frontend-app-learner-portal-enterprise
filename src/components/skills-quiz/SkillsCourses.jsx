@@ -7,7 +7,7 @@ import {
   Alert,
   Skeleton,
   CardGrid,
-} from '@edx/paragon';
+} from '@openedx/paragon';
 import {
   SearchContext,
 } from '@edx/frontend-enterprise-catalog-search';
@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { ZoomOut } from '@edx/paragon/icons';
+import { ZoomOut } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
 
 import { useSelectedSkillsAndJobSkills } from './data/hooks';

@@ -605,6 +605,7 @@ describe('getMissingSubsidyReasonActions', () => {
     const ActionsComponent = getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers: [],
+      contactEmail: 'randomEmail@edx.org',
     });
     render(ActionsComponent);
     const ctaBtn = screen.getByText('Learn about limits');
@@ -616,6 +617,7 @@ describe('getMissingSubsidyReasonActions', () => {
     const ActionsComponent = getMissingSubsidyReasonActions({
       reasonType: DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_DEACTIVATED,
       enterpriseAdminUsers: [],
+      contactEmail: 'randomEmail@edx.org',
     });
     render(ActionsComponent);
     const ctaBtn = screen.getByText('Learn about deactivation');
@@ -632,10 +634,11 @@ describe('getMissingSubsidyReasonActions', () => {
     DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
     DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
     DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
-  ])('returns "Contact administrator" CTA when `reasonType` is: %s', (reasonType) => {
+  ])('returns enterpriseAdminUsers email "Contact administrator" CTA when `reasonType` is: %s', (reasonType) => {
     const ActionsComponent = getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers: [{ email: 'admin@example.com' }],
+      contactEmail: undefined,
     });
     render(ActionsComponent);
     const ctaBtn = screen.getByText('Contact administrator');
@@ -652,10 +655,32 @@ describe('getMissingSubsidyReasonActions', () => {
     DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
     DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
     DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
+  ])('returns contactEmail value in "Contact administrator" CTA when `reasonType` is: %s', (reasonType) => {
+    const ActionsComponent = getMissingSubsidyReasonActions({
+      reasonType,
+      enterpriseAdminUsers: [{ email: 'admin@example.com' }],
+      contactEmail: 'testEmail@edx.org',
+    });
+    render(ActionsComponent);
+    const ctaBtn = screen.getByText('Contact administrator');
+    expect(ctaBtn).toBeInTheDocument();
+    expect(ctaBtn.getAttribute('href')).toEqual('mailto:testEmail@edx.org');
+  });
+
+  it.each([
+    DISABLED_ENROLL_REASON_TYPES.NO_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.POLICY_NOT_ACTIVE,
+    DISABLED_ENROLL_REASON_TYPES.LEARNER_NOT_IN_ENTERPRISE,
+    DISABLED_ENROLL_REASON_TYPES.CONTENT_NOT_IN_CATALOG,
+    DISABLED_ENROLL_REASON_TYPES.NOT_ENOUGH_VALUE_IN_SUBSIDY,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_EXPIRED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_SEATS_EXHAUSTED,
+    DISABLED_ENROLL_REASON_TYPES.SUBSCRIPTION_LICENSE_NOT_ASSIGNED,
   ])('returns no "Contact administrator" CTA when `reasonType` is %s and there are no enterprise admins', (reasonType) => {
     const ActionsComponent = getMissingSubsidyReasonActions({
       reasonType,
       enterpriseAdminUsers: [],
+      contactEmail: 'randomEmail@edx.org',
     });
     const { container } = render(ActionsComponent);
     expect(container).toBeEmptyDOMElement();
@@ -665,6 +690,7 @@ describe('getMissingSubsidyReasonActions', () => {
     const ActionsComponent = getMissingSubsidyReasonActions({
       reasonType: 'invalid',
       enterpriseAdminUsers: [],
+      contactEmail: 'randomEmail@edx.org',
     });
     const { container } = render(ActionsComponent);
     expect(container).toBeEmptyDOMElement();

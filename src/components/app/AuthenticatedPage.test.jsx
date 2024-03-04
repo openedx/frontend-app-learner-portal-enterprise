@@ -1,23 +1,18 @@
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
+import { useLocation, useParams, useMatch } from 'react-router-dom';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import '@testing-library/jest-dom/extend-expect';
 
 import AuthenticatedPage from './AuthenticatedPage';
 import { useRecommendCoursesForMe } from './data';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedUser: jest.fn(),
-}));
-
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
   useParams: jest.fn(),
-  useRouteMatch: jest.fn(),
+  useMatch: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-logistration', () => ({
@@ -53,7 +48,7 @@ const mockAuthenticatedUser = {
 
 useLocation.mockReturnValue(mockLocation);
 useParams.mockReturnValue({ enterpriseSlug: mockEnterpriseSlug });
-useRouteMatch.mockReturnValue({ isExact: false });
+useMatch.mockReturnValue({});
 useRecommendCoursesForMe.mockReturnValue({
   shouldRecommendCourses: false,
 });
@@ -68,11 +63,13 @@ const AuthenticatedPageWrapper = ({
   children,
   appContextValue = defaultAppContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <AuthenticatedPage>
-      {children}
-    </AuthenticatedPage>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <AuthenticatedPage>
+        {children}
+      </AuthenticatedPage>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('AuthenticatedPage tests', () => {
@@ -100,7 +97,6 @@ describe('AuthenticatedPage tests', () => {
       shouldRecommendCourses: true,
     },
   ])('handles authenticated user (%s)', ({ shouldRecommendCourses }) => {
-    getAuthenticatedUser.mockReturnValue(mockAuthenticatedUser);
     useRecommendCoursesForMe.mockReturnValue({
       shouldRecommendCourses,
     });

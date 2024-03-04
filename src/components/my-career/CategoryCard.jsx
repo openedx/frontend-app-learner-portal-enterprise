@@ -3,15 +3,17 @@ import React, {
 } from 'react';
 
 import PropTypes from 'prop-types';
-import { Button, Card, useToggle } from '@edx/paragon';
+import { Button, Card, useToggle } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { isDisableCourseSearch } from '../enterprise-user-subsidy/enterprise-offers/data/utils';
 import { features } from '../../config';
+import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
+import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -24,20 +26,25 @@ const CategoryCard = ({ topCategory }) => {
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
   const {
     redeemableLearnerCreditPolicies,
-    enterpriseOffers,
+    hasCurrentEnterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes,
+    couponCodes: { couponCodesCount },
   } = useContext(UserSubsidyContext);
-  const hideCourseSearch = isDisableCourseSearch(
+  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
+  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
+  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
+  const isCourseSearchDisabled = determineLearnerHasContentAssignmentsOnly({
     redeemableLearnerCreditPolicies,
-    enterpriseOffers,
     subscriptionPlan,
     subscriptionLicense,
-    couponCodes.couponCodes,
-  );
+    licenseRequests,
+    couponCodesCount,
+    couponCodeRequests,
+    hasCurrentEnterpriseOffers,
+  });
 
-  const featuredHideCourseSearch = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && hideCourseSearch;
+  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
 
   const config = getConfig();
   const { enterpriseConfig } = useContext(AppContext);
@@ -156,10 +163,26 @@ const CategoryCard = ({ topCategory }) => {
           testid="show-all-less-button"
         >
           {showAll && !showLess && (
-            <span>Show ({subCategorySkillsLength}) &gt;</span>
+            <span>
+              <FormattedMessage
+                id="enterprise.dashboard.my.career.tab.visualize.career.data.show.all.skills"
+                defaultMessage="Show ({totalSkillsCount}) {rightArrowIcon}"
+                description="Label for button to show all skills in a category"
+                values={{
+                  totalSkillsCount: subCategorySkillsLength,
+                  rightArrowIcon: '>',
+                }}
+              />
+            </span>
           )}
           {!showAll && showLess && (
-            <span>Show Less</span>
+            <span>
+              <FormattedMessage
+                id="enterprise.dashboard.my.career.tab.visualize.career.data.show.less.skills"
+                defaultMessage="Show Less"
+                description="Label for button to show less skills in a category"
+              />
+            </span>
           )}
           {
             !showAll && !showLess && (
@@ -167,7 +190,7 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      {(!enterpriseConfig.disableSearch && !featuredHideCourseSearch) && (
+      {(!enterpriseConfig.disableSearch && !featuredIsCourseSearchDisabled) && (
         <Card.Section>
           {showSkills && subcategorySkills && (
             <div className="skill-details-recommended-courses">

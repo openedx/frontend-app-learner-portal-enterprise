@@ -33,6 +33,17 @@ Our goal is to setup a enterprise customer, obtains its slug, then visit it such
 Now quickly check the .env.development file for which services are used by the application. e.g. `LMS_BASE_URL='http://localhost:18000'` . We will get back to this.
 
 
+## Serving production builds
+
+During production builds, the NPM script ``npm run build`` is executed, which runs the production Webpack configuration (``webpack.prod.config.js``) to generate output files in the ``dist`` directory. However, these output files cannot be loaded directly into the browser. Instead, to preview a production build locally, these output files must be served via a server that can associate any URL route to the ``index.html`` entry-point of the application. The ``@openedx/frontend-build`` package supports a ``serve`` command, which runs the generated production output from Webpack with a Node.js Express server.
+
+To serve a production build, the build must include the appropriate environment variables. The custom ``webpack.prod.config.js`` file in this project attempts to load all environment variables configured via the Git-ignored ``.env.private`` file, such that the production build can point to localhost URLs, etc.
+
+Relevant commands:
+* ``npm run serve``: Serves the output files from the ``dist`` directory on the ``PORT`` environment variable defined in the ``.env.development`` file.
+* ``npm run build:serve``: Executes ``npm run build``, followed by serving those generated assets in one command.
+* ``npm run build:with-theme:serve``: Executes ``npm run build:with-theme`` (i.e., utilizes custom brand package), followed by serving those generated assets in a single command.
+
 ## Setup test users and data
 
 An enterprise portal will need a couple of roles: The Enterprise customer, and at least one learner account.

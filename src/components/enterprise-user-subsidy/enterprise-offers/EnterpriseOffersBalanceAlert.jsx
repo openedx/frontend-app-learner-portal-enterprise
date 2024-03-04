@@ -2,17 +2,12 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { Container, Alert, MailtoLink } from '@edx/paragon';
-import { WarningFilled, Error } from '@edx/paragon/icons';
+import { Container, Alert, MailtoLink } from '@openedx/paragon';
+import { WarningFilled, Error } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
-  LOW_BALANCE_CONTACT_ADMIN_TEXT,
-  LOW_BALANCE_ALERT_HEADING,
-  LOW_BALANCE_ALERT_TEXT,
-  NO_BALANCE_CONTACT_ADMIN_TEXT,
-  NO_BALANCE_ALERT_HEADING,
-  NO_BALANCE_ALERT_TEXT,
   OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
 import { getContactEmail } from '../../../utils/common';
@@ -21,12 +16,28 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
   const {
     enterpriseConfig, enterpriseConfig: { uuid: enterpriseCustomerUUID },
   } = useContext(AppContext);
+  const intl = useIntl();
 
-  const adminText = hasNoEnterpriseOffersBalance ? NO_BALANCE_CONTACT_ADMIN_TEXT : LOW_BALANCE_CONTACT_ADMIN_TEXT;
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
   const icon = hasNoEnterpriseOffersBalance ? Error : WarningFilled;
-  const heading = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_HEADING : LOW_BALANCE_ALERT_HEADING;
-  const text = hasNoEnterpriseOffersBalance ? NO_BALANCE_ALERT_TEXT : LOW_BALANCE_ALERT_TEXT;
+  const heading = hasNoEnterpriseOffersBalance ? intl.formatMessage({
+    id: 'enterprise.search.page.offers.balance.alert.no.balance.heading',
+    defaultMessage: "Courses are no longer covered by your organization's learner credit balance",
+    description: 'Heading for the enterprise offers balance alert when the learner credit balance is zero.',
+  }) : intl.formatMessage({
+    id: 'enterprise.search.page.offers.balance.alert.low.balance.heading',
+    defaultMessage: "Some courses may not be covered by your organization's learner credit balance",
+    description: 'Heading for the enterprise offers balance alert when the learner credit balance is low.',
+  });
+  const text = hasNoEnterpriseOffersBalance ? intl.formatMessage({
+    id: 'enterprise.search.page.offers.balance.alert.no.balance.description',
+    defaultMessage: 'Your learner credit balance has run out, and will not cover the cost of courses. Please contact your administrator if you have questions.',
+    description: 'Description for the enterprise offers balance alert when the learner credit balance is zero.',
+  }) : intl.formatMessage({
+    id: 'enterprise.search.page.offers.balance.alert.low.balance.description',
+    defaultMessage: 'Your organization is running low on learner credit. Some courses may no longer be covered. Please contact your administrator if you have questions.',
+    description: 'Description for the enterprise offers balance alert when the learner credit balance is low.',
+  });
 
   const email = getContactEmail(enterpriseConfig);
   const actions = email ? [
@@ -40,7 +51,11 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
         );
       }}
     >
-      {adminText}
+      <FormattedMessage
+        id="enterprise.search.page.offers.balance.alert.contact.admin.button"
+        defaultMessage="Contact administrator"
+        description="Button text for contacting the administrator on the enterprise offers balance alert."
+      />
     </MailtoLink>,
   ] : [];
 

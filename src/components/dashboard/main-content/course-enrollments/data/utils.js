@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { COURSE_STATUSES } from './constants';
-import { isAssignmentExpired } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 
 /**
@@ -92,30 +91,34 @@ export const transformSubsidyRequest = ({
  * @returns {array} - Returns the sorted array of assignments.
  */
 export const sortAssignmentsByAssignmentStatus = (assignments) => {
-  if (!assignments) {
-    return [];
-  }
   const assignmentsCopy = [...assignments];
   const sortedAssignments = assignmentsCopy.sort((a, b) => {
-    const isAssignmentACanceledOrExpired = a.state === 'cancelled' || isAssignmentExpired(a).isExpired ? 1 : 0;
-    const isAssignmentBCanceledOrExpired = b.state === 'cancelled' || isAssignmentExpired(b).isExpired ? 1 : 0;
+    const isAssignmentACanceledOrExpired = ['cancelled', 'expired'].includes(a.state) ? 1 : 0;
+    const isAssignmentBCanceledOrExpired = ['cancelled', 'expired'].includes(b.state) ? 1 : 0;
     return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
   });
   return sortedAssignments;
 };
 
-export const getTransformedAllocatedAssignments = (assignments, slug) => {
-  if (!assignments) {
-    return assignments;
-  }
-  const updatedAssignments = assignments?.map((item) => {
+/**
+ * Transforms a learner assignment into a shape consistent with course
+ * enrollments, including additional fields specific to learner content
+ * assignments (e.g., isCanceledAssignment, isExpiredAssignment,
+ * assignmentConfiguration). Used for the display of CourseCard component(s)
+ * while acknowledging canceled/expired assignments via the
+ * `useAcknowledgeContentAssignments` hook.
+ *
+ * @param {Array} assignments - Array of assignments to be transformed.
+ * @param {String} enterpriseSlug - Slug of the enterprise.
+ * @returns {Array} - Returns the transformed array of assignments.
+ */
+export const getTransformedAllocatedAssignments = (assignments, enterpriseSlug) => {
+  const updatedAssignments = assignments.map((item) => {
     const isCanceledAssignment = item.state === ASSIGNMENT_TYPES.CANCELED;
-    const {
-      isExpired: isExpiredAssignment,
-      enrollByDeadline: assignmentEnrollByDeadline,
-    } = isAssignmentExpired(item);
+    const isExpiredAssignment = item.state === ASSIGNMENT_TYPES.EXPIRED;
+    const { date: assignmentEnrollByDeadline } = item.earliestPossibleExpiration;
     return {
-      linkToCourse: `/${slug}/course/${item.contentKey}`,
+      linkToCourse: `/${enterpriseSlug}/course/${item.contentKey}`,
       // Note: we are using `courseRunId` instead of `contentKey` or `courseKey` because the `CourseSection`
       // and `BaseCourseCard` components expect `courseRunId` to be used as the content identifier. Consider
       // refactoring to rename `courseRunId` to `contentKey` in the future given learner content assignments
@@ -132,6 +135,8 @@ export const getTransformedAllocatedAssignments = (assignments, slug) => {
       enrollBy: assignmentEnrollByDeadline,
       isCanceledAssignment,
       isExpiredAssignment,
+      assignmentConfiguration: item.assignmentConfiguration,
+      uuid: item.uuid,
     };
   });
   return updatedAssignments;
