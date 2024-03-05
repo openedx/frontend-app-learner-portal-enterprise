@@ -9,7 +9,7 @@ import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import {
   determineEnterpriseCustomerUserForDisplay,
-  getAssignmentsByState, redirectToExternalNoticesPage,
+  getAssignmentsByState,
   transformEnterpriseCustomer,
   transformRedeemablePoliciesData,
 } from './utils';

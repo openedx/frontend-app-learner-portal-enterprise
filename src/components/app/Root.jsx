@@ -28,8 +28,7 @@ const Root = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      const isAuthenticatedUserHydrated = !!authenticatedUser?.profileImage;
-      if (navigation.state === 'idle' && fetchersIdle && !isAuthenticatedUserHydrated) {
+      if (navigation.state === 'idle' && fetchersIdle) {
         NProgress.done();
       } else {
         NProgress.start();

@@ -1,7 +1,6 @@
-import { getConfig } from '@edx/frontend-platform/config';
 import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../data/queries';
 import {
-  ensureAuthenticatedUser, redirectToExternalNoticesPage,
+  ensureAuthenticatedUser,
   redirectToRemoveTrailingSlash,
   redirectToSearchPageForNewUser,
 } from '../data';
