@@ -35,7 +35,7 @@ const Root = () => {
       }
     }, NPROGRESS_DELAY_MS);
     return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers, authenticatedUser]);
+  }, [navigation, fetchers]);
 
   // in the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely.
@@ -54,10 +54,6 @@ const Root = () => {
         </Hyperlink>
       </ErrorPage>
     );
-  }
-
-  if (!authenticatedUser.profileImage) {
-    return null;
   }
 
   // User is authenticated, so render the child routes (rest of the app).

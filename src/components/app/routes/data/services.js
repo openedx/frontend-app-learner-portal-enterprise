@@ -1,5 +1,5 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import {
   ENTERPRISE_OFFER_STATUS,
@@ -367,26 +367,23 @@ export async function fetchSubscriptions(enterpriseUuid) {
 
 // Notices
 export const fetchNotices = async () => {
-  const authenticatedUser = getAuthenticatedUser();
-  const url = new URL(`${getConfig().LMS_BASE_URL}/notices/api/v1/unacknowledged`);
-  if (authenticatedUser) {
-    try {
-      const { data } = await getAuthenticatedHttpClient().get(url.href, {});
-      if (data?.results.length > 0) {
-        const { results } = data;
-        window.location.assign(`${results[0]}?next=${window.location.href}`);
-        throw new Error('Redirecting to notice');
-      }
-      return data;
-    } catch (error) {
-      // we will just swallow error, as that probably means the notices app is not installed.
-      // Notices are not necessary for the rest of dashboard to function.
-      const httpErrorStatus = getErrorResponseStatusCode(error);
-      if (httpErrorStatus === 404) {
-        logInfo(`${error}. This probably happened because the notices plugin is not installed on platform.`);
-      } else {
-        logError(error);
-      }
+  const url = `${getConfig().LMS_BASE_URL}/notices/api/v1/unacknowledged`;
+  try {
+    const { data } = await getAuthenticatedHttpClient().get(url);
+    if (data?.results.length > 0) {
+      const { results } = data;
+      window.location.assign(`${results[0]}?next=${window.location.href}`);
+      throw new Error('Redirecting to notice');
+    }
+    return data;
+  } catch (error) {
+    // we will just swallow error, as that probably means the notices app is not installed.
+    // Notices are not necessary for the rest of dashboard to function.
+    const httpErrorStatus = getErrorResponseStatusCode(error);
+    if (httpErrorStatus === 404) {
+      logInfo(`${error}. This probably happened because the notices plugin is not installed on platform.`);
+    } else {
+      logError(error);
     }
   }
   return null;
