@@ -14,9 +14,13 @@ function useNProgressLoader() {
   const isAuthenticatedUserHydrated = !!authenticatedUser?.profileImage;
   const navigation = useNavigation();
   const fetchers = useFetchers();
-  const { data: noticeRedirectUrl } = useNotices();
+  const {
+    data: noticeRedirectUrl,
+    isLoading: isLoadingNotices,
+  } = useNotices();
 
-  const isAppDataHydrated = isAuthenticatedUserHydrated && !noticeRedirectUrl;
+  const hasNoticeRedirectUrl = !isLoadingNotices && !!noticeRedirectUrl;
+  const isAppDataHydrated = isAuthenticatedUserHydrated && !hasNoticeRedirectUrl;
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {

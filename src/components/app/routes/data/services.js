@@ -370,7 +370,8 @@ export const fetchNotices = async () => {
   const url = `${getConfig().LMS_BASE_URL}/notices/api/v1/unacknowledged`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
-    const results = response?.data.results || [];
+    // const results = response?.data.results || [];
+    const results = ['https://google.com'];
     if (results.length === 0 || !results[0]) {
       return null;
     }
