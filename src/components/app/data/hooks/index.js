@@ -8,3 +8,5 @@ export { default as useUserEntitlements } from './useUserEntitlements';
 export { default as useRecommendCoursesForMe } from './useRecommendCoursesForMe';
 export { default as useBrowseAndRequestConfiguration } from './useBrowseAndRequestConfiguration';
 export { default as useIsAssignmentsOnlyLearner } from './useIsAssignmentsOnlyLearner';
+export { default as useNProgressLoader } from './useNProgressLoader';
+export { default as useNotices } from './useNotices';
