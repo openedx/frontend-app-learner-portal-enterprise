@@ -42,11 +42,6 @@ export default function makeRootLoader(queryClient) {
       queryClient,
     }));
 
-    // Redirect user to the notices page from platform-plugin-notices
-    if (getConfig().ENABLE_NOTICES) {
-      redirectToExternalNoticesPage(enterpriseAppData[8]);
-    }
-
     // Redirect user to search page, for first-time users with no assignments.
     redirectToSearchPageForNewUser({
       enterpriseSlug,

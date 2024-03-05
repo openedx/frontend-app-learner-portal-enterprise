@@ -9,7 +9,7 @@ import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import {
   determineEnterpriseCustomerUserForDisplay,
-  getAssignmentsByState,
+  getAssignmentsByState, redirectToExternalNoticesPage,
   transformEnterpriseCustomer,
   transformRedeemablePoliciesData,
 } from './utils';
@@ -372,6 +372,11 @@ export const fetchNotices = async () => {
   if (authenticatedUser) {
     try {
       const { data } = await getAuthenticatedHttpClient().get(url.href, {});
+      if (data?.results.length > 0) {
+        const { results } = data;
+        window.location.assign(`${results[0]}?next=${window.location.href}`);
+        throw new Error('Redirecting to notice');
+      }
       return data;
     } catch (error) {
       // we will just swallow error, as that probably means the notices app is not installed.

@@ -2,7 +2,7 @@ import {
   Outlet, ScrollRestoration, useFetchers, useNavigation, useParams,
 } from 'react-router-dom';
 import {
-  Suspense, useContext, useEffect, useState,
+  Suspense, useContext, useEffect,
 } from 'react';
 import NProgress from 'accessible-nprogress';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -13,8 +13,6 @@ import { Hyperlink } from '@openedx/paragon';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
 import { ErrorPage } from '../error-page';
-import useNotices from './routes/data/hooks/useNotices';
-import { redirectToExternalNoticesPage } from './routes/data';
 
 // Determines amount of time that must elapse before the
 // NProgress loader is shown in the UI. No need to show it
@@ -26,31 +24,19 @@ const Root = () => {
   const navigation = useNavigation();
   const fetchers = useFetchers();
   const { enterpriseSlug } = useParams();
-  const { data: noticesData, isLoading: isLoadingNotices } = useNotices();
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (navigation.state === 'idle' && fetchersIdle && !isLoadingNotices) {
+      const isAuthenticatedUserHydrated = !!authenticatedUser?.profileImage;
+      if (navigation.state === 'idle' && fetchersIdle && !isAuthenticatedUserHydrated) {
         NProgress.done();
       } else {
         NProgress.start();
       }
     }, NPROGRESS_DELAY_MS);
     return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers, noticesData, isLoadingNotices]);
-
-  useEffect(() => {
-    if (!noticesData && noticesData?.results.length === 0) {
-      return;
-    }
-    redirectToExternalNoticesPage(noticesData);
-  }, [noticesData]);
-
-  // Redirects user if there are unacknowledged notices from platform-plugin-notices
-  if (!isLoadingNotices && !noticesData && noticesData?.results.length === 0) {
-    return null;
-  }
+  }, [navigation, fetchers, authenticatedUser]);
 
   // in the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely.
@@ -69,6 +55,10 @@ const Root = () => {
         </Hyperlink>
       </ErrorPage>
     );
+  }
+
+  if (!authenticatedUser.profileImage) {
+    return null;
   }
 
   // User is authenticated, so render the child routes (rest of the app).
