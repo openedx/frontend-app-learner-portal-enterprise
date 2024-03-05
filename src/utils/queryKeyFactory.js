@@ -109,13 +109,10 @@ const user = createQueryKeys('user', {
     queryKey: null,
     queryFn: async () => fetchUserEntitlements(),
   },
-});
-
-const notices = createQueryKeys('notices', {
-  unacknowledged: {
+  notices: {
     queryKey: null,
     queryFn: async () => fetchNotices(),
   },
 });
 
-export const queries = mergeQueryKeys(enterprise, user, notices);
+export const queries = mergeQueryKeys(enterprise, user);

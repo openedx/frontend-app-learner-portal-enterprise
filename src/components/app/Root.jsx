@@ -1,7 +1,9 @@
 import {
   Outlet, ScrollRestoration, useFetchers, useNavigation, useParams,
 } from 'react-router-dom';
-import { Suspense, useContext, useEffect } from 'react';
+import {
+  Suspense, useContext, useEffect, useState,
+} from 'react';
 import NProgress from 'accessible-nprogress';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
@@ -11,7 +13,8 @@ import { Hyperlink } from '@openedx/paragon';
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
 import { ErrorPage } from '../error-page';
-import useNoticesAndRedirect from './routes/data/hooks/useNoticesAndRedirect';
+import useNotices from './routes/data/hooks/useNotices';
+import { redirectToExternalNoticesPage } from './routes/data';
 
 // Determines amount of time that must elapse before the
 // NProgress loader is shown in the UI. No need to show it
@@ -23,21 +26,31 @@ const Root = () => {
   const navigation = useNavigation();
   const fetchers = useFetchers();
   const { enterpriseSlug } = useParams();
+  const { data: noticesData, isLoading: isLoadingNotices } = useNotices();
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const fetchersIdle = fetchers.every((f) => f.state === 'idle');
-      if (navigation.state === 'idle' && fetchersIdle) {
+      if (navigation.state === 'idle' && fetchersIdle && !isLoadingNotices) {
         NProgress.done();
       } else {
         NProgress.start();
       }
     }, NPROGRESS_DELAY_MS);
     return () => clearTimeout(timeoutId);
-  }, [navigation, fetchers]);
+  }, [navigation, fetchers, noticesData, isLoadingNotices]);
+
+  useEffect(() => {
+    if (!noticesData && noticesData?.results.length === 0) {
+      return;
+    }
+    redirectToExternalNoticesPage(noticesData);
+  }, [noticesData]);
 
   // Redirects user if there are unacknowledged notices from platform-plugin-notices
-  useNoticesAndRedirect();
+  if (!isLoadingNotices && !noticesData && noticesData?.results.length === 0) {
+    return null;
+  }
 
   // in the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely.
