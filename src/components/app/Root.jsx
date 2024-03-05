@@ -1,7 +1,9 @@
 import {
   Outlet, ScrollRestoration, useFetchers, useNavigation, useParams,
 } from 'react-router-dom';
-import { Suspense, useContext, useEffect } from 'react';
+import {
+  Suspense, useContext, useEffect,
+} from 'react';
 import NProgress from 'accessible-nprogress';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
@@ -10,7 +12,6 @@ import { Hyperlink } from '@openedx/paragon';
 
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
-import NoticesProvider from '../notices-provider';
 import { ErrorPage } from '../error-page';
 
 // Determines amount of time that must elapse before the
@@ -57,7 +58,7 @@ const Root = () => {
 
   // User is authenticated, so render the child routes (rest of the app).
   return (
-    <NoticesProvider>
+    <>
       <ToastsProvider>
         <Toasts />
         <Suspense fallback={<DelayedFallbackContainer />}>
@@ -65,7 +66,7 @@ const Root = () => {
         </Suspense>
       </ToastsProvider>
       <ScrollRestoration />
-    </NoticesProvider>
+    </>
   );
 };
 

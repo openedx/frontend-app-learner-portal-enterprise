@@ -8,6 +8,7 @@ export { default as queryCourseMetadata } from './courseMetadata';
 export { default as queryEnterpriseCourseEnrollments } from './enterpriseCourseEnrollments';
 export { default as queryUserEntitlements } from './userEntitlements';
 export { default as ensureEnterpriseAppData } from './ensureEnterpriseAppData';
+export { default as queryNotices } from './notices';
 
 export {
   queryEnterpriseLearner,

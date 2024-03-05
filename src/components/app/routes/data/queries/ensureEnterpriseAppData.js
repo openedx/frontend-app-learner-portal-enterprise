@@ -1,3 +1,4 @@
+import { getConfig } from '@edx/frontend-platform/config';
 import queryContentHighlightsConfiguration from './contentHighlights';
 import {
   queryCouponCodeRequests,
@@ -8,6 +9,7 @@ import {
   querySubscriptions,
   queryBrowseAndRequestConfiguration,
 } from './subsidies';
+import queryNotices from './notices';
 
 export default function ensureEnterpriseAppData({
   enterpriseCustomer,
@@ -15,7 +17,7 @@ export default function ensureEnterpriseAppData({
   userEmail,
   queryClient,
 }) {
-  return [
+  const enterpriseAppData = [
     // Enterprise Customer User Subsidies
     queryClient.ensureQueryData(
       querySubscriptions(enterpriseCustomer.uuid),
@@ -46,4 +48,12 @@ export default function ensureEnterpriseAppData({
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
   ];
+  if (getConfig().ENABLE_NOTICES) {
+    enterpriseAppData.push(
+      queryClient.ensureQueryData(
+        queryNotices(),
+      ),
+    );
+  }
+  return enterpriseAppData;
 }

@@ -2,14 +2,13 @@ import { queries } from '../../../../../../utils/queryKeyFactory';
 import { SUBSIDY_REQUEST_STATE } from '../../../../../enterprise-subsidy-requests';
 
 /**
- * Helper function to assist querying with useQuery package
- * queries
- * .enterprise
- * .enterpriseCustomer(enterpriseUuid)
- * ._ctx.subsidies
- * ._ctx.browseAndRequest(userEmail)
- * ._ctx.configuration
- * @returns
+ * Helper function to assist querying with useQuery package.
+ *
+ * @param {string} enterpriseUuid - The UUID of the enterprise.
+ * @param {string} userEmail - The email of the user.
+ * @returns {QueryObject} - The query object for the enterprise configuration.
+ * @property {[string]} QueryObject.queryKey - The query key for the object
+ * @property {func} QueryObject.queryFn - The asynchronous API request "fetchBrowseAndRequestConfiguration"
  */
 export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
   return queries
@@ -43,6 +42,7 @@ export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_
 
 /**
  * Helper function to assist querying with useQuery package
+ *
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
