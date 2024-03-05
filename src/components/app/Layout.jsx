@@ -1,8 +1,7 @@
-import { AppContext } from '@edx/frontend-platform/react';
-import { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { Outlet } from 'react-router-dom';
 import SiteFooter from '@edx/frontend-component-footer';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { useEnterpriseLearner, isSystemMaintenanceAlertOpen } from './data';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
@@ -15,7 +14,7 @@ export const TITLE_TEMPLATE = '%s - edX';
 export const DEFAULT_TITLE = 'edX';
 
 const Layout = () => {
-  const { config } = useContext(AppContext);
+  const config = getConfig();
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
   const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
