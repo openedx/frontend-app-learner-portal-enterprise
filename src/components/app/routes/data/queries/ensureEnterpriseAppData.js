@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { getConfig } from '@edx/frontend-platform';
 
 import { activateLicense, requestAutoAppliedUserLicense } from '../services';
 import { activateOrAutoApplySubscriptionLicense } from '../utils';
@@ -12,6 +13,7 @@ import {
   querySubscriptions,
   queryBrowseAndRequestConfiguration,
 } from './subsidies';
+import queryNotices from './notices';
 
 /**
  * TODO
@@ -26,7 +28,7 @@ export default async function ensureEnterpriseAppData({
   requestUrl,
 }) {
   const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
-  const enterpriseAppData = await Promise.all([
+  const enterpriseAppDataQueries = [
     // Enterprise Customer User Subsidies
     queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
       // Auto-activate the user's subscription license, if applicable.
@@ -88,7 +90,14 @@ export default async function ensureEnterpriseAppData({
     queryClient.ensureQueryData(
       queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
     ),
-  ]);
-
+  ];
+  if (getConfig().ENABLE_NOTICES) {
+    enterpriseAppDataQueries.push(
+      queryClient.ensureQueryData(
+        queryNotices(),
+      ),
+    );
+  }
+  const enterpriseAppData = await Promise.all(enterpriseAppDataQueries);
   return enterpriseAppData;
 }

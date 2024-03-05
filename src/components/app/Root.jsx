@@ -9,7 +9,6 @@ import { Hyperlink } from '@openedx/paragon';
 
 import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { Toasts, ToastsProvider } from '../Toasts';
-import NoticesProvider from '../notices-provider';
 import { ErrorPage } from '../error-page';
 import { useNProgressLoader } from './data';
 
@@ -47,7 +46,7 @@ const Root = () => {
 
   // User is authenticated, so render the child routes (rest of the app).
   return (
-    <NoticesProvider>
+    <>
       <ToastsProvider>
         <Toasts />
         <Suspense fallback={<DelayedFallbackContainer />}>
@@ -55,7 +54,7 @@ const Root = () => {
         </Suspense>
       </ToastsProvider>
       <ScrollRestoration />
-    </NoticesProvider>
+    </>
   );
 };
 

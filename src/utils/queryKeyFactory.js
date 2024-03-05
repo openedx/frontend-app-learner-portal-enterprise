@@ -13,6 +13,7 @@ import {
   fetchEnterpriseOffers,
   fetchEnterpriseCuration,
   fetchCouponCodeRequests,
+  fetchNotices,
 } from '../components/app/routes/data/services';
 
 import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
@@ -103,10 +104,14 @@ export const enterprise = createQueryKeys('enterprise', {
   }),
 });
 
-export const user = createQueryKeys('user', {
+const user = createQueryKeys('user', {
   entitlements: {
     queryKey: null,
     queryFn: async () => fetchUserEntitlements(),
+  },
+  notices: {
+    queryKey: null,
+    queryFn: async () => fetchNotices(),
   },
 });
 

@@ -1,5 +1,6 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import {
   ENTERPRISE_OFFER_STATUS,
   ENTERPRISE_OFFER_USAGE_TYPE,
@@ -383,6 +384,30 @@ export async function requestAutoAppliedUserLicense(customerAgreementId) {
   const response = await getAuthenticatedHttpClient().post(url);
   return camelCaseObject(response.data);
 }
+
+// Notices
+export const fetchNotices = async () => {
+  const url = `${getConfig().LMS_BASE_URL}/notices/api/v1/unacknowledged`;
+  try {
+    const { data } = await getAuthenticatedHttpClient().get(url);
+    if (data?.results.length > 0) {
+      const { results } = data;
+      window.location.assign(`${results[0]}?next=${window.location.href}`);
+      throw new Error('Redirecting to notice');
+    }
+    return data;
+  } catch (error) {
+    // we will just swallow error, as that probably means the notices app is not installed.
+    // Notices are not necessary for the rest of dashboard to function.
+    const httpErrorStatus = getErrorResponseStatusCode(error);
+    if (httpErrorStatus === 404) {
+      logInfo(`${error}. This probably happened because the notices plugin is not installed on platform.`);
+    } else {
+      logError(error);
+    }
+  }
+  return null;
+};
 
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
