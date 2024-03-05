@@ -6,6 +6,12 @@ import '@testing-library/jest-dom/extend-expect';
 import { QueryClientProvider } from '@tanstack/react-query';
 import Root from './Root';
 import { queryClient, renderWithRouterProvider } from '../../utils/tests';
+import { useNProgressLoader } from './data';
+
+jest.mock('./data', () => ({
+  ...jest.requireActual('./data'),
+  useNProgressLoader: jest.fn().mockReturnValue(true),
+}));
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -32,15 +38,12 @@ const unauthenticatedAppContextValue = {
 };
 
 const RootWrapper = ({
-  children,
   appContextValue = defaultAppContextValue,
 }) => (
   <IntlProvider locale="en">
     <QueryClientProvider client={queryClient()}>
       <AppContext.Provider value={appContextValue}>
-        <Root>
-          {children}
-        </Root>
+        <Root />
       </AppContext.Provider>
     </QueryClientProvider>
   </IntlProvider>
@@ -55,9 +58,7 @@ describe('Root tests', () => {
     renderWithRouterProvider({
       path: '/:enterpriseSlug',
       element: (
-        <RootWrapper appContextValue={unauthenticatedAppContextValue}>
-          <div data-testid="hidden-children" />
-        </RootWrapper>
+        <RootWrapper appContextValue={unauthenticatedAppContextValue} />
       ),
     }, {
       initialEntries: ['/test-enterprise?logout=true'],
@@ -66,20 +67,26 @@ describe('Root tests', () => {
     expect(screen.queryByTestId('hidden-children')).not.toBeInTheDocument();
   });
 
-  test('page renders child routes', () => {
+  test.each([
+    { isAppDataHydrated: true },
+    { isAppDataHydrated: false },
+  ])('page renders child routes when app is ready', ({ isAppDataHydrated }) => {
+    useNProgressLoader.mockReturnValue(isAppDataHydrated);
     renderWithRouterProvider({
       path: '/:enterpriseSlug',
-      element: (
-        <RootWrapper>
-          <div data-testid="hidden-children" />
-        </RootWrapper>
-      ),
+      element: <RootWrapper />,
     }, {
-      initialEntries: ['/test-enterprise?logout=true'],
+      initialEntries: ['/test-enterprise'],
     });
+
     expect(screen.queryByText('You are now logged out.')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('hidden-children')).not.toBeInTheDocument(); // Root does not render children; it renders child routes via Outlet
-    expect(screen.getByTestId('scroll-restoration')).toBeInTheDocument();
-    expect(screen.getByTestId('outlet')).toBeInTheDocument();
+
+    if (isAppDataHydrated) {
+      expect(screen.getByTestId('scroll-restoration')).toBeInTheDocument();
+      expect(screen.getByTestId('outlet')).toBeInTheDocument();
+    } else {
+      expect(screen.queryByTestId('scroll-restoration')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    }
   });
 });
