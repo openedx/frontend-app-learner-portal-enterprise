@@ -67,20 +67,6 @@ describe('Root tests', () => {
     expect(screen.queryByTestId('hidden-children')).not.toBeInTheDocument();
   });
 
-  test('page renders nothing loader when user is authenticated but not hydrated', () => {
-    const { container } = renderWithRouterProvider({
-      path: '/:enterpriseSlug',
-      element: (
-        <RootWrapper appContextValue={defaultAppContextValue}>
-          <div data-testid="hidden-children" />
-        </RootWrapper>
-      ),
-    }, {
-      initialEntries: ['/test-enterprise'],
-    });
-    expect(container).toBeEmptyDOMElement();
-  });
-
   test.each([
     { isAppDataHydrated: true },
     { isAppDataHydrated: false },
