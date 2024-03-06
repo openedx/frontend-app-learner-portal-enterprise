@@ -14,6 +14,7 @@ import {
 // import extractNamedExport from '../../utils/extract-named-export';
 
 import createAppRouter from './data/createAppRouter';
+import { RouterFallback } from './routes';
 
 /* eslint-disable max-len */
 // const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
@@ -44,7 +45,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ReactQueryDevtools initialIsOpen={false} />
     <AppProvider wrapWithRouter={false}>
-      <RouterProvider router={router} />
+      <RouterProvider
+        router={router}
+        fallbackElement={<RouterFallback />}
+      />
       {/* page routes for the app
       <Suspense fallback={(
         <DelayedFallbackContainer className="py-5 d-flex justify-content-center align-items-center" />
