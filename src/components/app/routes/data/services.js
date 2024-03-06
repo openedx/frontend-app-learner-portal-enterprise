@@ -389,13 +389,12 @@ export async function requestAutoAppliedUserLicense(customerAgreementId) {
 export const fetchNotices = async () => {
   const url = `${getConfig().LMS_BASE_URL}/notices/api/v1/unacknowledged`;
   try {
-    const { data } = await getAuthenticatedHttpClient().get(url);
-    if (data?.results.length > 0) {
-      const { results } = data;
-      window.location.assign(`${results[0]}?next=${window.location.href}`);
-      throw new Error('Redirecting to notice');
+    const response = await getAuthenticatedHttpClient().get(url);
+    const results = response?.data.results || [];
+    if (results.length === 0 || !results[0]) {
+      return null;
     }
-    return data;
+    return `${results[0]}?next=${window.location.href}`;
   } catch (error) {
     // we will just swallow error, as that probably means the notices app is not installed.
     // Notices are not necessary for the rest of dashboard to function.
@@ -405,8 +404,8 @@ export const fetchNotices = async () => {
     } else {
       logError(error);
     }
+    return null;
   }
-  return null;
 };
 
 /**

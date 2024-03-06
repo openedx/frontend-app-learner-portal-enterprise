@@ -1,21 +1,21 @@
-/* eslint-disable react/jsx-filename-extension */
-import { render, waitFor, screen } from '@testing-library/react';
-import { useState } from 'react';
-import userEvent from '@testing-library/user-event';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
-import { Button } from '@openedx/paragon';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { fetchNotices } from '../services';
 
 const APP_CONFIG = {
-  USE_API_CACHE: true,
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
   LMS_BASE_URL: 'http://localhost:18000',
 };
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => APP_CONFIG),
+}));
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  logError: jest.fn(),
+  logInfo: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -26,51 +26,30 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
 
-describe('fetchNotices', () => {
-  const NOTICES_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL }/notices/api/v1/unacknowledged`;
-  const ComponentWithNotices = () => {
-    const [output, setOuput] = useState(null);
-    const onClickHandler = async () => {
-      const apiOutput = await fetchNotices();
-      if (apiOutput?.results.length > 0) {
-        setOuput(apiOutput.results[0]);
-        return;
-      }
-      setOuput('No Results');
-    };
-    return (
-      <Button data-testid="fetchNotices" onClick={onClickHandler}>{output || 'hi'}</Button>
-    );
-  };
+const NOTICES_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL }/notices/api/v1/unacknowledged`;
 
-  // Preserves original window location, and swaps it back after test is completed
-  const currentLocation = window.location;
-  beforeAll(() => {
-    delete window.location;
-    window.location = { ...currentLocation, assign: jest.fn() };
-  });
-  afterAll(() => {
-    window.location = currentLocation;
-  });
-  it('returns empty data results and does not assign the window location', async () => {
+describe('fetchNotices', () => {
+  it('returns empty data results', async () => {
     axiosMock.onGet(NOTICES_ENDPOINT).reply(200, { results: [] });
-    render(<ComponentWithNotices />);
-    userEvent.click(screen.getByTestId('fetchNotices'));
-    await waitFor(() => expect(window.location.assign).not.toHaveBeenCalled());
+    const noticeRedirectUrl = await fetchNotices();
+    expect(noticeRedirectUrl).toBe(null);
   });
-  it('returns logInfo on 404', async () => {
+  it('returns notice redirect url', async () => {
+    const exampleNoticeUrl = 'https://example.com';
+    axiosMock.onGet(NOTICES_ENDPOINT).reply(200, { results: [exampleNoticeUrl] });
+    const noticeRedirectUrl = await fetchNotices();
+    expect(noticeRedirectUrl).toBe(`${exampleNoticeUrl}?next=${window.location.href}`);
+  });
+  it('calls logInfo on 404', async () => {
     axiosMock.onGet(NOTICES_ENDPOINT).reply(404, {});
-    render(<ComponentWithNotices />);
-    userEvent.click(screen.getByTestId('fetchNotices'));
-    await waitFor(() => expect(window.location.assign).not.toHaveBeenCalled());
+    const noticeRedirectUrl = await fetchNotices();
+    expect(noticeRedirectUrl).toBe(null);
+    expect(logInfo).toHaveBeenCalledTimes(1);
   });
-  it('assigns the window location on successful API response', async () => {
-    const currentHref = window.location.href;
-    axiosMock.onGet(NOTICES_ENDPOINT).reply(200, { results: [APP_CONFIG.LMS_BASE_URL] });
-    render(<ComponentWithNotices />);
-    userEvent.click(screen.getByTestId('fetchNotices'));
-    await waitFor(() => expect(window.location.assign).toHaveBeenCalledWith(
-      `${APP_CONFIG.LMS_BASE_URL }?next=${currentHref}`,
-    ));
+  it('calls logError on 500', async () => {
+    axiosMock.onGet(NOTICES_ENDPOINT).reply(500, {});
+    const noticeRedirectUrl = await fetchNotices();
+    expect(noticeRedirectUrl).toBe(null);
+    expect(logError).toHaveBeenCalledTimes(1);
   });
 });

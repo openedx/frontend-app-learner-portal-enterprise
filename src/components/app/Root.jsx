@@ -16,9 +16,9 @@ const Root = () => {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
 
-  useNProgressLoader();
+  const isAppDataHydrated = useNProgressLoader();
 
-  // in the special case where there is not authenticated user and we are being told it's the logout
+  // In the special case where there is not authenticated user and we are being told it's the logout
   // flow, we can show the logout message safely.
   // not rendering the SiteFooter here since it looks like it requires additional setup
   // not available in the logged out state (errors with InjectIntl errors)
@@ -37,10 +37,7 @@ const Root = () => {
     );
   }
 
-  // User is authenticated with an active enterprise customer, but
-  // the user account API data is still hydrating. If the user is
-  // still hydrating, the NProgress loader will not complete.
-  if (!authenticatedUser.profileImage) {
+  if (!isAppDataHydrated) {
     return null;
   }
 
