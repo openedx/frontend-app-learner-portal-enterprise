@@ -20,6 +20,7 @@ export const useSearchCatalogs = ({
 }) => {
   const searchCatalogs = useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.
+
     const catalogUUIDs = new Set();
 
     // Scope to catalogs from redeemable subsidy access policies, coupons,
@@ -58,7 +59,7 @@ export const useSearchCatalogs = ({
 };
 
 export const useDefaultSearchFilters = ({
-  enterpriseConfig,
+  enterpriseCustomer,
   searchCatalogs,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
@@ -75,7 +76,7 @@ export const useDefaultSearchFilters = ({
     () => {
       // Show all enterprise catalogs
       if (showAllRefinement) {
-        return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+        return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
       }
 
       if (searchCatalogs.length > 0) {
@@ -83,9 +84,9 @@ export const useDefaultSearchFilters = ({
       }
 
       // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
     },
-    [enterpriseConfig.uuid, searchCatalogs, showAllRefinement],
+    [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement],
   );
 
   return { filters };
