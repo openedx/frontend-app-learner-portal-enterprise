@@ -1,4 +1,4 @@
-import { queries } from '../../../../../../utils/queryKeyFactory';
+import queries from '../queryKeyFactory';
 
 /**
  * Helper function to assist querying with useQuery package
@@ -6,13 +6,13 @@ import { queries } from '../../../../../../utils/queryKeyFactory';
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.subsidies
- * ._ctx.enterpriseOffers
+ * ._ctx.subscriptions
  * @returns
  */
-export default function queryEnterpriseLearnerOffers(enterpriseUuid) {
+export default function querySubscriptions(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.subsidies
-    ._ctx.enterpriseOffers;
+    ._ctx.subscriptions;
 }

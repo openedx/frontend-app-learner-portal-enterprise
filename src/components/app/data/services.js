@@ -1,20 +1,33 @@
+import dayjs from 'dayjs';
+import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
+import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+
 import {
   ENTERPRISE_OFFER_STATUS,
   ENTERPRISE_OFFER_USAGE_TYPE,
-} from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { getErrorResponseStatusCode } from '../../../../utils/common';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
+} from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { getErrorResponseStatusCode } from '../../../utils/common';
+import { SUBSIDY_REQUEST_STATE } from '../../enterprise-subsidy-requests';
 import {
   determineEnterpriseCustomerUserForDisplay,
   getAssignmentsByState,
   transformEnterpriseCustomer,
   transformRedeemablePoliciesData,
 } from './utils';
+import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { features } from '../../../config';
+
+// import { queryEnterpriseLearner } from './queries';
 
 // Enterprise Course Enrollments
+
+/**
+ * TODO
+ * @returns
+ */
 export async function fetchUserEntitlements() {
   const url = `${getConfig().LMS_BASE_URL}/api/entitlements/v1/entitlements/`;
   const response = await getAuthenticatedHttpClient().get(url);
@@ -22,6 +35,21 @@ export async function fetchUserEntitlements() {
 }
 
 // Enterprise Learner
+
+/**
+ * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
+ * request, updating the active enterprise customer for the learner.
+ * @param {Object} params - The parameters object.
+ * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
+ * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
+ */
+export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
+  const url = `${getConfig().LMS_BASE_URL}/enterprise/select/active/`;
+  const formData = new FormData();
+  formData.append('enterprise', enterpriseCustomer.uuid);
+  return getAuthenticatedHttpClient().post(url, formData);
+}
+
 /**
  * Recursive function to fetch all linked enterprise customer users, traversing paginated results.
  * @param {string} url Request URL
@@ -61,16 +89,25 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
   const {
-    results: linkedEnterpriseCustomersUsers,
+    results: enterpriseCustomersUsers,
     enterpriseFeatures,
   } = await fetchData(url);
-  const activeLinkedEnterpriseCustomerUser = linkedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
+
+  // Transform enterprise customer user results
+  const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
+    enterpriseCustomerUser => ({
+      ...enterpriseCustomerUser,
+      enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
+    }),
+  );
+
+  const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
   const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
   const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
 
   // Find enterprise customer metadata for the currently viewed
   // enterprise slug in the page route params.
-  const foundEnterpriseCustomerUserForCurrentSlug = linkedEnterpriseCustomersUsers.find(
+  const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
     enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   );
 
@@ -84,11 +121,11 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
     foundEnterpriseCustomerUserForCurrentSlug,
   });
   return {
-    enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures),
+    enterpriseCustomer,
     enterpriseCustomerUserRoleAssignments: roleAssignments,
-    activeEnterpriseCustomer: transformEnterpriseCustomer(activeEnterpriseCustomer, enterpriseFeatures),
+    activeEnterpriseCustomer,
     activeEnterpriseCustomerUserRoleAssignments,
-    allLinkedEnterpriseCustomerUsers: linkedEnterpriseCustomersUsers,
+    allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
     enterpriseFeatures,
   };
 }
@@ -340,27 +377,6 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
 }
 
 // Subscriptions
-/**
- * TODO
- * @returns
- * @param enterpriseUUID
- */
-export async function fetchSubscriptions(enterpriseUUID) {
-  const queryParams = new URLSearchParams({
-    enterprise_customer_uuid: enterpriseUUID,
-    include_revoked: true,
-  });
-  const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  const responseData = camelCaseObject(response.data);
-  // Extracts customer agreement and removes it from the original response object
-  const { customerAgreement } = responseData;
-  const subscriptionsData = {
-    subscriptionLicenses: responseData.results,
-    customerAgreement,
-  };
-  return subscriptionsData;
-}
 
 /**
  * TODO
@@ -374,6 +390,49 @@ export async function activateLicense(activationKey) {
 }
 
 /**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+export async function activateSubscriptionLicense({
+  enterpriseCustomer,
+  subscriptionLicenseToActivate,
+  requestUrl,
+}) {
+  const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
+  const dashboardRedirectPath = generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug });
+  try {
+    // Activate the user's assigned subscription license.
+    await activateLicense(subscriptionLicenseToActivate.activationKey);
+    const autoActivatedSubscriptionLicense = {
+      ...subscriptionLicenseToActivate,
+      status: 'activated',
+      activationDate: dayjs().toISOString(),
+    };
+    sendEnterpriseTrackEvent(
+      enterpriseCustomer.uuid,
+      'edx.ui.enterprise.learner_portal.license-activation.license-activated',
+      {
+        // `autoActivated` is true if the user is on a page route *other* than the license activation route.
+        autoActivated: !licenseActivationRouteMatch,
+      },
+    );
+    // If user is on the license activation route, redirect to the dashboard.
+    if (licenseActivationRouteMatch) {
+      throw redirect(dashboardRedirectPath);
+    }
+    // Otherwise, return the now-activated subscription license.
+    return autoActivatedSubscriptionLicense;
+  } catch (error) {
+    logError(error);
+    if (licenseActivationRouteMatch) {
+      throw redirect(dashboardRedirectPath);
+    }
+    return null;
+  }
+}
+
+/**
  * Attempts to auto-apply a license for the authenticated user and the specified customer agreement.
  *
  * @param {string} customerAgreementId The UUID of the customer agreement.
@@ -383,6 +442,136 @@ export async function requestAutoAppliedUserLicense(customerAgreementId) {
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/customer-agreement/${customerAgreementId}/auto-apply/`;
   const response = await getAuthenticatedHttpClient().post(url);
   return camelCaseObject(response.data);
+}
+
+/**
+ * TODO
+ * @param {*} param0
+ */
+export async function getAutoAppliedSubscriptionLicense({
+  enterpriseCustomer,
+  customerAgreement,
+}) {
+  // If the feature flag for auto-applied licenses is not enabled, return early.
+  if (!features.ENABLE_AUTO_APPLIED_LICENSES) {
+    return null;
+  }
+
+  const hasSubscriptionForAutoAppliedLicenses = !!customerAgreement.subscriptionForAutoAppliedLicenses;
+  const hasIdentityProvider = enterpriseCustomer.identityProvider;
+
+  // If customer agreement has no configured subscription plan for auto-applied
+  // licenses, or the enterprise customer does not have an identity provider,
+  // return early.
+  if (!hasSubscriptionForAutoAppliedLicenses || !hasIdentityProvider) {
+    return null;
+  }
+
+  try {
+    return requestAutoAppliedUserLicense(customerAgreement.uuid);
+  } catch (error) {
+    logError(error);
+    return null;
+  }
+}
+
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+export async function activateOrAutoApplySubscriptionLicense({
+  enterpriseCustomer,
+  subscriptionsData,
+  requestUrl,
+}) {
+  const {
+    customerAgreement,
+    licensesByStatus,
+  } = subscriptionsData;
+  if (!customerAgreement || customerAgreement.netDaysUntilExpiration <= 0) {
+    return null;
+  }
+
+  // Check if learner already has activated license. If so, return early.
+  const hasActivatedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.ACTIVATED].length > 0;
+  if (hasActivatedSubscriptionLicense) {
+    return null;
+  }
+
+  // Otherwise, check if there is an assigned subscription
+  // license to activate OR if the user should request an
+  // auto-applied subscription license.
+  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
+  if (subscriptionLicenseToActivate) {
+    return activateSubscriptionLicense({
+      enterpriseCustomer,
+      subscriptionLicenseToActivate,
+      requestUrl,
+    });
+  }
+
+  const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;
+  if (!hasRevokedSubscriptionLicense) {
+    return getAutoAppliedSubscriptionLicense({
+      enterpriseCustomer,
+      customerAgreement,
+    });
+  }
+
+  return null;
+}
+
+/**
+ * TODO
+ * @returns
+ * @param enterpriseUUID
+ */
+export async function fetchSubscriptions(enterpriseUUID) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer_uuid: enterpriseUUID,
+    include_revoked: true,
+  });
+  const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  const {
+    customerAgreement,
+    results: subscriptionLicenses,
+  } = camelCaseObject(response.data);
+  const licensesByStatus = {
+    [LICENSE_STATUS.ACTIVATED]: [],
+    [LICENSE_STATUS.ASSIGNED]: [],
+    [LICENSE_STATUS.REVOKED]: [],
+  };
+  const subscriptionsData = {
+    subscriptionLicenses,
+    customerAgreement,
+    subscriptionLicense: null,
+    licensesByStatus,
+  };
+  /**
+   * Ordering of these status keys (i.e., activated, assigned, revoked) is important as the first
+   * license found when iterating through each status key in this order will be selected as the
+   * applicable license for use by the rest of the application.
+   *
+   * Example: an activated license will be chosen as the applicable license because activated licenses
+   * come first in ``licensesByStatus`` even if the user also has a revoked license.
+   */
+  subscriptionLicenses.forEach((license) => {
+    const { subscriptionPlan, status } = license;
+    const { isActive, daysUntilExpiration } = subscriptionPlan;
+    const isCurrent = daysUntilExpiration > 0;
+    const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
+    if (isUnassignedLicense || !isCurrent || !isActive) {
+      return;
+    }
+    licensesByStatus[license.status].push(license);
+  });
+  const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
+  subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
+  subscriptionsData.licensesByStatus = licensesByStatus;
+
+  return subscriptionsData;
 }
 
 // Notices
@@ -407,17 +596,3 @@ export const fetchNotices = async () => {
     return null;
   }
 };
-
-/**
- * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
- * request, updating the active enterprise customer for the learner.
- * @param {Object} params - The parameters object.
- * @param {Object} params.enterpriseCustomer - The enterprise customer that should be made active.
- * @returns {Promise} - A promise that resolves when the active enterprise customer is updated.
- */
-export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
-  const url = `${getConfig().LMS_BASE_URL}/enterprise/select/active/`;
-  const formData = new FormData();
-  formData.append('enterprise', enterpriseCustomer.uuid);
-  return getAuthenticatedHttpClient().post(url, formData);
-}

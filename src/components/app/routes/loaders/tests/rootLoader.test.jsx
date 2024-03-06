@@ -6,8 +6,8 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeRootLoader from '../rootLoader';
+import { ensureAuthenticatedUser } from '../../data';
 import {
-  ensureAuthenticatedUser,
   extractEnterpriseId,
   queryBrowseAndRequestConfiguration,
   queryContentHighlightsConfiguration,
@@ -18,11 +18,14 @@ import {
   queryLicenseRequests,
   queryRedeemablePolicies,
   querySubscriptions,
-} from '../../data';
+} from '../../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
   ensureAuthenticatedUser: jest.fn(),
+}));
+jest.mock('../../../data', () => ({
+  ...jest.requireActual('../../../data'),
   extractEnterpriseId: jest.fn(),
 }));
 

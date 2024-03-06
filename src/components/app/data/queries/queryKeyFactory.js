@@ -1,4 +1,5 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory';
+
 import {
   fetchCourseMetadata,
   fetchUserEntitlements,
@@ -14,11 +15,10 @@ import {
   fetchEnterpriseCuration,
   fetchCouponCodeRequests,
   fetchNotices,
-} from '../components/app/routes/data/services';
+} from '../services';
+import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 
-import { SUBSIDY_REQUEST_STATE } from '../components/enterprise-subsidy-requests';
-
-export const enterprise = createQueryKeys('enterprise', {
+const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
     contextQueries: {
@@ -115,4 +115,5 @@ const user = createQueryKeys('user', {
   },
 });
 
-export const queries = mergeQueryKeys(enterprise, user);
+const queries = mergeQueryKeys(enterprise, user);
+export default queries;

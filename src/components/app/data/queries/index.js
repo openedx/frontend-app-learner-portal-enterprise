@@ -1,18 +1,7 @@
-import queryEnterpriseLearner from './enterpriseLearner';
-
-export { default as queryCanRedeem } from './canRedeemCourse';
-export { default as queryContentHighlightsConfiguration } from './contentHighlights';
-export { default as queryCourseMetadata } from './courseMetadata';
-export { default as queryEnterpriseCourseEnrollments } from './enterpriseCourseEnrollments';
-export { default as queryUserEntitlements } from './userEntitlements';
-export { default as ensureEnterpriseAppData } from './ensureEnterpriseAppData';
-export { default as queryNotices } from './notices';
-
-export {
-  queryEnterpriseLearner,
-};
+import { queryEnterpriseLearner } from './queries';
 
 export * from './subsidies';
+export * from './queries';
 
 /**
  * Extracts the appropriate enterprise ID for the current user and enterprise slug.

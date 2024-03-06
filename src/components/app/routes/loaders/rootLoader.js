@@ -1,11 +1,10 @@
+import { queryEnterpriseLearner } from '../../data';
 import {
   ensureAuthenticatedUser,
+  ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
   redirectToSearchPageForNewUser,
-  ensureEnterpriseAppData,
-  queryEnterpriseLearner,
   ensureActiveEnterpriseCustomerUser,
-  updateUserActiveEnterprise,
 } from '../data';
 
 /**
@@ -33,7 +32,6 @@ export default function makeRootLoader(queryClient) {
       activeEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
     } = enterpriseLearnerData;
-    const { enterpriseFeatures } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer; return early.
     if (!activeEnterpriseCustomer) {
@@ -49,15 +47,6 @@ export default function makeRootLoader(queryClient) {
       queryClient,
       username,
       requestUrl,
-      enterpriseFeatures,
-      async updateActiveEnterpriseCustomerUser(nextActiveEnterpriseCustomer) {
-        // Makes the POST API request to update the active enterprise customer
-        // for the learner in the backend for future sessions.
-        await updateUserActiveEnterprise({
-          enterpriseCustomer: nextActiveEnterpriseCustomer,
-        });
-        return queryEnterpriseLearner(username, nextActiveEnterpriseCustomer.slug);
-      },
     });
     // If the active enterprise customer user was updated, override the previous active
     // enterprise customer user data with the new active enterprise customer user data

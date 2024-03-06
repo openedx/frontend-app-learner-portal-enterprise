@@ -1,4 +1,4 @@
-import { queries } from '../../../../../../utils/queryKeyFactory';
+import queries from '../queryKeyFactory';
 
 /**
  * Helper function to assist querying with useQuery package

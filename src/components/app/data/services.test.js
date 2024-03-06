@@ -2,7 +2,7 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError, logInfo } from '@edx/frontend-platform/logging';
-import { fetchNotices } from '../services';
+import { fetchNotices } from './services';
 
 const APP_CONFIG = {
   DISCOVERY_API_BASE_URL: 'http://localhost:18381',
