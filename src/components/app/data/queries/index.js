@@ -1,6 +1,5 @@
 import { queryEnterpriseLearner } from './queries';
 
-export * from './subsidies';
 export * from './queries';
 
 /**

@@ -1,4 +1,5 @@
 import { getAvailableCourseRuns } from '../../../course/data/utils';
+import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import queries from './queryKeyFactory';
 
 /**
@@ -97,4 +98,135 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata) {
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.course
     ._ctx.canRedeem(availableCourseRunKeys);
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.subscriptions
+ * @returns
+ */
+export function querySubscriptions(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.subscriptions;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.policy
+ * ._ctx.redeemablePolicies(lmsUserId)
+ * @returns
+ */
+export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.policy
+    ._ctx.redeemablePolicies(lmsUserId);
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.enterpriseOffers
+ * @returns
+ */
+export function queryEnterpriseLearnerOffers(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.enterpriseOffers;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.couponCodes
+ * @returns
+ */
+export function queryCouponCodes(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.couponCodes;
+}
+
+/**
+ * Helper function to assist querying with useQuery package.
+ *
+ * @param {string} enterpriseUuid - The UUID of the enterprise.
+ * @param {string} userEmail - The email of the user.
+ * @returns {QueryObject} - The query object for the enterprise configuration.
+ * @property {[string]} QueryObject.queryKey - The query key for the object
+ * @property {func} QueryObject.queryFn - The asynchronous API request "fetchBrowseAndRequestConfiguration"
+ */
+export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest
+    ._ctx.configuration;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.browseAndRequest(userEmail)
+ * ._ctx.requests(state)
+ * ._ctx.licenseRequests
+ * @returns
+ */
+export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest
+    ._ctx.requests(userEmail, state)
+    ._ctx.licenseRequests;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ *
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.subsidies
+ * ._ctx.browseAndRequest(userEmail)
+ * ._ctx.requests(state)
+ * ._ctx.couponCodeRequests
+ * @returns
+ */
+export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.subsidies
+    ._ctx.browseAndRequest
+    ._ctx.requests(userEmail, state)
+    ._ctx.couponCodeRequests;
 }

@@ -20,8 +20,6 @@ import {
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../config';
 
-// import { queryEnterpriseLearner } from './queries';
-
 // Enterprise Course Enrollments
 
 /**
@@ -51,22 +49,22 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
 }
 
 /**
- * Recursive function to fetch all linked enterprise customer users, traversing paginated results.
+ * Recursive function to fetch all results, traversing a paginated API response.
  * @param {string} url Request URL
- * @param {Array} [linkedEnterprises] Array of linked enterprise customer users
- * @returns Array of all linked enterprise customer users for authenticated user.
+ * @param {Array} [results] Array of results.
+ * @returns Array of all results for authenticated user.
  */
-async function fetchData(url, linkedEnterprises = []) {
+async function fetchPaginatedData(url, results = []) {
   const response = await getAuthenticatedHttpClient().get(url);
   const responseData = camelCaseObject(response.data);
-  const linkedEnterprisesCopy = [...linkedEnterprises];
-  linkedEnterprisesCopy.push(...responseData.results);
+  const resultsCopy = [...results];
+  resultsCopy.push(...responseData.results);
   if (responseData.next) {
-    return fetchData(responseData.next, linkedEnterprisesCopy);
+    return fetchPaginatedData(responseData.next, resultsCopy);
   }
   return {
-    results: linkedEnterprisesCopy,
-    enterpriseFeatures: responseData.enterpriseFeatures,
+    results: resultsCopy,
+    response: responseData,
   };
 }
 
@@ -90,8 +88,9 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
   const {
     results: enterpriseCustomersUsers,
-    enterpriseFeatures,
-  } = await fetchData(url);
+    response: enterpriseCustomerUsersResponse,
+  } = await fetchPaginatedData(url);
+  const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
 
   // Transform enterprise customer user results
   const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
@@ -131,6 +130,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
 }
 
 // Course Enrollments
+
 /**
  * TODO
  * @param {*} enterpriseId
@@ -147,7 +147,8 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
   return camelCaseObject(response.data);
 }
 
-// Course Metadata
+// Course
+
 /**
  * TODO
  * @param {*} param0
@@ -171,34 +172,6 @@ export async function fetchCourseMetadata(enterpriseId, courseKey, options = {})
   }
 }
 
-// Content Highlights
-/**
- * Content Highlights Configuration
- * @param {*} enterpriseUUID
- * @returns
- */
-export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
-  const queryParams = new URLSearchParams({
-    enterprise_customer: enterpriseUUID,
-    ...options,
-  });
-  const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-curations/?${queryParams.toString()}`;
-
-  try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    const data = camelCaseObject(response.data);
-    // Return first result, given that there should only be one result, if any.
-    return data.results[0] ?? null;
-  } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return null;
-    }
-    throw error;
-  }
-}
-
-// Can Redeem
 /**
  * Service method to determine whether the authenticated user can redeem the specified course run(s).
  *
@@ -225,9 +198,38 @@ export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
   }
 }
 
+// Content Highlights
+
+/**
+ * Content Highlights Configuration
+ * @param {*} enterpriseUUID
+ * @returns
+ */
+export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
+  const queryParams = new URLSearchParams({
+    enterprise_customer: enterpriseUUID,
+    ...options,
+  });
+  const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-curations/?${queryParams.toString()}`;
+
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    const data = camelCaseObject(response.data);
+    // Return first result, given that there should only be one result, if any.
+    return data.results[0] ?? null;
+  } catch (error) {
+    const errorResponseStatusCode = getErrorResponseStatusCode(error);
+    if (errorResponseStatusCode === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 // Subsidies
 
 // Browse and Request
+
 /**
  * TODO
  * @param {*} enterpriseUUID
