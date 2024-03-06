@@ -24,7 +24,7 @@ jest.mock('@edx/frontend-platform/auth', () => ({
   getLoginRedirectUrl: jest.fn().mockReturnValue('http://test-login-redirect-url'),
 }));
 
-const baseAppContextValue = {
+const defaultAppContextValue = {
   config: {},
   authenticatedUser: {
     userId: 3,
@@ -32,18 +32,8 @@ const baseAppContextValue = {
   },
 };
 
-const hydratedUserAppContextValue = {
-  ...baseAppContextValue,
-  authenticatedUser: {
-    ...baseAppContextValue.authenticatedUser,
-    profileImage: {
-      url: 'http://test-profile-image-url',
-    },
-  },
-};
-
 const unauthenticatedAppContextValue = {
-  ...baseAppContextValue,
+  ...defaultAppContextValue,
   authenticatedUser: null,
 };
 
@@ -81,12 +71,12 @@ describe('Root tests', () => {
     const { container } = renderWithRouterProvider({
       path: '/:enterpriseSlug',
       element: (
-        <RootWrapper appContextValue={baseAppContextValue}>
+        <RootWrapper appContextValue={defaultAppContextValue}>
           <div data-testid="hidden-children" />
         </RootWrapper>
       ),
     }, {
-      initialEntries: ['/test-enterprise?logout=true'],
+      initialEntries: ['/test-enterprise'],
     });
     expect(container).toBeEmptyDOMElement();
   });
