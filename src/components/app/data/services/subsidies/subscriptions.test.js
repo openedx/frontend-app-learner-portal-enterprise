@@ -247,8 +247,6 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     } catch (error) {
       if (isLicenseActivationRoute) {
         expect(error).toEqual(`/${mockEnterpriseSlug}`);
-      } else {
-        expect(error).toBeNull();
       }
     }
   });

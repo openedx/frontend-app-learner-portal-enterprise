@@ -28,10 +28,9 @@ export async function activateLicense(activationKey) {
 export async function activateSubscriptionLicense({
   enterpriseCustomer,
   subscriptionLicenseToActivate,
-  requestUrl,
+  licenseActivationRouteMatch,
+  dashboardRedirectPath,
 }) {
-  const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
-  const dashboardRedirectPath = generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug });
   try {
     // Activate the user's assigned subscription license.
     await activateLicense(subscriptionLicenseToActivate.activationKey);
@@ -50,6 +49,7 @@ export async function activateSubscriptionLicense({
     );
     // If user is on the license activation route, redirect to the dashboard.
     if (licenseActivationRouteMatch) {
+      console.log('redirecting to dashboard', dashboardRedirectPath);
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.
@@ -116,41 +116,55 @@ export async function activateOrAutoApplySubscriptionLicense({
   subscriptionsData,
   requestUrl,
 }) {
+  const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
+  const dashboardRedirectPath = generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug });
+
+  const checkLicenseActivationRouteAndRedirectToDashboard = () => {
+    if (!licenseActivationRouteMatch) {
+      return null;
+    }
+    throw redirect(dashboardRedirectPath);
+  };
+
   const {
     customerAgreement,
     licensesByStatus,
   } = subscriptionsData;
   if (!customerAgreement || customerAgreement.netDaysUntilExpiration <= 0) {
-    return null;
+    return checkLicenseActivationRouteAndRedirectToDashboard();
   }
 
   // Check if learner already has activated license. If so, return early.
   const hasActivatedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.ACTIVATED].length > 0;
   if (hasActivatedSubscriptionLicense) {
-    return null;
+    return checkLicenseActivationRouteAndRedirectToDashboard();
   }
 
-  // Otherwise, check if there is an assigned subscription
-  // license to activate OR if the user should request an
-  // auto-applied subscription license.
+  // Otherwise, check if there is an assigned subscription license to
+  // activate OR if the user should request an auto-applied subscription
+  // license.
+  let activatedOrAutoAppliedLicense = null;
   const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
   if (subscriptionLicenseToActivate) {
-    return activateSubscriptionLicense({
+    activatedOrAutoAppliedLicense = await activateSubscriptionLicense({
       enterpriseCustomer,
       subscriptionLicenseToActivate,
-      requestUrl,
+      licenseActivationRouteMatch,
+      dashboardRedirectPath,
     });
   }
 
   const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;
   if (!hasRevokedSubscriptionLicense) {
-    return getAutoAppliedSubscriptionLicense({
+    activatedOrAutoAppliedLicense = await getAutoAppliedSubscriptionLicense({
       enterpriseCustomer,
       customerAgreement,
     });
   }
 
-  return null;
+  checkLicenseActivationRouteAndRedirectToDashboard();
+
+  return activatedOrAutoAppliedLicense;
 }
 
 /**
