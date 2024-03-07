@@ -1,17 +1,15 @@
 import {
-  useCallback, useEffect, useMemo, useReducer, useState,
+  useEffect, useMemo, useReducer, useState,
 } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { useQuery } from '@tanstack/react-query';
 
-import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { fetchCouponCodeAssignments } from '../../coupons';
 import couponCodesReducer, { initialCouponCodesState } from '../../coupons/data/reducer';
 
 import { enterpriseUserSubsidyQueryKeys, LICENSE_STATUS } from '../constants';
 import {
-  activateLicense,
   fetchCustomerAgreementData,
   fetchRedeemableLearnerCreditPolicies,
   fetchSubscriptionLicensesForUser,
@@ -112,28 +110,7 @@ export function useSubscriptionLicense({
     }
   }, [customerAgreementConfig, enterpriseId, enterpriseIdentityProvider, isLoadingCustomerAgreementConfig, user]);
 
-  const activateUserLicense = useCallback(async (autoActivated = false) => {
-    try {
-      await activateLicense(license.activationKey);
-
-      sendEnterpriseTrackEvent(
-        enterpriseId,
-        'edx.ui.enterprise.learner_portal.license-activation.license-activated',
-        {
-          autoActivated,
-        },
-      );
-      setLicense((prevLicense) => ({
-        ...prevLicense,
-        status: LICENSE_STATUS.ACTIVATED,
-      }));
-    } catch (error) {
-      logError(error);
-      throw error;
-    }
-  }, [enterpriseId, license]);
-
-  return { license, isLoading, activateUserLicense };
+  return { license, isLoading };
 }
 
 /**
