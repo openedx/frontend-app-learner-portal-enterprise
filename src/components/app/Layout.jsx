@@ -1,13 +1,11 @@
-import { AppContext } from '@edx/frontend-platform/react';
-import { useContext } from 'react';
 import { Helmet } from 'react-helmet';
 import { Outlet } from 'react-router-dom';
 import SiteFooter from '@edx/frontend-component-footer';
+import { getConfig } from '@edx/frontend-platform/config';
 
 import { useEnterpriseLearner, isSystemMaintenanceAlertOpen } from './data';
 import { useStylesForCustomBrandColors } from '../layout/data/hooks';
 import NotFoundPage from '../NotFoundPage';
-import DelayedFallbackContainer from '../DelayedFallback/DelayedFallbackContainer';
 import { SiteHeader } from '../site-header';
 import { EnterpriseBanner } from '../enterprise-banner';
 import { SystemWideWarningBanner } from '../system-wide-banner';
@@ -16,7 +14,7 @@ export const TITLE_TEMPLATE = '%s - edX';
 export const DEFAULT_TITLE = 'edX';
 
 const Layout = () => {
-  const { authenticatedUser, config } = useContext(AppContext);
+  const config = getConfig();
   const { data: enterpriseLearnerData } = useEnterpriseLearner();
 
   const brandStyles = useStylesForCustomBrandColors(enterpriseLearnerData.enterpriseCustomer);
@@ -25,18 +23,6 @@ const Layout = () => {
   // render the not found page.
   if (!enterpriseLearnerData.enterpriseCustomer) {
     return <NotFoundPage />;
-  }
-
-  // User is authenticated with an active enterprise customer, but
-  // the user account API data is still hydrating. If it is still
-  // hydrating, render a loading state.
-  if (!authenticatedUser.profileImage) {
-    return (
-      <DelayedFallbackContainer
-        className="py-5 text-center"
-        screenReaderText="Loading your account details. Please wait."
-      />
-    );
   }
 
   return (

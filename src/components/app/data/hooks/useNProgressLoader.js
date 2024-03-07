@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useFetchers, useNavigation } from 'react-router-dom';
 import nprogress from 'accessible-nprogress';
 import { AppContext } from '@edx/frontend-platform/react';
+
 import useNotices from './useNotices';
 
 // Determines amount of time that must elapse before the

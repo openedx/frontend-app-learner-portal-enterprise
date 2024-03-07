@@ -10,7 +10,7 @@ import { queryCacheOnErrorHandler } from './common';
 /**
  * TODO
  * @param {*} children
- * @param {*} routes
+ * @param {*} options
  * @returns
  */
 export function renderWithRouterProvider(
@@ -18,15 +18,18 @@ export function renderWithRouterProvider(
   {
     routes = [],
     initialEntries,
-  },
+    customRouter,
+  } = {},
 ) {
   const options = isValidElement(children)
     ? { element: children, path: '/' }
     : children;
-  const router = createMemoryRouter([{ ...options }, ...routes], {
+
+  const router = customRouter ?? createMemoryRouter([{ ...options }, ...routes], {
     initialEntries: ['/', ...(initialEntries ?? [options.path])],
     initialIndex: 1,
   });
+
   return render(<RouterProvider router={router} />);
 }
 

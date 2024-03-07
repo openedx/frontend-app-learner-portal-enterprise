@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
-import { queryContentHighlightsConfiguration } from '../../routes/data/queries';
+import { queryContentHighlightsConfiguration } from '../queries';
 
 /**
  * Retrieves the content highlights configuration for the active enterprise customer user.

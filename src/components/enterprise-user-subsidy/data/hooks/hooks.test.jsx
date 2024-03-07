@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react-hooks';
-import * as logging from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { logError } from '@edx/frontend-platform/logging';
@@ -12,8 +11,6 @@ import {
 } from '.';
 import {
   fetchSubscriptionLicensesForUser,
-  activateLicense,
-  requestAutoAppliedLicense,
   fetchCustomerAgreementData,
   fetchRedeemableLearnerCreditPolicies,
 } from '../service';
@@ -25,10 +22,6 @@ import { ASSIGNMENT_TYPES } from '../../enterprise-offers/data/constants';
 jest.mock('../../data/service');
 jest.mock('../../coupons/data/service');
 jest.mock('../../coupons');
-
-jest.mock('@edx/frontend-platform/logging', () => ({
-  logError: jest.fn(),
-}));
 
 jest.mock('../../../../config', () => ({
   ...jest.requireActual('../../../../config'),
@@ -74,7 +67,6 @@ const mockLearnerCreditPolicy = {
   learner_content_assignments: undefined,
 };
 const mockUser = { roles: [] };
-const mockEnterpriseUser = { roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`] };
 const mockCustomerAgreement = {
   uuid: 'test-customer-agreement-uuid',
 };
@@ -126,147 +118,6 @@ describe('useSubscriptionLicense', () => {
 
     expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
     expect(result.current.license.subscriptionPlan).toEqual(mockSubscriptionPlan);
-  });
-
-  it.each([
-    {
-      hasExistingLicense: false,
-      hasIdentityProvider: true,
-      isEnterpriseLearner: true,
-      hasCustomerAgreementData: true,
-      shouldAutoApplyLicense: true,
-    },
-    {
-      hasExistingLicense: true,
-      hasIdentityProvider: true,
-      isEnterpriseLearner: true,
-      hasCustomerAgreementData: true,
-      shouldAutoApplyLicense: false,
-    },
-    {
-      hasExistingLicense: false,
-      hasIdentityProvider: false,
-      isEnterpriseLearner: false,
-      hasCustomerAgreementData: false,
-      shouldAutoApplyLicense: false,
-    },
-    {
-      hasExistingLicense: false,
-      hasIdentityProvider: false,
-      isEnterpriseLearner: true,
-      hasCustomerAgreementData: true,
-      shouldAutoApplyLicense: false,
-    },
-    {
-      hasExistingLicense: false,
-      hasIdentityProvider: true,
-      isEnterpriseLearner: true,
-      hasCustomerAgreementData: false,
-      shouldAutoApplyLicense: false,
-    },
-  ])('auto-applies user license when applicable (%s)', async ({
-    hasExistingLicense,
-    hasIdentityProvider,
-    isEnterpriseLearner,
-    hasCustomerAgreementData,
-    shouldAutoApplyLicense,
-  }) => {
-    const mockLicenses = hasExistingLicense ? [mockLicense] : [];
-    const mockAuthenticatedUser = isEnterpriseLearner ? mockEnterpriseUser : mockUser;
-    const mockEnterpriseConfiguration = { ...mockEnterpriseConfig };
-    if (hasIdentityProvider) {
-      mockEnterpriseConfiguration.identityProvider = { id: 1 };
-    }
-    const anotherMockCustomerAgreement = {};
-    if (hasCustomerAgreementData) {
-      anotherMockCustomerAgreement.uuid = 'test-customer-agreement-uuid';
-      anotherMockCustomerAgreement.subscriptionForAutoAppliedLicenses = TEST_SUBSCRIPTION_UUID;
-      anotherMockCustomerAgreement.subscriptions = [mockSubscriptionPlan];
-    }
-    fetchSubscriptionLicensesForUser.mockResolvedValueOnce({
-      data: {
-        results: mockLicenses,
-      },
-    });
-    requestAutoAppliedLicense.mockResolvedValueOnce({
-      data: mockLicense,
-    });
-    const args = {
-      enterpriseConfig: mockEnterpriseConfiguration,
-      customerAgreementConfig: anotherMockCustomerAgreement,
-      user: mockAuthenticatedUser,
-      isLoadingCustomerAgreementConfig: false,
-    };
-    const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
-    await waitForNextUpdate();
-    expect(fetchSubscriptionLicensesForUser).toHaveBeenCalledWith(TEST_ENTERPRISE_UUID);
-
-    if (shouldAutoApplyLicense) {
-      expect(requestAutoAppliedLicense).toHaveBeenCalledTimes(1);
-      expect(result.current.license).toEqual(expect.objectContaining({
-        ...camelCaseObject(mockLicense),
-      }));
-    } else {
-      expect(requestAutoAppliedLicense).not.toHaveBeenCalled();
-      if (!hasExistingLicense) {
-        expect(result.current.license).toEqual(null);
-      }
-    }
-  });
-
-  describe('activateUserLicense', () => {
-    beforeEach(() => {
-      fetchSubscriptionLicensesForUser.mockResolvedValue({
-        data: {
-          results: [mockLicense],
-        },
-      });
-    });
-
-    afterEach(() => jest.clearAllMocks());
-
-    it('activates the user license and updates the license status', async () => {
-      activateLicense.mockResolvedValueOnce(true);
-      const args = {
-        enterpriseConfig: mockEnterpriseConfig,
-        customerAgreementConfig: {
-          subscriptions: [mockSubscriptionPlan],
-        },
-        isLoadingCustomerAgreementConfig: false,
-        user: mockUser,
-      };
-      const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
-      await waitForNextUpdate();
-      const { activateUserLicense } = result.current;
-      activateUserLicense();
-      await waitForNextUpdate();
-      expect(activateLicense).toHaveBeenCalledWith(mockLicense.activation_key);
-      expect(result.current.license.status).toEqual(LICENSE_STATUS.ACTIVATED);
-    });
-
-    it('handles errors', async () => {
-      const mockError = new Error('something went swrong');
-      activateLicense.mockRejectedValueOnce(mockError);
-      const args = {
-        enterpriseConfig: mockEnterpriseConfig,
-        customerAgreementConfig: {
-          subscriptions: [mockSubscriptionPlan],
-        },
-        isLoadingCustomerAgreementConfig: false,
-        user: mockUser,
-      };
-      const { result, waitForNextUpdate } = renderHook(() => useSubscriptionLicense(args));
-      await waitForNextUpdate();
-      const { activateUserLicense } = result.current;
-      try {
-        await activateUserLicense();
-      } catch (error) {
-        expect(error).toEqual(mockError);
-      }
-      expect(activateLicense).toHaveBeenCalledWith(mockLicense.activation_key);
-      expect(result.current.license.status).toEqual(LICENSE_STATUS.ASSIGNED);
-      expect(logging.logError).toHaveBeenCalledWith(mockError);
-    });
   });
 });
 

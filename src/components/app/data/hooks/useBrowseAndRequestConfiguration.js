@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
-import { queryBrowseAndRequestConfiguration } from '../../routes/data';
+import { queryBrowseAndRequestConfiguration } from '../queries';
 
 /**
  * Retrieves the course metadata for the given enterprise customer and course key.

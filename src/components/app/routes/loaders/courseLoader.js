@@ -3,8 +3,9 @@ import {
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
-} from '../data/queries';
-import { ensureAuthenticatedUser, extractEnterpriseId } from '../data';
+  extractEnterpriseId,
+} from '../../data';
+import { ensureAuthenticatedUser } from '../data';
 
 /**
  * Course loader for the course related page routes.

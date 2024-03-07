@@ -3,10 +3,10 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import { queryClient } from '../../../../utils/tests';
 import useNotices from './useNotices';
-import { fetchNotices } from '../../routes/data/services';
+import { fetchNotices } from '../services';
 
-jest.mock('../../routes/data/services', () => ({
-  ...jest.requireActual('../../routes/data/services'),
+jest.mock('../services', () => ({
+  ...jest.requireActual('../services'),
   fetchNotices: jest.fn().mockResolvedValue(null),
 }));
 

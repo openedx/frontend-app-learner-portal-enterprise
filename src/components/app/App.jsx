@@ -13,8 +13,7 @@ import {
 } from '../../utils/common';
 // import extractNamedExport from '../../utils/extract-named-export';
 
-import createAppRouter from './data/createAppRouter';
-import { RouterFallback } from './routes';
+import { RouterFallback, createAppRouter } from './routes';
 
 /* eslint-disable max-len */
 // const EnterpriseAppPageRoutes = lazy(() => import(/* webpackChunkName: "enterprise-app-routes" */ './EnterpriseAppPageRoutes'));
