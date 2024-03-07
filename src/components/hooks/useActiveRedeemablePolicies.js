@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { queryRedeemablePolicies } from '../app/routes/data';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { queryRedeemablePolicies } from '../app/data';
 
 export default function useActiveRedeemablePolicies() {
   const { authenticatedUser: { userId: lmsUserId } } = useContext(AppContext);

@@ -2,14 +2,11 @@ import { generatePath, Link } from 'react-router-dom';
 import { Container } from '@openedx/paragon';
 
 import { useEnterpriseCustomerUserSubsidies, useEnterpriseLearner } from '../data';
-import { SearchPage } from "../../search";
-import { useSubscriptionLicense } from "../../enterprise-user-subsidy/data/hooks";
-import useSubscriptionLicenses from "../../hooks/useSubscriptionLicenses";
+import { SearchPage } from '../../search';
 
 const SearchRoute = () => {
   const { data: enterpriseCustomerUserSubsidies } = useEnterpriseCustomerUserSubsidies();
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-  const data = useSubscriptionLicenses()
   return (
     <Container size="lg" className="py-4">
       <h2>Search</h2>
@@ -23,7 +20,7 @@ const SearchRoute = () => {
       </Link>
       <br />
       <br />
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <pre>{JSON.stringify(enterpriseCustomerUserSubsidies, null, 2)}</pre>
       <SearchPage />
     </Container>
   );

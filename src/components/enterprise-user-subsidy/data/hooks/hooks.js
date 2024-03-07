@@ -127,7 +127,6 @@ export function useCouponCodes(enterpriseId) {
       return camelCaseObject(response.data);
     },
   });
-
   useEffect(
     () => {
       if (features.ENROLL_WITH_CODES) {
