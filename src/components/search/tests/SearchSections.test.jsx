@@ -9,9 +9,10 @@ import { renderWithRouter } from '../../../utils/tests';
 import '@testing-library/jest-dom';
 import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
-import Search from '../Search';
+import Search, { sendPushEvent } from '../Search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { EVENTS, pushEvent } from '../../../utils/optimizely';
 
 const APP_CONFIG = {
   ALGOLIA_INDEX_NAME: 'test-index-name',
@@ -25,6 +26,11 @@ jest.mock('../../app/data', () => ({
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => APP_CONFIG),
+}));
+
+jest.mock('../../../utils/optimizely', () => ({
+  ...jest.requireActual('../../../utils/optimizely'),
+  pushEvent: jest.fn(),
 }));
 
 const searchContext1 = {
@@ -45,6 +51,9 @@ const initialAppState = {
     name: 'BearsRUs',
     slug: 'test-enterprise-slug',
     showIntegrationWarning: false,
+    enterpriseFeatures: {
+      featurePrequerySearchSuggestions: true,
+    },
   },
   authenticatedUser: { userId: 'test-user-id' },
   algolia: {
@@ -165,5 +174,15 @@ describe('<Search />', () => {
       </IntlProvider>,
     );
     expect(screen.getByText('Pathways (2 results)')).toBeInTheDocument();
+  });
+
+  describe('pushEvent', () => {
+    test.each([
+      [true, 'test-course-101', EVENTS.PREQUERY_SUGGESTION_CLICK],
+      [false, 'test-course-102', EVENTS.SEARCH_SUGGESTION_CLICK],
+    ])('if isPrequeryEnabled is %p with course metadata %p, submit event %p', (isPrequeryEnabled, courseKeyMetadata, event) => {
+      sendPushEvent(isPrequeryEnabled, courseKeyMetadata);
+      expect(pushEvent).toHaveBeenCalledWith(event, { courseKeyMetadata });
+    });
   });
 });

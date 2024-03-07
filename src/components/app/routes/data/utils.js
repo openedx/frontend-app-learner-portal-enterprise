@@ -9,14 +9,115 @@ import {
 import {
   configure as configureLogging,
   getLoggingService,
-  logError,
   NewRelicLoggingService,
 } from '@edx/frontend-platform/logging';
 import { getProxyLoginUrl } from '@edx/frontend-enterprise-logistration';
 import Cookies from 'universal-cookie';
 
-import { getBrandColorsFromCSSVariables } from '../../../../utils/common';
-import { ASSIGNMENT_TYPES } from '../../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import {
+  activateOrAutoApplySubscriptionLicense,
+  queryBrowseAndRequestConfiguration,
+  queryContentHighlightsConfiguration,
+  queryCouponCodeRequests,
+  queryCouponCodes,
+  queryEnterpriseLearner,
+  queryEnterpriseLearnerOffers,
+  queryLicenseRequests,
+  queryNotices,
+  queryRedeemablePolicies,
+  querySubscriptions,
+  updateUserActiveEnterprise,
+} from '../../data';
+
+/**
+ * TODO
+ * @param {*} param0
+ * @returns
+ */
+export async function ensureEnterpriseAppData({
+  enterpriseCustomer,
+  userId,
+  userEmail,
+  queryClient,
+  requestUrl,
+}) {
+  const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
+  const enterpriseAppDataQueries = [
+    // Enterprise Customer User Subsidies
+    // eslint-disable-next-line arrow-body-style
+    queryClient.ensureQueryData(subscriptionsQuery).then(async (subscriptionsData) => {
+      // Auto-activate the user's subscription license, if applicable.
+      const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
+        enterpriseCustomer,
+        subscriptionsData,
+        requestUrl,
+      });
+      if (activatedOrAutoAppliedLicense) {
+        const { licensesByStatus } = subscriptionsData;
+        const updatedLicensesByStatus = { ...licensesByStatus };
+        Object.entries(licensesByStatus).forEach(([status, licenses]) => {
+          const hasActivatedOrAutoAppliedLicense = licenses.some(
+            (license) => license.uuid === activatedOrAutoAppliedLicense.uuid,
+          );
+          const isCurrentStatusMatchingLicenseStatus = status === activatedOrAutoAppliedLicense.status;
+          if (hasActivatedOrAutoAppliedLicense) {
+            updatedLicensesByStatus[status] = isCurrentStatusMatchingLicenseStatus
+              ? licenses.filter((license) => license.uuid !== activatedOrAutoAppliedLicense.uuid)
+              : [...licenses, activatedOrAutoAppliedLicense];
+          }
+        });
+        // Optimistically update the query cache with the auto-activated subscription license.
+        queryClient.setQueryData(subscriptionsQuery.queryKey, {
+          ...subscriptionsData,
+          licensesByStatus: updatedLicensesByStatus,
+          subscriptionLicense: activatedOrAutoAppliedLicense,
+          subscriptionLicenses: subscriptionsData.subscriptionLicenses.map((license) => {
+            if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
+              return activatedOrAutoAppliedLicense;
+            }
+            return license;
+          }),
+        });
+      }
+
+      return subscriptionsData;
+    }),
+    queryClient.ensureQueryData(
+      queryRedeemablePolicies({
+        enterpriseUuid: enterpriseCustomer.uuid,
+        lmsUserId: userId,
+      }),
+    ),
+    queryClient.ensureQueryData(
+      queryCouponCodes(enterpriseCustomer.uuid),
+    ),
+    queryClient.ensureQueryData(
+      queryEnterpriseLearnerOffers(enterpriseCustomer.uuid),
+    ),
+    queryClient.ensureQueryData(
+      queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid),
+    ),
+    queryClient.ensureQueryData(
+      queryLicenseRequests(enterpriseCustomer.uuid, userEmail),
+    ),
+    queryClient.ensureQueryData(
+      queryCouponCodeRequests(enterpriseCustomer.uuid, userEmail),
+    ),
+    // Content Highlights
+    queryClient.ensureQueryData(
+      queryContentHighlightsConfiguration(enterpriseCustomer.uuid),
+    ),
+  ];
+  if (getConfig().ENABLE_NOTICES) {
+    enterpriseAppDataQueries.push(
+      queryClient.ensureQueryData(
+        queryNotices(),
+      ),
+    );
+  }
+  const enterpriseAppData = await Promise.all(enterpriseAppDataQueries);
+  return enterpriseAppData;
+}
 
 /**
  * Determines whether the user is visiting the dashboard for the first time.
@@ -82,6 +183,7 @@ export function redirectToRemoveTrailingSlash(requestUrl) {
  * Ensures that the user is authenticated. If not, redirects to the login page.
  * @param {URL} requestUrl - The current request URL to redirect back to if the
  *  user is not authenticated.
+ * @param {Object} params - The parameters object.
  */
 export async function ensureAuthenticatedUser(requestUrl, params) {
   configureLogging(NewRelicLoggingService, {
@@ -135,169 +237,73 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
 }
 
 /**
- * Helper function to determine which linked enterprise customer user record
- * should be used for display in the UI.
- * @param {*} param0
+ * TODO
+ * @param {*} enterpriseSlug
+ * @param {*} activeEnterpriseCustomer
+ * @param {*} allLinkedEnterpriseCustomerUsers
+ * @param {*} requestUrl
+ * @param {*} queryClient
+ * @param {*} updateUserActiveEnterprise
  * @returns
  */
-export function determineEnterpriseCustomerUserForDisplay({
-  activeEnterpriseCustomer,
-  activeEnterpriseCustomerUserRoleAssignments,
+export async function ensureActiveEnterpriseCustomerUser({
   enterpriseSlug,
-  foundEnterpriseCustomerUserForCurrentSlug,
+  activeEnterpriseCustomer,
+  allLinkedEnterpriseCustomerUsers,
+  requestUrl,
+  queryClient,
+  username,
+  // updateUserActiveEnterprise,
 }) {
-  const activeEnterpriseCustomerUser = {
-    enterpriseCustomer: activeEnterpriseCustomer,
-    roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
-  };
-  if (!enterpriseSlug) {
-    return activeEnterpriseCustomerUser;
-  }
-  if (enterpriseSlug !== activeEnterpriseCustomer.slug && foundEnterpriseCustomerUserForCurrentSlug) {
-    return {
-      enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
-      roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
-    };
-  }
-  return activeEnterpriseCustomerUser;
-}
-
-/**
- * Transform enterprise customer metadata for use by consuming UI components.
- * @param {Object} enterpriseCustomer
- * @param {Object} enterpriseFeatures
- * @returns
- */
-export function transformEnterpriseCustomer(enterpriseCustomer, enterpriseFeatures) {
-  // If the learner portal is not enabled for the displayed enterprise customer, return null. This
-  // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
-  if (!enterpriseCustomer.enableLearnerPortal) {
+  // If the enterprise slug in the URL matches the active enterprise customer's slug, return early.
+  if (enterpriseSlug === activeEnterpriseCustomer.slug) {
     return null;
   }
 
-  // Otherwise, learner portal is enabled, so transform the enterprise customer data.
-  const disableSearch = !!(
-    !enterpriseCustomer.enableIntegratedCustomerLearnerPortalSearch
-    && enterpriseCustomer.identityProvider
+  // Otherwise, try to find the enterprise customer for the given slug and, if found, update it
+  // as the active enterprise customer for the learner.
+  const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
+    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   );
-  const showIntegrationWarning = !!(!disableSearch && enterpriseCustomer.identityProvider);
-  const brandColors = getBrandColorsFromCSSVariables();
-  const defaultPrimaryColor = brandColors.primary;
-  const defaultSecondaryColor = brandColors.info100;
-  const defaultTertiaryColor = brandColors.info500;
-  const {
-    primaryColor,
-    secondaryColor,
-    tertiaryColor,
-  } = enterpriseCustomer.brandingConfiguration || {};
-
-  return {
-    ...enterpriseCustomer,
-    brandingConfiguration: {
-      ...enterpriseCustomer.brandingConfiguration,
-      primaryColor: primaryColor || defaultPrimaryColor,
-      secondaryColor: secondaryColor || defaultSecondaryColor,
-      tertiaryColor: tertiaryColor || defaultTertiaryColor,
-    },
-    disableSearch,
-    showIntegrationWarning,
-    enterpriseFeatures,
-  };
-}
-
-/**
- * Transforms the redeemable policies data by attaching the subsidy expiration date
- * to each assignment within the policies, if available.
- * @param {object[]} [policies] - Array of policy objects containing learner assignments.
- * @returns {object} - Returns modified policies data with subsidy expiration dates attached to assignments.
- */
-export function transformRedeemablePoliciesData(policies = []) {
-  return policies.map((policy) => {
-    const assignmentsWithSubsidyExpiration = policy.learnerContentAssignments?.map(assignment => ({
-      ...assignment,
-      subsidyExpirationDate: policy.subsidyExpirationDate,
+  if (!foundEnterpriseCustomerUserForSlug) {
+    throw redirect(generatePath('/:enterpriseSlug/*', {
+      enterpriseSlug: activeEnterpriseCustomer.slug,
+      '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
     }));
-    return {
-      ...policy,
-      learnerContentAssignments: assignmentsWithSubsidyExpiration,
-    };
+  }
+
+  const {
+    enterpriseCustomer: nextActiveEnterpriseCustomer,
+    roleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
+  } = foundEnterpriseCustomerUserForSlug;
+  // Makes the POST API request to update the active enterprise customer
+  // for the learner in the backend for future sessions.
+  await updateUserActiveEnterprise({
+    enterpriseCustomer: nextActiveEnterpriseCustomer,
   });
-}
+  const nextEnterpriseLearnerQuery = queryEnterpriseLearner(username, nextActiveEnterpriseCustomer.slug);
+  const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
+    ecu => ({
+      ...ecu,
+      active: (
+        ecu.enterpriseCustomer.uuid === nextActiveEnterpriseCustomer.uuid
+      ),
+    }),
+  );
 
-/**
- * Takes a flattened array of assignments and returns an object containing
- * lists of assignments for each assignment state.
- *
- * @param {Array} assignments - List of content assignments.
- * @returns {{
-*  assignments: Array,
-*  hasAssignments: Boolean,
-*  allocatedAssignments: Array,
-*  hasAllocatedAssignments: Boolean,
-*  canceledAssignments: Array,
-*  hasCanceledAssignments: Boolean,
-*  acceptedAssignments: Array,
-*  hasAcceptedAssignments: Boolean,
-* }}
-*/
-export function getAssignmentsByState(assignments = []) {
-  const allocatedAssignments = [];
-  const acceptedAssignments = [];
-  const canceledAssignments = [];
-  const expiredAssignments = [];
-  const erroredAssignments = [];
-  const assignmentsForDisplay = [];
-
-  assignments.forEach((assignment) => {
-    switch (assignment.state) {
-      case ASSIGNMENT_TYPES.ALLOCATED:
-        allocatedAssignments.push(assignment);
-        break;
-      case ASSIGNMENT_TYPES.ACCEPTED:
-        acceptedAssignments.push(assignment);
-        break;
-      case ASSIGNMENT_TYPES.CANCELED:
-        canceledAssignments.push(assignment);
-        break;
-      case ASSIGNMENT_TYPES.EXPIRED:
-        expiredAssignments.push(assignment);
-        break;
-      case ASSIGNMENT_TYPES.ERRORED:
-        erroredAssignments.push(assignment);
-        break;
-      default:
-        logError(`[getAssignmentsByState] Unsupported state ${assignment.state} for assignment ${assignment.uuid}`);
-        break;
-    }
+  // Perform optimistic update of the query cache to avoid duplicate API request for the same data. The only
+  // difference is that the query key now contains the new enterprise slug, so we can proactively set the query
+  // cache for with the enterprise learner data we already have before resolving the loader.
+  queryClient.setQueryData(nextEnterpriseLearnerQuery.queryKey, {
+    enterpriseCustomer: nextActiveEnterpriseCustomer,
+    enterpriseCustomerUserRoleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
+    activeEnterpriseCustomer: nextActiveEnterpriseCustomer,
+    activeEnterpriseCustomerUserRoleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
+    allLinkedEnterpriseCustomerUsers: updatedLinkedEnterpriseCustomerUsers,
   });
-
-  const hasAssignments = assignments.length > 0;
-  const hasAllocatedAssignments = allocatedAssignments.length > 0;
-  const hasAcceptedAssignments = acceptedAssignments.length > 0;
-  const hasCanceledAssignments = canceledAssignments.length > 0;
-  const hasExpiredAssignments = expiredAssignments.length > 0;
-  const hasErroredAssignments = erroredAssignments.length > 0;
-
-  // Concatenate all assignments for display (includes allocated and canceled assignments)
-  assignmentsForDisplay.push(...allocatedAssignments);
-  assignmentsForDisplay.push(...canceledAssignments);
-  assignmentsForDisplay.push(...expiredAssignments);
-  const hasAssignmentsForDisplay = assignmentsForDisplay.length > 0;
 
   return {
-    assignments,
-    hasAssignments,
-    allocatedAssignments,
-    hasAllocatedAssignments,
-    acceptedAssignments,
-    hasAcceptedAssignments,
-    canceledAssignments,
-    hasCanceledAssignments,
-    expiredAssignments,
-    hasExpiredAssignments,
-    erroredAssignments,
-    hasErroredAssignments,
-    assignmentsForDisplay,
-    hasAssignmentsForDisplay,
+    enterpriseCustomer: nextActiveEnterpriseCustomer,
+    updatedLinkedEnterpriseCustomerUsers,
   };
 }

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import useEnterpriseLearner from './useEnterpriseLearner';
-import { queryEnterpriseCourseEnrollments } from '../../routes/data/queries';
+import { queryEnterpriseCourseEnrollments } from '../queries';
 
 /**
  * Retrieves the enterprise course enrollments for the active enterprise customer user.

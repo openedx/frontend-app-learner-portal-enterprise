@@ -27,7 +27,6 @@ const UserSubsidy = ({ children }) => {
     subscriptionLicense,
     isLoading: isLoadingSubscriptions,
     showExpirationNotifications,
-    activateUserLicense,
   } = useSubscriptions({ enterpriseConfig, authenticatedUser });
   // Subsidy Access Policies
   const {
@@ -83,7 +82,6 @@ const UserSubsidy = ({ children }) => {
         hasNoEnterpriseOffersBalance,
         showExpirationNotifications,
         customerAgreementConfig,
-        activateUserLicense,
         redeemableLearnerCreditPolicies,
       };
     },
@@ -100,7 +98,6 @@ const UserSubsidy = ({ children }) => {
       hasNoEnterpriseOffersBalance,
       showExpirationNotifications,
       customerAgreementConfig,
-      activateUserLicense,
       redeemableLearnerCreditPolicies,
     ],
   );

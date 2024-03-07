@@ -56,7 +56,6 @@ describe('useSubscriptions', () => {
     useSubscriptionLicense.mockReturnValue({
       license: undefined,
       isLoading: isLoadingLicense,
-      activateUserLicense: jest.fn(),
     });
 
     const args = {
@@ -103,7 +102,6 @@ describe('useSubscriptions', () => {
     useSubscriptionLicense.mockReturnValue({
       license: mockSubscriptionLicense,
       isLoading: false,
-      activateUserLicense: jest.fn(),
     });
     hasValidStartExpirationDates.mockReturnValue(isSubscriptionPlanCurrent);
     const args = {
@@ -113,7 +111,6 @@ describe('useSubscriptions', () => {
     const { result } = renderHook(() => useSubscriptions(args));
     expect(result.current).toEqual(
       expect.objectContaining({
-        activateUserLicense: expect.any(Function),
         customerAgreementConfig: anotherMockCustomerAgreement,
         isLoading: false,
         subscriptionLicense: mockSubscriptionLicense,

@@ -1,8 +1,5 @@
-import {
-  ensureAuthenticatedUser,
-  extractEnterpriseId,
-  queryEnterpriseCourseEnrollments,
-} from '../data';
+import { ensureAuthenticatedUser } from '../data';
+import { extractEnterpriseId, queryEnterpriseCourseEnrollments } from '../../data';
 
 /**
  * Returns a loader function responsible for loading the dashboard related data.

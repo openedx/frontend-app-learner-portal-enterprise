@@ -11,7 +11,7 @@ import {
   queryBrowseAndRequestConfiguration,
   queryLicenseRequests,
   queryCouponCodeRequests,
-} from '../../routes/data/queries';
+} from '../queries';
 /**
  * Retrieves the subsidies present for the active enterprise customer user.
  * @returns {Types.UseQueryResult}} The query results for the enterprise customer user subsidies.

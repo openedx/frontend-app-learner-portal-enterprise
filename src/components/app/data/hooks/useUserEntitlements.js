@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { queryUserEntitlements } from '../../routes/data/queries';
+import { queryUserEntitlements } from '../queries';
 
 /**
  * Retrieves the user entitlements.

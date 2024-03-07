@@ -1,8 +1,10 @@
-import { ensureEnterpriseAppData, queryEnterpriseLearner } from '../data/queries';
+import { queryEnterpriseLearner } from '../../data';
 import {
   ensureAuthenticatedUser,
+  ensureEnterpriseAppData,
   redirectToRemoveTrailingSlash,
   redirectToSearchPageForNewUser,
+  ensureActiveEnterpriseCustomerUser,
 } from '../data';
 
 /**
@@ -26,20 +28,46 @@ export default function makeRootLoader(queryClient) {
     // or fetch from the server if not available.
     const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
     const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
-    const { activeEnterpriseCustomer } = enterpriseLearnerData;
+    let {
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+    } = enterpriseLearnerData;
 
     // User has no active, linked enterprise customer; return early.
     if (!activeEnterpriseCustomer) {
       return null;
     }
 
-    // Begin fetching all enterprise app data.
-    const enterpriseAppData = await Promise.all(ensureEnterpriseAppData({
+    // Ensure the active enterprise customer user is updated, when applicable (e.g., the
+    // current enterprise slug in the URL does not match the active enterprise customer's slug).
+    const updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({
+      enterpriseSlug,
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+      queryClient,
+      username,
+      requestUrl,
+    });
+    // If the active enterprise customer user was updated, override the previous active
+    // enterprise customer user data with the new active enterprise customer user data
+    // for subsequent queries.
+    if (updateActiveEnterpriseCustomerUserResult) {
+      const {
+        enterpriseCustomer: nextActiveEnterpriseCustomer,
+        updatedLinkedEnterpriseCustomerUsers,
+      } = updateActiveEnterpriseCustomerUserResult;
+      activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
+      allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
+    }
+
+    // Fetch all enterprise app data.
+    const enterpriseAppData = await ensureEnterpriseAppData({
       enterpriseCustomer: activeEnterpriseCustomer,
       userId,
       userEmail,
       queryClient,
-    }));
+      requestUrl,
+    });
 
     // Redirect user to search page, for first-time users with no assignments.
     redirectToSearchPageForNewUser({

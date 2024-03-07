@@ -8,6 +8,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useActiveRedeemablePolicies, useEnterpriseCustomer, useSubscriptionLicenses } from '../hooks';
 import { queryCouponCodes } from '../app/routes/data';
 
+export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
+  if (isPreQueryEnabled) {
+    pushEvent(EVENTS.PREQUERY_SUGGESTION_CLICK, { courseKeyMetadata });
+  } else {
+    pushEvent(EVENTS.SEARCH_SUGGESTION_CLICK, { courseKeyMetadata });
+  }
+};
+
 const Search = () => {
   const config = getConfig();
   console.log(config);

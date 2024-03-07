@@ -4,17 +4,20 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeCourseLoader from '../courseLoader';
-import { extractEnterpriseId } from '../../data';
 import {
+  extractEnterpriseId,
   queryCanRedeem,
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
   queryUserEntitlements,
-} from '../../data/queries';
+} from '../../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
   ensureAuthenticatedUser: jest.fn().mockResolvedValue({ userId: 3 }),
+}));
+jest.mock('../../../data', () => ({
+  ...jest.requireActual('../../../data'),
   extractEnterpriseId: jest.fn(),
 }));
 

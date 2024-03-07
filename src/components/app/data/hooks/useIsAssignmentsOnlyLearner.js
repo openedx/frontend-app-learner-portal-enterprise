@@ -8,7 +8,8 @@ export default function useIsAssignmentsOnlyLearner() {
     subscriptionPlan: subsidies.subscriptions.subscriptionLicenses[0]?.subscriptionPlan, // assumes 1 license (if any)
     subscriptionLicense: subsidies.subscriptions.subscriptionLicenses[0], // assumes 1 license (if any)
     licenseRequests: subsidies.browseAndRequest.licenseRequests.results,
-    // TODO: can we remove `couponCodesCount`?
+    // TODO: can we remove `couponCodesCount` eventually? We should be able to get at this
+    // from `couponCodeRequests` directly based on its length.
     couponCodesCount: subsidies.browseAndRequest.couponCodeRequests.results.length,
     couponCodeRequests: subsidies.browseAndRequest.couponCodeRequests.results,
     redeemableLearnerCreditPolicies: subsidies.redeemablePolicies,

@@ -18,7 +18,6 @@ function useSubscriptions({
   const {
     license: subscriptionLicense,
     isLoading: isLoadingLicense,
-    activateUserLicense,
   } = useSubscriptionLicense({
     enterpriseConfig,
     customerAgreementConfig,
@@ -48,7 +47,6 @@ function useSubscriptions({
     subscriptionLicense,
     isLoading: isLoadingCustomerAgreementConfig || isLoadingLicense,
     showExpirationNotifications,
-    activateUserLicense,
   };
 }
 

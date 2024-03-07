@@ -3,11 +3,14 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
 import makeDashboardLoader from '../dashboardLoader';
-import { extractEnterpriseId, queryEnterpriseCourseEnrollments } from '../../data';
+import { extractEnterpriseId, queryEnterpriseCourseEnrollments } from '../../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
   ensureAuthenticatedUser: jest.fn().mockResolvedValue({ userId: 3 }),
+}));
+jest.mock('../../../data', () => ({
+  ...jest.requireActual('../../../data'),
   extractEnterpriseId: jest.fn(),
 }));
 
