@@ -35,7 +35,6 @@ export const COURSE_RUN_AVAILABILITY = {
   ARCHIVED: 'archived',
 };
 
-export const SKILL_DESCRIPTION_PLACEHOLDER = 'No description available.';
 export const SKILL_DESCRIPTION_CUTOFF_LIMIT = 950;
 export const ELLIPSIS_STR = '...';
 

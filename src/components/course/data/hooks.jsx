@@ -115,7 +115,12 @@ export function useAllCourseData({
  */
 export function useCoursePartners(course) {
   const partners = [];
-  let label = 'Institution';
+  const intl = useIntl();
+  let label = intl.formatMessage({
+    id: 'enterprise.course.about.course.sidebar.institution',
+    defaultMessage: 'Institution',
+    description: 'Label for the institution associated with the course.',
+  });
 
   // Determine whether this course should use the organization override (e.g., for some
   // externally hosted courses) instead of relying on the `owners` property.
@@ -143,7 +148,11 @@ export function useCoursePartners(course) {
       partners.push(owner);
     });
     if (course.owners.length > 1) {
-      label = 'Institutions';
+      label = intl.formatMessage({
+        id: 'enterprise.course.about.course.sidebar.institutions',
+        defaultMessage: 'Institutions',
+        description: 'Label for the institutions associated with the course.',
+      });
     }
   }
   return [partners, label];
@@ -152,13 +161,14 @@ export function useCoursePartners(course) {
 export function useCourseRunWeeksToComplete(courseRun) {
   let weeksToComplete;
   let label;
+  const intl = useIntl();
   if (courseRun?.weeksToComplete >= 0) {
     weeksToComplete = courseRun.weeksToComplete;
-    if (courseRun.weeksToComplete === 1) {
-      label = 'week';
-    } else {
-      label = 'weeks';
-    }
+    label = intl.formatMessage({
+      id: 'enterprise.course.about.course.sidebar.weeks',
+      defaultMessage: '{weeksCount, plural, one {week} other {weeks}}',
+      description: 'Label for the number of weeks it takes to complete the course.',
+    }, { weeksCount: weeksToComplete });
   }
   return [weeksToComplete, label];
 }
@@ -166,13 +176,14 @@ export function useCourseRunWeeksToComplete(courseRun) {
 export function useCourseTranscriptLanguages(courseRun) {
   let languages = [];
   let label;
+  const intl = useIntl();
   if (courseRun?.transcriptLanguages) {
     languages = courseRun.transcriptLanguages;
-    if (courseRun.transcriptLanguages.length > 1) {
-      label = 'Video Transcripts';
-    } else {
-      label = 'Video Transcript';
-    }
+    label = intl.formatMessage({
+      id: 'enterprise.course.about.course.sidebar.transcript',
+      defaultMessage: 'Video {transcriptCount, plural, one {Transcript} other {Transcripts}}',
+      description: 'Label for the number of transcripts available for the course.',
+    }, { transcriptCount: languages.length });
   }
 
   return [languages, label];
@@ -181,6 +192,7 @@ export function useCourseTranscriptLanguages(courseRun) {
 export function useCoursePacingType(courseRun) {
   let pacingType;
   let pacingTypeContent;
+  const intl = useIntl();
 
   if (isCourseSelfPaced(courseRun?.pacingType)) {
     pacingType = COURSE_PACING_MAP.SELF_PACED;
@@ -189,9 +201,17 @@ export function useCoursePacingType(courseRun) {
   }
 
   if (pacingType === COURSE_PACING_MAP.INSTRUCTOR_PACED) {
-    pacingTypeContent = 'Instructor-led on a course schedule';
+    pacingTypeContent = intl.formatMessage({
+      id: 'enterprise.course.about.course.sidebar.instructor.paced',
+      defaultMessage: 'Instructor-led on a course schedule',
+      description: 'Label for instructor-paced course pacing type.',
+    });
   } else if (pacingType === COURSE_PACING_MAP.SELF_PACED) {
-    pacingTypeContent = 'Self-paced on your time';
+    pacingTypeContent = intl.formatMessage({
+      id: 'enterprise.course.about.course.sidebar.self.paced',
+      defaultMessage: 'Self-paced on your time',
+      description: 'Label for self-paced course pacing type.',
+    });
   }
 
   return [pacingType, pacingTypeContent];

@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   renderWithRouter,
   initialAppState,
@@ -99,26 +100,28 @@ const renderCard = ({
 }) => {
   // need to use router, to render component such as react-router's <Link>
   renderWithRouter(
-    <AppContext.Provider value={INITIAL_APP_STATE}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <CourseContextProvider
-            courseState={courseState}
-            userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
-            userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
-          >
-            <CourseRunCardDeprecated
-              catalogList={['foo']}
-              userEntitlements={userEntitlements}
-              userEnrollments={userEnrollments}
-              courseRun={courseRun}
-              courseKey={COURSE_ID}
-              courseEntitlements={courseEntitlements}
-            />
-          </CourseContextProvider>
-        </UserSubsidyContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </AppContext.Provider>,
+    <IntlProvider locale="en">
+      <AppContext.Provider value={INITIAL_APP_STATE}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+            <CourseContextProvider
+              courseState={courseState}
+              userSubsidyApplicableToCourse={userSubsidyApplicableToCourse}
+              userCanRequestSubsidyForCourse={userCanRequestSubsidyForCourse}
+            >
+              <CourseRunCardDeprecated
+                catalogList={['foo']}
+                userEntitlements={userEntitlements}
+                userEnrollments={userEnrollments}
+                courseRun={courseRun}
+                courseKey={COURSE_ID}
+                courseEntitlements={courseEntitlements}
+              />
+            </CourseContextProvider>
+          </UserSubsidyContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </AppContext.Provider>,
+    </IntlProvider>,
   );
 };
 
