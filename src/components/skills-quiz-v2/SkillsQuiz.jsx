@@ -2,21 +2,18 @@ import { Helmet } from 'react-helmet';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import PropTypes from 'prop-types';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   ModalDialog, useToggle, ActionRow, Button,
 } from '@openedx/paragon';
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
-import {
-  SKILL_BUILDER_TITLE,
-  text,
-  closeModalText,
-} from './constants';
 import SkillsQuizHeader from './SkillsQuizHeader';
 import SkillQuizForm from './SkillsQuizForm';
 import headerImage from '../skills-quiz/images/headerImage.png';
 
 const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
+  const intl = useIntl();
   const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
   const navigate = useNavigate();
   const [isOpen, open, close] = useToggle(false);
@@ -38,7 +35,12 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
     );
   }, [enterpriseConfig.slug, enterpriseConfig.uuid, userId]);
 
-  const TITLE = `edx - ${SKILL_BUILDER_TITLE}`;
+  const TITLE = intl.formatMessage({
+    id: 'enterprise.skills.quiz.v2.skills.builder.title',
+    defaultMessage: 'edx - Skill Builder',
+    description: 'Skills builder title on skills quiz v2 page',
+  });
+
   return (
     <>
       <Helmet title={TITLE} />
@@ -51,16 +53,36 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
         hasCloseButton={false}
       >
         <ModalDialog.Header>
-          <ModalDialog.Title>Exit Skill Builder?</ModalDialog.Title>
+          <ModalDialog.Title>
+            <FormattedMessage
+              id="enterprise.skills.quiz.v2.exit.skills.builder.label"
+              defaultMessage="Exit Skill Builder?"
+              description="Label to prompt user to exit skills builder on the skills quiz v2 page."
+            />
+          </ModalDialog.Title>
         </ModalDialog.Header>
         <ModalDialog.Body>
-          <p className="text-justify">{closeModalText}</p>
+          <p className="text-justify">
+            <FormattedMessage
+              id="enterprise.skills.quiz.v2.close.modal.text"
+              defaultMessage="Learners who enroll in courses that align with their career goals are more likely to complete the course"
+              description="Skills quiz modal closing text on the skills quiz v2 page."
+            />
+          </p>
           <ActionRow className="mt-4.5">
             <Button variant="tertiary" onClick={close}>
-              Back to Skill Builder
+              <FormattedMessage
+                id="enterprise.skills.quiz.v2.back.to.skills.builder.button.label"
+                defaultMessage="Back to Skill Builder"
+                description="Label for button that takes the user back to skills builder on the skills quiz v2 page."
+              />
             </Button>
             <Button variant="primary" onClick={() => handleExit()}>
-              Exit
+              <FormattedMessage
+                id="enterprise.skills.quiz.v2.exit.button.label"
+                defaultMessage="Exit"
+                description="Label for exit button on the skills quiz v2 page."
+              />
             </Button>
           </ActionRow>
         </ModalDialog.Body>
@@ -82,7 +104,13 @@ const SkillsQuizV2 = ({ isStyleAutoSuggest }) => {
         <ModalDialog.Body>
           <div className="page-body">
             <div className="text">
-              <p className="text-gray-600 text-justify">{text}</p>
+              <p className="text-gray-600 text-justify">
+                <FormattedMessage
+                  id="enterprise.skills.quiz.v2.skills.builder.introductory.text"
+                  defaultMessage="We combine the educational expertise with labor market data to help you reach your learning and professional goals. Whether you are looking to grow in your career, change careers, or just learn new skills, this tool can help you find a relevant course. Your role selection and recommendations are private and are not visible to your edX administrator"
+                  description="Skills introductory text on skills quiz v2 page"
+                />
+              </p>
             </div>
             <SkillQuizForm isStyleAutoSuggest={isStyleAutoSuggest} />
           </div>

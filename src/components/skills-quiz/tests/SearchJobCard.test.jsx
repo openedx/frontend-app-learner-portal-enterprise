@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 
 import SearchJobCard from '../SearchJobCard';
@@ -18,13 +19,15 @@ const SearchJobCardWithContext = ({
   initialSearchState,
   initialJobsState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <SearchContext.Provider value={initialSearchState}>
-      <SkillsContextProvider initialState={initialJobsState}>
-        <SearchJobCard index={index} />
-      </SkillsContextProvider>
-    </SearchContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SearchContext.Provider value={initialSearchState}>
+        <SkillsContextProvider initialState={initialJobsState}>
+          <SearchJobCard index={index} />
+        </SkillsContextProvider>
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const TEST_JOB_KEY = 'test-job-key';
