@@ -44,9 +44,13 @@ detect_changed_source_translations:
 push_translations:
 	# Pushing strings to Transifex...
 	tx push -s
+	# Fetching hashes from Transifex...
+	./node_modules/@edx/reactifex/bash_scripts/get_hashed_strings_v3.sh
+	# Writing out comments to file...
+	$(transifex_utils) $(transifex_temp) --comments --v3-scripts-path
+	# Pushing comments to Transifex...
+	./node_modules/@edx/reactifex/bash_scripts/put_comments_v3.sh
 
-pull_translations:
-	tx pull -t -f --mode reviewed --languages=$(transifex_langs)
 ifeq ($(OPENEDX_ATLAS_PULL),)
 # Pulls translations from Transifex.
 pull_translations:
@@ -57,13 +61,13 @@ pull_translations:
 	rm -rf src/i18n/messages
 	mkdir src/i18n/messages
 	cd src/i18n/messages \
-      && atlas pull --filter=$(transifex_langs) \
+      && atlas pull $(ATLAS_OPTIONS) \
+               translations/frontend-platform/src/i18n/messages:frontend-platform \
                translations/paragon/src/i18n/messages:paragon \
                translations/frontend-component-footer/src/i18n/messages:frontend-component-footer \
-               translations/frontend-component-header/src/i18n/messages:frontend-component-header \
-               translations/frontend-app-account/src/i18n/messages:frontend-app-account
+               translations/frontend-app-learner-portal-enterprise/src/i18n/messages:frontend-app-learner-portal-enterprise
 
-	$(intl_imports) paragon frontend-component-header frontend-component-footer frontend-app-account
+	$(intl_imports) frontend-platform paragon frontend-component-footer frontend-app-learner-portal-enterprise
 endif
 
 # This target is used by Travis.
