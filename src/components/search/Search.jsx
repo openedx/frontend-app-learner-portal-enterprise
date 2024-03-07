@@ -1,53 +1,12 @@
-import React, {
-  useContext, useMemo, useEffect,
-} from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
-import { Configure, InstantSearch } from 'react-instantsearch-dom';
+import React, { useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
-import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { useToggle, Stack } from '@openedx/paragon';
-import { useIntl } from '@edx/frontend-platform/i18n';
-
-import algoliasearch from 'algoliasearch/lite';
+import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { useToggle } from '@openedx/paragon';
 import { useQuery } from '@tanstack/react-query';
-import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
-import {
-  NUM_RESULTS_PER_PAGE,
-  CONTENT_TYPE_COURSE,
-  CONTENT_TYPE_PROGRAM,
-  COURSE_TITLE,
-  PROGRAM_TITLE,
-  CONTENT_TYPE_PATHWAY,
-  PATHWAY_TITLE,
-} from './constants';
-import SearchProgram from './SearchProgram';
-import SearchCourse from './SearchCourse';
-import SearchCourseCard from './SearchCourseCard';
-import SearchProgramCard from './SearchProgramCard';
-import SearchResults from './SearchResults';
-import { ContentHighlights } from './content-highlights';
-import { features } from '../../config';
-
-import { IntegrationWarningModal } from '../integration-warning-modal';
-import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
-import SearchPathway from './SearchPathway';
-import SearchPathwayCard from '../pathway/SearchPathwayCard';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import PathwayModal from '../pathway/PathwayModal';
-import { useEnterpriseCuration } from './content-highlights/data';
-import SearchAcademy from './SearchAcademy';
-import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
-import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
-import { useEnterpriseLearner, useIsAssignmentsOnlyLearner } from '../app/data';
-import { useEnterpriseCustomer, useSubscriptionPlan } from '../hooks';
-import {
-  queryCouponCodes,
-  queryEnterpriseLearnerOffers,
-  queryRedeemablePolicies,
-  querySubscriptions
-} from '../app/routes/data';
+import { useActiveRedeemablePolicies, useEnterpriseCustomer, useSubscriptionLicenses } from '../hooks';
+import { queryCouponCodes } from '../app/routes/data';
 
 const Search = () => {
   const config = getConfig();
@@ -80,24 +39,25 @@ const Search = () => {
   //   catalogsForSubsidyRequests,
   //   redeemableLearnerCreditPolicies,
   // });
-  const { authenticatedUser } = useContext(AppContext);
-  const { userId } = authenticatedUser;
-  console.log(authenticatedUser);
-  // Customer agreement, subscriptionLicenses - subscriptionPlan
-  const { data: subscriptionsData } = useQuery(querySubscriptions(enterpriseCustomer.uuid));
-  console.log(subscriptionsData);
-
-  const { data: couponCodesData } = useQuery(queryCouponCodes(enterpriseCustomer.uuid))
-  console.log(couponCodesData)
-
-  const { data: offersData } = useQuery(queryEnterpriseLearnerOffers(enterpriseCustomer.uuid));
-  console.log(offersData);
-
-  const { data: redeemablePoliciesData } = useQuery(queryRedeemablePolicies({ enterpriseUuid: enterpriseCustomer.uuid, lmsUserId: userId }));
-  console.log(redeemablePoliciesData);
-
-  const data = useSubscriptionPlan()
-  console.log(data,'hi')
+  // const { authenticatedUser } = useContext(AppContext);
+  // const { userId } = authenticatedUser;
+  // console.log(authenticatedUser);
+  // // Customer agreement, subscriptionLicenses - subscriptionPlan
+  // const { data: subscriptionsData } = useQuery(querySubscriptions(enterpriseCustomer.uuid));
+  // console.log(subscriptionsData);
+  //
+  const { data: couponCodesData } = useQuery(queryCouponCodes(enterpriseCustomer.uuid));
+  console.log(couponCodesData);
+  //
+  // const { data: offersData } = useQuery(queryEnterpriseLearnerOffers(enterpriseCustomer.uuid));
+  // console.log(offersData);
+  //
+  // const { data: redeemablePoliciesData } = useQuery(queryRedeemablePolicies({ enterpriseUuid: enterpriseCustomer.uuid, lmsUserId: userId }));
+  // console.log(redeemablePoliciesData);
+  const hi = useActiveRedeemablePolicies();
+  console.log(hi);
+  const data = useSubscriptionLicenses();
+  console.log(data, 'hi');
   // const { filters } = useDefaultSearchFilters({
   //   enterpriseCustomer,
   //   searchCatalogs,

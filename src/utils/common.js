@@ -46,7 +46,6 @@ export const hasValidStartExpirationDates = ({ startDate, expirationDate, endDat
   const now = dayjs();
   // Subscriptions use "expirationDate" while Codes use "endDate"
   const realEndDate = expirationDate || endDate;
-  console.log(now ,startDate, realEndDate)
   return now.isBetween(startDate, realEndDate);
 };
 
