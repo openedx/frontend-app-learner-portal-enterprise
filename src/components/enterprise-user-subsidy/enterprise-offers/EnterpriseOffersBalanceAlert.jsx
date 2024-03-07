@@ -11,13 +11,15 @@ import {
   OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
 import { getContactEmail } from '../../../utils/common';
+import { useEnterpriseCustomer } from "../../hooks";
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
-  const {
-    enterpriseConfig, enterpriseConfig: { uuid: enterpriseCustomerUUID },
-  } = useContext(AppContext);
+  // const {
+  //   enterpriseConfig, enterpriseConfig: { uuid: enterpriseCustomerUUID },
+  // } = useContext(AppContext);
+  const enterpriseCustomer = useEnterpriseCustomer()
   const intl = useIntl();
-
+  console.l
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
   const icon = hasNoEnterpriseOffersBalance ? Error : WarningFilled;
   const heading = hasNoEnterpriseOffersBalance ? intl.formatMessage({
@@ -39,14 +41,14 @@ const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
     description: 'Description for the enterprise offers balance alert when the learner credit balance is low.',
   });
 
-  const email = getContactEmail(enterpriseConfig);
+  const email = getContactEmail(enterpriseCustomer);
   const actions = email ? [
     <MailtoLink
       to={email}
       target="_blank"
       onClick={() => {
         sendEnterpriseTrackEvent(
-          enterpriseCustomerUUID,
+          enterpriseCustomer.uuid,
           OFFER_BALANCE_CLICK_EVENT,
         );
       }}

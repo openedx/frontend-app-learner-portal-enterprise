@@ -16,9 +16,10 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import CourseCard from './CourseCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../hooks';
 
 const SearchCourseCard = ({ index }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const enterpriseCustomer = useEnterpriseCustomer();
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -38,7 +39,7 @@ const SearchCourseCard = ({ index }) => {
   });
 
   const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+    enterpriseCustomer,
     searchCatalogs,
   });
 

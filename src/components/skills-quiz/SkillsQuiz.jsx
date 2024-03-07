@@ -13,10 +13,11 @@ import SkillsQuizStepper from './SkillsQuizStepper';
 import { SkillsContextProvider } from './SkillsContextProvider';
 import SkillsQuizV2 from '../skills-quiz-v2/SkillsQuiz';
 import { isExperimentVariant } from '../../utils/optimizely';
+import { useEnterpriseCustomer } from "../hooks";
 
 const SkillsQuiz = () => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const PAGE_TITLE = `Skills Quiz - ${enterpriseConfig.name}`;
+  const enterpriseCustomer = useEnterpriseCustomer();
+  const PAGE_TITLE = `Skills Quiz - ${enterpriseCustomer.name}`;
   const config = getConfig();
   const isExperimentVariationB = isExperimentVariant(
     config.EXPERIMENT_2_ID,

@@ -13,7 +13,6 @@ import {
 } from '@edx/frontend-enterprise-catalog-search';
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { ZoomOut } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
@@ -29,9 +28,10 @@ import {
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../hooks';
 
 const SkillsCourses = ({ index }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const enterpriseCustomer = useEnterpriseCustomer();
   const { state: { selectedJob } } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -58,7 +58,7 @@ const SkillsCourses = ({ index }) => {
   });
 
   const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+    enterpriseCustomer,
     searchCatalogs,
   });
 
@@ -125,7 +125,7 @@ const SkillsCourses = ({ index }) => {
         ) : coursesWithSkills?.map(coursesWithSkill => (
           <Badge
             as={Link}
-            to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
+            to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
             key={coursesWithSkill.key}
             className="course-skill"
             variant="light"
@@ -142,7 +142,7 @@ const SkillsCourses = ({ index }) => {
             <h3 className="mb-0">Top courses in {coursesWithSkill.key}</h3>
             <Button
               as={Link}
-              to={`/${enterpriseConfig.slug}/search?skill_names=${coursesWithSkill.key}`}
+              to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
               variant="link"
               size="inline"
             >

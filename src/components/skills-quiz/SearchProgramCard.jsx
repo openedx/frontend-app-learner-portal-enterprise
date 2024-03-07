@@ -24,6 +24,7 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { ProgramType } from '../search/SearchProgramCard';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from "../hooks";
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
@@ -34,8 +35,9 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
 
 const SearchProgramCard = ({ index }) => {
   const navigate = useNavigate();
-  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
-  const { slug, uuid } = enterpriseConfig;
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const enterpriseCustomer = useEnterpriseCustomer();
+  const { slug, uuid } = enterpriseCustomer;
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -55,7 +57,7 @@ const SearchProgramCard = ({ index }) => {
   });
 
   const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+    enterpriseCustomer,
     searchCatalogs,
   });
 

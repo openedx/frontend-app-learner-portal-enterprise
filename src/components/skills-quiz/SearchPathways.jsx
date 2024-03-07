@@ -13,9 +13,10 @@ import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../hooks';
 
 const SearchPathways = ({ index }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const enterpriseCustomer = useEnterpriseCustomer();
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -35,7 +36,7 @@ const SearchPathways = ({ index }) => {
   });
 
   const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
+    enterpriseCustomer,
     searchCatalogs,
   });
 

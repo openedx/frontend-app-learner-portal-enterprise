@@ -9,6 +9,7 @@ import cardImageCapFallbackSrc from '@edx/brand/paragon/images/card-imagecap-fal
 
 import { useHighlightedContentCardData } from './data';
 import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
+import { useEnterpriseCustomer } from '../../hooks';
 
 const HighlightedContentCard = ({
   highlightSetUUID,
@@ -16,12 +17,7 @@ const HighlightedContentCard = ({
   isLoading,
   ...props
 }) => {
-  const {
-    enterpriseConfig: {
-      slug: enterpriseSlug,
-      uuid: enterpriseUUID,
-    },
-  } = useContext(AppContext);
+  const { uuid: enterpriseUUID, slug: enterpriseSlug } = useEnterpriseCustomer();
   const navigate = useNavigate();
 
   const {

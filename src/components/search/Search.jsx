@@ -40,6 +40,7 @@ import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import { useEnterpriseCustomer, useEnterpriseOffers } from '../hooks';
 import { useIsAssignmentsOnlyLearner } from '../app/data';
+import { useAlgoliaSearch } from "../../utils/hooks";
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -50,16 +51,15 @@ export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
 };
 
 const Search = () => {
-  console.log(useContext(AppContext))
-
   const config = getConfig();
-  console.log(config)
   const enterpriseCustomer = useEnterpriseCustomer();
   const { pathwayUUID } = useParams();
   const navigate = useNavigate();
   const { refinements } = useContext(SearchContext);
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  const { algolia } = useContext(AppContext);
+  // const { algolia } = useContext(AppContext);
+  const [searchClient, searchIndex] = useAlgoliaSearch(config)
+  console.log(enterpriseCustomer)
   // const {
   //   subscriptionPlan,
   //   subscriptionLicense,
@@ -93,17 +93,17 @@ const Search = () => {
   // Flag to toggle highlights visibility
   const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseCustomer.uuid);
 
-  const courseIndex = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-      return cIndex;
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
-  );
+  // const courseIndex = useMemo(
+  //   () => {
+  //     const client = algoliasearch(
+  //       config.ALGOLIA_APP_ID,
+  //       config.ALGOLIA_SEARCH_API_KEY,
+  //     );
+  //     const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
+  //     return cIndex;
+  //   },
+  //   [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
+  // );
 
   // If a pathwayUUID exists, open the pathway modal.
   useEffect(() => {
@@ -152,7 +152,7 @@ const Search = () => {
       <Helmet title={PAGE_TITLE} />
       <InstantSearch
         indexName={config.ALGOLIA_INDEX_NAME}
-        searchClient={algolia.client}
+        searchClient={searchClient}
       >
         <Configure facetingAfterDistinct filters={filters} />
         {contentType?.length > 0 && (
@@ -167,7 +167,7 @@ const Search = () => {
             <SearchHeader
               containerSize="lg"
               headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''}
-              index={courseIndex}
+              index={searchIndex}
               filters={filters}
               enterpriseConfig={enterpriseCustomer}
               optimizelyPrequerySuggestionClickHandler={optimizelyPrequerySuggestionClickHandler}

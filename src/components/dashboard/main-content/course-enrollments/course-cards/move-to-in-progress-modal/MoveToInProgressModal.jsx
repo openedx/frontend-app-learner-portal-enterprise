@@ -7,6 +7,7 @@ import { camelCaseObject } from '@edx/frontend-platform';
 import MoveToInProgressModalContext from './MoveToInProgressModalContext';
 import ModalBody from './ModalBody';
 import { updateCourseCompleteStatusRequest } from '../mark-complete-modal/data/service';
+import { useEnterpriseCustomer } from "../../../../../hooks";
 
 export const MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL = 'Move course to In Progress';
 export const MARK_MOVE_TO_IN_PROGRESS_PENDING_LABEL = 'Moving course to "In Progress"...';
@@ -25,7 +26,7 @@ const MoveToInProgressModal = ({
   onSuccess,
   onClose,
 }) => {
-  const { enterpriseConfig: { uuid } } = useContext(AppContext);
+  const { uuid } = useEnterpriseCustomer();
   const [
     { confirmButtonState, confirmError, confirmSuccessful },
     setState,
