@@ -1,15 +1,11 @@
 import { transformEnterpriseCustomer } from '../../data';
 
-const mockEnterpriseFeatures = {
-  'example-feature': true,
-};
-
 describe('transformEnterpriseCustomer', () => {
   it('returns null with disabled learner portal', () => {
     const enterpriseCustomer = {
       enableLearnerPortal: false,
     };
-    const result = transformEnterpriseCustomer(enterpriseCustomer, mockEnterpriseFeatures);
+    const result = transformEnterpriseCustomer(enterpriseCustomer);
     expect(result).toEqual(null);
   });
 
@@ -54,7 +50,7 @@ describe('transformEnterpriseCustomer', () => {
         tertiaryColor: '#def012',
       },
     };
-    const result = transformEnterpriseCustomer(enterpriseCustomer, mockEnterpriseFeatures);
+    const result = transformEnterpriseCustomer(enterpriseCustomer);
     expect(result).toEqual({
       ...enterpriseCustomer,
       brandingConfiguration: {
@@ -65,7 +61,6 @@ describe('transformEnterpriseCustomer', () => {
       },
       disableSearch: expectedDisableSearch,
       showIntegrationWarning: expectedShowIntegrationWarning,
-      enterpriseFeatures: mockEnterpriseFeatures,
     });
   });
 });
