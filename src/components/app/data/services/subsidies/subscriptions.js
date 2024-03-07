@@ -49,7 +49,6 @@ export async function activateSubscriptionLicense({
     );
     // If user is on the license activation route, redirect to the dashboard.
     if (licenseActivationRouteMatch) {
-      console.log('redirecting to dashboard', dashboardRedirectPath);
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.
