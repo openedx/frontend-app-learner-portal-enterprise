@@ -16,11 +16,9 @@ export default async function enterpriseInviteLoader({ params = {}, request }) {
   const authenticatedUser = await ensureAuthenticatedUser(requestUrl, params);
   // User is not authenticated, so we can't do anything in this loader.
   if (!authenticatedUser) {
-    return null;
+    return redirect('/');
   }
-
   const { enterpriseCustomerInviteKey } = params;
-
   try {
     const linkedEnterpriseCustomerUser = await postLinkEnterpriseLearner(enterpriseCustomerInviteKey);
     const redirectPath = generatePath('/:enterpriseSlug', {

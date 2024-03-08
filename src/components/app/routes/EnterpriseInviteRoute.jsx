@@ -14,6 +14,7 @@ const EnterpriseInviteRoute = () => (
   <ErrorPage
     subtitle="We couldn't link your edX account to your organization"
     errorPageContentClassName="py-4.5"
+    testId="enterprise-invite-error"
   >
     <p className="mb-5">
       Please reach out to your edX administrator or visit the{' '}

@@ -20,10 +20,11 @@ const ErrorPage = ({
   showSiteFooter,
   children,
   errorPageContentClassName,
+  testId,
 }) => (
   <>
     {showSiteHeader && <ErrorPageHeader />}
-    <main id="content">
+    <main id="content" data-testid={testId}>
       <ErrorPageContent className={errorPageContentClassName}>
         <Col xs={12} lg={{ span: 10, offset: 1 }}>
           <ErrorPageTitle>{title}</ErrorPageTitle>
@@ -49,6 +50,7 @@ ErrorPage.propTypes = {
   subtitle: PropTypes.node,
   showSiteFooter: PropTypes.bool,
   errorPageContentClassName: PropTypes.string,
+  testId: PropTypes.string,
 };
 
 ErrorPage.defaultProps = {
@@ -57,6 +59,7 @@ ErrorPage.defaultProps = {
   showSiteHeader: true,
   showSiteFooter: true,
   errorPageContentClassName: undefined,
+  testId: undefined,
 };
 
 export default ErrorPage;
