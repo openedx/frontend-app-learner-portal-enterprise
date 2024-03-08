@@ -13,7 +13,8 @@ import SkillsRecommendationCourses from './SkillsRecommendationCourses';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { features } from '../../config';
 import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { SUBSIDY_TYPE } from '../../constants';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;

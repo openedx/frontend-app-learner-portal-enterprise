@@ -10,8 +10,8 @@ import {
   fetchLicenseRequests,
   fetchCouponCodeRequests,
 } from './service';
-import { SUBSIDY_TYPE, SUBSIDY_REQUEST_STATE } from '../constants';
 import { getErrorResponseStatusCode } from '../../../utils/common';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
 
 export const useSubsidyRequestConfiguration = (enterpriseUUID) => {
   const [subsidyRequestConfiguration, setSubsidyRequestConfiguration] = useState();

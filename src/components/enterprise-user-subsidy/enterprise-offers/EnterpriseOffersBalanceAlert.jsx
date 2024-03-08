@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
@@ -6,20 +6,16 @@ import { Container, Alert, MailtoLink } from '@openedx/paragon';
 import { WarningFilled, Error } from '@openedx/paragon/icons';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
 import {
   OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
 import { getContactEmail } from '../../../utils/common';
-import { useEnterpriseCustomer } from "../../hooks";
+import { useEnterpriseCustomer } from '../../hooks';
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
-  // const {
-  //   enterpriseConfig, enterpriseConfig: { uuid: enterpriseCustomerUUID },
-  // } = useContext(AppContext);
-  const enterpriseCustomer = useEnterpriseCustomer()
+  const enterpriseCustomer = useEnterpriseCustomer();
   const intl = useIntl();
-  console.l
+
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';
   const icon = hasNoEnterpriseOffersBalance ? Error : WarningFilled;
   const heading = hasNoEnterpriseOffersBalance ? intl.formatMessage({

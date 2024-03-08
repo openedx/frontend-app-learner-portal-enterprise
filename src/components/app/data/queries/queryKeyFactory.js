@@ -16,7 +16,8 @@ import {
   fetchCouponCodeRequests,
   fetchNotices,
 } from '../services';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
+
+import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
 const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({

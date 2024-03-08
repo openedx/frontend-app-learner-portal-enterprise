@@ -7,8 +7,9 @@ import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../utils/tests';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
+import { SUBSIDY_TYPE } from '../../../../constants';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),

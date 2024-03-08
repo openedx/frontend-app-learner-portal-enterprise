@@ -13,7 +13,6 @@ export default function useCouponCodes() {
       endDate: couponCode.couponEndDate,
     }),
   }));
-  console.log(transformedResults)
   return {
     ...couponCodesData,
     couponCodes: transformedResults,

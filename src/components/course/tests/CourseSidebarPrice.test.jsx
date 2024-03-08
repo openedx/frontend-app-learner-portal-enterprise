@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContextProvider } from '../CourseContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CourseSidebarPrice, {
   INCLUDED_IN_SUBSCRIPTION_MESSAGE,
   FREE_WHEN_APPROVED_MESSAGE,
@@ -20,6 +20,7 @@ import {
 } from '../data/constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ASSIGNMENT_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {

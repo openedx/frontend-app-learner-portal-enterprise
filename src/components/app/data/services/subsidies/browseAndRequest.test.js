@@ -3,7 +3,8 @@ import axios from 'axios';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { fetchBrowseAndRequestConfiguration, fetchCouponCodeRequests, fetchLicenseRequests } from '.';
-import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
+
+import { SUBSIDY_REQUEST_STATE } from '../../../../../constants';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);

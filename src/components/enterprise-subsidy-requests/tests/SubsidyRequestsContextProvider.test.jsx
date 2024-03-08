@@ -4,8 +4,8 @@ import { screen, render } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import SubsidyRequestsContextProvider from '../SubsidyRequestsContextProvider';
 import * as hooks from '../data/hooks';
-import { LOADING_SCREEN_READER_TEXT } from '../constants';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { LOADING_SCREEN_READER_TEXT } from '../../../constants';
 
 jest.mock('../../../config');
 jest.mock('../data/hooks');

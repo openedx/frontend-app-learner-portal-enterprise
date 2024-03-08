@@ -38,7 +38,7 @@ import {
   getSubscriptionDisabledEnrollmentReasonType,
   getSubsidyToApplyForCourse,
 } from '../utils';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE, SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import {
   COUPON_CODE_SUBSIDY_TYPE,
   DISABLED_ENROLL_REASON_TYPES,
@@ -66,6 +66,7 @@ import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
 import { queryCacheOnErrorHandler } from '../../../../utils/common';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
 
 const oldGlobalLocation = global.location;
 

@@ -8,8 +8,8 @@ import LicenseRequestedAlert from '../LicenseRequestedAlert';
 import { CourseContext } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME, LICENSE_REQUESTED_ALERT_HEADING, LICENSE_REQUESTED_ALERT_TEXT } from '../data/constants';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
 
 const mockCatalogUUID = 'uuid';
 jest.mock('universal-cookie');

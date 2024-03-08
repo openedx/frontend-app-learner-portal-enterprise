@@ -7,13 +7,14 @@ import userEvent from '@testing-library/user-event';
 
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../../CourseContextProvider';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import CourseHeader from '../CourseHeader';
 
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
+import { SUBSIDY_TYPE } from '../../../../constants';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),

@@ -5,7 +5,8 @@ import {
   querySubscriptions,
 } from '../app/data';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
-import { SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
+
+import { SUBSIDY_TYPE } from '../../constants';
 
 export default function useCatalogForSubsidyRequest() {
   const { uuid } = useEnterpriseCustomer();

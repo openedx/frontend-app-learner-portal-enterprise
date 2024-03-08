@@ -6,11 +6,12 @@ import { useEnterpriseCuration } from '../../search/content-highlights/data';
 import DashboardMainContent from './DashboardMainContent';
 import { CourseEnrollmentsContextProvider } from './course-enrollments';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { renderWithRouter } from '../../../utils/tests';
 import { features } from '../../../config';
 import { useContentAssignments } from './course-enrollments/data';
 import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('../../search/content-highlights/data', () => ({
   useEnterpriseCuration: jest.fn(() => ({

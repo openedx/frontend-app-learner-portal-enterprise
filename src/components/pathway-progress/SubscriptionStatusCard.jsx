@@ -5,7 +5,8 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import dayjs from '../../utils/dayjs';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../enterprise-user-subsidy/data/constants';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { SUBSIDY_TYPE } from '../../constants';
 
 const SubscriptionStatusCard = () => {
   const {

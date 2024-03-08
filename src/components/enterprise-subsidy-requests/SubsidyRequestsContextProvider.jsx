@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@openedx/paragon';
 import {
-  useCatalogsForSubsidyRequests,
   useSubsidyRequestConfiguration,
   useSubsidyRequests,
 } from './data/hooks';
 import { LoadingSpinner } from '../loading-spinner';
-import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from './constants';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { useCatalogsForSubsidyRequests } from '../hooks';
+import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from '../../constants';
 
 export const SubsidyRequestsContext = createContext();
 
@@ -32,19 +31,13 @@ const SubsidyRequestsContextProvider = ({ children }) => {
     isLoading: isLoadingSubsidyRequests,
   } = useSubsidyRequests(subsidyRequestConfiguration);
 
-  const { customerAgreementConfig, couponCodes } = useContext(UserSubsidyContext);
   const {
     catalogs: catalogsForSubsidyRequests,
-    isLoading: isLoadingCatalogsForSubsidyRequests,
-  } = useCatalogsForSubsidyRequests({
-    subsidyRequestConfiguration,
-    isLoadingSubsidyRequestConfiguration,
-    customerAgreementConfig,
-    couponsOverview: couponCodes.couponsOverview.data?.results || [],
-  });
+  } = useCatalogsForSubsidyRequests();
 
   const isLoading = isLoadingSubsidyRequestConfiguration
-    || isLoadingSubsidyRequests || isLoadingCatalogsForSubsidyRequests;
+    || isLoadingSubsidyRequests;
+    // || isLoadingCatalogsForSubsidyRequests;
 
   const requestsBySubsidyType = useMemo(() => ({
     [SUBSIDY_TYPE.LICENSE]: licenseRequests,

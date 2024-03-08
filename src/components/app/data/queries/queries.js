@@ -1,6 +1,6 @@
 import { getAvailableCourseRuns } from '../../../course/data/utils';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import queries from './queryKeyFactory';
+import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
 /**
  * Helper function to assist querying with useQuery package
