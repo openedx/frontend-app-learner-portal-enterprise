@@ -5,7 +5,7 @@ import queries from './queryKeyFactory';
 /**
  * Helper function to assist querying with useQuery package
  * queries.user.entitlements
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryUserEntitlements() {
   return queries.user.entitlements;
@@ -14,9 +14,7 @@ export function queryUserEntitlements() {
 /**
  * Helper function to assist querying with useQuery package
  *
- * @property {[string]} QueryObject.queryKey - The query key for the object
- * @property {func} QueryObject.queryFn - The asynchronous API request "fetchNotices"
- * @returns {Types.QueryObject} - The query object for notices.
+ * @returns {Types.QueryOptions}
  */
 export function queryNotices() {
   return queries.user.notices;
@@ -27,7 +25,7 @@ export function queryNotices() {
  * queries
  * .enterprise
  * .enterpriseLearner(username, enterpriseSlug)
- * @returns {Types.QueryObject}
+ * @returns {Types.QueryOptions}
  */
 export function queryEnterpriseLearner(username, enterpriseSlug) {
   return queries.enterprise.enterpriseLearner(username, enterpriseSlug);
@@ -39,7 +37,7 @@ export function queryEnterpriseLearner(username, enterpriseSlug) {
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.enrollments
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
   return queries
@@ -55,7 +53,7 @@ export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.course
  * ._ctx.contentMetadata(courseKey)
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryCourseMetadata(enterpriseUuid, courseKey) {
   return queries
@@ -72,7 +70,7 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.contentHighlights
  * ._ctx.configuration
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryContentHighlightsConfiguration(enterpriseUuid) {
   return queries
@@ -89,7 +87,7 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.course
  * ._ctx.canRedeem(availableCourseRunKeys)
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryCanRedeem(enterpriseUuid, courseMetadata) {
   const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
@@ -107,7 +105,7 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.subsidies
  * ._ctx.subscriptions
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function querySubscriptions(enterpriseUuid) {
   return queries
@@ -125,7 +123,7 @@ export function querySubscriptions(enterpriseUuid) {
  * ._ctx.subsidies
  * ._ctx.policy
  * ._ctx.redeemablePolicies(lmsUserId)
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
   return queries
@@ -143,7 +141,7 @@ export function queryRedeemablePolicies({ enterpriseUuid, lmsUserId }) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.subsidies
  * ._ctx.enterpriseOffers
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryEnterpriseLearnerOffers(enterpriseUuid) {
   return queries
@@ -160,7 +158,7 @@ export function queryEnterpriseLearnerOffers(enterpriseUuid) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.subsidies
  * ._ctx.couponCodes
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryCouponCodes(enterpriseUuid) {
   return queries
@@ -174,10 +172,7 @@ export function queryCouponCodes(enterpriseUuid) {
  * Helper function to assist querying with useQuery package.
  *
  * @param {string} enterpriseUuid - The UUID of the enterprise.
- * @param {string} userEmail - The email of the user.
- * @returns {QueryObject} - The query object for the enterprise configuration.
- * @property {[string]} QueryObject.queryKey - The query key for the object
- * @property {func} QueryObject.queryFn - The asynchronous API request "fetchBrowseAndRequestConfiguration"
+ * @returns {Types.QueryOptions}
  */
 export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
   return queries
@@ -197,7 +192,7 @@ export function queryBrowseAndRequestConfiguration(enterpriseUuid) {
  * ._ctx.browseAndRequest(userEmail)
  * ._ctx.requests(state)
  * ._ctx.licenseRequests
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
   return queries
@@ -219,7 +214,7 @@ export function queryLicenseRequests(enterpriseUuid, userEmail, state = SUBSIDY_
  * ._ctx.browseAndRequest(userEmail)
  * ._ctx.requests(state)
  * ._ctx.couponCodeRequests
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSIDY_REQUEST_STATE.REQUESTED) {
   return queries
