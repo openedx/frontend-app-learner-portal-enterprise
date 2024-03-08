@@ -3,6 +3,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseMainContent from '../CourseMainContent';
 import { CourseContext } from '../CourseContextProvider';
 
@@ -51,11 +52,13 @@ const CourseMainContentWrapper = ({
   appContextValue = baseAppContextValue,
   courseContextValue = baseCourseContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <CourseContext.Provider value={courseContextValue}>
-      <CourseMainContent />
-    </CourseContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <CourseContext.Provider value={courseContextValue}>
+        <CourseMainContent />
+      </CourseContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('ExternalCourseEnrollment', () => {

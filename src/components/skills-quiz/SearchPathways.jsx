@@ -2,6 +2,7 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -88,7 +89,13 @@ const SearchPathways = ({ index }) => {
 
   return (
     <div>
-      <h3 className="mb-3">Get started with these pathways</h3>
+      <h3 className="mb-3">
+        <FormattedMessage
+          id="enterprise.skills.quiz.v1.pathways.card.heading"
+          defaultMessage="Get started with these pathways"
+          description="Heading for pathways displayed for users to get started with on skills quiz v1 page"
+        />
+      </h3>
       <CardGrid>
         {pathways.map(pathway => (
           <SearchPathwayCard key={pathway.uuid} isLoading={isLoading} hit={pathway} isSkillQuizResult />

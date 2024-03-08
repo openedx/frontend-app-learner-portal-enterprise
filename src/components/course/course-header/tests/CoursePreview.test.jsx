@@ -3,6 +3,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CoursePreview from '../CoursePreview';
 import { renderWithRouter } from '../../../../utils/tests';
 
@@ -29,7 +30,9 @@ describe('Course Preview Tests', () => {
 
   it('Renders video preview when correct video URL is provided.', () => {
     const { container } = renderWithRouter(
-      <CoursePreview previewImage={imageURL} previewVideoURL={hlsUrl} />,
+      <IntlProvider locale="en">
+        <CoursePreview previewImage={imageURL} previewVideoURL={hlsUrl} />,
+      </IntlProvider>,
     );
     expect(container.querySelector('.course-preview-wrapper')).toBeTruthy();
     expect(container.querySelector('.video-component')).toBeTruthy();
@@ -39,7 +42,9 @@ describe('Course Preview Tests', () => {
 
   it('Renders video preview for youtube videos.', () => {
     const { container } = renderWithRouter(
-      <CoursePreview previewImage={imageURL} previewVideoURL={ytUrl} />,
+      <IntlProvider locale="en">
+        <CoursePreview previewImage={imageURL} previewVideoURL={ytUrl} />,
+      </IntlProvider>,
     );
     expect(container.querySelector('.course-preview-wrapper')).toBeTruthy();
     expect(container.querySelector('.video-component')).toBeTruthy();
@@ -49,7 +54,9 @@ describe('Course Preview Tests', () => {
 
   it('Renders video play button and starts playing when user clicks on play.', async () => {
     const { container } = renderWithRouter(
-      <CoursePreview previewImage={imageURL} previewVideoURL={ytUrl} />,
+      <IntlProvider locale="en">
+        <CoursePreview previewImage={imageURL} previewVideoURL={ytUrl} />,
+      </IntlProvider>,
     );
     expect(container.querySelector('.course-preview-wrapper')).toBeTruthy();
     expect(container.querySelector('.video-component')).toBeTruthy();

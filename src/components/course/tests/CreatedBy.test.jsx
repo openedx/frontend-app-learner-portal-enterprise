@@ -2,6 +2,7 @@ import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CreatedBy from '../CreatedBy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -13,11 +14,13 @@ const initialSubsidyRequestsState = {
 };
 
 const CreatedByWithCourseContext = ({ courseState = {} }) => (
-  <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-    <CourseContextProvider courseState={courseState}>
-      <CreatedBy />
-    </CourseContextProvider>
-  </SubsidyRequestsContext.Provider>
+  <IntlProvider locale="en">
+    <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+      <CourseContextProvider courseState={courseState}>
+        <CreatedBy />
+      </CourseContextProvider>
+    </SubsidyRequestsContext.Provider>
+  </IntlProvider>
 );
 
 describe('<CreatedBy />', () => {

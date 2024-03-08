@@ -5,6 +5,7 @@ import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
 import { CourseContextProvider } from '../../CourseContextProvider';
 import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../../../enterprise-subsidy-requests';
@@ -158,17 +159,19 @@ const CourseHeaderWrapper = ({
   initialUserSubsidyState = defaultUserSubsidyState,
   initialSubsidyRequestsState = defaultSubsidyRequestsState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-          <CourseContextProvider courseState={courseState}>
-            <CourseHeader />
-          </CourseContextProvider>
-        </CourseEnrollmentsContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+            <CourseContextProvider courseState={courseState}>
+              <CourseHeader />
+            </CourseContextProvider>
+          </CourseEnrollmentsContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<CourseHeader />', () => {

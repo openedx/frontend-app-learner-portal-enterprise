@@ -4,6 +4,7 @@ import loadable from '@loadable/component';
 
 import { PlayCircleFilled } from '@openedx/paragon/icons';
 import { useToggle, Image, Skeleton } from '@openedx/paragon';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import DelayedFallbackContainer from '../../DelayedFallback/DelayedFallbackContainer';
 
 const VideoPlayer = loadable(() => import(/* webpackChunkName: "videojs" */ '../../video/VideoPlayer'), {
@@ -40,7 +41,11 @@ const CoursePreview = ({ previewImage, previewVideoURL }) => {
               <Image src={previewImage} className="video-thumb" alt="" />
               <div className="video-trigger-cta btn btn-inverse-primary">
                 <PlayCircleFilled className="mr-1" />
-                Play Video
+                <FormattedMessage
+                  id="enterprise.course.about.page.video.play.button.text"
+                  defaultMessage="Play Video"
+                  description="Play video button text. Course introduction video will played when this button will be clicked"
+                />
               </div>
             </button>
           )}
