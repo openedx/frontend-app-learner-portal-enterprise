@@ -2,43 +2,17 @@ import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { CardGrid } from '@openedx/paragon';
 
 import { SkillsContext } from './SkillsContextProvider';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { useDefaultSearchFilters } from '../search/data/hooks';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { useEnterpriseCustomer } from '../hooks';
 
 const SearchPathways = ({ index }) => {
-  const enterpriseCustomer = useEnterpriseCustomer();
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseCustomer,
-    searchCatalogs,
-  });
+  const { filters } = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(true);

@@ -17,6 +17,7 @@ import {
 } from './constants';
 import PathwayModal from './PathwayModal';
 import { useEnterpriseLearner } from '../app/data';
+import { useEnterpriseCustomer } from "../hooks";
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -54,7 +55,7 @@ const SearchPathwayCard = ({
   isAcademyPathway,
   ...rest
 }) => {
-  const { uuid: enterpriseCustomerUUID, slug } = useEnterpriseLearner();
+  const { uuid: enterpriseCustomerUUID, slug } = useEnterpriseCustomer();
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const navigate = useNavigate();
 

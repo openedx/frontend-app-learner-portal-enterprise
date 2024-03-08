@@ -1,39 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Index, Configure } from 'react-instantsearch-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/';
-import { useDefaultSearchFilters, useSearchCatalogs } from '../data/hooks';
+import { useDefaultSearchFilters } from '../data/hooks';
 import PopularResults from './PopularResults';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getContentTypeFromTitle } from '../../utils/search';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
+  const { filters } = useDefaultSearchFilters();
   const config = getConfig();
   const contentType = getContentTypeFromTitle(title);
   const defaultFilter = `content_type:${contentType} AND ${filters}`;

@@ -20,14 +20,12 @@ import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
+import { useDefaultSearchFilters } from '../search/data/hooks';
 import {
   NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS,
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../hooks';
 
 const SkillsCourses = ({ index }) => {
@@ -38,29 +36,7 @@ const SkillsCourses = ({ index }) => {
   const [hitCount, setHitCount] = useState(undefined);
   const { refinements: { skill_names: skills } } = useContext(SearchContext);
   const allSkills = useSelectedSkillsAndJobSkills({ getAllSkills: true });
-
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
-
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseCustomer,
-    searchCatalogs,
-  });
+  const { filters } = useDefaultSearchFilters();
 
   const skillsFacetFilter = useMemo(
     () => {

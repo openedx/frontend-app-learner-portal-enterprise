@@ -32,7 +32,7 @@ const ContentHighlights = ({ className }) => {
   if (contentHighlights.length === 0) {
     return null;
   }
-  console.log(contentHighlights)
+
   return (
     <Container size="lg" className={className}>
       <Stack gap={5}>

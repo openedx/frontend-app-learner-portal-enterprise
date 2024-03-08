@@ -4,41 +4,19 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { CardGrid, Hyperlink } from '@openedx/paragon';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 
-import { useDefaultSearchFilters, useSearchCatalogs } from '../search/data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
+import { useDefaultSearchFilters } from '../search/data/hooks';
+import { useEnterpriseCustomer } from '../hooks';
 
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const { catalogsForSubsidyRequests } = useContext(SubsidyRequestsContext);
+  const { slug } = useEnterpriseCustomer();
   const navigate = useNavigate();
 
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
+  const { filters } = useDefaultSearchFilters();
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);
@@ -109,7 +87,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
         onClick={() => {
           if (subCategorySkills.length > 0) {
             navigate(
-              `/${enterpriseConfig.slug}/search`,
+              `/${slug}/search`,
               {
                 search: `showAll=1&content_type=course&skill_names=${subCategorySkills.join('&skill_names=')}`,
               },

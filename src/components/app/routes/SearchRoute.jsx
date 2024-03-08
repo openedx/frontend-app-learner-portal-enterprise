@@ -1,5 +1,7 @@
 import { generatePath, Link } from 'react-router-dom';
-import { Container } from '@openedx/paragon';
+import {
+  Button, Container, useToggle,
+} from '@openedx/paragon';
 
 import { useEnterpriseCustomerUserSubsidies, useEnterpriseLearner } from '../data';
 import { SearchPage } from '../../search';
@@ -7,9 +9,10 @@ import { SearchPage } from '../../search';
 const SearchRoute = () => {
   const { data: enterpriseCustomerUserSubsidies } = useEnterpriseCustomerUserSubsidies();
   const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const [isOpen, open, close] = useToggle();
+
   return (
     <Container size="lg" className="py-4">
-      <h2>Search</h2>
       <Link
         to={generatePath('/:enterpriseSlug/course/:courseKey', {
           enterpriseSlug: enterpriseCustomer.slug,
@@ -20,7 +23,10 @@ const SearchRoute = () => {
       </Link>
       <br />
       <br />
-      <pre>{JSON.stringify(enterpriseCustomerUserSubsidies, null, 2)}</pre>
+      <Button onClick={() => (isOpen ? close() : open())}>{!isOpen ? 'Show JSON' : 'Hide JSON'}</Button>
+      <br />
+      <br />
+      <pre hidden={!isOpen}>{JSON.stringify(enterpriseCustomerUserSubsidies, null, 2)}</pre>
       <SearchPage />
     </Container>
   );

@@ -8,12 +8,11 @@ import {
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import {
   useActiveRedeemablePolicies,
-  useCatalogsForSubsidyRequests,
+  useCatalogsForSubsidyRequests, useEnterpriseCustomer,
   useEnterpriseOffers,
-  useSubscriptionLicenses
+  useSubscriptionLicenses,
+  useCouponCodes,
 } from '../../hooks';
-import { useSubscriptions } from '../../enterprise-user-subsidy/data/hooks';
-import useCouponCodess from '../../hooks/useCouponCodes';
 import { features } from '../../../config';
 
 /**
@@ -24,9 +23,9 @@ import { features } from '../../../config';
 export const useSearchCatalogs = () => {
   const { subscriptionLicense } = useSubscriptionLicenses();
   const { activeRedeemablePolicies } = useActiveRedeemablePolicies();
-  const { couponCodes } = useCouponCodess();
-  const { currentEnterpriseOffers } = useEnterpriseOffers()
-  const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests()
+  const { couponCodes } = useCouponCodes();
+  const { currentEnterpriseOffers } = useEnterpriseOffers();
+  const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
 
   const searchCatalogs = useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.
@@ -59,13 +58,11 @@ export const useSearchCatalogs = () => {
   return searchCatalogs;
 };
 
-export const useDefaultSearchFilters = ({
-  enterpriseCustomer,
-  searchCatalogs,
-}) => {
+export const useDefaultSearchFilters = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const showAllRefinement = refinements[SHOW_ALL_NAME];
-
+  const { uuid } = useEnterpriseCustomer();
+  const searchCatalogs = useSearchCatalogs();
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
     if (searchCatalogs.length === 0 && !showAllRefinement) {
@@ -77,7 +74,7 @@ export const useDefaultSearchFilters = ({
     () => {
       // Show all enterprise catalogs
       if (showAllRefinement) {
-        return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
+        return `enterprise_customer_uuids:${uuid}`;
       }
 
       if (searchCatalogs.length > 0) {
@@ -85,9 +82,9 @@ export const useDefaultSearchFilters = ({
       }
 
       // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
-      return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
+      return `enterprise_customer_uuids:${uuid}`;
     },
-    [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement],
+    [uuid, searchCatalogs, showAllRefinement],
   );
 
   return { filters };

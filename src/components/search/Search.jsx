@@ -1,17 +1,15 @@
 import React, {
-  useContext, useMemo, useEffect,
+  useContext, useEffect,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useToggle, Stack } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import algoliasearch from 'algoliasearch/lite';
-import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
+import { useDefaultSearchFilters } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE,
   CONTENT_TYPE_COURSE,
@@ -40,7 +38,7 @@ import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import { useEnterpriseCustomer, useEnterpriseOffers } from '../hooks';
 import { useIsAssignmentsOnlyLearner } from '../app/data';
-import { useAlgoliaSearch } from "../../utils/hooks";
+import { useAlgoliaSearch } from '../../utils/hooks';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -53,57 +51,30 @@ export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
 const Search = () => {
   const config = getConfig();
   const enterpriseCustomer = useEnterpriseCustomer();
+  const intl = useIntl();
+
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { pathwayUUID } = useParams();
   const navigate = useNavigate();
+
   const { refinements } = useContext(SearchContext);
-  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  // const { algolia } = useContext(AppContext);
-  const [searchClient, searchIndex] = useAlgoliaSearch(config)
-  console.log(enterpriseCustomer)
-  // const {
-  //   subscriptionPlan,
-  //   subscriptionLicense,
-  //   couponCodes: { couponCodes },
-  //   enterpriseOffers,
-  //   canEnrollWithEnterpriseOffers,
-  //   hasLowEnterpriseOffersBalance,
-  //   hasNoEnterpriseOffersBalance,
-  //   redeemableLearnerCreditPolicies,
-  // } = useContext(UserSubsidyContext);
-  // const {
-  //   catalogsForSubsidyRequests,
-  // } = useContext(SubsidyRequestsContext);
+  const { filters } = useDefaultSearchFilters();
+  const [searchClient, searchIndex] = useAlgoliaSearch(config);
+
+  // Flag to toggle highlights visibility
+  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseCustomer.uuid);
+  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
     canEnrollWithEnterpriseOffers,
   } = useEnterpriseOffers();
-  const searchCatalogs = useSearchCatalogs();
-  const { filters } = useDefaultSearchFilters({
-    enterpriseCustomer,
-    searchCatalogs,
-  });
-  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
-  const intl = useIntl();
+  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
+
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
   );
-
-  // Flag to toggle highlights visibility
-  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseCustomer.uuid);
-
-  // const courseIndex = useMemo(
-  //   () => {
-  //     const client = algoliasearch(
-  //       config.ALGOLIA_APP_ID,
-  //       config.ALGOLIA_SEARCH_API_KEY,
-  //     );
-  //     const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-  //     return cIndex;
-  //   },
-  //   [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
-  // );
 
   // If a pathwayUUID exists, open the pathway modal.
   useEffect(() => {
@@ -135,8 +106,6 @@ const Search = () => {
     );
   }
 
-  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
-
   const { content_type: contentType } = refinements;
   const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
@@ -148,7 +117,6 @@ const Search = () => {
 
   return (
     <>
-      <h1>Hey</h1>
       <Helmet title={PAGE_TITLE} />
       <InstantSearch
         indexName={config.ALGOLIA_INDEX_NAME}
