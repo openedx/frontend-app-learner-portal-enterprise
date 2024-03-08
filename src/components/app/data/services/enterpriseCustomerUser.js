@@ -1,8 +1,9 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { determineEnterpriseCustomerUserForDisplay, transformEnterpriseCustomer } from '../utils';
 import { fetchPaginatedData } from './utils';
+import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 /**
  * Helper function to `updateActiveEnterpriseCustomerUser` to make the POST API
@@ -19,6 +20,17 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
 }
 
 /**
+ * TODO
+ */
+export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
+  const queryParams = new URLSearchParams({ slug: enterpriseSlug });
+  const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/?${queryParams.toString()}`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  const { results } = camelCaseObject(response.data);
+  return results[0];
+}
+
+/**
  * Fetches the enterprise learner data for the authenticated user, including all
  * linked enterprise customer users.
  *
@@ -28,8 +40,7 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
  * @returns
  */
 export async function fetchEnterpriseLearnerData(username, enterpriseSlug, options = {}) {
-  const config = getConfig();
-  const enterpriseLearnerUrl = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
+  const enterpriseLearnerUrl = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
     username,
     ...options,
@@ -52,13 +63,24 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
 
   const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
   const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
-  const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments;
+  const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
 
   // Find enterprise customer metadata for the currently viewed
   // enterprise slug in the page route params.
   const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
     enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
   );
+
+  // If no enterprise customer is found (i.e., authenticated user not explicitly
+  // linked), but the authenticated user is staff, attempt to retrieve enterprise
+  // customer metadata from the `/enterprise-customer` LMS API.
+  let staffEnterpriseCustomer;
+  if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
+    const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
+    if (originalStaffEnterpriseCustomer) {
+      staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
+    }
+  }
 
   const {
     enterpriseCustomer,
@@ -68,7 +90,9 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
     activeEnterpriseCustomerUserRoleAssignments,
     enterpriseSlug,
     foundEnterpriseCustomerUserForCurrentSlug,
+    staffEnterpriseCustomer,
   });
+
   return {
     enterpriseCustomer,
     enterpriseCustomerUserRoleAssignments: roleAssignments,
@@ -76,6 +100,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
     activeEnterpriseCustomerUserRoleAssignments,
     allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
     enterpriseFeatures,
+    staffEnterpriseCustomer,
   };
 }
 
@@ -91,6 +116,13 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
     ...options,
   });
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    if (getErrorResponseStatusCode(error) === 404) {
+      return [];
+    }
+    throw error;
+  }
 }

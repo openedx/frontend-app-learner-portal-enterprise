@@ -112,6 +112,7 @@ export async function getAutoAppliedSubscriptionLicense({
  */
 export async function activateOrAutoApplySubscriptionLicense({
   enterpriseCustomer,
+  allLinkedEnterpriseCustomerUsers,
   subscriptionsData,
   requestUrl,
 }) {
@@ -133,8 +134,14 @@ export async function activateOrAutoApplySubscriptionLicense({
     return checkLicenseActivationRouteAndRedirectToDashboard();
   }
 
-  // Check if learner already has activated license. If so, return early.
+  const isUserLinkedToEnterpriseCustomer = allLinkedEnterpriseCustomerUsers.some(
+    (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.uuid === enterpriseCustomer.uuid,
+  );
   const hasActivatedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.ACTIVATED].length > 0;
+  const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;
+  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
+
+  // Check if learner already has activated license. If so, return early.
   if (hasActivatedSubscriptionLicense) {
     return checkLicenseActivationRouteAndRedirectToDashboard();
   }
@@ -143,7 +150,6 @@ export async function activateOrAutoApplySubscriptionLicense({
   // activate OR if the user should request an auto-applied subscription
   // license.
   let activatedOrAutoAppliedLicense = null;
-  const subscriptionLicenseToActivate = licensesByStatus[LICENSE_STATUS.ASSIGNED][0];
   if (subscriptionLicenseToActivate) {
     activatedOrAutoAppliedLicense = await activateSubscriptionLicense({
       enterpriseCustomer,
@@ -151,18 +157,13 @@ export async function activateOrAutoApplySubscriptionLicense({
       licenseActivationRouteMatch,
       dashboardRedirectPath,
     });
-  }
-
-  const hasRevokedSubscriptionLicense = licensesByStatus[LICENSE_STATUS.REVOKED].length > 0;
-  if (!hasRevokedSubscriptionLicense) {
+  } else if (!hasRevokedSubscriptionLicense && isUserLinkedToEnterpriseCustomer) {
     activatedOrAutoAppliedLicense = await getAutoAppliedSubscriptionLicense({
       enterpriseCustomer,
       customerAgreement,
     });
   }
-
   checkLicenseActivationRouteAndRedirectToDashboard();
-
   return activatedOrAutoAppliedLicense;
 }
 
