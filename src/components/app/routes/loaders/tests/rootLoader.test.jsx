@@ -18,6 +18,7 @@ import {
   queryLicenseRequests,
   queryRedeemablePolicies,
   querySubscriptions,
+  updateUserActiveEnterprise,
 } from '../../../data';
 
 jest.mock('../../data', () => ({
@@ -27,37 +28,87 @@ jest.mock('../../data', () => ({
 jest.mock('../../../data', () => ({
   ...jest.requireActual('../../../data'),
   extractEnterpriseId: jest.fn(),
+  updateUserActiveEnterprise: jest.fn(),
+}));
+
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  configure: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
+  configure: jest.fn(),
+  getLoggingService: jest.fn(),
 }));
 
 const mockUsername = 'edx';
 const mockUserEmail = 'edx@example.com';
 const mockEnterpriseId = 'test-enterprise-uuid';
+const mockEnterpriseIdTwo = 'another-enterprise-uuid';
 const mockEnterpriseSlug = 'test-enterprise-slug';
-ensureAuthenticatedUser.mockResolvedValue({
-  userId: 3,
-  email: mockUserEmail,
-  username: mockUsername,
-});
-extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+const mockEnterpriseSlugTwo = 'another-enterprise-slug';
+const mockEnterpriseCustomer = {
+  uuid: mockEnterpriseId,
+  slug: mockEnterpriseSlug,
+};
+const mockEnterpriseCustomerTwo = {
+  uuid: mockEnterpriseIdTwo,
+  slug: mockEnterpriseSlugTwo,
+};
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),
+  fetchQuery: jest.fn().mockResolvedValue({}),
+};
+
+let locationPathname;
+const ComponentWithLocation = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    locationPathname = pathname;
+  }, [pathname]);
+  return null;
 };
 
 describe('rootLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
     localStorage.clear();
+    ensureAuthenticatedUser.mockResolvedValue({
+      userId: 3,
+      email: mockUserEmail,
+      username: mockUsername,
+    });
+    extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+  });
+
+  it('does nothing if the user is not authenticated', async () => {
+    ensureAuthenticatedUser.mockResolvedValue(null);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug',
+      element: <div>hello world</div>,
+      loader: makeRootLoader(mockQueryClient),
+    }, {
+      initialEntries: [`/${mockEnterpriseSlug}`],
+    });
+
+    expect(await screen.findByText('hello world')).toBeInTheDocument();
+
+    // Assert that the expected number of queries were made.
+    expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(0);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(0);
   });
 
   it('ensures only the enterprise-learner query is called if there is no active enterprise customer user', async () => {
     const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
-    when(mockQueryClient.ensureQueryData).calledWith(
+    when(mockQueryClient.fetchQuery).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
       }),
-    ).mockResolvedValue({ activeEnterpriseCustomer: null });
+    ).mockResolvedValue({
+      enterpriseCustomer: undefined,
+      activeEnterpriseCustomer: undefined,
+    });
 
     renderWithRouterProvider({
       path: '/:enterpriseSlug',
@@ -70,24 +121,103 @@ describe('rootLoader', () => {
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
     // Assert that the expected number of queries were made.
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
+    expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(1);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(0);
   });
 
   it.each([
-    { shouldRedirectToSearch: false },
-    { shouldRedirectToSearch: true },
-  ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({ shouldRedirectToSearch }) => {
-    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+        { enterpriseCustomer: mockEnterpriseCustomerTwo },
+      ],
+      isStaffUser: false,
+      shouldRedirectToSearch: false,
+    },
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+        { enterpriseCustomer: mockEnterpriseCustomerTwo },
+      ],
+      isStaffUser: false,
+      shouldRedirectToSearch: true,
+    },
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomer,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+      ],
+      isStaffUser: false,
+      shouldRedirectToSearch: false,
+    },
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomer,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+      ],
+      isStaffUser: false,
+      shouldRedirectToSearch: true,
+    },
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+      ],
+      isStaffUser: true,
+      shouldRedirectToSearch: false,
+    },
+    {
+      enterpriseSlug: mockEnterpriseCustomerTwo.slug,
+      enterpriseCustomer: mockEnterpriseCustomerTwo,
+      activeEnterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [
+        { enterpriseCustomer: mockEnterpriseCustomer },
+      ],
+      isStaffUser: true,
+      shouldRedirectToSearch: true,
+    },
+  ])('ensures all requisite root loader queries are resolved with an active enterprise customer user (%s)', async ({
+    isStaffUser,
+    enterpriseSlug,
+    enterpriseCustomer,
+    activeEnterpriseCustomer,
+    allLinkedEnterpriseCustomerUsers,
+    shouldRedirectToSearch,
+  }) => {
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, enterpriseSlug);
+    const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockUsername, enterpriseCustomer.slug);
     // Mock the enterprise-learner query to return an active enterprise customer user.
-    when(mockQueryClient.ensureQueryData).calledWith(
+    when(mockQueryClient.fetchQuery).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
       }),
     ).mockResolvedValue({
-      activeEnterpriseCustomer: {
-        uuid: mockEnterpriseId,
-        slug: mockEnterpriseSlug,
-      },
+      enterpriseCustomer,
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+      staffEnterpriseCustomer: isStaffUser ? enterpriseCustomer : undefined,
+    });
+    when(mockQueryClient.fetchQuery).calledWith(
+      expect.objectContaining({
+        queryKey: enterpriseLearnerQueryTwo.queryKey,
+      }),
+    ).mockResolvedValue({
+      enterpriseCustomer,
+      activeEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
+      staffEnterpriseCustomer: isStaffUser ? enterpriseCustomer : undefined,
     });
 
     // Mock redeemable policies query
@@ -98,7 +228,7 @@ describe('rootLoader', () => {
       },
     };
     const redeemablePoliciesQuery = queryRedeemablePolicies({
-      enterpriseUuid: mockEnterpriseId,
+      enterpriseUuid: enterpriseCustomer.uuid,
       lmsUserId: 3,
     });
     when(mockQueryClient.ensureQueryData).calledWith(
@@ -106,15 +236,6 @@ describe('rootLoader', () => {
         queryKey: redeemablePoliciesQuery.queryKey,
       }),
     ).mockResolvedValue(mockRedeemablePolicies);
-
-    let locationPathname;
-    const ComponentWithLocation = () => {
-      const { pathname } = useLocation();
-      useEffect(() => {
-        locationPathname = pathname;
-      }, [pathname]);
-      return null;
-    };
 
     renderWithRouterProvider({
       path: '/:enterpriseSlug/*',
@@ -127,28 +248,55 @@ describe('rootLoader', () => {
           element: <ComponentWithLocation />,
         },
       ],
-      initialEntries: [`/${mockEnterpriseSlug}`],
+      initialEntries: [`/${enterpriseSlug}`],
     });
+
+    const isLinked = allLinkedEnterpriseCustomerUsers.some((ecu) => ecu.enterpriseCustomer.slug === enterpriseSlug);
 
     await waitFor(() => {
-      // There are 9 queries.
-      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
+      // Assert that the expected number of queries were made.
+      if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
+        if (isLinked || isStaffUser) {
+          expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(1);
+        } else {
+          expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(2);
+        }
+      }
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(8);
     });
 
+    function getExpectedSlugPath() {
+      if (enterpriseSlug === activeEnterpriseCustomer?.slug) {
+        return enterpriseSlug;
+      }
+      if (isLinked || isStaffUser) {
+        return enterpriseCustomer.slug;
+      }
+      return activeEnterpriseCustomer.slug;
+    }
+    const expectedCustomerPath = getExpectedSlugPath();
     // Assert that the expected number of queries were made.
     if (shouldRedirectToSearch) {
-      expect(locationPathname).toEqual(`/${mockEnterpriseSlug}/search`);
+      expect(locationPathname).toEqual(`/${expectedCustomerPath}/search`);
     } else {
-      expect(locationPathname).toEqual(`/${mockEnterpriseSlug}`);
+      expect(locationPathname).toEqual(`/${expectedCustomerPath}`);
     }
 
     // Enterprise learner query
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+    expect(mockQueryClient.fetchQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
         queryFn: expect.any(Function),
       }),
     );
+    if (enterpriseSlug !== activeEnterpriseCustomer?.slug && isLinked) {
+      expect(updateUserActiveEnterprise).toHaveBeenCalledTimes(1);
+      expect(updateUserActiveEnterprise).toHaveBeenCalledWith({
+        enterpriseCustomer,
+      });
+    } else {
+      expect(updateUserActiveEnterprise).not.toHaveBeenCalled();
+    }
 
     // Redeemable policies query
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
@@ -159,7 +307,7 @@ describe('rootLoader', () => {
     );
 
     // Subscriptions query
-    const subscriptionsQuery = querySubscriptions(mockEnterpriseId);
+    const subscriptionsQuery = querySubscriptions(enterpriseCustomer.uuid);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: subscriptionsQuery.queryKey,
@@ -168,7 +316,7 @@ describe('rootLoader', () => {
     );
 
     // Coupon codes query
-    const couponCodesQuery = queryCouponCodes(mockEnterpriseId);
+    const couponCodesQuery = queryCouponCodes(enterpriseCustomer.uuid);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: couponCodesQuery.queryKey,
@@ -177,7 +325,7 @@ describe('rootLoader', () => {
     );
 
     // Enterprise offers query
-    const enterpriseOffersQuery = queryEnterpriseLearnerOffers(mockEnterpriseId);
+    const enterpriseOffersQuery = queryEnterpriseLearnerOffers(enterpriseCustomer.uuid);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: enterpriseOffersQuery.queryKey,
@@ -186,7 +334,7 @@ describe('rootLoader', () => {
     );
 
     // Browse and Request configuration query
-    const browseAndRequestConfigQuery = queryBrowseAndRequestConfiguration(mockEnterpriseId);
+    const browseAndRequestConfigQuery = queryBrowseAndRequestConfiguration(enterpriseCustomer.uuid);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: browseAndRequestConfigQuery.queryKey,
@@ -195,7 +343,7 @@ describe('rootLoader', () => {
     );
 
     // Browse and Request license requests query
-    const licenseRequestsQuery = queryLicenseRequests(mockEnterpriseId, mockUserEmail);
+    const licenseRequestsQuery = queryLicenseRequests(enterpriseCustomer.uuid, mockUserEmail);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: licenseRequestsQuery.queryKey,
@@ -204,7 +352,7 @@ describe('rootLoader', () => {
     );
 
     // Browse and Request coupon codes requests query
-    const couponCodeRequestsQuery = queryCouponCodeRequests(mockEnterpriseId, mockUserEmail);
+    const couponCodeRequestsQuery = queryCouponCodeRequests(enterpriseCustomer.uuid, mockUserEmail);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: couponCodeRequestsQuery.queryKey,
@@ -213,7 +361,7 @@ describe('rootLoader', () => {
     );
 
     // Content Highlights configuration query
-    const contentHighlightsConfigQuery = queryContentHighlightsConfiguration(mockEnterpriseId);
+    const contentHighlightsConfigQuery = queryContentHighlightsConfiguration(enterpriseCustomer.uuid);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: contentHighlightsConfigQuery.queryKey,

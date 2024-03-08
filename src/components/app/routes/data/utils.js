@@ -20,7 +20,6 @@ import {
   queryContentHighlightsConfiguration,
   queryCouponCodeRequests,
   queryCouponCodes,
-  queryEnterpriseLearner,
   queryEnterpriseLearnerOffers,
   queryLicenseRequests,
   queryNotices,
@@ -36,6 +35,7 @@ import {
  */
 export async function ensureEnterpriseAppData({
   enterpriseCustomer,
+  allLinkedEnterpriseCustomerUsers,
   userId,
   userEmail,
   queryClient,
@@ -49,6 +49,7 @@ export async function ensureEnterpriseAppData({
       // Auto-activate the user's subscription license, if applicable.
       const activatedOrAutoAppliedLicense = await activateOrAutoApplySubscriptionLicense({
         enterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers,
         subscriptionsData,
         requestUrl,
       });
@@ -179,6 +180,14 @@ export function redirectToRemoveTrailingSlash(requestUrl) {
   throw redirect(requestUrl.pathname.slice(0, -1));
 }
 
+configureLogging(NewRelicLoggingService, {
+  config: getConfig(),
+});
+configureAuth(AxiosJwtAuthService, {
+  loggingService: getLoggingService(),
+  config: getConfig(),
+});
+
 /**
  * Ensures that the user is authenticated. If not, redirects to the login page.
  * @param {URL} requestUrl - The current request URL to redirect back to if the
@@ -186,14 +195,6 @@ export function redirectToRemoveTrailingSlash(requestUrl) {
  * @param {Object} params - The parameters object.
  */
 export async function ensureAuthenticatedUser(requestUrl, params) {
-  configureLogging(NewRelicLoggingService, {
-    config: getConfig(),
-  });
-  configureAuth(AxiosJwtAuthService, {
-    loggingService: getLoggingService(),
-    config: getConfig(),
-  });
-
   const {
     enterpriseSlug,
     enterpriseCustomerInviteKey,
@@ -240,23 +241,21 @@ export async function ensureAuthenticatedUser(requestUrl, params) {
  * TODO
  * @param {*} enterpriseSlug
  * @param {*} activeEnterpriseCustomer
+ * @param {*} staffEnterpriseCustomer
  * @param {*} allLinkedEnterpriseCustomerUsers
  * @param {*} requestUrl
- * @param {*} queryClient
- * @param {*} updateUserActiveEnterprise
  * @returns
  */
 export async function ensureActiveEnterpriseCustomerUser({
   enterpriseSlug,
   activeEnterpriseCustomer,
+  staffEnterpriseCustomer,
   allLinkedEnterpriseCustomerUsers,
   requestUrl,
-  queryClient,
-  username,
-  // updateUserActiveEnterprise,
 }) {
-  // If the enterprise slug in the URL matches the active enterprise customer's slug, return early.
-  if (enterpriseSlug === activeEnterpriseCustomer.slug) {
+  // If the enterprise slug in the URL matches the active enterprise customer user's slug OR no
+  // active enterprise customer exists, return early.
+  if (!activeEnterpriseCustomer || activeEnterpriseCustomer.slug === enterpriseSlug) {
     return null;
   }
 
@@ -265,45 +264,33 @@ export async function ensureActiveEnterpriseCustomerUser({
   const foundEnterpriseCustomerUserForSlug = allLinkedEnterpriseCustomerUsers.find(
     enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   );
-  if (!foundEnterpriseCustomerUserForSlug) {
-    throw redirect(generatePath('/:enterpriseSlug/*', {
-      enterpriseSlug: activeEnterpriseCustomer.slug,
-      '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
-    }));
+  if (foundEnterpriseCustomerUserForSlug) {
+    const {
+      enterpriseCustomer: nextActiveEnterpriseCustomer,
+    } = foundEnterpriseCustomerUserForSlug;
+    // Makes the POST API request to update the active enterprise customer
+    // for the learner in the backend for future sessions.
+    await updateUserActiveEnterprise({
+      enterpriseCustomer: nextActiveEnterpriseCustomer,
+    });
+    const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
+      ecu => ({
+        ...ecu,
+        active: (
+          ecu.enterpriseCustomer.uuid === nextActiveEnterpriseCustomer.uuid
+        ),
+      }),
+    );
+    return {
+      enterpriseCustomer: nextActiveEnterpriseCustomer,
+      updatedLinkedEnterpriseCustomerUsers,
+    };
   }
-
-  const {
-    enterpriseCustomer: nextActiveEnterpriseCustomer,
-    roleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
-  } = foundEnterpriseCustomerUserForSlug;
-  // Makes the POST API request to update the active enterprise customer
-  // for the learner in the backend for future sessions.
-  await updateUserActiveEnterprise({
-    enterpriseCustomer: nextActiveEnterpriseCustomer,
-  });
-  const nextEnterpriseLearnerQuery = queryEnterpriseLearner(username, nextActiveEnterpriseCustomer.slug);
-  const updatedLinkedEnterpriseCustomerUsers = allLinkedEnterpriseCustomerUsers.map(
-    ecu => ({
-      ...ecu,
-      active: (
-        ecu.enterpriseCustomer.uuid === nextActiveEnterpriseCustomer.uuid
-      ),
-    }),
-  );
-
-  // Perform optimistic update of the query cache to avoid duplicate API request for the same data. The only
-  // difference is that the query key now contains the new enterprise slug, so we can proactively set the query
-  // cache for with the enterprise learner data we already have before resolving the loader.
-  queryClient.setQueryData(nextEnterpriseLearnerQuery.queryKey, {
-    enterpriseCustomer: nextActiveEnterpriseCustomer,
-    enterpriseCustomerUserRoleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
-    activeEnterpriseCustomer: nextActiveEnterpriseCustomer,
-    activeEnterpriseCustomerUserRoleAssignments: nextActiveEnterpriseCustomerRoleAssignments,
-    allLinkedEnterpriseCustomerUsers: updatedLinkedEnterpriseCustomerUsers,
-  });
-
-  return {
-    enterpriseCustomer: nextActiveEnterpriseCustomer,
-    updatedLinkedEnterpriseCustomerUsers,
-  };
+  if (staffEnterpriseCustomer) {
+    return null;
+  }
+  throw redirect(generatePath('/:enterpriseSlug/*', {
+    enterpriseSlug: activeEnterpriseCustomer.slug,
+    '*': requestUrl.pathname.split('/').filter(pathPart => !!pathPart).slice(1).join('/'),
+  }));
 }

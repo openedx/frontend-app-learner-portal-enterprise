@@ -1,6 +1,7 @@
 import React, {
   useEffect, useState, useContext, useMemo,
 } from 'react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
   Button,
   Badge,
@@ -92,7 +93,15 @@ const SkillsCourses = ({ index }) => {
 
   return (
     <div className="mt-4">
-      {hitCount > 0 && <h3>Skills</h3>}
+      {hitCount > 0 && (
+        <h3>
+          <FormattedMessage
+            id="enterprise.skills.quiz.v1.skills.page.heading"
+            defaultMessage="Skills"
+            description="Skills heading on skills quiz v1 page."
+          />
+        </h3>
+      )}
       <div className="skills-badge">
         {isLoading ? (
           <div className="mb-3">
@@ -115,14 +124,26 @@ const SkillsCourses = ({ index }) => {
       ) : coursesWithSkills?.map((coursesWithSkill) => (
         <React.Fragment key={uuidv4()}>
           <div className="my-4 d-flex align-items-center justify-content-between">
-            <h3 className="mb-0">Top courses in {coursesWithSkill.key}</h3>
+            <h3 className="mb-0">
+              <FormattedMessage
+                id="enterprise.skills.quiz.v1.skills.page.top.courses.heading"
+                defaultMessage="Top courses in {skill}"
+                description="Heading indicating the top courses related to a specific skill on the skills quiz v1 page."
+                values={{ skill: coursesWithSkill.key }}
+              />
+            </h3>
             <Button
               as={Link}
               to={`/${enterpriseCustomer.slug}/search?skill_names=${coursesWithSkill.key}`}
               variant="link"
               size="inline"
             >
-              See more courses &gt;
+              <FormattedMessage
+                id="enterprise.skills.quiz.v1.skills.page.see.more.courses.button.label"
+                defaultMessage="See more courses >"
+                description="See more courses button label on the skills quiz v1 page."
+                values={{ skill: coursesWithSkill.key }}
+              />
             </Button>
           </div>
           <CardGrid>

@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { breakpoints, ResponsiveContext } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseAbout from '../CourseAbout';
 import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
@@ -86,17 +87,19 @@ const CourseAboutWrapper = ({
   initialAppState = appContextValues,
   subsidyRequestsContextValue = defaultSubsidyRequestsContextValue,
 }) => (
-  <ResponsiveContext.Provider value={responsiveContextValue}>
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
-          <CourseContext.Provider value={courseContextValue}>
-            <CourseAbout />
-          </CourseContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </ResponsiveContext.Provider>
+  <IntlProvider locale="en">
+    <ResponsiveContext.Provider value={responsiveContextValue}>
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={subsidyRequestsContextValue}>
+            <CourseContext.Provider value={courseContextValue}>
+              <CourseAbout />
+            </CourseContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>
+    </ResponsiveContext.Provider>
+  </IntlProvider>
 );
 
 describe('CourseAbout', () => {

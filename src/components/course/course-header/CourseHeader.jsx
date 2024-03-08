@@ -8,6 +8,7 @@ import {
   Badge,
 } from '@openedx/paragon';
 import { Link, useLocation } from 'react-router-dom';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from '../CourseContextProvider';
@@ -95,7 +96,15 @@ const CourseHeader = () => {
             )}
             <div className={classNames({ 'mb-4': !course.shortDescription, 'd-flex': true, 'align-items-center': true })}>
               <h2>{course.title}</h2>
-              {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) && <Badge variant="info" className="ml-4">Assigned</Badge>}
+              {(features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseAssigned) && (
+                <Badge variant="info" className="ml-4">
+                  <FormattedMessage
+                    id="enterprise.course.about.page.assigned.badge.label"
+                    defaultMessage="Assigned"
+                    description="Assigned badge label for course header on course about page"
+                  />
+                </Badge>
+              )}
             </div>
             {course.shortDescription && (
               <div
@@ -125,20 +134,35 @@ const CourseHeader = () => {
                 <CourseReview />
                 {defaultProgram && (
                   <p className="font-weight-bold mt-3 mb-0">
-                    This course is part of a {formatProgramType(defaultProgram.type)}.
+                    <FormattedMessage
+                      id="enterprise.course.about.page.course.part.of.program"
+                      defaultMessage="This course is part of a {programType}."
+                      description="Message for when a course is part of a program"
+                      values={{
+                        programType: formatProgramType(defaultProgram?.type),
+                      }}
+                    />
                   </p>
                 )}
               </>
             )}
             {!catalog.containsContentItems && isCourseArchived && (
               <p className="d-block font-weight-bold mt-3 mb-0">
-                This course is archived.
+                <FormattedMessage
+                  id="enterprise.course.about.page.course.not.in.catalog.and.archived"
+                  defaultMessage="This course is archived."
+                  description="Message for when a course is archived and not part of the company's curated course catalog"
+                />
                 <CourseMaterialsButton course={course} />
               </p>
             )}
             {!catalog.containsContentItems && !isCourseArchived && (
               <p className="font-weight-bold mt-3 mb-0">
-                This course is not part of your company&apos;s curated course catalog.
+                <FormattedMessage
+                  id="enterprise.course.about.page.course.not.in.catalog"
+                  defaultMessage="This course is not part of your company's curated course catalog."
+                  description="Message for when a course is not part of the company's curated course catalog"
+                />
               </p>
             )}
           </Col>

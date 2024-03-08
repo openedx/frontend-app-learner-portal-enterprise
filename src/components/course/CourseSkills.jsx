@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import {
   Badge, OverlayTrigger, Popover,
 } from '@openedx/paragon';
-
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import {
-  SKILL_DESCRIPTION_PLACEHOLDER, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR,
+  SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR,
 } from './data/constants';
 import { shortenString } from './data/utils';
 
@@ -21,7 +21,13 @@ const CourseSkills = () => {
 
   return (
     <div className="mb-5">
-      <h5> Skills you&apos;ll gain</h5>
+      <h5>
+        <FormattedMessage
+          id="enterprise.course.about.skills.section.title"
+          defaultMessage="Skills you'll gain"
+          description="Title for the section that lists the skills that a learner will gain from the course."
+        />
+      </h5>
       <div>
         {skills.map((skill, index) => (
           <OverlayTrigger
@@ -36,7 +42,13 @@ const CourseSkills = () => {
                 >
                   {
                     skill.description ? shortenString(skill.description, SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR)
-                      : SKILL_DESCRIPTION_PLACEHOLDER
+                      : (
+                        <FormattedMessage
+                          id="enterprise.course.about.skills.section.skill.description.placeholder"
+                          defaultMessage="No description available."
+                          description="Placeholder text for the skill description when no description is available."
+                        />
+                      )
                   }
                 </Popover.Content>
               </Popover>

@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CoursePage from '../CoursePage';
@@ -200,15 +201,17 @@ const mockLocation = { search: '?course_run_key=test-course-run-key' };
 const mockParams = { courseKey: 'test-course-key' };
 
 const CoursePageWrapper = () => (
-  <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-        <MemoryRouter>
-          <CoursePage location={mockLocation} match={{ params: mockParams }} />
-        </MemoryRouter>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+          <MemoryRouter>
+            <CoursePage location={mockLocation} match={{ params: mockParams }} />
+          </MemoryRouter>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('CoursePage', () => {

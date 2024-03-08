@@ -4,6 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchPathways from '../SearchPathways';
@@ -92,17 +93,19 @@ const SearchPathwaysWithContext = ({
   initialSearchContext = defaultSearchContext,
   index,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <SearchContext.Provider value={initialSearchContext}>
-          <SkillsContext.Provider value={initialSkillsState}>
-            <SearchPathways index={index} />
-          </SkillsContext.Provider>
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+          <SearchContext.Provider value={initialSearchContext}>
+            <SkillsContext.Provider value={initialSkillsState}>
+              <SearchPathways index={index} />
+            </SkillsContext.Provider>
+          </SearchContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<SearchPathways />', () => {

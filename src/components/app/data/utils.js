@@ -94,20 +94,35 @@ export function determineEnterpriseCustomerUserForDisplay({
   activeEnterpriseCustomerUserRoleAssignments,
   enterpriseSlug,
   foundEnterpriseCustomerUserForCurrentSlug,
+  staffEnterpriseCustomer,
 }) {
   const activeEnterpriseCustomerUser = {
     enterpriseCustomer: activeEnterpriseCustomer,
     roleAssignments: activeEnterpriseCustomerUserRoleAssignments,
   };
+  // No enterprise slug in the URL, so return the active enterprise customer user.
   if (!enterpriseSlug) {
     return activeEnterpriseCustomerUser;
   }
+
+  // If the enterprise slug in the URL does not match the active enterprise
+  // customer user's slug and there is a linked enterprise customer user for
+  // the requested slug, return the linked enterprise customer user.
   if (enterpriseSlug !== activeEnterpriseCustomer?.slug && foundEnterpriseCustomerUserForCurrentSlug) {
     return {
       enterpriseCustomer: foundEnterpriseCustomerUserForCurrentSlug.enterpriseCustomer,
       roleAssignments: foundEnterpriseCustomerUserForCurrentSlug.roleAssignments,
     };
   }
+
+  if (staffEnterpriseCustomer) {
+    return {
+      enterpriseCustomer: staffEnterpriseCustomer,
+      roleAssignments: [],
+    };
+  }
+
+  // Otherwise, return no enterprise customer metadata.
   return activeEnterpriseCustomerUser;
 }
 
@@ -198,7 +213,7 @@ export function transformEnterpriseCustomer(enterpriseCustomer) {
   // If the learner portal is not enabled for the displayed enterprise customer, return null. This
   // results in the enterprise learner portal not being accessible for the user, showing a 404 page.
   if (!enterpriseCustomer.enableLearnerPortal) {
-    return null;
+    return undefined;
   }
 
   // Otherwise, learner portal is enabled, so transform the enterprise customer data.

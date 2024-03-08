@@ -5,6 +5,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import CourseRecommendationCard, { COURSE_REC_EVENT_NAME, SAME_PART_EVENT_NAME } from '../CourseRecommendationCard';
@@ -22,9 +23,11 @@ const initialAppState = {
 };
 
 const CourseRecommendationCardWithContext = (props) => (
-  <AppContext.Provider value={initialAppState}>
-    <CourseRecommendationCard {...props} />
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <CourseRecommendationCard {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
