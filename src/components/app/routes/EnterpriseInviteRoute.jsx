@@ -2,7 +2,6 @@ import { Button, Hyperlink } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform';
 
 import { ErrorPage } from '../../error-page';
-import { CTA_BUTTON_TEXT } from './data';
 
 /**
  * The UI associated with the enterprise invite route. It should only render
@@ -40,7 +39,7 @@ const EnterpriseInviteRoute = () => (
       variant="primary"
       size="sm"
     >
-      {CTA_BUTTON_TEXT}
+      Continue to edX.org
     </Button>
   </ErrorPage>
 );
