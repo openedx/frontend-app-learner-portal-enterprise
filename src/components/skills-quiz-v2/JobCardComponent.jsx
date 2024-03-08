@@ -5,6 +5,7 @@ import {
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { logError } from '@edx/frontend-platform/logging';
 import PropTypes from 'prop-types';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { SkillsContext } from '../skills-quiz/SkillsContextProvider';
 import { SET_KEY_VALUE } from '../skills-quiz/data/constants';
 import TopSkillsOverview from '../skills-quiz/TopSkillsOverview';
@@ -93,7 +94,13 @@ const JobCardComponent = ({
           >
             <div>
               <div className="lead">{job.name}</div>
-              <div className="x-small mt-3">Related skills</div>
+              <div className="x-small mt-3">
+                <FormattedMessage
+                  id="enterprise.skills.quiz.v2.job.card.related.skills.label"
+                  defaultMessage="Related skills"
+                  description="Related skills label for the job card on skills quiz v2 page"
+                />
+              </div>
               {job.skills.slice(0, 5).map((skill) => (
                 <div key={skill.name}>
                   <Chip>{skill.name}</Chip>
@@ -117,7 +124,11 @@ const JobCardComponent = ({
                 variant="outline-primary"
                 onClick={() => setShowMoreRecommendedCourses(true)}
               >
-                See more course recommendations
+                <FormattedMessage
+                  id="enterprise.skills.quiz.v2.see.more.recommendations.label"
+                  defaultMessage="See more course recommendations"
+                  description="Label prompting the user to see more course recommendations on the skills quiz v2 page."
+                />
               </Button>
             ) }
           </div>

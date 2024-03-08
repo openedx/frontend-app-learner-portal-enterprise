@@ -5,6 +5,7 @@ import {
   screen, render,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 
@@ -40,11 +41,13 @@ const CourseEnrollmentFailedAlertWrapper = ({
   initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
   ...rest
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-      <CourseEnrollmentFailedAlert {...rest} />
-    </CourseEnrollmentsContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
+        <CourseEnrollmentFailedAlert {...rest} />
+      </CourseEnrollmentsContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<CourseEnrollmentFailedAlert />', () => {

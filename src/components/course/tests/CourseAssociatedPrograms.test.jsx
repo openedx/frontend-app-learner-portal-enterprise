@@ -6,6 +6,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { initialAppState } from '../../../utils/tests';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
@@ -26,13 +27,15 @@ const CourseAssociatedProgramsWithCourseContext = ({
   initialState,
   subsidyRequestContextValue,
 }) => (
-  <AppContext.Provider value={INITIAL_APP_STATE}>
-    <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
-      <CourseContextProvider courseState={initialState}>
-        <CourseAssociatedPrograms />
-      </CourseContextProvider>
-    </SubsidyRequestsContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={INITIAL_APP_STATE}>
+      <SubsidyRequestsContext.Provider value={subsidyRequestContextValue}>
+        <CourseContextProvider courseState={initialState}>
+          <CourseAssociatedPrograms />
+        </CourseContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 CourseAssociatedProgramsWithCourseContext.propTypes = {

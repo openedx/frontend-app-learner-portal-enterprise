@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Skeleton } from '@openedx/paragon';
 import classNames from 'classnames';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import { CourseContext } from './CourseContextProvider';
 import { numberWithPrecision } from './data/utils';
@@ -10,11 +11,6 @@ import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUB
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 import { useIsCourseAssigned } from './data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
-
-export const INCLUDED_IN_SUBSCRIPTION_MESSAGE = 'Included in your subscription';
-export const ASSIGNED_COURSE_MESSAGE = 'This course is assigned to you. The price of this course is already covered by your organization.';
-export const FREE_WHEN_APPROVED_MESSAGE = 'Free to me\n(when approved)';
-export const COVERED_BY_ENTERPRISE_OFFER_MESSAGE = 'This course can be purchased with your organization\'s learner credit';
 
 const CourseSidebarPrice = () => {
   const { enterpriseConfig } = useContext(AppContext);
@@ -32,7 +28,7 @@ const CourseSidebarPrice = () => {
     redeemableLearnerCreditPolicies.learnerContentAssignments,
     course?.key,
   );
-
+  const intl = useIntl();
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
   if (!coursePrice) {
@@ -43,7 +39,13 @@ const CourseSidebarPrice = () => {
   const showOrigPrice = !enterpriseConfig.hideCourseOriginalPrice;
   const crossedOutOriginalPrice = (
     <del>
-      <span className="sr-only">Priced reduced from:</span>${originalPriceDisplay} {currency}
+      <span className="sr-only">
+        <FormattedMessage
+          id="enterprise.course.about.price.original"
+          defaultMessage="Priced reduced from:"
+          description="Message to indicate that the price has been reduced."
+        />
+      </span>${originalPriceDisplay} {currency}
     </del>
   );
 
@@ -56,7 +58,13 @@ const CourseSidebarPrice = () => {
             {crossedOutOriginalPrice}
           </div>
         )}
-        <span>{INCLUDED_IN_SUBSCRIPTION_MESSAGE}</span>
+        <span>
+          <FormattedMessage
+            id="enterprise.course.about.price.included.in.subscription"
+            defaultMessage="Included in your subscription"
+            description="Message to indicate that the course is included in the user's subscription."
+          />
+        </span>
       </>
     );
   }
@@ -73,7 +81,12 @@ const CourseSidebarPrice = () => {
     return (
       <span style={{ whiteSpace: 'pre-wrap' }} data-testid="browse-and-request-pricing">
         <s>${originalPriceDisplay} {currency}</s><br />
-        {FREE_WHEN_APPROVED_MESSAGE}
+        <FormattedMessage
+          id="enterprise.course.about.course.sidebar.price.free.when.approved"
+          defaultMessage="Free to me{br}(when approved)"
+          description="Message to indicate that the course is free when approved by the enterprise. The {br} is a line break."
+          values={{ br: <br /> }}
+        />
       </span>
     );
   }
@@ -90,11 +103,26 @@ const CourseSidebarPrice = () => {
   // Case 4: subsidy found
   const learnerCreditSubsidyTypes = [ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE];
   const shouldShowLearnerCreditMessage = learnerCreditSubsidyTypes.includes(userSubsidyApplicableToCourse?.subsidyType);
-  let discountedPriceMessage = `Sponsored by ${enterpriseConfig.name}`;
+  let discountedPriceMessage = intl.formatMessage(
+    {
+      id: 'enterprise.course.about.course.sidebar.price.covered.by.enterprise',
+      defaultMessage: 'Sponsored by {enterpriseName}',
+      description: 'Message to indicate that the course is sponsored by the enterprise.',
+    },
+    { enterpriseName: enterpriseConfig.name },
+  );
   if (shouldShowLearnerCreditMessage) {
-    discountedPriceMessage = COVERED_BY_ENTERPRISE_OFFER_MESSAGE;
+    discountedPriceMessage = intl.formatMessage({
+      id: 'enterprise.course.about.course.sidebar.price.covered.by.learner.credit',
+      defaultMessage: "This course can be purchased with your organization's learner credit",
+      description: 'Message to indicate that the course is covered by learner credit.',
+    });
     if (isCourseAssigned) {
-      discountedPriceMessage = ASSIGNED_COURSE_MESSAGE;
+      discountedPriceMessage = intl.formatMessage({
+        id: 'enterprise.course.about.course.sidebar.price.assigned.course',
+        defaultMessage: 'This course is assigned to you. The price of this course is already covered by your organization.',
+        description: 'Message to indicate that the course is assigned to the user.',
+      });
     }
   }
   const discountedPriceDisplay = `${numberWithPrecision(coursePrice.discounted)} ${currency}`;
@@ -106,7 +134,13 @@ const CourseSidebarPrice = () => {
         {showOrigPrice && <>{crossedOutOriginalPrice}{' '}</>}
         {coursePrice.discounted > 0 && (
           <>
-            <span className="sr-only">Discounted price:</span>${discountedPriceDisplay}
+            <span className="sr-only">
+              <FormattedMessage
+                id="enterprise.course.about.price.discounted"
+                defaultMessage="Discounted price:"
+                description="Message to indicate that the price has been discounted."
+              />
+            </span>${discountedPriceDisplay}
           </>
         )}
       </div>

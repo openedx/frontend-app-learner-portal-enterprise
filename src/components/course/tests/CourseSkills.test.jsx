@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
 
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -30,13 +31,15 @@ const CourseSkillsWithContext = ({
   courseState,
   initialSubsidyRequestContextValue,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
-      <CourseContextProvider courseState={courseState}>
-        <CourseSkills />
-      </CourseContextProvider>
-    </SubsidyRequestsContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestContextValue}>
+        <CourseContextProvider courseState={courseState}>
+          <CourseSkills />
+        </CourseContextProvider>
+      </SubsidyRequestsContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 CourseSkillsWithContext.propTypes = {

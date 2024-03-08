@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import {
@@ -49,17 +50,19 @@ describe('<SkillsQuizStepper />', () => {
 
   test('renders skills and jobs dropdown with a label', async () => {
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchData>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchData>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchData>
+                <SkillsContextProvider>
+                  <SkillsQuizStepper />
+                </SkillsContextProvider>
+              </SearchData>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
