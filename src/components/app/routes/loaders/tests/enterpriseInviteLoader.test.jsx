@@ -19,10 +19,15 @@ jest.mock('../../../data', () => ({
   extractEnterpriseId: jest.fn(),
   postLinkEnterpriseLearner: jest.fn(),
 }));
-
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   configure: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
+  configure: jest.fn(),
+  getLoggingService: jest.fn(),
+  logError: jest.fn(),
 }));
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
