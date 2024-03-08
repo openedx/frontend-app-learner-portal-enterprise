@@ -12,6 +12,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
+import { useEnterpriseCustomer } from '../hooks';
 
 export const ProgramType = ({ type }) => {
   let programTypeToDisplay = type;
@@ -39,7 +40,8 @@ export const ProgramType = ({ type }) => {
 
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   const navigate = useNavigate();
-  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { slug, uuid } = useEnterpriseCustomer();
   const intl = useIntl();
   const program = useMemo(() => {
     if (!hit) {

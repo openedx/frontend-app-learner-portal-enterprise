@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useContentHighlights } from './data';
 import ContentHighlightSet from './ContentHighlightSet';
-import { useEnterpriseCustomer } from "../../hooks";
+import { useEnterpriseCustomer } from '../../hooks';
 
 const ContentHighlights = ({ className }) => {
   const { uuid: enterpriseUUID } = useEnterpriseCustomer();
@@ -32,7 +32,7 @@ const ContentHighlights = ({ className }) => {
   if (contentHighlights.length === 0) {
     return null;
   }
-
+  console.log(contentHighlights)
   return (
     <Container size="lg" className={className}>
       <Stack gap={5}>
