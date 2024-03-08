@@ -24,10 +24,11 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
  * @param {*} inviteKeyUUID
  * @returns
  */
-export function postLinkEnterpriseLearner(inviteKeyUUID) {
+export async function postLinkEnterpriseLearner(inviteKeyUUID) {
   const config = getConfig();
   const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer-invite-key/${inviteKeyUUID}/link-user/`;
-  return getAuthenticatedHttpClient().post(url);
+  const response = await getAuthenticatedHttpClient().post(url);
+  return camelCaseObject(response.data);
 }
 
 /**

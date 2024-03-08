@@ -22,7 +22,7 @@ ErrorPageContent.propTypes = {
 };
 
 ErrorPageContent.defaultProps = {
-  className: null,
+  className: undefined,
 };
 
 export default ErrorPageContent;
