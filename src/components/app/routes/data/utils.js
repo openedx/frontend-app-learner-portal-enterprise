@@ -253,8 +253,8 @@ export async function ensureActiveEnterpriseCustomerUser({
   allLinkedEnterpriseCustomerUsers,
   requestUrl,
 }) {
-  // If the enterprise slug in the URL matches the active enterprise customer user's slug OR the
-  // slug returned by the staff metadata, return early.
+  // If the enterprise slug in the URL matches the active enterprise customer user's slug OR no
+  // active enterprise customer exists, return early.
   if (!activeEnterpriseCustomer || activeEnterpriseCustomer.slug === enterpriseSlug) {
     return null;
   }
