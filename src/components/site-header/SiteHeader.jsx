@@ -7,12 +7,10 @@ import { Container, MediaQuery } from '@openedx/paragon';
 import SiteHeaderLogos from './SiteHeaderLogos';
 import SiteHeaderNavMenu from './SiteHeaderNavMenu';
 import { Menu, MenuTrigger, MenuContent } from './menu';
-import { useEnterpriseLearner } from '../app/data';
 import AvatarDropdown from './AvatarDropdown';
 
 const SiteHeader = () => {
   const config = getConfig();
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
   const intl = useIntl();
 
   const renderDesktopHeader = () => (
@@ -60,12 +58,12 @@ const SiteHeader = () => {
               aria-label="Main"
               className="nav flex-column pin-left pin-right border-top shadow py-2"
             >
-              <SiteHeaderNavMenu enterpriseConfig={enterpriseCustomer} />
+              <SiteHeaderNavMenu />
             </MenuContent>
           </Menu>
         </div>
         <div className="w-100 d-flex justify-content-center">
-          <SiteHeaderLogos enterpriseConfig={enterpriseCustomer} />
+          <SiteHeaderLogos />
         </div>
         <div className="w-100 d-flex justify-content-end">
           <AvatarDropdown showLabel={false} />

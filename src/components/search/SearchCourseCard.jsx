@@ -10,12 +10,12 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { isShortCourse } from './utils';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
-  const { slug, uuid } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const navigate = useNavigate();
 
   const eventName = useMemo(
@@ -48,9 +48,9 @@ const SearchCourseCard = ({
         queryParams.set('queryId', course.queryId);
         queryParams.set('objectId', course.objectId);
       }
-      return `/${slug}/course/${course.key}?${queryParams.toString()}`;
+      return `/${enterpriseCustomer.slug}/course/${course.key}?${queryParams.toString()}`;
     },
-    [course, slug],
+    [course, enterpriseCustomer.slug],
   );
 
   const partnerDetails = useMemo(
@@ -76,7 +76,7 @@ const SearchCourseCard = ({
       return;
     }
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       eventName,
       {
         objectID: course.objectId,

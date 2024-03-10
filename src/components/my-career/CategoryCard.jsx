@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { Button, Card, useToggle } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
@@ -15,6 +14,7 @@ import { features } from '../../config';
 import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { SUBSIDY_TYPE } from '../../constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
@@ -48,7 +48,7 @@ const CategoryCard = ({ topCategory }) => {
   const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
 
   const config = getConfig();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const courseIndex = useMemo(
     () => {
       const client = algoliasearch(
@@ -191,7 +191,7 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      {(!enterpriseConfig.disableSearch && !featuredIsCourseSearchDisabled) && (
+      {(!enterpriseCustomer.disableSearch && !featuredIsCourseSearchDisabled) && (
         <Card.Section>
           {showSkills && subcategorySkills && (
             <div className="skill-details-recommended-courses">

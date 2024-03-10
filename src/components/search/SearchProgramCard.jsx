@@ -12,7 +12,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const ProgramType = ({ type }) => {
   let programTypeToDisplay = type;
@@ -41,7 +41,7 @@ export const ProgramType = ({ type }) => {
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
   const navigate = useNavigate();
   const { authenticatedUser: { userId } } = useContext(AppContext);
-  const { slug, uuid } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
   const program = useMemo(() => {
     if (!hit) {
@@ -57,9 +57,9 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       if (!programUuid) {
         return '#';
       }
-      return `/${slug}/program/${programUuid}`;
+      return `/${enterpriseCustomer.slug}/program/${programUuid}`;
     },
-    [programUuid, slug],
+    [programUuid, enterpriseCustomer.slug],
   );
 
   const partnerDetails = useMemo(
@@ -91,7 +91,7 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
 
   const handleCardClick = () => {
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.search.program.card.clicked',
       {
         userId,

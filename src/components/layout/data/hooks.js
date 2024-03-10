@@ -5,16 +5,16 @@ import { isDefinedAndNotNull, isDefined, getBrandColorsFromCSSVariables } from '
 
 const COLOR_LIGHTEN_DARKEN_MODIFIER = 0.2;
 
-export const useStylesForCustomBrandColors = (enterpriseConfig) => {
+export const useStylesForCustomBrandColors = (enterpriseCustomer) => {
   const enterpriseBrandColors = useMemo(
     () => {
-      if (!isDefinedAndNotNull(enterpriseConfig)) {
+      if (!isDefinedAndNotNull(enterpriseCustomer)) {
         return undefined;
       }
 
       const brandColors = getBrandColorsFromCSSVariables();
 
-      const { brandingConfiguration } = enterpriseConfig;
+      const { brandingConfiguration } = enterpriseCustomer;
       const primaryColor = Color(brandingConfiguration.primaryColor);
       const secondaryColor = Color(brandingConfiguration.secondaryColor);
       const tertiaryColor = Color(brandingConfiguration.tertiaryColor);
@@ -45,7 +45,7 @@ export const useStylesForCustomBrandColors = (enterpriseConfig) => {
         },
       };
     },
-    [enterpriseConfig],
+    [enterpriseCustomer],
   );
 
   if (!isDefined(enterpriseBrandColors)) {

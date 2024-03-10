@@ -86,18 +86,16 @@ const SubscriptionSummaryCard = ({
         )}
         <SidebarCard
           title={(
-            <div className="d-flex align-items-start justify-content-between">
+            <div className="d-flex align-items-center justify-content-between">
               <h3>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</h3>
-              <div>
-                <Badge
-                  variant={badgeVariantAndLabel.variant}
-                  className="ml-2"
-                  data-testid="subscription-status-badge"
-                >
-                  {badgeVariantAndLabel.label}
-                </Badge>
-                {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
-              </div>
+              <Badge
+                variant={badgeVariantAndLabel.variant}
+                className="ml-2"
+                data-testid="subscription-status-badge"
+              >
+                {badgeVariantAndLabel.label}
+              </Badge>
+              {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
             </div>
           )}
           cardClassNames={className}
@@ -119,17 +117,15 @@ const SubscriptionSummaryCard = ({
   return (
     <SidebarCard
       title={(
-        <div className="d-flex align-items-start justify-content-between">
+        <div className="d-flex align-items-center justify-content-between">
           <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
-          <div>
-            <Badge
-              variant={badgeVariantAndLabel.variant}
-              className="ml-2"
-              data-testid="subscription-status-badge"
-            >
-              {badgeVariantAndLabel.label}
-            </Badge>
-          </div>
+          <Badge
+            variant={badgeVariantAndLabel.variant}
+            className="ml-2"
+            data-testid="subscription-status-badge"
+          >
+            {badgeVariantAndLabel.label}
+          </Badge>
         </div>
       )}
       cardClassNames={className}

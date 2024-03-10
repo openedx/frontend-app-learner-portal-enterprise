@@ -15,7 +15,7 @@ import {
   PATHWAY_SKILL_QUIZ_EVENT_NAME,
 } from './constants';
 import PathwayModal from './PathwayModal';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -53,7 +53,7 @@ const SearchPathwayCard = ({
   isAcademyPathway,
   ...rest
 }) => {
-  const { uuid: enterpriseCustomerUUID, slug } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const navigate = useNavigate();
 
@@ -78,9 +78,9 @@ const SearchPathwayCard = ({
       if (!Object.keys(pathway).length) {
         return undefined;
       }
-      return `/${slug}/search/${pathwayUuid}`;
+      return `/${enterpriseCustomer.slug}/search/${pathwayUuid}`;
     },
-    [pathway, pathwayUuid, slug],
+    [pathway, pathwayUuid, enterpriseCustomer.slug],
   );
 
   const handleCardClick = () => {
@@ -88,7 +88,7 @@ const SearchPathwayCard = ({
       return;
     }
     sendEnterpriseTrackEvent(
-      enterpriseCustomerUUID,
+      enterpriseCustomer.uuid,
       eventName,
       {
         objectID: pathway.objectId,
@@ -107,13 +107,12 @@ const SearchPathwayCard = ({
 
   return (
     <>
-      {isAcademyPathway
-      && (
+      {isAcademyPathway && (
         <PathwayModal
           learnerPathwayUuid={pathwayUuid}
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
-            // navigate(`/${enterpriseConfig.slug}/search`);
+            navigate(`/${enterpriseCustomer.slug}/search`);
             onClose();
           }}
         />

@@ -113,6 +113,7 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
 export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {}) {
   const queryParams = new URLSearchParams({
     enterprise_id: enterpriseId,
+    is_active: true,
     ...options,
   });
   const url = `${getConfig().LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${queryParams.toString()}`;

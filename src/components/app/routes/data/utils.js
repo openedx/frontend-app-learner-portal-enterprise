@@ -52,6 +52,8 @@ export async function ensureEnterpriseAppData({
         allLinkedEnterpriseCustomerUsers,
         subscriptionsData,
         requestUrl,
+        queryClient,
+        subscriptionsQuery,
       });
       if (activatedOrAutoAppliedLicense) {
         const { licensesByStatus } = subscriptionsData;
@@ -67,12 +69,14 @@ export async function ensureEnterpriseAppData({
               : [...licenses, activatedOrAutoAppliedLicense];
           }
         });
-        // Optimistically update the query cache with the auto-activated subscription license.
+        // Optimistically update the query cache with the auto-activated or auto-applied subscription license.
         queryClient.setQueryData(subscriptionsQuery.queryKey, {
-          ...subscriptionsData,
+          ...queryClient.getQueryData(subscriptionsQuery.queryKey),
           licensesByStatus: updatedLicensesByStatus,
           subscriptionLicense: activatedOrAutoAppliedLicense,
           subscriptionLicenses: subscriptionsData.subscriptionLicenses.map((license) => {
+            // Ensures an auto-activated license is updated in the query cache to change
+            // its status from "assigned" to "activated".
             if (license.uuid === activatedOrAutoAppliedLicense.uuid) {
               return activatedOrAutoAppliedLicense;
             }

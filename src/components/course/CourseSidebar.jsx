@@ -6,7 +6,6 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
 } from '@openedx/paragon/icons';
-import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
@@ -21,6 +20,7 @@ import {
   useCoursePacingType,
 } from './data/hooks';
 import { processCourseSubjects } from './data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CourseSidebar = () => {
   const { state } = useContext(CourseContext);
@@ -30,7 +30,7 @@ const CourseSidebar = () => {
   const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);
   const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);
   const [pacingType, pacingTypeContent] = useCoursePacingType(activeCourseRun);
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
   return (
     <>
@@ -83,10 +83,10 @@ const CourseSidebar = () => {
             content={partners.map(partner => (
               <span key={partner.key} className="d-block">
                 <Link
-                  to={`/${enterpriseConfig.slug}/search?partners.name=${encodeURIComponent(partner.name)}`}
+                  to={`/${enterpriseCustomer.slug}/search?partners.name=${encodeURIComponent(partner.name)}`}
                   onClick={() => {
                     sendEnterpriseTrackEvent(
-                      enterpriseConfig.uuid,
+                      enterpriseCustomer.uuid,
                       'edx.ui.enterprise.learner_portal.course.sidebar.partner.clicked',
                       {
                         partner_name: partner.key,
@@ -112,10 +112,10 @@ const CourseSidebar = () => {
             }
             content={(
               <Link
-                to={`/${enterpriseConfig.slug}/search?subjects=${encodeURIComponent(primarySubject.name)}`}
+                to={`/${enterpriseCustomer.slug}/search?subjects=${encodeURIComponent(primarySubject.name)}`}
                 onClick={() => {
                   sendEnterpriseTrackEvent(
-                    enterpriseConfig.uuid,
+                    enterpriseCustomer.uuid,
                     'edx.ui.enterprise.learner_portal.course.sidebar.subject.clicked',
                     {
                       subject: primarySubject.name,
@@ -177,7 +177,7 @@ const CourseSidebar = () => {
           />
         )}
       </ul>
-      {enterpriseConfig.enablePrograms && course?.programs.length > 0 && (
+      {enterpriseCustomer.enablePrograms && course?.programs.length > 0 && (
         <CourseAssociatedPrograms />
       )}
       {course.prerequisitesRaw && (

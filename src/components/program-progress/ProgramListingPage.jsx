@@ -1,11 +1,8 @@
-import React, {
-  useContext,
-} from 'react';
 import {
   Button,
   CardGrid,
 } from '@openedx/paragon';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { Search } from '@openedx/paragon/icons';
@@ -16,9 +13,10 @@ import { LoadingSpinner } from '../loading-spinner';
 import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, programsFetchError }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   if (programsFetchError) {
     return <ErrorPage message={programsFetchError.message} />;
   }
@@ -47,7 +45,7 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, progra
             />
           </h2>
           {(canOnlyViewHighlightSets === false) && (
-            <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
+            <Link to={`/${enterpriseCustomer.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
               <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">
                 <FormattedMessage
                   id="enterprise.dashboard.programs.explore.programs.button.text"

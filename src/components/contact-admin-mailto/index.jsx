@@ -2,12 +2,12 @@ import React from 'react';
 import { MailtoLink } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { getContactEmail } from '../../utils/common';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ContactAdminMailto = ({
   children,
 }) => {
-  const entepriseCustomer = useEnterpriseCustomer();
+  const { data: entepriseCustomer } = useEnterpriseCustomer();
   const email = getContactEmail(entepriseCustomer);
   if (email) {
     return (

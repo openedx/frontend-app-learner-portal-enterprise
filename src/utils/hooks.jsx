@@ -1,22 +1,21 @@
 import React, { useCallback, useMemo } from 'react';
 import algoliasearch from 'algoliasearch';
 
-export const useRenderContactHelpText = (enterpriseConfig) => {
+export const useRenderContactHelpText = (enterpriseCustomer) => {
   const renderContactHelpText = useCallback(
     (LinkComponent = 'a') => {
-      const { contactEmail } = enterpriseConfig;
       const message = 'reach out to your organization\'s edX administrator';
 
-      if (!contactEmail) {
+      if (!enterpriseCustomer.contactEmail) {
         return message;
       }
       return (
-        <LinkComponent href={`mailto:${contactEmail}`}>
+        <LinkComponent href={`mailto:${enterpriseCustomer.contactEmail}`}>
           {message}
         </LinkComponent>
       );
     },
-    [enterpriseConfig],
+    [enterpriseCustomer.contactEmail],
   );
 
   return renderContactHelpText;

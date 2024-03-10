@@ -6,12 +6,12 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { CourseContext } from './CourseContextProvider';
 import { getProgramIcon, formatProgramType } from './data/utils';
 import { features } from '../../config';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CourseAssociatedPrograms = () => {
   const { state } = useContext(CourseContext);
   const { course } = state;
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return (
     <div className="associated-programs mb-5">
       <h3>

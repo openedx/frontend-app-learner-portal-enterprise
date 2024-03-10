@@ -1,7 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import BaseCourseCard from './BaseCourseCard';
 import ContinueLearningButton from './ContinueLearningButton';
@@ -9,7 +8,7 @@ import { MoveToInProgressModal } from './move-to-in-progress-modal';
 
 import { isCourseEnded } from '../../../../../utils/common';
 import { COURSE_STATUSES } from '../data/constants';
-import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
+import { useEnterpriseCustomer } from '../../../../app/data';
 
 const SavedForLaterCourseCard = (props) => {
   const {
@@ -23,19 +22,19 @@ const SavedForLaterCourseCard = (props) => {
     mode,
     resumeCourseRunUrl,
   } = props;
-  const {
-    updateCourseEnrollmentStatus,
-    setShowMoveToInProgressCourseSuccess,
-  } = useContext(CourseEnrollmentsContext);
+  // const {
+  //   updateCourseEnrollmentStatus,
+  //   setShowMoveToInProgressCourseSuccess,
+  // } = useContext(CourseEnrollmentsContext);
 
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleMoveToInProgressOnClose = () => {
     setIsModalOpen(false);
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.modal.closed',
       {
         course_run_id: courseRunId,
@@ -45,7 +44,7 @@ const SavedForLaterCourseCard = (props) => {
 
   const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.saved',
       {
         course_run_id: courseRunId,
@@ -53,13 +52,13 @@ const SavedForLaterCourseCard = (props) => {
     );
     setIsModalOpen(false);
     resetModalState();
-    updateCourseEnrollmentStatus({
-      courseRunId: response.courseRunId,
-      originalStatus: courseRunStatus,
-      newStatus: response.courseRunStatus,
-      savedForLater: response.savedForLater,
-    });
-    setShowMoveToInProgressCourseSuccess(true);
+    // updateCourseEnrollmentStatus({
+    //   courseRunId: response.courseRunId,
+    //   originalStatus: courseRunStatus,
+    //   newStatus: response.courseRunStatus,
+    //   savedForLater: response.savedForLater,
+    // });
+    // setShowMoveToInProgressCourseSuccess(true);
   };
 
   const getDropdownMenuItems = () => {
@@ -76,7 +75,7 @@ const SavedForLaterCourseCard = (props) => {
         onClick: () => {
           setIsModalOpen(true);
           sendEnterpriseTrackEvent(
-            enterpriseConfig.uuid,
+            enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.dashboard.course.move_to_in_progress.modal.opened',
             {
               course_run_id: courseRunId,

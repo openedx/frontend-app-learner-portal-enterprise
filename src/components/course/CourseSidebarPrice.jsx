@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Skeleton } from '@openedx/paragon';
 import classNames from 'classnames';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import { CourseContext } from './CourseContextProvider';
@@ -11,9 +10,10 @@ import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUB
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 import { useIsCourseAssigned } from './data/hooks';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CourseSidebarPrice = () => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     userSubsidyApplicableToCourse,
     coursePrice,
@@ -36,7 +36,7 @@ const CourseSidebarPrice = () => {
   }
 
   const originalPriceDisplay = numberWithPrecision(coursePrice.list);
-  const showOrigPrice = !enterpriseConfig.hideCourseOriginalPrice;
+  const showOrigPrice = !enterpriseCustomer.hideCourseOriginalPrice;
   const crossedOutOriginalPrice = (
     <del>
       <span className="sr-only">
@@ -109,7 +109,7 @@ const CourseSidebarPrice = () => {
       defaultMessage: 'Sponsored by {enterpriseName}',
       description: 'Message to indicate that the course is sponsored by the enterprise.',
     },
-    { enterpriseName: enterpriseConfig.name },
+    { enterpriseName: enterpriseCustomer.name },
   );
   if (shouldShowLearnerCreditMessage) {
     discountedPriceMessage = intl.formatMessage({

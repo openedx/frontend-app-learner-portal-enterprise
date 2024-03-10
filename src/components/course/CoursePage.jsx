@@ -7,7 +7,7 @@ import {
 import { Helmet } from 'react-helmet';
 import { Container } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { ErrorPage } from '@edx/frontend-platform/react';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 
 import CourseService from './data/service';
@@ -38,15 +38,16 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { useSearchCatalogs } from '../search/data/hooks';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 import CoursePageRoutes from './routes/CoursePageRoutes';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CoursePage = () => {
   const { enterpriseSlug, courseKey } = useParams();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     uuid: enterpriseUUID,
     adminUsers: enterpriseAdminUsers,
     contactEmail,
-  } = enterpriseConfig;
+  } = enterpriseCustomer;
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -253,7 +254,7 @@ const CoursePage = () => {
     return <NotFoundPage />;
   }
 
-  const PAGE_TITLE = `${courseState.course.title} - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `${courseState.course.title} - ${enterpriseCustomer.name}`;
 
   return (
     <>

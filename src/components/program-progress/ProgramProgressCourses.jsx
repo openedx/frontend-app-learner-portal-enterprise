@@ -4,7 +4,6 @@ import {
   Form, Col, Row,
 } from '@openedx/paragon';
 import { CheckCircle } from '@openedx/paragon/icons';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
@@ -18,9 +17,10 @@ import {
 } from './data/utils';
 import { linkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramProgressCourses = ({ courseData }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     subscriptionPlan,
     subscriptionLicense,
@@ -42,7 +42,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const intl = useIntl();
 
-  const courseAboutPageURL = (course) => linkToCourse(course, enterpriseConfig.slug);
+  const courseAboutPageURL = (course) => linkToCourse(course, enterpriseCustomer.slug);
   const courseSponsoredByEnterprise = intl.formatMessage(
     {
       id: 'enterprise.dashboard.programs.about.page.course.sponsored',
@@ -50,7 +50,7 @@ const ProgramProgressCourses = ({ courseData }) => {
       description: 'Label for course sponsored by enterprise on programs about page',
     },
     {
-      enterpriseName: enterpriseConfig.name,
+      enterpriseName: enterpriseCustomer.name,
     },
   );
 

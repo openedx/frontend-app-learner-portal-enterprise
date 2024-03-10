@@ -4,11 +4,11 @@ import edXLogo from '@edx/brand/logo.svg';
 import { Stack } from '@openedx/paragon';
 
 import { COURSE_TYPE_PARTNER_LOGOS } from '../course/data/constants';
-import { useEnterpriseLearner } from '../app/data';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SiteHeaderLogos = () => {
   const { courseType } = useParams();
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const courseTypePartnerLogo = courseType && COURSE_TYPE_PARTNER_LOGOS[courseType];
 
   let mainLogo = (

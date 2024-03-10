@@ -6,11 +6,11 @@ import { SET_KEY_VALUE } from './data/constants';
 import { formatStringAsNumber } from '../../utils/common';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 import { NOT_AVAILABLE } from './constants';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
-  const { hideLaborMarketData } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     interestedJobs, selectedJob, currentJobRole, goal,
   } = state;
@@ -51,7 +51,7 @@ const SelectJobCard = () => {
           >
             <div>
               <h4>{job.name}</h4>
-              {!hideLaborMarketData && (
+              {!enterpriseCustomer.hideLaborMarketData && (
                 <div className="text-gray-700">
                   <p className="m-0 medium-font">
                     <span style={{ fontWeight: 700 }}>

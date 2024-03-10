@@ -13,7 +13,7 @@ import { useAcademyMetadata } from './data/hooks';
 import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
 import AcademyContentCard from './AcademyContentCard';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const AcademyDetailPage = () => {
   const config = getConfig();

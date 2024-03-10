@@ -20,6 +20,7 @@ import { useStatefulEnroll } from '../stateful-enroll/data';
 import { LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { CourseContext } from '../course/CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../enterprise-user-subsidy/data/constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 const UserEnrollmentForm = ({
   className,
@@ -32,9 +33,9 @@ const UserEnrollmentForm = ({
   const queryClient = useQueryClient();
   const intl = useIntl();
   const {
-    enterpriseConfig: { uuid: enterpriseId, enableDataSharingConsent },
     authenticatedUser: { userId, email: userEmail },
   } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     state: {
       userEnrollments,
@@ -53,7 +54,7 @@ const UserEnrollmentForm = ({
     }
     setEnrollButtonState('complete');
     await sendEnterpriseTrackEventWithDelay(
-      enterpriseId,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.executive_education.checkout_form.submitted',
     );
     await queryClient.invalidateQueries({
@@ -121,7 +122,7 @@ const UserEnrollmentForm = ({
         description: 'Error message for when student terms and conditions are not agreed to',
       });
     }
-    if (enableDataSharingConsent && !values.dataSharingConsent) {
+    if (enterpriseCustomer.enableDataSharingConsent && !values.dataSharingConsent) {
       errors.dataSharingConsent = intl.formatMessage({
         id: 'executive.education.external.course.enrollment.page.data.sharing.consent.required',
         defaultMessage: "Please agree to GetSmarter's data sharing consent",
@@ -132,7 +133,7 @@ const UserEnrollmentForm = ({
     // Only track validation errors during the initial submit
     if (!isFormSubmitted && errors) {
       sendEnterpriseTrackEvent(
-        enterpriseId,
+        enterpriseCustomer.uuid,
         'edx.ui.enterprise.learner_portal.executive_education.checkout_form.validation.failed',
         { errors },
       );
@@ -148,7 +149,7 @@ const UserEnrollmentForm = ({
       geagEmail: userEmail,
       geagDateOfBirth: values.dateOfBirth,
       geagTermsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
-      geagDataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+      geagDataShareConsent: enterpriseCustomer.enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
     });
     try {
       await redeem({ metadata: userDetails });
@@ -168,13 +169,13 @@ const UserEnrollmentForm = ({
           dateOfBirth: values.dateOfBirth,
         },
         termsAcceptedAt: toISOStringWithoutMilliseconds(dayjs().toISOString()),
-        dataShareConsent: enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
+        dataShareConsent: enterpriseCustomer.enableDataSharingConsent ? !!values.dataSharingConsent : undefined,
       });
       await handleFormSubmissionSuccess();
     } catch (error) {
       const httpErrorStatus = error?.customAttributes?.httpErrorStatus;
       if (httpErrorStatus === 422 && error?.message?.includes('User has already purchased the product.')) {
-        logInfo(`${enterpriseId} user ${userId} has already purchased course ${productSKU}.`);
+        logInfo(`${enterpriseCustomer.uuid} user ${userId} has already purchased course ${productSKU}.`);
         await handleFormSubmissionSuccess();
       } else {
         setExternalCourseFormSubmissionError(error);
@@ -328,7 +329,7 @@ const UserEnrollmentForm = ({
                   </Col>
                 </Row>
 
-                {enableDataSharingConsent && (
+                {enterpriseCustomer.enableDataSharingConsent && (
                   <Row>
                     <Col>
                       <Form.Group>
@@ -392,7 +393,7 @@ const UserEnrollmentForm = ({
                                   target="_blank"
                                   onClick={() => {
                                     sendEnterpriseTrackEvent(
-                                      enterpriseId,
+                                      enterpriseCustomer.uuid,
                                       'edx.ui.enterprise.learner_portal.executive_education.checkout_form.student_terms_conditions.clicked',
                                     );
                                   }}

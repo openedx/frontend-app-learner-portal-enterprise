@@ -57,7 +57,7 @@ const LearnerCreditSummaryCard = ({
     </p>
 
     {expirationDate && (
-      <p data-testid="learner-credit-summary-end-date-text">
+      <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
         <FormattedMessage
           id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
           defaultMessage="Available until {subsidyExpiryDate}"

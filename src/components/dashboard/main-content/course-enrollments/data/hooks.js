@@ -9,13 +9,6 @@ import _camelCase from 'lodash.camelcase';
 import _cloneDeep from 'lodash.clonedeep';
 
 import * as service from './service';
-import {
-  getTransformedAllocatedAssignments,
-  groupCourseEnrollmentsByStatus,
-  sortAssignmentsByAssignmentStatus,
-  sortedEnrollmentsByEnrollmentDate,
-  transformCourseEnrollment,
-} from './utils';
 import { COURSE_STATUSES } from './constants';
 import CourseService from '../../../../course/data/service';
 import {
@@ -25,12 +18,16 @@ import {
   findHighestLevelSeatSku,
   getSubsidyToApplyForCourse,
 } from '../../../../course/data/utils';
-import {
-  getHasUnacknowledgedCanceledAssignments,
-  getHasUnacknowledgedExpiredAssignments,
-} from '../../../data/utils';
+import { getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { enterpriseUserSubsidyQueryKeys } from '../../../../enterprise-user-subsidy/data/constants';
+import {
+  groupCourseEnrollmentsByStatus,
+  queryRedeemablePolicies,
+  sortAssignmentsByAssignmentStatus,
+  sortedEnrollmentsByEnrollmentDate,
+  transformCourseEnrollment,
+  useEnterpriseCustomer,
+} from '../../../../app/data';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,
@@ -225,12 +222,15 @@ export function useAcknowledgeContentAssignments({
       const responses = await Promise.all(promisesToAcknowledge);
       return responses.map(response => camelCaseObject(response.data));
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Invalidate the query for the redeemable policies in order to trigger refetch of `credits_available` API,
       // returning the updated assignments list per policy, excluding now-acknowledged assignments.
-      queryClient.invalidateQueries({
-        queryKey: enterpriseUserSubsidyQueryKeys.redeemablePolicies(enterpriseId, userId),
-      });
+      await queryClient.invalidateQueries(
+        queryRedeemablePolicies({
+          enterpriseUuid: enterpriseId,
+          lmsUserId: userId,
+        }).queryKey,
+      );
     },
   });
 }
@@ -250,25 +250,20 @@ export function useAcknowledgeContentAssignments({
  * - showExpiredAssignmentsAlert: Boolean indicating whether to display the expired assignments alert.
  * - handleAcknowledgeAssignments: Function to handle dismissal of canceled/expired assignments from the dashboard.
  */
-export function useContentAssignments(redeemableLearnerCreditPolicies) {
-  const {
-    enterpriseConfig: {
-      uuid: enterpriseId,
-      slug: enterpriseSlug,
-    },
-    authenticatedUser: { userId },
-  } = useContext(AppContext);
-
+export function useContentAssignments(learnerContentAssignments) {
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [assignments, setAssignments] = useState([]);
   const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
+  const [isAcknowledgingAssignments, setIsAcknowledgingAssignments] = useState(false);
 
   const {
-    mutate,
+    mutateAsync,
     isLoading: isLoadingMutation,
-  } = useAcknowledgeContentAssignments({ enterpriseId, userId });
+  } = useAcknowledgeContentAssignments({ enterpriseId: enterpriseCustomer.uuid, userId });
 
-  const handleAcknowledgeAssignments = useCallback(({ assignmentState }) => {
+  const handleAcknowledgeAssignments = useCallback(async ({ assignmentState }) => {
     const assignmentStateMap = {
       [ASSIGNMENT_TYPES.CANCELED]: 'isCanceledAssignment',
       [ASSIGNMENT_TYPES.EXPIRED]: 'isExpiredAssignment',
@@ -286,18 +281,15 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
       logError(`Invalid assignment state (${assignmentState}) passed to handleAcknowledgeAssignments.`);
       return;
     }
-
     // Otherwise, perform the mutation to acknowledge assignments.
     const assignmentsByAssignmentConfiguration = {};
     assignments.forEach((assignment) => {
       const { assignmentConfiguration } = assignment;
-      const isRequestedStateActive = !!assignment[assignmentStateProperty];
-
       // Check whether assignment is in requested state. If not, skip.
+      const isRequestedStateActive = !!assignment[assignmentStateProperty];
       if (!isRequestedStateActive) {
         return;
       }
-
       // Initialize assignment list for AssignmentConfiguration, if necessary.
       if (!assignmentsByAssignmentConfiguration[assignmentConfiguration]) {
         assignmentsByAssignmentConfiguration[assignmentConfiguration] = [];
@@ -307,8 +299,10 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
     });
 
     // POST to `acknowledge-assignments` API for each AssignmentConfiguration.
-    mutate({ assignmentsByAssignmentConfiguration });
-  }, [mutate, assignments, isLoadingMutation]);
+    setIsAcknowledgingAssignments(true);
+    await mutateAsync({ assignmentsByAssignmentConfiguration });
+    setIsAcknowledgingAssignments(false);
+  }, [mutateAsync, assignments, isLoadingMutation]);
 
   /**
    * Parses the learner content assignments from the redeemableLearnerCreditPolicies
@@ -316,38 +310,31 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
    * acknowledged (dismissed) by the learner.
    */
   useEffect(() => {
-    if (!redeemableLearnerCreditPolicies) {
-      // No policies available (yet). Return early.
-      return;
-    }
     const {
       assignmentsForDisplay,
       canceledAssignments,
       expiredAssignments,
-    } = redeemableLearnerCreditPolicies.learnerContentAssignments;
+    } = learnerContentAssignments;
 
     // Sort and transform the list of assignments for display.
     const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
-    const transformedAssignmentsForDisplay = getTransformedAllocatedAssignments(
-      sortedAssignmentsForDisplay,
-      enterpriseSlug,
-    );
-    setAssignments(transformedAssignmentsForDisplay);
+    setAssignments(sortedAssignmentsForDisplay);
 
     // Determine whether there are unacknowledged canceled assignments. If so, display alert.
-    const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedCanceledAssignments(canceledAssignments);
+    const hasUnacknowledgedCanceledAssignments = getHasUnacknowledgedAssignments(canceledAssignments);
     setShowCanceledAssignmentsAlert(hasUnacknowledgedCanceledAssignments);
 
     // Determine whether there are unacknowledged expired assignments. If so, display alert.
-    const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedExpiredAssignments(expiredAssignments);
+    const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedAssignments(expiredAssignments);
     setShowExpiredAssignmentsAlert(hasUnacknowledgedExpiredAssignments);
-  }, [redeemableLearnerCreditPolicies, enterpriseSlug]);
+  }, [learnerContentAssignments, enterpriseCustomer.slug]);
 
   return {
     assignments,
     showCanceledAssignmentsAlert,
     showExpiredAssignmentsAlert,
     handleAcknowledgeAssignments,
+    isAcknowledgingAssignments,
   };
 }
 
@@ -364,29 +351,14 @@ export function useContentAssignments(redeemableLearnerCreditPolicies) {
  * - completedCourseEnrollments: Array of completed course enrollments.
  * - savedForLaterCourseEnrollments: Array of saved for later course enrollments.
  */
-export function useCourseEnrollmentsBySection({ assignments, courseEnrollmentsByStatus }) {
+export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
   const currentCourseEnrollments = useMemo(
-    () => {
-      const courseEnrollmentsByStatusCopy = { ...courseEnrollmentsByStatus };
-      Object.keys(courseEnrollmentsByStatusCopy).forEach((status) => {
-        courseEnrollmentsByStatusCopy[status] = courseEnrollmentsByStatusCopy[status].map((course) => {
-          const isAssigned = assignments?.some(assignment => (assignment?.state === ASSIGNMENT_TYPES.ACCEPTED
-            && course.courseRunId.includes(assignment?.contentKey)));
-          if (isAssigned) {
-            return { ...course, isCourseAssigned: true };
-          }
-          return course;
-        });
-      });
-      return sortedEnrollmentsByEnrollmentDate(
-        [
-          ...courseEnrollmentsByStatusCopy.inProgress,
-          ...courseEnrollmentsByStatusCopy.upcoming,
-          ...courseEnrollmentsByStatusCopy.requested,
-        ],
-      );
-    },
-    [assignments, courseEnrollmentsByStatus],
+    () => sortedEnrollmentsByEnrollmentDate([
+      ...courseEnrollmentsByStatus.inProgress,
+      ...courseEnrollmentsByStatus.upcoming,
+      ...courseEnrollmentsByStatus.requested,
+    ]),
+    [courseEnrollmentsByStatus],
   );
 
   const completedCourseEnrollments = useMemo(
@@ -399,7 +371,14 @@ export function useCourseEnrollmentsBySection({ assignments, courseEnrollmentsBy
     [courseEnrollmentsByStatus.savedForLater],
   );
 
-  const hasCourseEnrollments = Object.values(courseEnrollmentsByStatus).flat().length > 0;
+  const hasCourseEnrollments = Object.entries(courseEnrollmentsByStatus)
+    .map(([enrollmentStatus, enrollmentsForStatus]) => {
+      if (enrollmentStatus === COURSE_STATUSES.assigned) {
+        return enrollmentsForStatus.assignmentsForDisplay;
+      }
+      return enrollmentsForStatus;
+    })
+    .flat().length > 0;
 
   return {
     hasCourseEnrollments,

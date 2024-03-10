@@ -3,12 +3,12 @@ import {
   Button, Container, useToggle,
 } from '@openedx/paragon';
 
-import { useEnterpriseCustomerUserSubsidies, useEnterpriseLearner } from '../data';
+import { useEnterpriseCustomerUserSubsidies, useEnterpriseCustomer } from '../data';
 import { SearchPage } from '../../search';
 
 const SearchRoute = () => {
   const { data: enterpriseCustomerUserSubsidies } = useEnterpriseCustomerUserSubsidies();
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [isOpen, open, close] = useToggle();
 
   return (

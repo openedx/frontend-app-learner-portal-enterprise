@@ -13,12 +13,14 @@ import {
 } from './data/hooks';
 import { useEnterpriseOffers } from './enterprise-offers/data/hooks';
 import { LOADING_SCREEN_READER_TEXT } from './data/constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const UserSubsidyContext = createContext();
 
 const UserSubsidy = ({ children }) => {
-  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
+  const { authenticatedUser } = useContext(AppContext);
   const { userId } = authenticatedUser;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   // Subscriptions
   const {
@@ -27,15 +29,15 @@ const UserSubsidy = ({ children }) => {
     subscriptionLicense,
     isLoading: isLoadingSubscriptions,
     showExpirationNotifications,
-  } = useSubscriptions({ enterpriseConfig, authenticatedUser });
+  } = useSubscriptions({ enterpriseCustomer, authenticatedUser });
   // Subsidy Access Policies
   const {
     data: redeemableLearnerCreditPolicies,
     isLoading: isLoadingRedeemablePolicies,
-  } = useRedeemableLearnerCreditPolicies(enterpriseConfig.uuid, userId);
+  } = useRedeemableLearnerCreditPolicies(enterpriseCustomer.uuid, userId);
 
   // Coupon Codes
-  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseConfig.uuid);
+  const [couponCodes, isLoadingCouponCodes] = useCouponCodes(enterpriseCustomer.uuid);
 
   // Enterprise Offers
   const {
@@ -47,8 +49,8 @@ const UserSubsidy = ({ children }) => {
     hasNoEnterpriseOffersBalance,
     isLoading: isLoadingEnterpriseOffers,
   } = useEnterpriseOffers({
-    enterpriseId: enterpriseConfig.uuid,
-    enableLearnerPortalOffers: enterpriseConfig.enableLearnerPortalOffers,
+    enterpriseId: enterpriseCustomer.uuid,
+    enableLearnerPortalOffers: enterpriseCustomer.enableLearnerPortalOffers,
     customerAgreementConfig,
   });
 

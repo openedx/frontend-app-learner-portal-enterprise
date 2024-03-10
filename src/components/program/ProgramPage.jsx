@@ -1,10 +1,10 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
 } from '@openedx/paragon';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import { ErrorPage } from '@edx/frontend-platform/react';
 
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
@@ -20,12 +20,13 @@ import ProgramCTA from './ProgramCTA';
 import NotFoundPage from '../NotFoundPage';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from './data/constants';
 import ProgramDataBar from './ProgramDataBar';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramPage = () => {
   const { programUuid } = useParams();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
-  const [programData, fetchError] = useAllProgramData({ enterpriseUuid: enterpriseConfig.uuid, programUuid });
+  const [programData, fetchError] = useAllProgramData({ enterpriseUuid: enterpriseCustomer.uuid, programUuid });
 
   const initialState = useMemo(
     () => {
@@ -63,7 +64,7 @@ const ProgramPage = () => {
       />
     );
   }
-  const PAGE_TITLE = `${initialState.program.title} - ${enterpriseConfig.name}`;
+  const PAGE_TITLE = `${initialState.program.title} - ${enterpriseCustomer.name}`;
 
   return (
     <>

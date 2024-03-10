@@ -10,10 +10,10 @@ import { camelCaseObject } from '@edx/frontend-platform/utils';
 import SearchCourseCard from '../search/SearchCourseCard';
 
 import { useDefaultSearchFilters } from '../search/data/hooks';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills }) => {
-  const { slug } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const navigate = useNavigate();
 
   const { filters } = useDefaultSearchFilters();
@@ -87,7 +87,7 @@ const SkillsRecommendationCourses = ({ index, subCategoryName, subCategorySkills
         onClick={() => {
           if (subCategorySkills.length > 0) {
             navigate(
-              `/${slug}/search`,
+              `/${enterpriseCustomer.slug}/search`,
               {
                 search: `showAll=1&content_type=course&skill_names=${subCategorySkills.join('&skill_names=')}`,
               },

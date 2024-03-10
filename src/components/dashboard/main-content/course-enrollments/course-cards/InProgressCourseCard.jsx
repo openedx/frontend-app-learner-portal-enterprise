@@ -10,9 +10,9 @@ import ContinueLearningButton from './ContinueLearningButton';
 
 import Notification from './Notification';
 
-import { CourseEnrollmentsContext } from '../CourseEnrollmentsContextProvider';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import UpgradeCourseButton from './UpgradeCourseButton';
+import { useEnterpriseCustomer } from '../../../../app/data';
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -34,12 +34,13 @@ export const InProgressCourseCard = ({
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
 
-  const {
-    updateCourseEnrollmentStatus,
-    setShowMarkCourseCompleteSuccess,
-  } = useContext(CourseEnrollmentsContext);
+  // const {
+  //   updateCourseEnrollmentStatus,
+  //   setShowMarkCourseCompleteSuccess,
+  // } = useContext(CourseEnrollmentsContext);
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
-  const { courseCards, enterpriseConfig } = useContext(AppContext);
+  const { courseCards } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const renderButtons = () => (
     <>
@@ -76,7 +77,7 @@ export const InProgressCourseCard = ({
         onClick: () => {
           setIsMarkCompleteModalOpen(true);
           sendEnterpriseTrackEvent(
-            enterpriseConfig.uuid,
+            enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.opened',
             {
               course_run_id: courseRunId,
@@ -97,7 +98,7 @@ export const InProgressCourseCard = ({
   const handleMarkCompleteModalOnClose = () => {
     setIsMarkCompleteModalOpen(false);
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.modal.closed',
       {
         course_run_id: courseRunId,
@@ -107,7 +108,7 @@ export const InProgressCourseCard = ({
 
   const handleMarkCompleteModalOnSuccess = ({ response, resetModalState }) => {
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.mark_complete.saved',
       {
         course_run_id: courseRunId,
@@ -115,15 +116,15 @@ export const InProgressCourseCard = ({
     );
     setIsMarkCompleteModalOpen(false);
     resetModalState();
-    updateCourseEnrollmentStatus(
-      {
-        courseRunId: response.courseRunId,
-        originalStatus: courseRunStatus,
-        newStatus: response.courseRunStatus,
-        savedForLater: response.savedForLater,
-      },
-    );
-    setShowMarkCourseCompleteSuccess(true);
+    // updateCourseEnrollmentStatus(
+    //   {
+    //     courseRunId: response.courseRunId,
+    //     originalStatus: courseRunStatus,
+    //     newStatus: response.courseRunStatus,
+    //     savedForLater: response.savedForLater,
+    //   },
+    // );
+    // setShowMarkCourseCompleteSuccess(true);
   };
 
   const renderNotifications = () => {
@@ -140,7 +141,7 @@ export const InProgressCourseCard = ({
             <Notification
               key={`notification-${notificationProps.url}-${notificationProps.date}`}
               courseRunId={courseRunId}
-              enterpriseUUID={enterpriseConfig.uuid}
+              enterpriseUUID={enterpriseCustomer.uuid}
               {...notificationProps}
             />
           ))}

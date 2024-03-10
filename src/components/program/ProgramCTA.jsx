@@ -8,12 +8,14 @@ import { useParams } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
 import { linkToCourse } from '../course/data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramCTA = () => {
   const intl = useIntl();
   const { program } = useContext(ProgramContext);
   const { courses, subjects } = program;
-  const { enterpriseConfig: { slug, uuid }, authenticatedUser: { userId } } = useContext(AppContext);
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { programUuid } = useParams();
 
   const { courseCount, availableCourseCount } = useMemo(() => (
@@ -166,11 +168,11 @@ const ProgramCTA = () => {
                 <Dropdown.Item
                   key={course.title}
                   as="a"
-                  href={linkToCourse(course, slug)}
+                  href={linkToCourse(course, enterpriseCustomer.slug)}
                   className="wrap-word"
                   onClick={() => {
                     sendEnterpriseTrackEvent(
-                      uuid,
+                      enterpriseCustomer.uuid,
                       'edx.ui.enterprise.learner_portal.program.cta.course.clicked',
                       {
                         userId,

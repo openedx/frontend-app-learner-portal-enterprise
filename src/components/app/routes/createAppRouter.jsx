@@ -7,7 +7,6 @@ import RouteErrorBoundary from './RouteErrorBoundary';
 import {
   makeCourseLoader,
   makeRootLoader,
-  makeDashboardLoader,
 } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
@@ -34,12 +33,18 @@ export default function createAppRouter(queryClient) {
           <Route
             index
             lazy={async () => {
-              const { default: DashboardRoute } = await import('./DashboardRoute');
+              const { DashboardPage, makeDashboardLoader } = await import('../../dashboard');
               return {
-                Component: DashboardRoute,
+                Component: DashboardPage,
                 loader: makeDashboardLoader(queryClient),
               };
             }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
           />
           <Route
             path="search"
@@ -49,6 +54,12 @@ export default function createAppRouter(queryClient) {
                 Component: SearchRoute,
               };
             }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
           />
           <Route
             path=":courseType?/course/:courseKey/*"
@@ -59,6 +70,12 @@ export default function createAppRouter(queryClient) {
                 loader: makeCourseLoader(queryClient),
               };
             }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

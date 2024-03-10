@@ -6,13 +6,13 @@ import {
   SHOW_ALL_NAME,
 } from '@edx/frontend-enterprise-catalog-search';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import { useCatalogsForSubsidyRequests } from '../../hooks';
 import {
-  useActiveRedeemablePolicies,
-  useCatalogsForSubsidyRequests, useEnterpriseCustomer,
-  useEnterpriseOffers,
-  useSubscriptionLicenses,
   useCouponCodes,
-} from '../../hooks';
+  useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useRedeemablePolicies, useSubscriptions,
+} from '../../app/data';
 import { features } from '../../../config';
 
 /**
@@ -21,10 +21,10 @@ import { features } from '../../../config';
  * excluded. Ensures no duplicate catalog UUIDs are returned.
  */
 export const useSearchCatalogs = () => {
-  const { subscriptionLicense } = useSubscriptionLicenses();
-  const { activeRedeemablePolicies } = useActiveRedeemablePolicies();
-  const { couponCodes } = useCouponCodes();
-  const { currentEnterpriseOffers } = useEnterpriseOffers();
+  const { data: { subscriptionLicense } } = useSubscriptions();
+  const { data: { redeemablePolicies } } = useRedeemablePolicies();
+  const { data: { couponCodeAssignments } } = useCouponCodes();
+  const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
   const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
 
   const searchCatalogs = useMemo(() => {
@@ -33,14 +33,12 @@ export const useSearchCatalogs = () => {
 
     // Scope to catalogs from redeemable subsidy access policies, coupons,
     // enterprise offers, or subscription plan associated with learner's license.
-    if (activeRedeemablePolicies) {
-      activeRedeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
-    }
-    if (subscriptionLicense && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+    redeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
+    if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
       catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
     }
     if (features.ENROLL_WITH_CODES) {
-      const availableCouponCodes = couponCodes.filter(couponCode => couponCode.available);
+      const availableCouponCodes = couponCodeAssignments.filter(couponCode => couponCode.available);
       availableCouponCodes.forEach((couponCode) => catalogUUIDs.add(couponCode.catalog));
     }
 
@@ -53,7 +51,13 @@ export const useSearchCatalogs = () => {
 
     // Convert Set back to array
     return Array.from(catalogUUIDs);
-  }, [activeRedeemablePolicies, catalogsForSubsidyRequests, couponCodes, currentEnterpriseOffers, subscriptionLicense]);
+  }, [
+    redeemablePolicies,
+    catalogsForSubsidyRequests,
+    couponCodeAssignments,
+    currentEnterpriseOffers,
+    subscriptionLicense,
+  ]);
 
   return searchCatalogs;
 };
@@ -61,7 +65,7 @@ export const useSearchCatalogs = () => {
 export const useDefaultSearchFilters = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const showAllRefinement = refinements[SHOW_ALL_NAME];
-  const { uuid } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const searchCatalogs = useSearchCatalogs();
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
@@ -74,7 +78,7 @@ export const useDefaultSearchFilters = () => {
     () => {
       // Show all enterprise catalogs
       if (showAllRefinement) {
-        return `enterprise_customer_uuids:${uuid}`;
+        return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
       }
 
       if (searchCatalogs.length > 0) {
@@ -82,9 +86,9 @@ export const useDefaultSearchFilters = () => {
       }
 
       // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
-      return `enterprise_customer_uuids:${uuid}`;
+      return `enterprise_customer_uuids:${enterpriseCustomer.uuid}`;
     },
-    [uuid, searchCatalogs, showAllRefinement],
+    [enterpriseCustomer.uuid, searchCatalogs, showAllRefinement],
   );
 
   return { filters };

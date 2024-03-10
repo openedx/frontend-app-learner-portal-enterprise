@@ -2,22 +2,16 @@ import React, {
   useContext, createContext, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@openedx/paragon';
 import { useCourseEnrollments } from './data/hooks';
 import { LoadingSpinner } from '../../../loading-spinner';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
-import { transformSubsidyRequest } from './data/utils';
+import { transformSubsidyRequest, useEnterpriseCustomer } from '../../../app/data';
 
 export const CourseEnrollmentsContext = createContext();
 
 const CourseEnrollmentsContextProvider = ({ children }) => {
-  const {
-    enterpriseConfig: {
-      uuid: enterpriseUUID,
-      slug,
-    },
-  } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const {
     subsidyRequestConfiguration,
@@ -33,9 +27,9 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     const requests = requestsBySubsidyType[subsidyRequestConfiguration.subsidyType];
     return requests.map(subsidyRequest => transformSubsidyRequest({
       subsidyRequest,
-      slug,
+      slug: enterpriseCustomer.slug,
     }));
-  }, [isSubsidyRequestsEnabled, requestsBySubsidyType, slug, subsidyRequestConfiguration]);
+  }, [isSubsidyRequestsEnabled, requestsBySubsidyType, enterpriseCustomer.slug, subsidyRequestConfiguration]);
 
   const {
     courseEnrollmentsByStatus,
@@ -44,7 +38,7 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
     updateCourseEnrollmentStatus,
     removeCourseEnrollment,
   } = useCourseEnrollments({
-    enterpriseUUID,
+    enterpriseUUID: enterpriseCustomer.uuid,
     requestedCourseEnrollments,
   });
 

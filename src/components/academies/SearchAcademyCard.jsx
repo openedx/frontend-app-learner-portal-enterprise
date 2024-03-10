@@ -5,12 +5,12 @@ import {
 import PropTypes from 'prop-types';
 
 import './styles/Academy.scss';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SearchAcademyCard = ({
   uuid, title, shortDescription, image, isLoading,
 }) => {
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   return (
     <Card

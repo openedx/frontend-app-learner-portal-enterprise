@@ -10,10 +10,10 @@ import {
   OFFER_BALANCE_CLICK_EVENT,
 } from './data/constants';
 import { getContactEmail } from '../../../utils/common';
-import { useEnterpriseCustomer } from '../../hooks';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const EnterpriseOffersBalanceAlert = ({ hasNoEnterpriseOffersBalance }) => {
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
 
   const variant = hasNoEnterpriseOffersBalance ? 'danger' : 'warning';

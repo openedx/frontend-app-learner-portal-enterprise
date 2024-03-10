@@ -1,15 +1,12 @@
-import React, { useContext } from 'react';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWarningModalClose, couponCodesCount }) => {
-  const {
-    enterpriseConfig: { contactEmail },
-  } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   if (isCouponCodeWarningModalOpen === false) { return null; }
   const renderTitle = () => (
     <h3>
@@ -41,7 +38,9 @@ const CouponCodesWarningModal = ({ isCouponCodeWarningModalOpen, onCouponCodeWar
         values={{
           p: chunks => <p>{chunks}</p>,
           a: chunks => (
-            contactEmail ? <MailtoLink to={contactEmail} className="font-weight-bold">{chunks}</MailtoLink> : chunks
+            enterpriseCustomer.contactEmail
+              ? <MailtoLink to={enterpriseCustomer.contactEmail} className="font-weight-bold">{chunks}</MailtoLink>
+              : chunks
           ),
           i: chunks => <i>{chunks}</i>,
           couponCodesCount,

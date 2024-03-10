@@ -8,14 +8,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useContentHighlights } from './data';
 import ContentHighlightSet from './ContentHighlightSet';
-import { useEnterpriseCustomer } from '../../hooks';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const ContentHighlights = ({ className }) => {
-  const { uuid: enterpriseUUID } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     isLoading,
     contentHighlights,
-  } = useContentHighlights(enterpriseUUID);
+  } = useContentHighlights(enterpriseCustomer.uuid);
 
   if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
     return null;

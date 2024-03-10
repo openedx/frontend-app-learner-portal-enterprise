@@ -32,12 +32,15 @@ import { EnterpriseOffersBalanceAlert } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import PathwayModal from '../pathway/PathwayModal';
-import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
-import { useEnterpriseCustomer, useEnterpriseOffers } from '../hooks';
-import { useIsAssignmentsOnlyLearner } from '../app/data';
+import {
+  useIsAssignmentsOnlyLearner,
+  useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useCanOnlyViewHighlights,
+} from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
 
@@ -51,7 +54,7 @@ export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
 
 const Search = () => {
   const config = getConfig();
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const enterpriseFeatures = useEnterpriseFeatures();
   const intl = useIntl();
 
@@ -62,9 +65,7 @@ const Search = () => {
   const { refinements } = useContext(SearchContext);
   const { filters } = useDefaultSearchFilters();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
-
-  // Flag to toggle highlights visibility
-  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseCustomer.uuid);
+  const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {
     hasLowEnterpriseOffersBalance,
@@ -151,7 +152,7 @@ const Search = () => {
             />
           </div>
         )}
-        <PathwayModal
+        {/* <PathwayModal
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
@@ -212,9 +213,9 @@ const Search = () => {
             })}
             contentType={CONTENT_TYPE_COURSE}
           />
-        )}
+        )} */}
       </InstantSearch>
-      <IntegrationWarningModal isOpen={enterpriseCustomer.showIntegrationWarning} />
+      <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>
   );
 };

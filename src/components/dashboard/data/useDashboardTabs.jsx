@@ -20,6 +20,7 @@ import {
 import { useInProgressPathwaysData } from '../../pathway-progress/data/hooks';
 import { useLearnerProgramsListData } from '../../program-progress/data/hooks';
 import MyCareerTabSkeleton from '../../my-career/MyCareerTabSkeleton';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const MyCareerTab = loadable(() => import(
   '../../my-career/MyCareerTab'
@@ -27,21 +28,19 @@ const MyCareerTab = loadable(() => import(
   fallback: <MyCareerTabSkeleton />,
 });
 
-const useDashboardTabs = ({
-  canOnlyViewHighlightSets,
-}) => {
-  const { enterpriseConfig } = useContext(AppContext);
+const useDashboardTabs = () => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [activeTab, setActiveTab] = useState(DASHBOARD_COURSES_TAB);
   const intl = useIntl();
 
-  const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseConfig.uuid);
-  const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseConfig.uuid);
+  // const [learnerProgramsListData, programsFetchError] = useLearnerProgramsListData(enterpriseCustomer.uuid);
+  // const [pathwayProgressData, pathwayFetchError] = useInProgressPathwaysData(enterpriseCustomer.uuid);
 
   const onSelectHandler = (tabName) => {
     setActiveTab(tabName);
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
-          `edx.ui.enterprise.learner_portal.${DASHBOARD_TABS_SEGMENT_KEY[tabName]}.page_visit`,
+      enterpriseCustomer.uuid,
+      `edx.ui.enterprise.learner_portal.${DASHBOARD_TABS_SEGMENT_KEY[tabName]}.page_visit`,
     );
   };
 
@@ -66,62 +65,58 @@ const useDashboardTabs = ({
         description: 'Title for courses tab on enterprise dashboard.',
       })}
     >
-      {activeTab === DASHBOARD_COURSES_TAB && (
-        <CoursesTabComponent
-          canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-        />
-      )}
+      {activeTab === DASHBOARD_COURSES_TAB && <CoursesTabComponent />}
     </Tab>,
-    enterpriseConfig.enablePrograms && (
-      <Tab
-        eventKey={DASHBOARD_PROGRAMS_TAB}
-        title={intl.formatMessage({
-          id: 'enterprise.dashboard.tab.programs',
-          defaultMessage: 'Programs',
-          description: 'Title for programs tab on enterprise dashboard.',
-        })}
-        disabled={learnerProgramsListData.length === 0}
-      >
-        {activeTab === DASHBOARD_PROGRAMS_TAB && (
-          <ProgramListingPage
-            canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-            programsListData={learnerProgramsListData}
-            programsFetchError={programsFetchError}
-          />
-        )}
-      </Tab>
-    ),
-    enterpriseConfig.enablePathways && (
-      <Tab
-        eventKey={DASHBOARD_PATHWAYS_TAB}
-        title={intl.formatMessage({
-          id: 'enterprise.dashboard.tab.pathways',
-          defaultMessage: 'Pathways',
-          description: 'Title for pathways tab on enterprise dashboard.',
-        })}
-        disabled={pathwayProgressData.length === 0}
-      >
-        {activeTab === DASHBOARD_PATHWAYS_TAB && (
-          <PathwayProgressListingPage
-            canOnlyViewHighlightSets={canOnlyViewHighlightSets}
-            pathwayProgressData={pathwayProgressData}
-            pathwayFetchError={pathwayFetchError}
-          />
-        )}
-      </Tab>
-    ),
-    features.FEATURE_ENABLE_MY_CAREER && (
-      <Tab
-        eventKey={DASHBOARD_MY_CAREER_TAB}
-        title={intl.formatMessage({
-          id: 'enterprise.dashboard.tab.my.career',
-          defaultMessage: 'My Career',
-          description: 'Title for my career tab on enterprise dashboard.',
-        })}
-      >
-        {activeTab === DASHBOARD_MY_CAREER_TAB && <MyCareerTab />}
-      </Tab>
-    ),
+    // enterpriseCustomer.enablePrograms && (
+    //   <Tab
+    //     eventKey={DASHBOARD_PROGRAMS_TAB}
+    //     title={intl.formatMessage({
+    //       id: 'enterprise.dashboard.tab.programs',
+    //       defaultMessage: 'Programs',
+    //       description: 'Title for programs tab on enterprise dashboard.',
+    //     })}
+    //     disabled={learnerProgramsListData.length === 0}
+    //   >
+    //     {activeTab === DASHBOARD_PROGRAMS_TAB && (
+    //       <ProgramListingPage
+    //         canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+    //         programsListData={learnerProgramsListData}
+    //         programsFetchError={programsFetchError}
+    //       />
+    //     )}
+    //   </Tab>
+    // ),
+    // enterpriseCustomer.enablePathways && (
+    //   <Tab
+    //     eventKey={DASHBOARD_PATHWAYS_TAB}
+    //     title={intl.formatMessage({
+    //       id: 'enterprise.dashboard.tab.pathways',
+    //       defaultMessage: 'Pathways',
+    //       description: 'Title for pathways tab on enterprise dashboard.',
+    //     })}
+    //     disabled={pathwayProgressData.length === 0}
+    //   >
+    //     {activeTab === DASHBOARD_PATHWAYS_TAB && (
+    //       <PathwayProgressListingPage
+    //         canOnlyViewHighlightSets={canOnlyViewHighlightSets}
+    //         pathwayProgressData={pathwayProgressData}
+    //         pathwayFetchError={pathwayFetchError}
+    //       />
+    //     )}
+    //   </Tab>
+    // ),
+    // features.FEATURE_ENABLE_MY_CAREER && (
+    //   <Tab
+    //     eventKey={DASHBOARD_MY_CAREER_TAB}
+    //     title={intl.formatMessage({
+    //       id: 'enterprise.dashboard.tab.my.career',
+    //       defaultMessage: 'My Career',
+    //       description: 'Title for my career tab on enterprise dashboard.',
+    //     })}
+    //   >
+    //     {activeTab === DASHBOARD_MY_CAREER_TAB && <MyCareerTab />}
+    //   </Tab>
+    // ),
   ].filter(tab => tab); // Filtering for truthy values
 
   return {

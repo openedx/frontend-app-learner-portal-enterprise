@@ -1,7 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Container, Alert } from '@openedx/paragon';
 import { Error } from '@openedx/paragon/icons';
 
@@ -12,6 +11,7 @@ import {
   ENROLLMENT_FAILURE_REASON_QUERY_PARAM,
 } from './data/constants';
 import { CourseEnrollmentsContext } from '../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const ENROLLMENT_SOURCE = {
   DASHBOARD: 'DASHBOARD',
@@ -69,8 +69,8 @@ const createUpgradeFailureMessages = (contactHelpText, enrollmentSource) => ({
  */
 const CourseEnrollmentFailedAlert = ({ className, enrollmentSource }) => {
   const { search } = useLocation();
-  const { enterpriseConfig } = useContext(AppContext);
-  const renderContactHelpText = useRenderContactHelpText(enterpriseConfig);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const renderContactHelpText = useRenderContactHelpText(enterpriseCustomer);
   const { courseEnrollmentsByStatus } = useContext(CourseEnrollmentsContext);
 
   const [hasEnrollmentFailed, failureReason, courseRunKey] = useMemo(

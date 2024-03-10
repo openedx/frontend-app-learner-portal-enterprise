@@ -23,7 +23,7 @@ import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { useDefaultSearchFilters } from '../search/data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {
@@ -35,8 +35,7 @@ const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
 const SearchProgramCard = ({ index }) => {
   const navigate = useNavigate();
   const { authenticatedUser: { userId } } = useContext(AppContext);
-  const enterpriseCustomer = useEnterpriseCustomer();
-  const { slug, uuid } = enterpriseCustomer;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { filters } = useDefaultSearchFilters();
 
   const { state } = useContext(SkillsContext);
@@ -130,9 +129,14 @@ const SearchProgramCard = ({ index }) => {
     if (isLoading) {
       return;
     }
-    const url = linkToProgram(program, slug, uuid, programUuids[program.aggregationKey].uuid);
+    const url = linkToProgram(
+      program,
+      enterpriseCustomer.slug,
+      enterpriseCustomer.uuid,
+      programUuids[program.aggregationKey].uuid,
+    );
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.program.clicked',
       {
         userId,

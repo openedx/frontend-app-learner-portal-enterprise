@@ -57,7 +57,7 @@ const CouponCodesSummaryCard = ({
         />
         <SidebarCard
           title={(
-            <div className="d-flex align-items-start justify-content-between">
+            <div className="d-flex align-items-center justify-content-between">
               <h3>{COUPON_CODES_SUMMARY_REMAINING_CODES}</h3>
               {totalCoursesEligibleForCertificate > couponCodesCount && (
                 <WarningFilled
@@ -80,19 +80,17 @@ const CouponCodesSummaryCard = ({
   return (
     <SidebarCard
       title={(
-        <div className="d-flex align-items-start justify-content-between">
+        <div className="d-flex align-items-center justify-content-between">
           <div>{`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}</div>
-          <div>
-            {badgeVariantAndLabel && (
-              <Badge
-                variant={badgeVariantAndLabel.variant}
-                className="ml-2"
-                data-testid="subscription-status-badge"
-              >
-                {badgeVariantAndLabel.label}
-              </Badge>
-            )}
-          </div>
+          {badgeVariantAndLabel && (
+            <Badge
+              variant={badgeVariantAndLabel.variant}
+              className="ml-2"
+              data-testid="subscription-status-badge"
+            >
+              {badgeVariantAndLabel.label}
+            </Badge>
+          )}
         </div>
       )}
       cardClassNames={className}
