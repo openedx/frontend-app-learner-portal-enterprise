@@ -1,34 +1,21 @@
-import { generatePath, Link } from 'react-router-dom';
-import {
-  Button, Container, useToggle,
-} from '@openedx/paragon';
-
-import { useEnterpriseCustomerUserSubsidies, useEnterpriseLearner } from '../data';
+// import { generatePath, Link } from 'react-router-dom';
 import { SearchPage } from '../../search';
+// import { useEnterpriseCustomer } from '../data';
 
 const SearchRoute = () => {
-  const { data: enterpriseCustomerUserSubsidies } = useEnterpriseCustomerUserSubsidies();
-  const { data: { enterpriseCustomer } } = useEnterpriseLearner();
-  const [isOpen, open, close] = useToggle();
-
+  // const { data: { slug } } = useEnterpriseCustomer();
   return (
-    <Container size="lg" className="py-4">
-      <Link
-        to={generatePath('/:enterpriseSlug/course/:courseKey', {
-          enterpriseSlug: enterpriseCustomer.slug,
-          courseKey: 'edX+DemoX',
-        })}
-      >
-        Course
-      </Link>
-      <br />
-      <br />
-      <Button onClick={() => (isOpen ? close() : open())}>{!isOpen ? 'Show JSON' : 'Hide JSON'}</Button>
-      <br />
-      <br />
-      <pre hidden={!isOpen}>{JSON.stringify(enterpriseCustomerUserSubsidies, null, 2)}</pre>
+    <>
+      {/*<Link*/}
+      {/*  to={generatePath('/:enterpriseSlug/course/:courseKey', {*/}
+      {/*    enterpriseSlug: slug,*/}
+      {/*    courseKey: 'edX+DemoX',*/}
+      {/*  })}*/}
+      {/*>*/}
+      {/*  Course*/}
+      {/*</Link>*/}
       <SearchPage />
-    </Container>
+    </>
   );
 };
 
