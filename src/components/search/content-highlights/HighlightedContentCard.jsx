@@ -68,10 +68,10 @@ const HighlightedContentCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{title}</Truncate>
+          <Truncate lines={3}>{title}</Truncate>
         )}
         subtitle={authoringOrganizations?.content && (
-          <Truncate maxLine={2}>{authoringOrganizations.content}</Truncate>
+          <Truncate lines={2}>{authoringOrganizations.content}</Truncate>
         )}
       />
       <Card.Section />

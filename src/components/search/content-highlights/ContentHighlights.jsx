@@ -6,17 +6,14 @@ import {
 import { getConfig } from '@edx/frontend-platform/config';
 import { v4 as uuidv4 } from 'uuid';
 
-import { useContentHighlights } from './data';
 import ContentHighlightSet from './ContentHighlightSet';
-import { useEnterpriseCustomer } from '../../hooks';
+import { useContentHighlights } from '../../hooks';
 
 const ContentHighlights = ({ className }) => {
-  const { uuid: enterpriseUUID } = useEnterpriseCustomer();
   const {
     isLoading,
     contentHighlights,
-  } = useContentHighlights(enterpriseUUID);
-
+  } = useContentHighlights();
   if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
     return null;
   }

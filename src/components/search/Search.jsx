@@ -37,7 +37,7 @@ import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import { useEnterpriseCustomer, useEnterpriseOffers } from '../hooks';
-import { useIsAssignmentsOnlyLearner } from '../app/data';
+import { useCanOnlyViewHighlights, useIsAssignmentsOnlyLearner } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
 
@@ -64,7 +64,7 @@ const Search = () => {
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
 
   // Flag to toggle highlights visibility
-  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseCustomer.uuid);
+  const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {
     hasLowEnterpriseOffersBalance,

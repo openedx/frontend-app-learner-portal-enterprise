@@ -119,11 +119,11 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{program.title}</Truncate>
+          <Truncate lines={3}>{program.title}</Truncate>
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <Truncate maxLine={2}>
+            <Truncate lines={2}>
               {program.authoringOrganizations.map(org => org.key).join(', ')}
             </Truncate>
           )

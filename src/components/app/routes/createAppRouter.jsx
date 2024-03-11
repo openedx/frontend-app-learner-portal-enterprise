@@ -7,7 +7,7 @@ import RouteErrorBoundary from './RouteErrorBoundary';
 import {
   makeCourseLoader,
   makeRootLoader,
-  makeDashboardLoader,
+  makeDashboardLoader, makeSearchLoader,
 } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
@@ -47,6 +47,7 @@ export default function createAppRouter(queryClient) {
               const { default: SearchRoute } = await import('./SearchRoute');
               return {
                 Component: SearchRoute,
+                loader: makeSearchLoader(queryClient),
               };
             }}
           />

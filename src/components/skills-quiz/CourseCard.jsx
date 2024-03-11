@@ -64,12 +64,12 @@ const CourseCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={course.skillNames?.length < 5 ? 3 : 2}>
+          <Truncate lines={course.skillNames?.length < 5 ? 3 : 2}>
             {course.title}
           </Truncate>
         )}
         subtitle={course.partners.length > 0 && (
-          <Truncate maxLine={2}>
+          <Truncate lines={2}>
             {course.partners.map((partner) => partner.name).join(', ')}
           </Truncate>
         )}

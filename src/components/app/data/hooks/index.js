@@ -1,5 +1,9 @@
 export { default as useEnterpriseLearner } from './useEnterpriseLearner';
-export { default as useContentHighlightsConfiguration } from './useContentHighlightsConfiguration';
+export { default as useEnterpriseCustomer } from './useEnterpriseCustomer';
+export {
+  default as useContentHighlightsConfiguration,
+  useCanOnlyViewHighlights,
+} from './useContentHighlightsConfiguration';
 export { default as useCourseMetadata } from './useCourseMetadata';
 export { default as useCourseRedemptionEligibility } from './useCourseRedemptionEligibility';
 export { default as useEnterpriseCustomerUserSubsidies } from './useEnterpriseCustomerUserSubsidies';
