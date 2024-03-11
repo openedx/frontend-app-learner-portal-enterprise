@@ -7,7 +7,7 @@ import RouteErrorBoundary from './RouteErrorBoundary';
 import {
   makeCourseLoader,
   makeRootLoader,
-  makeDashboardLoader, 
+  makeDashboardLoader,
   makeSearchLoader,
   enterpriseInviteLoader,
 } from './loaders';
