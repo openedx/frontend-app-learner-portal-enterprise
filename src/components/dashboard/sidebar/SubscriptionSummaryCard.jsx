@@ -2,25 +2,18 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, useToggle } from '@openedx/paragon';
 import { WarningFilled } from '@openedx/paragon/icons';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
+
 import { SUBSCRIPTION_DAYS_REMAINING_SEVERE, SUBSCRIPTION_EXPIRED } from '../../../config/constants';
 import SidebarCard from './SidebarCard';
-import {
-  LICENSE_REQUESTED_BADGE_LABEL,
-  LICENSE_REQUESTED_BADGE_VARIANT,
-  LICENSE_REQUESTED_NOTICE,
-  SUBSCRIPTION_ACTIVE_BADGE_LABEL,
-  SUBSCRIPTION_ACTIVE_BADGE_VARIANT,
-  SUBSCRIPTION_ACTIVE_DATE_PREFIX,
-  SUBSCRIPTION_EXPIRED_BADGE_LABEL,
-  SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
-  SUBSCRIPTION_EXPIRED_DATE_PREFIX,
-  SUBSCRIPTION_SUMMARY_CARD_TITLE,
-  SUBSCRIPTION_WARNING_BADGE_LABEL,
-  SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
-  SUBSCRIPTION_WARNING_BADGE_VARIANT,
-} from './data/constants';
 import SubscriptionExpirationWarningModal from '../../program-progress/SubscriptionExpiringWarningModal';
 import dayjs from '../../../utils/dayjs';
+import {
+  SUBSCRIPTION_ACTIVE_BADGE_VARIANT,
+  SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
+  SUBSCRIPTION_WARNING_BADGE_VARIANT,
+  LICENSE_REQUESTED_BADGE_VARIANT,
+} from './data/constants';
 
 const SubscriptionSummaryCard = ({
   subscriptionPlan, licenseRequest, className, courseEndDate, programProgressPage,
@@ -30,46 +23,66 @@ const SubscriptionSummaryCard = ({
     subscriptionExpiringWarningModalOpen,
     onSubscriptionExpiringWarningModalClose,
   ] = useToggle(false);
-
+  const intl = useIntl();
   const badgeVariantAndLabel = useMemo(() => {
     if (subscriptionPlan) {
       if (subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_EXPIRED) {
         // Subscription has expired
         return ({
           variant: SUBSCRIPTION_EXPIRED_BADGE_VARIANT,
-          label: SUBSCRIPTION_EXPIRED_BADGE_LABEL,
+          label: intl.formatMessage({
+            id: 'enterprise.dashboard.sidebar.subscription.expired.badge.label',
+            defaultMessage: 'Expired',
+            description: 'Subscription expired badge label on the enterprise dashboard sidebar.',
+          }),
         });
       }
       if (programProgressPage && subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
         // Expiration is approaching
         return ({
           variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
-          label: SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
+          label: intl.formatMessage({
+            id: 'enterprise.dashboard.sidebar.subscription.expiring.soon.badge.label',
+            defaultMessage: 'Expiring Soon',
+            description: 'Subscription expiring soon badge label on the enterprise dashboard sidebar.',
+          }),
         });
       }
       if (!programProgressPage && subscriptionPlan.daysUntilExpiration <= SUBSCRIPTION_DAYS_REMAINING_SEVERE) {
         // Expiration is approaching
         return ({
           variant: SUBSCRIPTION_WARNING_BADGE_VARIANT,
-          label: SUBSCRIPTION_WARNING_BADGE_LABEL,
+          label: intl.formatMessage({
+            id: 'enterprise.dashboard.sidebar.subscription.warning.badge.label',
+            defaultMessage: 'Expiring',
+            description: 'Subscription expiring warning badge label on the enterprise dashboard sidebar.',
+          }),
         });
       }
 
       return ({
         variant: SUBSCRIPTION_ACTIVE_BADGE_VARIANT,
-        label: SUBSCRIPTION_ACTIVE_BADGE_LABEL,
+        label: intl.formatMessage({
+          id: 'enterprise.dashboard.sidebar.subscription.active.badge.label',
+          defaultMessage: 'Active',
+          description: 'Subscription active badge label on the enterprise dashboard sidebar.',
+        }),
       });
     }
 
     if (licenseRequest) {
       return ({
         variant: LICENSE_REQUESTED_BADGE_VARIANT,
-        label: LICENSE_REQUESTED_BADGE_LABEL,
+        label: intl.formatMessage({
+          id: 'enterprise.dashboard.sidebar.license.requested.badge.label',
+          defaultMessage: 'Requested',
+          description: 'License requested badge label on the enterprise dashboard sidebar.',
+        }),
       });
     }
 
     return null;
-  }, [subscriptionPlan, licenseRequest, programProgressPage]);
+  }, [subscriptionPlan, licenseRequest, intl, programProgressPage]);
 
   if (!(subscriptionPlan || licenseRequest)) {
     return null;
@@ -86,16 +99,24 @@ const SubscriptionSummaryCard = ({
         )}
         <SidebarCard
           title={(
-            <div className="d-flex align-items-center justify-content-between">
-              <h3>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</h3>
-              <Badge
-                variant={badgeVariantAndLabel.variant}
-                className="ml-2"
-                data-testid="subscription-status-badge"
-              >
-                {badgeVariantAndLabel.label}
-              </Badge>
-              {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
+            <div className="d-flex align-items-start justify-content-between">
+              <h3>
+                <FormattedMessage
+                  id="enterprise.dashboard.sidebar.subscription.summary.card.title"
+                  defaultMessage="Subscription Status"
+                  description="Subscription status title on the enterprise dashboard sidebar."
+                />
+              </h3>
+              <div>
+                <Badge
+                  variant={badgeVariantAndLabel.variant}
+                  className="ml-2"
+                  data-testid="subscription-status-badge"
+                >
+                  {badgeVariantAndLabel.label}
+                </Badge>
+                {(subscriptionPlan && courseEndDate > subscriptionPlan.expirationDate) && <WarningFilled data-testid="warning-icon" className="ml-2" onClick={() => { subscriptionExpiringWarningModalOpen(); }} />}
+              </div>
             </div>
           )}
           cardClassNames={className}
@@ -104,10 +125,26 @@ const SubscriptionSummaryCard = ({
             subscriptionPlan ? (
               <>
                 {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
-                  ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
+                  ? intl.formatMessage({
+                    id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix',
+                    defaultMessage: 'Available until',
+                    description: 'Subscription available date prefix on the enterprise dashboard sidebar.',
+                  }) : intl.formatMessage({
+                    id: 'enterprise.dashboard.sidebar.subscription.expired.date.prefix',
+                    defaultMessage: 'Expired on',
+                    description: 'Subscription expired date prefix on the enterprise dashboard sidebar.',
+                  })}
                 {' '}<span className="font-weight-bold">{dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
               </>
-            ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
+            ) : (
+              <span>
+                <FormattedMessage
+                  id="enterprise.dashboard.sidebar.license.requested.notice"
+                  defaultMessage="Awaiting approval."
+                  description="License request awaiting approval notice on the enterprise dashboard sidebar."
+                />
+              </span>
+            )
           }
         </SidebarCard>
       </>
@@ -117,15 +154,23 @@ const SubscriptionSummaryCard = ({
   return (
     <SidebarCard
       title={(
-        <div className="d-flex align-items-center justify-content-between">
-          <div>{SUBSCRIPTION_SUMMARY_CARD_TITLE}</div>
-          <Badge
-            variant={badgeVariantAndLabel.variant}
-            className="ml-2"
-            data-testid="subscription-status-badge"
-          >
-            {badgeVariantAndLabel.label}
-          </Badge>
+        <div className="d-flex align-items-start justify-content-between">
+          <div>
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.subscription.summary.card.title"
+              defaultMessage="Subscription Status"
+              description="Subscription status summary card title on the enterprise dashboard sidebar."
+            />
+          </div>
+          <div>
+            <Badge
+              variant={badgeVariantAndLabel.variant}
+              className="ml-2"
+              data-testid="subscription-status-badge"
+            >
+              {badgeVariantAndLabel.label}
+            </Badge>
+          </div>
         </div>
       )}
       cardClassNames={className}
@@ -134,10 +179,26 @@ const SubscriptionSummaryCard = ({
         subscriptionPlan ? (
           <>
             {subscriptionPlan.daysUntilExpiration > SUBSCRIPTION_EXPIRED
-              ? SUBSCRIPTION_ACTIVE_DATE_PREFIX : SUBSCRIPTION_EXPIRED_DATE_PREFIX}
+              ? intl.formatMessage({
+                id: 'enterprise.dashboard.sidebar.subscription.active.date.prefix',
+                defaultMessage: 'Available until',
+                description: 'Subscription active date prefix on the enterprise dashboard sidebar.',
+              }) : intl.formatMessage({
+                id: 'enterprise.dashboard.sidebar.subscription.expired.date.prefix',
+                defaultMessage: 'Expired on',
+                description: 'Subscription expired date prefix on the enterprise dashboard sidebar.',
+              })}
             {' '}<span className="font-weight-bold">{dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}</span>
           </>
-        ) : <span>{LICENSE_REQUESTED_NOTICE}</span>
+        ) : (
+          <span>
+            <FormattedMessage
+              id="enterprise.dashboard.sidebar.license.requested.notice"
+              defaultMessage="Awaiting approval."
+              description="License request awaiting approval notice on the enterprise dashboard sidebar."
+            />
+          </span>
+        )
       }
     </SidebarCard>
   );

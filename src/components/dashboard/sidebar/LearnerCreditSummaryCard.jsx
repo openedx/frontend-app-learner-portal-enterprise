@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import { Badge } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import { FormattedDate, FormattedMessage } from '@edx/frontend-platform/i18n';
-import {
-  LEARNER_CREDIT_ACTIVE_BADGE_VARIANT,
-} from './data/constants';
 import SidebarCard from './SidebarCard';
+import { LEARNER_CREDIT_ACTIVE_BADGE_VARIANT } from './data/constants';
 
 const LearnerCreditSummaryCard = ({
   className,

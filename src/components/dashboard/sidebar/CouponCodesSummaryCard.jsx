@@ -2,19 +2,14 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge, useToggle } from '@openedx/paragon';
 import { WarningFilled } from '@openedx/paragon/icons';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import SidebarCard from './SidebarCard';
-import {
-  COUPON_CODES_SUMMARY_TITLE,
-  COUPON_CODES_SUMMARY_REMAINING_CODES,
-  COUPON_CODES_SUMMARY_NOTICE,
-  COUPON_CODES_SUMMARY_DETAIL,
-  COUPON_CODES_AVAILABLE_BADGE_VARIANT,
-  COUPON_CODES_AVAILABLE_BADGE_LABEL,
-  COUPON_CODES_REQUESTED_BADGE_VARIANT,
-  COUPON_CODES_REQUESTED_BADGE_LABEL,
-} from './data/constants';
 import CouponCodesWarningModal from '../../program-progress/CouponCodesWarningModal';
+import {
+  COUPON_CODES_AVAILABLE_BADGE_VARIANT,
+  COUPON_CODES_REQUESTED_BADGE_VARIANT,
+} from './data/constants';
 
 const CouponCodesSummaryCard = ({
   couponCodesCount, couponCodeRequestsCount, className, totalCoursesEligibleForCertificate, programProgressPage,
@@ -24,24 +19,32 @@ const CouponCodesSummaryCard = ({
     couponCodeWarningModalOpen,
     onCouponCodeWarningModalClose,
   ] = useToggle(false);
-
+  const intl = useIntl();
   const badgeVariantAndLabel = useMemo(() => {
     if (couponCodesCount > 0) {
       return ({
         variant: COUPON_CODES_AVAILABLE_BADGE_VARIANT,
-        label: COUPON_CODES_AVAILABLE_BADGE_LABEL,
+        label: intl.formatMessage({
+          id: 'enterprise.dashboard.sidebar.coupon.codes.available.badge.label',
+          defaultMessage: 'Available',
+          description: 'Coupon codes available badge label on the enterprise dashboard sidebar.',
+        }),
       });
     }
 
     if (couponCodeRequestsCount > 0) {
       return ({
         variant: COUPON_CODES_REQUESTED_BADGE_VARIANT,
-        label: COUPON_CODES_REQUESTED_BADGE_LABEL,
+        label: intl.formatMessage({
+          id: 'enterprise.dashboard.sidebar.coupon.codes.requested.badge.label',
+          defaultMessage: 'Requested',
+          description: 'Coupon codes requested badge label on the enterprise dashboard sidebar.',
+        }),
       });
     }
 
     return null;
-  }, [couponCodesCount, couponCodeRequestsCount]);
+  }, [couponCodesCount, couponCodeRequestsCount, intl]);
 
   if (!(couponCodesCount || couponCodeRequestsCount)) {
     return null;
@@ -57,8 +60,14 @@ const CouponCodesSummaryCard = ({
         />
         <SidebarCard
           title={(
-            <div className="d-flex align-items-center justify-content-between">
-              <h3>{COUPON_CODES_SUMMARY_REMAINING_CODES}</h3>
+            <div className="d-flex align-items-start justify-content-between">
+              <h3>
+                <FormattedMessage
+                  id="enterprise.dashboard.sidebar.coupon.codes.summary.remaining.codes"
+                  defaultMessage="Remaining Codes"
+                  description="Remaining coupon codes summary on the enterprise dashboard sidebar."
+                />
+              </h3>
               {totalCoursesEligibleForCertificate > couponCodesCount && (
                 <WarningFilled
                   className="ml-2"
@@ -70,7 +79,14 @@ const CouponCodesSummaryCard = ({
           cardClassNames={className}
         >
           <p className="m-0">
-            <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}<span className="ml-2">{COUPON_CODES_SUMMARY_DETAIL}</span>
+            <h3 className="float-left"> {couponCodesCount > 0 ? couponCodesCount : 0}</h3>{' '}
+            <span className="ml-2">
+              <FormattedMessage
+                id="enterprise.dashboard.sidebar.coupon.codes.summary.detail"
+                defaultMessage="Codes remaining, contact your administrator for additional codes."
+                description="Remaining coupon codes and contact administrator advice on the enterprise dashboard sidebar."
+              />
+            </span>
           </p>
         </SidebarCard>
       </>
@@ -80,23 +96,34 @@ const CouponCodesSummaryCard = ({
   return (
     <SidebarCard
       title={(
-        <div className="d-flex align-items-center justify-content-between">
-          <div>{`${COUPON_CODES_SUMMARY_TITLE}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}</div>
-          {badgeVariantAndLabel && (
-            <Badge
-              variant={badgeVariantAndLabel.variant}
-              className="ml-2"
-              data-testid="subscription-status-badge"
-            >
-              {badgeVariantAndLabel.label}
-            </Badge>
-          )}
+        <div className="d-flex align-items-start justify-content-between">
+          <div>{`${intl.formatMessage({
+            id: 'enterprise.dashboard.sidebar.coupon.codes.summary.title',
+            defaultMessage: 'Enrollment Codes',
+            description: 'Title for the coupon codes summary on the enterprise dashboard sidebar.',
+          })}${couponCodesCount > 0 ? `: ${couponCodesCount}` : ''}`}
+          </div>
+          <div>
+            {badgeVariantAndLabel && (
+              <Badge
+                variant={badgeVariantAndLabel.variant}
+                className="ml-2"
+                data-testid="subscription-status-badge"
+              >
+                {badgeVariantAndLabel.label}
+              </Badge>
+            )}
+          </div>
         </div>
       )}
       cardClassNames={className}
     >
       <p className="m-0">
-        {COUPON_CODES_SUMMARY_NOTICE}
+        <FormattedMessage
+          id="enterprise.dashboard.sidebar.coupon-codes.summary.notice"
+          defaultMessage="Use codes to enroll in courses from your catalog."
+          description="Notice for the enrollment coupon codes on the enterprise dashboard sidebar."
+        />
       </p>
     </SidebarCard>
   );
