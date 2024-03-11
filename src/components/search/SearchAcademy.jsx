@@ -10,7 +10,7 @@ import SearchError from './SearchError';
 import { useAcademies } from '../hooks';
 
 const SearchAcademy = () => {
-  const { academies, isLoading, fetchError } = useAcademies();
+  const { data: academies, isLoading, isError: fetchError } = useAcademies();
   const SkeletonCard = getSkeletonCardFromTitle(ACADEMY_TITLE);
 
   if (isLoading) {
