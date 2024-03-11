@@ -2,7 +2,12 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
-import { fetchEnterpriseCourseEnrollments, fetchEnterpriseLearnerData, updateUserActiveEnterprise } from './enterpriseCustomerUser';
+import {
+  fetchEnterpriseCourseEnrollments,
+  fetchEnterpriseLearnerData,
+  postLinkEnterpriseLearner,
+  updateUserActiveEnterprise,
+} from './enterpriseCustomerUser';
 
 const axiosMock = new MockAdapter(axios);
 getAuthenticatedHttpClient.mockReturnValue(axios);
@@ -183,5 +188,27 @@ describe('fetchEnterpriseCourseEnrollments', () => {
     axiosMock.onGet(COURSE_ENROLLMENTS_ENDPOINT).reply(404);
     const response = await fetchEnterpriseCourseEnrollments(mockEnterpriseId);
     expect(response).toEqual([]);
+  });
+});
+
+describe('postLinkEnterpriseLearner', () => {
+  const mockEnterpriseCustomerInviteKey = 'test-enterprise-customer-invite-key';
+  const ENTERPRISE_LINK_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer-invite-key/${mockEnterpriseCustomerInviteKey}/link-user/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('passes correct POST body', async () => {
+    const enterpriseCustomerInviteKey = 'test-enterprise-customer-invite-key';
+    axiosMock.onPost(ENTERPRISE_LINK_ENDPOINT).reply(200, {
+      enterprise_customer_slug: mockEnterpriseSlug,
+    });
+    const result = await postLinkEnterpriseLearner(enterpriseCustomerInviteKey);
+    expect(result).toEqual(
+      expect.objectContaining({
+        enterpriseCustomerSlug: mockEnterpriseSlug,
+      }),
+    );
   });
 });
