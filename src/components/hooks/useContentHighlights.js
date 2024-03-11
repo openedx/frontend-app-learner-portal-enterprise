@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { queryContentHighlights } from '../app/data';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { queryContentHighlights, useEnterpriseCustomer } from '../app/data';
 
 export default function useContentHighlights() {
   const { uuid } = useEnterpriseCustomer();
