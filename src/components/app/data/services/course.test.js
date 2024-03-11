@@ -22,6 +22,12 @@ jest.mock('@edx/frontend-platform', () => ({
 jest.mock('@edx/frontend-platform/auth', () => ({
   ...jest.requireActual('@edx/frontend-platform/auth'),
   getAuthenticatedHttpClient: jest.fn(),
+  configure: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
+  configure: jest.fn(),
+  getLoggingService: jest.fn(),
 }));
 
 describe('fetchCourseMetadata', () => {

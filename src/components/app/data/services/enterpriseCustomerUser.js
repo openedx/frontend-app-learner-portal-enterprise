@@ -21,6 +21,18 @@ export async function updateUserActiveEnterprise({ enterpriseCustomer }) {
 
 /**
  * TODO
+ * @param {*} inviteKeyUUID
+ * @returns
+ */
+export async function postLinkEnterpriseLearner(inviteKeyUUID) {
+  const config = getConfig();
+  const url = `${config.LMS_BASE_URL}/enterprise/api/v1/enterprise-customer-invite-key/${inviteKeyUUID}/link-user/`;
+  const response = await getAuthenticatedHttpClient().post(url);
+  return camelCaseObject(response.data);
+}
+
+/**
+ * TODO
  */
 export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
   const queryParams = new URLSearchParams({ slug: enterpriseSlug });
