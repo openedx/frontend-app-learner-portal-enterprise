@@ -1,12 +1,22 @@
 import { CardGrid, Container } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+
 import SearchAcademyCard from '../academies/SearchAcademyCard';
-import { CARDGRID_COLUMN_SIZES } from './constants';
+import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
 import { useAcademies } from '../hooks';
+import SearchError from './SearchError';
 
 const SearchAcademy = () => {
-  const { data: academies } = useAcademies();
+  const { data: academies, isError: fetchError } = useAcademies();
+
+  if (fetchError) {
+    return (
+      <Container size="lg" className="search-results py-5">
+        <SearchError title={ACADEMY_TITLE} />
+      </Container>
+    );
+  }
 
   if (academies.length === 0) {
     return null;

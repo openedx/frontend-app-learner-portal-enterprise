@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container, Stack,
-} from '@openedx/paragon';
+import { Container, Stack } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { v4 as uuidv4 } from 'uuid';
 

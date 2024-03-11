@@ -17,7 +17,7 @@ import { useEnterpriseCustomer } from '../app/data';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { academyUUID } = useParams();
   const [academy, isAcademyAPILoading, academyAPIError] = useAcademyMetadata(academyUUID);
   const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}`;

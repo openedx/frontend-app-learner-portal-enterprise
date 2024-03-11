@@ -101,7 +101,6 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
 
   return (
     <Card
-      isLoading={isLoading}
       as={Link}
       to={linkToProgram}
       onClick={handleCardClick}

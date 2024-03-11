@@ -13,11 +13,9 @@ import { useEnterpriseCustomer } from '../../app/data';
 const HighlightedContentCard = ({
   highlightSetUUID,
   highlightedContent,
-  isLoading,
   ...props
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-
   const {
     variant,
     title,
@@ -53,10 +51,9 @@ const HighlightedContentCard = ({
     <Card
       as={Link}
       to={href}
-      isClickable={!isLoading}
-      isLoading={isLoading}
       variant={variant}
       onClick={handleContentCardClick}
+      isClickable
       {...props}
     >
       <Card.ImageCap

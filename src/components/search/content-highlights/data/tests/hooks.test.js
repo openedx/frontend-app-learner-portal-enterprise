@@ -10,10 +10,7 @@ import {
   getAuthoringOrganizations,
   getContentPageUrl,
 } from '../utils';
-import {
-  useHighlightedContentCardData,
-  useEnterpriseCuration,
-} from '../hooks';
+import { useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
 import { useContentHighlights } from '../../../../hooks';
 import { fetchContentHighlights } from '../../../../app/data';
 

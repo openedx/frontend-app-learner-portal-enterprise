@@ -145,7 +145,7 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
  * ._ctx.highlightSets
  * @returns {Types.QueryOptions}
  */
-export function queryContentHighlights(enterpriseUuid) {
+export function queryContentHighlightSets(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
