@@ -55,7 +55,6 @@ export async function activateSubscriptionLicense({
         ...queryClient.getQueryData(subscriptionsQuery.queryKey),
         shouldShowActivationSuccessMessage: true,
       });
-      console.log('subscriptionsQuery data', queryClient.getQueryData(subscriptionsQuery.queryKey));
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.

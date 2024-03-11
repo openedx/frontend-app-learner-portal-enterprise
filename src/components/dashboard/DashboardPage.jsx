@@ -39,7 +39,6 @@ const DashboardPage = () => {
     tabs,
     onSelectHandler,
     activeTab,
-    prefetchTab,
   } = useDashboardTabs();
 
   const PAGE_TITLE = intl.formatMessage(
@@ -95,7 +94,6 @@ const DashboardPage = () => {
       <Tabs
         activeKey={activeTab}
         onSelect={onSelectHandler}
-        onMouseOverCapture={prefetchTab}
       >
         {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
       </Tabs>

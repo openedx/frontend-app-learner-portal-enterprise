@@ -12,7 +12,7 @@ export const NPROGRESS_DELAY_MS = 300;
 
 function useNProgressLoader() {
   const { authenticatedUser } = useContext(AppContext);
-  const isAuthenticatedUserHydrated = !!authenticatedUser?.profileImage;
+  const isAuthenticatedUserHydrated = !!authenticatedUser?.extendedProfile;
   const navigation = useNavigation();
   const fetchers = useFetchers();
   const {

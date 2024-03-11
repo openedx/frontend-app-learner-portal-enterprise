@@ -1,7 +1,21 @@
 import { logError, logInfo } from '@edx/frontend-platform/logging';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
+
 import { getErrorResponseStatusCode } from '../../../../utils/common';
+
+// Skills
+
+/**
+ *
+ * @param {*} jobId
+ * @returns
+ */
+export async function getLearnerSkillLevels(jobId) {
+  const url = `${getConfig().LMS_BASE_URL}/api/user/v1/skill_level/${jobId}/`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
 
 // Notices
 

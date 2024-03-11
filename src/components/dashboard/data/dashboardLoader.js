@@ -1,5 +1,10 @@
 import { ensureAuthenticatedUser } from '../../app/routes/data';
-import { extractEnterpriseId, queryEnterpriseCourseEnrollments } from '../../app/data';
+import {
+  extractEnterpriseId,
+  queryEnterpriseCourseEnrollments,
+  queryEnterprisePathwaysList,
+  queryEnterpriseProgramsList,
+} from '../../app/data';
 
 /**
  * Returns a loader function responsible for loading the dashboard related data.
@@ -21,7 +26,14 @@ export default function makeDashboardLoader(queryClient) {
       authenticatedUser,
       enterpriseSlug,
     });
-    await queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId));
+    await Promise.all([
+      queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
+      queryClient.ensureQueryData(queryEnterpriseProgramsList(enterpriseId)),
+      queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseId)),
+    ]);
+
+    // TODO
+
     return null;
   };
 }

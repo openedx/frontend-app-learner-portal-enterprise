@@ -1,54 +1,37 @@
-import React, {
-  useContext, useEffect, useState,
-} from 'react';
-
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
+import PropTypes from 'prop-types';
+import { hydrateAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
-import { useLearnerProfileData } from './data/hooks';
-import { LoadingSpinner } from '../loading-spinner';
+
 import VisualizeCareer from './VisualizeCareer';
-import { extractCurrentJobID } from './data/utils';
 import AddJobRole from './AddJobRole';
 
-const MyCareerTab = () => {
-  const { authenticatedUser: { username } } = useContext(AppContext);
-
-  const [learnerProfileData, learnerProfileDataFetchError, isLoadingData] = useLearnerProfileData(
-    username,
-  );
-  const [learnerProfileState, setLearnerProfileState] = useState();
-
-  useEffect(() => {
-    if (learnerProfileData) {
-      setLearnerProfileState(learnerProfileData);
-    }
-  }, [learnerProfileData]);
-
-  if (learnerProfileDataFetchError) {
-    return <ErrorPage status={learnerProfileDataFetchError.status} />;
-  }
-
-  if (isLoadingData && !learnerProfileState) {
-    return (
-      <div className="py-5">
-        <LoadingSpinner screenReaderText="loading my career data" />
-      </div>
-    );
-  }
-
-  const learnerCurrentJobID = extractCurrentJobID(learnerProfileState);
+const MyCareerTab = ({ learnerCurrentJobID }) => {
+  const onUpdatedUserProfile = async (updatedProfile) => {
+    await hydrateAuthenticatedUser(updatedProfile.username);
+  };
 
   return (
     <div>
       <SearchData>
-        { !learnerCurrentJobID ? (
-          <AddJobRole submitClickHandler={setLearnerProfileState} />
+        {!learnerCurrentJobID ? (
+          <AddJobRole submitClickHandler={onUpdatedUserProfile} />
         ) : (
-          <VisualizeCareer jobId={learnerCurrentJobID} submitClickHandler={setLearnerProfileState} />
+          <VisualizeCareer
+            jobId={learnerCurrentJobID}
+            submitClickHandler={onUpdatedUserProfile}
+          />
         )}
       </SearchData>
     </div>
   );
+};
+
+MyCareerTab.propTypes = {
+  learnerCurrentJobID: PropTypes.string,
+};
+
+MyCareerTab.defaultProps = {
+  learnerCurrentJobID: undefined,
 };
 
 export default MyCareerTab;

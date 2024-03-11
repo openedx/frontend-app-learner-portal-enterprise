@@ -30,7 +30,13 @@ import {
 
 /**
  * TODO
- * @param {*} param0
+ * @param {*} options
+ * @param {*} options.requestUrl
+ * @param {*} options.enterpriseCustomer
+ * @param {*} options.allLinkedEnterpriseCustomerUsers
+ * @param {*} options.userId
+ * @param {*} options.userEmail
+ * @param {Types.QueryClient} options.queryClient
  * @returns
  */
 export async function ensureEnterpriseAppData({
@@ -115,9 +121,11 @@ export async function ensureEnterpriseAppData({
   ];
   if (getConfig().ENABLE_NOTICES) {
     enterpriseAppDataQueries.push(
-      queryClient.ensureQueryData(
-        queryNotices(),
-      ),
+      queryClient.fetchQuery({
+        ...queryNotices(),
+        staleTime: Infinity,
+        cacheTime: Infinity,
+      }),
     );
   }
   const enterpriseAppData = await Promise.all(enterpriseAppDataQueries);

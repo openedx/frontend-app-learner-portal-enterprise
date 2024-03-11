@@ -8,7 +8,11 @@ import { queryNotices } from '../queries';
  * for the authenticated user.
  */
 function useNotices() {
-  const queryResults = useQuery(queryNotices());
+  const queryResults = useQuery({
+    ...queryNotices(),
+    staleTime: Infinity,
+    cacheTime: Infinity,
+  });
 
   useEffect(() => {
     if (!queryResults.data) {

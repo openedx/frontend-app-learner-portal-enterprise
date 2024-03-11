@@ -127,3 +127,34 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
     throw error;
   }
 }
+
+/**
+ * TODO
+ * @param {*} enterpriseUUID
+ * @returns
+ */
+export async function getLearnerProgramsList(enterpriseUUID) {
+  const url = `${getConfig().LMS_BASE_URL}/api/dashboard/v0/programs/${enterpriseUUID}/`;
+  const response = await getAuthenticatedHttpClient().get(url);
+  return camelCaseObject(response.data);
+}
+
+/**
+ * Fetches in-progress pathways for the authenticated user. Note, it should be
+ * filtered based on the enterpriseUUID, but is not currently.
+ * @param {*} enterpriseUUID
+ * @returns
+ */
+export async function getInProgressPathways(enterpriseUUID) { // eslint-disable-line no-unused-vars
+  // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
+  const url = `${getConfig().LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    if (getErrorResponseStatusCode(error) === 404) {
+      return [];
+    }
+    throw error;
+  }
+}

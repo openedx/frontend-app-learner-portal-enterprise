@@ -15,6 +15,9 @@ import {
   fetchEnterpriseCuration,
   fetchCouponCodeRequests,
   fetchNotices,
+  getLearnerProgramsList,
+  getInProgressPathways,
+  getLearnerSkillLevels,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -48,6 +51,14 @@ const enterprise = createQueryKeys('enterprise', {
       enrollments: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
+      },
+      programs: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => getLearnerProgramsList(queryKey[2]),
+      },
+      pathways: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => getInProgressPathways(queryKey[2]),
       },
       subsidies: {
         queryKey: null,
@@ -114,6 +125,10 @@ const user = createQueryKeys('user', {
     queryKey: null,
     queryFn: async () => fetchNotices(),
   },
+  skillLevels: (jobId) => ({
+    queryKey: [jobId],
+    queryFn: async ({ queryKey }) => getLearnerSkillLevels(queryKey[2]),
+  }),
 });
 
 const queries = mergeQueryKeys(enterprise, user);

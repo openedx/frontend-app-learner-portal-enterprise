@@ -7,12 +7,12 @@ import { Edit } from '@openedx/paragon/icons';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { useLearnerSkillLevels } from './data/hooks';
-import { LoadingSpinner } from '../loading-spinner';
+
+import { useEnterpriseCustomer, useLearnerSkillLevels } from '../app/data';
 import CategoryCard from './CategoryCard';
 import SearchJobRole from './SearchJobRole';
 import SpiderChart from './SpiderChart';
-import { useEnterpriseCustomer } from '../app/data';
+import { LoadingSpinner } from '../loading-spinner';
 
 const editIcon = () => (
   <Icon src={Edit} className="edit-job-role-icon" screenReaderText="Edit Role" />
@@ -22,7 +22,11 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [showInstructions, , , toggleShowInstructions] = useToggle(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [learnerSkillLevels, learnerSkillLevelsFetchError, isLoading] = useLearnerSkillLevels(jobId);
+  const {
+    data: learnerSkillLevels,
+    error: learnerSkillLevelsFetchError,
+    isLoading: isLoadingLearnerSkills,
+  } = useLearnerSkillLevels(jobId);
 
   const editOnClickHandler = () => {
     setIsEditable(true);
@@ -32,8 +36,8 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
     );
   };
 
-  const onSaveRole = (resp) => {
-    submitClickHandler(resp);
+  const onSaveRole = async (resp) => {
+    await submitClickHandler(resp);
     setIsEditable(false);
   };
 
@@ -45,7 +49,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
     return <ErrorPage status={learnerSkillLevelsFetchError.status} />;
   }
 
-  if (!learnerSkillLevels || isLoading) {
+  if (isLoadingLearnerSkills) {
     return (
       <div className="py-5">
         <LoadingSpinner data-testid="loading-spinner" screenReaderText="Visualize Career Tab" />

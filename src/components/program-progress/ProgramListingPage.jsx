@@ -1,39 +1,31 @@
-import {
-  Button,
-  CardGrid,
-} from '@openedx/paragon';
+import { Link } from 'react-router-dom';
+import { Button, CardGrid } from '@openedx/paragon';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import PropTypes from 'prop-types';
 import { Search } from '@openedx/paragon/icons';
-
-import { Link } from 'react-router-dom';
-import { LoadingSpinner } from '../loading-spinner';
 
 import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
-import { useEnterpriseCustomer } from '../app/data';
+import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../app/data';
 
-const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, programsFetchError }) => {
+const ProgramListingPage = () => {
+  const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const {
+    data: enterprisePrograms,
+    error: programsFetchError,
+  } = useEnterpriseProgramsList();
+
   if (programsFetchError) {
     return <ErrorPage message={programsFetchError.message} />;
   }
 
-  if (!programsListData) {
-    return (
-      <div className="py-5">
-        <LoadingSpinner screenReaderText="loading program" />
-      </div>
-    );
-  }
-
   return (
     <div className="py-5" data-testid="program-listing-page">
-      {programsListData.length > 0 ? (
+      {enterprisePrograms.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
-          {programsListData.map((program) => <ProgramListingCard program={program} key={program.title} />)}
+          {enterprisePrograms.map((program) => <ProgramListingCard program={program} key={program.title} />)}
         </CardGrid>
       ) : (
         <div className="no-content-message">
@@ -59,22 +51,6 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, progra
       )}
     </div>
   );
-};
-
-ProgramListingPage.propTypes = {
-  canOnlyViewHighlightSets: PropTypes.bool,
-  programsListData: PropTypes.arrayOf(PropTypes.shape({
-    title: PropTypes.string,
-  })),
-  programsFetchError: PropTypes.shape({
-    message: PropTypes.string,
-  }),
-};
-
-ProgramListingPage.defaultProps = {
-  canOnlyViewHighlightSets: false,
-  programsListData: [],
-  programsFetchError: null,
 };
 
 export default ProgramListingPage;
