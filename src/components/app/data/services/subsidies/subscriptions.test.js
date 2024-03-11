@@ -178,6 +178,9 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     };
     const result = await activateOrAutoApplySubscriptionLicense({
       enterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [{
+        enterpriseCustomer: mockEnterpriseCustomer,
+      }],
       subscriptionsData: mockSubscriptionsData,
       requestUrl: {
         pathname: `/${mockEnterpriseSlug}`,
@@ -198,6 +201,9 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     };
     const result = await activateOrAutoApplySubscriptionLicense({
       enterpriseCustomer: mockEnterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers: [{
+        enterpriseCustomer: mockEnterpriseCustomer,
+      }],
       subscriptionsData: mockSubscriptionsData,
       requestUrl: {
         pathname: `/${mockEnterpriseSlug}`,
@@ -238,6 +244,9 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
             ? `/${mockEnterpriseSlug}/licenses/${mockLicenseActivationKey}/activate`
             : `/${mockEnterpriseSlug}`,
         },
+        allLinkedEnterpriseCustomerUsers: [{
+          enterpriseCustomer: mockEnterpriseCustomer,
+        }],
       });
       expect(response).toEqual({
         ...mockSubscriptionLicense,
@@ -255,26 +264,37 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
     {
       identityProvider: null,
       subscriptionForAutoAppliedLicenses: null,
+      isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: null,
       subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: 'identity-provider',
       subscriptionForAutoAppliedLicenses: null,
+      isLinkedToEnterpriseCustomer: false,
       shouldAutoApply: false,
     },
     {
       identityProvider: 'identity-provider',
       subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      isLinkedToEnterpriseCustomer: false,
+      shouldAutoApply: false,
+    },
+    {
+      identityProvider: 'identity-provider',
+      subscriptionForAutoAppliedLicenses: mockSubscriptionPlanUUID,
+      isLinkedToEnterpriseCustomer: true,
       shouldAutoApply: true,
     },
   ])('auto-applies subscription license (%s)', async ({
     identityProvider,
     subscriptionForAutoAppliedLicenses,
+    isLinkedToEnterpriseCustomer,
     shouldAutoApply,
   }) => {
     const mockLicensesByStatus = {
@@ -310,6 +330,9 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
       requestUrl: {
         pathname: `/${mockEnterpriseSlug}`,
       },
+      allLinkedEnterpriseCustomerUsers: isLinkedToEnterpriseCustomer ? [{
+        enterpriseCustomer: mockEnterpriseCustomer,
+      }] : [],
     });
     if (shouldAutoApply) {
       expect(response).toEqual(mockAutoAppliedSubscriptionLicense);

@@ -1,6 +1,7 @@
 import React, {
   useContext, useMemo, useState, useEffect,
 } from 'react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
@@ -81,7 +82,13 @@ const SearchCourseCard = ({ index }) => {
 
   return (
     <div>
-      <h3 className="mb-3">Get started with these courses</h3>
+      <h3 className="mb-3">
+        <FormattedMessage
+          id="enterprise.skills.quiz.v1.course.card.heading"
+          defaultMessage="Get started with these courses"
+          description="Heading for courses displayed for users to get started with on skills quiz v1 page"
+        />
+      </h3>
       <CardGrid>
         {courses.map(course => (
           <CourseCard

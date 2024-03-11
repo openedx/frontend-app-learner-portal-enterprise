@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchCourseCard from '../SearchCourseCard';
@@ -109,17 +110,19 @@ const SearchCourseCardWithContext = ({
   searchContext = defaultSearchContext,
   index,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <SearchContext.Provider value={searchContext}>
-          <SkillsContext.Provider value={initialSkillsState}>
-            <SearchCourseCard index={index} />
-          </SkillsContext.Provider>
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+          <SearchContext.Provider value={searchContext}>
+            <SkillsContext.Provider value={initialSkillsState}>
+              <SearchCourseCard index={index} />
+            </SkillsContext.Provider>
+          </SearchContext.Provider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<SearchCourseCard />', () => {

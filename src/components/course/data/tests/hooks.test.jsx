@@ -12,6 +12,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
   useAllCourseData,
   useCheckSubsidyAccessPolicyRedeemability,
@@ -514,11 +515,13 @@ describe('useTrackSearchConversionClickHandler', () => {
     },
   };
   const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-      <CourseContext.Provider value={{ state: mockCourseState }}>
-        {children}
-      </CourseContext.Provider>
-    </AppContext.Provider>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
+        <CourseContext.Provider value={{ state: mockCourseState }}>
+          {children}
+        </CourseContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
   );
 
   beforeAll(() => {
@@ -599,7 +602,11 @@ describe('useCoursePartners', () => {
         { name: 'Partner 2', logoImageUrl: 'https://partner2.img' },
       ],
     };
-    const { result } = renderHook(() => useCoursePartners(course));
+    const { result } = renderHook(() => useCoursePartners(course), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toEqual([
       { name: 'Partner 1', logoImageUrl: 'https://partner1.img' },
       { name: 'Partner 2', logoImageUrl: 'https://partner2.img' },
@@ -613,7 +620,11 @@ describe('useCoursePartners', () => {
         { name: 'Partner 3', logoImageUrl: 'https://partner3.img' },
       ],
     };
-    const { result } = renderHook(() => useCoursePartners(course));
+    const { result } = renderHook(() => useCoursePartners(course), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toEqual([
       { name: 'Partner 3', logoImageUrl: 'https://partner3.img' },
     ]);
@@ -641,7 +652,11 @@ describe('useCoursePartners', () => {
           marketingUrl: 'https://partner2.marketing',
         }],
     };
-    const { result } = renderHook(() => useCoursePartners(course));
+    const { result } = renderHook(() => useCoursePartners(course), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toEqual([
       {
         uuid: 'partner-1-uuid',
@@ -658,30 +673,50 @@ describe('useCoursePartners', () => {
 describe('useCourseRunWeeksToComplete', () => {
   it('should return the correct weeksToComplete and label', () => {
     const courseRun = { weeksToComplete: 4 };
-    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun));
+    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toBe(4);
     expect(result.current[1]).toBe('weeks');
   });
   it('should handle 0 weekToComplete', () => {
     const courseRun = { weeksToComplete: 0 };
-    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun));
+    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toBe(0);
     expect(result.current[1]).toBe('weeks');
   });
   it('should handle 1 weekToComplete', () => {
     const courseRun = { weeksToComplete: 1 };
-    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun));
+    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toBe(1);
     expect(result.current[1]).toBe('week');
   });
   it('should handle undefined courseRun', () => {
-    const { result } = renderHook(() => useCourseRunWeeksToComplete(undefined));
+    const { result } = renderHook(() => useCourseRunWeeksToComplete(undefined), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toBe(undefined);
     expect(result.current[1]).toBe(undefined);
   });
   it('should handle courseRun with no weeksToComplete', () => {
     const courseRun = {};
-    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun));
+    const { result } = renderHook(() => useCourseRunWeeksToComplete(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
     expect(result.current[0]).toBe(undefined);
     expect(result.current[1]).toBe(undefined);
   });
@@ -692,7 +727,11 @@ describe('useCourseTranscriptLanguages', () => {
     const courseRun = {
       transcriptLanguages: ['en', 'fr'],
     };
-    const { result } = renderHook(() => useCourseTranscriptLanguages(courseRun));
+    const { result } = renderHook(() => useCourseTranscriptLanguages(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
 
     expect(result.current[0]).toEqual(['en', 'fr']);
     expect(result.current[1]).toEqual('Video Transcripts');
@@ -702,14 +741,22 @@ describe('useCourseTranscriptLanguages', () => {
     const courseRun = {
       transcriptLanguages: ['en'],
     };
-    const { result } = renderHook(() => useCourseTranscriptLanguages(courseRun));
+    const { result } = renderHook(() => useCourseTranscriptLanguages(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
 
     expect(result.current[0]).toEqual(['en']);
     expect(result.current[1]).toEqual('Video Transcript');
   });
 
   it('does not set state when course run is undefined', () => {
-    const { result } = renderHook(() => useCourseTranscriptLanguages(undefined));
+    const { result } = renderHook(() => useCourseTranscriptLanguages(undefined), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
 
     expect(result.current[0]).toEqual([]);
     expect(result.current[1]).toEqual(undefined);
@@ -717,7 +764,11 @@ describe('useCourseTranscriptLanguages', () => {
 
   it('does not set state when course run has no transcriptLanguages property', () => {
     const courseRun = {};
-    const { result } = renderHook(() => useCourseTranscriptLanguages(courseRun));
+    const { result } = renderHook(() => useCourseTranscriptLanguages(courseRun), {
+      wrapper: ({ children }) => (
+        <IntlProvider locale="en">{children}</IntlProvider>
+      ),
+    });
 
     expect(result.current[0]).toEqual([]);
     expect(result.current[1]).toEqual(undefined);
@@ -738,7 +789,11 @@ describe('CoursePacingType', () => {
   };
   it('should display the correct pacing type and content when passed a self-paced course', () => {
     const courseRun = { pacingType: 'self_paced' };
-    render(<CoursePacingType courseRun={courseRun} />);
+    render(
+      <IntlProvider locale="en">
+        <CoursePacingType courseRun={courseRun} />
+      </IntlProvider>,
+    );
 
     expect(screen.getByText('Pacing Type')).toBeTruthy();
     expect(screen.getByText('self_paced')).toBeTruthy();
@@ -747,7 +802,11 @@ describe('CoursePacingType', () => {
 
   it('should display the correct pacing type and content when passed an instructor-paced course', () => {
     const courseRun = { pacingType: 'instructor_paced' };
-    render(<CoursePacingType courseRun={courseRun} />);
+    render(
+      <IntlProvider locale="en">
+        <CoursePacingType courseRun={courseRun} />
+      </IntlProvider>,
+    );
 
     expect(screen.getByText('Pacing Type')).toBeTruthy();
     expect(screen.getByText('instructor_paced')).toBeTruthy();

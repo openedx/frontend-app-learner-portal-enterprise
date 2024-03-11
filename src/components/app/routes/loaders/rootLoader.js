@@ -27,14 +27,19 @@ export default function makeRootLoader(queryClient) {
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
     const linkedEnterpriseCustomersQuery = queryEnterpriseLearner(username, enterpriseSlug);
-    const enterpriseLearnerData = await queryClient.ensureQueryData(linkedEnterpriseCustomersQuery);
+    const enterpriseLearnerData = await queryClient.fetchQuery({
+      ...linkedEnterpriseCustomersQuery,
+      staleTime: 0,
+    });
     let {
+      enterpriseCustomer,
       activeEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
     } = enterpriseLearnerData;
+    const { staffEnterpriseCustomer } = enterpriseLearnerData;
 
-    // User has no active, linked enterprise customer; return early.
-    if (!activeEnterpriseCustomer) {
+    // User has no active, linked enterprise customer and no staff-only customer metadata exists; return early.
+    if (!enterpriseCustomer) {
       return null;
     }
 
@@ -43,9 +48,8 @@ export default function makeRootLoader(queryClient) {
     const updateActiveEnterpriseCustomerUserResult = await ensureActiveEnterpriseCustomerUser({
       enterpriseSlug,
       activeEnterpriseCustomer,
+      staffEnterpriseCustomer,
       allLinkedEnterpriseCustomerUsers,
-      queryClient,
-      username,
       requestUrl,
     });
     // If the active enterprise customer user was updated, override the previous active
@@ -56,13 +60,15 @@ export default function makeRootLoader(queryClient) {
         enterpriseCustomer: nextActiveEnterpriseCustomer,
         updatedLinkedEnterpriseCustomerUsers,
       } = updateActiveEnterpriseCustomerUserResult;
+      enterpriseCustomer = nextActiveEnterpriseCustomer;
       activeEnterpriseCustomer = nextActiveEnterpriseCustomer;
       allLinkedEnterpriseCustomerUsers = updatedLinkedEnterpriseCustomerUsers;
     }
 
     // Fetch all enterprise app data.
     const enterpriseAppData = await ensureEnterpriseAppData({
-      enterpriseCustomer: activeEnterpriseCustomer,
+      enterpriseCustomer,
+      allLinkedEnterpriseCustomerUsers,
       userId,
       userEmail,
       queryClient,

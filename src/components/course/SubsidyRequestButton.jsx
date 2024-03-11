@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { StatefulButton } from '@openedx/paragon';
 import { logError } from '@edx/frontend-platform/logging';
+import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { CourseContext } from './CourseContextProvider';
@@ -31,7 +32,7 @@ const SubsidyRequestButton = () => {
     subsidyRequestConfiguration,
     refreshSubsidyRequests,
   } = useContext(SubsidyRequestsContext);
-
+  const intl = useIntl();
   const { state, subsidyRequestCatalogsApplicableToCourse, userSubsidyApplicableToCourse } = useContext(CourseContext);
 
   const { course, userEnrollments } = state;
@@ -106,7 +107,13 @@ const SubsidyRequestButton = () => {
     try {
       await requestSubsidy(courseKey);
       setLoadingRequest(false);
-      addToast('Request for course submitted');
+      addToast(
+        intl.formatMessage({
+          id: 'enterprise.course.about.page.subsidy.request.submitted.toast,message',
+          defaultMessage: 'Request for course submitted',
+          description: 'Toast message for when a user submits a request to enroll in a course',
+        }),
+      );
       refreshSubsidyRequests();
     } catch (error) {
       logError(error);

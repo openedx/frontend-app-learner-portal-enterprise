@@ -3,14 +3,10 @@ import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { CourseContextProvider } from '../CourseContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import CourseSidebarPrice, {
-  INCLUDED_IN_SUBSCRIPTION_MESSAGE,
-  FREE_WHEN_APPROVED_MESSAGE,
-  COVERED_BY_ENTERPRISE_OFFER_MESSAGE,
-  ASSIGNED_COURSE_MESSAGE,
-} from '../CourseSidebarPrice';
+import CourseSidebarPrice from '../CourseSidebarPrice';
 import {
   LICENSE_SUBSIDY_TYPE,
   COUPON_CODE_SUBSIDY_TYPE,
@@ -137,15 +133,17 @@ const SidebarWithContext = ({
   courseContextProps = {},
   userSubsidyContextValue = defaultUserSubsidyContextValue,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={userSubsidyContextValue}>
-      <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
-        <CourseContextProvider {...courseContextProps}>
-          <CourseSidebarPrice />
-        </CourseContextProvider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <UserSubsidyContext.Provider value={userSubsidyContextValue}>
+        <SubsidyRequestsContext.Provider value={subsidyRequestsState}>
+          <CourseContextProvider {...courseContextProps}>
+            <CourseSidebarPrice />
+          </CourseContextProvider>
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const SPONSORED_BY_TEXT = 'Sponsored by test-enterprise';
@@ -163,11 +161,11 @@ describe('<CourseSidebarPrice/> ', () => {
         />,
       );
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.getByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' '))).toBeInTheDocument();
+      expect(screen.getByText(/Free to me.*\(when approved\)/)).toBeInTheDocument();
       expect(screen.getByTestId('browse-and-request-pricing')).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
 
     test('Display correct message when browse and request on, course is included in subsidy request catalog(s), and user has no subsidy', () => {
@@ -184,11 +182,11 @@ describe('<CourseSidebarPrice/> ', () => {
         />,
       );
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(FREE_WHEN_APPROVED_MESSAGE.replace('\n', ' '))).not.toBeInTheDocument();
+      expect(screen.queryByText(/Free to me.*\(when approved\)/)).not.toBeInTheDocument();
       expect(screen.queryByTestId('browse-and-request-pricing')).not.toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
   });
 
@@ -217,9 +215,9 @@ describe('<CourseSidebarPrice/> ', () => {
       );
       expect(screen.getByText('Priced reduced from:')).toBeInTheDocument();
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
     });
   });
@@ -230,10 +228,10 @@ describe('<CourseSidebarPrice/> ', () => {
         <SidebarWithContext courseContextProps={baseCourseContextProps} />,
       );
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
   });
 
@@ -246,27 +244,27 @@ describe('<CourseSidebarPrice/> ', () => {
       );
       expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('coupon code 100% subsidy, shows no price, correct message', () => {
       render(<SidebarWithContext courseContextProps={courseContextPropsFullCouponCodeSubsidy} />);
       expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('coupon code non-full subsidy, shows discounted price only, correct message', () => {
       render(<SidebarWithContext courseContextProps={courseContextPropsPartialCouponCodeSubsidy} />);
       expect(screen.getByText(/\$3.75 USD/)).toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('assigned course, shows no price, correct message', () => {
       render(
@@ -277,10 +275,10 @@ describe('<CourseSidebarPrice/> ', () => {
       );
       expect(screen.queryByText(/\$7.50 USD/)).not.toBeInTheDocument();
       expect(screen.queryByText(/\$0.00 USD/)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
     });
   });
 
@@ -291,10 +289,10 @@ describe('<CourseSidebarPrice/> ', () => {
         courseContextProps={baseCourseContextProps}
       />);
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('subscription license subsidy, shows orig crossed out price, correct message', () => {
       render(<SidebarWithContext
@@ -302,10 +300,10 @@ describe('<CourseSidebarPrice/> ', () => {
         courseContextProps={courseContextPropsWithLicenseSubsidy}
       />);
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('coupon code 100% subsidy, shows orig price, correct message', () => {
       render(<SidebarWithContext
@@ -313,10 +311,10 @@ describe('<CourseSidebarPrice/> ', () => {
         courseContextProps={courseContextPropsFullCouponCodeSubsidy}
       />);
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('coupon code non-full subsidy, shows orig and discounted price only, correct message', () => {
       render(<SidebarWithContext
@@ -325,10 +323,10 @@ describe('<CourseSidebarPrice/> ', () => {
       />);
       expect(screen.getByText(/\$7.50 USD/)).toBeInTheDocument();
       expect(screen.getByText(/\$3.75 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.getByText(SPONSORED_BY_TEXT)).toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).not.toBeInTheDocument();
     });
     test('assigned course, shows orig price, correct message', () => {
       render(
@@ -339,10 +337,10 @@ describe('<CourseSidebarPrice/> ', () => {
         />,
       );
       expect(screen.queryByText(/\$7.50 USD/)).toBeInTheDocument();
-      expect(screen.queryByText(ASSIGNED_COURSE_MESSAGE)).toBeInTheDocument();
-      expect(screen.queryByText(INCLUDED_IN_SUBSCRIPTION_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText('This course is assigned to you. The price of this course is already covered by your organization.')).toBeInTheDocument();
+      expect(screen.queryByText('Included in your subscription')).not.toBeInTheDocument();
       expect(screen.queryByText(SPONSORED_BY_TEXT)).not.toBeInTheDocument();
-      expect(screen.queryByText(COVERED_BY_ENTERPRISE_OFFER_MESSAGE)).not.toBeInTheDocument();
+      expect(screen.queryByText("This course can be purchased with your organization's learner credit")).not.toBeInTheDocument();
     });
   });
 

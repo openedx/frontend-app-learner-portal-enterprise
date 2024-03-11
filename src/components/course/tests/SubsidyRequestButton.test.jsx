@@ -4,6 +4,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { ToastsContext } from '../../Toasts/ToastsProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import SubsidyRequestButton from '../SubsidyRequestButton';
@@ -59,13 +60,15 @@ const SubsidyRequestButtonWrapper = ({
   subsidyRequestsState = {},
   courseContextValue = defaultCourseContextValue,
 }) => (
-  <ToastsContext.Provider value={initialToastsState}>
-    <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
-      <CourseContext.Provider value={{ state: courseState, ...courseContextValue }}>
-        <SubsidyRequestButton />
-      </CourseContext.Provider>
-    </SubsidyRequestsContext.Provider>
-  </ToastsContext.Provider>
+  <IntlProvider locale="en">
+    <ToastsContext.Provider value={initialToastsState}>
+      <SubsidyRequestsContext.Provider value={{ ...initialSubsidyRequestsState, ...subsidyRequestsState }}>
+        <CourseContext.Provider value={{ state: courseState, ...courseContextValue }}>
+          <SubsidyRequestButton />
+        </CourseContext.Provider>
+      </SubsidyRequestsContext.Provider>
+    </ToastsContext.Provider>
+  </IntlProvider>
 );
 
 describe('<SubsidyRequestButton />', () => {

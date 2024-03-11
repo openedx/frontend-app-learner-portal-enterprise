@@ -1,6 +1,7 @@
 /* eslint-disable object-curly-newline */
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import {
   Button,
   Stepper,
@@ -36,7 +37,6 @@ import {
   STEP1,
   STEP2,
   STEP3,
-  SKILLS_QUIZ_SEARCH_PAGE_MESSAGE,
   GOAL_DROPDOWN_DEFAULT_OPTION,
 } from './constants';
 import { SkillsContext } from './SkillsContextProvider';
@@ -200,9 +200,19 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
           <Container size="lg">
             <Stepper.Step eventKey="skills-search" title="Skills Search">
               <div className="skills-quiz-dropdown my-4">
-                <p>{SKILLS_QUIZ_SEARCH_PAGE_MESSAGE}</p>
+                <p>
+                  <FormattedMessage
+                    id="enterprise.skills.quiz.v1.skills.search.heading"
+                    defaultMessage="Let edX be your guide. We combine the educational expertise of the world's leading institutions with labor market data to find the right course(s) and program(s) to help you reach your learning and professional goals."
+                    description="Skills search heading on skills quiz v1 page"
+                  />
+                </p>
                 <p className="mt-4.5">
-                  First, tell us a bit more about what you want to achieve.
+                  <FormattedMessage
+                    id="enterprise.skills.quiz.v1.goal.selection.label"
+                    defaultMessage="First, tell us a bit more about what you want to achieve."
+                    description="Goal selection label prompting the user to select their goal on the skills quiz v1 page."
+                  />
                 </p>
                 <div className="mt-2">
                   <GoalDropdown />
@@ -214,8 +224,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                       searchClient={searchClient}
                     >
                       <div className="mt-4.5">
-                        Second, which industry describes where you work? (select
-                        one, or leave blank)
+                        <FormattedMessage
+                          id="enterprise.skills.quiz.v1.industry.selection.label"
+                          defaultMessage="Second, which industry describes where you work? (select one, or leave blank)"
+                          description="Industry selection label for industry dropdown, prompting the user to select their relevant industry on the skills quiz v1 page. Indicates that the user should either select one option from the dropdown or leave it blank."
+                        />
                       </div>
                       <div className="col col-8 p-0 mt-3">
                         <IndustryDropdown
@@ -224,7 +237,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                       </div>
 
                       <p className="mt-4.5">
-                        Next, tell us about your current job title.
+                        <FormattedMessage
+                          id="enterprise.skills.quiz.v1.current.job.title"
+                          defaultMessage="Next, tell us about your current job title."
+                          description="Label for current job title dropdown on the skills quiz v1 page."
+                        />
                       </p>
                       <div className="col col-8 p-0 mt-3">
                         <CurrentJobDropdown
@@ -238,7 +255,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                           }
                           data-testid="is-student-checkbox"
                         >
-                          I am currently a student
+                          <FormattedMessage
+                            id="enterprise.skills.quiz.v1.currently.a.student.label"
+                            defaultMessage="I am currently a student"
+                            description="Label indicating that the user is currently a student on the skills quiz v1 page."
+                          />
                         </Form.Checkbox>
                       </div>
 
@@ -246,8 +267,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                         {goal !== DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE ? (
                           <>
                             <p className="mt-4.5">
-                              Lastly, tell us about career paths you&apos;re
-                              interested in (select up to three)
+                              <FormattedMessage
+                                id="enterprise.skills.quiz.v1.similar.career.paths"
+                                defaultMessage="Lastly, tell us about career paths you're interested in (select up to three)"
+                                description="Label for career paths dropdown, prompting the user to select up to three similar career paths on the skills quiz v1 page."
+                              />
                             </p>
                             <div className="col col-8 p-0 mt-3">
                               <SearchJobDropdown
@@ -279,7 +303,13 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
             >
               <div>
                 <div className="row mb-4 pl-2 mt-4">
-                  <h2>Start Exploring Courses!</h2>
+                  <h2>
+                    <FormattedMessage
+                      id="enterprise.skills.quiz.v1.explore.courses.label"
+                      defaultMessage="Start Exploring Courses!"
+                      description="Label to start exploring available courses on the skills quiz v1 page."
+                    />
+                  </h2>
                 </div>
                 <div className="search-job-card">
                   {canContinueToRecommendedCourses ? <SelectJobCard /> : null}
@@ -301,7 +331,11 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
                   variant="outline-primary"
                   onClick={() => setCurrentStep(STEP3)}
                 >
-                  See more course recommendations
+                  <FormattedMessage
+                    id="enterprise.skills.quiz.v1.see.more.recommendations.label"
+                    defaultMessage="See more course recommendations"
+                    description="Redirect label to see more course recommendations that will redirect the user to the courses page, on the skills quiz v1."
+                  />
                 </Button>
               </div>
             </Stepper.Step>
@@ -316,14 +350,22 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
         <ModalDialog.Footer>
           <Stepper.ActionRow eventKey="skills-search">
             <Button variant="outline-primary" onClick={() => closeSkillsQuiz()}>
-              Cancel
+              <FormattedMessage
+                id="enterprise.skills.quiz.v1.cancel.button.label"
+                defaultMessage="Cancel"
+                description="Button text for cancel button that closes the skills builder, on the skills quiz v1 page."
+              />
             </Button>
             <Stepper.ActionRow.Spacer />
             <Button
               disabled={!canContinueToRecommendedCourses}
               onClick={() => flipToRecommendedCourses()}
             >
-              Continue
+              <FormattedMessage
+                id="enterprise.skills.quiz.v1.continue.button.label"
+                defaultMessage="Continue"
+                description="Button text for continue button that takes the user towards the recommended courses page, on the skills quiz v1."
+              />
             </Button>
           </Stepper.ActionRow>
           <Stepper.ActionRow eventKey="courses-with-jobs">
@@ -334,7 +376,13 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
               Go back
             </Button>
             <Stepper.ActionRow.Spacer />
-            <Button onClick={() => setCurrentStep(STEP3)}>Continue</Button>
+            <Button data-testid="skills-continue-button" onClick={() => setCurrentStep(STEP3)}>
+              <FormattedMessage
+                id="enterprise.skills.quiz.v1.continue.button.label"
+                defaultMessage="Continue"
+                description="Button text for continue button that takes the user to the courses page, on the skills quiz v1."
+              />
+            </Button>
           </Stepper.ActionRow>
           <Stepper.ActionRow eventKey="courses-with-skills">
             <Button
@@ -344,7 +392,13 @@ const SkillsQuizStepper = ({ isStyleAutoSuggest }) => {
               Go back
             </Button>
             <Stepper.ActionRow.Spacer />
-            <Button onClick={() => closeSkillsQuiz()}>Done</Button>
+            <Button onClick={() => closeSkillsQuiz()}>
+              <FormattedMessage
+                id="enterprise.skills.quiz.v1.done.button.label"
+                defaultMessage="Done"
+                description="Button text for done button that closes the skills builder upon clicking, on the skills quiz v1 page."
+              />
+            </Button>
           </Stepper.ActionRow>
         </ModalDialog.Footer>
       </ModalDialog>

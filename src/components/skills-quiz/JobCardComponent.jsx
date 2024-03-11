@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Card, CardGrid } from '@openedx/paragon';
 import PropTypes from 'prop-types';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { formatStringAsNumber } from '../../utils/common';
 import { NOT_AVAILABLE } from './constants';
 
@@ -20,12 +21,24 @@ const JobCardComponent = ({ jobs, isLoading }) => {
             {!hideLaborMarketData && (
               <div className="text-gray-700">
                 <p className="m-0 medium-font">
-                  <span style={{ fontWeight: 700 }}>Median U.S. Salary: </span>
+                  <span style={{ fontWeight: 700 }}>
+                    <FormattedMessage
+                      id="enterprise.skills.quiz.v1.job.card.median.salary"
+                      defaultMessage="Median U.S. Salary: "
+                      description="Label for median US salary on the job card within the skills quiz v1 page."
+                    />
+                  </span>
                   {job.job_postings?.length > 0 ? `$${ formatStringAsNumber(job.job_postings[0].median_salary)}`
                     : NOT_AVAILABLE }
                 </p>
                 <p className="m-0 medium-font">
-                  <span style={{ fontWeight: 700 }}>Job Postings: </span>
+                  <span style={{ fontWeight: 700 }}>
+                    <FormattedMessage
+                      id="enterprise.skills.quiz.v1.job.card.job.postings.label"
+                      defaultMessage="Job Postings: "
+                      description="Label for job postings on the job card within the skills quiz v1 page."
+                    />
+                  </span>
                   {job.job_postings?.length > 0 ? formatStringAsNumber(job.job_postings[0].unique_postings)
                     : NOT_AVAILABLE }
                 </p>

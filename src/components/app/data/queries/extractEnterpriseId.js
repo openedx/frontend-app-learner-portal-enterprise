@@ -20,23 +20,26 @@ async function extractEnterpriseId({
   const {
     activeEnterpriseCustomer,
     allLinkedEnterpriseCustomerUsers,
+    staffEnterpriseCustomer,
   } = enterpriseLearnerData;
 
   // If there is no slug provided (i.e., on the root page route `/`), use
-  // the currently active enterprise customer.
+  // the currently active enterprise customer user.
   if (!enterpriseSlug) {
     return activeEnterpriseCustomer.uuid;
   }
 
-  // Otherwise, there is a slug provided for a specific enterprise customer. If the
-  // enterprise customer for the given slug is associated to one linked to the learner,
-  // return the enterprise ID for that enterprise customer.
   const foundEnterpriseIdForSlug = allLinkedEnterpriseCustomerUsers.find(
     (enterpriseCustomerUser) => enterpriseCustomerUser.enterpriseCustomer.slug === enterpriseSlug,
   )?.enterpriseCustomer.uuid;
 
-  if (foundEnterpriseIdForSlug) {
-    return foundEnterpriseIdForSlug;
+  // Otherwise, there is a slug provided for a specific enterprise customer. If the
+  // user is linked to the enterprise customer for the given slug, return the enterprise
+  // enterprise ID for that enterprise customer. If there is no linked enterprise customer
+  // for the given slug, but the user is staff, return the enterprise ID from the staff-only
+  // enterprise customer metadata.
+  if (foundEnterpriseIdForSlug || staffEnterpriseCustomer) {
+    return foundEnterpriseIdForSlug || staffEnterpriseCustomer.uuid;
   }
 
   // If no enterprise customer is found for the given user/slug, throw an error.
