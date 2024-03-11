@@ -24,7 +24,7 @@ import SearchCourse from './SearchCourse';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
 import SearchResults from './SearchResults';
-// import { ContentHighlights } from './content-highlights';
+import { ContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
@@ -43,7 +43,6 @@ import {
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
-import ContentHighlights from './content-highlights/ContentHighlights';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -52,6 +51,23 @@ export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
     pushEvent(EVENTS.SEARCH_SUGGESTION_CLICK, { courseKeyMetadata });
   }
 };
+
+function useSearchPathwayModal() {
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
+  const { pathwayUUID } = useParams();
+  // If a pathwayUUID exists, open the pathway modal.
+  useEffect(() => {
+    if (pathwayUUID) {
+      openLearnerPathwayModal();
+    }
+  }, [openLearnerPathwayModal, pathwayUUID]);
+
+  return {
+    pathwayUUID,
+    isLearnerPathwayModalOpen,
+    closePathwayModal: close,
+  };
+}
 
 const Search = () => {
   const config = getConfig();

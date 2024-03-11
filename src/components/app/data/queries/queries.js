@@ -108,13 +108,15 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.academies
+ * ._ctx.list
  * @returns {Types.QueryOptions}
  */
-export function queryAcademies(enterpriseUuid) {
+export function queryAcademiesList(enterpriseUuid) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.academies;
+    ._ctx.academies
+    ._ctx.list;
 }
 
 /**
@@ -141,7 +143,7 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
  * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.contentHighlights
  * ._ctx.highlightSets
- * @returns
+ * @returns {Types.QueryOptions}
  */
 export function queryContentHighlights(enterpriseUuid) {
   return queries

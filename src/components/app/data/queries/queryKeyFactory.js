@@ -30,7 +30,12 @@ const enterprise = createQueryKeys('enterprise', {
     contextQueries: {
       academies: {
         queryKey: null,
-        queryFn: async ({ queryKey }) => fetchAcademies(queryKey[2]),
+        contextQueries: {
+          list: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchAcademies(queryKey[2]),
+          },
+        },
       },
       contentHighlights: {
         queryKey: null,
