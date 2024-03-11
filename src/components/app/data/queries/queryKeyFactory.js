@@ -16,6 +16,7 @@ import {
   fetchContentHighlights,
   fetchCouponCodeRequests,
   fetchNotices,
+  fetchAcademies,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -24,6 +25,10 @@ const enterprise = createQueryKeys('enterprise', {
   enterpriseCustomer: (enterpriseUuid) => ({
     queryKey: [enterpriseUuid],
     contextQueries: {
+      academies: {
+        queryKey: null,
+        queryFn: async ({ queryKey }) => fetchAcademies(queryKey[2]),
+      },
       contentHighlights: {
         queryKey: null,
         contextQueries: {

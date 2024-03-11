@@ -1,18 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { CardGrid, Container, Skeleton } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import SearchAcademyCard from '../academies/SearchAcademyCard';
-import { useAcademies } from '../academies/data/hooks';
 import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
 import { getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 import SearchError from './SearchError';
+import { useAcademies } from '../hooks';
 
 const SearchAcademy = () => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const [academies, isLoading, fetchError] = useAcademies(enterpriseConfig.uuid);
+  const { academies, isLoading, fetchError } = useAcademies();
   const SkeletonCard = getSkeletonCardFromTitle(ACADEMY_TITLE);
 
   if (isLoading) {

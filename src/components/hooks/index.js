@@ -6,3 +6,4 @@ export { default as useCouponCodes } from './useCouponCodes';
 export { default as useEnterpriseOffers } from './useEnterpriseOffers';
 export { default as useCatalogsForSubsidyRequests } from './useCatalogsForSubsidyRequests';
 export { default as useContentHighlights } from './useContentHighlights';
+export { default as useAcademies } from './useAcademies';

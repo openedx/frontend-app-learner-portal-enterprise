@@ -68,6 +68,21 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.academies
+ * @returns {Types.QueryOptions}
+ */
+export function queryAcademies(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.academies;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.contentHighlights
  * ._ctx.configuration
  * @returns {Types.QueryOptions}

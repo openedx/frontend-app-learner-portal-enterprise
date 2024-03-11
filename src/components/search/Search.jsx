@@ -32,7 +32,6 @@ import { EnterpriseOffersBalanceAlert } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import PathwayModal from '../pathway/PathwayModal';
-import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
