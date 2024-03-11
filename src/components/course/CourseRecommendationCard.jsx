@@ -61,11 +61,11 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
 
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{course.title}</Truncate>
+          <Truncate lines={3}>{course.title}</Truncate>
         )}
         subtitle={course.owners?.length > 0 && (
           <p className="partner">
-            <Truncate maxLine={1}>{course.owners.map(partner => partner.name).join(', ')}</Truncate>
+            <Truncate lines={1}>{course.owners.map(partner => partner.name).join(', ')}</Truncate>
           </p>
         )}
       />

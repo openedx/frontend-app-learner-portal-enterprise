@@ -65,6 +65,8 @@ const Search = () => {
   const { refinements } = useContext(SearchContext);
   const { filters } = useDefaultSearchFilters();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
+
+  // Flag to toggle highlights visibility
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {

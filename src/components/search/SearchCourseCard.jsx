@@ -108,10 +108,10 @@ const SearchCourseCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{course.title}</Truncate>
+          <Truncate lines={3}>{course.title}</Truncate>
         )}
         subtitle={course.partners?.length > 0 && (
-          <Truncate maxLine={2}>
+          <Truncate lines={2}>
             {course.partners.map(partner => partner.name).join(', ')}
           </Truncate>
         )}

@@ -13,6 +13,7 @@ import {
   fetchCouponCodes,
   fetchEnterpriseOffers,
   fetchEnterpriseCuration,
+  fetchContentHighlights,
   fetchCouponCodeRequests,
   fetchNotices,
   getLearnerProgramsList,
@@ -32,6 +33,10 @@ const enterprise = createQueryKeys('enterprise', {
           configuration: {
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchEnterpriseCuration(queryKey[2]),
+          },
+          highlightSets: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchContentHighlights(queryKey[2]),
           },
         },
       },

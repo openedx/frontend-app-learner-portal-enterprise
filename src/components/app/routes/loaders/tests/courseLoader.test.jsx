@@ -11,14 +11,24 @@ import {
   queryEnterpriseCourseEnrollments,
   queryUserEntitlements,
 } from '../../../data';
+import { ensureAuthenticatedUser } from '../../data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
-  ensureAuthenticatedUser: jest.fn().mockResolvedValue({ userId: 3 }),
+  ensureAuthenticatedUser: jest.fn(),
 }));
 jest.mock('../../../data', () => ({
   ...jest.requireActual('../../../data'),
   extractEnterpriseId: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/auth', () => ({
+  ...jest.requireActual('@edx/frontend-platform/auth'),
+  configure: jest.fn(),
+}));
+jest.mock('@edx/frontend-platform/logging', () => ({
+  ...jest.requireActual('@edx/frontend-platform/logging'),
+  configure: jest.fn(),
+  getLoggingService: jest.fn(),
 }));
 
 const mockEnterpriseId = 'test-enterprise-uuid';
@@ -31,6 +41,22 @@ const mockQueryClient = {
 describe('courseLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    ensureAuthenticatedUser.mockResolvedValue({ userId: 3 });
+  });
+
+  it('does nothing with unauthenticated users', async () => {
+    ensureAuthenticatedUser.mockResolvedValue(null);
+    renderWithRouterProvider({
+      path: '/:enterpriseSlug/course/:courseKey',
+      element: <div>hello world</div>,
+      loader: makeCourseLoader(mockQueryClient),
+    }, {
+      initialEntries: ['/test-enterprise-slug/course/edX+DemoX'],
+    });
+
+    expect(await screen.findByText('hello world')).toBeInTheDocument();
+
+    expect(mockQueryClient.ensureQueryData).not.toHaveBeenCalled();
   });
 
   it.each([

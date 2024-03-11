@@ -124,6 +124,23 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.contentHighlights
+ * ._ctx.highlightSets
+ * @returns
+ */
+export function queryContentHighlights(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.contentHighlights
+    ._ctx.highlightSets;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.course
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
