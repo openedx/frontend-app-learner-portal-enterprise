@@ -12,24 +12,9 @@ import { useContentHighlights } from '../../hooks';
 
 const ContentHighlights = ({ className }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const {
-    isLoading,
-    contentHighlights,
-  } = useContentHighlights(enterpriseCustomer.uuid);
+  const { data: contentHighlights } = useContentHighlights(enterpriseCustomer.uuid);
 
-  if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
-    return null;
-  }
-
-  if (isLoading) {
-    return (
-      <Container size="lg" className={className}>
-        <ContentHighlightSet.Skeleton />
-      </Container>
-    );
-  }
-
-  if (contentHighlights.length === 0) {
+  if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS || contentHighlights.length === 0) {
     return null;
   }
 

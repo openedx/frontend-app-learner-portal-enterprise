@@ -43,6 +43,7 @@ import {
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
+import ContentHighlights from './content-highlights/ContentHighlights';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -57,9 +58,6 @@ const Search = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const enterpriseFeatures = useEnterpriseFeatures();
   const intl = useIntl();
-
-  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  const { pathwayUUID } = useParams();
   const navigate = useNavigate();
 
   const { refinements } = useContext(SearchContext);
@@ -76,17 +74,16 @@ const Search = () => {
   } = useEnterpriseOffers();
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
+  const {
+    pathwayUUID,
+    isLearnerPathwayModalOpen,
+    closePathwayModal,
+  } = useSearchPathwayModal();
+
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
   );
-
-  // If a pathwayUUID exists, open the pathway modal.
-  useEffect(() => {
-    if (pathwayUUID) {
-      openLearnerPathwayModal();
-    }
-  }, [openLearnerPathwayModal, pathwayUUID]);
 
   const PAGE_TITLE = intl.formatMessage({
     id: 'enterprise.search.page.title',
@@ -112,8 +109,7 @@ const Search = () => {
   }
 
   const { content_type: contentType } = refinements;
-  // eslint-disable-next-line max-len
-  // const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
+  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
   const isPreQueryEnabled = enterpriseFeatures?.featurePrequerySearchSuggestions
     && isExperimentVariation;
@@ -160,7 +156,7 @@ const Search = () => {
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
             navigate(`/${enterpriseCustomer.slug}/search`);
-            onClose();
+            closePathwayModal();
           }}
         />
         {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
@@ -170,7 +166,7 @@ const Search = () => {
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
-            {/* {!hasRefinements && <ContentHighlights />} */}
+            {!hasRefinements && <ContentHighlights />}
             {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}

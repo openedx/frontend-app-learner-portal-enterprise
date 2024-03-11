@@ -65,7 +65,6 @@ const HighlightedContentCard = ({
         srcAlt=""
         logoSrc={authoringOrganizations?.logoImageUrl}
         logoAlt={`${authoringOrganizations?.content}'s logo`}
-        imageLoadingType="lazy"
       />
       <Card.Header
         title={(
