@@ -177,8 +177,6 @@ const Search = () => {
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
 
-        {console.log('enterpriseCustomer', enterpriseCustomer)};
-
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>

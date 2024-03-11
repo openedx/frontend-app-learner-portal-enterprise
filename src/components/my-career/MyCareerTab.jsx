@@ -27,7 +27,7 @@ const MyCareerTab = ({ learnerCurrentJobID }) => {
 };
 
 MyCareerTab.propTypes = {
-  learnerCurrentJobID: PropTypes.string,
+  learnerCurrentJobID: PropTypes.number,
 };
 
 MyCareerTab.defaultProps = {
