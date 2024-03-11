@@ -1,19 +1,19 @@
-// import { generatePath, Link } from 'react-router-dom';
+import { generatePath, Link } from 'react-router-dom';
 import { SearchPage } from '../../search';
-// import { useEnterpriseCustomer } from '../data';
+import { useEnterpriseCustomer } from '../data';
 
 const SearchRoute = () => {
-  // const { data: { slug } } = useEnterpriseCustomer();
+  const { data: { slug } } = useEnterpriseCustomer();
   return (
     <>
-      {/*<Link*/}
-      {/*  to={generatePath('/:enterpriseSlug/course/:courseKey', {*/}
-      {/*    enterpriseSlug: slug,*/}
-      {/*    courseKey: 'edX+DemoX',*/}
-      {/*  })}*/}
-      {/*>*/}
-      {/*  Course*/}
-      {/*</Link>*/}
+      <Link
+        to={generatePath('/:enterpriseSlug/course/:courseKey', {
+          enterpriseSlug: slug,
+          courseKey: 'edX+DemoX',
+        })}
+      >
+        Course
+      </Link>
       <SearchPage />
     </>
   );
