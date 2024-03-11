@@ -17,8 +17,10 @@ import {
 import { useContentHighlights } from '../../../../hooks';
 import { fetchContentHighlights } from '../../../../app/data';
 
+jest.mock('../../../../app/data', () => ({
+  fetchContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
+}));
 jest.mock('../service.js', () => ({
-  getContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
   getEnterpriseCuration: jest.fn(() => Promise.resolve({ data: { results: [] } })),
 }));
 jest.mock('../utils', () => ({

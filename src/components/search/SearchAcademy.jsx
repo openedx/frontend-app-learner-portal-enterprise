@@ -2,15 +2,13 @@ import { CardGrid, Container, Skeleton } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import SearchAcademyCard from '../academies/SearchAcademyCard';
-import { useAcademies } from '../academies/data/hooks';
 import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
 import { getNoOfResultsFromTitle, getSkeletonCardFromTitle } from '../utils/search';
 import SearchError from './SearchError';
-import { useEnterpriseCustomer } from '../app/data';
+import { useAcademies } from '../hooks';
 
 const SearchAcademy = () => {
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const [academies, isLoading, fetchError] = useAcademies(enterpriseCustomer.uuid);
+  const [academies, isLoading, fetchError] = useAcademies();
   const SkeletonCard = getSkeletonCardFromTitle(ACADEMY_TITLE);
 
   if (isLoading) {
@@ -58,7 +56,5 @@ const SearchAcademy = () => {
     )
   );
 };
-
-SearchAcademy.propTypes = {};
 
 export default SearchAcademy;

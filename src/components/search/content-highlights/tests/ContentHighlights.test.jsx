@@ -22,8 +22,8 @@ const mockHighlightSet = {
   title: 'Highlight Set 1',
 };
 
-jest.mock('../data', () => ({
-  ...jest.requireActual('../data'),
+jest.mock('../../../hooks', () => ({
+  ...jest.requireActual('../../../hooks'),
   useContentHighlights: jest.fn().mockReturnValue({
     isLoading: false,
     contentHighlights: [],
