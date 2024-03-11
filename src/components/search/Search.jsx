@@ -137,8 +137,6 @@ const Search = () => {
     sendPushEvent(isPreQueryEnabled, courseKeyMetadata);
   };
 
-  // Searh Loader: Highlights sets and Academy related API CAlls
-
   return (
     <>
       <Helmet title={PAGE_TITLE} />
