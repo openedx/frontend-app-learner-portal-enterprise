@@ -24,7 +24,7 @@ import SearchCourse from './SearchCourse';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
 import SearchResults from './SearchResults';
-import { ContentHighlights } from './content-highlights';
+// import { ContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
@@ -110,7 +110,8 @@ const Search = () => {
   }
 
   const { content_type: contentType } = refinements;
-  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
+  // eslint-disable-next-line max-len
+  // const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
   const isPreQueryEnabled = enterpriseFeatures?.featurePrequerySearchSuggestions
     && isExperimentVariation;
@@ -152,7 +153,7 @@ const Search = () => {
             />
           </div>
         )}
-        {/* <PathwayModal
+        <PathwayModal
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
@@ -163,9 +164,11 @@ const Search = () => {
         {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
+
+        {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
-            {!hasRefinements && <ContentHighlights />}
+            {/* {!hasRefinements && <ContentHighlights />} */}
             {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
@@ -173,6 +176,7 @@ const Search = () => {
           </Stack>
         )}
 
+        {/* Specified content type is pathways  */}
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
           <SearchResults
             className="py-5"
@@ -187,6 +191,7 @@ const Search = () => {
           />
         )}
 
+        {/* Specified content type is progrmas  */}
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (
           <SearchResults
             className="py-5"
@@ -201,6 +206,7 @@ const Search = () => {
           />
         )}
 
+        {/* Specified content type is courses  */}
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (
           <SearchResults
             className="py-5"
@@ -213,7 +219,7 @@ const Search = () => {
             })}
             contentType={CONTENT_TYPE_COURSE}
           />
-        )} */}
+        )}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>

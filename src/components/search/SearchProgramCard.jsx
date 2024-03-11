@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -39,7 +39,6 @@ export const ProgramType = ({ type }) => {
 };
 
 const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
-  const navigate = useNavigate();
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
@@ -98,14 +97,15 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
         programUuid,
       },
     );
-    navigate(linkToProgram);
   };
 
   return (
     <Card
       isLoading={isLoading}
-      isClickable
+      as={Link}
+      to={linkToProgram}
       onClick={handleCardClick}
+      isClickable
       variant="dark"
       data-testid="search-program-card"
       {...rest}
@@ -119,11 +119,11 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{program.title}</Truncate>
+          <Truncate lines={3}>{program.title}</Truncate>
         )}
         subtitle={
           program.authoringOrganizations?.length > 0 && (
-            <Truncate maxLine={2}>
+            <Truncate lines={2}>
               {program.authoringOrganizations.map(org => org.key).join(', ')}
             </Truncate>
           )

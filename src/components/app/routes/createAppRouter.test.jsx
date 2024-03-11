@@ -8,16 +8,15 @@ import createAppRouter from './createAppRouter';
 import { queryClient } from '../../../utils/tests';
 import {
   makeRootLoader,
-  makeDashboardLoader,
   makeCourseLoader,
 } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
+import { makeDashboardLoader } from '../../dashboard';
 
 jest.mock('./loaders', () => ({
   ...jest.requireActual('./loaders'),
   makeRootLoader: jest.fn(),
-  makeDashboardLoader: jest.fn(),
   makeCourseLoader: jest.fn(),
 }));
 

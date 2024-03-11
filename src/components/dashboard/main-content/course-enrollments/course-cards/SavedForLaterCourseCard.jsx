@@ -15,7 +15,7 @@ const SavedForLaterCourseCard = (props) => {
     title,
     linkToCourse,
     courseRunId,
-    courseRunStatus,
+    // courseRunStatus,
     endDate,
     isRevoked,
     startDate,
@@ -42,6 +42,7 @@ const SavedForLaterCourseCard = (props) => {
     );
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,

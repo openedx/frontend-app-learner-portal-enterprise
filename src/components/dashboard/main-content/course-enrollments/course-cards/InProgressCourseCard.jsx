@@ -106,6 +106,7 @@ export const InProgressCourseCard = ({
     );
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleMarkCompleteModalOnSuccess = ({ response, resetModalState }) => {
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
