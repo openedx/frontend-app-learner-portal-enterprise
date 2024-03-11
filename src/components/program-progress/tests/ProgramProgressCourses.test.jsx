@@ -8,7 +8,8 @@ import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NotCurrentlyAvailable } from '../data/constants';
-import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
 
 const mockCatalogUUID = 'uuid';
 const initialSubscriptions = [

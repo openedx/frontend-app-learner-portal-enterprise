@@ -1,8 +1,8 @@
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 
-import { SUBSIDY_REQUEST_STATE } from '../../../../enterprise-subsidy-requests';
 import { getErrorResponseStatusCode } from '../../../../../utils/common';
+import { SUBSIDY_REQUEST_STATE } from '../../../../../constants';
 
 /**
  * TODO

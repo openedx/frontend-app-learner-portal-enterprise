@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { SelectableBox } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { SkillsContext } from './SkillsContextProvider';
@@ -7,10 +6,11 @@ import { SET_KEY_VALUE } from './data/constants';
 import { formatStringAsNumber } from '../../utils/common';
 import { checkValidGoalAndJobSelected } from '../utils/skills-quiz';
 import { NOT_AVAILABLE } from './constants';
+import { useEnterpriseCustomer } from '../hooks';
 
 const SelectJobCard = () => {
   const { dispatch, state } = useContext(SkillsContext);
-  const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
+  const { hideLaborMarketData } = useEnterpriseCustomer();
   const {
     interestedJobs, selectedJob, currentJobRole, goal,
   } = state;

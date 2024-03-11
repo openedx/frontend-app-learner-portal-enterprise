@@ -1,8 +1,7 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -16,6 +15,7 @@ import {
   PATHWAY_SKILL_QUIZ_EVENT_NAME,
 } from './constants';
 import PathwayModal from './PathwayModal';
+import { useEnterpriseCustomer } from '../hooks';
 
 // This function is for filtering list of skillNames in a way that returning list
 // can be displayed in the form of 2 rows at max.
@@ -53,7 +53,7 @@ const SearchPathwayCard = ({
   isAcademyPathway,
   ...rest
 }) => {
-  const { enterpriseConfig: { uuid: enterpriseCustomerUUID, slug } } = useContext(AppContext);
+  const { uuid: enterpriseCustomerUUID, slug } = useEnterpriseCustomer();
   const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const navigate = useNavigate();
 
@@ -133,7 +133,7 @@ const SearchPathwayCard = ({
         />
         <Card.Header
           title={(
-            <Truncate maxLine={3}>{pathway.title}</Truncate>
+            <Truncate lines={3}>{pathway.title}</Truncate>
           )}
         />
         <Card.Section>

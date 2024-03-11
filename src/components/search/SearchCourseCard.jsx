@@ -1,8 +1,7 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card, Truncate } from '@openedx/paragon';
@@ -11,11 +10,12 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { isShortCourse } from './utils';
+import { useEnterpriseCustomer } from '../hooks';
 
 const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { slug, uuid } = useEnterpriseCustomer();
   const navigate = useNavigate();
 
   const eventName = useMemo(
@@ -108,10 +108,10 @@ const SearchCourseCard = ({
       />
       <Card.Header
         title={(
-          <Truncate maxLine={3}>{course.title}</Truncate>
+          <Truncate lines={3}>{course.title}</Truncate>
         )}
         subtitle={course.partners?.length > 0 && (
-          <Truncate maxLine={2}>
+          <Truncate lines={2}>
             {course.partners.map(partner => partner.name).join(', ')}
           </Truncate>
         )}

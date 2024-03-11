@@ -4,7 +4,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import ContentHighlights from '../ContentHighlights';
-import { useContentHighlights } from '../data';
+import { useContentHighlights } from '../../../hooks';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({
@@ -22,8 +22,8 @@ const mockHighlightSet = {
   title: 'Highlight Set 1',
 };
 
-jest.mock('../data', () => ({
-  ...jest.requireActual('../data'),
+jest.mock('../../../hooks', () => ({
+  ...jest.requireActual('../../../hooks'),
   useContentHighlights: jest.fn().mockReturnValue({
     isLoading: false,
     contentHighlights: [],

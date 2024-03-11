@@ -29,7 +29,7 @@ const PathwayProgressCard = ({ pathway: { learnerPathwayProgress } }) => {
       />
       <Card.Header
         title={(
-          <Truncate maxLine={2}>{learnerPathwayProgress.title}</Truncate>
+          <Truncate lines={2}>{learnerPathwayProgress.title}</Truncate>
         )}
       />
       <Card.Section />

@@ -1,17 +1,15 @@
 import React, {
-  useContext, useMemo, useEffect,
+  useContext, useEffect,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { useToggle, Stack } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import algoliasearch from 'algoliasearch/lite';
-import { useDefaultSearchFilters, useSearchCatalogs } from './data/hooks';
+import { useDefaultSearchFilters } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE,
   CONTENT_TYPE_COURSE,
@@ -30,16 +28,17 @@ import { ContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
-import { EnterpriseOffersBalanceAlert, UserSubsidyContext } from '../enterprise-user-subsidy';
+import { EnterpriseOffersBalanceAlert } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import PathwayModal from '../pathway/PathwayModal';
-import { useEnterpriseCuration } from './content-highlights/data';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
-import { useIsAssignmentsOnlyLearner } from '../app/data';
+import { useEnterpriseCustomer, useEnterpriseOffers } from '../hooks';
+import { useCanOnlyViewHighlights, useIsAssignmentsOnlyLearner } from '../app/data';
+import { useAlgoliaSearch } from '../../utils/hooks';
+import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -51,58 +50,31 @@ export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
 
 const Search = () => {
   const config = getConfig();
+  const enterpriseCustomer = useEnterpriseCustomer();
+  const enterpriseFeatures = useEnterpriseFeatures();
+  const intl = useIntl();
+
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
   const { pathwayUUID } = useParams();
   const navigate = useNavigate();
+
   const { refinements } = useContext(SearchContext);
-  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  const { enterpriseConfig, algolia } = useContext(AppContext);
+  const { filters } = useDefaultSearchFilters();
+  const [searchClient, searchIndex] = useAlgoliaSearch(config);
+
+  // Flag to toggle highlights visibility
+  const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
+  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodes },
-    enterpriseOffers,
-    canEnrollWithEnterpriseOffers,
     hasLowEnterpriseOffersBalance,
     hasNoEnterpriseOffersBalance,
-    redeemableLearnerCreditPolicies,
-  } = useContext(UserSubsidyContext);
-  const {
-    catalogsForSubsidyRequests,
-  } = useContext(SubsidyRequestsContext);
-  const searchCatalogs = useSearchCatalogs({
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-    redeemableLearnerCreditPolicies,
-  });
-  const { filters } = useDefaultSearchFilters({
-    enterpriseConfig,
-    searchCatalogs,
-  });
-  const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
-  const intl = useIntl();
+    canEnrollWithEnterpriseOffers,
+  } = useEnterpriseOffers();
+  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
-  );
-
-  // Flag to toggle highlights visibility
-  const enterpriseUUID = enterpriseConfig.uuid;
-  const { enterpriseCuration: { canOnlyViewHighlightSets } } = useEnterpriseCuration(enterpriseUUID);
-
-  const courseIndex = useMemo(
-    () => {
-      const client = algoliasearch(
-        config.ALGOLIA_APP_ID,
-        config.ALGOLIA_SEARCH_API_KEY,
-      );
-      const cIndex = client.initIndex(config.ALGOLIA_INDEX_NAME);
-      return cIndex;
-    },
-    [config.ALGOLIA_APP_ID, config.ALGOLIA_INDEX_NAME, config.ALGOLIA_SEARCH_API_KEY],
   );
 
   // If a pathwayUUID exists, open the pathway modal.
@@ -114,10 +86,10 @@ const Search = () => {
 
   const PAGE_TITLE = intl.formatMessage({
     id: 'enterprise.search.page.title',
-    defaultMessage: 'Search Courses and Programs - {entrepriseName}',
+    defaultMessage: 'Search Courses and Programs - {enterpriseName}',
     description: 'Title for the enterprise search page.',
   }, {
-    entrepriseName: enterpriseConfig.name,
+    enterpriseName: enterpriseCustomer.name,
   });
   const HEADER_TITLE = intl.formatMessage({
     id: 'enterprise.search.page.header.title',
@@ -135,13 +107,10 @@ const Search = () => {
     );
   }
 
-  const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
-
   const { content_type: contentType } = refinements;
-  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0
-    && (contentType !== undefined ? contentType.length > 0 : true);
+  const hasRefinements = Object.keys(refinements).filter(refinement => refinement !== 'showAll').length > 0 && (contentType !== undefined ? contentType.length > 0 : true);
 
-  const isPreQueryEnabled = enterpriseConfig.enterpriseFeatures?.featurePrequerySearchSuggestions
+  const isPreQueryEnabled = enterpriseFeatures?.featurePrequerySearchSuggestions
     && isExperimentVariation;
 
   const optimizelySuggestionClickHandler = (courseKey) => {
@@ -156,7 +125,7 @@ const Search = () => {
       <Helmet title={PAGE_TITLE} />
       <InstantSearch
         indexName={config.ALGOLIA_INDEX_NAME}
-        searchClient={algolia.client}
+        searchClient={searchClient}
       >
         <Configure facetingAfterDistinct filters={filters} />
         {contentType?.length > 0 && (
@@ -171,9 +140,9 @@ const Search = () => {
             <SearchHeader
               containerSize="lg"
               headerTitle={features.ENABLE_PROGRAMS ? HEADER_TITLE : ''}
-              index={courseIndex}
+              index={searchIndex}
               filters={filters}
-              enterpriseConfig={enterpriseConfig}
+              enterpriseConfig={enterpriseCustomer}
               optimizelySuggestionClickHandler={optimizelySuggestionClickHandler}
               isPreQueryEnabled={isPreQueryEnabled}
             />
@@ -183,7 +152,7 @@ const Search = () => {
           learnerPathwayUuid={pathwayUUID}
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
-            navigate(`/${enterpriseConfig.slug}/search`);
+            navigate(`/${enterpriseCustomer.slug}/search`);
             onClose();
           }}
         />
@@ -193,7 +162,7 @@ const Search = () => {
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
-            {canOnlyViewHighlightSets === false && enterpriseConfig.enableAcademies && <SearchAcademy />}
+            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
             {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
             {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
@@ -242,7 +211,7 @@ const Search = () => {
           />
         )}
       </InstantSearch>
-      <IntegrationWarningModal isOpen={enterpriseConfig.showIntegrationWarning} />
+      <IntegrationWarningModal isOpen={enterpriseCustomer.showIntegrationWarning} />
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Container, Breadcrumb,
   Skeleton, Spinner,
@@ -7,20 +7,20 @@ import {
   useParams, Link,
 } from 'react-router-dom';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
 import algoliasearch from 'algoliasearch/lite';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useAcademyMetadata } from './data/hooks';
 import NotFoundPage from '../NotFoundPage';
 import './styles/Academy.scss';
 import AcademyContentCard from './AcademyContentCard';
+import { useEnterpriseCustomer } from '../hooks';
 
 const AcademyDetailPage = () => {
   const config = getConfig();
-  const { enterpriseConfig } = useContext(AppContext);
+  const enterpriseCustomer = useEnterpriseCustomer();
   const { academyUUID } = useParams();
   const [academy, isAcademyAPILoading, academyAPIError] = useAcademyMetadata(academyUUID);
-  const academyURL = `/${enterpriseConfig.slug}/academy/${academyUUID}`;
+  const academyURL = `/${enterpriseCustomer.slug}/academy/${academyUUID}`;
   const intl = useIntl();
 
   // init algolia index
@@ -61,7 +61,7 @@ const AcademyDetailPage = () => {
             <Breadcrumb
               data-testid="academy-breadcrumb"
               links={[
-                { label: 'Find a Course', to: `/${enterpriseConfig.slug}/search` },
+                { label: 'Find a Course', to: `/${enterpriseCustomer.slug}/search` },
               ]}
               linkAs={Link}
               activeLabel={academy?.title}

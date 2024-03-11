@@ -13,9 +13,10 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import SidebarCard from './SidebarCard';
 import { CourseEnrollmentsContext } from '../main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { getOfferExpiringFirst, getPolicyExpiringFirst } from './utils';
 import { determineLearnerHasContentAssignmentsOnly } from '../../enterprise-user-subsidy/data/utils';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 function getLearnerCreditSummaryCardData({ enterpriseOffers, redeemableLearnerCreditPolicies }) {
   const learnerCreditPolicyExpiringFirst = getPolicyExpiringFirst(redeemableLearnerCreditPolicies?.redeemablePolicies);

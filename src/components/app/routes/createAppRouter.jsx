@@ -8,6 +8,7 @@ import {
   makeCourseLoader,
   makeRootLoader,
   makeDashboardLoader,
+  makeSearchLoader,
   enterpriseInviteLoader,
 } from './loaders';
 import Root from '../Root';
@@ -58,6 +59,7 @@ export default function createAppRouter(queryClient) {
               const { default: SearchRoute } = await import('./SearchRoute');
               return {
                 Component: SearchRoute,
+                loader: makeSearchLoader(queryClient),
               };
             }}
           />

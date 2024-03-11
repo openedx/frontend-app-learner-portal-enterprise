@@ -203,16 +203,15 @@ const SearchWrapper = (value) => function BaseSearchWrapper({ children }) {
 
 describe('useDefaultSearchFilters', () => {
   const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
-  const enterpriseConfig = {
-    uuid: TEST_ENTERPRISE_UUID,
-  };
 
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {
     const mockDispatch = jest.fn();
-    const { result } = renderHook(() => useDefaultSearchFilters({
-      enterpriseConfig,
-      searchCatalogs: [],
-    }), { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) });
+    const {
+      result,
+    } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
+    );
     const { filters } = result.current;
     expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
     expect(mockDispatch).toHaveBeenCalled();
@@ -220,10 +219,12 @@ describe('useDefaultSearchFilters', () => {
 
   it('should return default search filters if refinements[SHOW_ALL_NAME] = 1', () => {
     const mockDispatch = jest.fn();
-    const { result } = renderHook(() => useDefaultSearchFilters({
-      enterpriseConfig,
-      searchCatalogs: [],
-    }), { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) });
+    const {
+      result,
+    } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
+    );
     const { filters } = result.current;
     expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
   });
@@ -231,21 +232,24 @@ describe('useDefaultSearchFilters', () => {
   it('should return aggregated catalog string if searchCatalogs.length > 0', () => {
     const mockDispatch = jest.fn();
     const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
-    const { result } = renderHook(() => useDefaultSearchFilters({
-      enterpriseConfig,
-      searchCatalogs: mockSearchCatalogs,
-    }), { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) });
+    const {
+      result,
+    } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
+    );
     const { filters } = result.current;
     expect(filters).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
     const mockDispatch = jest.fn();
-    const mockSearchCatalogs = [];
-    const { result } = renderHook(() => useDefaultSearchFilters({
-      enterpriseConfig,
-      searchCatalogs: mockSearchCatalogs,
-    }), { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) });
+    const {
+      result,
+    } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
+    );
     const { filters } = result.current;
     expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
   });

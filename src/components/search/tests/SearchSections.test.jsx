@@ -11,8 +11,9 @@ import SearchProgram from '../SearchProgram';
 import SearchPathway from '../SearchPathway';
 import Search, { sendPushEvent } from '../Search';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 const APP_CONFIG = {
   ALGOLIA_INDEX_NAME: 'test-index-name',

@@ -8,8 +8,9 @@ import {
   LICENSE_REQUESTED_ALERT_HEADING,
   LICENSE_REQUESTED_ALERT_TEXT,
 } from './data/constants';
-import { SubsidyRequestsContext, SUBSIDY_TYPE } from '../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
+import { SUBSIDY_TYPE } from '../../constants';
 
 /**
  * A component to render an alert when a learner has a license request that is pending review.

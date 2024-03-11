@@ -6,11 +6,11 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),

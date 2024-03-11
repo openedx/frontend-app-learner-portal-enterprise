@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -9,14 +9,14 @@ import {
   useMediaQuery,
 } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { CARDGRID_COLUMN_SIZES } from '../constants';
 import HighlightedContentCard from './HighlightedContentCard';
 import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
+import { useEnterpriseCustomer } from '../../hooks';
 
 const ContentHighlightSet = ({ highlightSet }) => {
-  const { enterpriseConfig: { uuid: enterpriseUUID } } = useContext(AppContext);
+  const { uuid: enterpriseUUID } = useEnterpriseCustomer;
   const {
     uuid: highlightSetUUID,
     highlightedContent,

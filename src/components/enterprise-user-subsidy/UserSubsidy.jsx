@@ -28,7 +28,6 @@ const UserSubsidy = ({ children }) => {
     isLoading: isLoadingSubscriptions,
     showExpirationNotifications,
   } = useSubscriptions({ enterpriseConfig, authenticatedUser });
-
   // Subsidy Access Policies
   const {
     data: redeemableLearnerCreditPolicies,

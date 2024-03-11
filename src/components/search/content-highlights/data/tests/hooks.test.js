@@ -2,7 +2,6 @@ import { logError } from '@edx/frontend-platform/logging';
 import { getConfig } from '@edx/frontend-platform/config';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getContentHighlights,
   getEnterpriseCuration,
 } from '../service';
 import {
@@ -11,10 +10,14 @@ import {
   getAuthoringOrganizations,
   getContentPageUrl,
 } from '../utils';
-import { useContentHighlights, useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
+import { useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
+import { useContentHighlights } from '../../../../hooks';
+import { fetchContentHighlights } from '../../../../app/data';
 
+jest.mock('../../../../app/data', () => ({
+  fetchContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
+}));
 jest.mock('../service.js', () => ({
-  getContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
   getEnterpriseCuration: jest.fn(() => Promise.resolve({ data: { results: [] } })),
 }));
 jest.mock('../utils', () => ({
@@ -35,7 +38,7 @@ describe('useContentHighlights', () => {
     const enterpriseUUID = 'test-uuid';
     const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
     await waitForNextUpdate();
-    expect(getContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
+    expect(fetchContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.contentHighlights).toEqual([]);
     expect(result.current.fetchError).toBeUndefined();
@@ -43,10 +46,10 @@ describe('useContentHighlights', () => {
   it('should handle errors when fetching content highlights', async () => {
     const enterpriseUUID = 'test-uuid';
     const error = new Error('test error');
-    getContentHighlights.mockImplementationOnce(() => Promise.reject(error));
+    fetchContentHighlights.mockImplementationOnce(() => Promise.reject(error));
     const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
     await waitForNextUpdate();
-    expect(getContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
+    expect(fetchContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
     expect(logError).toHaveBeenCalledWith(error);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.contentHighlights).toEqual([]);

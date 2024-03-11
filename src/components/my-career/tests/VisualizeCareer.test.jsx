@@ -8,10 +8,11 @@ import * as hooks from '../data/hooks';
 
 import { renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
-import { SUBSIDY_TYPE, SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),

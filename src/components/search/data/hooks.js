@@ -1,43 +1,51 @@
-import { useContext, useMemo, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import {
-  SearchContext, getCatalogString, SHOW_ALL_NAME, setRefinementAction,
+  getCatalogString,
+  SearchContext,
+  setRefinementAction,
+  SHOW_ALL_NAME,
 } from '@edx/frontend-enterprise-catalog-search';
-import { features } from '../../../config';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
+import {
+  useActiveRedeemablePolicies,
+  useCatalogsForSubsidyRequests, useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useSubscriptionLicenses,
+  useCouponCodes,
+} from '../../hooks';
+import { features } from '../../../config';
 
 /**
  * Determines the enterprise catalog UUIDs to filter on, if any, based on the subsidies
  * available to the learner. Enterprise catalogs associated with expired subsidies are
  * excluded. Ensures no duplicate catalog UUIDs are returned.
  */
-export const useSearchCatalogs = ({
-  subscriptionPlan,
-  subscriptionLicense,
-  couponCodes,
-  enterpriseOffers,
-  catalogsForSubsidyRequests,
-  redeemableLearnerCreditPolicies,
-}) => {
+export const useSearchCatalogs = () => {
+  const { subscriptionLicense } = useSubscriptionLicenses();
+  const { activeRedeemablePolicies } = useActiveRedeemablePolicies();
+  const { couponCodes } = useCouponCodes();
+  const { currentEnterpriseOffers } = useEnterpriseOffers();
+  const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
+
   const searchCatalogs = useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.
     const catalogUUIDs = new Set();
 
     // Scope to catalogs from redeemable subsidy access policies, coupons,
     // enterprise offers, or subscription plan associated with learner's license.
-    if (redeemableLearnerCreditPolicies?.redeemablePolicies) {
-      const activePolicies = redeemableLearnerCreditPolicies.redeemablePolicies.filter(policy => policy.active);
-      activePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
+    if (activeRedeemablePolicies) {
+      activeRedeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
     }
-    if (subscriptionPlan?.isCurrent && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
-      catalogUUIDs.add(subscriptionPlan.enterpriseCatalogUuid);
+    if (subscriptionLicense && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
+      catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
     }
     if (features.ENROLL_WITH_CODES) {
       const availableCouponCodes = couponCodes.filter(couponCode => couponCode.available);
       availableCouponCodes.forEach((couponCode) => catalogUUIDs.add(couponCode.catalog));
     }
+
     if (features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS) {
-      const currentOffers = enterpriseOffers.filter(offer => offer.isCurrent);
-      currentOffers.forEach((offer) => catalogUUIDs.add(offer.enterpriseCatalogUuid));
+      currentEnterpriseOffers.forEach((offer) => catalogUUIDs.add(offer.enterpriseCatalogUuid));
     }
 
     // Scope to catalogs associated with assignable subsidies if browse and request is turned on
@@ -45,25 +53,16 @@ export const useSearchCatalogs = ({
 
     // Convert Set back to array
     return Array.from(catalogUUIDs);
-  }, [
-    redeemableLearnerCreditPolicies,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes,
-    enterpriseOffers,
-    catalogsForSubsidyRequests,
-  ]);
+  }, [activeRedeemablePolicies, catalogsForSubsidyRequests, couponCodes, currentEnterpriseOffers, subscriptionLicense]);
 
   return searchCatalogs;
 };
 
-export const useDefaultSearchFilters = ({
-  enterpriseConfig,
-  searchCatalogs,
-}) => {
+export const useDefaultSearchFilters = () => {
   const { refinements, dispatch } = useContext(SearchContext);
   const showAllRefinement = refinements[SHOW_ALL_NAME];
-
+  const { uuid } = useEnterpriseCustomer();
+  const searchCatalogs = useSearchCatalogs();
   useEffect(() => {
     // default to showing all catalogs if there are no confined search catalogs
     if (searchCatalogs.length === 0 && !showAllRefinement) {
@@ -75,7 +74,7 @@ export const useDefaultSearchFilters = ({
     () => {
       // Show all enterprise catalogs
       if (showAllRefinement) {
-        return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+        return `enterprise_customer_uuids:${uuid}`;
       }
 
       if (searchCatalogs.length > 0) {
@@ -83,9 +82,9 @@ export const useDefaultSearchFilters = ({
       }
 
       // If the learner is not confined to certain catalogs, scope to all of enterprise's catalogs
-      return `enterprise_customer_uuids:${enterpriseConfig.uuid}`;
+      return `enterprise_customer_uuids:${uuid}`;
     },
-    [enterpriseConfig.uuid, searchCatalogs, showAllRefinement],
+    [uuid, searchCatalogs, showAllRefinement],
   );
 
   return { filters };

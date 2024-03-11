@@ -6,13 +6,13 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { SUBSIDY_TYPE } from '../../enterprise-subsidy-requests/constants';
 
 import * as hooks from '../data/hooks';
 
 import { renderWithRouter } from '../../../utils/tests';
 import MyCareerTab from '../MyCareerTab';
 import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
+import { SUBSIDY_TYPE } from '../../../constants';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),

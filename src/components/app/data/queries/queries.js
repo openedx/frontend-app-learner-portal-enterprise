@@ -1,6 +1,6 @@
 import { getAvailableCourseRuns } from '../../../course/data/utils';
-import { SUBSIDY_REQUEST_STATE } from '../../../enterprise-subsidy-requests';
 import queries from './queryKeyFactory';
+import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
 
 /**
  * Helper function to assist querying with useQuery package
@@ -68,6 +68,23 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.academies
+ * ._ctx.list
+ * @returns {Types.QueryOptions}
+ */
+export function queryAcademiesList(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.academies
+    ._ctx.list;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.contentHighlights
  * ._ctx.configuration
  * @returns {Types.QueryOptions}
@@ -78,6 +95,23 @@ export function queryContentHighlightsConfiguration(enterpriseUuid) {
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.contentHighlights
     ._ctx.configuration;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.contentHighlights
+ * ._ctx.highlightSets
+ * @returns {Types.QueryOptions}
+ */
+export function queryContentHighlightSets(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.contentHighlights
+    ._ctx.highlightSets;
 }
 
 /**

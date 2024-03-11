@@ -1,7 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Button,
@@ -21,6 +20,7 @@ import { useLearnerPathwayData } from './data/hooks';
 import coursesAndProgramsText from './data/utils';
 import defaultBannerImage from '../../assets/images/pathway/default-back-up-image.png';
 import { linkToCourse } from '../course/data/utils';
+import { useEnterpriseCustomer } from '../hooks';
 
 const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).map((node, index) => {
   const nodePageLink = node.contentType === 'course' ? linkToCourse(node, slug) : `/${slug}/program/${node.uuid}`;
@@ -66,8 +66,7 @@ const renderStepNodes = (step, slug) => [].concat(step.courses, step.programs).m
 
 const PathwayModal = ({ learnerPathwayUuid, isOpen, onClose }) => {
   const intl = useIntl();
-
-  const { enterpriseConfig: { slug } } = useContext(AppContext);
+  const { slug } = useEnterpriseCustomer();
   const pathwayUuid = isOpen ? learnerPathwayUuid : null;
   const [pathway, isLoading] = useLearnerPathwayData({ learnerPathwayUuid: pathwayUuid });
 
