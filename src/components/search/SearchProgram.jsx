@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Configure, Index } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -38,4 +38,4 @@ SearchProgram.propTypes = {
   filter: PropTypes.string.isRequired,
 };
 
-export default SearchProgram;
+export const MemoizedSearchProgram = memo(SearchProgram);

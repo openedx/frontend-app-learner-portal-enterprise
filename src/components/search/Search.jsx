@@ -19,20 +19,20 @@ import {
   CONTENT_TYPE_PATHWAY,
   PATHWAY_TITLE,
 } from './constants';
-import SearchProgram from './SearchProgram';
-import SearchCourse from './SearchCourse';
+import { MemoizedSearchProgram } from './SearchProgram';
+import { MemoizedSearchCourse } from './SearchCourse';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
 import SearchResults from './SearchResults';
-import { ContentHighlights } from './content-highlights';
+import { MemoizedContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { EnterpriseOffersBalanceAlert } from '../enterprise-user-subsidy';
-import SearchPathway from './SearchPathway';
+import { MemoizedSearchPathway } from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import PathwayModal from '../pathway/PathwayModal';
-import SearchAcademy from './SearchAcademy';
+import { MemoizedSearchAcademy } from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import {
@@ -180,11 +180,11 @@ const Search = () => {
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
-            {!hasRefinements && <ContentHighlights />}
-            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
-            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
-            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
-            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
+            {!hasRefinements && <MemoizedContentHighlights />}
+            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <MemoizedSearchAcademy />}
+            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <MemoizedSearchPathway filter={filters} />}
+            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <MemoizedSearchProgram filter={filters} />}
+            {canOnlyViewHighlightSets === false && <MemoizedSearchCourse filter={filters} /> }
           </Stack>
         )}
 

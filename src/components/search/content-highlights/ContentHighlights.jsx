@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Stack } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -33,4 +33,4 @@ ContentHighlights.defaultProps = {
   className: undefined,
 };
 
-export default ContentHighlights;
+export const MemoizedContentHighlights = memo(ContentHighlights);

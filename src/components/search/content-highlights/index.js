@@ -1,1 +1,1 @@
-export { default as ContentHighlights } from './ContentHighlights';
+export * from './ContentHighlights';
