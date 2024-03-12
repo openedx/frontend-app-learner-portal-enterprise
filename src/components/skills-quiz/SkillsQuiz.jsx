@@ -11,10 +11,10 @@ import SkillsQuizStepper from './SkillsQuizStepper';
 import { SkillsContextProvider } from './SkillsContextProvider';
 import SkillsQuizV2 from '../skills-quiz-v2/SkillsQuiz';
 import { isExperimentVariant } from '../../utils/optimizely';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsQuiz = () => {
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const PAGE_TITLE = `Skills Quiz - ${enterpriseCustomer.name}`;
   const config = getConfig();
   const isExperimentVariationB = isExperimentVariant(

@@ -1,50 +1,46 @@
-import React, {
-  useContext, useEffect, useMemo,
-} from 'react';
+import React, { useContext } from 'react';
 import { Helmet } from 'react-helmet';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Container, Tabs } from '@openedx/paragon';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Alert, Container, Tabs,
+} from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
-import { useIntl } from '@edx/frontend-platform/i18n';
-import { useEnterpriseCuration } from '../search/content-highlights/data';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
+
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import SubscriptionExpirationModal from './SubscriptionExpirationModal';
-import useDashboardTabs from './data/useDashboardTabs';
+import { useDashboardTabs } from './data';
+import {
+  querySubscriptions,
+  useEnterpriseCustomer,
+  useSubscriptions,
+} from '../app/data';
 
 const DashboardPage = () => {
-  const {
-    pathname, state, search, hash,
-  } = useLocation();
-  const navigate = useNavigate();
-  const { enterpriseConfig, authenticatedUser } = useContext(AppContext);
-  const {
-    subscriptionPlan,
-    showExpirationNotifications,
-  } = useContext(UserSubsidyContext);
-
-  const {
-    enterpriseCuration: {
-      canOnlyViewHighlightSets,
-    },
-  } = useEnterpriseCuration(enterpriseConfig.uuid);
   const intl = useIntl();
+  const queryClient = useQueryClient();
+  const { authenticatedUser } = useContext(AppContext);
+  const userFirstName = authenticatedUser?.name?.split(' ').shift();
+
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: subscriptions } = useSubscriptions();
+
+  const handleSubscriptionLicenseActivationAlertClose = () => {
+    queryClient.setQueryData(
+      querySubscriptions(enterpriseCustomer.uuid).queryKey,
+      {
+        ...subscriptions,
+        shouldShowActivationSuccessMessage: false,
+      },
+    );
+  };
 
   const {
-    tabs, onSelectHandler, activeTab, prefetchTab,
-  } = useDashboardTabs({ canOnlyViewHighlightSets });
+    tabs,
+    onSelectHandler,
+    activeTab,
+  } = useDashboardTabs();
 
-  useEffect(() => {
-    if (state?.activationSuccess) {
-      const updatedLocationState = { ...state };
-      delete updatedLocationState.activationSuccess;
-      navigate(pathname, {
-        search, hash, state: updatedLocationState, replace: true,
-      });
-    }
-  }, [pathname, navigate, state, search, hash]);
-
-  const userFirstName = useMemo(() => authenticatedUser?.name.split(' ').shift(), [authenticatedUser]);
   const PAGE_TITLE = intl.formatMessage(
     {
       id: 'enterprise.dashboard.page.title',
@@ -52,45 +48,58 @@ const DashboardPage = () => {
       description: 'Page title for an enterprise dashboard.',
     },
     {
-      enterpriseName: enterpriseConfig.name,
+      enterpriseName: enterpriseCustomer.name,
     },
   );
 
   return (
-    <>
+    <Container size="lg" className="py-4">
       <Helmet title={PAGE_TITLE} />
-      <Container size="lg">
-        <h2 className="h1 mb-4 mt-4">
-          {
-            userFirstName
-              ? intl.formatMessage(
-                {
-                  id: 'enterprise.dashboard.user.welcome.message',
-                  defaultMessage: 'Welcome, {userFirstName}!',
-                  description: 'Welcome message shown when user has first name.',
-                },
-                {
-                  userFirstName,
-                },
-              )
-              : intl.formatMessage({
-                id: 'enterprise.dashboard.welcome.message',
-                defaultMessage: 'Welcome!',
-                description: 'Welcome message shown when user has no first name.',
-              })
-          }
-        </h2>
-        <Tabs
-          activeKey={activeTab}
-          onSelect={onSelectHandler}
-          onMouseOverCapture={prefetchTab}
-        >
-          {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
-        </Tabs>
-        {enterpriseConfig.showIntegrationWarning && <IntegrationWarningModal isOpen />}
-        {subscriptionPlan && showExpirationNotifications && <SubscriptionExpirationModal />}
-      </Container>
-    </>
+      <h2 className="h1 mb-4">
+        {userFirstName
+          ? intl.formatMessage(
+            {
+              id: 'enterprise.dashboard.user.welcome.message',
+              defaultMessage: 'Welcome, {userFirstName}!',
+              description: 'Welcome message shown when user has first name.',
+            },
+            {
+              userFirstName,
+            },
+          )
+          : intl.formatMessage({
+            id: 'enterprise.dashboard.welcome.message',
+            defaultMessage: 'Welcome!',
+            description: 'Welcome message shown when user has no first name.',
+          })}
+      </h2>
+      <Alert
+        variant="success"
+        show={subscriptions.shouldShowActivationSuccessMessage}
+        onClose={handleSubscriptionLicenseActivationAlertClose}
+        className="mt-3"
+        dismissible
+        closeLabel={intl.formatMessage({
+          id: 'enterprise.dashboard.course.assignment.alert.dismiss.button',
+          defaultMessage: 'Dismiss',
+          description: 'Dismiss button label for the course assignment alert',
+        })}
+      >
+        <FormattedMessage
+          id="enterprise.dashboard.tab.courses.license.activated"
+          defaultMessage="Your license was successfully activated."
+          description="Alert message shown to a learner on enterprise dashboard courses tab."
+        />
+      </Alert>
+      <Tabs
+        activeKey={activeTab}
+        onSelect={onSelectHandler}
+      >
+        {tabs.map((tab) => React.cloneElement(tab, { key: tab.props.eventKey }))}
+      </Tabs>
+      <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
+      {subscriptions.subscriptionPlan && subscriptions.showExpirationNotifications && <SubscriptionExpirationModal />}
+    </Container>
   );
 };
 

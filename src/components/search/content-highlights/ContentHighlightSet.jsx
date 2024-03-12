@@ -13,10 +13,10 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { CARDGRID_COLUMN_SIZES } from '../constants';
 import HighlightedContentCard from './HighlightedContentCard';
 import { COURSE_RUN_AVAILABILITY } from '../../course/data/constants';
-import { useEnterpriseCustomer } from '../../hooks';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const ContentHighlightSet = ({ highlightSet }) => {
-  const { uuid: enterpriseUUID } = useEnterpriseCustomer;
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     uuid: highlightSetUUID,
     highlightedContent,
@@ -62,11 +62,11 @@ const ContentHighlightSet = ({ highlightSet }) => {
 
   useEffect(() => {
     sendEnterpriseTrackEvent(
-      enterpriseUUID,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.search.content_highlights.card_carousel.viewed',
       { highlightSetUUID },
     );
-  }, [enterpriseUUID, highlightSetUUID]);
+  }, [enterpriseCustomer.uuid, highlightSetUUID]);
 
   return (
     <div data-testid="content-highlights-set">
@@ -76,14 +76,14 @@ const ContentHighlightSet = ({ highlightSet }) => {
         columnSizes={CARDGRID_COLUMN_SIZES}
         onScrollPrevious={() => {
           sendEnterpriseTrackEvent(
-            enterpriseUUID,
+            enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.search.content_highlights.card_carousel.scrolled_to_previous',
             { highlightSetUUID },
           );
         }}
         onScrollNext={() => {
           sendEnterpriseTrackEvent(
-            enterpriseUUID,
+            enterpriseCustomer.uuid,
             'edx.ui.enterprise.learner_portal.search.content_highlights.card_carousel.scrolled_to_next',
             { highlightSetUUID },
           );

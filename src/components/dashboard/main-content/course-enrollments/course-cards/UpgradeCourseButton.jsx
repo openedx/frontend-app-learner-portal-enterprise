@@ -6,7 +6,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import EnrollModal from '../../../../course/EnrollModal';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
-import { useEnterpriseCustomer } from '../../../../hooks';
+import { useEnterpriseCustomer } from '../../../../app/data';
 
 /**
  * Button for upgrading a course via coupon code (possibly offer later on).
@@ -18,7 +18,7 @@ const UpgradeCourseButton = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { uuid } = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
   const {
     subsidyForCourse,
@@ -29,14 +29,14 @@ const UpgradeCourseButton = ({
   const handleClick = () => {
     setIsModalOpen(true);
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.course.upgrade_button.clicked',
     );
   };
 
   const handleEnroll = () => {
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.course.upgrade_button.to_ecommerce_basket.clicked',
     );
   };

@@ -13,13 +13,14 @@ import { linkToCourse, shortenString } from '../course/data/utils';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 const CourseCard = ({
   isLoading, course, allSkills,
 }) => {
   const navigate = useNavigate();
-  const { enterpriseConfig, authenticatedUser: { userId } } = useContext(AppContext);
-  const { slug, uuid } = enterpriseConfig;
+  const { authenticatedUser: { userId } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const partnerDetails = useMemo(() => {
     if (!Object.keys(course).length || !isDefinedAndNotNull(course.partners)) {
       return {};
@@ -40,12 +41,12 @@ const CourseCard = ({
       return;
     }
     sendEnterpriseTrackEvent(
-      uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
-      { userId, enterprise: slug, selectedCourse: course.key },
+      { userId, enterprise: enterpriseCustomer.slug, selectedCourse: course.key },
     );
 
-    navigate(linkToCourse(course, slug));
+    navigate(linkToCourse(course, enterpriseCustomer.slug));
   };
 
   return (

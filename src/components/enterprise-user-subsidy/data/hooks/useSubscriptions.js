@@ -10,16 +10,16 @@ import { hasValidStartExpirationDates } from '../../../../utils/common';
  */
 function useSubscriptions({
   authenticatedUser,
-  enterpriseConfig,
+  enterpriseCustomer,
 }) {
   const [subscriptionPlan, setSubscriptionPlan] = useState();
   const [showExpirationNotifications, setShowExpirationNotifications] = useState();
-  const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseConfig.uuid);
+  const [customerAgreementConfig, isLoadingCustomerAgreementConfig] = useCustomerAgreementData(enterpriseCustomer.uuid);
   const {
     license: subscriptionLicense,
     isLoading: isLoadingLicense,
   } = useSubscriptionLicense({
-    enterpriseConfig,
+    enterpriseCustomer,
     customerAgreementConfig,
     isLoadingCustomerAgreementConfig,
     user: authenticatedUser,

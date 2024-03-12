@@ -27,10 +27,10 @@ import {
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const SkillsCourses = ({ index }) => {
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { state: { selectedJob } } = useContext(SkillsContext);
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);

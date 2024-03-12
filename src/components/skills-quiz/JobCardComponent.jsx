@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Card, CardGrid } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { formatStringAsNumber } from '../../utils/common';
 import { NOT_AVAILABLE } from './constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 const JobCardComponent = ({ jobs, isLoading }) => {
-  const { enterpriseConfig: { hideLaborMarketData } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   if (!jobs) {
     return null;
   }
@@ -18,7 +17,7 @@ const JobCardComponent = ({ jobs, isLoading }) => {
         <Card key={job.name} isLoading={isLoading}>
           <Card.Header title={job.name} />
           <Card.Section>
-            {!hideLaborMarketData && (
+            {!enterpriseCustomer.hideLaborMarketData && (
               <div className="text-gray-700">
                 <p className="m-0 medium-font">
                   <span style={{ fontWeight: 700 }}>

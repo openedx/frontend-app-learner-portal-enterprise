@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import { Badge } from '@openedx/paragon';
 import dayjs from 'dayjs';
 import { FormattedDate, FormattedMessage } from '@edx/frontend-platform/i18n';
-import {
-  LEARNER_CREDIT_ACTIVE_BADGE_VARIANT,
-} from './data/constants';
 import SidebarCard from './SidebarCard';
+import { LEARNER_CREDIT_ACTIVE_BADGE_VARIANT } from './data/constants';
 
 const LearnerCreditSummaryCard = ({
   className,
@@ -57,7 +55,7 @@ const LearnerCreditSummaryCard = ({
     </p>
 
     {expirationDate && (
-      <p data-testid="learner-credit-summary-end-date-text">
+      <p className="mb-0" data-testid="learner-credit-summary-end-date-text">
         <FormattedMessage
           id="enterprise.dashboard.sidebar.learner.credit.card.subsidy.expiration.date"
           defaultMessage="Available until {subsidyExpiryDate}"

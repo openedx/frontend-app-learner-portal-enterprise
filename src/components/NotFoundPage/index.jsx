@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Container } from '@openedx/paragon';
-import { useEnterpriseCustomer } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const NotFoundPage = ({ pageTitle, errorHeading, errorMessage }) => {
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   let PAGE_TITLE = pageTitle;
   if (enterpriseCustomer) {

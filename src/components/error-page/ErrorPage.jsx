@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Col } from '@openedx/paragon';
+import { Helmet } from 'react-helmet';
 
 import SiteFooter from '@edx/frontend-component-footer';
 import ErrorPageHeader from './ErrorPageHeader';
@@ -21,10 +22,12 @@ const ErrorPage = ({
   children,
   errorPageContentClassName,
   testId,
+  includeHelmet,
 }) => (
   <>
+    {includeHelmet && <Helmet title="Error | edX" />}
     {showSiteHeader && <ErrorPageHeader />}
-    <main id="content" data-testid={testId}>
+    <main id="content" className="fill-vertical-space" data-testid={testId}>
       <ErrorPageContent className={errorPageContentClassName}>
         <Col xs={12} lg={{ span: 10, offset: 1 }}>
           <ErrorPageTitle>{title}</ErrorPageTitle>
@@ -51,6 +54,7 @@ ErrorPage.propTypes = {
   showSiteFooter: PropTypes.bool,
   errorPageContentClassName: PropTypes.string,
   testId: PropTypes.string,
+  includeHelmet: PropTypes.bool,
 };
 
 ErrorPage.defaultProps = {
@@ -60,6 +64,7 @@ ErrorPage.defaultProps = {
   showSiteFooter: true,
   errorPageContentClassName: undefined,
   testId: undefined,
+  includeHelmet: false,
 };
 
 export default ErrorPage;

@@ -1,54 +1,32 @@
 import React, {
-  useContext, useEffect, useMemo, useState,
+  useEffect, useMemo, useState,
 } from 'react';
-
 import PropTypes from 'prop-types';
 import { Button, Card, useToggle } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import algoliasearch from 'algoliasearch/lite';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
+
 import LevelBars from './LevelBars';
 import SkillsRecommendationCourses from './SkillsRecommendationCourses';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { features } from '../../config';
-import { determineLearnerHasContentAssignmentsOnly } from '../enterprise-user-subsidy/data/utils';
-import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { SUBSIDY_TYPE } from '../../constants';
+import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../app/data';
 
 const CategoryCard = ({ topCategory }) => {
   const { skillsSubcategories } = topCategory;
-  const [subcategory, setSubcategory] = useState(null);
-  const [subcategorySkills, setSubcategorySkills] = useState(null);
+  const [subCategory, setSubcategory] = useState(null);
+  const [subCategorySkills, setSubcategorySkills] = useState(null);
   const [subCategoryName, setSubCategoryName] = useState(null);
   const [subCategorySkillsLength, setSubCategorySkillsLength] = useState(null);
   const [showSkills, setShowSkillsOn, , toggleShowSkills] = useToggle(false);
   const [showAll, setShowAllOn, setShowAllOff, toggleShowAll] = useToggle(false);
   const [showLess, , setShowLessOff, toggleShowLess] = useToggle(false);
-  const {
-    redeemableLearnerCreditPolicies,
-    hasCurrentEnterpriseOffers,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponCodes: { couponCodesCount },
-  } = useContext(UserSubsidyContext);
-  const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-  const isCourseSearchDisabled = determineLearnerHasContentAssignmentsOnly({
-    redeemableLearnerCreditPolicies,
-    subscriptionPlan,
-    subscriptionLicense,
-    licenseRequests,
-    couponCodesCount,
-    couponCodeRequests,
-    hasCurrentEnterpriseOffers,
-  });
 
-  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isCourseSearchDisabled;
+  const isAssignmentsLearnerOnly = useIsAssignmentsOnlyLearner();
+  const featuredIsCourseSearchDisabled = features.FEATURE_ENABLE_TOP_DOWN_ASSIGNMENT && isAssignmentsLearnerOnly;
 
   const config = getConfig();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const courseIndex = useMemo(
     () => {
       const client = algoliasearch(
@@ -70,10 +48,10 @@ const CategoryCard = ({ topCategory }) => {
 
   const handleSubcategoryClick = (skillsSubcategory) => {
     if (subCategoryName === skillsSubcategory.name) {
-      // Hide the subcategory skills list
+      // Hide the subCategory skills list
       toggleShowSkills();
     } else {
-      // Show the subcategory skills for another subcategory
+      // Show the subCategory skills for another subCategory
       setShowSkillsOn();
     }
     if (showSkills) {
@@ -103,7 +81,7 @@ const CategoryCard = ({ topCategory }) => {
   const handleShowAllClick = () => {
     toggleShowAll();
     toggleShowLess();
-    const renderableSkills = filterRenderableSkills(subcategory.skills);
+    const renderableSkills = filterRenderableSkills(subCategory.skills);
     if (showAll === true) {
       setSubcategorySkills(renderableSkills);
     } else {
@@ -144,17 +122,17 @@ const CategoryCard = ({ topCategory }) => {
           </Button>
         ))}
       </Card.Section>
-      {subcategorySkills && showSkills && (
+      {subCategorySkills && showSkills && (
         <Card.Section className="mt-n3">
           <div>
             <h5>{subCategoryName} Skills</h5>
           </div>
           <div>
-            {renderSkillsWithLevelsChunk(subcategorySkills)}
+            {renderSkillsWithLevelsChunk(subCategorySkills)}
           </div>
         </Card.Section>
       )}
-      {subcategorySkills && subCategorySkillsLength > 3 && (
+      {subCategorySkills && subCategorySkillsLength > 3 && (
         <Button
           variant="link"
           className="mb-1 mt-n4 justify-content-end"
@@ -191,14 +169,14 @@ const CategoryCard = ({ topCategory }) => {
           }
         </Button>
       )}
-      {(!enterpriseConfig.disableSearch && !featuredIsCourseSearchDisabled) && (
+      {(!enterpriseCustomer.disableSearch && !featuredIsCourseSearchDisabled) && (
         <Card.Section>
-          {showSkills && subcategorySkills && (
+          {showSkills && subCategorySkills && (
             <div className="skill-details-recommended-courses">
               <SkillsRecommendationCourses
                 index={courseIndex}
                 subCategoryName={subCategoryName}
-                subCategorySkills={subcategorySkills.map((skill) => skill.name)}
+                subCategorySkills={subCategorySkills.map((skill) => skill.name)}
               />
             </div>
           )}

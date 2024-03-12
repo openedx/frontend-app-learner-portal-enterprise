@@ -1,5 +1,5 @@
-import { camelCaseObject, getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getConfig } from '@edx/frontend-platform';
+import { fetchPaginatedData } from '../utils';
 
 // Coupon Codes
 
@@ -17,8 +17,8 @@ export async function fetchCouponCodeAssignments(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/offer_assignment_summary/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 /**
@@ -35,8 +35,8 @@ export async function fetchCouponsOverview(enterpriseId, options = {}) {
   });
   const config = getConfig();
   const url = `${config.ECOMMERCE_BASE_URL}/api/v2/enterprise/coupons/${enterpriseId}/overview/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 /**

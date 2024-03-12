@@ -1,10 +1,13 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { renderWithRouterProvider } from '../../../../../utils/tests';
-import makeDashboardLoader from '../dashboardLoader';
-import { extractEnterpriseId, queryEnterpriseCourseEnrollments } from '../../../data';
-import { ensureAuthenticatedUser } from '../../data';
+import { renderWithRouterProvider } from '../../../utils/tests';
+import makeDashboardLoader from './dashboardLoader';
+import {
+  extractEnterpriseId,
+  queryEnterpriseCourseEnrollments,
+} from '../../app/data';
+import { ensureAuthenticatedUser } from '../../app/routes/data';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),

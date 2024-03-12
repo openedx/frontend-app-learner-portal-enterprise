@@ -9,7 +9,6 @@ import {
 } from '@openedx/paragon';
 import { Link, useLocation } from 'react-router-dom';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { CourseContext } from '../CourseContextProvider';
 import CourseSkills from '../CourseSkills';
@@ -30,9 +29,10 @@ import CoursePreview from './CoursePreview';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { features } from '../../../config';
 import CourseMaterialsButton from '../CourseMaterialsButton';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const CourseHeader = () => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     state: {
       course,
@@ -53,7 +53,7 @@ const CourseHeader = () => {
   const routeLinks = [
     {
       label: 'Find a Course',
-      to: `/${enterpriseConfig.slug}/search`,
+      to: `/${enterpriseCustomer.slug}/search`,
     },
   ];
   if (location?.state?.parentRoute) {
@@ -67,7 +67,7 @@ const CourseHeader = () => {
       <Container size="lg">
         <Row className="py-4">
           <Col xs={12} lg={7}>
-            {!enterpriseConfig.disableSearch && (
+            {!enterpriseCustomer.disableSearch && (
               <div className="small">
                 <Breadcrumb
                   links={routeLinks}

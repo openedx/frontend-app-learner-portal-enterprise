@@ -1,12 +1,11 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import classNames from 'classnames';
 import { Button, Hyperlink } from '@openedx/paragon';
 
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import dayjs from 'dayjs';
 import { EXECUTIVE_EDUCATION_COURSE_MODES } from '../../../../../constants';
+import { useEnterpriseCustomer } from '../../../../app/data';
 /**
  * A 'Continue Learning' button with parameters.
  *
@@ -26,11 +25,11 @@ const ContinueLearningButton = ({
   mode,
   resumeCourseRunUrl,
 }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const onClickHandler = () => {
     sendEnterpriseTrackEvent(
-      enterpriseConfig.uuid,
+      enterpriseCustomer.uuid,
       'edx.ui.enterprise.learner_portal.dashboard.course.continued',
       {
         course_run_id: courseRunId,

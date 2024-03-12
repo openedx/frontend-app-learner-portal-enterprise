@@ -5,7 +5,8 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 /**
  * Retrieves the content highlights configuration for the active enterprise customer user.
- * @returns {Types.UseQueryResult}} The query results for the content highlights configuration.
+ * @param {Types.UseQueryOptions} queryOptions The query options for the content highlights configuration.
+ * @returns {Types.UseQueryResult} The query results for the content highlights configuration.
  */
 export default function useContentHighlightsConfiguration(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

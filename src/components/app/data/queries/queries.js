@@ -22,6 +22,15 @@ export function queryNotices() {
 
 /**
  * Helper function to assist querying with useQuery package
+ * @param {*} jobId
+ * @returns {Types.QueryOptions}
+ */
+export function queryLearnerSkillLevels(jobId) {
+  return queries.user.skillLevels(jobId);
+}
+
+/**
+ * Helper function to assist querying with useQuery package
  * queries
  * .enterprise
  * .enterpriseLearner(username, enterpriseSlug)
@@ -44,6 +53,36 @@ export function queryEnterpriseCourseEnrollments(enterpriseUuid) {
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
     ._ctx.enrollments;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.programs
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseProgramsList(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.programs;
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.pathways
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterprisePathwaysList(enterpriseUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.pathways;
 }
 
 /**

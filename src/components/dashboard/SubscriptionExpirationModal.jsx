@@ -4,7 +4,6 @@ import { Modal, MailtoLink } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 
 import dayjs from '../../utils/dayjs';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 
 import {
   SUBSCRIPTION_DAYS_REMAINING_EXCEPTIONAL,
@@ -14,6 +13,7 @@ import {
 } from '../../config/constants';
 
 import { getContactEmail } from '../../utils/common';
+import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
 
 export const MODAL_DIALOG_CLASS_NAME = 'subscription-expiration';
 export const SUBSCRIPTION_EXPIRED_MODAL_TITLE = 'Your subscription has expired';
@@ -21,13 +21,19 @@ export const SUBSCRIPTION_EXPIRING_MODAL_TITLE = 'Your subscription is expiring'
 
 const SubscriptionExpirationModal = () => {
   const {
-    enterpriseConfig,
-    enterpriseConfig: { uuid: enterpriseId },
     config,
     authenticatedUser: { username },
   } = useContext(AppContext);
-  const { subscriptionPlan } = useContext(UserSubsidyContext);
-  const { daysUntilExpiration, expirationDate, uuid: subscriptionPlanId } = subscriptionPlan;
+
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  const { data: subscriptions } = useSubscriptions();
+  const { subscriptionPlan } = subscriptions;
+  const {
+    daysUntilExpiration,
+    expirationDate,
+    uuid: subscriptionPlanId,
+  } = subscriptionPlan;
 
   const renderTitle = () => {
     if (daysUntilExpiration > SUBSCRIPTION_EXPIRED) {
@@ -42,7 +48,7 @@ const SubscriptionExpirationModal = () => {
 
   const renderContactText = () => {
     const contactText = 'contact your learning manager';
-    const email = getContactEmail(enterpriseConfig);
+    const email = getContactEmail(enterpriseCustomer);
     if (email) {
       return (
         <MailtoLink to={email} className="font-weight-bold">
@@ -127,7 +133,7 @@ const SubscriptionExpirationModal = () => {
     threshold => threshold >= daysUntilExpiration,
   );
 
-  const seenCurrentExpirationModalCookieName = `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${subscriptionExpirationThreshold}-${enterpriseId}-${subscriptionPlanId}`;
+  const seenCurrentExpirationModalCookieName = `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}${subscriptionExpirationThreshold}-${enterpriseCustomer.uuid}-${subscriptionPlanId}`;
   const cookies = new Cookies();
   const seenCurrentExpirationModal = cookies.get(seenCurrentExpirationModalCookieName);
   // If they have already seen the expiration modal for their current expiration range (as

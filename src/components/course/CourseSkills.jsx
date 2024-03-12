@@ -5,17 +5,17 @@ import {
   Badge, OverlayTrigger, Popover,
 } from '@openedx/paragon';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { AppContext } from '@edx/frontend-platform/react';
 import { CourseContext } from './CourseContextProvider';
 import {
   SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR,
 } from './data/constants';
 import { shortenString } from './data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const MAX_VISIBLE_SKILLS = 5;
 
 const CourseSkills = () => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { state } = useContext(CourseContext);
   const { skills } = state.course;
 
@@ -56,7 +56,7 @@ const CourseSkills = () => {
           >
             <Badge
               as={Link}
-              to={`/${enterpriseConfig.slug}/search?skill_names=${skill.name}`}
+              to={`/${enterpriseCustomer.slug}/search?skill_names=${skill.name}`}
               key={skill.name}
               className="course-skill"
               variant="light"

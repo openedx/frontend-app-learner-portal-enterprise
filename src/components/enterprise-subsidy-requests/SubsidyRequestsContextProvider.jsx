@@ -1,6 +1,5 @@
-import React, { useContext, createContext, useMemo } from 'react';
+import React, { createContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Container } from '@openedx/paragon';
 import {
   useSubsidyRequestConfiguration,
@@ -9,20 +8,17 @@ import {
 import { LoadingSpinner } from '../loading-spinner';
 import { useCatalogsForSubsidyRequests } from '../hooks';
 import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from '../../constants';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const SubsidyRequestsContext = createContext();
 
 const SubsidyRequestsContextProvider = ({ children }) => {
-  const {
-    enterpriseConfig: {
-      uuid: enterpriseUUID,
-    },
-  } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
   const {
     subsidyRequestConfiguration,
     isLoading: isLoadingSubsidyRequestConfiguration,
-  } = useSubsidyRequestConfiguration(enterpriseUUID);
+  } = useSubsidyRequestConfiguration(enterpriseCustomer.uuid);
 
   const {
     couponCodeRequests,

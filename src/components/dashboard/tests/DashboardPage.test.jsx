@@ -25,10 +25,10 @@ import { TEST_OWNER } from '../../course/tests/data/constants';
 import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
 import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
 import { SUBSIDY_TYPE } from '../../../constants';
+import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
 
 const dummyProgramData = {
   uuid: 'test-uuid',

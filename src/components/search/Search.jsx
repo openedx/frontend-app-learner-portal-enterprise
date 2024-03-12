@@ -35,8 +35,12 @@ import PathwayModal from '../pathway/PathwayModal';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
-import { useEnterpriseCustomer, useEnterpriseOffers } from '../hooks';
-import { useCanOnlyViewHighlights, useIsAssignmentsOnlyLearner } from '../app/data';
+import {
+  useIsAssignmentsOnlyLearner,
+  useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useCanOnlyViewHighlights,
+} from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
 
@@ -48,14 +52,28 @@ export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   }
 };
 
+function useSearchPathwayModal() {
+  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, close] = useToggle(false);
+  const { pathwayUUID } = useParams();
+  // If a pathwayUUID exists, open the pathway modal.
+  useEffect(() => {
+    if (pathwayUUID) {
+      openLearnerPathwayModal();
+    }
+  }, [openLearnerPathwayModal, pathwayUUID]);
+
+  return {
+    pathwayUUID,
+    isLearnerPathwayModalOpen,
+    closePathwayModal: close,
+  };
+}
+
 const Search = () => {
   const config = getConfig();
-  const enterpriseCustomer = useEnterpriseCustomer();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const enterpriseFeatures = useEnterpriseFeatures();
   const intl = useIntl();
-
-  const [isLearnerPathwayModalOpen, openLearnerPathwayModal, onClose] = useToggle(false);
-  const { pathwayUUID } = useParams();
   const navigate = useNavigate();
 
   const { refinements } = useContext(SearchContext);
@@ -72,17 +90,16 @@ const Search = () => {
   } = useEnterpriseOffers();
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 
+  const {
+    pathwayUUID,
+    isLearnerPathwayModalOpen,
+    closePathwayModal,
+  } = useSearchPathwayModal();
+
   const isExperimentVariation = isExperimentVariant(
     config.PREQUERY_SEARCH_EXPERIMENT_ID,
     config.PREQUERY_SEARCH_EXPERIMENT_VARIANT_ID,
   );
-
-  // If a pathwayUUID exists, open the pathway modal.
-  useEffect(() => {
-    if (pathwayUUID) {
-      openLearnerPathwayModal();
-    }
-  }, [openLearnerPathwayModal, pathwayUUID]);
 
   const PAGE_TITLE = intl.formatMessage({
     id: 'enterprise.search.page.title',
@@ -153,12 +170,14 @@ const Search = () => {
           isOpen={isLearnerPathwayModalOpen}
           onClose={() => {
             navigate(`/${enterpriseCustomer.slug}/search`);
-            onClose();
+            closePathwayModal();
           }}
         />
         {canEnrollWithEnterpriseOffers && shouldDisplayBalanceAlert && (
           <EnterpriseOffersBalanceAlert hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance} />
         )}
+
+        {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
             {!hasRefinements && <ContentHighlights />}
@@ -169,6 +188,7 @@ const Search = () => {
           </Stack>
         )}
 
+        {/* Specified content type is pathways  */}
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
           <SearchResults
             className="py-5"
@@ -183,6 +203,7 @@ const Search = () => {
           />
         )}
 
+        {/* Specified content type is progrmas  */}
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (
           <SearchResults
             className="py-5"
@@ -197,6 +218,7 @@ const Search = () => {
           />
         )}
 
+        {/* Specified content type is courses  */}
         {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (
           <SearchResults
             className="py-5"
@@ -211,7 +233,7 @@ const Search = () => {
           />
         )}
       </InstantSearch>
-      <IntegrationWarningModal isOpen={enterpriseCustomer.showIntegrationWarning} />
+      <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>
   );
 };

@@ -1,24 +1,24 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { Card, Truncate } from '@openedx/paragon';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { linkToCourse } from './data/utils';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const COURSE_REC_EVENT_NAME = 'edx.ui.enterprise.learner_portal.recommended.course.clicked';
 export const SAME_PART_EVENT_NAME = 'edx.ui.enterprise.learner_portal.same.partner.recommended.course.clicked';
 
 const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
-  const { enterpriseConfig: { slug, uuid } } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const eventName = isPartnerRecommendation ? SAME_PART_EVENT_NAME : COURSE_REC_EVENT_NAME;
   const navigate = useNavigate();
   const cachedLinkToCourse = useMemo(
-    () => linkToCourse(course, slug),
-    [course, slug],
+    () => linkToCourse(course, enterpriseCustomer.slug),
+    [course, enterpriseCustomer.slug],
   );
 
   const partnerDetails = useMemo(
@@ -43,7 +43,7 @@ const CourseRecommendationCard = ({ course, isPartnerRecommendation }) => {
       isClickable
       onClick={() => {
         sendEnterpriseTrackEvent(
-          uuid,
+          enterpriseCustomer.uuid,
           eventName,
           {
             courseKey: course.key,

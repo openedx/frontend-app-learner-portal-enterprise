@@ -34,6 +34,9 @@ jest.mock('@edx/frontend-platform/config', () => ({
 }));
 
 describe('useContentHighlights', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('should fetch content highlights and set state', async () => {
     const enterpriseUUID = 'test-uuid';
     const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
@@ -46,7 +49,7 @@ describe('useContentHighlights', () => {
   it('should handle errors when fetching content highlights', async () => {
     const enterpriseUUID = 'test-uuid';
     const error = new Error('test error');
-    fetchContentHighlights.mockImplementationOnce(() => Promise.reject(error));
+    fetchContentHighlights.mockRejectedValue(error);
     const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
     await waitForNextUpdate();
     expect(fetchContentHighlights).toHaveBeenCalledWith(enterpriseUUID);

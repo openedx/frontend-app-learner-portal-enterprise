@@ -2,6 +2,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { getAssignmentsByState, transformRedeemablePoliciesData } from '../../utils';
+import { fetchPaginatedData } from '../utils';
 
 //  Enterprise Offers
 
@@ -20,8 +21,8 @@ export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/${enterpriseId}/enterprise-learner-offers/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 // Redeemable Policies

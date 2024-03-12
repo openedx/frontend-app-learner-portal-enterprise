@@ -30,6 +30,8 @@ export async function activateSubscriptionLicense({
   subscriptionLicenseToActivate,
   licenseActivationRouteMatch,
   dashboardRedirectPath,
+  queryClient,
+  subscriptionsQuery,
 }) {
   try {
     // Activate the user's assigned subscription license.
@@ -49,6 +51,10 @@ export async function activateSubscriptionLicense({
     );
     // If user is on the license activation route, redirect to the dashboard.
     if (licenseActivationRouteMatch) {
+      queryClient.setQueryData(subscriptionsQuery.queryKey, {
+        ...queryClient.getQueryData(subscriptionsQuery.queryKey),
+        shouldShowActivationSuccessMessage: true,
+      });
       throw redirect(dashboardRedirectPath);
     }
     // Otherwise, return the now-activated subscription license.
@@ -115,6 +121,8 @@ export async function activateOrAutoApplySubscriptionLicense({
   allLinkedEnterpriseCustomerUsers,
   subscriptionsData,
   requestUrl,
+  queryClient,
+  subscriptionsQuery,
 }) {
   const licenseActivationRouteMatch = matchPath('/:enterpriseSlug/licenses/:activationKey/activate', requestUrl.pathname);
   const dashboardRedirectPath = generatePath('/:enterpriseSlug', { enterpriseSlug: enterpriseCustomer.slug });
@@ -156,6 +164,8 @@ export async function activateOrAutoApplySubscriptionLicense({
       subscriptionLicenseToActivate,
       licenseActivationRouteMatch,
       dashboardRedirectPath,
+      queryClient,
+      subscriptionsQuery,
     });
   } else if (!hasRevokedSubscriptionLicense && isUserLinkedToEnterpriseCustomer) {
     activatedOrAutoAppliedLicense = await getAutoAppliedSubscriptionLicense({
@@ -192,7 +202,10 @@ export async function fetchSubscriptions(enterpriseUUID) {
     subscriptionLicenses,
     customerAgreement,
     subscriptionLicense: null,
+    subscriptionPlan: null,
     licensesByStatus,
+    showExpirationNotifications: !customerAgreement?.disableExpirationNotifications,
+    shouldShowActivationSuccessMessage: false,
   };
   /**
    * Ordering of these status keys (i.e., activated, assigned, revoked) is important as the first
@@ -213,7 +226,10 @@ export async function fetchSubscriptions(enterpriseUUID) {
     licensesByStatus[license.status].push(license);
   });
   const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
-  subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
+  if (applicableSubscriptionLicense) {
+    subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
+    subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
+  }
   subscriptionsData.licensesByStatus = licensesByStatus;
 
   return subscriptionsData;

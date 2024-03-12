@@ -1,18 +1,18 @@
 import React, {
-  createContext, useMemo, useContext,
+  createContext, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
-import { AppContext } from '@edx/frontend-platform/react';
 import { useLocation } from 'react-router-dom';
 import { useCourseUpgradeData } from './data/hooks';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
+import { useCouponCodes, useEnterpriseCustomer, useSubscriptions } from '../../../app/data';
 
 export const UpgradeableCourseEnrollmentContext = createContext({ isLoading: false, upgradeUrl: undefined });
 
 export const UpgradeableCourseEnrollmentContextProvider = ({ courseEnrollment, children }) => {
-  const { enterpriseConfig } = useContext(AppContext);
-  const { subscriptionLicense, couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
   const location = useLocation();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: subscriptions } = useSubscriptions();
+  const { data: { couponCodeAssignments } } = useCouponCodes();
 
   // If a licenseUpgradeUrl exists, couponUpgradeUrl will always be undefined
   // since we would always use the license to upgrade instead
@@ -23,9 +23,9 @@ export const UpgradeableCourseEnrollmentContextProvider = ({ courseEnrollment, c
     couponUpgradeUrl,
   } = useCourseUpgradeData({
     courseRunKey: courseEnrollment.courseRunId,
-    enterpriseId: enterpriseConfig.uuid,
-    subscriptionLicense,
-    couponCodes,
+    enterpriseId: enterpriseCustomer.uuid,
+    subscriptionLicense: subscriptions.subscriptionLicense,
+    couponCodes: couponCodeAssignments,
     location,
   });
 

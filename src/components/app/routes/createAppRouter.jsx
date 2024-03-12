@@ -7,9 +7,6 @@ import RouteErrorBoundary from './RouteErrorBoundary';
 import {
   makeCourseLoader,
   makeRootLoader,
-  makeDashboardLoader,
-  makeSearchLoader,
-  enterpriseInviteLoader,
 } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
@@ -31,7 +28,10 @@ export default function createAppRouter(queryClient) {
         <Route
           path="invite/:enterpriseCustomerInviteKey"
           lazy={async () => {
-            const { default: EnterpriseInviteRoute } = await import('./EnterpriseInviteRoute');
+            const {
+              default: EnterpriseInviteRoute,
+              enterpriseInviteLoader,
+            } = await import('./EnterpriseInviteRoute');
             return {
               Component: EnterpriseInviteRoute,
               loader: enterpriseInviteLoader,
@@ -46,22 +46,34 @@ export default function createAppRouter(queryClient) {
           <Route
             index
             lazy={async () => {
-              const { default: DashboardRoute } = await import('./DashboardRoute');
+              const { DashboardPage, makeDashboardLoader } = await import('../../dashboard');
               return {
-                Component: DashboardRoute,
+                Component: DashboardPage,
                 loader: makeDashboardLoader(queryClient),
               };
             }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
           />
           <Route
             path="search"
             lazy={async () => {
-              const { default: SearchRoute } = await import('./SearchRoute');
+              const { SearchPage, makeSearchLoader } = await import('../../search');
               return {
-                Component: SearchRoute,
+                Component: SearchPage,
                 loader: makeSearchLoader(queryClient),
               };
             }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
           />
           <Route
             path=":courseType?/course/:courseKey/*"
@@ -72,6 +84,12 @@ export default function createAppRouter(queryClient) {
                 loader: makeCourseLoader(queryClient),
               };
             }}
+            errorElement={(
+              <RouteErrorBoundary
+                showSiteHeader={false}
+                showSiteFooter={false}
+              />
+            )}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

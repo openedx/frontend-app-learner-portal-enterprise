@@ -1,41 +1,31 @@
-import React, {
-  useContext,
-} from 'react';
-import {
-  Button,
-  CardGrid,
-} from '@openedx/paragon';
-import { AppContext, ErrorPage } from '@edx/frontend-platform/react';
-import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import PropTypes from 'prop-types';
-import { Search } from '@openedx/paragon/icons';
-
 import { Link } from 'react-router-dom';
-import { LoadingSpinner } from '../loading-spinner';
+import { Button, CardGrid } from '@openedx/paragon';
+import { ErrorPage } from '@edx/frontend-platform/react';
+import { FormattedMessage } from '@edx/frontend-platform/i18n';
+import { Search } from '@openedx/paragon/icons';
 
 import ProgramListingCard from './ProgramListingCard';
 
 import { CONTENT_TYPE_PROGRAM } from '../search/constants';
+import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../app/data';
 
-const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, programsFetchError }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+const ProgramListingPage = () => {
+  const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const {
+    data: enterprisePrograms,
+    error: programsFetchError,
+  } = useEnterpriseProgramsList();
+
   if (programsFetchError) {
     return <ErrorPage message={programsFetchError.message} />;
   }
 
-  if (!programsListData) {
-    return (
-      <div className="py-5">
-        <LoadingSpinner screenReaderText="loading program" />
-      </div>
-    );
-  }
-
   return (
     <div className="py-5" data-testid="program-listing-page">
-      {programsListData.length > 0 ? (
+      {enterprisePrograms.length > 0 ? (
         <CardGrid columnSizes={{ xs: 12, lg: 6 }}>
-          {programsListData.map((program) => <ProgramListingCard program={program} key={program.title} />)}
+          {enterprisePrograms.map((program) => <ProgramListingCard program={program} key={program.title} />)}
         </CardGrid>
       ) : (
         <div className="no-content-message">
@@ -47,7 +37,7 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, progra
             />
           </h2>
           {(canOnlyViewHighlightSets === false) && (
-            <Link to={`/${enterpriseConfig.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
+            <Link to={`/${enterpriseCustomer.slug}/search?content_type=${CONTENT_TYPE_PROGRAM}`}>
               <Button variant="primary" iconBefore={Search} className="btn-brand-primary mt-2">
                 <FormattedMessage
                   id="enterprise.dashboard.programs.explore.programs.button.text"
@@ -61,22 +51,6 @@ const ProgramListingPage = ({ canOnlyViewHighlightSets, programsListData, progra
       )}
     </div>
   );
-};
-
-ProgramListingPage.propTypes = {
-  canOnlyViewHighlightSets: PropTypes.bool,
-  programsListData: PropTypes.arrayOf(PropTypes.shape({
-    title: PropTypes.string,
-  })),
-  programsFetchError: PropTypes.shape({
-    message: PropTypes.string,
-  }),
-};
-
-ProgramListingPage.defaultProps = {
-  canOnlyViewHighlightSets: false,
-  programsListData: [],
-  programsFetchError: null,
 };
 
 export default ProgramListingPage;

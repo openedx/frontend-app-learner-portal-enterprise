@@ -33,6 +33,11 @@ export async function fetchCourseMetadata(enterpriseId, courseKey, options = {})
  * @returns Promise for get request from the authenticated http client.
  */
 export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
+  // Handles an edge case where if a course has no available course
+  // runs, the API call should not be made.
+  if (courseRunKeys.length === 0) {
+    return [];
+  }
   const queryParams = new URLSearchParams();
   courseRunKeys.forEach((courseRunKey) => {
     queryParams.append('content_key', courseRunKey);

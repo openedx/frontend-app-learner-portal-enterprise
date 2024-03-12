@@ -6,7 +6,6 @@ import {
 import { CheckCircle } from '@openedx/paragon/icons';
 
 import { getConfig } from '@edx/frontend-platform/config';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { isDuplicateExternalCourseOrder } from '../../executive-education-2u/data';
 import { CourseContext } from '../CourseContextProvider';
@@ -17,6 +16,7 @@ import { useExternalEnrollmentFailureReason, useIsCourseAssigned, useMinimalCour
 import ErrorPageContent from '../../executive-education-2u/components/ErrorPageContent';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { features } from '../../../config';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const ExternalCourseEnrollment = () => {
   const config = getConfig();
@@ -32,21 +32,19 @@ const ExternalCourseEnrollment = () => {
     hasSuccessfulRedemption,
     externalCourseFormSubmissionError,
   } = useContext(CourseContext);
-  const {
-    enterpriseConfig: { authOrgId, slug },
-  } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
   const completeEnrollmentUrl = generatePath(
       `${pathname}/complete`,
-      { enterpriseSlug: slug, courseType: course.courseType, courseKey: course.key },
+      { enterpriseSlug: enterpriseCustomer.slug, courseType: course.courseType, courseKey: course.key },
   );
   const isCourseAssigned = useIsCourseAssigned(redeemableLearnerCreditPolicies.learnerContentAssignments, course?.key);
 
   const courseMetadata = useMinimalCourseMetadata();
 
   const externalDashboardQueryParams = new URLSearchParams();
-  if (authOrgId) {
-    externalDashboardQueryParams.set('org_id', authOrgId);
+  if (enterpriseCustomer.authOrgId) {
+    externalDashboardQueryParams.set('org_id', enterpriseCustomer.authOrgId);
   }
 
   let externalDashboardUrl = config.GETSMARTER_LEARNER_DASHBOARD_URL;
@@ -70,12 +68,12 @@ const ExternalCourseEnrollment = () => {
 
   useEffect(() => {
     // Once a redemption has successfully completed and the can-redeem query has been invalidated or
-    // a user attempts to navigate directly to :slug/:courseType/course/:courseKey/enroll,
-    //  it will run this conditional and perform the redirect
+    // a user attempts to navigate directly to /:enterpriseSlug/:courseType/course/:courseKey/enroll,
+    // it will run this conditional and perform the redirect
     if (hasSuccessfulRedemption) {
       navigate(completeEnrollmentUrl);
     }
-  }, [completeEnrollmentUrl, course.key, hasSuccessfulRedemption, navigate, pathname, slug]);
+  }, [completeEnrollmentUrl, hasSuccessfulRedemption, navigate]);
 
   return (
     <div className="fill-vertical-space page-light-bg">

@@ -59,7 +59,7 @@ const fetchExistingUserLicense = async (enterpriseId) => {
  * for the user. If a license is found, the app uses it.
  *
  * @param {object} args
- * @param {object} args.enterpriseConfig The enterprise customer config
+ * @param {object} args.enterpriseCustomer The enterprise customer config
  * @param {object} args.customerAgreementConfig The customer agreement config associated with the enterprise
  * @param {boolean} args.isLoadingCustomerAgreementConfig Whether the customer agreement is still resolving
  * @param {object} args.user The authenticated user
@@ -67,7 +67,7 @@ const fetchExistingUserLicense = async (enterpriseId) => {
  *          to activate the user license.
  */
 export function useSubscriptionLicense({
-  enterpriseConfig,
+  enterpriseCustomer,
   customerAgreementConfig,
   isLoadingCustomerAgreementConfig,
   user,
@@ -79,9 +79,9 @@ export function useSubscriptionLicense({
     enterpriseId,
     enterpriseIdentityProvider,
   } = useMemo(() => ({
-    enterpriseId: enterpriseConfig.uuid,
-    enterpriseIdentityProvider: enterpriseConfig.identityProvider,
-  }), [enterpriseConfig]);
+    enterpriseId: enterpriseCustomer.uuid,
+    enterpriseIdentityProvider: enterpriseCustomer.identityProvider,
+  }), [enterpriseCustomer]);
 
   useEffect(() => {
     async function retrieveUserLicense() {

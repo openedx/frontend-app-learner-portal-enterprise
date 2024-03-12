@@ -3,7 +3,7 @@ import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 
 import Plotly from 'plotly.js-dist';
-import { getLearnerProfileInfo, getLearnerSkillLevels } from './service';
+import { getLearnerProfileInfo, fetchLearnerSkillLevels } from './service';
 import { getSpiderChartData, prepareSpiderChartData } from './utils';
 
 export function useLearnerProfileData(username) {
@@ -40,7 +40,7 @@ export function useLearnerSkillLevels(jobId) {
       setIsLoading(true);
       if (jobId) {
         try {
-          const response = await getLearnerSkillLevels(jobId);
+          const response = await fetchLearnerSkillLevels(jobId);
           setLearnerSkillLevels(response.data);
         } catch (error) {
           logError(error);

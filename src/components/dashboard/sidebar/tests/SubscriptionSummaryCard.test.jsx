@@ -2,6 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../../utils/tests';
 import SubscriptionSummaryCard from '../SubscriptionSummaryCard';
@@ -14,6 +15,7 @@ import {
   SUBSCRIPTION_EXPIRED_DATE_PREFIX, SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_LABEL,
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
+  LICENSE_REQUESTED_NOTICE,
 } from '../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { TEST_EMAIL, TEST_ENTERPRISE_SLUG } from '../../../search/tests/constants';
@@ -56,9 +58,15 @@ describe('<SubscriptionSummaryCard />', () => {
     daysUntilExpiration: 70,
     expirationDate: '2021-10-25',
   };
+  const licenseRequest = {
+    courseEndDate: '2021-10-25',
+    programProgressPage: true,
+  };
   test('Active success badge is displayed when daysUntilExpiration > 60', () => {
     renderWithRouter(
-      <SubscriptionSummaryCard subscriptionPlan={subscriptionPlan} />,
+      <IntlProvider locale="en">
+        <SubscriptionSummaryCard subscriptionPlan={subscriptionPlan} />
+      </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
@@ -70,7 +78,9 @@ describe('<SubscriptionSummaryCard />', () => {
       daysUntilExpiration: 50,
     };
     renderWithRouter(
-      <SubscriptionSummaryCard subscriptionPlan={expiringSoonSubscriptionPlan} />,
+      <IntlProvider locale="en">
+        <SubscriptionSummaryCard subscriptionPlan={expiringSoonSubscriptionPlan} />
+      </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_WARNING_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
@@ -82,7 +92,9 @@ describe('<SubscriptionSummaryCard />', () => {
       daysUntilExpiration: 0,
     };
     renderWithRouter(
-      <SubscriptionSummaryCard subscriptionPlan={expiredSubscriptionPlan} />,
+      <IntlProvider locale="en">
+        <SubscriptionSummaryCard subscriptionPlan={expiredSubscriptionPlan} />
+      </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
@@ -96,11 +108,13 @@ describe('<SubscriptionSummaryCard />', () => {
     };
     const courseEndDate = '2023-08-11';
     renderWithRouter(
-      <SubscriptionSummaryCardForProgressPageWithContext
-        subscriptionPlan={expiringSoonSubscriptionPlan}
-        courseEndDate={courseEndDate}
-        programProgressPage
-      />,
+      <IntlProvider locale="en">
+        <SubscriptionSummaryCardForProgressPageWithContext
+          subscriptionPlan={expiringSoonSubscriptionPlan}
+          courseEndDate={courseEndDate}
+          programProgressPage
+        />
+      </IntlProvider>,
     );
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_SOON_BADGE_LABEL)).toBeTruthy();
     expect(screen.queryByText(SUBSCRIPTION_ACTIVE_DATE_PREFIX, { exact: false })).toBeTruthy();
@@ -108,5 +122,31 @@ describe('<SubscriptionSummaryCard />', () => {
     expect(screen.queryByTestId('warning-icon')).toBeInTheDocument();
     userEvent.click(screen.queryByTestId('warning-icon'));
     expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
+  });
+  test('License requested notice is displayed when license request active', () => {
+    renderWithRouter(
+      <IntlProvider locale="en">
+        <SubscriptionSummaryCard licenseRequest={licenseRequest} programProgressPage />
+      </IntlProvider>,
+    );
+    expect(screen.queryByText(LICENSE_REQUESTED_NOTICE)).toBeTruthy();
+  });
+  test('Expired danger badge is displayed when 0 >= daysUntilExpiration and program progress is enabled', () => {
+    const expiredSubscriptionPlan = {
+      ...subscriptionPlan,
+      daysUntilExpiration: 0,
+    };
+    renderWithRouter(
+      <IntlProvider locale="en">
+        <SubscriptionSummaryCardForProgressPageWithContext
+          subscriptionPlan={expiredSubscriptionPlan}
+          programProgressPage
+        />
+      </IntlProvider>,
+    );
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_BADGE_LABEL)).toBeTruthy();
+    expect(screen.queryByText(SUBSCRIPTION_EXPIRED_DATE_PREFIX, { exact: false })).toBeTruthy();
+    expect(screen.queryByText('October 25th, 2021')).toBeTruthy();
+    expect(screen.queryByTestId('subscription-status-badge')).toHaveClass(`badge-${SUBSCRIPTION_EXPIRED_BADGE_VARIANT}`);
   });
 });

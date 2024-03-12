@@ -1,16 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { queryContentHighlightSets } from '../app/data';
-import useEnterpriseCustomer from './useEnterpriseCustomer';
+import { getConfig } from '@edx/frontend-platform';
 
-export default function useContentHighlights() {
-  const { uuid } = useEnterpriseCustomer();
-  const { data: contentHighlightsData, isLoading } = useQuery(queryContentHighlightSets(uuid));
+import { queryContentHighlightSets, useEnterpriseCustomer } from '../app/data';
 
-  const highlightSetsWithContent = contentHighlightsData
-    .filter(highlightSet => highlightSet.highlightedContent.length > 0);
-
-  return {
-    isLoading,
-    contentHighlights: highlightSetsWithContent,
-  };
+export default function useContentHighlightSets(queryOptions = {}) {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  return useQuery({
+    ...queryContentHighlightSets(enterpriseCustomer.uuid),
+    select: (data) => data.filter(highlightSet => highlightSet.highlightedContent.length > 0),
+    enabled: !!getConfig().FEATURE_CONTENT_HIGHLIGHTS,
+    ...queryOptions,
+  });
 }

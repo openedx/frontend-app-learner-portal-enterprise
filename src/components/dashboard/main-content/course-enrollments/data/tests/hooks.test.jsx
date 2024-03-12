@@ -13,11 +13,10 @@ import {
 } from '../hooks';
 import * as service from '../service';
 import { COURSE_STATUSES } from '../constants';
-import { transformCourseEnrollment } from '../utils';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import { createEnrollWithLicenseUrl, createEnrollWithCouponCodeUrl } from '../../../../../course/data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../../../app/data';
+import { emptyRedeemableLearnerCreditPolicies, transformCourseEnrollment } from '../../../../../app/data';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({

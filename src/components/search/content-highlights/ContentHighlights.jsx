@@ -1,32 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container, Stack,
-} from '@openedx/paragon';
+import { Container, Stack } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { v4 as uuidv4 } from 'uuid';
 
 import ContentHighlightSet from './ContentHighlightSet';
+import { useEnterpriseCustomer } from '../../app/data';
 import { useContentHighlights } from '../../hooks';
 
 const ContentHighlights = ({ className }) => {
-  const {
-    isLoading,
-    contentHighlights,
-  } = useContentHighlights();
-  if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS) {
-    return null;
-  }
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: contentHighlights } = useContentHighlights(enterpriseCustomer.uuid);
 
-  if (isLoading) {
-    return (
-      <Container size="lg" className={className}>
-        <ContentHighlightSet.Skeleton />
-      </Container>
-    );
-  }
-
-  if (contentHighlights.length === 0) {
+  if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS || contentHighlights.length === 0) {
     return null;
   }
 

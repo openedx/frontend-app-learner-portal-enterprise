@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
 import { Card } from '@openedx/paragon';
-import { AppContext } from '@edx/frontend-platform/react';
 import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import EnrollAction from '../../enrollment/EnrollAction';
@@ -28,6 +27,7 @@ import {
 } from '../../data/hooks';
 import { determineEnrollmentType } from '../../enrollment/utils';
 import { CourseContext } from '../../CourseContextProvider';
+import { useEnterpriseCustomer } from '../../../app/data';
 
 const DATE_FORMAT = 'MMM D';
 
@@ -57,7 +57,7 @@ const CourseRunCard = ({
   });
 
   const location = useLocation();
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     state: {
       course,
@@ -100,7 +100,7 @@ const CourseRunCard = ({
   const isExecutiveEducation2UCourse = pathContainsCourseTypeSlug(location.pathname, 'executive-education-2u');
 
   const enrollmentUrl = useCourseEnrollmentUrl({
-    enterpriseConfig,
+    enterpriseCustomer,
     key,
     courseRunKey: key,
     location,

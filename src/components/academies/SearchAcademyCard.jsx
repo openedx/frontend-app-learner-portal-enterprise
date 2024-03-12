@@ -4,14 +4,14 @@ import {
 } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 
+import { useEnterpriseCustomer } from '../app/data';
+
 import './styles/Academy.scss';
-import { useEnterpriseCustomer } from '../hooks';
 
 const SearchAcademyCard = ({
   uuid, title, shortDescription, image, isLoading,
 }) => {
-  const enterpriseCustomer = useEnterpriseCustomer();
-
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   return (
     <Card
       isClickable

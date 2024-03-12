@@ -1,21 +1,37 @@
 import { determineLearnerHasContentAssignmentsOnly } from '../utils';
-import useEnterpriseCustomerUserSubsidies from './useEnterpriseCustomerUserSubsidies';
+import useBrowseAndRequest from './useBrowseAndRequest';
+import useCouponCodes from './useCouponCodes';
+import useEnterpriseOffers from './useEnterpriseOffers';
+import useRedeemablePolicies from './useRedeemablePolicies';
+import useSubscriptions from './useSubscriptions';
 
 export default function useIsAssignmentsOnlyLearner() {
-  const { data: subsidies } = useEnterpriseCustomerUserSubsidies();
+  const {
+    data: {
+      subscriptionPlan,
+      subscriptionLicense,
+    },
+  } = useSubscriptions();
+  const {
+    data: {
+      requests: {
+        subscriptionLicenses: licenseRequests,
+        couponCodes: couponCodeRequests,
+      },
+    },
+  } = useBrowseAndRequest();
+  const { data: { couponCodeAssignments } } = useCouponCodes();
+  const { data: { hasCurrentEnterpriseOffers } } = useEnterpriseOffers();
+  const { data: redeemableLearnerCreditPolicies } = useRedeemablePolicies();
 
   const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
-    subscriptionPlan: subsidies.subscriptions.subscriptionLicenses[0]?.subscriptionPlan, // assumes 1 license (if any)
-    subscriptionLicense: subsidies.subscriptions.subscriptionLicenses[0], // assumes 1 license (if any)
-    licenseRequests: subsidies.browseAndRequest.licenseRequests.results,
-    // TODO: can we remove `couponCodesCount` eventually? We should be able to get at this
-    // from `couponCodeRequests` directly based on its length.
-    couponCodesCount: subsidies.browseAndRequest.couponCodeRequests.results.length,
-    couponCodeRequests: subsidies.browseAndRequest.couponCodeRequests.results,
-    redeemableLearnerCreditPolicies: subsidies.redeemablePolicies,
-    hasCurrentEnterpriseOffers: subsidies.enterpriseLearnerOffers.results.some(
-      (enterpriseOffer) => enterpriseOffer.isCurrent,
-    ),
+    subscriptionPlan,
+    subscriptionLicense,
+    licenseRequests,
+    couponCodeRequests,
+    couponCodesCount: couponCodeAssignments.length,
+    redeemableLearnerCreditPolicies,
+    hasCurrentEnterpriseOffers,
   });
 
   return isAssignmentOnlyLearner;

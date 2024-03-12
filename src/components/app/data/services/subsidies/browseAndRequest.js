@@ -3,6 +3,7 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 
 import { getErrorResponseStatusCode } from '../../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE } from '../../../../../constants';
+import { fetchPaginatedData } from '../utils';
 
 /**
  * TODO
@@ -42,8 +43,8 @@ export async function fetchLicenseRequests(
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }
 
 /**
@@ -65,6 +66,6 @@ export async function fetchCouponCodeRequests(
   });
   const config = getConfig();
   const url = `${config.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  const { results } = await fetchPaginatedData(url);
+  return results;
 }

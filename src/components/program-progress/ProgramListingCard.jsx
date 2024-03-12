@@ -1,23 +1,22 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import {
   breakpoints, Card, Truncate,
 } from '@openedx/paragon';
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
-
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { getProgramIcon } from '../course/data/utils';
 import { ProgressCategoryBubbles } from '../progress-category-bubbles';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramListingCard = ({ program }) => {
-  const { enterpriseConfig } = useContext(AppContext);
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/${enterpriseConfig.slug}/program/${program.uuid}/progress`);
+    navigate(`/${enterpriseCustomer.slug}/program/${program.uuid}/progress`);
   };
 
   useEffect(() => {
