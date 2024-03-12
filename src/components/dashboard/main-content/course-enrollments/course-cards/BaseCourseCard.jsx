@@ -72,18 +72,6 @@ const BaseCourseCard = ({
     options: {},
   });
 
-  // const setModalState = ({ key, open = false, options = {} }) => {
-  //   setModals(prevState => ({
-  //     modals: {
-  //       ...prevState.modals,
-  //       [key]: {
-  //         open,
-  //         options,
-  //       },
-  //     },
-  //   }));
-  // };
-
   const handleUnenrollButtonClick = () => {
     setUnenrollModal((prevState) => ({
       ...prevState,
