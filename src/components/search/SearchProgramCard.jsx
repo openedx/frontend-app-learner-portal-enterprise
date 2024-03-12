@@ -116,7 +116,6 @@ const SearchProgramCard = ({ hit, isLoading, ...rest }) => {
         logoSrc={primaryPartnerLogo?.src}
         logoAlt={primaryPartnerLogo?.alt}
       />
-      {console.log('SearchProgramCard', program)}
       <Card.Header
         title={program.title && (
           <Truncate lines={3}>{program.title}</Truncate>

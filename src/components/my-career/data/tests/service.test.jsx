@@ -3,8 +3,9 @@ import MockAdapter from 'axios-mock-adapter';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import {
-  getLearnerProfileInfo, getLearnerSkillLevels, patchProfile,
+  getLearnerProfileInfo, patchProfile,
 } from '../service';
+import { fetchLearnerSkillLevels } from '../../../app/data';
 import { CURRENT_JOB_PROFILE_FIELD_NAME } from '../constants';
 
 // config
@@ -55,7 +56,7 @@ describe('my career services', () => {
   });
 
   it('fetches enterprise learner skill levels', async () => {
-    await getLearnerSkillLevels(JOB_ID);
+    await fetchLearnerSkillLevels(JOB_ID);
     expect(axios.get).toBeCalledWith(LEARNER_SKILL_LEVELS_ENDPOINT);
   });
 
