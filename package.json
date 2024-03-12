@@ -8,7 +8,7 @@
   ],
   "dependencies": {
     "@edx/brand": "npm:@openedx/brand-openedx@1.2.2",
-    "@edx/frontend-component-footer": "13.0.2",
+    "@edx/frontend-component-footer": "13.0.4",
     "@edx/frontend-enterprise-catalog-search": "8.0.0",
     "@edx/frontend-enterprise-hotjar": "5.0.0",
     "@edx/frontend-enterprise-logistration": "7.0.0",
@@ -61,8 +61,8 @@
   },
   "devDependencies": {
     "@edx/browserslist-config": "1.1.1",
-    "@openedx/frontend-build": "13.0.28",
     "@edx/react-unit-test-utils": "^2.0.0",
+    "@openedx/frontend-build": "13.0.28",
     "@tanstack/eslint-plugin-query": "4.29.9",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "12.1.5",
