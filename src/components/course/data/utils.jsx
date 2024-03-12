@@ -138,16 +138,32 @@ export function getActiveCourseRun(course) {
  * @param {object} course
  * @returns List of course runs.
  */
-export function getAvailableCourseRuns(course) {
+export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
   if (!course?.courseRuns) {
     return [];
   }
-  return course.courseRuns
-    .filter((courseRun) => (
-      courseRun.isMarketable
-      && courseRun.isEnrollable
-      && !isArchived(courseRun)
-    ));
+  const availableCourseRunsFilter = (courseRun) => {
+    if (!courseRun.isMarketable || isArchived(courseRun)) {
+      return false;
+    }
+
+    if (isEnrollableBufferDays === undefined) {
+      return courseRun.isEnrollable;
+    }
+
+    const today = dayjs();
+    if (courseRun.enrollmentStart && today.isBefore(dayjs(courseRun.enrollmentStart))) {
+      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+      return courseRun.isEnrollable;
+    }
+    if (!courseRun.enrollmentEnd) {
+      // In cases where we don't expect the buffer to change behavior, fallback to the backend-provided value.
+      return courseRun.isEnrollable;
+    }
+    const bufferedEnrollDeadline = dayjs(courseRun.enrollmentEnd).add(isEnrollableBufferDays, 'day');
+    return today.isBefore(bufferedEnrollDeadline);
+  };
+  return course.courseRuns.filter(availableCourseRunsFilter);
 }
 
 /**
@@ -156,11 +172,14 @@ export function getAvailableCourseRuns(course) {
  * @param {object} courseData - Course data object deriving from the useAllCourseData hook response.
  * @returns List of course run keys.
  */
-export function getAvailableCourseRunKeysFromCourseData(courseData) {
+export function getAvailableCourseRunKeysFromCourseData({ courseData, isEnrollableBufferDays }) {
   if (!courseData?.courseDetails.courseRuns) {
     return [];
   }
-  return getAvailableCourseRuns(courseData?.courseDetails).map(courseRun => courseRun.key);
+  return getAvailableCourseRuns({
+    course: courseData?.courseDetails,
+    isEnrollableBufferDays,
+  }).map(courseRun => courseRun.key);
 }
 
 export function findCouponCodeForCourse(couponCodes, catalogList = []) {
