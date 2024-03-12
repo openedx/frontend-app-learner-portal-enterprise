@@ -28,6 +28,11 @@ const messages = defineMessages({
     defaultMessage: 'We apologize for the inconvenience. Please try again later.',
     description: 'Subtitle for the error boundary page',
   },
+  tryAgainCTA: {
+    id: 'errorBoundary.tryAgainCTA',
+    defaultMessage: 'Try again',
+    description: 'CTA to try again by reloading the page',
+  },
 });
 
 const RouteErrorBoundary = ({
@@ -72,7 +77,7 @@ const RouteErrorBoundary = ({
         destination={global.location.href}
         variant="primary"
       >
-        Try again
+        {intl.formatMessage(messages.tryAgainCTA)}
       </Button>
     </ErrorPage>
   );

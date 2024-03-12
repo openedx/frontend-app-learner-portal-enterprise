@@ -145,7 +145,7 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
  * @param {*} enterpriseUUID
  * @returns
  */
-export async function getLearnerProgramsList(enterpriseUUID) {
+export async function fetchLearnerProgramsList(enterpriseUUID) {
   const url = `${getConfig().LMS_BASE_URL}/api/dashboard/v0/programs/${enterpriseUUID}/`;
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);
@@ -157,7 +157,7 @@ export async function getLearnerProgramsList(enterpriseUUID) {
  * @param {*} enterpriseUUID
  * @returns
  */
-export async function getInProgressPathways(enterpriseUUID) { // eslint-disable-line no-unused-vars
+export async function fetchInProgressPathways(enterpriseUUID) { // eslint-disable-line no-unused-vars
   // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
   const url = `${getConfig().LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
   try {

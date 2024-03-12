@@ -5,10 +5,10 @@ import { COURSE_STATUSES } from '../constants';
 import { createRawCourseEnrollment } from '../../tests/enrollment-testutils';
 import {
   groupCourseEnrollmentsByStatus,
-  sortAssignmentsByAssignmentStatus,
   transformCourseEnrollment,
   transformSubsidyRequest,
 } from '../../../../../app/data';
+import { sortAssignmentsByAssignmentStatus } from '../utils';
 
 describe('transformCourseEnrollment', () => {
   it('should transform a course enrollment', () => {

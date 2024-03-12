@@ -1,6 +1,6 @@
 import { getConfig } from '@edx/frontend-platform/config';
-import { ensureAuthenticatedUser } from '../data';
-import { extractEnterpriseId, queryAcademiesList, queryContentHighlightSets } from '../../data';
+import { ensureAuthenticatedUser } from '../../app/routes/data';
+import { extractEnterpriseId, queryAcademiesList, queryContentHighlightSets } from '../../app/data';
 
 export default function makeSearchLoader(queryClient) {
   return async function searchLoader({ params = {}, request }) {

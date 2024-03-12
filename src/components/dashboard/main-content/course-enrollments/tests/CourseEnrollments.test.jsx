@@ -20,7 +20,8 @@ import * as hooks from '../data/hooks';
 import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
 import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies, sortAssignmentsByAssignmentStatus } from '../../../../app/data';
+import { emptyRedeemableLearnerCreditPolicies } from '../../../../app/data';
+import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 
 jest.mock('@edx/frontend-enterprise-utils');
 

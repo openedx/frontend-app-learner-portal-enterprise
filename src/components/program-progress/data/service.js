@@ -7,7 +7,7 @@ export function getLearnerProgramProgressDetail(programUUID) {
   return getAuthenticatedHttpClient().get(url);
 }
 
-export function getLearnerProgramsList(enterpriseUuid) {
+export function fetchLearnerProgramsList(enterpriseUuid) {
   const config = getConfig();
   const url = `${config.LMS_BASE_URL}/api/dashboard/v0/programs/${enterpriseUuid}/`;
   return getAuthenticatedHttpClient().get(url);

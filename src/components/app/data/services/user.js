@@ -11,7 +11,7 @@ import { getErrorResponseStatusCode } from '../../../../utils/common';
  * @param {*} jobId
  * @returns
  */
-export async function getLearnerSkillLevels(jobId) {
+export async function fetchLearnerSkillLevels(jobId) {
   const url = `${getConfig().LMS_BASE_URL}/api/user/v1/skill_level/${jobId}/`;
   const response = await getAuthenticatedHttpClient().get(url);
   return camelCaseObject(response.data);

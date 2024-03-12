@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getPathwayProgressDetails, getInProgressPathways } from './service';
+import { getPathwayProgressDetails, fetchInProgressPathways } from './service';
 
 export function useLearnerPathwayProgressData(pathwayUUID) {
   const [pathwayProgressData, setPathwayProgressData] = useState();
@@ -32,7 +32,7 @@ export function useInProgressPathwaysData(enterpriseUuid) {
     const fetchData = async () => {
       if (enterpriseUuid) {
         try {
-          const { data } = await getInProgressPathways(enterpriseUuid);
+          const { data } = await fetchInProgressPathways(enterpriseUuid);
           setPathwayProgressData(data.results);
         } catch (error) {
           logError(error);

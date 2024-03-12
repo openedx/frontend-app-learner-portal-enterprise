@@ -7,8 +7,6 @@ import RouteErrorBoundary from './RouteErrorBoundary';
 import {
   makeCourseLoader,
   makeRootLoader,
-  makeSearchLoader,
-  enterpriseInviteLoader,
 } from './loaders';
 import Root from '../Root';
 import Layout from '../Layout';
@@ -30,7 +28,10 @@ export default function createAppRouter(queryClient) {
         <Route
           path="invite/:enterpriseCustomerInviteKey"
           lazy={async () => {
-            const { default: EnterpriseInviteRoute } = await import('./EnterpriseInviteRoute');
+            const {
+              default: EnterpriseInviteRoute,
+              enterpriseInviteLoader,
+            } = await import('./EnterpriseInviteRoute');
             return {
               Component: EnterpriseInviteRoute,
               loader: enterpriseInviteLoader,
@@ -61,9 +62,9 @@ export default function createAppRouter(queryClient) {
           <Route
             path="search"
             lazy={async () => {
-              const { default: SearchRoute } = await import('./SearchRoute');
+              const { SearchPage, makeSearchLoader } = await import('../../search');
               return {
-                Component: SearchRoute,
+                Component: SearchPage,
                 loader: makeSearchLoader(queryClient),
               };
             }}

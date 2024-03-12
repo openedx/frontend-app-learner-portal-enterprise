@@ -13,7 +13,7 @@ export default function useEnterpriseLearner(queryOptions = {}) {
   const { authenticatedUser } = useContext(AppContext);
   const { enterpriseSlug } = useParams();
   return useQuery({
-    ...queryOptions,
     ...queryEnterpriseLearner(authenticatedUser.username, enterpriseSlug),
+    ...queryOptions,
   });
 }

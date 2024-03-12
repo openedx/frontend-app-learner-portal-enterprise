@@ -7,11 +7,10 @@ import { queryNotices } from '../queries';
  * Responsible for returning the redirect URL for any notice(s) present
  * for the authenticated user.
  */
-function useNotices() {
+function useNotices(queryOptions = {}) {
   const queryResults = useQuery({
     ...queryNotices(),
-    staleTime: Infinity,
-    cacheTime: Infinity,
+    queryOptions,
   });
 
   useEffect(() => {

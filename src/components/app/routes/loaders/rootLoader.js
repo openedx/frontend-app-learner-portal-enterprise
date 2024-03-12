@@ -26,7 +26,7 @@ export default function makeRootLoader(queryClient) {
 
     // Retrieve linked enterprise customers for the current user from query cache
     // or fetch from the server if not available.
-    const enterpriseLearnerData = await queryClient.fetchQuery(queryEnterpriseLearner(username, enterpriseSlug));
+    const enterpriseLearnerData = await queryClient.ensureQueryData(queryEnterpriseLearner(username, enterpriseSlug));
     let {
       enterpriseCustomer,
       activeEnterpriseCustomer,

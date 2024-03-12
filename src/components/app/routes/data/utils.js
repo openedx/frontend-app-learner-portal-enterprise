@@ -121,11 +121,7 @@ export async function ensureEnterpriseAppData({
   ];
   if (getConfig().ENABLE_NOTICES) {
     enterpriseAppDataQueries.push(
-      queryClient.fetchQuery({
-        ...queryNotices(),
-        staleTime: Infinity,
-        cacheTime: Infinity,
-      }),
+      queryClient.ensureQueryData(queryNotices()),
     );
   }
   const enterpriseAppData = await Promise.all(enterpriseAppDataQueries);

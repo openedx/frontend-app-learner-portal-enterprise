@@ -23,11 +23,13 @@ import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise
 import {
   groupCourseEnrollmentsByStatus,
   queryRedeemablePolicies,
-  sortAssignmentsByAssignmentStatus,
-  sortedEnrollmentsByEnrollmentDate,
   transformCourseEnrollment,
   useEnterpriseCustomer,
 } from '../../../../app/data';
+import {
+  sortedEnrollmentsByEnrollmentDate,
+  sortAssignmentsByAssignmentStatus,
+} from './utils';
 
 export const useCourseEnrollments = ({
   enterpriseUUID,

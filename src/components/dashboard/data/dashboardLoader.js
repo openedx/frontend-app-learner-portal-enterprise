@@ -32,8 +32,6 @@ export default function makeDashboardLoader(queryClient) {
       queryClient.ensureQueryData(queryEnterprisePathwaysList(enterpriseId)),
     ]);
 
-    // TODO
-
     return null;
   };
 }

@@ -16,9 +16,9 @@ import {
   fetchContentHighlights,
   fetchCouponCodeRequests,
   fetchNotices,
-  getLearnerProgramsList,
-  getInProgressPathways,
-  getLearnerSkillLevels,
+  fetchLearnerProgramsList,
+  fetchInProgressPathways,
+  fetchLearnerSkillLevels,
   fetchAcademies,
 } from '../services';
 
@@ -69,11 +69,11 @@ const enterprise = createQueryKeys('enterprise', {
       },
       programs: {
         queryKey: null,
-        queryFn: async ({ queryKey }) => getLearnerProgramsList(queryKey[2]),
+        queryFn: async ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
       },
       pathways: {
         queryKey: null,
-        queryFn: async ({ queryKey }) => getInProgressPathways(queryKey[2]),
+        queryFn: async ({ queryKey }) => fetchInProgressPathways(queryKey[2]),
       },
       subsidies: {
         queryKey: null,
@@ -142,7 +142,7 @@ const user = createQueryKeys('user', {
   },
   skillLevels: (jobId) => ({
     queryKey: [jobId],
-    queryFn: async ({ queryKey }) => getLearnerSkillLevels(queryKey[2]),
+    queryFn: async ({ queryKey }) => fetchLearnerSkillLevels(queryKey[2]),
   }),
 });
 

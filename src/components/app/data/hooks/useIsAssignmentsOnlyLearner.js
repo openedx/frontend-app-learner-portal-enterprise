@@ -3,7 +3,7 @@ import useBrowseAndRequest from './useBrowseAndRequest';
 import useCouponCodes from './useCouponCodes';
 import useEnterpriseOffers from './useEnterpriseOffers';
 import useRedeemablePolicies from './useRedeemablePolicies';
-import useSubscriptions from './useSubscriptionLicenses';
+import useSubscriptions from './useSubscriptions';
 
 export default function useIsAssignmentsOnlyLearner() {
   const {

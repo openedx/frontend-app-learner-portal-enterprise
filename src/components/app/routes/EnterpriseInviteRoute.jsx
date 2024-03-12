@@ -3,6 +3,8 @@ import { getConfig } from '@edx/frontend-platform';
 
 import { ErrorPage } from '../../error-page';
 
+export { enterpriseInviteLoader } from './loaders';
+
 /**
  * The UI associated with the enterprise invite route. It should only render
  * if the API call to link the user to the enterprise customer fails, which

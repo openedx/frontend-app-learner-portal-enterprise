@@ -12,7 +12,7 @@ export async function getLearnerProfileInfo(username) {
   return data;
 }
 
-export function getLearnerSkillLevels(jobId) {
+export function fetchLearnerSkillLevels(jobId) {
   const url = `${getConfig().LMS_BASE_URL}/api/user/v1/skill_level/${jobId}/`;
   return getAuthenticatedHttpClient().get(url);
 }

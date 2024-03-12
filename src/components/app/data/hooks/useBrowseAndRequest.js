@@ -7,7 +7,8 @@ import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 /**
  * Retrieves the browse and request configuration.
- * @returns {Types.UseQueryResult}} The query results for the browse and request configuration.
+ * @param {Types.UseQueryOptions} queryOptions - The query options.
+ * @returns {Types.UseQueryResult} The query results for the browse and request configuration.
  */
 export function useBrowseAndRequestConfiguration(queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -17,6 +18,11 @@ export function useBrowseAndRequestConfiguration(queryOptions = {}) {
   });
 }
 
+/**
+ * Retrieves the subscription license requests.
+ * @param {Types.UseQueryOptions} queryOptions - The query options.
+ * @returns {Types.UseQueryResult} The query results for the subscription license requests.
+ */
 export function useSubscriptionLicenseRequests(queryOptions = {}) {
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -26,6 +32,11 @@ export function useSubscriptionLicenseRequests(queryOptions = {}) {
   });
 }
 
+/**
+ * Retrieves the coupon code requests.
+ * @param {Types.UseQueryOptions} queryOptions - The query options.
+ * @returns {Types.UseQueryResult} The query results for the coupon code requests.
+ */
 export function useCouponCodeRequests(queryOptions = {}) {
   const { authenticatedUser } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -37,7 +48,8 @@ export function useCouponCodeRequests(queryOptions = {}) {
 
 /**
  * Retrieves all data related to BnR.
- * @returns {Types.UseQueryResult}} The query results for browse and request.
+ * @param {Types.UseQueryOptions} queryOptions - The query options.
+ * @returns {Types.UseQueryResult} The query results for browse and request.
  */
 export default function useBrowseAndRequest(queryOptions = {}) {
   const {

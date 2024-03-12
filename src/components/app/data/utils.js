@@ -335,16 +335,6 @@ export const groupCourseEnrollmentsByStatus = (courseEnrollments) => {
 };
 
 /**
- * TODO
- * @param {*} enrollments
- * @returns
- */
-export const sortedEnrollmentsByEnrollmentDate = (enrollments) => {
-  enrollments.sort((c1, c2) => dayjs(c1.created) - dayjs(c2.created));
-  return enrollments;
-};
-
-/**
  * Transforms a subsidy request into the shape expected by CourseCard component(s).
  * @param {{subsidyRequest: Object, slug: string}} args the subsidy request and slug to use for course link
  *
@@ -362,21 +352,6 @@ export const transformSubsidyRequest = ({
   created: subsidyRequest.created,
   notifications: [], // required prop by CourseSection
 });
-
-/**
- * Sorts assignments by their status (canceled or expired).
- * @param {array} assignments - Array of assignments to be sorted.
- * @returns {array} - Returns the sorted array of assignments.
- */
-export const sortAssignmentsByAssignmentStatus = (assignments) => {
-  const assignmentsCopy = [...assignments];
-  const sortedAssignments = assignmentsCopy.sort((a, b) => {
-    const isAssignmentACanceledOrExpired = ['cancelled', 'expired'].includes(a.state) ? 1 : 0;
-    const isAssignmentBCanceledOrExpired = ['cancelled', 'expired'].includes(b.state) ? 1 : 0;
-    return isAssignmentACanceledOrExpired - isAssignmentBCanceledOrExpired;
-  });
-  return sortedAssignments;
-};
 
 export const transformLearnerContentAssignment = (learnerContentAssignment, enterpriseSlug) => {
   const isCanceledAssignment = learnerContentAssignment.state === ASSIGNMENT_TYPES.CANCELED;
