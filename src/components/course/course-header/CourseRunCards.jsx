@@ -22,7 +22,6 @@ const CourseRunCards = () => {
     missingUserSubsidyReason,
     userSubsidyApplicableToCourse,
   } = useContext(CourseContext);
-
   return (
     <CardGrid
       columnSizes={{ xs: 12, md: 6, lg: 5 }}

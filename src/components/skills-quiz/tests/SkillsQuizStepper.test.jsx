@@ -5,6 +5,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import { renderWithRouter } from '../../../utils/tests';
@@ -72,17 +73,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     const { getByAltText } = renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContextProvider>
+                  <SkillsQuizStepper />
+                </SkillsContextProvider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>,
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText('Skills Builder')).toBeTruthy();
@@ -98,17 +101,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContextProvider>
+                  <SkillsQuizStepper />
+                </SkillsContextProvider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     const closeButton = screen.getByRole('button', { name: 'Close' });
@@ -124,17 +129,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContextProvider>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContextProvider>
+                  <SkillsQuizStepper />
+                </SkillsContextProvider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText('Continue').disabled).toBeTruthy();
@@ -151,17 +158,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContext.Provider value={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContext.Provider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText('Continue').disabled).toBeFalsy();
@@ -177,17 +186,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContext.Provider value={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContext.Provider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE)).toBeInTheDocument();
@@ -207,17 +218,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContext.Provider value={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContext.Provider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
 
@@ -238,17 +251,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContext.Provider value={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContext.Provider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(GOAL_DROPDOWN_DEFAULT_OPTION)).toBeInTheDocument();
@@ -266,17 +281,19 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchContext.Provider value={{ ...searchContext }}>
-              <SkillsContext.Provider value={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContext.Provider>
-            </SearchContext.Provider>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(INDUSTRY_FACET.title)).toBeInTheDocument();
@@ -289,17 +306,19 @@ describe('<SkillsQuizStepper />', () => {
       state: { goal: DROPDOWN_OPTION_CHANGE_CAREERS },
     };
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchData>
-              <SkillsContextProvider initialState={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContextProvider>
-            </SearchData>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchData>
+                <SkillsContextProvider initialState={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContextProvider>
+              </SearchData>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
@@ -314,21 +333,61 @@ describe('<SkillsQuizStepper />', () => {
     };
 
     renderWithRouter(
-      <AppContext.Provider value={defaultAppState}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SearchData>
-              <SkillsContext.Provider value={skillsQuizContextInitialState}>
-                <SkillsQuizStepper />
-              </SkillsContext.Provider>
-            </SearchData>
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>,
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchData>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchData>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
       { route: '/test/skills-quiz/' },
     );
     const isStudentCheckbox = screen.getByTestId('is-student-checkbox');
     expect(isStudentCheckbox).not.toBeChecked();
     expect(isStudentCheckbox).toBeDisabled();
+  });
+
+  it('simulates clicking on the skills continue button', () => {
+    const skillsQuizContextInitialState = {
+      state: { goal: DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE },
+      dispatch: () => null,
+      props: { heading: 'Top Skills for the Job', skills: [], industrySkills: [] },
+    };
+    const searchContext = {
+      refinements: { current_job: ['test-current-job'] },
+      industry_names: ['Retail Trade'],
+      dispatch: () => null,
+    };
+
+    renderWithRouter(
+      <IntlProvider locale="en">
+        <AppContext.Provider value={defaultAppState}>
+          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+              <SearchContext.Provider value={{ ...searchContext }}>
+                <SkillsContext.Provider value={skillsQuizContextInitialState}>
+                  <SkillsQuizStepper />
+                </SkillsContext.Provider>
+              </SearchContext.Provider>
+            </SubsidyRequestsContext.Provider>
+          </UserSubsidyContext.Provider>
+        </AppContext.Provider>
+      </IntlProvider>,
+      { route: '/test/skills-quiz/' },
+    );
+
+    const continueButton = screen.getByText('Continue');
+    fireEvent.click(continueButton);
+
+    const skillsContinueBtn = screen.getByTestId('skills-continue-button');
+    userEvent.click(skillsContinueBtn);
+    expect(screen.getByText('Done')).toBeTruthy();
+    expect(screen.getByText('Go back')).toBeTruthy();
   });
 });

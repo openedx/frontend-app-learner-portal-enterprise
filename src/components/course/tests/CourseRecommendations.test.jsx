@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { CourseContext } from '../CourseContextProvider';
@@ -49,11 +50,13 @@ const defaultCourseState = {
 };
 
 const CourseRecommendationsWithContext = () => (
-  <AppContext.Provider value={initialAppState}>
-    <CourseContext.Provider value={defaultCourseState}>
-      <CourseRecommendations />
-    </CourseContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <CourseContext.Provider value={defaultCourseState}>
+        <CourseRecommendations />
+      </CourseContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('<CourseRecommendations />', () => {

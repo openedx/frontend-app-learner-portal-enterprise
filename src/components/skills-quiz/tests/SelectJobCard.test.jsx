@@ -3,6 +3,7 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
@@ -11,13 +12,15 @@ const SelectJobCardWithContext = ({
   initialJobCardState = {},
   initialAppState,
 }) => (
-  <AppContext.Provider value={initialAppState}>
-    <SearchContext.Provider>
-      <SkillsContextProvider initialState={initialJobCardState}>
-        <SelectJobCard />
-      </SkillsContextProvider>
-    </SearchContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SearchContext.Provider>
+        <SkillsContextProvider initialState={initialJobCardState}>
+          <SelectJobCard />
+        </SkillsContextProvider>
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const TEST_MEDIAN_SALARY = '100000';

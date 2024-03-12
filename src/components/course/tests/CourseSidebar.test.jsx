@@ -7,6 +7,7 @@ import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
 } from '@openedx/paragon/icons';
 
+import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseSidebar from '../CourseSidebar';
 import CourseSidebarListItem from '../CourseSidebarListItem';
 import { CourseContext } from '../CourseContextProvider';
@@ -96,11 +97,13 @@ const CourseSidebarWrapper = ({
   appContextValue = baseAppContextValue,
   courseContextValue = baseCourseContextValue,
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <CourseContext.Provider value={courseContextValue}>
-      <CourseSidebar />
-    </CourseContext.Provider>
-  </AppContext.Provider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <CourseContext.Provider value={courseContextValue}>
+        <CourseSidebar />
+      </CourseContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 describe('CourseSidebarWrapper', () => {

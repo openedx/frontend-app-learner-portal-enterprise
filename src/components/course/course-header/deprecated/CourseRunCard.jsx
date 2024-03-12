@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
 import { Card } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
+import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import EnrollAction from '../../enrollment/EnrollAction';
 import CourseRunCardStatus from '../CourseRunCardStatus';
@@ -29,7 +30,6 @@ import { determineEnrollmentType } from '../../enrollment/utils';
 import { CourseContext } from '../../CourseContextProvider';
 
 const DATE_FORMAT = 'MMM D';
-const DEFAULT_BUTTON_LABEL = 'Enroll';
 
 const CourseRunCard = ({
   courseEntitlements,
@@ -48,6 +48,13 @@ const CourseRunCard = ({
     seats,
     isEnrollable,
   } = courseRun;
+
+  const intl = useIntl();
+  const DEFAULT_BUTTON_LABEL = intl.formatMessage({
+    id: 'enterprise.course.about.page.course.run.card.enroll.button.label',
+    defaultMessage: 'Enroll',
+    description: 'Default button label for enrolling in a course run.',
+  });
 
   const location = useLocation();
   const { enterpriseConfig } = useContext(AppContext);
@@ -115,6 +122,7 @@ const CourseRunCard = ({
   });
 
   const courseRunArchived = isArchived(courseRun);
+
   /**
    * Updates to this function should be reflected in docs:
    * see /docs/images/enroll_button_card_generator.rst
@@ -132,8 +140,16 @@ const CourseRunCard = ({
   const [heading, subHeading, buttonLabel] = useMemo(() => {
     if (courseRunArchived) {
       return [
-        'Course archived',
-        'Future dates to be announced',
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.archived.heading"
+          defaultMessage="Course archived"
+          description="Course run card heading for archived course"
+        />,
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.archived.subheading"
+          defaultMessage="Future dates to be announced"
+          description="Course run card subheading for archived course that has no future dates announced"
+        />,
       ];
     }
 
@@ -144,15 +160,40 @@ const CourseRunCard = ({
       ) {
         // Course will be available in the future
         return [
-          'Coming soon',
-          `Enroll after ${dayjs(courseStartDate).format(DATE_FORMAT)}`,
+          <FormattedMessage
+            id="enterprise.course.about.page.course.run.card.upcoming.heading"
+            defaultMessage="Coming soon"
+            description="Course run card heading for upcoming course"
+          />,
+          <FormattedMessage
+            id="enterprise.course.about.page.course.run.card.upcoming.subheading"
+            defaultMessage="Enroll after {upcomingCourseStartDate}"
+            description="Course run card subheading for upcoming course"
+            values={{
+              upcomingCourseStartDate: (
+                <FormattedDate
+                  value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                  month="short"
+                  day="numeric"
+                />
+              ),
+            }}
+          />,
           DEFAULT_BUTTON_LABEL,
         ];
       }
       // Course no future date availability announced
       return [
-        'Enrollment closed',
-        'Future dates to be announced',
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.enrollment.closed.heading"
+          defaultMessage="Enrollment closed"
+          description="Course run card heading for closed enrollment"
+        />,
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.enrollment.closed.subheading"
+          defaultMessage="Future dates to be announced"
+          description="Course run card subheading for closed enrollment that has no future dates announced"
+        />,
         DEFAULT_BUTTON_LABEL,
       ];
     }
@@ -161,30 +202,137 @@ const CourseRunCard = ({
       // User is enrolled
       return [
         !isCourseStarted
-          ? `Starts ${dayjs(courseStartDate).format(DATE_FORMAT)}`
-          : 'Course started',
-        'You are enrolled',
-        'View course',
+          ? (
+            <FormattedMessage
+              id="enterprise.course.about.page.enrolled.course.run.card.starts.heading"
+              defaultMessage="Starts {courseStartDate}"
+              description="Course run card heading for course that has not started"
+              values={{
+                courseStartDate: (
+                  <FormattedDate
+                    value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                    month="short"
+                    day="numeric"
+                  />
+                ),
+              }}
+            />
+          )
+          : (
+            <FormattedMessage
+              id="enterprise.course.about.page.enrolled.course.run.card.started.heading"
+              defaultMessage="Course started"
+              description="Course run card heading for course that has started"
+            />
+          ),
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.enrolled.subheading"
+          defaultMessage="You are enrolled"
+          description="Course run card subheading for enrolled course"
+        />,
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.view.course.button.label"
+          defaultMessage="View course"
+          description="Button label for enrolled course run. User is already enrolled in the course run. By clicking this button user will be redirected to the course page."
+        />,
       ];
     }
     // User is not enrolled
     if (isUserEntitledForCourse({ userEntitlements, courseUuid })) {
       // Is entitled for course
       return [
-        'Entitlement found',
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.entitlement.found.heading"
+          defaultMessage="Entitlement found"
+          description="Course run card heading for entitled user"
+        />,
         '',
-        'View on dashboard',
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.enroll.subheading"
+          defaultMessage="View on dashboard"
+          description="Button label for entitled user. User is entitled to the course run. By clicking this button user will be redirected to the dashboard page."
+        />,
       ];
     }
     const tempSubHeading = enrollmentCount > 0
-      ? `${formatStringAsNumber(enrollmentCount)} recently enrolled!`
-      : 'Be the first to enroll!';
+      ? (
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.enrollment.count.greater.than.zero.subheading"
+          defaultMessage="{enrollmentCount} recently enrolled!"
+          description="Course run card subheading for recently enrolled course run with enrollment count"
+          values={{
+            enrollmentCount: formatStringAsNumber(enrollmentCount),
+          }}
+        />
+      )
+      : (
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.enrollment.count.less.than.one.subheading"
+          defaultMessage="Be the first to enroll!"
+          description="Course run card subheading for course run with no recent enrollments and tells the user to be the first to enroll"
+        />
+      );
 
-    let tempHeading = `${isCourseStarted ? 'Started' : 'Starts'} ${dayjs(courseStartDate).format(DATE_FORMAT)}`;
+    let tempHeading = isCourseStarted
+      ? (
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.started.heading"
+          defaultMessage="Started {courseStartedDate}"
+          description="Course run card heading for course that has started"
+          values={{
+            courseStartedDate: (
+              <FormattedDate
+                value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                month="short"
+                day="numeric"
+              />
+            ),
+          }}
+        />
+      )
+      : (
+        <FormattedMessage
+          id="enterprise.course.about.page.course.run.card.starts.heading"
+          defaultMessage="Starts {courseStartsDate}"
+          description="Course run card heading for course that has not started"
+          values={{
+            courseStartsDate: (
+              <FormattedDate
+                value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                month="short"
+                day="numeric"
+              />
+            ),
+          }}
+        />
+      );
 
     if (isCourseSelfPaced(pacingType)) {
       if (isCourseStarted) {
-        tempHeading = hasTimeToComplete(courseRun) ? `Starts ${dayjs().format(DATE_FORMAT)}` : 'Course started';
+        tempHeading = hasTimeToComplete(courseRun)
+          ? (
+            <FormattedMessage
+              id="enterprise.course.about.page.self.paced.course.run.card.starts.heading"
+              defaultMessage="Starts {courseStartsDate}"
+              description="Course run card heading for course that has not started"
+              values={{
+                courseStartsDate: (
+                  <FormattedDate
+                    value={dayjs(courseStartDate).format(DATE_FORMAT)}
+                    month="short"
+                    day="numeric"
+                  />
+                ),
+              }}
+            />
+          )
+          : (
+            <FormattedMessage
+              id="enterprise.course.about.page.self.paced.course.run.card.started.heading"
+              defaultMessage="Course started"
+              description="Course run card heading for course that has started"
+            />
+          );
       }
     }
     return [
@@ -204,6 +352,7 @@ const CourseRunCard = ({
     pacingType,
     availability,
     courseRun,
+    DEFAULT_BUTTON_LABEL,
   ]);
 
   return (
