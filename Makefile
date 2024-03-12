@@ -1,6 +1,6 @@
 export TRANSIFEX_RESOURCE = frontend-app-learner-portal-enterprise
 transifex_resource = frontend-app-learner-portal-enterprise
-transifex_langs = "ar,es_419,fr,zh_CN"
+transifex_langs = "ar,es_419,fr,zh_CN,ko-kr,pt-br,de,de-de,fa-ir,fr-ca,hi,it,it-it,pt,pt-pt,ru,uk"
 
 intl_imports = ./node_modules/.bin/intl-imports.js
 transifex_utils = ./node_modules/.bin/transifex-utils.js

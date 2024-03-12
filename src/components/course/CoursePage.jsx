@@ -39,6 +39,7 @@ import { useSearchCatalogs } from '../search/data/hooks';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 import CoursePageRoutes from './routes/CoursePageRoutes';
 import { useEnterpriseCustomer } from '../app/data';
+import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../config/constants';
 
 const CoursePage = () => {
   const { enterpriseSlug, courseKey } = useParams();
@@ -88,11 +89,20 @@ const CoursePage = () => {
   // the URL query parameters and then remove it to keep the URLs clean.
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
+  const anyPolicyHasLateRedemptionEnabled = !!redeemableLearnerCreditPolicies?.redeemablePolicies?.some((policy) => (
+    // is_late_redemption_enabled=True on the serialized policy represents the fact that late redemption has been
+    // temporarily enabled by an operator for the policy. It will toggle itself back to False after a finite period
+    // of time.
+    policy.isLateRedemptionEnabled
+  ));
+  const isEnrollableBufferDays = anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
+
   const courseService = useMemo(() => new CourseService({
     enterpriseUuid: enterpriseUUID,
     courseKey,
     courseRunKey,
-  }), [courseKey, courseRunKey, enterpriseUUID]);
+    isEnrollableBufferDays,
+  }), [courseKey, courseRunKey, enterpriseUUID, isEnrollableBufferDays]);
 
   const {
     courseData,
@@ -103,7 +113,7 @@ const CoursePage = () => {
   } = useAllCourseData({ courseService, activeCatalogs });
   const isEMETRedemptionEnabled = getConfig().FEATURE_ENABLE_EMET_REDEMPTION || hasFeatureFlagEnabled('ENABLE_EMET_REDEMPTION');
 
-  const validCourseRunKeys = getAvailableCourseRunKeysFromCourseData(courseData);
+  const validCourseRunKeys = getAvailableCourseRunKeysFromCourseData({ courseData, isEnrollableBufferDays });
 
   const {
     isInitialLoading: isLoadingAccessPolicyRedemptionStatus,
@@ -153,7 +163,7 @@ const CoursePage = () => {
       return {
         course: courseDetails,
         activeCourseRun: getActiveCourseRun(courseDetails),
-        availableCourseRuns: getAvailableCourseRuns(courseDetails),
+        availableCourseRuns: getAvailableCourseRuns({ course: courseDetails, isEnrollableBufferDays }),
         userEnrollments,
         userEntitlements,
         catalog,
@@ -172,6 +182,7 @@ const CoursePage = () => {
       courseRecommendations,
       courseReviews,
       algoliaSearchParams,
+      isEnrollableBufferDays,
     ],
   );
 
