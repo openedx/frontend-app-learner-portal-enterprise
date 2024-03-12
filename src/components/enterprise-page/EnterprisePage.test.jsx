@@ -6,6 +6,7 @@ import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-qu
 import EnterprisePage from './EnterprisePage';
 import { LoadingSpinner } from '../loading-spinner';
 import NotFoundPage from '../NotFoundPage';
+import LicenseNotFound from '../license-activation/LicenseNotFound';
 import * as hooks from './data/hooks';
 import { queryCacheOnErrorHandler } from '../../utils/common';
 
@@ -146,5 +147,19 @@ describe('<EnterprisePage />', () => {
       </EnterprisePageWrapper>,
     );
     expect(wrapper.find(NotFoundPage)).toBeTruthy();
+  });
+
+  it('renders LicenseNotFound page when license activation pattern is matched', () => {
+    // Mocking window.location.href to simulate a URL containing the license activation pattern
+    delete window.location;
+    window.location = { href: 'https://example.com/licenses/12345678-1234-5678-1234-567812345678/activate' };
+
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
+    const wrapper = mount(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(wrapper.find(LicenseNotFound)).toBeTruthy();
   });
 });
