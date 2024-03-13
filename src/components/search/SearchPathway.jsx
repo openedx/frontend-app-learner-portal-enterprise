@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Configure, Index } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -38,4 +38,4 @@ SearchPathway.propTypes = {
   filter: PropTypes.string.isRequired,
 };
 
-export const MemoizedSearchPathway = memo(SearchPathway);
+export default SearchPathway;

@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
+// import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 import { useNavigate } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
@@ -11,6 +11,7 @@ import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { getPrimaryPartnerLogo, isDefinedAndNotNull } from '../../utils/common';
 import { isShortCourse } from './utils';
 import { useEnterpriseCustomer } from '../app/data';
+import { MemoizedImageCap } from './SearchCourseCardImageCap';
 
 const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
@@ -99,13 +100,15 @@ const SearchCourseCard = ({
       }}
       {...rest}
     >
-      <Card.ImageCap
-        src={course.cardImageUrl || course.originalImageUrl || cardFallbackImg}
-        fallbackSrc={cardFallbackImg}
-        srcAlt=""
-        logoSrc={primaryPartnerLogo?.src}
-        logoAlt={primaryPartnerLogo?.alt}
-      />
+      {/* <Card.ImageCap */}
+      {/*  src={course.cardImageUrl || course.originalImageUrl || cardFallbackImg} */}
+      {/*  fallbackSrc={cardFallbackImg} */}
+      {/*  srcAlt="" */}
+      {/*  logoSrc={primaryPartnerLogo?.src} */}
+      {/*  logoAlt={primaryPartnerLogo?.alt} */}
+      {/*  imageLoadingType={['lazy']} */}
+      {/* /> */}
+      <MemoizedImageCap course={course} primaryPartnerLogo={primaryPartnerLogo} />
       <Card.Header
         title={(
           <Truncate lines={3}>{course.title}</Truncate>

@@ -2,7 +2,6 @@ import { CardGrid, Container } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
-import { memo } from 'react';
 import SearchAcademyCard from '../academies/SearchAcademyCard';
 import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
 import { useAcademies } from '../hooks';
@@ -48,4 +47,4 @@ const SearchAcademy = () => {
   );
 };
 
-export const MemoizedSearchAcademy = memo(SearchAcademy);
+export default SearchAcademy;

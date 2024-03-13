@@ -83,7 +83,7 @@ const SearchResults = ({
     },
     [refinements.page, searchState.page],
   );
-
+  console.log(page,query,showMessage(contentType, title), isSearchStalled)
   const resultsHeading = useMemo(
     () => {
       const resultsLabel = nbHits === 0 || nbHits > 1

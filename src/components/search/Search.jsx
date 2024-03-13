@@ -12,27 +12,20 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { useDefaultSearchFilters } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE,
-  CONTENT_TYPE_COURSE,
-  CONTENT_TYPE_PROGRAM,
-  COURSE_TITLE,
-  PROGRAM_TITLE,
-  CONTENT_TYPE_PATHWAY,
-  PATHWAY_TITLE,
 } from './constants';
-import { MemoizedSearchProgram } from './SearchProgram';
-import { MemoizedSearchCourse } from './SearchCourse';
+import SearchProgram from './SearchProgram';
+import SearchCourse from './SearchCourse';
 import SearchCourseCard from './SearchCourseCard';
 import SearchProgramCard from './SearchProgramCard';
-import SearchResults from './SearchResults';
-import { MemoizedContentHighlights } from './content-highlights';
+import { ContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { EnterpriseOffersBalanceAlert } from '../enterprise-user-subsidy';
-import { MemoizedSearchPathway } from './SearchPathway';
+import SearchPathway from './SearchPathway';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import PathwayModal from '../pathway/PathwayModal';
-import { MemoizedSearchAcademy } from './SearchAcademy';
+import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
 import { EVENTS, isExperimentVariant, pushEvent } from '../../utils/optimizely';
 import {
@@ -43,6 +36,7 @@ import {
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
+import { MemoizedSearchResultsContainer } from "./SearchResultsContainer";
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -180,58 +174,60 @@ const Search = () => {
         {/* No content type refinement  */}
         {(contentType === undefined || contentType.length === 0) && (
           <Stack className="my-5" gap={5}>
-            {!hasRefinements && <MemoizedContentHighlights />}
-            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <MemoizedSearchAcademy />}
-            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <MemoizedSearchPathway filter={filters} />}
-            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <MemoizedSearchProgram filter={filters} />}
-            {canOnlyViewHighlightSets === false && <MemoizedSearchCourse filter={filters} /> }
+            {!hasRefinements && <ContentHighlights />}
+            {canOnlyViewHighlightSets === false && enterpriseCustomer.enableAcademies && <SearchAcademy />}
+            {features.ENABLE_PATHWAYS && (canOnlyViewHighlightSets === false) && <SearchPathway filter={filters} />}
+            {features.ENABLE_PROGRAMS && (canOnlyViewHighlightSets === false) && <SearchProgram filter={filters} />}
+            {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
           </Stack>
         )}
 
-        {/* Specified content type is pathways  */}
-        {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (
-          <SearchResults
-            className="py-5"
-            hitComponent={SearchPathwayCard}
-            title={PATHWAY_TITLE}
-            translatedTitle={intl.formatMessage({
-              id: 'enterprise.search.page.show.more.pathway.section.translated.title',
-              defaultMessage: 'Pathways',
-              description: 'Translated title for the enterprise search page show all pathways section',
-            })}
-            contentType={CONTENT_TYPE_PATHWAY}
-          />
-        )}
+        {contentType?.length > 0 && <MemoizedSearchResultsContainer contentType={contentType[0]} />}
 
-        {/* Specified content type is progrmas  */}
-        {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (
-          <SearchResults
-            className="py-5"
-            hitComponent={SearchProgramCard}
-            title={PROGRAM_TITLE}
-            translatedTitle={intl.formatMessage({
-              id: 'enterprise.search.page.show.more.program.section.translated.title',
-              defaultMessage: 'Programs',
-              description: 'Translated title for the enterprise search page show all programs section.',
-            })}
-            contentType={CONTENT_TYPE_PROGRAM}
-          />
-        )}
+        {/*/!* Specified content type is pathways  *!/*/}
+        {/*{contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (*/}
+        {/*  <SearchResults*/}
+        {/*    className="py-5"*/}
+        {/*    hitComponent={SearchPathwayCard}*/}
+        {/*    title={PATHWAY_TITLE}*/}
+        {/*    translatedTitle={intl.formatMessage({*/}
+        {/*      id: 'enterprise.search.page.show.more.pathway.section.translated.title',*/}
+        {/*      defaultMessage: 'Pathways',*/}
+        {/*      description: 'Translated title for the enterprise search page show all pathways section',*/}
+        {/*    })}*/}
+        {/*    contentType={CONTENT_TYPE_PATHWAY}*/}
+        {/*  />*/}
+        {/*)}*/}
 
-        {/* Specified content type is courses  */}
-        {contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (
-          <SearchResults
-            className="py-5"
-            hitComponent={SearchCourseCard}
-            title={COURSE_TITLE}
-            translatedTitle={intl.formatMessage({
-              id: 'enterprise.search.page.show.more.course.section.translated.title',
-              defaultMessage: 'Courses',
-              description: 'Translated title for the enterprise search page show all courses section.',
-            })}
-            contentType={CONTENT_TYPE_COURSE}
-          />
-        )}
+        {/*/!* Specified content type is progrmas  *!/*/}
+        {/*{contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (*/}
+        {/*  <SearchResults*/}
+        {/*    className="py-5"*/}
+        {/*    hitComponent={SearchProgramCard}*/}
+        {/*    title={PROGRAM_TITLE}*/}
+        {/*    translatedTitle={intl.formatMessage({*/}
+        {/*      id: 'enterprise.search.page.show.more.program.section.translated.title',*/}
+        {/*      defaultMessage: 'Programs',*/}
+        {/*      description: 'Translated title for the enterprise search page show all programs section.',*/}
+        {/*    })}*/}
+        {/*    contentType={CONTENT_TYPE_PROGRAM}*/}
+        {/*  />*/}
+        {/*)}*/}
+
+        {/*/!* Specified content type is courses  *!/*/}
+        {/*{contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (*/}
+        {/*  <SearchResults*/}
+        {/*    className="py-5"*/}
+        {/*    hitComponent={SearchCourseCard}*/}
+        {/*    title={COURSE_TITLE}*/}
+        {/*    translatedTitle={intl.formatMessage({*/}
+        {/*      id: 'enterprise.search.page.show.more.course.section.translated.title',*/}
+        {/*      defaultMessage: 'Courses',*/}
+        {/*      description: 'Translated title for the enterprise search page show all courses section.',*/}
+        {/*    })}*/}
+        {/*    contentType={CONTENT_TYPE_COURSE}*/}
+        {/*  />*/}
+        {/*)}*/}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>
