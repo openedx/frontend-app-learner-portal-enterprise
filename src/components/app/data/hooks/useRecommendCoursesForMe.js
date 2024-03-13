@@ -12,7 +12,6 @@ export default function useRecommendCoursesForMe() {
   const { data: contentHighlightsConfiguration } = useContentHighlightsConfiguration();
   const canOnlyViewHighlightSets = !!contentHighlightsConfiguration?.canOnlyViewHighlightSets;
   const isAssignmentsOnlyLearner = useIsAssignmentsOnlyLearner();
-  console.log('hi')
   // If user is not on the search page route, or users are restricted to only viewing highlight sets,
   // the "Recommend courses for me" button should not be shown.
   if (!isSearchPage || canOnlyViewHighlightSets) {

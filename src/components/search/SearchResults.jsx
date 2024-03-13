@@ -112,7 +112,8 @@ const SearchResults = ({
   const mappedHitsCards = useMemo(
     () => {
       const hits = searchResults?.hits || [];
-      return hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />)},
+      return hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />);
+    },
     [searchResults?.hits],
   );
 

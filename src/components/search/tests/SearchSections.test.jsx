@@ -15,12 +15,6 @@ import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test',
-  uuid: '12345',
-};
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -61,8 +55,6 @@ const initialAppState = {
   authenticatedUser: { userId: 'test-user-id' },
 };
 
-const mockFilter = 'enterprise_customer_uuids: test-uuid';
-
 const SearchWrapper = ({
   appState = initialAppState,
   searchContext = searchContext1,
@@ -78,6 +70,13 @@ const SearchWrapper = ({
     </IntlProvider>
   </QueryClientProvider>
 );
+
+const mockFilter = 'enterprise_customer_uuids: test-uuid';
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test',
+  uuid: '12345',
+};
 
 describe('<Search />', () => {
   beforeEach(() => {

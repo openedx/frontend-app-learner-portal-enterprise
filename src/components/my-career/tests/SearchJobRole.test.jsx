@@ -19,7 +19,7 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   deleteRefinementAction: jest.fn(),
 }));
 
-jest.mock('../../utils/hooks', () => ({
+jest.mock('../../../utils/hooks', () => ({
   useAlgoliaSearch: jest.fn(),
 }));
 

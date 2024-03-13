@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Stack } from '@openedx/paragon';
-import { getConfig } from '@edx/frontend-platform/config';
 import { v4 as uuidv4 } from 'uuid';
 
 import ContentHighlightSet from './ContentHighlightSet';
@@ -12,12 +11,12 @@ const ContentHighlights = ({ className }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: contentHighlights } = useContentHighlights(enterpriseCustomer.uuid);
 
-  const mappedContentHighlightSetCards = useMemo(
-    () => contentHighlights.map((highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />),
-    [contentHighlights],
-  );
+  const mappedContentHighlightSetCards = useMemo(() => {
+    if (!contentHighlights) { return null; }
+    return contentHighlights.map((highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />);
+  }, [contentHighlights]);
 
-  if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS || contentHighlights.length === 0) {
+  if (!mappedContentHighlightSetCards || contentHighlights.length === 0) {
     return null;
   }
 
