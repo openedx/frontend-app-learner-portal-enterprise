@@ -4,11 +4,11 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { QueryClientProvider } from '@tanstack/react-query';
 import SearchResults from '../SearchResults';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchProgramCard from '../SearchProgramCard';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-
 import {
   NUM_RESULTS_PROGRAM,
   NUM_RESULTS_COURSE,
@@ -21,6 +21,7 @@ import {
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 
 import {
+  queryClient,
   renderWithRouter,
 } from '../../../utils/tests';
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
@@ -77,17 +78,19 @@ const initialSubsidyRequestsState = {
 };
 
 const SearchResultsWithContext = (props) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <SearchContext.Provider value={searchContext}>
-            <SearchResults {...props} />
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={initialAppState}>
+        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+          <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+            <SearchContext.Provider value={searchContext}>
+              <SearchResults {...props} />
+            </SearchContext.Provider>
+          </SubsidyRequestsContext.Provider>
+        </UserSubsidyContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';

@@ -33,7 +33,7 @@ import {
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
-import MemoizedSearchResultsContainer from './SearchResultsContainer';
+import SearchResultsContainer from './SearchResultsContainer';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -178,8 +178,8 @@ const Search = () => {
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
           </Stack>
         )}
-
-        {contentType?.length > 0 && <MemoizedSearchResultsContainer contentType={contentType[0]} />}
+        {/* refinement with a content type */}
+        {contentType?.length > 0 && <SearchResultsContainer contentType={contentType[0]} />}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>

@@ -35,7 +35,6 @@ const SearchResults = ({
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
-  const hits = searchResults?.hits || [];
   const intl = useIntl();
   const linkText = intl.formatMessage(
     {
@@ -111,8 +110,10 @@ const SearchResults = ({
   const SkeletonCard = getSkeletonCardFromTitle(title);
 
   const mappedHitsCards = useMemo(
-    () => hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />),
-    [hits],
+    () => {
+      const hits = searchResults?.hits || [];
+      return hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />)},
+    [searchResults?.hits],
   );
 
   return (
