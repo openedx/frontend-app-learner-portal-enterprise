@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { CardGrid, Container } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
@@ -10,9 +11,14 @@ import SearchError from './SearchError';
 const SearchAcademy = () => {
   const { data: academies, isError: fetchError } = useAcademies();
 
+  const cards = useMemo(
+    () => academies.map((academy) => <SearchAcademyCard key={uuidv4()} {...academy} />),
+    [academies],
+  );
+
   if (fetchError) {
     return (
-      <Container size="lg" className="search-results py-5">
+      <Container size="lg" className="search-results">
         <SearchError title={ACADEMY_TITLE} />
       </Container>
     );
@@ -23,7 +29,7 @@ const SearchAcademy = () => {
   }
 
   return (
-    <Container size="lg" className="search-results py-5">
+    <Container size="lg" className="search-results">
       <h2>
         <FormattedMessage
           id="enterprise.search.page.academies.section.title"
@@ -40,7 +46,7 @@ const SearchAcademy = () => {
       </p>
       <div className="academies-grid">
         <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-          {academies.map((academy) => <SearchAcademyCard key={uuidv4()} {...academy} />)}
+          {cards}
         </CardGrid>
       </div>
     </Container>

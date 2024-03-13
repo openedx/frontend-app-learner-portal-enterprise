@@ -33,6 +33,7 @@ const SearchResults = ({
   contentType,
   translatedTitle,
 }) => {
+  console.log('SearchResults!!!', searchResults);
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
   const hits = searchResults?.hits || [];
@@ -109,6 +110,10 @@ const SearchResults = ({
   );
 
   const SkeletonCard = getSkeletonCardFromTitle(title);
+
+  if (!isSearchStalled && nbHits === 0) {
+    return null;
+  }
 
   return (
     <Container size="lg" className={classNames('search-results', className)}>

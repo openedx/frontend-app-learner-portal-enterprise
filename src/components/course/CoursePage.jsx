@@ -23,7 +23,7 @@ import {
 import {
   getActiveCourseRun,
   getAvailableCourseRuns,
-  linkToCourse,
+  getLinkToCourse,
   pathContainsCourseTypeSlug,
   getCourseTypeConfig,
   getEntitlementPrice,
@@ -227,7 +227,7 @@ const CoursePage = () => {
         courseState.course.courseType,
       )
     ) {
-      const newUrl = linkToCourse(
+      const newUrl = getLinkToCourse(
         courseState.course,
         enterpriseSlug,
       );

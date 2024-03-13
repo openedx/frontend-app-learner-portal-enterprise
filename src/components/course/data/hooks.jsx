@@ -431,13 +431,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  * internal hyperlinks (e.g., using ``Link``).
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     state: {
       activeCourseRun: { key: courseKey },
       algoliaSearchParams,
     },
   } = useContext(CourseContext);
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;

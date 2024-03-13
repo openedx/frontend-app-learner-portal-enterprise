@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import ContentHighlights from '../ContentHighlights';
@@ -39,17 +38,13 @@ jest.mock('../ContentHighlightSet', () => {
   };
 });
 
-const defaultAppContextValue = {
-  enterpriseConfig: { uuid: 'test-uuid' },
-};
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn().mockReturnValue({ data: { slug: 'test-enterprise-slug' } }),
+}));
 
-const ContentHighlightsWrapper = ({
-  appContextValue = defaultAppContextValue,
-  ...rest
-}) => (
-  <AppContext.Provider value={appContextValue}>
-    <ContentHighlights {...rest} />
-  </AppContext.Provider>
+const ContentHighlightsWrapper = ({ ...rest }) => (
+  <ContentHighlights {...rest} />
 );
 
 describe('ContentHighlights', () => {

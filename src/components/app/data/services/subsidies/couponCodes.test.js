@@ -40,24 +40,24 @@ function getCouponsOverviewUrl(enterpriseUuid) {
 describe('fetchCouponCodeAssignments', () => {
   it('returns coupon code assignments', async () => {
     const COUPON_CODE_ASSIGNMENTS_URL = getCouponCodeAssignmentsUrl(enterpriseId);
-    const couponCodeAssignments = {
+    const couponCodeAssignmentsResponse = {
       results: [{ id: 123 }],
     };
-    axiosMock.onGet(COUPON_CODE_ASSIGNMENTS_URL).reply(200, couponCodeAssignments);
+    axiosMock.onGet(COUPON_CODE_ASSIGNMENTS_URL).reply(200, couponCodeAssignmentsResponse);
     const result = await fetchCouponCodeAssignments(enterpriseId);
-    expect(result).toEqual(couponCodeAssignments);
+    expect(result).toEqual(couponCodeAssignmentsResponse.results);
   });
 });
 
 describe('fetchCouponsOverview', () => {
   it('returns coupons overview', async () => {
     const COUPONS_OVERVIEW_URL = getCouponsOverviewUrl(enterpriseId);
-    const couponsOverview = {
+    const couponsOverviewResponse = {
       results: [{ id: 123 }],
     };
-    axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverview);
+    axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverviewResponse);
     const result = await fetchCouponsOverview(enterpriseId);
-    expect(result).toEqual(couponsOverview);
+    expect(result).toEqual(couponsOverviewResponse.results);
   });
 });
 
@@ -65,18 +65,18 @@ describe('fetchCouponCodes', () => {
   it('returns coupons related data', async () => {
     const COUPON_CODE_ASSIGNMENTS_URL = getCouponCodeAssignmentsUrl(enterpriseId);
     const COUPONS_OVERVIEW_URL = getCouponsOverviewUrl(enterpriseId);
-    const couponCodeAssignments = {
+    const couponCodeAssignmentsResponse = {
       results: [{ id: 123 }],
     };
-    const couponsOverview = {
+    const couponsOverviewResponse = {
       results: [{ id: 123 }],
     };
-    axiosMock.onGet(COUPON_CODE_ASSIGNMENTS_URL).reply(200, couponCodeAssignments);
-    axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverview);
+    axiosMock.onGet(COUPON_CODE_ASSIGNMENTS_URL).reply(200, couponCodeAssignmentsResponse);
+    axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverviewResponse);
     const result = await fetchCouponCodes(enterpriseId);
     expect(result).toEqual({
-      couponCodeAssignments,
-      couponsOverview,
+      couponCodeAssignments: couponCodeAssignmentsResponse.results,
+      couponsOverview: couponsOverviewResponse.results,
     });
   });
 });

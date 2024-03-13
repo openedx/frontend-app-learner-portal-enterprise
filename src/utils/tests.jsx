@@ -58,12 +58,10 @@ export function renderWithRouter(
  * e.g., <AppContext.Provider value={appInitialState()}/>
  */
 export const initialAppState = ({
-  enterpriseConfig = { slug: 'test-enterprise-slug' },
   config = {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-}) => ({
-  enterpriseConfig,
+} = {}) => ({
   config,
 });
 

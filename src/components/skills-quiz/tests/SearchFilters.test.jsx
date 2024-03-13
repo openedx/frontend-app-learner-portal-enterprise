@@ -18,18 +18,26 @@ import {
 import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const facetsToTest = [DESIRED_JOB_FACET, INDUSTRY_FACET, CURRENT_JOB_FACET];
 describe('<SkillsQuizStepper />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+  });
+
   const defaultAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-    },
     authenticatedUser: {
       username: 'myspace-tom',
     },

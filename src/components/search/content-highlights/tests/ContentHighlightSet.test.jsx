@@ -1,14 +1,16 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import ContentHighlightSet from '../ContentHighlightSet';
 import { renderWithRouter } from '../../../../utils/tests';
+import { useEnterpriseCustomer } from '../../../app/data';
 
-const defaultAppContextValue = {
-  enterpriseConfig: { uuid: 'test-uuid' },
-};
+const mockEnterpriseCustomer = { uuid: 'test-uuid' };
+
+jest.mock('../../../app/data', () => ({
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 const mockHighlightSetTitle = 'Test Highlight Set';
 const mockHighlightedContentItemTitle = 'Demonstration Course';
@@ -28,20 +30,18 @@ const mockHighlightSet = {
 };
 
 const ContentHighlightSetWrapper = ({
-  appContextValue = defaultAppContextValue,
   highlightSet = mockHighlightSet,
   ...rest
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <ContentHighlightSet highlightSet={highlightSet} {...rest} />
-    </AppContext.Provider>
+    <ContentHighlightSet highlightSet={highlightSet} {...rest} />
   </IntlProvider>
 );
 
 describe('ContentHighlightSet', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders stuff', () => {

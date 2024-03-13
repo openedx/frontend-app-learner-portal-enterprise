@@ -9,6 +9,10 @@ import { SkillsContextProvider } from '../../skills-quiz/SkillsContextProvider';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuizV2 from '../SkillsQuiz';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+// [tech debt] We appear to attempting to call legit Algolia APIs in these tests; lots
+// of test output related to Algolia errors. Does not appear to impact the test results.
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -20,12 +24,18 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test',
+  uuid: '12345',
+};
+
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'test-enterprise',
-    slug: 'test',
-    uuid: '12345',
-  },
   authenticatedUser: {
     userId: '123',
   },
@@ -42,6 +52,11 @@ const defaultSubsidyRequestState = {
 };
 
 describe('<SkillsQuizV2 />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders SkillsQuizV2 component correctly', () => {
     renderWithRouter(
       <SearchData>

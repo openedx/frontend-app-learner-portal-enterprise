@@ -1,4 +1,5 @@
 import React, {
+  memo,
   useContext, useEffect,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -72,7 +73,7 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const enterpriseFeatures = useEnterpriseFeatures();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const intl = useIntl();
   const navigate = useNavigate();
 
@@ -84,9 +85,11 @@ const Search = () => {
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {
-    hasLowEnterpriseOffersBalance,
-    hasNoEnterpriseOffersBalance,
-    canEnrollWithEnterpriseOffers,
+    data: {
+      hasLowEnterpriseOffersBalance,
+      hasNoEnterpriseOffersBalance,
+      canEnrollWithEnterpriseOffers,
+    },
   } = useEnterpriseOffers();
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 

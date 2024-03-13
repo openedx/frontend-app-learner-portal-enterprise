@@ -15,7 +15,7 @@ import {
   getNotStartedCourseDetails,
   hasLicenseOrCoupon,
 } from './data/utils';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
 import { useEnterpriseCustomer } from '../app/data';
 
@@ -42,7 +42,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const intl = useIntl();
 
-  const courseAboutPageURL = (course) => linkToCourse(course, enterpriseCustomer.slug);
+  const courseAboutPageURL = (course) => getLinkToCourse(course, enterpriseCustomer.slug);
   const courseSponsoredByEnterprise = intl.formatMessage(
     {
       id: 'enterprise.dashboard.programs.about.page.course.sponsored',

@@ -9,17 +9,24 @@ import {
   renderWithRouter,
 } from '../../../utils/tests';
 import { CourseRecommendations } from '../main-content';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
 
+const mockEnterpriseCustomer = {
+  name: 'BearsRUs',
+  uuid: 'BearsRUs',
+  slug: 'BearsRUs',
+  disableSearch: false,
+  adminUsers: [{ email: 'admin@foo.com' }],
+};
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    uuid: 'BearsRUs',
-    slug: 'BearsRUs',
-    disableSearch: false,
-    adminUsers: [{ email: 'admin@foo.com' }],
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
@@ -37,6 +44,10 @@ const CourseRecommendationsContext = ({
 );
 
 describe('<CourseRecommendations />', () => {
+  beforeEach(() => {
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders component correctly', () => {
     renderWithRouter(<CourseRecommendationsContext />);
     expect(screen.getByText('Get course recommendations for you.'));

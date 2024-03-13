@@ -17,7 +17,7 @@ export async function fetchAcademies(enterpriseUUID, options = {}) {
   } catch (error) {
     const errorResponseStatusCode = getErrorResponseStatusCode(error);
     if (errorResponseStatusCode === 404) {
-      return null;
+      return [];
     }
     throw error;
   }

@@ -4,11 +4,13 @@ import { Container } from '@openedx/paragon';
 import {
   useSubsidyRequestConfiguration,
   useSubsidyRequests,
-} from './data/hooks';
+  useCatalogsForSubsidyRequests,
+} from './data';
 import { LoadingSpinner } from '../loading-spinner';
-import { useCatalogsForSubsidyRequests } from '../hooks';
 import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from '../../constants';
-import { useEnterpriseCustomer } from '../app/data';
+import {
+  useEnterpriseCustomer,
+} from '../app/data';
 
 export const SubsidyRequestsContext = createContext();
 
@@ -33,7 +35,6 @@ const SubsidyRequestsContextProvider = ({ children }) => {
 
   const isLoading = isLoadingSubsidyRequestConfiguration
     || isLoadingSubsidyRequests;
-    // || isLoadingCatalogsForSubsidyRequests;
 
   const requestsBySubsidyType = useMemo(() => ({
     [SUBSIDY_TYPE.LICENSE]: licenseRequests,

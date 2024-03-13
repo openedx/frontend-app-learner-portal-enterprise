@@ -7,6 +7,9 @@ import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider
 import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
 import { InProgressCourseCard } from '../InProgressCourseCard';
 import { UserSubsidyContext } from '../../../../../enterprise-user-subsidy';
+import { useEnterpriseCustomer } from '../../../../../app/data';
+
+// [tech debt] there are failing prop type warnings output from these tests that should be cleaned up.
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -21,16 +24,19 @@ const basicProps = {
   notifications: [],
 };
 
-const InProgressCourseCardWrapper = ({
-  appContextValue =
-  {
-    enterpriseConfig: {
-      uuid: 123,
-    },
-    authenticatedUser: {
-      username: 'test-username',
-    },
+const defaultAppContextValue = {
+  authenticatedUser: {
+    username: 'test-username',
   },
+};
+
+jest.mock('../../../../../app/data', () => ({
+  ...jest.requireActual('../../../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const InProgressCourseCardWrapper = ({
+  appContextValue = defaultAppContextValue,
   userSubsidyContextValue = {
     couponCodes: {
       couponCodes: [],
@@ -59,6 +65,11 @@ const InProgressCourseCardWrapper = ({
 );
 
 describe('<InProgressCourseCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+  });
+
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
     render(<InProgressCourseCardWrapper {...basicProps} />);
     expect(screen.queryByTestId('upgrade-course-button')).not.toBeInTheDocument();

@@ -6,15 +6,17 @@ import makeDashboardLoader from './dashboardLoader';
 import {
   extractEnterpriseId,
   queryEnterpriseCourseEnrollments,
+  queryEnterprisePathwaysList,
+  queryEnterpriseProgramsList,
 } from '../../app/data';
 import { ensureAuthenticatedUser } from '../../app/routes/data';
 
-jest.mock('../../data', () => ({
-  ...jest.requireActual('../../data'),
+jest.mock('../../app/routes/data', () => ({
+  ...jest.requireActual('../../app/routes/data'),
   ensureAuthenticatedUser: jest.fn(),
 }));
-jest.mock('../../../data', () => ({
-  ...jest.requireActual('../../../data'),
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
   extractEnterpriseId: jest.fn(),
 }));
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -70,10 +72,22 @@ describe('dashboardLoader', () => {
 
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(3);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: queryEnterpriseCourseEnrollments(mockEnterpriseId).queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: queryEnterpriseProgramsList(mockEnterpriseId).queryKey,
+        queryFn: expect.any(Function),
+      }),
+    );
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: queryEnterprisePathwaysList(mockEnterpriseId).queryKey,
         queryFn: expect.any(Function),
       }),
     );
