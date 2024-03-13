@@ -15,15 +15,12 @@ import {
 } from './constants';
 import SearchProgram from './SearchProgram';
 import SearchCourse from './SearchCourse';
-import SearchCourseCard from './SearchCourseCard';
-import SearchProgramCard from './SearchProgramCard';
 import { ContentHighlights } from './content-highlights';
 import { features } from '../../config';
 
 import { IntegrationWarningModal } from '../integration-warning-modal';
 import { EnterpriseOffersBalanceAlert } from '../enterprise-user-subsidy';
 import SearchPathway from './SearchPathway';
-import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import PathwayModal from '../pathway/PathwayModal';
 import SearchAcademy from './SearchAcademy';
 import AssignmentsOnlyEmptyState from './AssignmentsOnlyEmptyState';
@@ -36,7 +33,7 @@ import {
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
-import { MemoizedSearchResultsContainer } from "./SearchResultsContainer";
+import MemoizedSearchResultsContainer from './SearchResultsContainer';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -183,51 +180,6 @@ const Search = () => {
         )}
 
         {contentType?.length > 0 && <MemoizedSearchResultsContainer contentType={contentType[0]} />}
-
-        {/*/!* Specified content type is pathways  *!/*/}
-        {/*{contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PATHWAY && (*/}
-        {/*  <SearchResults*/}
-        {/*    className="py-5"*/}
-        {/*    hitComponent={SearchPathwayCard}*/}
-        {/*    title={PATHWAY_TITLE}*/}
-        {/*    translatedTitle={intl.formatMessage({*/}
-        {/*      id: 'enterprise.search.page.show.more.pathway.section.translated.title',*/}
-        {/*      defaultMessage: 'Pathways',*/}
-        {/*      description: 'Translated title for the enterprise search page show all pathways section',*/}
-        {/*    })}*/}
-        {/*    contentType={CONTENT_TYPE_PATHWAY}*/}
-        {/*  />*/}
-        {/*)}*/}
-
-        {/*/!* Specified content type is progrmas  *!/*/}
-        {/*{contentType?.length > 0 && contentType[0] === CONTENT_TYPE_PROGRAM && (*/}
-        {/*  <SearchResults*/}
-        {/*    className="py-5"*/}
-        {/*    hitComponent={SearchProgramCard}*/}
-        {/*    title={PROGRAM_TITLE}*/}
-        {/*    translatedTitle={intl.formatMessage({*/}
-        {/*      id: 'enterprise.search.page.show.more.program.section.translated.title',*/}
-        {/*      defaultMessage: 'Programs',*/}
-        {/*      description: 'Translated title for the enterprise search page show all programs section.',*/}
-        {/*    })}*/}
-        {/*    contentType={CONTENT_TYPE_PROGRAM}*/}
-        {/*  />*/}
-        {/*)}*/}
-
-        {/*/!* Specified content type is courses  *!/*/}
-        {/*{contentType?.length > 0 && contentType[0] === CONTENT_TYPE_COURSE && (*/}
-        {/*  <SearchResults*/}
-        {/*    className="py-5"*/}
-        {/*    hitComponent={SearchCourseCard}*/}
-        {/*    title={COURSE_TITLE}*/}
-        {/*    translatedTitle={intl.formatMessage({*/}
-        {/*      id: 'enterprise.search.page.show.more.course.section.translated.title',*/}
-        {/*      defaultMessage: 'Courses',*/}
-        {/*      description: 'Translated title for the enterprise search page show all courses section.',*/}
-        {/*    })}*/}
-        {/*    contentType={CONTENT_TYPE_COURSE}*/}
-        {/*  />*/}
-        {/*)}*/}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>

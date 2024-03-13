@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Stack } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
@@ -12,6 +12,11 @@ const ContentHighlights = ({ className }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { data: contentHighlights } = useContentHighlights(enterpriseCustomer.uuid);
 
+  const mappedContentHighlightSetCards = useMemo(
+    () => contentHighlights.map((highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />),
+    [contentHighlights],
+  );
+
   if (!getConfig().FEATURE_CONTENT_HIGHLIGHTS || contentHighlights.length === 0) {
     return null;
   }
@@ -19,7 +24,7 @@ const ContentHighlights = ({ className }) => {
   return (
     <Container size="lg" className={className}>
       <Stack gap={5}>
-        {contentHighlights.map((highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />)}
+        {mappedContentHighlightSetCards}
       </Stack>
     </Container>
   );

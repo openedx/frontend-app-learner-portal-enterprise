@@ -5,6 +5,8 @@ import {
   setRefinementAction,
   SHOW_ALL_NAME,
 } from '@edx/frontend-enterprise-catalog-search';
+import { v4 as uuidv4 } from 'uuid';
+
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { useCatalogsForSubsidyRequests } from '../../hooks';
 import {

@@ -2,6 +2,7 @@ import { CardGrid, Container } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
+import { useMemo } from 'react';
 import SearchAcademyCard from '../academies/SearchAcademyCard';
 import { ACADEMY_TITLE, CARDGRID_COLUMN_SIZES } from './constants';
 import { useAcademies } from '../hooks';
@@ -9,6 +10,11 @@ import SearchError from './SearchError';
 
 const SearchAcademy = () => {
   const { data: academies, isError: fetchError } = useAcademies();
+
+  const mappedAcademyCards = useMemo(
+    () => academies.map((academy) => <SearchAcademyCard key={uuidv4()} {...academy} />),
+    [academies],
+  );
 
   if (fetchError) {
     return (
@@ -40,7 +46,7 @@ const SearchAcademy = () => {
       </p>
       <div className="academies-grid">
         <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-          {academies.map((academy) => <SearchAcademyCard key={uuidv4()} {...academy} />)}
+          {mappedAcademyCards}
         </CardGrid>
       </div>
     </Container>

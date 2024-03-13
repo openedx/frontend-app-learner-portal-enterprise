@@ -83,7 +83,7 @@ const SearchResults = ({
     },
     [refinements.page, searchState.page],
   );
-  console.log(page,query,showMessage(contentType, title), isSearchStalled)
+
   const resultsHeading = useMemo(
     () => {
       const resultsLabel = nbHits === 0 || nbHits > 1
@@ -109,6 +109,11 @@ const SearchResults = ({
   );
 
   const SkeletonCard = getSkeletonCardFromTitle(title);
+
+  const mappedHitsCards = useMemo(
+    () => hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />),
+    [hits],
+  );
 
   return (
     <Container size="lg" className={classNames('search-results', className)}>
@@ -146,7 +151,7 @@ const SearchResults = ({
       {!isSearchStalled && nbHits > 0 && (
         <>
           <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-            {hits?.map((hit) => <HitComponent key={uuidv4()} hit={hit} />)}
+            {mappedHitsCards}
           </CardGrid>
           {(contentType !== undefined) && (
             <div className="d-flex justify-content-center">

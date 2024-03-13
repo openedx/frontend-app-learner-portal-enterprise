@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useIntl } from '@edx/frontend-platform/i18n';
+import PropTypes from 'prop-types';
 import {
   CONTENT_TYPE_COURSE,
   CONTENT_TYPE_PATHWAY,
@@ -63,4 +64,10 @@ const SearchResultsContainer = ({ contentType }) => {
   return null;
 };
 
-export const MemoizedSearchResultsContainer = memo(SearchResultsContainer);
+SearchResultsContainer.propTypes = {
+  contentType: PropTypes.oneOf(
+    [CONTENT_TYPE_PROGRAM, CONTENT_TYPE_PATHWAY, CONTENT_TYPE_COURSE],
+  ).isRequired,
+};
+
+export default SearchResultsContainer;
