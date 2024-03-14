@@ -28,14 +28,17 @@ export const useSearchCatalogs = () => {
   const { data: { couponCodeAssignments } } = useCouponCodes();
   const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
   const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
-
   return useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.
     const catalogUUIDs = new Set();
 
     // Scope to catalogs from redeemable subsidy access policies, coupons,
     // enterprise offers, or subscription plan associated with learner's license.
-    redeemablePolicies.forEach((policy) => catalogUUIDs.add(policy.catalogUuid));
+    redeemablePolicies.forEach((policy) => {
+      if (policy.active) {
+        catalogUUIDs.add(policy.catalogUuid);
+      }
+    });
     if (subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) {
       catalogUUIDs.add(subscriptionLicense.subscriptionPlan.enterpriseCatalogUuid);
     }

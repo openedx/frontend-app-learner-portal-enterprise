@@ -16,6 +16,7 @@ import SearchCourseCard from './SearchCourseCard';
 const SearchResultsContainer = ({ contentType }) => {
   const intl = useIntl();
 
+  // Specified content type is pathways
   if (contentType === CONTENT_TYPE_PATHWAY) {
     return (
       <SearchResults
@@ -31,6 +32,7 @@ const SearchResultsContainer = ({ contentType }) => {
       />
     );
   }
+  // Specified content type is programs
   if (contentType === CONTENT_TYPE_PROGRAM) {
     return (
       <SearchResults
@@ -46,6 +48,7 @@ const SearchResultsContainer = ({ contentType }) => {
       />
     );
   }
+  // Specified content type is courses
   if (contentType === CONTENT_TYPE_COURSE) {
     return (
       <SearchResults
