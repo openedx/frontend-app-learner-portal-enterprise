@@ -5,11 +5,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { QueryClientProvider } from '@tanstack/react-query';
 import SearchCourseCard from '../SearchCourseCard';
 import * as courseSearchUtils from '../utils';
 
-import { renderWithRouter } from '../../../utils/tests';
+import { queryClient, renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -17,16 +19,23 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockedNavigate,
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const initialAppState = {
+  authenticatedUser: { userId: 'test-user-id', username: 'test-username' },
+};
+
 const SearchCourseCardWithAppContext = (props) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-      }}
-    >
-      <SearchCourseCard {...props} />
-    </AppContext.Provider>
-  </IntlProvider>
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={initialAppState}>
+        <SearchCourseCard {...props} />
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -51,9 +60,16 @@ const propsForLoading = {
   isLoading: true,
 };
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test-enterprise-slug',
+  uuid: '12345',
+};
+
 describe('<SearchCourseCard />', () => {
   beforeEach(() => {
     mockedNavigate.mockClear();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test('renders the correct data', () => {

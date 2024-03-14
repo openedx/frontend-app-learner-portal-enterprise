@@ -12,7 +12,8 @@ import {
   useCouponCodes,
   useEnterpriseCustomer,
   useEnterpriseOffers,
-  useRedeemablePolicies, useSubscriptions,
+  useRedeemablePolicies,
+  useSubscriptions,
 } from '../../app/data';
 import { features } from '../../../config';
 
@@ -28,7 +29,7 @@ export const useSearchCatalogs = () => {
   const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
   const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
 
-  const searchCatalogs = useMemo(() => {
+  return useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.
     const catalogUUIDs = new Set();
 
@@ -59,8 +60,6 @@ export const useSearchCatalogs = () => {
     currentEnterpriseOffers,
     subscriptionLicense,
   ]);
-
-  return searchCatalogs;
 };
 
 export const useDefaultSearchFilters = () => {
