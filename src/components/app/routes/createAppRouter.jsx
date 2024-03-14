@@ -78,18 +78,11 @@ export default function createAppRouter(queryClient) {
             <Route
               path=":pathwayUUID"
               lazy={async () => {
-                const { SearchPage, makeSearchLoader } = await import('../../search');
+                const { SearchPage } = await import('../../search');
                 return {
                   Component: SearchPage,
-                  loader: makeSearchLoader(queryClient),
                 };
               }}
-              errorElement={(
-                <RouteErrorBoundary
-                  showSiteHeader={false}
-                  showSiteFooter={false}
-                />
-              )}
             />
           </Route>
           <Route

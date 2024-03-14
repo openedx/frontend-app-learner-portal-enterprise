@@ -18,7 +18,7 @@ import { useAlgoliaSearch } from '../../../utils/hooks';
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(() => ({ data: { subscriptionLicense: {} } })),
+  useSubscriptions: jest.fn(() => ({ data: { subscriptionLicense: {} } })), // <Fix this with undefined
   useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
   useCouponCodes: jest.fn(() => ({ data: { couponCodeAssignments: [] } })),
   useEnterpriseOffers: jest.fn(() => ({ data: { currentEnterpriseOffers: [] } })),

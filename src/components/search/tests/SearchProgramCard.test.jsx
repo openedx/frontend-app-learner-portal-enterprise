@@ -114,13 +114,13 @@ describe('<SearchProgramCard />', () => {
   });
 
   // TODO: Fix this test
-  // test('handles card click', async () => {
-  //   renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
-  //   const cardEl = screen.getByTestId('search-program-card');
-  //   userEvent.click(cardEl);
-  //   await waitFor(() => expect(mockedNavigate)
-  //   .toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`));
-  // });
+  test.skip('handles card click', async () => {
+    renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
+    const cardEl = screen.getByTestId('search-program-card');
+    userEvent.click(cardEl);
+    await waitFor(() => expect(mockedNavigate)
+      .toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`));
+  });
 
   test.each(Object.keys(programTypes))('renders the correct program type: %s', (type) => {
     const value = programTypes[type];

@@ -234,20 +234,20 @@ describe('useDefaultSearchFilters', () => {
   });
 
   // TODO: Fix this test
-  // it('should return aggregated catalog string if searchCatalogs.length > 0', () => {
-  //   const mockDispatch = jest.fn();
-  //   const mockUseSearchCatalog = jest.fn();
-  //   const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
-  //   mockUseSearchCatalog.mockImplementation(() => mockSearchCatalogs);
-  //   const {
-  //     result,
-  //   } = renderHook(
-  //     () => useDefaultSearchFilters(),
-  //     { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
-  //   );
-  //   const { filters } = result.current;
-  //   expect(filters).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
-  // });
+  it.skip('should return aggregated catalog string if searchCatalogs.length > 0', () => {
+    const mockDispatch = jest.fn();
+    const mockUseSearchCatalog = jest.fn();
+    const mockSearchCatalogs = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
+    mockUseSearchCatalog.mockImplementation(() => mockSearchCatalogs);
+    const {
+      result,
+    } = renderHook(
+      () => useDefaultSearchFilters(),
+      { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
+    );
+    const { filters } = result.current;
+    expect(filters).toEqual(frontendEnterpriseCatalogSearch.getCatalogString(mockSearchCatalogs));
+  });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
     const mockDispatch = jest.fn();

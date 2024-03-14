@@ -80,6 +80,7 @@ describe('<SearchAcademy />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    // FIX COMPLETELY setQueryClientData
   });
 
   it('renders search academy section correctly.', async () => {
