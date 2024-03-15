@@ -7,6 +7,7 @@ import { isDefinedAndNotNull } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
 import { useEnterpriseLearner } from '../app/data';
+import LicenseNotFound from '../license-activation/LicenseNotFound';
 
 const EnterprisePage = ({ children }) => {
   const { enterpriseCustomer } = useEnterpriseLearner();
@@ -34,7 +35,32 @@ const EnterprisePage = ({ children }) => {
       client: searchClient,
       index: searchIndex,
     },
-  }), [config, searchClient, searchIndex, authenticatedUser]);
+  }), [config, enterpriseConfig, searchClient, searchIndex, authenticatedUser]);
+
+  // Render the app as loading while waiting on the configuration or additional user metadata
+  if (!isDefined([enterpriseConfig, profileImage]) || isUpdatingActiveEnterprise) {
+    return (
+      <Container className="py-5">
+        <LoadingSpinner screenReaderText="loading organization and user details" />
+      </Container>
+    );
+  }
+
+  if (fetchError) {
+    return <ErrorPage message={fetchError.message} />;
+  }
+
+  if (isDefinedAndNull(enterpriseConfig)) {
+    // check if license activation page then show different page
+    const currentUrl = window.location.href;
+    const regex = /licenses\/[0-9a-fA-F-]+\/activate/;
+    const licenseActivationPatternMatched = regex.test(currentUrl);
+
+    if (licenseActivationPatternMatched) {
+      return <LicenseNotFound />;
+    }
+    return <NotFoundPage />;
+  }
 
   return (
     <AppContext.Provider value={contextValue}>
