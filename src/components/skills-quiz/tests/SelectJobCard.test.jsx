@@ -7,10 +7,21 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const initialAppState = {
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
 
 const SelectJobCardWithContext = ({
   initialJobCardState = {},
-  initialAppState,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
@@ -32,15 +43,12 @@ const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
 const MEDIAN_SALARY = 'Median U.S. Salary:';
 const JOB_POSTINGS = 'Job Postings:';
 
-const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    hideLaborMarketData: false,
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
+const mockEnterpriseCustomer = {
+  name: 'BearsRUs',
+  hideLaborMarketData: false,
 };
+
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
 describe('<SelectJobCard />', () => {
   test('renders job card', () => {
@@ -58,6 +66,7 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     render(
       <SelectJobCardWithContext
         initialAppState={initialAppState}
@@ -84,15 +93,13 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    const appState = {
-      enterpriseConfig: {
-        name: 'BearsRUs',
-        hideLaborMarketData: true,
-      },
+    const hideLaborMarketConfig = {
+      ...mockEnterpriseCustomer,
+      hideLaborMarketData: true,
     };
+    useEnterpriseCustomer.mockReturnValue({ data: hideLaborMarketConfig });
     render(
       <SelectJobCardWithContext
-        initialAppState={appState}
         initialJobCardState={initialJobCardState}
       />,
     );
@@ -127,9 +134,9 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     render(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
       />,
     );
@@ -154,9 +161,9 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     render(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardStateWithOutJobs}
       />,
     );
@@ -180,9 +187,9 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     render(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardStateWithOutSalary}
       />,
     );
@@ -197,9 +204,9 @@ describe('<SelectJobCard />', () => {
     const initialJobCardState = {
       interestedJobs: [],
     };
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     render(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
       />,
     );
