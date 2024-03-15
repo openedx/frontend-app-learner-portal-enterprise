@@ -5,11 +5,10 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { QueryClientProvider } from '@tanstack/react-query';
 import SearchCourseCard from '../SearchCourseCard';
 import * as courseSearchUtils from '../utils';
 
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 import { useEnterpriseCustomer } from '../../app/data';
 
@@ -29,13 +28,11 @@ const initialAppState = {
 };
 
 const SearchCourseCardWithAppContext = (props) => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={initialAppState}>
-        <SearchCourseCard {...props} />
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={initialAppState}>
+      <SearchCourseCard {...props} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';

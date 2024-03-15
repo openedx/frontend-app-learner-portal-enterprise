@@ -1,14 +1,14 @@
-import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
-import { screen, act } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { queryClient, renderWithRouter } from '../../../utils/tests';
 
 import SearchAcademy from '../SearchAcademy';
-import { useEnterpriseCustomer } from '../../app/data';
-import { useAcademies } from '../../hooks';
+import { queryAcademiesList, useEnterpriseCustomer } from '../../app/data';
 
 // config
 const APP_CONFIG = {
@@ -18,9 +18,11 @@ const APP_CONFIG = {
 
 // test data
 const ACADEMY_UUID = 'b48ff396-03b4-467f-a4cc-da4327156984';
+const ENTERPRISE_UUID = '12345678-9000-0000-0000-123456789101';
 const ACADEMY_MOCK_DATA = {
   uuid: ACADEMY_UUID,
   title: 'My Awesome Academy',
+  short_description: 'I am a short academy description.',
   long_description: 'I am an awesome academy.',
   image: 'example.com/academies/images/awesome-academy.png',
   tags: [
@@ -37,15 +39,9 @@ const ACADEMY_MOCK_DATA = {
   ],
 };
 
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useAcademies: jest.fn(),
-}));
+// endpoints
+const ACADEMY_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies/${ACADEMY_UUID}/`;
+const ACADEMIES_LIST_API_ENDPOINT = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/academies?enterprise_customer=${ENTERPRISE_UUID}`;
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -55,44 +51,43 @@ jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
   getConfig: jest.fn(() => APP_CONFIG),
 }));
+jest.mock('@edx/frontend-platform/auth');
+const axiosMock = new MockAdapter(axios);
+getAuthenticatedHttpClient.mockReturnValue(axios);
+axiosMock.onGet(ACADEMY_API_ENDPOINT).reply(200, ACADEMY_MOCK_DATA);
+axiosMock.onGet(ACADEMIES_LIST_API_ENDPOINT).reply(200, { count: 1, results: [ACADEMY_MOCK_DATA] });
 
-const initialAppState = {
-  authenticatedUser: { userId: 'test-user-id' },
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
-const SearchAcademyWithContext = ({
-  appState = initialAppState, ...rest
-}) => (
-  <QueryClientProvider client={queryClient()}>
-    <AppContext.Provider value={appState}>
-      <SearchAcademy {...rest} />
-    </AppContext.Provider>
+const mockQueryClient = queryClient();
+
+const SearchAcademyWithContext = ({ ...rest }) => (
+  <QueryClientProvider client={mockQueryClient}>
+    <SearchAcademy {...rest} />
   </QueryClientProvider>
 );
 
 const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test',
-  uuid: '12345',
+  slug: 'test-enterprise-slug',
+  uuid: ENTERPRISE_UUID,
 };
 
 describe('<SearchAcademy />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    // FIX COMPLETELY setQueryClientData
+    mockQueryClient.setQueryData(queryAcademiesList(ENTERPRISE_UUID).queryKey, []);
   });
-
   it('renders search academy section correctly.', async () => {
-    useAcademies.mockReturnValue({ data: [ACADEMY_MOCK_DATA], isError: false });
-    await act(async () => renderWithRouter(
+    renderWithRouter(
       <IntlProvider locale="en">
-        <SearchAcademyWithContext
-          initialAppState={initialAppState}
-        />
+        <SearchAcademyWithContext />
       </IntlProvider>,
-    ));
-    expect(screen.getByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
+    );
+    expect(await screen.findByText('edX Academies; designed to meet your most critical business needs')).toBeInTheDocument();
     expect(screen.getByText('My Awesome Academy')).toBeInTheDocument();
   });
 });

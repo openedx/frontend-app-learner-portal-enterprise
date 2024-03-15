@@ -10,7 +10,6 @@ import SearchError from './SearchError';
 
 const SearchAcademy = () => {
   const { data: academies, isError: fetchError } = useAcademies();
-
   const mappedAcademyCards = useMemo(
     () => academies.map((academy) => <SearchAcademyCard key={uuidv4()} {...academy} />),
     [academies],
