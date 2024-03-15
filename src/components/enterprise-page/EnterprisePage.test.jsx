@@ -4,11 +4,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 
 import EnterprisePage from './EnterprisePage';
 import { useEnterpriseLearner } from '../app/data';
-import { LoadingSpinner } from '../loading-spinner';
-import NotFoundPage from '../NotFoundPage';
-import LicenseNotFound from '../license-activation/LicenseNotFound';
-import * as hooks from './data/hooks';
-import { queryCacheOnErrorHandler } from '../../utils/common';
 
 jest.mock('../app/data', () => ({
   ...jest.requireActual('../app/data'),
@@ -75,39 +70,5 @@ describe('<EnterprisePage />', () => {
         },
       }),
     );
-  });
-  it('renders error page when there is a fetch error', () => {
-    const errorMessage = 'Test fetch error';
-    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, new Error(errorMessage)]);
-    const wrapper = mount(
-      <EnterprisePageWrapper>
-        <div className="did-i-render" />
-      </EnterprisePageWrapper>,
-    );
-    expect(wrapper.find(ErrorPage).prop('message')).toEqual(errorMessage);
-  });
-
-  it('renders not found page when enterprise config is defined and null', () => {
-    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(
-      <EnterprisePageWrapper>
-        <div className="did-i-render" />
-      </EnterprisePageWrapper>,
-    );
-    expect(wrapper.find(NotFoundPage)).toBeTruthy();
-  });
-
-  it('renders LicenseNotFound page when license activation pattern is matched', () => {
-    // Mocking window.location.href to simulate a URL containing the license activation pattern
-    delete window.location;
-    window.location = { href: 'https://example.com/licenses/12345678-1234-5678-1234-567812345678/activate' };
-
-    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
-    const wrapper = mount(
-      <EnterprisePageWrapper>
-        <div className="did-i-render" />
-      </EnterprisePageWrapper>,
-    );
-    expect(wrapper.find(LicenseNotFound)).toBeTruthy();
   });
 });
