@@ -4,18 +4,31 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 
 import SearchCurrentJobCard from '../SearchCurrentJobCard';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
+const initialAppState = {
+  authenticatedUser: { username: 'test-username' },
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
 const SearchCurrentJobCardWithContext = ({
   index,
-  initialAppState,
   initialSearchState,
   initialJobsState,
 }) => (
@@ -52,16 +65,6 @@ const hitObject = {
   ],
 };
 
-const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    hideLaborMarketData: false,
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-};
-
 const testIndex = {
   indexName: 'test-index-name',
   search: jest.fn().mockImplementation(() => Promise.resolve(hitObject)),
@@ -79,40 +82,40 @@ const initialJobsState = {
   dispatch: () => null,
 };
 
+const mockEnterpriseCustomer = {
+  name: 'BearsRUs',
+  hideLaborMarketData: false,
+};
+
 describe('<SearchCurrentJobCard />', () => {
-  test('renders the data in job cards correctly', async () => {
-    await act(async () => {
-      render(
-        <SearchCurrentJobCardWithContext
-          index={testIndex}
-          initialAppState={initialAppState}
-          initialSearchState={initialSearchState}
-          initialJobsState={initialJobsState}
-        />,
-      );
-    });
-    expect(await screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
-    expect(await screen.getByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
-    expect(await screen.getByText(TRANSFORMED_JOB_POSTINGS)).toBeInTheDocument();
+  test('renders the data in job cards correctly', () => {.
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    renderWithRouter(
+      <SearchCurrentJobCardWithContext
+        index={testIndex}
+        initialSearchState={initialSearchState}
+        initialJobsState={initialJobsState}
+      />,
+    );
+    expect(screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.getByText(TRANSFORMED_JOB_POSTINGS)).toBeInTheDocument();
   });
 
-  test('does not render salary data when hideLaborMarketData is true ', async () => {
-    const appState = {
-      enterpriseConfig: {
-        hideLaborMarketData: true,
-      },
+  test('does not render salary data when hideLaborMarketData is true ', () => {
+    const hideLaborMarketConfig = {
+      ...mockEnterpriseCustomer,
+      hideLaborMarketData: true,
     };
-    await act(async () => {
-      render(
-        <SearchCurrentJobCardWithContext
-          index={testIndex}
-          initialAppState={appState}
-          initialSearchState={initialSearchState}
-          initialJobsState={initialJobsState}
-        />,
-      );
-    });
-    expect(await screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).not.toBeInTheDocument();
-    expect(await screen.queryByText(TRANSFORMED_JOB_POSTINGS)).not.toBeInTheDocument();
+    useEnterpriseCustomer.mockReturnValue({ data: hideLaborMarketConfig });
+    renderWithRouter(
+      <SearchCurrentJobCardWithContext
+        index={testIndex}
+        initialSearchState={initialSearchState}
+        initialJobsState={initialJobsState}
+      />,
+    );
+    expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).not.toBeInTheDocument();
+    expect(screen.queryByText(TRANSFORMED_JOB_POSTINGS)).not.toBeInTheDocument();
   });
 });

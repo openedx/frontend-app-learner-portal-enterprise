@@ -8,6 +8,7 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 import { useEnterpriseCustomer } from '../../app/data';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -48,8 +49,6 @@ const mockEnterpriseCustomer = {
   hideLaborMarketData: false,
 };
 
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
 describe('<SelectJobCard />', () => {
   test('renders job card', () => {
     const initialJobCardState = {
@@ -67,7 +66,7 @@ describe('<SelectJobCard />', () => {
       ],
     };
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
@@ -98,7 +97,7 @@ describe('<SelectJobCard />', () => {
       hideLaborMarketData: true,
     };
     useEnterpriseCustomer.mockReturnValue({ data: hideLaborMarketConfig });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardState}
       />,
@@ -135,7 +134,7 @@ describe('<SelectJobCard />', () => {
       ],
     };
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardState}
       />,
@@ -162,7 +161,7 @@ describe('<SelectJobCard />', () => {
       ],
     };
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardStateWithOutJobs}
       />,
@@ -188,7 +187,7 @@ describe('<SelectJobCard />', () => {
       ],
     };
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardStateWithOutSalary}
       />,
@@ -205,7 +204,7 @@ describe('<SelectJobCard />', () => {
       interestedJobs: [],
     };
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardState}
       />,
