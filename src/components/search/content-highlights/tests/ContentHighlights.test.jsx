@@ -36,8 +36,7 @@ const mockHighlightSet = {
 jest.mock('../../../hooks', () => ({
   ...jest.requireActual('../../../hooks'),
   useContentHighlights: jest.fn().mockReturnValue({
-    isLoading: false,
-    contentHighlights: [],
+    data: [],
   }),
 }));
 

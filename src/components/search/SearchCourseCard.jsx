@@ -100,7 +100,7 @@ const SearchCourseCard = ({
       {...rest}
     >
       <Card.ImageCap
-        src={course.cardImageUrl || course.originalImageUrl}
+        src={course.cardImageUrl || course.originalImageUrl || cardFallbackImg}
         fallbackSrc={cardFallbackImg}
         srcAlt=""
         logoSrc={primaryPartnerLogo?.src}

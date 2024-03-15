@@ -3,9 +3,8 @@ import '@testing-library/jest-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { QueryClientProvider } from '@tanstack/react-query';
 import ContentHighlightSet from '../ContentHighlightSet';
-import { queryClient, renderWithRouter } from '../../../../utils/tests';
+import { renderWithRouter } from '../../../../utils/tests';
 import { useEnterpriseCustomer } from '../../../app/data';
 
 jest.mock('../../../app/data', () => ({
@@ -39,13 +38,11 @@ const ContentHighlightSetWrapper = ({
   highlightSet = mockHighlightSet,
   ...rest
 }) => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={appContextValue}>
-        <ContentHighlightSet highlightSet={highlightSet} {...rest} />
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={appContextValue}>
+      <ContentHighlightSet highlightSet={highlightSet} {...rest} />
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = {

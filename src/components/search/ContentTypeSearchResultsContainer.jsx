@@ -13,7 +13,7 @@ import SearchPathwayCard from '../pathway/SearchPathwayCard';
 import SearchProgramCard from './SearchProgramCard';
 import SearchCourseCard from './SearchCourseCard';
 
-const SearchResultsContainer = ({ contentType }) => {
+const ContentTypeSearchResultsContainer = ({ contentType }) => {
   const intl = useIntl();
 
   // Specified content type is pathways
@@ -67,10 +67,10 @@ const SearchResultsContainer = ({ contentType }) => {
   return null;
 };
 
-SearchResultsContainer.propTypes = {
+ContentTypeSearchResultsContainer.propTypes = {
   contentType: PropTypes.oneOf(
     [CONTENT_TYPE_PROGRAM, CONTENT_TYPE_PATHWAY, CONTENT_TYPE_COURSE],
   ).isRequired,
 };
 
-export default SearchResultsContainer;
+export default ContentTypeSearchResultsContainer;

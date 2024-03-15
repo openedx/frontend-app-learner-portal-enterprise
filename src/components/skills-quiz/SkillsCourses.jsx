@@ -21,13 +21,13 @@ import PropTypes from 'prop-types';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
 import { sortSkillsCoursesWithCourseCount } from './data/utils';
 import { SkillsContext } from './SkillsContextProvider';
-import { useDefaultSearchFilters } from '../search/data/hooks';
 import {
   NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS,
 } from './constants';
 import CardLoadingSkeleton from './CardLoadingSkeleton';
 import CourseCard from './CourseCard';
 import { useEnterpriseCustomer } from '../app/data';
+import { useDefaultSearchFilters } from '../search';
 
 const SkillsCourses = ({ index }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();

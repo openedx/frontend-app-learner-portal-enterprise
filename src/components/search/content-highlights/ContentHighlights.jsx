@@ -12,11 +12,13 @@ const ContentHighlights = ({ className }) => {
   const { data: contentHighlights } = useContentHighlights(enterpriseCustomer.uuid);
 
   const mappedContentHighlightSetCards = useMemo(() => {
-    if (!contentHighlights) { return null; }
-    return contentHighlights.map((highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />);
+    const contentHighlightSets = contentHighlights || [];
+    return contentHighlightSets.map(
+      (highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />,
+    );
   }, [contentHighlights]);
 
-  if (!mappedContentHighlightSetCards || contentHighlights.length === 0) {
+  if (contentHighlights.length === 0) {
     return null;
   }
 

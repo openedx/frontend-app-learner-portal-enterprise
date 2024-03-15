@@ -9,7 +9,6 @@ import { SearchHeader, SearchContext } from '@edx/frontend-enterprise-catalog-se
 import { useToggle, Stack } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { useDefaultSearchFilters } from './data/hooks';
 import {
   NUM_RESULTS_PER_PAGE,
 } from './constants';
@@ -33,7 +32,8 @@ import {
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
-import SearchResultsContainer from './SearchResultsContainer';
+import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
+import { useDefaultSearchFilters } from './data';
 
 export const sendPushEvent = (isPreQueryEnabled, courseKeyMetadata) => {
   if (isPreQueryEnabled) {
@@ -178,8 +178,8 @@ const Search = () => {
             {canOnlyViewHighlightSets === false && <SearchCourse filter={filters} /> }
           </Stack>
         )}
-        {/* refinement with a content type */}
-        {contentType?.length > 0 && <SearchResultsContainer contentType={contentType[0]} />}
+        {/* render a single contentType if the refinement exist and is either a course, program or learnerpathway */}
+        {contentType?.length > 0 && <ContentTypeSearchResultsContainer contentType={contentType[0]} />}
       </InstantSearch>
       <IntegrationWarningModal isEnabled={enterpriseCustomer.showIntegrationWarning} />
     </>
