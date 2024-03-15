@@ -1,14 +1,14 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 import { useEnterpriseCustomer } from '../../app/data';
-import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),

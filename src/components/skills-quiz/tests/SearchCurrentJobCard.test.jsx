@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, act, render } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
@@ -88,7 +88,7 @@ const mockEnterpriseCustomer = {
 };
 
 describe('<SearchCurrentJobCard />', () => {
-  test('renders the data in job cards correctly', () => {.
+  test('renders the data in job cards correctly', async () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     renderWithRouter(
       <SearchCurrentJobCardWithContext
@@ -97,7 +97,7 @@ describe('<SearchCurrentJobCard />', () => {
         initialJobsState={initialJobsState}
       />,
     );
-    expect(screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument());
     expect(screen.getByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
     expect(screen.getByText(TRANSFORMED_JOB_POSTINGS)).toBeInTheDocument();
   });

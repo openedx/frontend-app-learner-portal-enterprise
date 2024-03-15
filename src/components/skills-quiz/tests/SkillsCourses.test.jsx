@@ -6,17 +6,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SkillsCourses from '../SkillsCourses';
 
-import { queryClient, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { useEnterpriseCustomer } from "../../app/data";
-import { useDefaultSearchFilters } from "../../search";
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -97,22 +93,23 @@ const SkillsCoursesWithContext = ({
   searchContext = defaultSearchContext,
   index,
 }) => (
-    <IntlProvider locale="en">
-      <AppContext.Provider value={initialAppState}>
-            <SearchContext.Provider value={searchContext}>
-              <SkillsContext.Provider value={initialSkillsState}>
-                <SkillsCourses index={index} />
-              </SkillsContext.Provider>
-            </SearchContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
+  <IntlProvider locale="en">
+
+    <AppContext.Provider value={initialAppState}>
+      <SearchContext.Provider value={searchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SkillsCourses index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = {
   slug: 'test-enterprise-slug',
   uuid: 'test-enterprise-uuid',
 };
-useEnterpriseCustomer.mockReturnValue({data: mockEnterpriseCustomer})
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
 describe('<SkillsCourses />', () => {
   test('renders the correct data', async () => {
