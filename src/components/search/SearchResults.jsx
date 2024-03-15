@@ -35,7 +35,6 @@ const SearchResults = ({
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
-  const hits = searchResults?.hits || [];
   const intl = useIntl();
   const linkText = intl.formatMessage(
     {
@@ -110,6 +109,14 @@ const SearchResults = ({
 
   const SkeletonCard = getSkeletonCardFromTitle(title);
 
+  const mappedHitsCards = useMemo(
+    () => {
+      const hits = searchResults?.hits || [];
+      return hits.map((hit) => <HitComponent key={uuidv4()} hit={hit} />);
+    },
+    [searchResults?.hits],
+  );
+
   return (
     <Container size="lg" className={classNames('search-results', className)}>
       <div className="d-flex align-items-center mb-2">
@@ -146,7 +153,7 @@ const SearchResults = ({
       {!isSearchStalled && nbHits > 0 && (
         <>
           <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-            {hits?.map((hit) => <HitComponent key={uuidv4()} hit={hit} />)}
+            {mappedHitsCards}
           </CardGrid>
           {(contentType !== undefined) && (
             <div className="d-flex justify-content-center">

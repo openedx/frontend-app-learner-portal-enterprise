@@ -42,7 +42,7 @@ const EnterpriseAppPageRoutes = () => (
           <Route path="program/:programUuid" element={<PageWrap><ProgramPage /></PageWrap>} />
         )}
         {/* Deprecated URL, will be removed in the future. */}
-        <Route path="program-progress/:programUUID" element={<PageWrap><ProgramProgressRedirect /></PageWrap>} />
+        <Route path="program-progress/:programUUID" element={<PageWrap><ProgramProgressRedirect /></PageWrap>} /> {/* RIP OUT */}
         <Route path="program/:programUUID/progress" element={<PageWrap><ProgramProgressPage /></PageWrap>} />
         <Route path="skills-quiz" element={<PageWrap><SkillsQuizPage /></PageWrap>} />
         {features.FEATURE_ENABLE_PATHWAY_PROGRESS && (

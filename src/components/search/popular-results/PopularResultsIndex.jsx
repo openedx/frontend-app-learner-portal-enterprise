@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Index, Configure } from 'react-instantsearch-dom';
 import { getConfig } from '@edx/frontend-platform/';
-import { useDefaultSearchFilters } from '../data/hooks';
 import PopularResults from './PopularResults';
 import { NUM_RESULTS_TO_DISPLAY } from './data/constants';
 import { getContentTypeFromTitle } from '../../utils/search';
+import { useDefaultSearchFilters } from '../data';
 
 const PopularResultsIndex = ({ title, numberResultsToDisplay }) => {
   const { filters } = useDefaultSearchFilters();

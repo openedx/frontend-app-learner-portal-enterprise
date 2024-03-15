@@ -21,9 +21,9 @@ import { shortenString } from '../course/data/utils';
 import { SKILL_NAME_CUTOFF_LIMIT, MAX_VISIBLE_SKILLS_PROGRAM, NO_PROGRAMS_ALERT_MESSAGE } from './constants';
 import getCommonSkills from './data/utils';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters } from '../search/data/hooks';
 import { ProgramType } from '../search/SearchProgramCard';
 import { useEnterpriseCustomer } from '../app/data';
+import { useDefaultSearchFilters } from '../search';
 
 const linkToProgram = (program, slug, enterpriseUUID, programUuid) => {
   if (!Object.keys(program).length) {

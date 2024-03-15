@@ -9,6 +9,12 @@ import SearchPathwayCard from '../SearchPathwayCard';
 import { TEST_ENTERPRISE_SLUG, TEST_ENTERPRISE_UUID } from './constants';
 import { PATHWAY_SEARCH_EVENT_NAME, PATHWAY_SKILL_QUIZ_EVENT_NAME } from '../constants';
 import { renderWithRouter } from '../../../utils/tests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 jest.mock('@edx/frontend-enterprise-utils', () => {
   const originalModule = jest.requireActual('@edx/frontend-enterprise-utils');
@@ -24,11 +30,13 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockedNavigate,
 }));
 
+const initialAppState = {
+  authenticatedUser: { userId: 'test-user-id', username: 'test-username' },
+};
+
 const SearchPathwayCardWithAppContext = (props) => (
   <AppContext.Provider
-    value={{
-      enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG, uuid: TEST_ENTERPRISE_UUID },
-    }}
+    value={initialAppState}
   >
     <SearchPathwayCard {...props} />
   </AppContext.Provider>
@@ -51,9 +59,16 @@ const propsForLoading = {
   isLoading: true,
 };
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: TEST_ENTERPRISE_SLUG,
+  uuid: TEST_ENTERPRISE_UUID,
+};
+
 describe('<SearchPathwayCard />', () => {
   beforeEach(() => {
     mockedNavigate.mockClear();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test('renders the correct data', () => {

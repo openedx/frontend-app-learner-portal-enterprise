@@ -60,7 +60,7 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
-            path="search"
+            path="search/:pathwayUUID?"
             lazy={async () => {
               const { SearchPage, makeSearchLoader } = await import('../../search');
               return {

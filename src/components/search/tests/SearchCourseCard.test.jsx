@@ -10,6 +10,7 @@ import * as courseSearchUtils from '../utils';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -17,13 +18,18 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockedNavigate,
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const initialAppState = {
+  authenticatedUser: { userId: 'test-user-id', username: 'test-username' },
+};
+
 const SearchCourseCardWithAppContext = (props) => (
   <IntlProvider locale="en">
-    <AppContext.Provider
-      value={{
-        enterpriseConfig: { slug: TEST_ENTERPRISE_SLUG },
-      }}
-    >
+    <AppContext.Provider value={initialAppState}>
       <SearchCourseCard {...props} />
     </AppContext.Provider>
   </IntlProvider>
@@ -51,9 +57,16 @@ const propsForLoading = {
   isLoading: true,
 };
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test-enterprise-slug',
+  uuid: '12345',
+};
+
 describe('<SearchCourseCard />', () => {
   beforeEach(() => {
     mockedNavigate.mockClear();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test('renders the correct data', () => {

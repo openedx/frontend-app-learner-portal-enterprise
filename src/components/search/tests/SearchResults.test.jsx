@@ -4,11 +4,10 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { QueryClientProvider } from '@tanstack/react-query';
 import SearchResults from '../SearchResults';
 import SearchCourseCard from '../SearchCourseCard';
 import SearchProgramCard from '../SearchProgramCard';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-
 import {
   NUM_RESULTS_PROGRAM,
   NUM_RESULTS_COURSE,
@@ -21,11 +20,25 @@ import {
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 
 import {
+  queryClient,
   renderWithRouter,
 } from '../../../utils/tests';
 import SearchPathwayCard from '../../pathway/SearchPathwayCard';
 import { getNoResultsMessage, getSearchErrorMessage } from '../../utils/search';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(() => ({ data: { subscriptionLicense: null } })),
+  useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
+  useCouponCodes: jest.fn(() => ({ data: { couponCodeAssignments: [] } })),
+  useEnterpriseOffers: jest.fn(() => ({ data: { currentEnterpriseOffers: [] } })),
+  useBrowseAndRequestConfiguration: jest.fn(() => ({ data: {} })),
+  useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
+  useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
+  useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
+}));
 
 jest.mock('../../../config', () => ({
   features: { PROGRAM_TYPE_FACET: true },
@@ -49,45 +62,21 @@ const searchContext = {
 };
 
 const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    slug: TEST_ENTERPRISE_SLUG,
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
   authenticatedUser: {
     username: 'myspace-tom',
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const initialUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const initialSubsidyRequestsState = {
-  subsidyRequestConfiguration: null,
-  catalogsForSubsidyRequests: [],
-};
-
 const SearchResultsWithContext = (props) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <SearchContext.Provider value={searchContext}>
-            <SearchResults {...props} />
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
+  <QueryClientProvider client={queryClient()}>
+    <IntlProvider locale="en">
+      <AppContext.Provider value={initialAppState}>
+        <SearchContext.Provider value={searchContext}>
+          <SearchResults {...props} />
+        </SearchContext.Provider>
+      </AppContext.Provider>
+    </IntlProvider>
+  </QueryClientProvider>
 );
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -196,7 +185,17 @@ const propsForNoResults = {
   contentType: CONTENT_TYPE_COURSE,
 };
 
+const mockEnterpriseCustomer = {
+  name: 'BearsRUs',
+  slug: TEST_ENTERPRISE_SLUG,
+  uuid: '12345',
+};
+
 describe('<SearchResults />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders correct results for courses', () => {
     renderWithRouter(
       <SearchResultsWithContext {...propsForCourseResults} />,

@@ -5,9 +5,15 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import ContentHighlightSet from '../ContentHighlightSet';
 import { renderWithRouter } from '../../../../utils/tests';
+import { useEnterpriseCustomer } from '../../../app/data';
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 const defaultAppContextValue = {
-  enterpriseConfig: { uuid: 'test-uuid' },
+  authenticatedUser: { username: 'test-username' },
 };
 
 const mockHighlightSetTitle = 'Test Highlight Set';
@@ -39,9 +45,16 @@ const ContentHighlightSetWrapper = ({
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test',
+  uuid: '12345',
+};
+
 describe('ContentHighlightSet', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders stuff', () => {
