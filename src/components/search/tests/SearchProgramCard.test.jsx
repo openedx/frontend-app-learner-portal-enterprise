@@ -25,12 +25,6 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   hasFeatureFlagEnabled: jest.fn(),
 }));
 
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
-}));
-
 const initialAppState = {
   authenticatedUser: { userId: 'batman', username: 'b.wayne' },
 };
@@ -114,12 +108,13 @@ describe('<SearchProgramCard />', () => {
   });
 
   // TODO: Fix this test
-  test.skip('handles card click', async () => {
+  test('handles card click', async () => {
     renderWithRouter(<SearchProgramCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-program-card');
     userEvent.click(cardEl);
-    await waitFor(() => expect(mockedNavigate)
-      .toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`));
+    await waitFor(() => {
+      expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    });
   });
 
   test.each(Object.keys(programTypes))('renders the correct program type: %s', (type) => {

@@ -60,7 +60,7 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
-            path="search"
+            path="search/:pathwayUUID?"
             lazy={async () => {
               const { SearchPage, makeSearchLoader } = await import('../../search');
               return {
@@ -74,17 +74,7 @@ export default function createAppRouter(queryClient) {
                 showSiteFooter={false}
               />
             )}
-          >
-            <Route
-              path=":pathwayUUID"
-              lazy={async () => {
-                const { SearchPage } = await import('../../search');
-                return {
-                  Component: SearchPage,
-                };
-              }}
-            />
-          </Route>
+          />
           <Route
             path=":courseType?/course/:courseKey/*"
             lazy={async () => {
