@@ -3,12 +3,23 @@ import '@testing-library/jest-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 
 import ContentHighlights from '../ContentHighlights';
-import { useContentHighlights } from '../../../hooks';
+import { useEnterpriseCustomer } from '../../../app/data';
+import { useContentHighlightSets } from '../../../hooks';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({
     FEATURE_CONTENT_HIGHLIGHTS: true,
   })),
+}));
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../../hooks', () => ({
+  ...jest.requireActual('../../../hooks'),
+  useContentHighlightSets: jest.fn(),
 }));
 
 const mockHighlightedContent = {};
@@ -24,8 +35,7 @@ const mockHighlightSet = {
 jest.mock('../../../hooks', () => ({
   ...jest.requireActual('../../../hooks'),
   useContentHighlights: jest.fn().mockReturnValue({
-    isLoading: false,
-    contentHighlights: [],
+    data: [],
   }),
 }));
 
@@ -47,9 +57,16 @@ const ContentHighlightsWrapper = ({ ...rest }) => (
   <ContentHighlights {...rest} />
 );
 
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test',
+  uuid: '12345',
+};
+
 describe('ContentHighlights', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   describe('feature flag disabled', () => {
@@ -67,24 +84,13 @@ describe('ContentHighlights', () => {
 
     it('does not render component', () => {
       const { container } = render(<ContentHighlightsWrapper />);
+      useContentHighlightSets.mockReturnValue({ data: [] });
       expect(container).toBeEmptyDOMElement();
     });
   });
 
-  it('renders loading skeleton when fetching highlight sets', () => {
-    useContentHighlights.mockReturnValue({
-      isLoading: true,
-      contentHighlights: [],
-    });
-    render(<ContentHighlightsWrapper />);
-    expect(screen.getByTestId('content-highlight-set-skeleton')).toBeInTheDocument();
-  });
-
   it('renders nothing when there are no existing highlight sets', () => {
-    useContentHighlights.mockReturnValue({
-      isLoading: false,
-      contentHighlights: [],
-    });
+    useContentHighlightSets.mockReturnValue({ data: [] });
     const { container } = render(<ContentHighlightsWrapper />);
     expect(container).toBeEmptyDOMElement();
   });
@@ -94,9 +100,8 @@ describe('ContentHighlights', () => {
       ...mockHighlightSet,
       title: 'Highlight Set 2',
     };
-    useContentHighlights.mockReturnValue({
-      isLoading: false,
-      contentHighlights: [mockHighlightSet, anotherMockHighlightSet],
+    useContentHighlightSets.mockReturnValue({
+      data: [mockHighlightSet, anotherMockHighlightSet],
     });
     render(<ContentHighlightsWrapper />);
     expect(screen.queryAllByTestId('content-highlight-set')).toHaveLength(2);

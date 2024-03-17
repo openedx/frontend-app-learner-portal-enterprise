@@ -6,10 +6,10 @@ import { getConfig } from '@edx/frontend-platform/config';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { useAlgoliaSearch } from '../../utils/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
-import { useEnterpriseLearner } from '../app/data';
+import { useEnterpriseCustomer } from '../app/data';
 
 const EnterprisePage = ({ children }) => {
-  const { enterpriseCustomer } = useEnterpriseLearner();
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const config = getConfig();
   const [searchClient, searchIndex] = useAlgoliaSearch(config);
   const { authenticatedUser } = useContext(AppContext);

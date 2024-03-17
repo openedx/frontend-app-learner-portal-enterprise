@@ -11,8 +11,6 @@ import {
   getContentPageUrl,
 } from '../utils';
 import { useHighlightedContentCardData, useEnterpriseCuration } from '../hooks';
-import { useContentHighlights } from '../../../../hooks';
-import { fetchContentHighlights } from '../../../../app/data';
 
 jest.mock('../../../../app/data', () => ({
   fetchContentHighlights: jest.fn(() => Promise.resolve({ data: { results: [] } })),
@@ -33,32 +31,6 @@ jest.mock('@edx/frontend-platform/config', () => ({
   getConfig: jest.fn(() => ({ FEATURE_CONTENT_HIGHLIGHTS: true })),
 }));
 
-describe('useContentHighlights', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-  it('should fetch content highlights and set state', async () => {
-    const enterpriseUUID = 'test-uuid';
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
-    await waitForNextUpdate();
-    expect(fetchContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.contentHighlights).toEqual([]);
-    expect(result.current.fetchError).toBeUndefined();
-  });
-  it('should handle errors when fetching content highlights', async () => {
-    const enterpriseUUID = 'test-uuid';
-    const error = new Error('test error');
-    fetchContentHighlights.mockRejectedValue(error);
-    const { result, waitForNextUpdate } = renderHook(() => useContentHighlights(enterpriseUUID));
-    await waitForNextUpdate();
-    expect(fetchContentHighlights).toHaveBeenCalledWith(enterpriseUUID);
-    expect(logError).toHaveBeenCalledWith(error);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.contentHighlights).toEqual([]);
-    expect(result.current.fetchError).toEqual(error);
-  });
-});
 describe('useHighlightedContentCardData', () => {
   it('should return an empty object if highlightedContent is not provided', () => {
     const { result } = renderHook(() => useHighlightedContentCardData({ enterpriseSlug: 'test-slug' }));

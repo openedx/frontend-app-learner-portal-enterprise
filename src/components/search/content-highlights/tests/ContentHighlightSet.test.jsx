@@ -6,7 +6,11 @@ import ContentHighlightSet from '../ContentHighlightSet';
 import { renderWithRouter } from '../../../../utils/tests';
 import { useEnterpriseCustomer } from '../../../app/data';
 
-const mockEnterpriseCustomer = { uuid: 'test-uuid' };
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: 'test',
+  uuid: '12345',
+};
 
 jest.mock('../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),

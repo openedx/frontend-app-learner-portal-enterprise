@@ -9,8 +9,8 @@ import { CardGrid } from '@openedx/paragon';
 
 import { SkillsContext } from './SkillsContextProvider';
 import { useSelectedSkillsAndJobSkills } from './data/hooks';
-import { useDefaultSearchFilters } from '../search/data/hooks';
 import SearchPathwayCard from '../pathway/SearchPathwayCard';
+import { useDefaultSearchFilters } from '../search';
 
 const SearchPathways = ({ index }) => {
   const { filters } = useDefaultSearchFilters();

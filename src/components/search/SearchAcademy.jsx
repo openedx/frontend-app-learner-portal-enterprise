@@ -10,8 +10,7 @@ import SearchError from './SearchError';
 
 const SearchAcademy = () => {
   const { data: academies, isError: fetchError } = useAcademies();
-
-  const cards = useMemo(
+  const mappedAcademyCards = useMemo(
     () => academies.map((academy) => <SearchAcademyCard key={uuidv4()} {...academy} />),
     [academies],
   );
@@ -24,7 +23,7 @@ const SearchAcademy = () => {
     );
   }
 
-  if (academies.length === 0) {
+  if (mappedAcademyCards.length === 0) {
     return null;
   }
 
@@ -46,7 +45,7 @@ const SearchAcademy = () => {
       </p>
       <div className="academies-grid">
         <CardGrid columnSizes={CARDGRID_COLUMN_SIZES}>
-          {cards}
+          {mappedAcademyCards}
         </CardGrid>
       </div>
     </Container>
