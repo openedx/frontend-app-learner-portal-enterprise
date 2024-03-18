@@ -10,7 +10,7 @@ import SearchPathways from '../SearchPathways';
 import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues, renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { useEnterpriseCustomer } from "../../app/data";
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),

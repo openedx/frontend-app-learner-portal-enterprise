@@ -65,7 +65,6 @@ const hitObject = {
   ],
 };
 
-
 const testIndex = {
   indexName: 'test-index-name',
   search: jest.fn().mockImplementation(() => Promise.resolve(hitObject)),
