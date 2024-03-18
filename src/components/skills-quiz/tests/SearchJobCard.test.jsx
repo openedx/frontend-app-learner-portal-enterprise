@@ -7,20 +7,33 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 
 import SearchJobCard from '../SearchJobCard';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const initialAppState = {
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+  authenticatedUser: { username: 'myspace-tom' },
+};
+
 const SearchJobCardWithContext = ({
   index,
-  initialAppState,
+  appState = initialAppState,
   initialSearchState,
   initialJobsState,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
+    <AppContext.Provider value={appState}>
       <SearchContext.Provider value={initialSearchState}>
         <SkillsContextProvider initialState={initialJobsState}>
           <SearchJobCard index={index} />
@@ -52,15 +65,6 @@ const hitObject = {
   ],
 };
 
-const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    hideLaborMarketData: false,
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-};
 
 const testIndex = {
   indexName: 'test-index-name',
@@ -79,13 +83,22 @@ const initialJobsState = {
   dispatch: () => null,
 };
 
+const mockEnterpriseCustomer = {
+  slug: 'test-enterprise-slug',
+  uuid: 'test-enterprise-uuid',
+  hideLaborMarketData: false,
+};
+
 describe('<SearchJobCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test('renders the data in job cards correctly', async () => {
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     await act(async () => {
       render(
         <SearchJobCardWithContext
           index={testIndex}
-          initialAppState={initialAppState}
           initialSearchState={initialSearchState}
           initialJobsState={initialJobsState}
         />,
@@ -97,16 +110,15 @@ describe('<SearchJobCard />', () => {
   });
 
   test('does not render salary data when hideLaborMarketData is true ', async () => {
-    const appState = {
-      enterpriseConfig: {
-        hideLaborMarketData: true,
-      },
+    const enableHideLaborMarketData = {
+      ...mockEnterpriseCustomer,
+      hideLaborMarketData: true,
     };
+    useEnterpriseCustomer.mockReturnValue({ data: enableHideLaborMarketData });
     await act(async () => {
       render(
         <SearchJobCardWithContext
           index={testIndex}
-          initialAppState={appState}
           initialSearchState={initialSearchState}
           initialJobsState={initialJobsState}
         />,

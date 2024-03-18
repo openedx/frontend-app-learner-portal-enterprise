@@ -6,14 +6,27 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchCourseCard from '../SearchCourseCard';
 
-import { renderWithRouter } from '../../../utils/tests';
+import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues, renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+}));
+
+jest.mock('../../hooks', () => ({
+  ...jest.requireActual('../../hooks'),
+  useCatalogsForSubsidyRequests: jest.fn(),
+}));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -56,9 +69,6 @@ const testIndex = {
 };
 
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
   authenticatedUser: { username: 'myspace-tom' },
 };
 
@@ -88,42 +98,32 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SearchCourseCardWithContext = ({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   searchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <SearchContext.Provider value={searchContext}>
-            <SkillsContext.Provider value={initialSkillsState}>
-              <SearchCourseCard index={index} />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SearchContext.Provider value={searchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SearchCourseCard index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
+
+const mockEnterpriseCustomer = {
+  name: 'test-enterprise',
+  slug: TEST_ENTERPRISE_SLUG,
+  uuid: 'test-enterprise-uuid',
+};
+
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+
+mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
 
 describe('<SearchCourseCard />', () => {
   test('renders the correct data', async () => {

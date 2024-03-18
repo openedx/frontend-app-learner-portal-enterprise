@@ -61,11 +61,15 @@ const defaultAppState = {
 const SkillsQuizWithContext = ({
   initialAppState = defaultAppState,
 }) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <SkillsQuiz />
-    </AppContext.Provider>
-  </IntlProvider>
+  <SearchData>
+    <SkillsContextProvider>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={initialAppState}>
+          <SkillsQuiz />
+        </AppContext.Provider>
+      </IntlProvider>
+    </SkillsContextProvider>
+  </SearchData>
 );
 
 mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
@@ -84,11 +88,7 @@ describe('<SkillsQuiz />', () => {
 
   it('renders skills quiz V1 page successfully.', () => {
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <SkillsQuizWithContext />
-        </SkillsContextProvider>
-      </SearchData>,
+      <SkillsQuizWithContext />,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeTruthy();
@@ -98,11 +98,7 @@ describe('<SkillsQuiz />', () => {
     hasFeatureFlagEnabled.mockReturnValue(true);
 
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <SkillsQuizWithContext />
-        </SkillsContextProvider>
-      </SearchData>,
+      <SkillsQuizWithContext />,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText('What roles are you interested in ?')).toBeInTheDocument();
