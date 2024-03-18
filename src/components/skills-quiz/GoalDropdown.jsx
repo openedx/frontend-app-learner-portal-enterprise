@@ -13,7 +13,7 @@ const GoalDropdown = () => {
   const selectGoal = (selectedGoal) => {
     dispatch({ type: SET_KEY_VALUE, key: 'goal', value: selectedGoal });
   };
-  const gaolDropdownOptions = [GOAL_DROPDOWN_DEFAULT_OPTION, DROPDOWN_OPTION_CHANGE_CAREERS,
+  const goalDropdownOptions = [GOAL_DROPDOWN_DEFAULT_OPTION, DROPDOWN_OPTION_CHANGE_CAREERS,
     DROPDOWN_OPTION_GET_PROMOTED, DROPDOWN_OPTION_IMPROVE_CURRENT_ROLE, DROPDOWN_OPTION_OTHER];
 
   return (
@@ -21,12 +21,13 @@ const GoalDropdown = () => {
       <Dropdown.Toggle
         variant="outline-primary"
         id="skills-quiz-goal-dropdown-toggle"
+        data-testid="skills-quiz-goal-dropdown-toggle"
       >
         {goal}
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        {gaolDropdownOptions?.map(option => (
-          <Dropdown.Item key={option} as="label" onClick={() => selectGoal(option)}>
+        {goalDropdownOptions?.map(option => (
+          <Dropdown.Item key={option} onClick={() => selectGoal(option)}>
             {option}
           </Dropdown.Item>
         ))}
