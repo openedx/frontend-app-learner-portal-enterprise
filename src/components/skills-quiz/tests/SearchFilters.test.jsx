@@ -18,49 +18,42 @@ import {
 import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+const mockEnterpriseCustomer = {
+  name: 'BearsRUs',
+  slug: 'BearsRYou',
+};
+
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+
 const facetsToTest = [DESIRED_JOB_FACET, INDUSTRY_FACET, CURRENT_JOB_FACET];
 describe('<SkillsQuizStepper />', () => {
   const defaultAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-    },
     authenticatedUser: {
       username: 'myspace-tom',
     },
-  };
-  const defaultCouponCodesState = {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  };
-
-  const defaultUserSubsidyState = {
-    couponCodes: defaultCouponCodesState,
-  };
-
-  const defaultSubsidyRequestState = {
-    catalogsForSubsidyRequests: [],
   };
 
   test('renders skills and jobs dropdown with a label', async () => {
     renderWithRouter(
       <IntlProvider locale="en">
         <AppContext.Provider value={defaultAppState}>
-          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-              <SearchData>
-                <SkillsContextProvider>
-                  <SkillsQuizStepper />
-                </SkillsContextProvider>
-              </SearchData>
-            </SubsidyRequestsContext.Provider>
-          </UserSubsidyContext.Provider>
+          <SearchData>
+            <SkillsContextProvider>
+              <SkillsQuizStepper />
+            </SkillsContextProvider>
+          </SearchData>
         </AppContext.Provider>
       </IntlProvider>,
       { route: '/test/skills-quiz/' },

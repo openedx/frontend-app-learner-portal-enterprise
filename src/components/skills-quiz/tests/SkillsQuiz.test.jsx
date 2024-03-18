@@ -5,15 +5,31 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
 import {
+  defaultSubsidyHooksData, mockSubsidyHooksReturnValues,
   renderWithRouter,
 } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import {
+  useEnterpriseCustomer,
+} from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+}));
+
+jest.mock('../../hooks', () => ({
+  ...jest.requireActual('../../hooks'),
+  useCatalogsForSubsidyRequests: jest.fn(),
+}));
 
 const mockLocation = {
   pathname: '/welcome',
@@ -33,16 +49,7 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   hasFeatureFlagEnabled: jest.fn().mockReturnValue(false),
 }));
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
@@ -51,29 +58,24 @@ const defaultAppState = {
   },
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SkillsQuizWithContext = ({
   initialAppState = defaultAppState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <SkillsQuiz />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SkillsQuiz />
     </AppContext.Provider>
   </IntlProvider>
 );
+
+mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+
+const mockEnterpriseCustomer = {
+  name: 'BearsRUs',
+  slug: 'BearsRYou',
+};
+
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
 describe('<SkillsQuiz />', () => {
   afterAll(() => {

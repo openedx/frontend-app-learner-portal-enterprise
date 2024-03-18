@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -89,11 +89,10 @@ const mockEnterpriseCustomer = {
   slug: 'BearsRYou',
 };
 
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
 describe('<SkillsQuizStepper />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('checks header is correctly rendered', () => {
