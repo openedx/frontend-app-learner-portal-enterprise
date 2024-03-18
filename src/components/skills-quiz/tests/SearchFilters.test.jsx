@@ -6,7 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import {
   DESIRED_JOB_FACET,
   INDUSTRY_FACET,
@@ -17,7 +16,6 @@ import {
 
 import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('../../app/data', () => ({

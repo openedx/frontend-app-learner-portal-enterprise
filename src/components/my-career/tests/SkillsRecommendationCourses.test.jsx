@@ -5,25 +5,16 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import {
   defaultSubsidyHooksData,
   mockSubsidyHooksReturnValues,
-  queryClient,
-  renderWithRouter
+  renderWithRouter,
 } from '../../../utils/tests';
 import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import {
-  useCouponCodes,
   useEnterpriseCustomer,
-  useEnterpriseOffers,
-  useRedeemablePolicies,
-  useSubscriptions,
 } from '../../app/data';
-import { useCatalogsForSubsidyRequests } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -113,40 +104,22 @@ const defaultSearchContext = {
   dispatch: () => null,
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  },
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SkillsRecommendationCoursesWithContext = ({
   index = coursesIndex,
   subCategoryName = TEST_SUB_CATEGORY_NAME,
   subCategorySkills = TEST_SKILLS,
 }) => (
-  <QueryClientProvider client={queryClient()}>
-    <IntlProvider locale="en">
-      <AppContext.Provider value={defaultAppState}>
-        <SearchContext.Provider value={defaultSearchContext}>
-          <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-            <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-              <SkillsRecommendationCourses
-                index={index}
-                subCategoryName={subCategoryName}
-                subCategorySkills={subCategorySkills}
-              />
-            </SubsidyRequestsContext.Provider>
-          </UserSubsidyContext.Provider>
-        </SearchContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
-  </QueryClientProvider>
+  <IntlProvider locale="en">
+    <AppContext.Provider value={defaultAppState}>
+      <SearchContext.Provider value={defaultSearchContext}>
+        <SkillsRecommendationCourses
+          index={index}
+          subCategoryName={subCategoryName}
+          subCategorySkills={subCategorySkills}
+        />
+      </SearchContext.Provider>
+    </AppContext.Provider>
+  </IntlProvider>
 );
 
 const mockEnterpriseCustomer = {
