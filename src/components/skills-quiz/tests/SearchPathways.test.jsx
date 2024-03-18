@@ -1,7 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen, waitFor } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
@@ -52,8 +51,6 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(pathways)),
 };
 
-const defaultAppState = {};
-
 const defaultSearchContext = {
   refinements: { },
   dispatch: () => null,
@@ -80,19 +77,16 @@ const defaultSkillsState = {
 };
 
 const SearchPathwaysWithContext = ({
-  initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
   initialSearchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <SearchContext.Provider value={initialSearchContext}>
-        <SkillsContext.Provider value={initialSkillsState}>
-          <SearchPathways index={index} />
-        </SkillsContext.Provider>
-      </SearchContext.Provider>
-    </AppContext.Provider>
+    <SearchContext.Provider value={initialSearchContext}>
+      <SkillsContext.Provider value={initialSkillsState}>
+        <SearchPathways index={index} />
+      </SkillsContext.Provider>
+    </SearchContext.Provider>
   </IntlProvider>
 );
 
