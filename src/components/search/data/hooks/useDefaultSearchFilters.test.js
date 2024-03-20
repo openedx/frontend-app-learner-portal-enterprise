@@ -57,7 +57,8 @@ describe('useDefaultSearchFilters', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
-  })
+  });
+
   const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
 
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {

@@ -8,7 +8,7 @@ import { features } from '../../../../config';
 import {
   useEnterpriseCustomer,
 } from '../../../app/data';
-import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues } from "../../../../utils/tests";
+import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues } from '../../../../utils/tests';
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 
@@ -55,7 +55,8 @@ describe('useSearchCatalogs', () => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
-  })
+  });
+
   it.each('should include catalog from subscription (%s)', ({ isSubscriptionPlanExpired }) => {
     const mockSubscriptionLicense = {
       status: LICENSE_STATUS.ACTIVATED,
