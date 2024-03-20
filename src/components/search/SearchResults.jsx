@@ -16,7 +16,6 @@ import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import {
-  CONTENT_TYPE_PATHWAY,
   PROGRAM_TITLE,
   CARDGRID_COLUMN_SIZES,
 } from './constants';
@@ -32,6 +31,7 @@ const SearchResults = ({
   title,
   contentType,
   translatedTitle,
+  isPathwaySearchResults,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
@@ -118,11 +118,14 @@ const SearchResults = ({
   );
 
   if (!isSearchStalled && nbHits === 0) {
-    console.log('SearchResults.jsx: no results', contentType);
-    if (contentType === CONTENT_TYPE_PATHWAY) {
+    if (isPathwaySearchResults) {
       return null;
     }
-    return <SearchNoResults title={title} />;
+    return (
+      <Container size="lg" className="search-results">
+        <SearchNoResults title={title} />
+      </Container>
+    );
   }
 
   return (
@@ -193,6 +196,7 @@ SearchResults.propTypes = {
   hitComponent: PropTypes.elementType.isRequired,
   title: PropTypes.string.isRequired,
   translatedTitle: PropTypes.string,
+  isPathwaySearchResults: PropTypes.bool,
 };
 
 SearchResults.defaultProps = {
@@ -202,6 +206,7 @@ SearchResults.defaultProps = {
   error: undefined,
   contentType: undefined,
   translatedTitle: undefined,
+  isPathwaySearchResults: false,
 };
 
 export default connectStateResults(SearchResults);
