@@ -3,23 +3,15 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-
 import userEvent from '@testing-library/user-event';
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
+
+import { renderWithRouter } from '../../../utils/tests';
 import { CourseRecommendations } from '../main-content';
 import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
-
-const mockEnterpriseCustomer = {
-  name: 'BearsRUs',
-  uuid: 'BearsRUs',
-  slug: 'BearsRUs',
-  disableSearch: false,
-  adminUsers: [{ email: 'admin@foo.com' }],
-};
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),

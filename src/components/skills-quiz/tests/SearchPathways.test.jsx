@@ -4,8 +4,6 @@ import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchPathways from '../SearchPathways';
@@ -14,6 +12,7 @@ import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useDefaultSearchFilters } from '../../search';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -90,7 +89,7 @@ const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const SearchPathwaysWithContext = ({
   initialSkillsState = defaultSkillsState,

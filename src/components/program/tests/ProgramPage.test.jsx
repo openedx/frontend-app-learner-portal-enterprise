@@ -2,8 +2,6 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, render, waitFor } from '@testing-library/react';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
@@ -11,6 +9,7 @@ import ProgramPage from '../ProgramPage';
 import { useAllProgramData } from '../data/hooks';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
 import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const programData = {
   title: 'Test Program Title',
@@ -61,8 +60,8 @@ const ProgramWithContext = ({
   </IntlProvider>
 );
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const initialAppState = {
   authenticatedUser: mockAuthenticatedUser,

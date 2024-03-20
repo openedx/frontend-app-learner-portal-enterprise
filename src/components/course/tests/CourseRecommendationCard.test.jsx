@@ -6,9 +6,10 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import CourseRecommendationCard, { COURSE_REC_EVENT_NAME, SAME_PART_EVENT_NAME } from '../CourseRecommendationCard';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
@@ -20,11 +21,7 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const TEST_UUID = '1234053423-4212-21323-45fdf';
-const mockEnterpriseCustomer = {
-  slug: TEST_ENTERPRISE_SLUG,
-  uuid: TEST_UUID,
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const CourseRecommendationCardWithContext = (props) => (
   <IntlProvider locale="en">
@@ -69,7 +66,7 @@ describe('<CourseRecommendationCard />', () => {
     );
     userEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      TEST_UUID,
+      mockEnterpriseCustomer.uuid,
       COURSE_REC_EVENT_NAME,
       { courseKey: course.key },
     );
@@ -81,7 +78,7 @@ describe('<CourseRecommendationCard />', () => {
     );
     userEvent.click(container.querySelector('.pgn__card'));
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      TEST_UUID,
+      mockEnterpriseCustomer.uuid,
       SAME_PART_EVENT_NAME,
       { courseKey: course.key },
     );

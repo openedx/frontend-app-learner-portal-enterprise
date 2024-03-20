@@ -2,17 +2,17 @@ import { screen } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { mergeConfig, camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
+import { mergeConfig } from '@edx/frontend-platform';
 import dayjs from 'dayjs';
 import '@testing-library/jest-dom/extend-expect';
 
 import Layout from './Layout';
 import { queryClient, renderWithRouterProvider } from '../../utils/tests';
 import { useEnterpriseCustomer } from './data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from './data/services/data/__factories__';
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const mockDefaultAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,

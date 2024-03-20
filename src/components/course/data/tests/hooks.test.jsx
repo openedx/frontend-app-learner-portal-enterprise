@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { Factory } from 'rosie';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -65,18 +64,16 @@ import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
 import { useEnterpriseCustomer } from '../../../app/data';
 import { queryClient } from '../../../../utils/tests';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const oldGlobalLocation = global.location;
 
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
-  getConfig: jest.fn(() => ({
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-    ECOMMERCE_BASE_URL: process.env.ECOMMERCE_BASE_URL,
-  })),
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
+  getConfig: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -141,8 +138,8 @@ const createGlobalLocationMock = () => {
 };
 const mockPreventDefault = jest.fn();
 
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
-const mockenterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('useAllCourseData', () => {
   const basicProps = {
@@ -150,7 +147,7 @@ describe('useAllCourseData', () => {
     activeCatalogs: [],
   };
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -262,6 +259,10 @@ describe('useCourseEnrollmentUrl', () => {
     jest.clearAllMocks();
     useLocation.mockReturnValue({
       pathname: '/enterprise-slug/course/edX+DemoX',
+    });
+    getConfig.mockReturnValue({
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+      ECOMMERCE_BASE_URL: process.env.ECOMMERCE_BASE_URL,
     });
   });
 
@@ -526,7 +527,7 @@ describe('useTrackSearchConversionClickHandler', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useEnterpriseCustomer.mockReturnValue({ data: mockenterpriseCustomer });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   afterAll(() => {
@@ -546,7 +547,7 @@ describe('useTrackSearchConversionClickHandler', () => {
     expect(mockPreventDefault).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      mockenterpriseCustomer.uuid,
+      mockEnterpriseCustomer.uuid,
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
@@ -575,7 +576,7 @@ describe('useTrackSearchConversionClickHandler', () => {
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      mockenterpriseCustomer.uuid,
+      mockEnterpriseCustomer.uuid,
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],

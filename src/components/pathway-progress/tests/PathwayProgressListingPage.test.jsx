@@ -3,7 +3,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Factory } from 'rosie';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import userEvent from '@testing-library/user-event';
@@ -13,6 +12,7 @@ import { CONTENT_TYPE_PATHWAY } from '../../search/constants';
 import learnerPathwayData from '../data/__mocks__/PathwayProgressListData.json';
 import { NO_PATHWAYS_ERROR_MESSAGE } from '../constants';
 import { useEnterpriseCustomer, useCanOnlyViewHighlights, useEnterprisePathwaysList } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/react', () => ({
   ...jest.requireActual('@edx/frontend-platform/react'),
@@ -26,7 +26,7 @@ jest.mock('../../app/data', () => ({
   useEnterprisePathwaysList: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const PathwayProgressListingWithContext = ({
   initialAppState = {},

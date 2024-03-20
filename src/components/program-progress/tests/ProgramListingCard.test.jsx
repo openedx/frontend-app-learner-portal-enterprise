@@ -2,8 +2,6 @@ import React from 'react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
@@ -11,6 +9,7 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 
 import ProgramListingCard from '../ProgramListingCard';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
@@ -74,7 +73,7 @@ const userSubsidyState = {
   },
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<ProgramListingCard />', () => {
   beforeEach(() => {

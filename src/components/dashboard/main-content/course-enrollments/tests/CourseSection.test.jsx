@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-import { Factory } from 'rosie';
 import * as frontendEnterpriseUtils from '@edx/frontend-enterprise-utils';
 
 import userEvent from '@testing-library/user-event';
@@ -8,6 +7,7 @@ import CourseSection from '../CourseSection';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
 import { COURSE_MODES, COURSE_STATUSES } from '../../../../../constants';
 import { useEnterpriseCustomer } from '../../../../app/data';
+import { enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('../course-cards', () => ({
@@ -38,7 +38,7 @@ const CARD_COMPONENT_BY_COURSE_STATUS = {
   [COURSE_STATUSES.assigned]: '<AssignedCourseCard />',
 };
 
-const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<CourseSection />', () => {
   beforeEach(() => {

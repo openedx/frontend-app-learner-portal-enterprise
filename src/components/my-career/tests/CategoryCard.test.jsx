@@ -2,13 +2,12 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
 import { useDefaultSearchFilters } from '../../search';
 import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -65,7 +64,7 @@ const topCategory = {
   edxAverageScore: null,
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const CategoryCardWithContext = () => (
   <IntlProvider locale="en">

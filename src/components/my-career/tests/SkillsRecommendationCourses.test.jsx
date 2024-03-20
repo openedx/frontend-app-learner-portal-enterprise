@@ -4,8 +4,6 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
@@ -14,6 +12,7 @@ import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -90,7 +89,7 @@ const coursesIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const defaultSearchContext = {
   refinements: { skill_names: TEST_SKILLS },

@@ -1,6 +1,7 @@
 import { Factory } from 'rosie'; // eslint-disable-line import/no-extraneous-dependencies
 import { faker } from '@faker-js/faker'; // eslint-disable-line import/no-extraneous-dependencies
 import dayjs from 'dayjs';
+import { camelCaseObject } from '@edx/frontend-platform';
 import { v4 as uuidv4 } from 'uuid';
 import { COURSE_STATUSES } from '../../../../../../constants';
 
@@ -10,6 +11,9 @@ Factory.define('authenticatedUser')
   .attr('username', faker.internet.userName())
   .attr('name', faker.person.fullName())
   .attr('roles', []);
+export function authenticatedUserFactory(overrides = {}) {
+  return camelCaseObject(Factory.build('authenticatedUser', overrides));
+}
 
 Factory.define('enterpriseCustomer')
   .attr('active', true)
@@ -29,6 +33,9 @@ Factory.define('enterpriseCustomer')
     secondary_color: faker.internet.color(),
     tertiary_color: faker.internet.color(),
   });
+export function enterpriseCustomerFactory(overrides = {}) {
+  return camelCaseObject(Factory.build('enterpriseCustomer', overrides));
+}
 
 Factory.define('enterpriseCustomerUser')
   .attr('active', true)
@@ -36,6 +43,9 @@ Factory.define('enterpriseCustomerUser')
   .attr('data_sharing_consent_records', [])
   .attr('user', Factory.build('authenticatedUser'))
   .attr('enterprise_customer', Factory.build('enterpriseCustomer'));
+export function enterpriseCustomerUserFactory(overrides = {}) {
+  return camelCaseObject(Factory.build('enterpriseCustomerUser', overrides));
+}
 
 Factory.define('enterpriseCourseEnrollment')
   .attr('uuid', uuidv4())
@@ -47,3 +57,6 @@ Factory.define('enterpriseCourseEnrollment')
   .attr('start_date', dayjs().subtract(1, 'month').toISOString())
   .attr('end_date', dayjs().add(1, 'month').toISOString())
   .attr('enroll_by', dayjs().add(7, 'day').toISOString());
+export function enterpriseCourseEnrollmentFactory(overrides = {}) {
+  return camelCaseObject(Factory.build('enterpriseCourseEnrollment', overrides));
+}

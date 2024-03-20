@@ -1,6 +1,4 @@
 import React from 'react';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import dayjs from 'dayjs';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
@@ -34,6 +32,7 @@ import {
   useSubscriptions,
 } from '../../../app/data';
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -60,7 +59,7 @@ const mockEnterpriseOffer = {
   endDatetime: '2021-10-25',
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const DashboardSidebarWithContext = () => (
   <IntlProvider locale="en">

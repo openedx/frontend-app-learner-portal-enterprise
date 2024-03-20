@@ -1,8 +1,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { sendEnterpriseTrackEvent, renderWithRouter } from '@edx/frontend-enterprise-utils';
 import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
@@ -13,6 +11,7 @@ import CourseSidebar from '../CourseSidebar';
 import CourseSidebarListItem from '../CourseSidebarListItem';
 import { CourseContext } from '../CourseContextProvider';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -71,10 +70,10 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer', {
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
   enable_pathways: true,
   enable_programs: true,
-}));
+});
 
 const mockCourse = {
   uuid: 'test-course-uuid',

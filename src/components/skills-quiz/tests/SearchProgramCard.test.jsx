@@ -6,8 +6,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchProgramCard from '../SearchProgramCard';
@@ -17,6 +15,7 @@ import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const userId = 'batman';
 
@@ -41,7 +40,7 @@ jest.mock('../../search', () => ({
   useDefaultSearchFilters: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';

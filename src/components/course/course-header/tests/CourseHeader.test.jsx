@@ -2,8 +2,6 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy/UserSubsidy';
@@ -17,6 +15,7 @@ import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course
 import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../app/data';
 import { SUBSIDY_TYPE } from '../../../../constants';
 import { renderWithRouterProvider } from '../../../../utils/tests';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 // Stub out the enroll button to avoid testing its implementation here
 jest.mock('../CourseRunCards', () => function CourseRunCards() {
@@ -32,10 +31,10 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockEnterpriseCustomerWithDisabledSearch = camelCaseObject(Factory.build('enterpriseCustomer', {
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
   disableSearch: true,
-}));
+});
 
 const defaultSubsidyRequestsState = {
   requestsBySubsidyType: {

@@ -3,8 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
-import { camelCaseObject, mergeConfig } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
+import { mergeConfig } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
@@ -14,6 +13,7 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import SkillsQuizPage from '../SkillsQuizPage';
 import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -31,8 +31,8 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
   config: {

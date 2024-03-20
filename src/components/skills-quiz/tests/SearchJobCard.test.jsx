@@ -4,12 +4,11 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SearchJobCard from '../SearchJobCard';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
@@ -60,7 +59,7 @@ const hitObject = {
   ],
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const initialAppState = {
   config: {
@@ -105,9 +104,9 @@ describe('<SearchJobCard />', () => {
   });
 
   test('does not render salary data when hideLaborMarketData is true ', async () => {
-    const mockEnterpriseCustomerWithHideLaborMarketData = camelCaseObject(Factory.build('enterpriseCustomer', {
+    const mockEnterpriseCustomerWithHideLaborMarketData = enterpriseCustomerFactory({
       hide_labor_market_data: true,
-    }));
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHideLaborMarketData });
     render(
       <SearchJobCardWithContext

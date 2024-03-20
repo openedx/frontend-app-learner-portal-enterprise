@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getConfig } from '@edx/frontend-platform/config';
+import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { useQuery } from '@tanstack/react-query';

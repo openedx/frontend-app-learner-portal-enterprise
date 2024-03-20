@@ -2,14 +2,13 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Factory } from 'rosie';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const SelectJobCardWithContext = ({
   initialJobCardState = {},
@@ -35,7 +34,7 @@ const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
 const MEDIAN_SALARY = 'Median U.S. Salary:';
 const JOB_POSTINGS = 'Job Postings:';
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const initialAppState = {
   config: {
@@ -94,9 +93,9 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    const mockEnterpriseCustomerWithHiddenLaborMarketData = camelCaseObject(Factory.build('enterpriseCustomer', {
+    const mockEnterpriseCustomerWithHiddenLaborMarketData = enterpriseCustomerFactory({
       hide_labor_market_data: true,
-    }));
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHiddenLaborMarketData });
     render(
       <SelectJobCardWithContext

@@ -4,14 +4,13 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import userEvent from '@testing-library/user-event';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramCTA from '../ProgramCTA';
 import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const courseKey = 'edX+DemoX';
 const programUuid = '00000000-0000-0000-0000-000000000000';
@@ -49,8 +48,8 @@ const ProgramCTAtWithContext = ({
   </IntlProvider>
 );
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const initialAppState = {
   authenticatedUser: mockAuthenticatedUser,

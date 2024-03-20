@@ -3,8 +3,6 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import userEvent from '@testing-library/user-event';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import {
   renderWithRouter,
@@ -21,6 +19,7 @@ import {
   CourseEnrollmentsContext,
 } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
 import { useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../components/ToEcomBasketPage', () => ({
   __esModule: true,
@@ -32,7 +31,7 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 /**
  * These tests verify that the correct enroll component is rendered.

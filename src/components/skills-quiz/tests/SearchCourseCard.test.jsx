@@ -4,8 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 
@@ -16,6 +14,7 @@ import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { useDefaultSearchFilters } from '../../search';
 import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -61,8 +60,8 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
   authenticatedUser: mockAuthenticatedUser,

@@ -1,8 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
@@ -14,6 +12,7 @@ import { renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 // config
 const APP_CONFIG = {
@@ -116,7 +115,7 @@ const AcademyDetailPageWithContext = () => (
   </IntlProvider>
 );
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<AcademyDetailPage />', () => {
   beforeEach(() => {

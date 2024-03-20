@@ -1,8 +1,6 @@
 import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { CourseContextProvider } from '../CourseContextProvider';
@@ -19,8 +17,9 @@ import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ASSIGNMENT_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { SUBSIDY_TYPE } from '../../../constants';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const appStateWithOrigPriceHidden = {
   enterpriseConfig: {
@@ -242,9 +241,9 @@ describe('<CourseSidebarPrice/> ', () => {
   });
 
   describe('Sidebar price display with hideCourseOriginalPrice ON', () => {
-    const mockEnterpriseCustomerWithHiddenCoursePrice = camelCaseObject(Factory.build('enterpriseCustomer', {
+    const mockEnterpriseCustomerWithHiddenCoursePrice = enterpriseCustomerFactory({
       hide_course_original_price: true,
-    }));
+    });
     const expectedSponsoredByText = getExpectedSponsoredByText(mockEnterpriseCustomerWithHiddenCoursePrice);
 
     beforeEach(() => {

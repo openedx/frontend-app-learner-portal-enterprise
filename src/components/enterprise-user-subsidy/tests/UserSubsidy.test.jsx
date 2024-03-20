@@ -1,8 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 import '@testing-library/jest-dom/extend-expect';
 
 import UserSubsidy from '../UserSubsidy';
@@ -10,6 +8,7 @@ import { LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { useCouponCodes, useSubscriptions, useRedeemableLearnerCreditPolicies } from '../data/hooks';
 import { useEnterpriseOffers } from '../enterprise-offers/data/hooks';
 import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
@@ -28,16 +27,12 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-
-const TEST_USER = {
-  username: 'test-username',
-  roles: [`enterprise_learner:${mockEnterpriseCustomer.uuid}`],
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const UserSubsidyWithAppContext = ({
   contextValue = {},
-  authenticatedUser = TEST_USER,
+  authenticatedUser = mockAuthenticatedUser,
   children,
 }) => (
   <AppContext.Provider

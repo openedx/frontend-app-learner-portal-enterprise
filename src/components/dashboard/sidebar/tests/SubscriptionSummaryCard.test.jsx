@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import userEvent from '@testing-library/user-event';
-import { Factory } from 'rosie';
 import { renderWithRouter } from '../../../../utils/tests';
 import SubscriptionSummaryCard from '../SubscriptionSummaryCard';
 import {
@@ -19,6 +18,7 @@ import {
 } from '../data/constants';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../../../program-progress/data/constants';
 import { useEnterpriseCustomer, useSubscriptions } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -26,7 +26,7 @@ jest.mock('../../../app/data', () => ({
   useSubscriptions: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const subscriptionPlan = {
   daysUntilExpiration: 70,

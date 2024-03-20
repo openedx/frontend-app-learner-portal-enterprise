@@ -6,10 +6,10 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
+import { snakeCaseObject } from '@edx/frontend-platform/utils';
+import { logError, logInfo } from '@edx/frontend-platform/logging';
 import dayjs from 'dayjs';
 import MockDate from 'mockdate';
-import { Factory } from 'rosie';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserEnrollmentForm from './UserEnrollmentForm';
@@ -18,6 +18,7 @@ import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../c
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
 import { useEnterpriseCustomer } from '../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
 const termsAndConsitionCTA = 'Terms and Conditions';
@@ -28,15 +29,12 @@ const mockFirstName = 'John';
 const mockLastName = 'Doe';
 const mockDateOfBirth = '1993-06-10';
 const mockProductSKU = 'ABC123';
-const mockEmail = 'edx@example.com';
 const mockOnCheckoutSuccess = jest.fn();
 
-const mockLogInfo = jest.fn();
-const mockLogError = jest.fn();
 jest.mock('@edx/frontend-platform/logging', () => ({
   ...jest.requireActual('@edx/frontend-platform/logging'),
-  logInfo: (msg) => mockLogInfo(msg),
-  logError: (msg) => mockLogError(msg),
+  logInfo: jest.fn(),
+  logError: jest.fn(),
 }));
 jest.mock('@edx/frontend-enterprise-utils');
 jest.mock('./data', () => ({
@@ -55,17 +53,18 @@ jest.mock('../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer', {
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
   enable_executive_education_2u_fulfillment: true,
   enable_data_sharing_consent: true,
-}));
-const mockEnterpriseCustomerWithDisabledDataSharingConsent = camelCaseObject(Factory.build('enterpriseCustomer', {
+});
+const mockEnterpriseCustomerWithDisabledDataSharingConsent = enterpriseCustomerFactory({
   enable_executive_education_2u_fulfillment: true,
   enable_data_sharing_consent: false,
-}));
+});
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const initialAppContextValue = {
-  authenticatedUser: { userId: 1, email: mockEmail },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const mockActiveCourseRun = {
@@ -225,7 +224,7 @@ describe('UserEnrollmentForm', () => {
         metadata: snakeCaseObject({
           geagFirstName: mockFirstName,
           geagLastName: mockLastName,
-          geagEmail: mockEmail,
+          geagEmail: mockAuthenticatedUser.email,
           geagDateOfBirth: mockDateOfBirth,
           geagTermsAcceptedAt: mockTermsAcceptedAt,
           geagDataShareConsent: true,
@@ -270,7 +269,7 @@ describe('UserEnrollmentForm', () => {
         metadata: snakeCaseObject({
           geagFirstName: mockFirstName,
           geagLastName: mockLastName,
-          geagEmail: mockEmail,
+          geagEmail: mockAuthenticatedUser.email,
           geagDateOfBirth: mockDateOfBirth,
           geagTermsAcceptedAt: mockTermsAcceptedAt,
           geagDataShareConsent: undefined,
@@ -350,8 +349,10 @@ describe('UserEnrollmentForm', () => {
       expect(screen.getByText('Try again').closest('button')).toHaveAttribute('aria-disabled', 'false');
     });
 
-    expect(mockLogError).toHaveBeenCalledTimes(1);
-    expect(mockLogError).toHaveBeenCalledWith(mockError);
+    await waitFor(() => {
+      expect(logError).toHaveBeenCalledTimes(1);
+      expect(logError).toHaveBeenCalledWith(mockError);
+    });
 
     await waitFor(() => {
       // ensure error alert is visible
@@ -404,8 +405,8 @@ describe('UserEnrollmentForm', () => {
     );
 
     await waitFor(() => {
-      expect(mockLogInfo).toHaveBeenCalledTimes(1);
-      expect(mockLogInfo).toHaveBeenCalledWith(`${mockEnterpriseCustomer.uuid} user 1 has already purchased course ABC123.`);
+      expect(logInfo).toHaveBeenCalledTimes(1);
+      expect(logInfo).toHaveBeenCalledWith(`${mockEnterpriseCustomer.uuid} user ${mockAuthenticatedUser.userId} has already purchased course ABC123.`);
       expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
     });
 
@@ -438,8 +439,8 @@ describe('UserEnrollmentForm', () => {
       useStatefulEnroll.mock.calls[0][0].onError(mockError);
     });
 
-    expect(mockLogError).toHaveBeenCalledTimes(1);
-    expect(mockLogError).toHaveBeenCalledWith(mockError);
+    expect(logError).toHaveBeenCalledTimes(1);
+    expect(logError).toHaveBeenCalledWith(mockError);
 
     await waitFor(() => {
       // ensure regular error alert is not visible

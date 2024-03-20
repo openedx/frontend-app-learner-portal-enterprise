@@ -6,7 +6,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@openedx/paragon';
 import Cookies from 'universal-cookie';
 import userEvent from '@testing-library/user-event';
-import { Factory } from 'rosie';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
@@ -33,6 +32,7 @@ import {
   useRedeemablePolicies,
   useSubscriptions,
 } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -77,11 +77,11 @@ const defaultCouponCodesState = {
   couponCodeAssignments: [],
 };
 
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer', {
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
   enable_pathways: true,
   enable_programs: true,
-}));
+});
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -230,7 +230,7 @@ describe('<Dashboard />', () => {
   });
 
   it('does not render user first name if not available', () => {
-    const mockAuthenticatedUserWithoutName = Factory.build('authenticatedUser', { name: '' });
+    const mockAuthenticatedUserWithoutName = authenticatedUserFactory({ name: '' });
     const appState = {
       ...defaultAppState,
       authenticatedUser: mockAuthenticatedUserWithoutName,
@@ -330,9 +330,9 @@ describe('<Dashboard />', () => {
   });
 
   it('does not render "Find a course" when search is disabled for the customer', () => {
-    const mockEnterpriseCustomerWithoutSearch = camelCaseObject(Factory.build('enterpriseCustomer', {
+    const mockEnterpriseCustomerWithoutSearch = enterpriseCustomerFactory({
       disableSearch: true,
-    }));
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithoutSearch });
     renderWithRouter(
       <DashboardWithContext />,

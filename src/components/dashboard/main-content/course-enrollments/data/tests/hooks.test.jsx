@@ -3,7 +3,6 @@ import * as logger from '@edx/frontend-platform/logging';
 import { AppContext } from '@edx/frontend-platform/react';
 import camelCase from 'lodash.camelcase';
 import dayjs from 'dayjs';
-import { Factory } from 'rosie';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import { queryClient } from '../../../../../../utils/tests';
@@ -25,6 +24,7 @@ import {
   useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
 } from '../../../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
 jest.mock('../service');
 jest.mock('@edx/frontend-platform/logging', () => ({
@@ -52,12 +52,11 @@ jest.mock('../../../../../course/data/service', () => ({
 const mockRawCourseEnrollment = createRawCourseEnrollment();
 const mockTransformedMockCourseEnrollment = transformCourseEnrollment(mockRawCourseEnrollment);
 
-const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const mockAppContextValue = {
-  authenticatedUser: {
-    userId: 3,
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const wrapper = ({ children }) => (

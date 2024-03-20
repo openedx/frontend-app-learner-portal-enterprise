@@ -1,7 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -11,6 +9,7 @@ import UnenrollModal from './UnenrollModal';
 import { ToastsContext } from '../../../../../Toasts';
 import { queryEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
+import { enterpriseCourseEnrollmentFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
 jest.mock('./data', () => ({
   unenrollFromCourse: jest.fn(),
@@ -25,8 +24,8 @@ jest.mock('../../../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockEnterpriseCourseEnrollment = camelCaseObject(Factory.build('enterpriseCourseEnrollment'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCourseEnrollment = enterpriseCourseEnrollmentFactory();
 
 const mockOnClose = jest.fn();
 const mockOnSuccess = jest.fn();

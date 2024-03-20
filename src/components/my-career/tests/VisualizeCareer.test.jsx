@@ -4,14 +4,13 @@ import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import * as hooks from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import VisualizeCareer from '../VisualizeCareer';
 import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner, useLearnerSkillLevels } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -148,8 +147,8 @@ const mockLearnerSkillsData = {
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
   authenticatedUser: mockAuthenticatedUser,

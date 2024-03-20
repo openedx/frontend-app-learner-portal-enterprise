@@ -4,9 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import dayjs from 'dayjs';
-import { Factory } from 'rosie';
 import userEvent from '@testing-library/user-event';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { useLocation } from 'react-router-dom';
 
 import { renderWithRouter } from '../../../../../utils/tests';
@@ -22,6 +20,7 @@ import * as hooks from '../data/hooks';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils');
 
@@ -110,8 +109,8 @@ jest.mock('../../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const CourseEnrollmentsWrapper = () => (
   <IntlProvider locale="en">

@@ -10,8 +10,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../utils/tests';
@@ -30,6 +28,7 @@ import edxLogo from '../images/edx-logo.svg';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -54,8 +53,8 @@ jest.mock('../../search', () => ({
   useDefaultSearchFilters: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
   config: {

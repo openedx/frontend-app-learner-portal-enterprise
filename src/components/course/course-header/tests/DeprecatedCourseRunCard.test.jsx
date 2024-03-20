@@ -4,8 +4,6 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 
 import {
   renderWithRouter,
@@ -24,6 +22,7 @@ import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/Sub
 import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
 import { useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = dayjs().format();
@@ -132,7 +131,7 @@ const renderCard = ({
   );
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<DeprecatedCourseRunCard />', () => {
   beforeEach(() => {

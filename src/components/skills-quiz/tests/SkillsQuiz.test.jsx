@@ -5,8 +5,6 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
@@ -17,6 +15,7 @@ import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -35,7 +34,7 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const defaultAppState = {
   config: {

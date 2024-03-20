@@ -1,6 +1,4 @@
 import React from 'react';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { useLocation } from 'react-router-dom';
 import {
   screen, render,
@@ -9,6 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
 import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -23,8 +22,7 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockCourseRunKey = 'course-run-key';
 
 const defaultCourseEnrollmentsState = {

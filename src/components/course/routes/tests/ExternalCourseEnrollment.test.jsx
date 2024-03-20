@@ -3,8 +3,6 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentForm';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
@@ -12,6 +10,7 @@ import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -68,8 +67,8 @@ const baseCourseContextValue = {
   missingUserSubsidyReason: undefined,
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const baseAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,

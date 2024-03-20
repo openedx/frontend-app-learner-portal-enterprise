@@ -3,11 +3,10 @@ import { AppContext } from '@edx/frontend-platform/react';
 import nprogress from 'accessible-nprogress';
 import { useFetchers, useNavigation } from 'react-router-dom';
 import { waitFor } from '@testing-library/react';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 
 import useNProgressLoader from './useNProgressLoader';
 import useNotices from './useNotices';
+import { authenticatedUserFactory } from '../services/data/__factories__';
 
 jest.mock('./useNotices');
 
@@ -22,12 +21,12 @@ jest.mock('react-router-dom', () => ({
   useFetchers: jest.fn(),
 }));
 
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
-const mockHydratedAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser', {
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockHydratedAuthenticatedUser = authenticatedUserFactory({
   extended_profile: {
     extra_metadata: true,
   },
-}));
+});
 
 const defaultAppContextValue = {
   authenticatedUser: mockAuthenticatedUser,

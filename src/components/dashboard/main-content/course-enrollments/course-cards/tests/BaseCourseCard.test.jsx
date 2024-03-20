@@ -1,11 +1,9 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Factory } from 'rosie';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import dayjs from '../../../../../../utils/dayjs';
@@ -14,6 +12,7 @@ import { ToastsContext } from '../../../../../Toasts';
 import { useEnterpriseCustomer } from '../../../../../app/data';
 
 import { queryClient } from '../../../../../../utils/tests';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -25,8 +24,8 @@ jest.mock('../../../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 describe('<BaseCourseCard />', () => {
   beforeEach(() => {

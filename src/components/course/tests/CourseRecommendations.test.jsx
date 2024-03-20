@@ -2,14 +2,13 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { CourseContext } from '../CourseContextProvider';
 import CourseRecommendations from '../CourseRecommendations';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
@@ -21,7 +20,7 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';

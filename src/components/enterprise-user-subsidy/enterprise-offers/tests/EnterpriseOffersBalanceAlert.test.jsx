@@ -9,13 +9,14 @@ import {
   NO_BALANCE_ALERT_TEXT,
 } from '../data/constants';
 import { useEnterpriseCustomer } from '../../../app/data';
+import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 
-const mockEnterpriseCustomerWithoutAdminUsers = {
-  adminUsers: [],
-};
-const mockEnterpriseCustomerWithAdminUsers = {
-  adminUsers: ['edx@example.org'],
-};
+const mockEnterpriseCustomerWithoutAdminUsers = authenticatedUserFactory({
+  admin_users: [],
+});
+const mockEnterpriseCustomerWithAdminUsers = authenticatedUserFactory({
+  admin_users: ['edx@example.org'],
+});
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),

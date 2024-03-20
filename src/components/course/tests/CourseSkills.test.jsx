@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -16,6 +14,7 @@ import { generateRandomSkills, generateRandomString } from './testUtils';
 import { SKILL_DESCRIPTION_CUTOFF_LIMIT, ELLIPSIS_STR } from '../data/constants';
 import { shortenString } from '../data/utils';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const baseCourseState = {
   activeCourseRun: {},
@@ -52,7 +51,7 @@ CourseSkillsWithContext.defaultProps = {
   initialSubsidyRequestContextValue: baseSubsidyRequestContextValue,
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),

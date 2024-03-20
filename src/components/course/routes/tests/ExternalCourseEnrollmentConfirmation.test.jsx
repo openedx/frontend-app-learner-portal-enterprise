@@ -1,14 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import ExternalCourseEnrollmentConfirmation from '../ExternalCourseEnrollmentConfirmation';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/config', () => ({
   ...jest.requireActual('@edx/frontend-platform/config'),
@@ -56,7 +55,7 @@ const baseCourseContextValue = {
   missingUserSubsidyReason: undefined,
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const baseUserSubsidyContextValue = {
   subscriptionLicense: null,

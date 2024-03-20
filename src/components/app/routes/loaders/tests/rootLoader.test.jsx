@@ -2,8 +2,6 @@ import { useEffect } from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { when } from 'jest-when';
 import { useLocation } from 'react-router-dom';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
@@ -22,6 +20,7 @@ import {
   querySubscriptions,
   updateUserActiveEnterprise,
 } from '../../../data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../data/services/data/__factories__';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -43,9 +42,9 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   getLoggingService: jest.fn(),
 }));
 
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockEnterpriseCustomerTwo = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),

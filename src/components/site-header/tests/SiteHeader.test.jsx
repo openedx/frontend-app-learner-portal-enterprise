@@ -3,15 +3,15 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@openedx/paragon';
 import userEvent from '@testing-library/user-event';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { faker } from '@faker-js/faker';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 import SiteHeader from '../SiteHeader';
 
 import { renderWithRouter, renderWithRouterProvider } from '../../../utils/tests';
 import { useEnterpriseCustomer, useEnterpriseLearner } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -20,14 +20,19 @@ jest.mock('../../app/data', () => ({
   useIsAssignmentsOnlyLearner: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer', {
-  disableSearch: false,
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(),
 }));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser', {
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
+  disableSearch: false,
+});
+const mockAuthenticatedUser = authenticatedUserFactory({
   profile_image: {
     image_url_medium: faker.image.avatar(),
   },
-}));
+});
 
 const appState = {
   config: {
@@ -53,20 +58,12 @@ const mockWindowConfig = {
 };
 
 const baseEnterpriseLearner = {
-  enterpriseCustomer: {
-    name: 'BearsRUs',
-    slug: 'bears-r-us',
-    brandingConfiguration: {
-      logo: 'test-logo.jpg',
-    },
-    disableSearch: false,
-  },
+  enterpriseCustomer: mockEnterpriseCustomer,
   allLinkedEnterpriseCustomerUsers: [
     {
-      enterpriseCustomer: {
-        name: 'BearsRUs',
-        slug: 'bears-r-us',
-      },
+      id: 3,
+      active: true,
+      enterpriseCustomer: mockEnterpriseCustomer,
     }],
 };
 
@@ -74,6 +71,11 @@ describe('<SiteHeader />', () => {
   beforeEach(() => {
     window.matchMedia.setConfig(mockWindowConfig);
     jest.clearAllMocks();
+    getConfig.mockReturnValue({
+      BASE_URL: process.env.BASE_URL,
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+      LOGOUT_URL: process.env.LOGOUT_URL,
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useEnterpriseLearner.mockReturnValue({
       data: {
@@ -96,9 +98,9 @@ describe('<SiteHeader />', () => {
     expect(screen.getByTestId('header-logo-link-id'));
   });
   test('does not render link with logo to dashboard when search is disabled', () => {
-    const mockEnterpriseCustomerWithDisabledSearch = camelCaseObject(Factory.build('enterpriseCustomer', {
+    const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
       disableSearch: true,
-    }));
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledSearch });
     useEnterpriseLearner.mockReturnValue({
       data: {
@@ -127,12 +129,12 @@ describe('<SiteHeader />', () => {
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js
-    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us');
+    expect(logoutLink.getAttribute('href')).toBe(`http://localhost:18000/logout?next=http://localhost:8734/${mockEnterpriseCustomer.slug}`);
   });
   test('renders logout-specific logout link in presence of IDP', () => {
-    const mockEnterpriseCustomerWithIDP = camelCaseObject(Factory.build('enterpriseCustomer', {
+    const mockEnterpriseCustomerWithIDP = enterpriseCustomerFactory({
       identity_provider: 'a-provider',
-    }));
+    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithIDP });
     useEnterpriseLearner.mockReturnValue({
       data: {

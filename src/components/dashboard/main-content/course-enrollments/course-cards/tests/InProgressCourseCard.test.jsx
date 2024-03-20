@@ -4,12 +4,12 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Factory } from 'rosie';
 
 import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
 import { InProgressCourseCard } from '../InProgressCourseCard';
 import { useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
 import { queryClient } from '../../../../../../utils/tests';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -25,10 +25,9 @@ const basicProps = {
   mode: 'verified',
 };
 
+const mockAuthenticatedUser = authenticatedUserFactory();
 const defaultAppContextValue = {
-  authenticatedUser: {
-    username: 'test-username',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 jest.mock('../../../../../app/data', () => ({
@@ -56,7 +55,7 @@ const InProgressCourseCardWrapper = ({
   </QueryClientProvider>
 );
 
-const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 describe('<InProgressCourseCard />', () => {
   beforeEach(() => {

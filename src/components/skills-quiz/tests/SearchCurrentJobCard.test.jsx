@@ -4,12 +4,11 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SearchCurrentJobCard from '../SearchCurrentJobCard';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
@@ -55,10 +54,10 @@ const hitObject = {
   ],
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockEnterpriseCustomerWithHiddenLaborMarketData = camelCaseObject(Factory.build('enterpriseCustomer', {
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCustomerWithHiddenLaborMarketData = enterpriseCustomerFactory({
   hide_labor_market_data: true,
-}));
+});
 
 const initialAppState = {
   config: {

@@ -1,19 +1,18 @@
 import React, { useContext } from 'react';
 import { mount } from 'enzyme';
 import { AppContext } from '@edx/frontend-platform/react';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import EnterprisePage from './EnterprisePage';
 import { useEnterpriseCustomer } from '../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../app/data/services/data/__factories__';
 
 jest.mock('../app/data', () => ({
   ...jest.requireActual('../app/data'),
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 jest.mock('@edx/frontend-platform/auth');
 

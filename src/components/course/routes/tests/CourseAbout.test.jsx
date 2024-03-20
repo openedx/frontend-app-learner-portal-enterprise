@@ -1,7 +1,5 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 import { breakpoints, ResponsiveContext } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -13,6 +11,7 @@ import { renderWithRouter } from '../../../../utils/tests';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
 import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
 import { SUBSIDY_TYPE } from '../../../../constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -58,8 +57,8 @@ const baseCourseContextValue = {
   },
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
-const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const appContextValues = {
   authenticatedUser: mockAuthenticatedUser,

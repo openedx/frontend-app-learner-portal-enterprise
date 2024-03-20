@@ -1,7 +1,5 @@
 import React from 'react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -12,6 +10,7 @@ import { useLearnerProgramsListData } from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import { CONTENT_TYPE_PROGRAM } from '../../search/constants';
 import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -68,7 +67,7 @@ jest.mock('../../app/data', () => ({
   useEnterpriseProgramsList: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const defaultUserSubsidyState = {
   subscriptionLicense: {

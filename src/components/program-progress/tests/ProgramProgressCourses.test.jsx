@@ -2,8 +2,6 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform';
-import { Factory } from 'rosie';
 
 import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
@@ -12,6 +10,7 @@ import { NotCurrentlyAvailable } from '../data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -39,7 +38,7 @@ const userSubsidyState = {
     couponCodesCount: 0,
   },
 };
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const subsidyRequestsState = {
   requestsBySubsidyType: {

@@ -2,10 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation, useParams } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
-import { Factory } from 'rosie';
-import { camelCaseObject } from '@edx/frontend-platform';
-
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import CoursePage from '../CoursePage';
@@ -15,6 +13,7 @@ import { mockCourseService } from './constants';
 import { SUBSIDY_TYPE } from '../../../constants';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useSearchCatalogs } from '../../search/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const mockGetActiveCourseRun = jest.fn();
 const mockNavigate = jest.fn();
@@ -31,8 +30,8 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
   getConfig: () => ({
     COURSE_TYPE_CONFIG: {
       'executive-education-2u': {
@@ -206,7 +205,7 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: ['test-catalog-subsidy-requests', 'course-run-1'],
 };
 
-const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockLocation = { search: '?course_run_key=test-course-run-key' };
 const mockParams = { courseKey: 'test-course-key' };
 
