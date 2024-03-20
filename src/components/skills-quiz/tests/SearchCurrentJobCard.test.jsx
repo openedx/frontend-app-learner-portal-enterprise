@@ -88,8 +88,12 @@ const mockEnterpriseCustomer = {
 };
 
 describe('<SearchCurrentJobCard />', () => {
-  test('renders the data in job cards correctly', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
+  test('renders the data in job cards correctly', async () => {
     renderWithRouter(
       <SearchCurrentJobCardWithContext
         index={testIndex}

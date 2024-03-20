@@ -26,7 +26,7 @@ const SelectJobCardWithContext = ({
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <SearchContext.Provider>
+      <SearchContext.Provider value={{}}>
         <SkillsContextProvider initialState={initialJobCardState}>
           <SelectJobCard />
         </SkillsContextProvider>
@@ -50,6 +50,11 @@ const mockEnterpriseCustomer = {
 };
 
 describe('<SelectJobCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   test('renders job card', () => {
     const initialJobCardState = {
       interestedJobs: [{
@@ -65,7 +70,6 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     renderWithRouter(
       <SelectJobCardWithContext
         initialAppState={initialAppState}
@@ -133,7 +137,6 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardState}
@@ -160,7 +163,6 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardStateWithOutJobs}
@@ -186,7 +188,6 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardStateWithOutSalary}
@@ -203,7 +204,6 @@ describe('<SelectJobCard />', () => {
     const initialJobCardState = {
       interestedJobs: [],
     };
-    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     renderWithRouter(
       <SelectJobCardWithContext
         initialJobCardState={initialJobCardState}

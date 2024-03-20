@@ -109,9 +109,13 @@ const mockEnterpriseCustomer = {
   slug: 'test-enterprise-slug',
   uuid: 'test-enterprise-uuid',
 };
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
 describe('<SkillsCourses />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SkillsCoursesWithContext

@@ -27,7 +27,7 @@ const GoalDropdown = () => {
       </Dropdown.Toggle>
       <Dropdown.Menu>
         {goalDropdownOptions?.map(option => (
-          <Dropdown.Item key={option} onClick={() => selectGoal(option)}>
+          <Dropdown.Item key={option} as="label" onClick={() => selectGoal(option)}>
             {option}
           </Dropdown.Item>
         ))}

@@ -91,9 +91,10 @@ const mockEnterpriseCustomer = {
 describe('<SearchJobCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-  test('renders the data in job cards correctly', async () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
+  test('renders the data in job cards correctly', async () => {
     await act(async () => {
       render(
         <SearchJobCardWithContext

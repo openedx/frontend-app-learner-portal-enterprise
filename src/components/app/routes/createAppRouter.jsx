@@ -78,11 +78,9 @@ export default function createAppRouter(queryClient) {
           <Route
             path="skills-quiz"
             lazy={async () => {
-              const { makeSearchLoader } = await import('../../search');
               const { SkillsQuizPage } = await import('../../skills-quiz');
               return {
                 Component: SkillsQuizPage,
-                loader: makeSearchLoader(queryClient),
               };
             }}
             errorElement={(

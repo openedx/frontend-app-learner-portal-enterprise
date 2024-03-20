@@ -96,11 +96,13 @@ const mockEnterpriseCustomer = {
   uuid: 'test-enterprise-uuid',
 };
 
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
-mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
-
 describe('<SearchPathways />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+  });
+
   test('renders the correct data', async () => {
     renderWithRouter(<SearchPathwaysWithContext index={testIndex} />);
     await waitFor(() => {
