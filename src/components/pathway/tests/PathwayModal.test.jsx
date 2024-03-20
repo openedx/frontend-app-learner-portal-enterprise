@@ -55,7 +55,7 @@ const nodePageLink = (node) => {
 const mockEnterpriseCustomer = {
   name: 'test-enterprise',
   slug: TEST_ENTERPRISE_SLUG,
-  uuid: '12345',
+  uuid: 'test-enterprise-uuid',
 };
 
 describe('<PathwayModal />', () => {

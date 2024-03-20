@@ -188,7 +188,7 @@ const propsForNoResults = {
 const mockEnterpriseCustomer = {
   name: 'BearsRUs',
   slug: TEST_ENTERPRISE_SLUG,
-  uuid: '12345',
+  uuid: 'test-enterprise-uuid',
 };
 
 describe('<SearchResults />', () => {
