@@ -8,8 +8,7 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import CourseEnrollmentFailedAlert, { ENROLLMENT_SOURCE } from '../CourseEnrollmentFailedAlert';
-import { CourseEnrollmentsContext } from '../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
@@ -21,6 +20,7 @@ useLocation.mockImplementation(() => ({
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
@@ -28,7 +28,7 @@ const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer
 const mockCourseRunKey = 'course-run-key';
 
 const defaultCourseEnrollmentsState = {
-  courseEnrollmentsByStatus: {
+  allEnrollmentsByStatus: {
     inProgress: [{
       courseRunId: mockCourseRunKey,
     }],
@@ -36,17 +36,13 @@ const defaultCourseEnrollmentsState = {
     completed: [],
     savedForLater: [],
     requested: [],
+    assigned: [],
   },
 };
 
-const CourseEnrollmentFailedAlertWrapper = ({
-  initialCourseEnrollmentsState = defaultCourseEnrollmentsState,
-  ...rest
-}) => (
+const CourseEnrollmentFailedAlertWrapper = (props) => (
   <IntlProvider locale="en">
-    <CourseEnrollmentsContext.Provider value={initialCourseEnrollmentsState}>
-      <CourseEnrollmentFailedAlert {...rest} />
-    </CourseEnrollmentsContext.Provider>
+    <CourseEnrollmentFailedAlert {...props} />
   </IntlProvider>
 );
 
@@ -54,6 +50,7 @@ describe('<CourseEnrollmentFailedAlert />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: defaultCourseEnrollmentsState });
   });
 
   describe('Upgraded from dashboard', () => {

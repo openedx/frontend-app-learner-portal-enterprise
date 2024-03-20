@@ -71,6 +71,7 @@ describe('<BaseCourseCard />', () => {
     const mockAddToast = jest.fn();
 
     beforeEach(async () => {
+      jest.clearAllMocks();
       renderWithRouter((
         <QueryClientProvider client={queryClient()}>
           <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
@@ -159,7 +160,7 @@ describe('<BaseCourseCard />', () => {
   });
 
   it('renders endDate based on the course state', () => {
-    const startDate = dayjs().toISOString();
+    const startDate = dayjs().subtract(7, 'days').toISOString();
     const endDate = dayjs().add(7, 'days').toISOString();
     const formattedEndDate = dayjs(endDate).format('MMMM Do, YYYY');
     const type = 'in_progress';

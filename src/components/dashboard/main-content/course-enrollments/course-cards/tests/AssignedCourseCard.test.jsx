@@ -2,7 +2,6 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import AssignedCourseCard from '../AssignedCourseCard';
 import { UserSubsidyContext } from '../../../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../../../utils/tests';
@@ -32,20 +31,12 @@ const initialUserSubsidyContextValue = {
     couponCodes: [],
   },
 };
-
-const initialCourseEnrollmentsContextValue = {
-  updateCourseEnrollmentStatus: jest.fn(),
-  setShowMarkCourseCompleteSuccess: jest.fn(),
-};
 const AssignedCourseCardWrapper = ({
   userSubsidyContextValue = initialUserSubsidyContextValue,
-  courseEnrollmentsContextValue = initialCourseEnrollmentsContextValue,
   ...rest
 }) => (
   <UserSubsidyContext.Provider value={userSubsidyContextValue}>
-    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-      <AssignedCourseCard {...rest} />
-    </CourseEnrollmentsContext.Provider>
+    <AssignedCourseCard {...rest} />
   </UserSubsidyContext.Provider>
 );
 

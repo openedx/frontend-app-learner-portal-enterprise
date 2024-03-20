@@ -118,6 +118,7 @@ const SearchResults = ({
   );
 
   if (!isSearchStalled && nbHits === 0) {
+    console.log('SearchResults.jsx: no results', contentType);
     if (contentType === CONTENT_TYPE_PATHWAY) {
       return null;
     }

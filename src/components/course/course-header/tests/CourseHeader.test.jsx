@@ -14,7 +14,7 @@ import CourseHeader from '../CourseHeader';
 import { COURSE_PACING_MAP } from '../../data/constants';
 import { TEST_OWNER } from '../../tests/data/constants';
 import { CourseEnrollmentsContext } from '../../../dashboard/main-content/course-enrollments/CourseEnrollmentsContextProvider';
-import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
+import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../app/data';
 import { SUBSIDY_TYPE } from '../../../../constants';
 import { renderWithRouterProvider } from '../../../../utils/tests';
 
@@ -29,6 +29,7 @@ jest.mock('../../SubsidyRequestButton', () => function SubsidyRequestButton() {
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
@@ -45,12 +46,13 @@ const defaultSubsidyRequestsState = {
 };
 
 const defaultCourseEnrollmentsState = {
-  courseEnrollmentsByStatus: {
+  allEnrollmentsByStatus: {
     inProgress: [],
     upcoming: [],
     completed: [],
     savedForLater: [],
     requested: [],
+    assigned: [],
   },
 };
 
@@ -93,9 +95,11 @@ const defaultCourseState = {
     mostCommonGoalLearnersPercentage: 34,
     totalEnrollments: 4444,
   },
+  courseRecommendations: { allRecommendations: [], samePartnerRecommendations: [] },
 };
 
 const archivedCourseState = {
+  ...defaultCourseState,
   course: {
     subjects: [{
       name: 'Old course',
@@ -170,6 +174,7 @@ describe('<CourseHeader />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({ data: defaultCourseEnrollmentsState });
   });
 
   test('renders breadcrumb', () => {
@@ -379,6 +384,7 @@ describe('<CourseHeader />', () => {
           isRevoked: false,
           courseRunId: 'test-course-run-key',
           courseRunUrl: 'http://course.url',
+          mode: 'verified',
         },
       ],
     };
