@@ -145,4 +145,32 @@ describe('<EnterprisePage />', () => {
     );
     expect(screen.getByTestId('not-found-page')).toBeTruthy();
   });
+
+  it('renders LicenseNotFound page when license activatio n pattern is matched', () => {
+    // Mocking window.location.href to simulate a URL containing the license activation pattern
+    delete window.location;
+    window.location = { href: 'https://example.com/licenses/12345678-1234-5678-1234-567812345678/activate' };
+
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
+    render(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(screen.getByTestId('license-not-found-page')).toBeTruthy();
+  });
+
+  it('renders LicenseNotFound page when license activation pattern is matched', () => {
+    // Mocking window.location.href to simulate a URL containing the license activation pattern
+    delete window.location;
+    window.location = { href: 'https://example.com/licenses/12345678-1234-5678-1234-567812345678/activate' };
+
+    jest.spyOn(hooks, 'useEnterpriseCustomerConfig').mockImplementation(() => [null, undefined]);
+    render(
+      <EnterprisePageWrapper>
+        <div className="did-i-render" />
+      </EnterprisePageWrapper>,
+    );
+    expect(screen.getByTestId('license-not-found-page')).toBeTruthy();
+  });
 });

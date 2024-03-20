@@ -16,6 +16,7 @@ import {
 import { useAlgoliaSearch } from '../../utils/hooks';
 import { useUpdateActiveEnterpriseForUser, useEnterpriseCustomerConfig } from './data/hooks';
 import { pushUserCustomerAttributes } from '../../utils/optimizely';
+import LicenseNotFound from '../license-activation/LicenseNotFound';
 
 const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   const { enterpriseSlug } = useParams();
@@ -67,6 +68,14 @@ const EnterprisePage = ({ children, useEnterpriseConfigCache }) => {
   }
 
   if (isDefinedAndNull(enterpriseConfig)) {
+    // check if license activation page then show different page
+    const currentUrl = window.location.href;
+    const regex = /licenses\/[0-9a-fA-F-]+\/activate/;
+    const licenseActivationPatternMatched = regex.test(currentUrl);
+
+    if (licenseActivationPatternMatched) {
+      return <LicenseNotFound />;
+    }
     return <NotFoundPage />;
   }
 

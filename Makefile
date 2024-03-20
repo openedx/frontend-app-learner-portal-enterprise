@@ -1,7 +1,3 @@
-export TRANSIFEX_RESOURCE = frontend-app-learner-portal-enterprise
-transifex_resource = frontend-app-learner-portal-enterprise
-transifex_langs = "ar,es_419,fr,zh_CN"
-
 intl_imports = ./node_modules/.bin/intl-imports.js
 transifex_utils = ./node_modules/.bin/transifex-utils.js
 i18n = ./src/i18n
@@ -51,24 +47,13 @@ push_translations:
 	# Pushing comments to Transifex...
 	./node_modules/@edx/reactifex/bash_scripts/put_comments_v3.sh
 
-ifeq ($(OPENEDX_ATLAS_PULL),)
-# Pulls translations from Transifex.
-pull_translations:
-	tx pull -t -f --mode reviewed --languages=$(transifex_langs)
-else
-# Experimental: OEP-58 Pulls translations using atlas
 pull_translations:
 	rm -rf src/i18n/messages
 	mkdir src/i18n/messages
 	cd src/i18n/messages \
-      && atlas pull $(ATLAS_OPTIONS) \
-               translations/frontend-platform/src/i18n/messages:frontend-platform \
-               translations/paragon/src/i18n/messages:paragon \
-               translations/frontend-component-footer/src/i18n/messages:frontend-component-footer \
-               translations/frontend-app-learner-portal-enterprise/src/i18n/messages:frontend-app-learner-portal-enterprise
+      && atlas pull translations/frontend-app-learner-portal-enterprise/src/i18n/messages:frontend-app-learner-portal-enterprise
 
-	$(intl_imports) frontend-platform paragon frontend-component-footer frontend-app-learner-portal-enterprise
-endif
+	$(intl_imports) frontend-app-learner-portal-enterprise
 
 # This target is used by Travis.
 validate-no-uncommitted-package-lock-changes:
