@@ -47,8 +47,8 @@ const ContentHighlightSetWrapper = ({
 
 const mockEnterpriseCustomer = {
   name: 'test-enterprise',
-  slug: 'test',
-  uuid: '12345',
+  slug: 'test-enterprise-slug',
+  uuid: 'test-enterprise-uuid',
 };
 
 describe('ContentHighlightSet', () => {

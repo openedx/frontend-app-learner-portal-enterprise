@@ -74,8 +74,8 @@ const SearchWrapper = ({
 const mockFilter = 'enterprise_customer_uuids: test-uuid';
 const mockEnterpriseCustomer = {
   name: 'test-enterprise',
-  slug: 'test',
-  uuid: '12345',
+  slug: 'test-enterprise-slug',
+  uuid: 'test-enterprise-uuid',
 };
 
 describe('<Search />', () => {

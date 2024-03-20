@@ -5,11 +5,30 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-import { renderWithRouter } from '../../../utils/tests';
+import {
+  defaultSubsidyHooksData,
+  mockSubsidyHooksReturnValues,
+  renderWithRouter,
+} from '../../../utils/tests';
 import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
+import {
+  useEnterpriseCustomer,
+} from '../../app/data';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+}));
+
+jest.mock('../../hooks', () => ({
+  ...jest.requireActual('../../hooks'),
+  useCatalogsForSubsidyRequests: jest.fn(),
+}));
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -77,26 +96,12 @@ const coursesIndex = {
 };
 
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
+  authenticatedUser: { username: 'myspace-tom' },
 };
 
 const defaultSearchContext = {
   refinements: { skill_names: TEST_SKILLS },
   dispatch: () => null,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  },
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
 };
 
 const SkillsRecommendationCoursesWithContext = ({
@@ -107,23 +112,28 @@ const SkillsRecommendationCoursesWithContext = ({
   <IntlProvider locale="en">
     <AppContext.Provider value={defaultAppState}>
       <SearchContext.Provider value={defaultSearchContext}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SkillsRecommendationCourses
-              index={index}
-              subCategoryName={subCategoryName}
-              subCategorySkills={subCategorySkills}
-            />
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
+        <SkillsRecommendationCourses
+          index={index}
+          subCategoryName={subCategoryName}
+          subCategorySkills={subCategorySkills}
+        />
       </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = {
+  slug: 'test-enterprise-slug',
+  uuid: 'test-enterprise-uuid',
+};
+
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+
 describe('<SkillsRecommendationCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders the SkillsRecommendationCourses component with recommendations', () => {
