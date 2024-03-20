@@ -8,24 +8,21 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import SearchCourseCard from '../SearchCourseCard';
 
-import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues, renderWithRouter } from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(),
-  useRedeemablePolicies: jest.fn(),
-  useCouponCodes: jest.fn(),
-  useEnterpriseOffers: jest.fn(),
 }));
 
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useCatalogsForSubsidyRequests: jest.fn(),
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
@@ -125,7 +122,7 @@ describe('<SearchCourseCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
 
   test('renders the correct data', async () => {
