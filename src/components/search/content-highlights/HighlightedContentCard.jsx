@@ -38,7 +38,9 @@ const HighlightedContentCard = ({
     highlightedContent,
   });
 
-  const archivedCourse = courseRunStatuses?.every(status => status === COURSE_RUN_AVAILABILITY.ARCHIVED);
+  const archivedCourse = courseRunStatuses?.every(status => (
+    status === COURSE_RUN_AVAILABILITY.ARCHIVED || status === COURSE_RUN_AVAILABILITY.UNPUBLISHED
+  ));
 
   const handleContentCardClick = () => {
     if (!href) {
