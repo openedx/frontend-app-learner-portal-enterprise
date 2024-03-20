@@ -4,14 +4,10 @@ import React from 'react';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
 import { useDefaultSearchFilters } from './index';
 import {
-  useCouponCodes,
   useEnterpriseCustomer,
-  useEnterpriseOffers,
-  useRedeemablePolicies,
-  useSubscriptions,
 } from '../../../app/data';
 import useSearchCatalogs from './useSearchCatalogs';
-import { useCatalogsForSubsidyRequests } from '../../../hooks';
+import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues } from '../../../../utils/tests';
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 
@@ -55,31 +51,13 @@ const mockEnterpriseCustomer = {
   uuid: TEST_ENTERPRISE_UUID,
 };
 
-const defaultData = {
-  mockRedeemablePolicies: [],
-  mockCatalogsForSubsidyRequest: [],
-  mockCurrentEnterpriseOffers: [],
-  mockSubscriptionLicense: null,
-  mockCouponCodeAssignments: [],
-};
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-const mockSubsidyHooksReturnValues = ({
-  mockRedeemablePolicies = [],
-  mockCatalogsForSubsidyRequest = [],
-  mockCurrentEnterpriseOffers = [],
-  mockSubscriptionLicense = null,
-  mockCouponCodeAssignments = [],
-}) => {
-  useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: mockRedeemablePolicies } });
-  useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: mockCatalogsForSubsidyRequest });
-  useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
-  useSubscriptions.mockReturnValue({ data: { subscriptionLicense: mockSubscriptionLicense } });
-  useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
-};
-mockSubsidyHooksReturnValues(defaultData);
-
 // TODO: Test and hook may have to be refactored
 describe('useDefaultSearchFilters', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+  })
   const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
 
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {

@@ -6,11 +6,9 @@ import {
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
 import {
-  useCouponCodes,
-  useSubscriptions,
-  useEnterpriseCustomer, useEnterpriseOffers, useRedeemablePolicies,
+  useEnterpriseCustomer,
 } from '../../../app/data';
-import { useCatalogsForSubsidyRequests } from '../../../hooks';
+import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues } from "../../../../utils/tests";
 
 const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
 
@@ -48,28 +46,16 @@ const mockEnterpriseCustomer = {
   uuid: TEST_ENTERPRISE_UUID,
 };
 
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
-const mockSubsidyHooksReturnValues = ({
-  mockRedeemablePolicies = [],
-  mockCatalogsForSubsidyRequest = [],
-  mockCurrentEnterpriseOffers = [],
-  mockSubscriptionLicense = null,
-  mockCouponCodeAssignments = [],
-}) => {
-  useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: mockRedeemablePolicies } });
-  useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: mockCatalogsForSubsidyRequest });
-  useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
-  useSubscriptions.mockReturnValue({ data: { subscriptionLicense: mockSubscriptionLicense } });
-  useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
-};
-
 describe('useSearchCatalogs', () => {
   const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
   const mockCouponCodeCatalog = 'test-coupon-code-catalog-uuid';
   const mockEnterpriseOfferCatalog = 'test-enterprise-offer-catalog-uuid';
   const mockPolicyCatalog = 'test-policy-catalog-uuid';
-
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+  })
   it.each('should include catalog from subscription (%s)', ({ isSubscriptionPlanExpired }) => {
     const mockSubscriptionLicense = {
       status: LICENSE_STATUS.ACTIVATED,
