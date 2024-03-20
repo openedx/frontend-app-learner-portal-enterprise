@@ -6,14 +6,17 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchProgramCard from '../SearchProgramCard';
-
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
 import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
 
 const userId = 'batman';
 
@@ -27,6 +30,18 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigate,
 }));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
@@ -64,10 +79,6 @@ const testIndex = {
 };
 
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: TEST_ENTERPRISE_SLUG,
-    uuid: '5d3v5ee2-761b-49b4-8f47-f6f51589d815',
-  },
   authenticatedUser: {
     username: 'b.wayne',
     userId,
@@ -136,6 +147,12 @@ const SearchProgramCardWithContext = ({
 );
 
 describe('<SearchProgramCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
+
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SearchProgramCardWithContext
@@ -161,7 +178,7 @@ describe('<SearchProgramCard />', () => {
 
     // handles click
     userEvent.click(searchProgramCard);
-    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/${PROGRAM_UUID}`);
   });
 
   test('renders the correct data with skills', async () => {

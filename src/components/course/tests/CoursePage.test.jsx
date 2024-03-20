@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { AppContext } from '@edx/frontend-platform/react';
+import { MemoryRouter, useLocation, useParams } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
+import { Factory } from 'rosie';
+import { camelCaseObject } from '@edx/frontend-platform';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy/UserSubsidy';
@@ -12,6 +13,8 @@ import { useAllCourseData } from '../data/hooks';
 import { LEARNER_CREDIT_SUBSIDY_TYPE as mockLearnerCreditSubsidyType } from '../data/constants';
 import { mockCourseService } from './constants';
 import { SUBSIDY_TYPE } from '../../../constants';
+import { useEnterpriseCustomer } from '../../app/data';
+import { useSearchCatalogs } from '../../search/data';
 
 const mockGetActiveCourseRun = jest.fn();
 const mockNavigate = jest.fn();
@@ -23,11 +26,9 @@ jest.mock('../data/utils', () => ({
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: '/test-enterprise-uuid/course/test-course-key',
-  }),
+  useLocation: jest.fn(),
   useNavigate: () => mockNavigate,
-  useParams: () => ({ enterpriseSlug: 'test-enterprise-uuid', courseKey: 'test-course-key' }),
+  useParams: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/config', () => ({
@@ -157,7 +158,6 @@ jest.mock('../data/hooks', () => ({
       canOnlyViewHighlightSets: false,
     },
   })),
-  useSearchCatalogs: jest.fn(() => []),
   useCoursePriceForUserSubsidy: jest.fn(() => [{ list: 100, discount: 0 }, 'USD']),
 }));
 
@@ -179,6 +179,16 @@ jest.mock('../CourseContextProvider', () => ({
 
 jest.mock('../routes/CoursePageRoutes', () => jest.fn(() => <div data-testid="course-page-routes" />));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search/data', () => ({
+  ...jest.requireActual('../../search/data'),
+  useSearchCatalogs: jest.fn(() => []),
+}));
+
 const initialUserSubsidyState = {
   subscriptionLicense: {
     uuid: 'test-license-uuid',
@@ -196,25 +206,30 @@ const initialSubsidyRequestsState = {
   catalogsForSubsidyRequests: ['test-catalog-subsidy-requests', 'course-run-1'],
 };
 
-const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 const mockLocation = { search: '?course_run_key=test-course-run-key' };
 const mockParams = { courseKey: 'test-course-key' };
 
 const CoursePageWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <MemoryRouter>
-            <CoursePage location={mockLocation} match={{ params: mockParams }} />
-          </MemoryRouter>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <MemoryRouter>
+          <CoursePage location={mockLocation} match={{ params: mockParams }} />
+        </MemoryRouter>
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
   </IntlProvider>
 );
 
 describe('CoursePage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useSearchCatalogs.mockReturnValue([]);
+    useLocation.mockReturnValue({ pathname: `/${mockEnterpriseCustomer.slug}/course/test-course-key` });
+    useParams.mockReturnValue({ enterpriseSlug: mockEnterpriseCustomer.slug, courseKey: 'test-course-key' });
+  });
   it('renders the component with 404 <NotFoundPage />', async () => {
     render(<CoursePageWrapper />);
     expect(useAllCourseData).toHaveBeenCalledTimes(1);
@@ -224,7 +239,10 @@ describe('CoursePage', () => {
   it('Redirects to using course type slug if path does not include it', async () => {
     mockGetActiveCourseRun.mockImplementation(() => ({ staff: [] }));
     render(<CoursePageWrapper />);
-    expect(mockNavigate).toHaveBeenCalledWith('/test-enterprise-uuid/executive-education-2u/course/test-course-key', { state: undefined, replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith(
+      `/${mockEnterpriseCustomer.slug}/executive-education-2u/course/test-course-key`,
+      { state: undefined, replace: true },
+    );
     expect(screen.getByTestId('course-enrollments-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-context-provider')).toBeInTheDocument();
     expect(screen.getByTestId('course-page-routes')).toBeInTheDocument();

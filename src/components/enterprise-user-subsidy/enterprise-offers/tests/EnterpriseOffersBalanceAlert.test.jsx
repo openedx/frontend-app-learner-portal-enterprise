@@ -22,13 +22,9 @@ jest.mock('../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const EnterpriseOffersBalanceAlertWrapper = ({
-  hasNoEnterpriseOffersBalance,
-}) => (
+const EnterpriseOffersBalanceAlertWrapper = (props) => (
   <IntlProvider locale="en">
-    <EnterpriseOffersBalanceAlert
-      hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance}
-    />
+    <EnterpriseOffersBalanceAlert {...props} />
   </IntlProvider>
 );
 
@@ -40,21 +36,17 @@ describe('<EnterpriseOffersBalanceAlert />', () => {
 
   it('should not render mailto link if there are no enterprise admins', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithoutAdminUsers });
-    render(<EnterpriseOffersBalanceAlertWrapper />);
+    render(<EnterpriseOffersBalanceAlertWrapper hasLowBalance />);
     expect(screen.queryByText(LOW_BALANCE_CONTACT_ADMIN_TEXT)).not.toBeInTheDocument();
   });
 
   it('should render mailto link with no_balance text if there are enterprise admins', () => {
-    render(
-      <EnterpriseOffersBalanceAlertWrapper hasNoEnterpriseOffersBalance />,
-    );
+    render(<EnterpriseOffersBalanceAlertWrapper hasNoBalance />);
     expect(screen.getByText(NO_BALANCE_ALERT_TEXT)).toBeInTheDocument();
   });
 
   it('should render mailto link with low_balance text if there are enterprise admins', () => {
-    render(
-      <EnterpriseOffersBalanceAlertWrapper hasNoEnterpriseOffersBalance={false} />,
-    );
+    render(<EnterpriseOffersBalanceAlertWrapper hasLowBalance />);
     expect(screen.getByText(LOW_BALANCE_ALERT_TEXT)).toBeInTheDocument();
   });
 });

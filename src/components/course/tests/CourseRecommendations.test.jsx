@@ -1,26 +1,27 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { screen } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
+import { Factory } from 'rosie';
+import { camelCaseObject } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { CourseContext } from '../CourseContextProvider';
 import CourseRecommendations from '../CourseRecommendations';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
   hasFeatureFlagEnabled: jest.fn(),
 }));
 
-const TEST_UUID = '1234053423-4212-21323-45fdf';
-const initialAppState = {
-  enterpriseConfig: {
-    slug: TEST_ENTERPRISE_SLUG,
-    uuid: TEST_UUID,
-  },
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 
 const TEST_COURSE_KEY = 'test-course-key';
 const TEST_TITLE = 'Test Title';
@@ -51,15 +52,17 @@ const defaultCourseState = {
 
 const CourseRecommendationsWithContext = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <CourseContext.Provider value={defaultCourseState}>
-        <CourseRecommendations />
-      </CourseContext.Provider>
-    </AppContext.Provider>
+    <CourseContext.Provider value={defaultCourseState}>
+      <CourseRecommendations />
+    </CourseContext.Provider>
   </IntlProvider>
 );
 
 describe('<CourseRecommendations />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders the correct data', () => {
     renderWithRouter(<CourseRecommendationsWithContext />);
     expect(screen.getByText('Courses you may like:')).toBeInTheDocument();

@@ -4,7 +4,10 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import dayjs from 'dayjs';
+import { Factory } from 'rosie';
 import userEvent from '@testing-library/user-event';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { useLocation } from 'react-router-dom';
 
 import { renderWithRouter } from '../../../../../utils/tests';
 import { createCourseEnrollmentWithStatus } from './enrollment-testutils';
@@ -15,12 +18,9 @@ import { MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL } from '../course-cards/move-to-
 import { MARK_SAVED_FOR_LATER_DEFAULT_LABEL } from '../course-cards/mark-complete-modal/MarkCompleteModal';
 import { updateCourseCompleteStatusRequest } from '../course-cards/mark-complete-modal/data/service';
 import { COURSE_STATUSES } from '../data/constants';
-import CourseEnrollmentsContextProvider from '../CourseEnrollmentsContextProvider';
 import * as hooks from '../data/hooks';
-import { SubsidyRequestsContext } from '../../../../enterprise-subsidy-requests';
-import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../../app/data';
+import { useEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../app/data';
 import { sortAssignmentsByAssignmentStatus } from '../data/utils';
 
 jest.mock('@edx/frontend-enterprise-utils');
@@ -41,10 +41,11 @@ jest.mock('../../../../../config', () => ({
   },
 }));
 
-const enterpriseConfig = {
-  uuid: 'test-enterprise-uuid',
-  adminUsers: [{ email: 'edx@example.com' }],
-};
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(),
+}));
+
 const inProgCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.inProgress });
 const upcomingCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.upcoming });
 const completedCourseRun = createCourseEnrollmentWithStatus({ status: COURSE_STATUSES.completed });
@@ -103,20 +104,19 @@ hooks.useCourseEnrollmentsBySection.mockReturnValue({
   savedForLaterCourseEnrollments: [savedForLaterCourseRun],
 });
 
-const initialUserSubsidyState = {
-  redeemableLearnerCreditPolicies: emptyRedeemableLearnerCreditPolicies,
-};
+jest.mock('../../../../app/data', () => ({
+  ...jest.requireActual('../../../../app/data'),
+  useEnterpriseCourseEnrollments: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 
 const CourseEnrollmentsWrapper = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={{ enterpriseConfig, authenticatedUser: { username: 'test-username' } }}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={{ isLoading: false }}>
-          <CourseEnrollmentsContextProvider>
-            <CourseEnrollments />
-          </CourseEnrollmentsContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <CourseEnrollments />
     </AppContext.Provider>
   </IntlProvider>
 );
@@ -126,16 +126,28 @@ jest.mock('../data/utils', () => ({
   sortAssignmentsByAssignmentStatus: jest.fn(),
 }));
 
-describe('Course enrollments', () => {
-  const mockAcknowledgeAssignments = jest.fn();
+const mockAcknowledgeAssignments = jest.fn();
 
+describe('Course enrollments', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
+    useLocation.mockReturnValue({});
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        allEnrollmentsByStatus: {
+          inProgress: [inProgCourseRun],
+          upcoming: [upcomingCourseRun],
+          completed: [completedCourseRun],
+          assigned: [cancelledAssignedCourseRun],
+          savedForLater: [savedForLaterCourseRun],
+          requested: [transformedLicenseRequest],
+        },
+      },
+    });
+
     updateCourseCompleteStatusRequest.mockImplementation(() => ({ data: {} }));
     sortAssignmentsByAssignmentStatus.mockReturnValue([assignmentData]);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   it('renders course sections', () => {
@@ -216,22 +228,38 @@ describe('Course enrollments', () => {
   });
 
   it('generates course status update on move to in progress action', async () => {
-    const { getByText } = renderWithRouter(<CourseEnrollmentsWrapper />);
+    useLocation.mockReturnValue({
+      state: {
+        markedSavedForLaterSuccess: false,
+        markedInProgressSuccess: true,
+      },
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
     userEvent.click(screen.getByRole('button', { name: MARK_MOVE_TO_IN_PROGRESS_DEFAULT_LABEL }));
 
     // TODO This test only validates 'half way', we ideally want to update it to
     // validate the UI results. Skipping at the time of writing since need to
     // figure out the right markup for testability. This give a base level of confidence
     // that move to in progress is not failing, that's all.
-    expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(getByText('Your course was moved to In Progress.')));
+    await waitFor(() => {
+      expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
+    });
+    expect(await screen.findByText('Your course was moved to In Progress.')).toBeInTheDocument();
   });
 
   it('generates course status update on move to saved for later action', async () => {
-    const { getByText } = renderWithRouter(<CourseEnrollmentsWrapper />);
+    useLocation.mockReturnValue({
+      state: {
+        markedSavedForLaterSuccess: true,
+        markedInProgressSuccess: false,
+      },
+    });
+    renderWithRouter(<CourseEnrollmentsWrapper />);
     userEvent.click(screen.getByRole('button', { name: MARK_SAVED_FOR_LATER_DEFAULT_LABEL }));
-    expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(getByText('Your course was saved for later.')));
+    await waitFor(() => {
+      expect(updateCourseCompleteStatusRequest).toHaveBeenCalledTimes(1);
+    });
+    expect(await screen.findByText('Your course was saved for later.'));
   });
 
   it('renders in progress, upcoming, and requested course enrollments in the same section', async () => {

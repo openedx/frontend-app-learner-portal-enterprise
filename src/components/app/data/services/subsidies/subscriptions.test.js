@@ -94,6 +94,7 @@ describe('fetchSubscriptions', () => {
     const mockResponse = {
       customerAgreement: {
         uuid: 'test-customer-agreement-uuid',
+        disableExpirationNotifications: false,
       },
       results: [mockSubscriptionLicense],
     };
@@ -120,8 +121,11 @@ describe('fetchSubscriptions', () => {
     const expectedResult = {
       customerAgreement: mockResponse.customerAgreement,
       licensesByStatus: expectedLicensesByStatus,
-      subscriptionLicense: isLicenseApplicable ? mockSubscriptionLicense : undefined,
+      subscriptionPlan: isLicenseApplicable ? mockSubscriptionLicense.subscriptionPlan : null,
+      subscriptionLicense: isLicenseApplicable ? mockSubscriptionLicense : null,
       subscriptionLicenses: [mockSubscriptionLicense],
+      shouldShowActivationSuccessMessage: false,
+      showExpirationNotifications: true,
     };
     expect(response).toEqual(expectedResult);
   });

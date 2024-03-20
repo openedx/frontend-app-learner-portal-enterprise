@@ -60,7 +60,7 @@ describe('useSubscriptions', () => {
 
     const args = {
       authenticatedUser: {},
-      enterpriseConfig: {},
+      enterpriseCustomer: {},
     };
     const { result } = renderHook(() => useSubscriptions(args));
     expect(result.current).toEqual(
@@ -106,7 +106,7 @@ describe('useSubscriptions', () => {
     hasValidStartExpirationDates.mockReturnValue(isSubscriptionPlanCurrent);
     const args = {
       authenticatedUser: {},
-      enterpriseConfig: {},
+      enterpriseCustomer: {},
     };
     const { result } = renderHook(() => useSubscriptions(args));
     expect(result.current).toEqual(

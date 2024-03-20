@@ -4,26 +4,32 @@ import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
+import { Factory } from 'rosie';
+import { camelCaseObject } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import SearchCourseCard from '../SearchCourseCard';
 
+import SearchCourseCard from '../SearchCourseCard';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useDefaultSearchFilters } from '../../search';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -55,11 +61,11 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
-  authenticatedUser: { username: 'myspace-tom' },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultSearchContext = {
@@ -88,44 +94,30 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SearchCourseCardWithContext = ({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   searchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <SearchContext.Provider value={searchContext}>
-            <SkillsContext.Provider value={initialSkillsState}>
-              <SearchCourseCard index={index} />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SearchContext.Provider value={searchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SearchCourseCard index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
 
 describe('<SearchCourseCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
+
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SearchCourseCardWithContext
@@ -149,7 +141,7 @@ describe('<SearchCourseCard />', () => {
 
     // handles click
     userEvent.click(searchCourseCard);
-    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders the correct data with skills', async () => {

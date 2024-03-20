@@ -33,12 +33,9 @@ const mockHighlightSet = {
   title: mockHighlightSetTitle,
 };
 
-const ContentHighlightSetWrapper = ({
-  highlightSet = mockHighlightSet,
-  ...rest
-}) => (
+const ContentHighlightSetWrapper = ({ ...props }) => (
   <IntlProvider locale="en">
-    <ContentHighlightSet highlightSet={highlightSet} {...rest} />
+    <ContentHighlightSet {...props} />
   </IntlProvider>
 );
 
@@ -49,7 +46,7 @@ describe('ContentHighlightSet', () => {
   });
 
   it('renders stuff', () => {
-    renderWithRouter(<ContentHighlightSetWrapper />);
+    renderWithRouter(<ContentHighlightSetWrapper {...mockHighlightSet} />);
 
     expect(screen.getByText(mockHighlightSetTitle)).toBeInTheDocument();
     expect(screen.getByText(mockHighlightedContentItemTitle)).toBeInTheDocument();

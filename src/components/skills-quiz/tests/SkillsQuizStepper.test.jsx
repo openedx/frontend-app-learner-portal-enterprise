@@ -1,3 +1,7 @@
+// [tech debt] Several warnings/errors output related to
+// "Cannot log after tests are done. Did you forget to wait
+// for something async in your test" and Algolia.
+
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
@@ -6,8 +10,10 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext, SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
 
+import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { SkillsContext, SkillsContextProvider } from '../SkillsContextProvider';
@@ -22,6 +28,8 @@ import {
 
 import edxLogo from '../images/edx-logo.svg';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -36,15 +44,24 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   removeFromRefinementArray: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    slug: 'BearsRYou',
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: { username: 'myspace-tom' },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultCouponCodesState = {
@@ -62,8 +79,10 @@ const defaultSubsidyRequestState = {
 };
 
 describe('<SkillsQuizStepper />', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
 
   it('checks header is correctly rendered', () => {
@@ -117,9 +136,9 @@ describe('<SkillsQuizStepper />', () => {
       { route: '/test/skills-quiz/' },
     );
     const closeButton = screen.getByRole('button', { name: 'Close' });
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(2);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
     userEvent.click(closeButton);
-    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(3);
+    expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(2);
   });
 
   it('checks continue button is in disabled state initially', () => {

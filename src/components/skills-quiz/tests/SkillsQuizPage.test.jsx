@@ -3,33 +3,26 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
-import { mergeConfig } from '@edx/frontend-platform';
+import { camelCaseObject, mergeConfig } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import SkillsQuizPage from '../SkillsQuizPage';
-
-const mockLocation = {
-  pathname: '/welcome',
-  hash: '',
-  search: '',
-  state: { activationSuccess: true },
-};
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => (mockLocation),
-}));
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const defaultCouponCodesState = {
@@ -38,16 +31,14 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultUserSubsidyState = {
@@ -57,6 +48,7 @@ const defaultUserSubsidyState = {
 const defaultSubsidyRequestState = {
   catalogsForSubsidyRequests: [],
 };
+
 const SkillsQuizPageWithContext = ({
   initialAppState = defaultAppState,
   initialUserSubsidyState = defaultUserSubsidyState,
@@ -80,8 +72,9 @@ const SkillsQuizPageWithContext = ({
 };
 
 describe('SkillsQuizPage', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('should render SkillsQuiz', async () => {
     renderWithRouter(

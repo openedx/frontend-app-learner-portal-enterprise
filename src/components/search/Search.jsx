@@ -1,5 +1,4 @@
 import React, {
-  memo,
   useContext, useEffect,
 } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -32,7 +31,7 @@ import {
   useCanOnlyViewHighlights,
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
-import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
+import { useEnterpriseFeatures } from '../hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import { useDefaultSearchFilters } from './data';
 

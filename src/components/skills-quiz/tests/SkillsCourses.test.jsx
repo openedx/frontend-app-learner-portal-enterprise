@@ -6,18 +6,32 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SkillsCourses from '../SkillsCourses';
-
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -47,10 +61,9 @@ const testIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
   authenticatedUser: {
     username: 'myspace-tom',
   },
@@ -119,6 +132,11 @@ const SkillsCoursesWithContext = ({
 );
 
 describe('<SkillsCourses />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SkillsCoursesWithContext
@@ -140,7 +158,7 @@ describe('<SkillsCourses />', () => {
     });
 
     userEvent.click(screen.getByTestId('skills-quiz-course-card'));
-    expect(window.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(window.location.pathname).toContain(`/${mockEnterpriseCustomer.slug}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders an alert in case of no courses returned', async () => {

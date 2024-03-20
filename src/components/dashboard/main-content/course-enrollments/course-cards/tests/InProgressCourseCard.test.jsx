@@ -1,15 +1,15 @@
 import React from 'react';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '@edx/frontend-platform/react';
+import { Factory } from 'rosie';
 
-import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { UpgradeableCourseEnrollmentContext } from '../../UpgradeableCourseEnrollmentContextProvider';
 import { InProgressCourseCard } from '../InProgressCourseCard';
-import { UserSubsidyContext } from '../../../../../enterprise-user-subsidy';
-import { useEnterpriseCustomer } from '../../../../../app/data';
-
-// [tech debt] there are failing prop type warnings output from these tests that should be cleaned up.
+import { useCouponCodes, useEnterpriseCustomer } from '../../../../../app/data';
+import { queryClient } from '../../../../../../utils/tests';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -22,6 +22,7 @@ const basicProps = {
   linkToCourse: 'https://edx.org',
   courseRunId: 'my+course+key',
   notifications: [],
+  mode: 'verified',
 };
 
 const defaultAppContextValue = {
@@ -33,56 +34,55 @@ const defaultAppContextValue = {
 jest.mock('../../../../../app/data', () => ({
   ...jest.requireActual('../../../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
+  useCouponCodes: jest.fn(),
 }));
 
 const InProgressCourseCardWrapper = ({
   appContextValue = defaultAppContextValue,
-  userSubsidyContextValue = {
-    couponCodes: {
-      couponCodes: [],
-    },
-  },
-  courseEnrollmentsContextValue = {
-    updateCourseEnrollmentStatus: jest.fn(),
-    setShowMarkCourseCompleteSuccess: jest.fn(),
-  },
   upgradeableCourseEnrollmentContextValue = {
     isLoading: false,
     licenseUpgradeUrl: undefined,
     couponUpgradeUrl: undefined,
+    courseRunPrice: 100,
   },
   ...rest
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <UserSubsidyContext.Provider value={userSubsidyContextValue}>
-      <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-        <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
-          <InProgressCourseCard {...rest} />
-        </UpgradeableCourseEnrollmentContext.Provider>
-      </CourseEnrollmentsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <QueryClientProvider client={queryClient()}>
+    <AppContext.Provider value={appContextValue}>
+      <UpgradeableCourseEnrollmentContext.Provider value={upgradeableCourseEnrollmentContextValue}>
+        <InProgressCourseCard {...rest} />
+      </UpgradeableCourseEnrollmentContext.Provider>
+    </AppContext.Provider>
+  </QueryClientProvider>
 );
+
+const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
 
 describe('<InProgressCourseCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useCouponCodes.mockReturnValue({
+      data: {
+        couponCodeAssignments: [],
+      },
+    });
   });
 
   it('should not render upgrade course button if there is no couponUpgradeUrl', () => {
-    render(<InProgressCourseCardWrapper {...basicProps} />);
+    renderWithRouter(<InProgressCourseCardWrapper {...basicProps} />);
     expect(screen.queryByTestId('upgrade-course-button')).not.toBeInTheDocument();
   });
 
   it('should render upgrade course button if there is a couponUpgradeUrl', () => {
-    render(<InProgressCourseCardWrapper
+    renderWithRouter(<InProgressCourseCardWrapper
       {...basicProps}
       upgradeableCourseEnrollmentContextValue={
         {
           isLoading: false,
           licenseUpgradeUrl: undefined,
           couponUpgradeUrl: 'coupon-upgrade-url',
+          courseRunPrice: 100,
         }
       }
     />);

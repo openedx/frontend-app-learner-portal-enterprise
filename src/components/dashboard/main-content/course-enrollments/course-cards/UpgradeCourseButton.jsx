@@ -5,8 +5,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import EnrollModal from '../../../../course/EnrollModal';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
-import { UserSubsidyContext } from '../../../../enterprise-user-subsidy';
-import { useEnterpriseCustomer } from '../../../../app/data';
+import { useCouponCodes, useEnterpriseCustomer } from '../../../../app/data';
 
 /**
  * Button for upgrading a course via coupon code (possibly offer later on).
@@ -19,7 +18,7 @@ const UpgradeCourseButton = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { couponCodes: { couponCodes } } = useContext(UserSubsidyContext);
+  const { data: { couponCodeAssignments } } = useCouponCodes();
   const {
     subsidyForCourse,
     couponUpgradeUrl,
@@ -58,7 +57,7 @@ const UpgradeCourseButton = ({
         enrollmentUrl={couponUpgradeUrl}
         courseRunPrice={courseRunPrice}
         userSubsidyApplicableToCourse={subsidyForCourse}
-        couponCodesCount={couponCodes.length}
+        couponCodesCount={couponCodeAssignments.length}
         onEnroll={handleEnroll}
       />
     </>

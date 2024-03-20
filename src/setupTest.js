@@ -1,11 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+
 import matchMediaMock from 'match-media-mock';
 import ResizeObserverPolyfill from 'resize-observer-polyfill';
+import jestFetchMock from 'jest-fetch-mock';
 import 'jest-canvas-mock';
 
-import jestFetchMock from 'jest-fetch-mock';
+import './components/app/data/services/data/__factories__';
 
 import { configure } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
@@ -39,3 +41,12 @@ process.on('unhandledRejection', (reason, p) => {
 global.ResizeObserver = ResizeObserverPolyfill;
 
 jestFetchMock.enableMocks();
+
+// MOCK DATA
+export const mockAuthenticatedUser = {
+  userId: 3,
+  username: 'edx',
+  email: 'edx@example.com',
+  roles: [],
+  administrator: false,
+};

@@ -6,9 +6,10 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { snakeCaseObject } from '@edx/frontend-platform/utils';
+import { camelCaseObject, snakeCaseObject } from '@edx/frontend-platform/utils';
 import dayjs from 'dayjs';
 import MockDate from 'mockdate';
+import { Factory } from 'rosie';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserEnrollmentForm from './UserEnrollmentForm';
@@ -16,6 +17,7 @@ import { checkoutExecutiveEducation2U, toISOStringWithoutMilliseconds } from './
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE } from '../course/data/constants';
 import { useStatefulEnroll } from '../stateful-enroll/data';
 import { CourseContext } from '../course/CourseContextProvider';
+import { useEnterpriseCustomer } from '../app/data';
 
 const termsLabelText = "I agree to GetSmarter's Terms and Conditions for Students";
 const termsAndConsitionCTA = 'Terms and Conditions';
@@ -48,13 +50,21 @@ jest.mock('../stateful-enroll/data', () => ({
   useStatefulEnroll: jest.fn(() => ({ redeem: mockRedeem })),
 }));
 
+jest.mock('../app/data', () => ({
+  ...jest.requireActual('../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer', {
+  enable_executive_education_2u_fulfillment: true,
+  enable_data_sharing_consent: true,
+}));
+const mockEnterpriseCustomerWithDisabledDataSharingConsent = camelCaseObject(Factory.build('enterpriseCustomer', {
+  enable_executive_education_2u_fulfillment: true,
+  enable_data_sharing_consent: false,
+}));
+
 const initialAppContextValue = {
-  enterpriseConfig: {
-    name: 'Test Enterprise',
-    uuid: 'test-enterprise-uuid',
-    enableExecutiveEducation2UFulfillment: true,
-    enableDataSharingConsent: true,
-  },
   authenticatedUser: { userId: 1, email: mockEmail },
 };
 
@@ -102,6 +112,7 @@ const UserEnrollmentFormWrapper = ({
 describe('UserEnrollmentForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   afterEach(() => {
@@ -178,22 +189,12 @@ describe('UserEnrollmentForm', () => {
   });
 
   it('does not have data sharing consent checkbox if data sharing consent is disabled', async () => {
-    const appContext = {
-      enterpriseConfig: {
-        ...initialAppContextValue.enterpriseConfig,
-        enableDataSharingConsent: false,
-      },
-      authenticatedUser: {
-        ...initialAppContextValue.authenticatedUser,
-      },
-    };
-
-    render(
-      <UserEnrollmentFormWrapper appContextValue={appContext} />,
-    );
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
+    render(<UserEnrollmentFormWrapper />);
 
     // form fields
     await waitFor(() => {
+      expect(screen.getByLabelText(termsLabelText)).toBeInTheDocument();
       expect(screen.queryByLabelText(dataSharingConsentLabelText)).not.toBeInTheDocument();
     });
 
@@ -250,16 +251,9 @@ describe('UserEnrollmentForm', () => {
   it('handles successful form submission with data sharing consent disabled', async () => {
     const mockTermsAcceptedAt = '2022-09-28T13:35:06Z';
     MockDate.set(mockTermsAcceptedAt);
-    const appContext = {
-      enterpriseConfig: {
-        ...initialAppContextValue.enterpriseConfig,
-        enableDataSharingConsent: false,
-      },
-      authenticatedUser: {
-        ...initialAppContextValue.authenticatedUser,
-      },
-    };
-    render(<UserEnrollmentFormWrapper appContextValue={appContext} />);
+
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledDataSharingConsent });
+    render(<UserEnrollmentFormWrapper />);
 
     userEvent.type(screen.getByLabelText('First name *'), mockFirstName);
     userEvent.type(screen.getByLabelText('Last name *'), mockLastName);
@@ -411,7 +405,7 @@ describe('UserEnrollmentForm', () => {
 
     await waitFor(() => {
       expect(mockLogInfo).toHaveBeenCalledTimes(1);
-      expect(mockLogInfo).toHaveBeenCalledWith('test-enterprise-uuid user 1 has already purchased course ABC123.');
+      expect(mockLogInfo).toHaveBeenCalledWith(`${mockEnterpriseCustomer.uuid} user 1 has already purchased course ABC123.`);
       expect(mockOnCheckoutSuccess).toHaveBeenCalledTimes(1);
     });
 

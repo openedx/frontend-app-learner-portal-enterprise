@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
 import { breakpoints, ResponsiveContext } from '@openedx/paragon';
 
 import { AppContext } from '@edx/frontend-platform/react';
@@ -9,12 +11,13 @@ import { CourseContext } from '../../CourseContextProvider';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../utils/tests';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
+import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
 import { SUBSIDY_TYPE } from '../../../../constants';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
-  useIsAssignmentsOnlyLearner: jest.fn(() => false),
+  useEnterpriseCustomer: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
 }));
 
 jest.mock('../../course-header/CourseHeader', () => jest.fn(() => (
@@ -55,13 +58,11 @@ const baseCourseContextValue = {
   },
 };
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+
 const appContextValues = {
-  enterpriseConfig: {
-    disableSearch: false,
-  },
-  authenticatedUser: {
-    userId: 3,
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const initialUserSubsidyState = {
@@ -103,6 +104,11 @@ const CourseAboutWrapper = ({
 );
 
 describe('CourseAbout', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('renders', () => {
     renderWithRouter(<CourseAboutWrapper />);
     expect(screen.getByTestId('course-header')).toBeInTheDocument();

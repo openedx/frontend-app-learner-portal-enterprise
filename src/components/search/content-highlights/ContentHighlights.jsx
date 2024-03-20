@@ -14,7 +14,7 @@ const ContentHighlights = ({ className }) => {
   const mappedContentHighlightSetCards = useMemo(() => {
     const contentHighlightSets = contentHighlights || [];
     return contentHighlightSets.map(
-      (highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />,
+      (highlightSet) => <ContentHighlightSet key={uuidv4()} {...highlightSet} />,
     );
   }, [contentHighlights]);
 

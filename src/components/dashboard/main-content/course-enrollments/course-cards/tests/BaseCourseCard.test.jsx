@@ -1,119 +1,140 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { AppContext } from '@edx/frontend-platform/react';
-import { Skeleton } from '@openedx/paragon';
+import { Factory } from 'rosie';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom/extend-expect';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import dayjs from '../../../../../../utils/dayjs';
 import BaseCourseCard from '../BaseCourseCard';
-import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import { ToastsContext } from '../../../../../Toasts';
+import { useEnterpriseCustomer } from '../../../../../app/data';
+
+import { queryClient } from '../../../../../../utils/tests';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-const enterpriseConfig = {
-  name: 'test-enterprise-name',
-};
-const authenticatedUser = {
-  username: 'test-username',
-};
+jest.mock('../../../../../app/data', () => ({
+  ...jest.requireActual('../../../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
 
 describe('<BaseCourseCard />', () => {
-  let wrapper;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
 
   describe('email settings modal', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
+    beforeEach(async () => {
+      renderWithRouter((
+        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
           <BaseCourseCard
             type="completed"
             title="edX Demonstration Course"
             linkToCourse="https://edx.org"
             courseRunId="my+course+key"
+            mode="verified"
             hasEmailsEnabled
           />
         </AppContext.Provider>
       ));
       // open email settings modal
-      wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
-      wrapper.find('Dropdown').find('button.dropdown-item').simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeTruthy();
+      userEvent.click(screen.getByLabelText('course settings for edX Demonstration Course'));
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem')).toBeInTheDocument();
+      });
+      userEvent.click(screen.getByRole('menuitem'));
+      await waitFor(() => {
+        expect(screen.getByRole('dialog').parentElement.getAttribute('class')).toContain('show');
+      });
     });
 
-    it('test modal close/cancel', () => {
-      wrapper.find('EmailSettingsModal').find('.modal-footer .btn-link').first().simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').emailSettings.open).toBeFalsy();
+    it('test modal close/cancel', async () => {
+      userEvent.click(screen.getByTestId('modal-footer-btn'));
+      await waitFor(() => {
+        expect(screen.getByRole('dialog').parentElement.getAttribute('class')).not.toContain('show');
+      });
     });
   });
 
   describe('unenroll modal', () => {
     const mockAddToast = jest.fn();
 
-    beforeEach(() => {
-      jest.clearAllMocks();
-
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
-          <ToastsContext.Provider value={{ addToast: mockAddToast }}>
-            <CourseEnrollmentsContext.Provider value={{ removeCourseEnrollment: jest.fn() }}>
+    beforeEach(async () => {
+      renderWithRouter((
+        <QueryClientProvider client={queryClient()}>
+          <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+            <ToastsContext.Provider value={{ addToast: mockAddToast }}>
               <BaseCourseCard
                 type="in_progress"
                 title="edX Demonstration Course"
                 linkToCourse="https://edx.org"
                 courseRunId="my+course+key"
+                mode="verified"
                 canUnenroll
-                hasEmailsEnabled
               />
-            </CourseEnrollmentsContext.Provider>
-          </ToastsContext.Provider>
-        </AppContext.Provider>
+            </ToastsContext.Provider>
+          </AppContext.Provider>
+        </QueryClientProvider>
       ));
       // open unenroll modal
-      wrapper.find('Dropdown').find('button.btn-icon').simulate('click');
-      wrapper.find('Dropdown').find('button.dropdown-item').at(1).simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').unenroll.open).toBeTruthy();
+      userEvent.click(screen.getByLabelText('course settings for edX Demonstration Course'));
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem')).toBeInTheDocument();
+      });
+      userEvent.click(screen.getByRole('menuitem'));
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Unenroll from course?')).toBeInTheDocument();
     });
 
-    it('test modal close/cancel', () => {
-      wrapper.find('UnenrollModal').find('.btn-tertiary').simulate('click');
-      expect(wrapper.find('BaseCourseCard').state('modals').unenroll.open).toBeFalsy();
+    it('test modal close/cancel', async () => {
+      userEvent.click(screen.getByRole('button', { name: 'Keep learning' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
     });
   });
 
   it('should render Skeleton if isLoading = true', () => {
-    wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
+    renderWithRouter(
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
         <BaseCourseCard
           type="completed"
           title="edX Demonstration Course"
           linkToCourse="https://edx.org"
           courseRunId="my+course+key"
+          mode="verified"
           hasEmailsEnabled
           isLoading
         />
-      </AppContext.Provider>
-    ));
-
-    expect(wrapper.find(Skeleton)).toBeTruthy();
+      </AppContext.Provider>,
+    );
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('renders with different startDate values', () => {
-    const today = new Date().toISOString();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const today = dayjs().toISOString();
+    const yesterday = dayjs().subtract(1, 'day').toISOString();
+    const tomorrow = dayjs().add(1, 'day').toISOString();
 
     [today, yesterday, tomorrow].forEach(startDate => {
       const formattedStartDate = dayjs(startDate).format('MMMM Do, YYYY');
       const isCourseStarted = dayjs(startDate) <= dayjs();
 
-      wrapper = mount((
-        <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
+      renderWithRouter(
+        <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
           <BaseCourseCard
             type="in_progress"
             title="edX Demonstration Course"
@@ -127,27 +148,24 @@ describe('<BaseCourseCard />', () => {
             orgName="some_name"
             pacing="self"
           />
-        </AppContext.Provider>
-      ));
-
-      const renderedStartDate = wrapper.instance().renderStartDate();
-      const expectedOutput = formattedStartDate && !isCourseStarted
-        ? <span className="font-weight-light">Starts {formattedStartDate}</span>
-        : null;
-
-      expect(renderedStartDate).toEqual(expectedOutput);
+        </AppContext.Provider>,
+      );
+      if (!isCourseStarted) {
+        expect(screen.getByText(`Starts ${formattedStartDate}`)).toBeInTheDocument();
+      } else {
+        expect(screen.queryByText(`Starts ${formattedStartDate}`)).not.toBeInTheDocument();
+      }
     });
   });
 
   it('renders endDate based on the course state', () => {
-    const startDate = new Date().toISOString();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 7);
+    const startDate = dayjs().toISOString();
+    const endDate = dayjs().add(7, 'days').toISOString();
     const formattedEndDate = dayjs(endDate).format('MMMM Do, YYYY');
     const type = 'in_progress';
 
-    wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
+    renderWithRouter(
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
         <BaseCourseCard
           type={type}
           title="edX Demonstration Course"
@@ -155,46 +173,47 @@ describe('<BaseCourseCard />', () => {
           courseRunId="my+course+key"
           hasEmailsEnabled
           startDate={startDate}
-          endDate={endDate.toISOString()}
+          endDate={endDate}
           mode="executive-education"
           orgName="some_name"
           pacing="self"
         />
-      </AppContext.Provider>
-    ));
+      </AppContext.Provider>,
+    );
 
-    const renderedEndDate = wrapper.instance().renderEndDate();
-    const expectedOutput = formattedEndDate && dayjs(startDate) <= dayjs() && type !== 'completed'
-      ? <span className="font-weight-light">Ends {formattedEndDate}</span>
-      : null;
-
-    expect(renderedEndDate).toEqual(expectedOutput);
+    const shouldRenderEndDate = dayjs(startDate) <= dayjs() && type !== 'completed';
+    if (shouldRenderEndDate) {
+      expect(screen.getByText(`Ends ${formattedEndDate}`)).toBeInTheDocument();
+    } else {
+      expect(screen.queryByText(`Ends ${formattedEndDate}`)).not.toBeInTheDocument();
+    }
   });
 
   it('renders Enroll By Date if the user is not enrolled', () => {
-    const enrollBy = new Date();
-    enrollBy.setDate(enrollBy.getDate() + 14);
+    const enrollBy = dayjs().add(14, 'days').toISOString();
     const formattedEnrollByDate = dayjs(enrollBy).format('MMMM Do, YYYY');
     const courseRunStatus = 'assigned';
 
-    wrapper = mount((
-      <AppContext.Provider value={{ enterpriseConfig, authenticatedUser }}>
+    renderWithRouter(
+      <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
         <BaseCourseCard
+          type="assigned"
           courseRunStatus={courseRunStatus}
           title="edX Demonstration Course"
           linkToCourse="https://edx.org"
           courseRunId="my+course+key"
+          mode="verified"
           hasEmailsEnabled
-          enrollBy={enrollBy.toISOString()}
+          enrollBy={enrollBy}
         />
-      </AppContext.Provider>
-    ));
+      </AppContext.Provider>,
+    );
 
-    const isNotEnrolled = wrapper.instance().renderEnrollByDate();
-    const expectedOutput = formattedEnrollByDate && courseRunStatus === 'assigned'
-      ? <span className="font-weight-light">Enroll by {formattedEnrollByDate}</span>
-      : null;
-
-    expect(isNotEnrolled).toEqual(expectedOutput);
+    const isAssigned = courseRunStatus === 'assigned';
+    if (isAssigned) {
+      expect(screen.getByText(`Enroll by ${formattedEnrollByDate}`)).toBeInTheDocument();
+    } else {
+      expect(screen.queryByText(`Enroll by ${formattedEnrollByDate}`)).not.toBeInTheDocument();
+    }
   });
 });

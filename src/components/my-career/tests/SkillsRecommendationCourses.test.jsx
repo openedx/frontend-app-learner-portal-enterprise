@@ -1,15 +1,19 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { AppContext } from '@edx/frontend-platform/react';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
+import { useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -20,6 +24,16 @@ jest.mock('@edx/frontend-platform/i18n', () => ({
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 // eslint-disable-next-line no-console
@@ -76,11 +90,7 @@ const coursesIndex = {
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
 
-const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
-};
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 
 const defaultSearchContext = {
   refinements: { skill_names: TEST_SKILLS },
@@ -105,25 +115,25 @@ const SkillsRecommendationCoursesWithContext = ({
   subCategorySkills = TEST_SKILLS,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={defaultAppState}>
-      <SearchContext.Provider value={defaultSearchContext}>
-        <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <SkillsRecommendationCourses
-              index={index}
-              subCategoryName={subCategoryName}
-              subCategorySkills={subCategorySkills}
-            />
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </SearchContext.Provider>
-    </AppContext.Provider>
+    <SearchContext.Provider value={defaultSearchContext}>
+      <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
+        <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
+          <SkillsRecommendationCourses
+            index={index}
+            subCategoryName={subCategoryName}
+            subCategorySkills={subCategorySkills}
+          />
+        </SubsidyRequestsContext.Provider>
+      </UserSubsidyContext.Provider>
+    </SearchContext.Provider>
   </IntlProvider>
 );
 
 describe('<SkillsRecommendationCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids: ${mockEnterpriseCustomer.uuid}` });
   });
 
   it('renders the SkillsRecommendationCourses component with recommendations', () => {

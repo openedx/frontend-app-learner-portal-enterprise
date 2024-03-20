@@ -3,13 +3,15 @@ import '@testing-library/jest-dom/extend-expect';
 import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
 
 import UserEnrollmentForm from '../../../executive-education-2u/UserEnrollmentForm';
 import ExternalCourseEnrollment from '../ExternalCourseEnrollment';
 import { CourseContext } from '../../CourseContextProvider';
 import { DISABLED_ENROLL_REASON_TYPES, LEARNER_CREDIT_SUBSIDY_TYPE } from '../../data/constants';
 import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { emptyRedeemableLearnerCreditPolicies } from '../../../app/data';
+import { emptyRedeemableLearnerCreditPolicies, useEnterpriseCustomer } from '../../../app/data';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -46,6 +48,11 @@ jest.mock('@edx/frontend-platform/config', () => ({
   })),
 }));
 
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const baseCourseContextValue = {
   state: {
     courseEntitlementProductSku: 'test-sku',
@@ -61,14 +68,11 @@ const baseCourseContextValue = {
   missingUserSubsidyReason: undefined,
 };
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+
 const baseAppContextValue = {
-  enterpriseConfig: {
-    uuid: 'test-uuid',
-    enableDataSharingConsent: true,
-    adminUsers: ['edx@example.com'],
-    authOrgId: 'test-uuid',
-  },
-  authenticatedUser: { userId: 3 },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const baseUserSubsidyContextValue = {
@@ -94,9 +98,7 @@ const ExternalCourseEnrollmentWrapper = ({
 describe('ExternalCourseEnrollment', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-  afterEach(() => {
-    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('renders and handles checkout success', () => {
     renderWithRouter(<ExternalCourseEnrollmentWrapper />);
@@ -184,7 +186,10 @@ describe('ExternalCourseEnrollment', () => {
       expect(screen.getByText('Already Enrolled')).toBeInTheDocument();
       const dashboardButton = screen.getByText('Go to dashboard');
       expect(dashboardButton).toBeInTheDocument();
-      expect(dashboardButton).toHaveAttribute('href', 'https://getsmarter.example.com/account?org_id=test-uuid');
+      expect(dashboardButton).toHaveAttribute(
+        'href',
+        `https://getsmarter.example.com/account?org_id=${mockEnterpriseCustomer.authOrgId}`,
+      );
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1);
       expect(mockScrollIntoView).toHaveBeenCalledWith(
         expect.objectContaining({ behavior: 'smooth' }),

@@ -59,7 +59,7 @@ describe('<CourseRecommendationCard />', () => {
     expect(screen.getByText(TEST_TITLE)).toBeInTheDocument();
     expect(screen.getByAltText(TEST_OWNER.name)).toBeInTheDocument();
 
-    expect(container.querySelector('p.partner')).toHaveTextContent(TEST_OWNER.name);
+    expect(container.querySelector('.partner')).toHaveTextContent(TEST_OWNER.name);
     expect(container.querySelector('.pgn__card-image-cap')).toHaveAttribute('src', TEST_CARD_IMG_URL);
   });
 

@@ -1,37 +1,29 @@
 import React, { useContext } from 'react';
 import { mount } from 'enzyme';
 import { AppContext } from '@edx/frontend-platform/react';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
 
 import EnterprisePage from './EnterprisePage';
-import { useEnterpriseLearner } from '../app/data';
+import { useEnterpriseCustomer } from '../app/data';
 
 jest.mock('../app/data', () => ({
   ...jest.requireActual('../app/data'),
-  useEnterpriseLearner: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
 }));
-useEnterpriseLearner.mockReturnValue({
-  data: {
-    enterpriseCustomer: {
-      id: 'test-enterprise-uuid',
-    },
-  },
-});
 
-const mockUser = {
-  profileImage: 'http://fake.image',
-  username: 'joe_shmoe',
-};
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+
 jest.mock('@edx/frontend-platform/auth');
-jest.mock('react-router-dom', () => ({
-  useParams: jest.fn().mockReturnValue({ enterpriseSlug: 'test-enterprise-slug' }),
-}));
 
 describe('<EnterprisePage />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
-  const defaultAppContextValue = { authenticatedUser: { ...mockUser } };
+  const defaultAppContextValue = { authenticatedUser: mockAuthenticatedUser };
 
   const EnterprisePageWrapper = ({ children, appContextValue = defaultAppContextValue }) => (
     <AppContext.Provider value={appContextValue}>
@@ -55,7 +47,7 @@ describe('<EnterprisePage />', () => {
     const actualContextValue = wrapper.find('.did-i-render').prop('data-contextvalue');
     expect(actualContextValue).toEqual(
       expect.objectContaining({
-        authenticatedUser: mockUser,
+        authenticatedUser: mockAuthenticatedUser,
         config: expect.any(Object),
         courseCards: {
           'in-progress': {

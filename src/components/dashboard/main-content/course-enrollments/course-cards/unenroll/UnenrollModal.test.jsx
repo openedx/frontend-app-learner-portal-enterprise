@@ -1,13 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Factory } from 'rosie';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom/extend-expect';
 
 import { COURSE_STATUSES } from '../../../../../../constants';
 import { unenrollFromCourse } from './data';
-import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
-
 import UnenrollModal from './UnenrollModal';
 import { ToastsContext } from '../../../../../Toasts';
+import { queryEnterpriseCourseEnrollments, useEnterpriseCustomer } from '../../../../../app/data';
+import { queryClient } from '../../../../../../utils/tests';
 
 jest.mock('./data', () => ({
   unenrollFromCourse: jest.fn(),
@@ -17,15 +20,19 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
 
-const mockRemoveCourseEnrollment = jest.fn();
-const defaultCourseEnrollmentsContextValue = {
-  removeCourseEnrollment: mockRemoveCourseEnrollment,
-};
+jest.mock('../../../../../app/data', () => ({
+  ...jest.requireActual('../../../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+const mockEnterpriseCourseEnrollment = camelCaseObject(Factory.build('enterpriseCourseEnrollment'));
+
 const mockOnClose = jest.fn();
 const mockOnSuccess = jest.fn();
 const baseUnenrollModalProps = {
-  courseRunId: 'course-v1:edX+DemoX+Demo',
-  courseRunTitle: 'Demonstration Course',
+  courseRunId: mockEnterpriseCourseEnrollment.courseRunId,
+  courseRunTitle: mockEnterpriseCourseEnrollment.displayName,
   enrollmentType: COURSE_STATUSES.inProgress,
   isOpen: false,
   onClose: mockOnClose,
@@ -34,20 +41,26 @@ const baseUnenrollModalProps = {
 
 const mockAddToast = jest.fn();
 
-const UnenrollModalWrapper = ({
-  courseEnrollmentsContextValue = defaultCourseEnrollmentsContextValue,
-  ...props
-}) => (
-  <ToastsContext.Provider value={{ addToast: mockAddToast }}>
-    <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-      <UnenrollModal {...props} />
-    </CourseEnrollmentsContext.Provider>
-  </ToastsContext.Provider>
-);
+let mockQueryClient;
+const UnenrollModalWrapper = ({ ...props }) => {
+  mockQueryClient = queryClient();
+  mockQueryClient.setQueryData(
+    queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
+    [mockEnterpriseCourseEnrollment],
+  );
+  return (
+    <QueryClientProvider client={mockQueryClient}>
+      <ToastsContext.Provider value={{ addToast: mockAddToast }}>
+        <UnenrollModal {...props} />
+      </ToastsContext.Provider>
+    </QueryClientProvider>
+  );
+};
 
 describe('<UnenrollModal />', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test('should remain closed when `isOpen` is false', () => {
@@ -90,13 +103,10 @@ describe('<UnenrollModal />', () => {
     userEvent.click(screen.getByText('Unenroll'));
 
     await waitFor(() => {
-      expect(mockRemoveCourseEnrollment).toHaveBeenCalledTimes(1);
-      expect(mockRemoveCourseEnrollment).toHaveBeenCalledWith(
-        expect.objectContaining({
-          courseRunId: baseUnenrollModalProps.courseRunId,
-          enrollmentType: baseUnenrollModalProps.enrollmentType,
-        }),
+      const updatedEnrollments = mockQueryClient.getQueryData(
+        queryEnterpriseCourseEnrollments(mockEnterpriseCustomer.uuid).queryKey,
       );
+      expect(updatedEnrollments).toEqual([]);
       expect(mockOnSuccess).toHaveBeenCalledTimes(1);
       expect(mockAddToast).toHaveBeenCalledTimes(1);
       expect(mockAddToast).toHaveBeenCalledWith('You have been unenrolled from the course.');

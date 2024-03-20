@@ -61,8 +61,6 @@ const SubsidiesSummary = ({
     redeemableLearnerCreditPolicies,
   });
 
-  // const { requestsBySubsidyType } = useContext(SubsidyRequestsContext);
-
   // if there are course enrollments, the cta button below will be the only one on the page
   const ctaButtonVariant = useMemo(() => {
     const hasCourseEnrollments = Object.entries(allEnrollmentsByStatus)
@@ -85,7 +83,7 @@ const SubsidiesSummary = ({
     couponCodes.couponCodeAssignments.length > 0
     || requests.couponCodes.length > 0
   );
-  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies?.redeemablePolicies.length > 0;
+  const hasAvailableLearnerCreditPolicies = redeemableLearnerCreditPolicies.redeemablePolicies.length > 0;
 
   const hasAvailableSubsidyOrRequests = (
     hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests || learnerCreditSummaryCardData

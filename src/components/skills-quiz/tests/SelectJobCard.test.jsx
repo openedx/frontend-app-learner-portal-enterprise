@@ -2,11 +2,14 @@ import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { Factory } from 'rosie';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { camelCaseObject } from '@edx/frontend-platform';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
+import { useEnterpriseCustomer } from '../../app/data';
 
 const SelectJobCardWithContext = ({
   initialJobCardState = {},
@@ -32,17 +35,24 @@ const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
 const MEDIAN_SALARY = 'Median U.S. Salary:';
 const JOB_POSTINGS = 'Job Postings:';
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+
 const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    hideLaborMarketData: false,
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
 };
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 describe('<SelectJobCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   test('renders job card', () => {
     const initialJobCardState = {
       interestedJobs: [{
@@ -84,15 +94,13 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    const appState = {
-      enterpriseConfig: {
-        name: 'BearsRUs',
-        hideLaborMarketData: true,
-      },
-    };
+    const mockEnterpriseCustomerWithHiddenLaborMarketData = camelCaseObject(Factory.build('enterpriseCustomer', {
+      hide_labor_market_data: true,
+    }));
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHiddenLaborMarketData });
     render(
       <SelectJobCardWithContext
-        initialAppState={appState}
+        initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
       />,
     );

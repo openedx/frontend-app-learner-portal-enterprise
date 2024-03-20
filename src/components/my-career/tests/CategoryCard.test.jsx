@@ -1,21 +1,30 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { AppContext } from '@edx/frontend-platform/react';
-import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
+
 import { renderWithRouter } from '../../../utils/tests';
 import CategoryCard from '../CategoryCard';
-import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
-import { SUBSIDY_TYPE } from '../../../constants';
+import { useDefaultSearchFilters } from '../../search';
+import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner } from '../../app/data';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
   getLocale: () => 'en',
   getMessages: () => ({}),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 // eslint-disable-next-line no-console
@@ -56,65 +65,21 @@ const topCategory = {
   edxAverageScore: null,
 };
 
-const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise',
-  },
-  authenticatedUser: {
-    username: 'edx',
-    name: 'John Doe',
-  },
-};
-
-const defaultSearchContext = {
-  refinements: { skill_names: ['test-skill-1', 'test-skill-2'] },
-  dispatch: () => null,
-};
-
-const defaultSubsidyRequestState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-};
-
-const expiringSubscriptionUserSubsidyState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-  subscriptionPlan: {
-    daysUntilExpiration: 60,
-  },
-  couponCodes: [],
-  showExpirationNotifications: false,
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [{
-      policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-    }],
-    learnerContentAssignments: emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
-  },
-};
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 
 const CategoryCardWithContext = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={defaultAppState}>
-      <SearchContext.Provider value={defaultSearchContext}>
-        <UserSubsidyContext.Provider value={expiringSubscriptionUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-            <CategoryCard topCategory={topCategory} />
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </SearchContext.Provider>
-    </AppContext.Provider>
+    <CategoryCard topCategory={topCategory} />
   </IntlProvider>
 );
 
 describe('<CategoryCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useIsAssignmentsOnlyLearner.mockReturnValue(false);
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
   it('renders the CategoryCard component', () => {
     renderWithRouter(<CategoryCardWithContext />);
     const levelBarsContainer = screen.getAllByTestId('skill-category-chip');

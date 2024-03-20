@@ -1,9 +1,9 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import userEvent from '@testing-library/user-event';
+import { Factory } from 'rosie';
 import { renderWithRouter } from '../../../../utils/tests';
 import SubscriptionSummaryCard from '../SubscriptionSummaryCard';
 import {
@@ -17,51 +17,31 @@ import {
   SUBSCRIPTION_WARNING_BADGE_VARIANT,
   LICENSE_REQUESTED_NOTICE,
 } from '../data/constants';
-import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
-import { TEST_EMAIL, TEST_ENTERPRISE_SLUG } from '../../../search/tests/constants';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../../../program-progress/data/constants';
+import { useEnterpriseCustomer, useSubscriptions } from '../../../app/data';
 
-const initialAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    slug: TEST_ENTERPRISE_SLUG,
-    contactEmail: TEST_EMAIL,
-  },
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
+
+const subscriptionPlan = {
+  daysUntilExpiration: 70,
+  expirationDate: '2021-10-25',
 };
-
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
+const licenseRequest = {
+  courseEndDate: '2021-10-25',
 };
-
-const initialUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-  subscriptionPlan: {
-    expirationDate: '2022-10-25',
-  },
-};
-
-const SubscriptionSummaryCardForProgressPageWithContext = (props) => (
-  <AppContext.Provider value={initialAppState}>
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubscriptionSummaryCard {...props} />
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
-);
 
 describe('<SubscriptionSummaryCard />', () => {
-  const subscriptionPlan = {
-    daysUntilExpiration: 70,
-    expirationDate: '2021-10-25',
-  };
-  const licenseRequest = {
-    courseEndDate: '2021-10-25',
-    programProgressPage: true,
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useSubscriptions.mockReturnValue({ data: { subscriptionPlan } });
+  });
   test('Active success badge is displayed when daysUntilExpiration > 60', () => {
     renderWithRouter(
       <IntlProvider locale="en">
@@ -109,7 +89,7 @@ describe('<SubscriptionSummaryCard />', () => {
     const courseEndDate = '2023-08-11';
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCardForProgressPageWithContext
+        <SubscriptionSummaryCard
           subscriptionPlan={expiringSoonSubscriptionPlan}
           courseEndDate={courseEndDate}
           programProgressPage
@@ -138,7 +118,7 @@ describe('<SubscriptionSummaryCard />', () => {
     };
     renderWithRouter(
       <IntlProvider locale="en">
-        <SubscriptionSummaryCardForProgressPageWithContext
+        <SubscriptionSummaryCard
           subscriptionPlan={expiredSubscriptionPlan}
           programProgressPage
         />

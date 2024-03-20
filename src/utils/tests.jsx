@@ -106,7 +106,7 @@ export const A_100_PERCENT_COUPON_CODE = {
   couponEndDate: dayjs().add(8, 'w').toISOString(),
 };
 
-export function queryClient(options = {}) {
+export function queryClient(defaultOptions = {}) {
   return new QueryClient({
     queryCache: new QueryCache({
       onError: queryCacheOnErrorHandler,
@@ -115,7 +115,7 @@ export function queryClient(options = {}) {
       queries: {
         retry: false,
       },
-      ...options,
+      ...defaultOptions,
     },
   });
 }

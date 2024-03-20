@@ -32,13 +32,6 @@ const mockHighlightSet = {
   title: 'Highlight Set 1',
 };
 
-jest.mock('../../../hooks', () => ({
-  ...jest.requireActual('../../../hooks'),
-  useContentHighlights: jest.fn().mockReturnValue({
-    data: [],
-  }),
-}));
-
 jest.mock('../ContentHighlightSet', () => {
   const Component = () => <div data-testid="content-highlight-set" />;
   Component.Skeleton = function Skeleton() { return <div data-testid="content-highlight-set-skeleton" />; };
@@ -50,12 +43,8 @@ jest.mock('../ContentHighlightSet', () => {
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
-  useEnterpriseCustomer: jest.fn().mockReturnValue({ data: { slug: 'test-enterprise-slug' } }),
+  useEnterpriseCustomer: jest.fn(),
 }));
-
-const ContentHighlightsWrapper = ({ ...rest }) => (
-  <ContentHighlights {...rest} />
-);
 
 const mockEnterpriseCustomer = {
   name: 'test-enterprise',
@@ -67,6 +56,7 @@ describe('ContentHighlights', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useContentHighlightSets.mockReturnValue({ data: [] });
   });
 
   describe('feature flag disabled', () => {
@@ -83,16 +73,9 @@ describe('ContentHighlights', () => {
     });
 
     it('does not render component', () => {
-      const { container } = render(<ContentHighlightsWrapper />);
-      useContentHighlightSets.mockReturnValue({ data: [] });
+      const { container } = render(<ContentHighlights />);
       expect(container).toBeEmptyDOMElement();
     });
-  });
-
-  it('renders nothing when there are no existing highlight sets', () => {
-    useContentHighlightSets.mockReturnValue({ data: [] });
-    const { container } = render(<ContentHighlightsWrapper />);
-    expect(container).toBeEmptyDOMElement();
   });
 
   it('renders existing highlight sets', () => {
@@ -103,7 +86,7 @@ describe('ContentHighlights', () => {
     useContentHighlightSets.mockReturnValue({
       data: [mockHighlightSet, anotherMockHighlightSet],
     });
-    render(<ContentHighlightsWrapper />);
+    render(<ContentHighlights />);
     expect(screen.queryAllByTestId('content-highlight-set')).toHaveLength(2);
   });
 });

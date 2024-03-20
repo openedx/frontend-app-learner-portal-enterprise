@@ -1,13 +1,15 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
 import '@testing-library/jest-dom/extend-expect';
 
 import UserSubsidy from '../UserSubsidy';
-
 import { LOADING_SCREEN_READER_TEXT } from '../data/constants';
 import { useCouponCodes, useSubscriptions, useRedeemableLearnerCreditPolicies } from '../data/hooks';
 import { useEnterpriseOffers } from '../enterprise-offers/data/hooks';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('../data/hooks', () => ({
   ...jest.requireActual('../data/hooks'),
@@ -21,26 +23,25 @@ jest.mock('../enterprise-offers/data/hooks', () => ({
   useEnterpriseOffers: jest.fn().mockReturnValue({}),
 }));
 
-const TEST_ENTERPRISE_SLUG = 'test-enterprise-slug';
-const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+
 const TEST_USER = {
   username: 'test-username',
-  roles: [`enterprise_learner:${TEST_ENTERPRISE_UUID}`],
+  roles: [`enterprise_learner:${mockEnterpriseCustomer.uuid}`],
 };
 
 const UserSubsidyWithAppContext = ({
-  enterpriseConfig = {},
   contextValue = {},
   authenticatedUser = TEST_USER,
   children,
 }) => (
   <AppContext.Provider
     value={{
-      enterpriseConfig: {
-        slug: TEST_ENTERPRISE_SLUG,
-        uuid: TEST_ENTERPRISE_UUID,
-        ...enterpriseConfig,
-      },
       authenticatedUser,
       ...contextValue,
     }}
@@ -54,6 +55,7 @@ const UserSubsidyWithAppContext = ({
 describe('UserSubsidy', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   test.each([

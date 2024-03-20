@@ -2,12 +2,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
+import { QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { Factory } from 'rosie';
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { logError } from '@edx/frontend-platform/logging';
@@ -66,8 +62,9 @@ import {
 import * as optimizelyUtils from '../../../../utils/optimizely';
 import { CourseContext } from '../../CourseContextProvider';
 import { enterpriseUserSubsidyQueryKeys } from '../../../enterprise-user-subsidy/data/constants';
-import { queryCacheOnErrorHandler } from '../../../../utils/common';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../../constants';
+import { useEnterpriseCustomer } from '../../../app/data';
+import { queryClient } from '../../../../utils/tests';
 
 const oldGlobalLocation = global.location;
 
@@ -117,6 +114,11 @@ jest.mock('react-router-dom', () => ({
 }
 ));
 
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 jest.useFakeTimers();
 
 jest.mock('../service', () => ({
@@ -139,11 +141,8 @@ const createGlobalLocationMock = () => {
 };
 const mockPreventDefault = jest.fn();
 
-const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: queryCacheOnErrorHandler,
-  }),
-});
+const mockAuthenticatedUser = camelCaseObject(Factory.build('authenticatedUser'));
+const mockenterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
 
 describe('useAllCourseData', () => {
   const basicProps = {
@@ -168,7 +167,7 @@ describe('useAllCourseData', () => {
     expect(result.current.courseRecommendations).toEqual(camelCaseObject(mockCourseRecommendations));
   });
 
-  it('returns null if no courseKey or enterpriseConfig is provided', async () => {
+  it('returns null if no courseKey or enterpriseCustomer is provided', async () => {
     const { result } = renderHook(() => useAllCourseData({
       ...basicProps,
       courseService: mockCourseServiceUninitialized,
@@ -231,7 +230,7 @@ describe('useCourseEnrollmentUrl', () => {
     couponEndDate: dayjs().add(8, 'w').toISOString(),
   };
   const noLicenseEnrollmentInputs = {
-    enterpriseConfig: {
+    enterpriseCustomer: {
       uuid: 'foo',
     },
     courseRunKey: 'bar',
@@ -242,7 +241,7 @@ describe('useCourseEnrollmentUrl', () => {
   };
   // just skip the coupon codes here to ensure we process absence correctly
   const noCouponCodesEnrollmentInputs = {
-    enterpriseConfig: {
+    enterpriseCustomer: {
       uuid: 'foo',
     },
     courseRunKey: 'bar',
@@ -270,7 +269,7 @@ describe('useCourseEnrollmentUrl', () => {
     test('returns an lms url to DSC for enrollment with a license', () => {
       const { result } = renderHook(() => useCourseEnrollmentUrl(withLicenseEnrollmentInputs));
       expect(result.current).toContain(process.env.LMS_BASE_URL);
-      expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseConfig.uuid);
+      expect(result.current).toContain(withLicenseEnrollmentInputs.enterpriseCustomer.uuid);
       expect(result.current).toContain(withLicenseEnrollmentInputs.courseRunKey);
       expect(result.current).toContain(withLicenseEnrollmentInputs.userSubsidyApplicableToCourse.subsidyId);
     });
@@ -506,7 +505,6 @@ describe('useTrackSearchConversionClickHandler', () => {
     eventName: mockEventName,
   };
 
-  const mockEnterpriseConfig = { uuid: 'test-enterprise-uuid' };
   const mockCourseState = {
     activeCourseRun: { key: 'course-run-key' },
     algoliaSearchParams: {
@@ -516,11 +514,9 @@ describe('useTrackSearchConversionClickHandler', () => {
   };
   const wrapper = ({ children }) => (
     <IntlProvider locale="en">
-      <AppContext.Provider value={{ enterpriseConfig: mockEnterpriseConfig }}>
-        <CourseContext.Provider value={{ state: mockCourseState }}>
-          {children}
-        </CourseContext.Provider>
-      </AppContext.Provider>
+      <CourseContext.Provider value={{ state: mockCourseState }}>
+        {children}
+      </CourseContext.Provider>
     </IntlProvider>
   );
 
@@ -530,6 +526,7 @@ describe('useTrackSearchConversionClickHandler', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockenterpriseCustomer });
   });
 
   afterAll(() => {
@@ -549,7 +546,7 @@ describe('useTrackSearchConversionClickHandler', () => {
     expect(mockPreventDefault).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      mockEnterpriseConfig.uuid,
+      mockenterpriseCustomer.uuid,
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
@@ -578,7 +575,7 @@ describe('useTrackSearchConversionClickHandler', () => {
 
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledTimes(1);
     expect(sendEnterpriseTrackEvent).toHaveBeenCalledWith(
-      mockEnterpriseConfig.uuid,
+      mockenterpriseCustomer.uuid,
       mockEventName,
       {
         products: [{ objectID: mockCourseState.algoliaSearchParams.objectId }],
@@ -944,8 +941,8 @@ describe('useExtractAndRemoveSearchParamsFromURL', () => {
 
 describe('useCheckSubsidyAccessPolicyRedeemability', () => {
   const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ authenticatedUser: { userId: mockLmsUserId } }}>
-      <QueryClientProvider client={queryClient}>
+    <AppContext.Provider value={{ authenticatedUser: mockAuthenticatedUser }}>
+      <QueryClientProvider client={queryClient()}>
         {children}
       </QueryClientProvider>
     </AppContext.Provider>

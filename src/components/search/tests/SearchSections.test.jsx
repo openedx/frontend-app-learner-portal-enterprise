@@ -14,6 +14,7 @@ import Search, { sendPushEvent } from '../Search';
 import { EVENTS, pushEvent } from '../../../utils/optimizely';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useAlgoliaSearch } from '../../../utils/hooks';
+import { useEnterpriseFeatures } from '../../hooks';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -26,6 +27,11 @@ jest.mock('../../app/data', () => ({
   useContentHighlightsConfiguration: jest.fn(() => ({ data: {} })),
   useCanOnlyViewHighlights: jest.fn(() => ({ data: {} })),
   useIsAssignmentsOnlyLearner: jest.fn().mockReturnValue(false),
+}));
+
+jest.mock('../../hooks', () => ({
+  ...jest.requireActual('../../hooks'),
+  useEnterpriseFeatures: jest.fn(),
 }));
 
 jest.mock('../../../utils/hooks', () => ({
@@ -82,6 +88,7 @@ describe('<Search />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseFeatures.mockReturnValue({ data: { featurePrequerySearchSuggestions: false } });
     useAlgoliaSearch.mockReturnValue([{ search: jest.fn(), appId: 'test-app-id' }, { indexName: 'mock-index-name' }]);
   });
 
@@ -93,6 +100,7 @@ describe('<Search />', () => {
     );
     expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
   });
+
   test('renders the programe section with the correct title', () => {
     renderWithRouter(
       <SearchWrapper>
@@ -110,15 +118,16 @@ describe('<Search />', () => {
     );
     expect(screen.getByText('Pathways (2 results)')).toBeInTheDocument();
   });
+
   test('renders the course search component with the correct title', () => {
     renderWithRouter(
       <SearchWrapper>
         <Search />
       </SearchWrapper>,
     );
-
     expect(screen.getByText('Courses (2 results)')).toBeInTheDocument();
   });
+
   test('renders the program search component with the correct title', () => {
     renderWithRouter(
       <SearchWrapper

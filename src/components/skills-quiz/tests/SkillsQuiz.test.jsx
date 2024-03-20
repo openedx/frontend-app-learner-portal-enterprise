@@ -5,32 +5,28 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { camelCaseObject } from '@edx/frontend-platform';
+import { Factory } from 'rosie';
+
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
-
 import {
   renderWithRouter,
 } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
-
-const mockLocation = {
-  pathname: '/welcome',
-  hash: '',
-  search: '',
-  state: { activationSuccess: true },
-};
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => (mockLocation),
-}));
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
   hasFeatureFlagEnabled: jest.fn().mockReturnValue(false),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const defaultCouponCodesState = {
@@ -39,10 +35,9 @@ const defaultCouponCodesState = {
   couponCodesCount: 0,
 };
 
+const mockEnterpriseCustomer = camelCaseObject(Factory.build('enterpriseCustomer'));
+
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
@@ -76,8 +71,9 @@ const SkillsQuizWithContext = ({
 );
 
 describe('<SkillsQuiz />', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders skills quiz V1 page successfully.', () => {

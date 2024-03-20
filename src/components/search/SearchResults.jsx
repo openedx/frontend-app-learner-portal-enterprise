@@ -118,7 +118,10 @@ const SearchResults = ({
   );
 
   if (!isSearchStalled && nbHits === 0) {
-    return null;
+    if (contentType === CONTENT_TYPE_PATHWAY) {
+      return null;
+    }
+    return <SearchNoResults title={title} />;
   }
 
   return (
@@ -165,9 +168,6 @@ const SearchResults = ({
             </div>
           )}
         </>
-      )}
-      {!isSearchStalled && nbHits === 0 && getContentTypeFromTitle(title) !== CONTENT_TYPE_PATHWAY && (
-        <SearchNoResults title={title} />
       )}
       {!isSearchStalled && isDefinedAndNotNull(error) && showMessage(contentType, title) && (
         <SearchError title={title} />
