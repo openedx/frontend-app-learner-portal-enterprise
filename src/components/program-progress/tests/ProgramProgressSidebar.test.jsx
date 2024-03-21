@@ -4,17 +4,18 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import ProgramProgressSidebar from '../ProgramProgressSidebar';
-import { ProgramProgressContext } from '../ProgramProgressContextProvider';
 import { getProgramCertImage } from '../data/utils';
 import progSampleCertImage from '../images/sample-cert.png';
+import { useProgramProgressDetails } from '../../app/data';
 
-const ProgramProgressSideBarWithContext = ({
-  initialProgramProgressContext = {},
-}) => (
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useProgramProgressDetails: jest.fn(),
+}));
+
+const ProgramProgressSideBarWithContext = () => (
   <IntlProvider locale="en">
-    <ProgramProgressContext.Provider value={initialProgramProgressContext}>
-      <ProgramProgressSidebar />
-    </ProgramProgressContext.Provider>
+    <ProgramProgressSidebar />
   </IntlProvider>
 );
 
@@ -62,20 +63,23 @@ const testIndustryPathway = {
   destinationUrl: 'http://rit.edu/online/pathways/ritx-design-thinking',
 };
 
+const mockProgram = {
+  programData: testProgramData,
+  certificateData: [testProgramcertificate],
+  creditPathways: [],
+  industryPathways: [],
+  urls: testUrls,
+};
+
 describe('<ProgramProgressSideBar />', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    useProgramProgressDetails.mockReturnValue({ data: mockProgram });
+  });
   it('renders program certificate if it exists', () => {
-    const initialProgramProgressContext = {
-      programData: testProgramData,
-      certificateData: [testProgramcertificate],
-      creditPathways: [],
-      industryPathways: [],
-      urls: testUrls,
-    };
     const programCertImage = getProgramCertImage(testProgramData.type);
     const { container } = render(
-      <ProgramProgressSideBarWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressSideBarWithContext />,
     );
     expect(screen.getByText(`Your ${testProgramData.type} Certificate`)).toBeInTheDocument();
     expect(container.querySelector('img')).toHaveAttribute('src', programCertImage);
@@ -86,17 +90,16 @@ describe('<ProgramProgressSideBar />', () => {
   });
 
   it('renders course certificates with correct data', () => {
-    const initialProgramProgressContext = {
+    const mockMultipleCertificateData = {
       programData: testProgramData,
       certificateData: [testProgramcertificate, testCourseCertificate],
       creditPathways: [],
       industryPathways: [],
       urls: testUrls,
     };
+    useProgramProgressDetails.mockReturnValue({ data: mockMultipleCertificateData });
     const { container } = render(
-      <ProgramProgressSideBarWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressSideBarWithContext />,
     );
     expect(screen.getByText('Earned Certificates')).toBeInTheDocument();
     expect(screen.getByText(testProgramcertificate.title)).toBeInTheDocument();
@@ -108,17 +111,16 @@ describe('<ProgramProgressSideBar />', () => {
   });
 
   it('renders program record section correctly', () => {
-    const initialProgramProgressContext = {
+    const mockProgramRecordUrl = {
       programData: testProgramData,
       certificateData: [testProgramcertificate],
       creditPathways: [],
       industryPathways: [],
       urls: testUrlsWithProgramRecord,
     };
+    useProgramProgressDetails.mockReturnValue({ data: mockProgramRecordUrl });
     const { container } = render(
-      <ProgramProgressSideBarWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressSideBarWithContext />,
     );
     expect(container.querySelector('.program-record')).toBeInTheDocument();
     expect(container.querySelector('.divider-heading')).toHaveTextContent('Program Record');
@@ -126,17 +128,16 @@ describe('<ProgramProgressSideBar />', () => {
   });
 
   it('renders certificate pathways correctly', () => {
-    const initialProgramProgressContext = {
+    const mockCreditPathways = {
       programData: testProgramData,
       certificateData: [testProgramcertificate],
       creditPathways: [testCreditPathway],
       industryPathways: [],
       urls: testUrls,
     };
+    useProgramProgressDetails.mockReturnValue({ data: mockCreditPathways });
     const { container } = render(
-      <ProgramProgressSideBarWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressSideBarWithContext />,
     );
     expect(container.querySelector('.program-credit-pathways')).toBeInTheDocument();
     expect(screen.getByText('Additional Credit Opportunities')).toBeInTheDocument();
@@ -147,17 +148,16 @@ describe('<ProgramProgressSideBar />', () => {
   });
 
   it('renders industry pathways correctly', () => {
-    const initialProgramProgressContext = {
+    const mockIndustryPathway = {
       programData: testProgramData,
       certificateData: [testProgramcertificate],
       creditPathways: [],
       industryPathways: [testIndustryPathway],
       urls: testUrls,
     };
+    useProgramProgressDetails.mockReturnValue({ data: mockIndustryPathway });
     const { container } = render(
-      <ProgramProgressSideBarWithContext
-        initialProgramProgressContext={initialProgramProgressContext}
-      />,
+      <ProgramProgressSideBarWithContext />,
     );
     expect(container.querySelector('.program-industry-pathways')).toBeInTheDocument();
     expect(screen.getByText('Additional Professional Opportunities')).toBeInTheDocument();

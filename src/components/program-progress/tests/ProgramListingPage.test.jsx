@@ -4,7 +4,6 @@ import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramListingPage from '../ProgramListingPage';
 import { useLearnerProgramsListData } from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
@@ -69,23 +68,9 @@ jest.mock('../../app/data', () => ({
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const defaultUserSubsidyState = {
-  subscriptionLicense: {
-    uuid: 'test-license-uuid',
-  },
-  couponCodes: {
-    couponCodes: [],
-    couponCodesCount: 0,
-  },
-};
-
-const ProgramListingWithContext = ({
-  initialUserSubsidyState = defaultUserSubsidyState,
-}) => (
+const ProgramListingWithContext = () => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <ProgramListingPage />
-    </UserSubsidyContext.Provider>
+    <ProgramListingPage />
   </IntlProvider>
 );
 

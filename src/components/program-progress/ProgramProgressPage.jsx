@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import {
   breakpoints, Container, Row, MediaQuery,
@@ -7,38 +6,21 @@ import {
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { LoadingSpinner } from '../loading-spinner';
-import {
-  ProgramProgressContextProvider,
-} from './ProgramProgressContextProvider';
 import ProgramProgressHeader from './ProgramProgressHeader';
 import ProgramProgressSideBar from './ProgramProgressSidebar';
 import ProgramProgressCourses from './ProgramProgressCourses';
-
-import { useLearnerProgramProgressData } from './data/hooks';
 import {
   getCoursesEnrolledInAuditMode,
   getNotStartedEnrollableCourseRuns,
   getLastEndingCourseDate,
 } from './data/utils';
-
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
-import { useQuery } from "@tanstack/react-query";
-import { queryProgramDetails } from "../app/data";
-import useProgramProgressDetails from "../app/data/hooks/useProgramProgressDetails";
+import { useProgramProgressDetails } from '../app/data';
 
 const ProgramProgressPage = () => {
-  const { data: program, isError } = useProgramProgressDetails();
-  console.log(program,isError)
-  const initialState = useMemo(
-    () => {
-      if (!program) {
-        return undefined;
-      }
-      return program.data;
-    },
-    [program],
-  );
-  const courseData = program?.data?.courseData;
+  const { data: program, isError, isLoading } = useProgramProgressDetails();
+
+  const courseData = program?.courseData;
   /* eslint-disable no-unsafe-optional-chaining */
   const totalCoursesInProgram = courseData?.notStarted?.length
     + courseData?.completed?.length
@@ -71,88 +53,86 @@ const ProgramProgressPage = () => {
     return <ErrorPage />;
   }
 
-  if (!initialState) {
+  if (isLoading) {
     return (
       <Container size="lg" className="py-5">
         <LoadingSpinner screenReaderText="loading program progress" />
       </Container>
     );
   }
-  const PROGRAM_TITLE = `${initialState.programData.title}`;
+  const PROGRAM_TITLE = `${program.programData.title}`;
   return (
     <>
       <Helmet title={PROGRAM_TITLE} />
-      <ProgramProgressContextProvider initialState={initialState}>
-        <Container fluid={false} size="lg">
-          <ProgramProgressHeader />
-          <Row>
-            <article className="col-8">
-              {allCoursesCompleted
-                ? (
-                  <>
-                    <h3>
-                      <FormattedMessage
-                        id="enterprise.dashboard.programs.about.page.all.courses.completed.message"
-                        defaultMessage="Congratulations!"
-                        description="Message for all courses completed on programs about page"
-                      />
-                    </h3>
-                    <p>
-                      <FormattedMessage
-                        id="enterprise.dashboard.programs.about.page.all.course.requirements.completed.message"
-                        defaultMessage="You have successfully completed all the requirements for the {programTitle}."
-                        description="Message shown when a learner has completed all course requirements for a program."
-                        values={{
-                          programTitle: PROGRAM_TITLE,
-                        }}
-                      />
-                    </p>
-                  </>
-                )
-                : (
-                  <>
-                    <h3>
-                      <FormattedMessage
-                        id="enterprise.dashboard.programs.about.page.program.journey.message"
-                        defaultMessage="Your Program Journey"
-                        description="Message for program journey on programs about page"
-                      />
-                    </h3>
-                    <p>
-                      <FormattedMessage
-                        id="eenterprise.dashboard.programs.about.page.course.progress.tracking.message"
-                        defaultMessage="Track and plan your progress through the {totalCoursesInProgram} courses in this program."
-                        description="Message for courses progress tracking on programs about page"
-                        values={{
-                          totalCoursesInProgram,
-                        }}
-                      />
-                    </p>
-                    <p>
-                      <FormattedMessage
-                        id="enterprise.dashboard.programs.about.page.verified.certificate.message"
-                        defaultMessage="To complete the program, you must earn a verified certificate for each course."
-                        description="Message for verified certificate on programs about page"
-                      />
-                    </p>
-                  </>
-                )}
-              <SubsidiesSummary
-                totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
-                courseEndDate={courseEndDate}
-                programProgressPage
-              />
-              <ProgramProgressCourses courseData={courseData} />
-            </article>
-
-            <MediaQuery minWidth={breakpoints.large.minWidth}>
-              {matches => matches && (
-                <ProgramProgressSideBar />
+      <Container fluid={false} size="lg">
+        <ProgramProgressHeader />
+        <Row>
+          <article className="col-8">
+            {allCoursesCompleted
+              ? (
+                <>
+                  <h3>
+                    <FormattedMessage
+                      id="enterprise.dashboard.programs.about.page.all.courses.completed.message"
+                      defaultMessage="Congratulations!"
+                      description="Message for all courses completed on programs about page"
+                    />
+                  </h3>
+                  <p>
+                    <FormattedMessage
+                      id="enterprise.dashboard.programs.about.page.all.course.requirements.completed.message"
+                      defaultMessage="You have successfully completed all the requirements for the {programTitle}."
+                      description="Message shown when a learner has completed all course requirements for a program."
+                      values={{
+                        programTitle: PROGRAM_TITLE,
+                      }}
+                    />
+                  </p>
+                </>
+              )
+              : (
+                <>
+                  <h3>
+                    <FormattedMessage
+                      id="enterprise.dashboard.programs.about.page.program.journey.message"
+                      defaultMessage="Your Program Journey"
+                      description="Message for program journey on programs about page"
+                    />
+                  </h3>
+                  <p>
+                    <FormattedMessage
+                      id="eenterprise.dashboard.programs.about.page.course.progress.tracking.message"
+                      defaultMessage="Track and plan your progress through the {totalCoursesInProgram} courses in this program."
+                      description="Message for courses progress tracking on programs about page"
+                      values={{
+                        totalCoursesInProgram,
+                      }}
+                    />
+                  </p>
+                  <p>
+                    <FormattedMessage
+                      id="enterprise.dashboard.programs.about.page.verified.certificate.message"
+                      defaultMessage="To complete the program, you must earn a verified certificate for each course."
+                      description="Message for verified certificate on programs about page"
+                    />
+                  </p>
+                </>
               )}
-            </MediaQuery>
-          </Row>
-        </Container>
-      </ProgramProgressContextProvider>
+            <SubsidiesSummary
+              totalCoursesEligibleForCertificate={totalCoursesEligibleForCertificate}
+              courseEndDate={courseEndDate}
+              programProgressPage
+            />
+            <ProgramProgressCourses courseData={courseData} />
+          </article>
+
+          <MediaQuery minWidth={breakpoints.large.minWidth}>
+            {matches => matches && (
+              <ProgramProgressSideBar />
+            )}
+          </MediaQuery>
+        </Row>
+      </Container>
     </>
   );
 };

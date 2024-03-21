@@ -1,18 +1,19 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@openedx/paragon';
 import { v4 as uuidv4 } from 'uuid';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
-import { ProgramProgressContext } from './ProgramProgressContextProvider';
 
 import ProgramProgressCircle from './ProgramProgressCircle';
 import ProgramPathwayOpportunity from './ProgramPathwayOpportunity';
 import { getProgramCertImage } from './data/utils';
 import progSampleCertImage from './images/sample-cert.png';
+import { useProgramProgressDetails } from '../app/data';
 
 const ProgramProgressSideBar = () => {
+  const { data: program } = useProgramProgressDetails();
   const {
     programData, industryPathways, creditPathways, certificateData, urls: { programRecordUrl },
-  } = useContext(ProgramProgressContext);
+  } = program;
   const courseCertificates = useMemo(
     () => {
       if (certificateData) {

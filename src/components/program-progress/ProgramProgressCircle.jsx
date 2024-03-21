@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { ProgramProgressContext } from './ProgramProgressContextProvider';
 import {
   X_AXIS, Y_AXIS, CIRCLE_RADIUS, CIRCLE_DEGREES, STROKE_WIDTH, CIRCLE_LABEL,
 } from './data/constants';
+import { useProgramProgressDetails } from '../app/data';
 
 const CircleSegment = ({
   total, index, classList,
@@ -36,7 +36,8 @@ const CircleSegment = ({
 };
 
 const ProgramProgressCircle = () => {
-  const { programData, courseData } = useContext(ProgramProgressContext);
+  const { data: program } = useProgramProgressDetails();
+  const { programData, courseData } = program;
   const { inProgress, completed, notStarted } = courseData;
   const totalCourses = inProgress.length + completed.length + notStarted.length;
   const title = `${programData.type} Progress`;

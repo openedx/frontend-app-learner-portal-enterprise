@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { ProgramProgressContext } from './ProgramProgressContextProvider';
+import React from 'react';
 import { getProgramIcon } from './data/utils';
+import { useProgramProgressDetails } from '../app/data';
 
 const ProgramProgressHeader = () => {
-  const { programData } = useContext(ProgramProgressContext);
+  const { data: { programData } } = useProgramProgressDetails();
   const programIcon = getProgramIcon(programData.type);
 
   return (
