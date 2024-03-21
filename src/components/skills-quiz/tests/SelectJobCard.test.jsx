@@ -1,22 +1,33 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 import { useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const initialAppState = {
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
 const SelectJobCardWithContext = ({
   initialJobCardState = {},
-  initialAppState,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <SearchContext.Provider>
+      <SearchContext.Provider value={{}}>
         <SkillsContextProvider initialState={initialJobCardState}>
           <SelectJobCard />
         </SkillsContextProvider>
@@ -35,23 +46,16 @@ const MEDIAN_SALARY = 'Median U.S. Salary:';
 const JOB_POSTINGS = 'Job Postings:';
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-
-const initialAppState = {
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-};
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
+const mockEnterpriseCustomerWithHiddenLaborMarketData = enterpriseCustomerFactory({
+  hide_labor_market_data: true,
+});
 
 describe('<SelectJobCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
+
   test('renders job card', () => {
     const initialJobCardState = {
       interestedJobs: [{
@@ -67,7 +71,7 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
@@ -93,11 +97,8 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    const mockEnterpriseCustomerWithHiddenLaborMarketData = enterpriseCustomerFactory({
-      hide_labor_market_data: true,
-    });
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHiddenLaborMarketData });
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
         initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
@@ -134,9 +135,8 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
       />,
     );
@@ -161,9 +161,8 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardStateWithOutJobs}
       />,
     );
@@ -187,9 +186,8 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardStateWithOutSalary}
       />,
     );
@@ -204,9 +202,8 @@ describe('<SelectJobCard />', () => {
     const initialJobCardState = {
       interestedJobs: [],
     };
-    render(
+    renderWithRouter(
       <SelectJobCardWithContext
-        initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
       />,
     );

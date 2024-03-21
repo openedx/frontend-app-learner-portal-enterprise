@@ -4,12 +4,11 @@ import { screen } from '@testing-library/react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SkillsContextProvider } from '../../skills-quiz/SkillsContextProvider';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuizV2 from '../SkillsQuiz';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 // [tech debt] We appear to attempting to call legit Algolia APIs in these tests; lots
 // of test output related to Algolia errors. Does not appear to impact the test results.
@@ -29,27 +28,15 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test',
-  uuid: '12345',
-};
-
 const defaultAppState = {
   authenticatedUser: {
     userId: '123',
   },
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
 
 describe('<SkillsQuizV2 />', () => {
   beforeEach(() => {
@@ -63,11 +50,7 @@ describe('<SkillsQuizV2 />', () => {
         <SkillsContextProvider>
           <IntlProvider locale="en">
             <AppContext.Provider value={defaultAppState}>
-              <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-                <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-                  <SkillsQuizV2 />
-                </SubsidyRequestsContext.Provider>
-              </UserSubsidyContext.Provider>
+              <SkillsQuizV2 />
             </AppContext.Provider>
           </IntlProvider>,
         </SkillsContextProvider>

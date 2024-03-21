@@ -22,12 +22,12 @@ jest.mock('../../app/data', () => ({
 
 const SearchJobCardWithContext = ({
   index,
-  initialAppState,
+  appState = initialAppState,
   initialSearchState,
   initialJobsState,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
+    <AppContext.Provider value={appState}>
       <SearchContext.Provider value={initialSearchState}>
         <SkillsContextProvider initialState={initialJobsState}>
           <SearchJobCard index={index} />

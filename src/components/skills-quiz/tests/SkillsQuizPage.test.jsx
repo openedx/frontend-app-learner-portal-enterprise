@@ -5,12 +5,10 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { mergeConfig } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
 import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import SkillsQuizPage from '../SkillsQuizPage';
 import { useEnterpriseCustomer } from '../../app/data';
 import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -25,12 +23,6 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 const mockAuthenticatedUser = authenticatedUserFactory();
 
@@ -41,33 +33,23 @@ const defaultAppState = {
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SkillsQuizPageWithContext = ({
   initialAppState = defaultAppState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   enableSkillsQuiz = true,
 }) => {
   mergeConfig({
     ENABLE_SKILLS_QUIZ: enableSkillsQuiz,
   });
   return (
-    <IntlProvider locale="en">
-      <AppContext.Provider value={initialAppState}>
-        <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-          <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
+    <SearchData>
+      <SkillsContextProvider>
+        <IntlProvider locale="en">
+          <AppContext.Provider value={initialAppState}>
             <SkillsQuizPage />
-          </SubsidyRequestsContext.Provider>
-        </UserSubsidyContext.Provider>
-      </AppContext.Provider>
-    </IntlProvider>
+          </AppContext.Provider>
+        </IntlProvider>
+      </SkillsContextProvider>
+    </SearchData>
   );
 };
 
@@ -78,22 +60,14 @@ describe('SkillsQuizPage', () => {
   });
   it('should render SkillsQuiz', async () => {
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <SkillsQuizPageWithContext enableSkillsQuiz />
-        </SkillsContextProvider>
-      </SearchData>,
+      <SkillsQuizPageWithContext enableSkillsQuiz />,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.getByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).toBeInTheDocument();
   });
   it('should render null', async () => {
     renderWithRouter(
-      <SearchData>
-        <SkillsContextProvider>
-          <SkillsQuizPageWithContext enableSkillsQuiz={false} />
-        </SkillsContextProvider>
-      </SearchData>,
+      <SkillsQuizPageWithContext enableSkillsQuiz={false} />,
       { route: '/test/skills-quiz/' },
     );
     expect(screen.queryByText(SKILLS_QUIZ_SEARCH_PAGE_MESSAGE)).not.toBeInTheDocument();

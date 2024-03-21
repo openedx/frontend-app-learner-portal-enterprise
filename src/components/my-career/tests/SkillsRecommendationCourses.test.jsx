@@ -5,8 +5,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { renderWithRouter } from '../../../utils/tests';
 import SkillsRecommendationCourses from '../SkillsRecommendationCourses';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
@@ -96,18 +94,6 @@ const defaultSearchContext = {
   dispatch: () => null,
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: {
-    couponCodes: [],
-    loading: false,
-    couponCodesCount: 0,
-  },
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SkillsRecommendationCoursesWithContext = ({
   index = coursesIndex,
   subCategoryName = TEST_SUB_CATEGORY_NAME,
@@ -115,15 +101,11 @@ const SkillsRecommendationCoursesWithContext = ({
 }) => (
   <IntlProvider locale="en">
     <SearchContext.Provider value={defaultSearchContext}>
-      <UserSubsidyContext.Provider value={defaultUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-          <SkillsRecommendationCourses
-            index={index}
-            subCategoryName={subCategoryName}
-            subCategorySkills={subCategorySkills}
-          />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SkillsRecommendationCourses
+        index={index}
+        subCategoryName={subCategoryName}
+        subCategorySkills={subCategorySkills}
+      />
     </SearchContext.Provider>
   </IntlProvider>
 );

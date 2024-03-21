@@ -1,9 +1,10 @@
 import React from 'react';
-import { screen, render, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+import { renderWithRouter } from '@edx/frontend-enterprise-utils';
 
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SearchCurrentJobCard from '../SearchCurrentJobCard';
@@ -15,9 +16,14 @@ jest.mock('react-loading-skeleton', () => ({
   default: (props = {}) => <div data-testid={props['data-testid']} />,
 }));
 
+const initialAppState = {
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
 const SearchCurrentJobCardWithContext = ({
   index,
-  initialAppState,
   initialSearchState,
   initialJobsState,
 }) => (
@@ -59,12 +65,6 @@ const mockEnterpriseCustomerWithHiddenLaborMarketData = enterpriseCustomerFactor
   hide_labor_market_data: true,
 });
 
-const initialAppState = {
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-};
-
 const testIndex = {
   indexName: 'test-index-name',
   search: jest.fn().mockImplementation(() => Promise.resolve(hitObject)),
@@ -93,7 +93,7 @@ describe('<SearchCurrentJobCard />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   test('renders the data in job cards correctly', async () => {
-    render(
+    renderWithRouter(
       <SearchCurrentJobCardWithContext
         index={testIndex}
         initialAppState={initialAppState}
@@ -108,7 +108,7 @@ describe('<SearchCurrentJobCard />', () => {
 
   test('does not render salary data when hideLaborMarketData is true ', async () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHiddenLaborMarketData });
-    render(
+    renderWithRouter(
       <SearchCurrentJobCardWithContext
         index={testIndex}
         initialAppState={initialAppState}

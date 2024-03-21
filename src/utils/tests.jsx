@@ -6,6 +6,13 @@ import dayjs from 'dayjs';
 import { render } from '@testing-library/react';
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { queryCacheOnErrorHandler } from './common';
+import {
+  useCouponCodes,
+  useEnterpriseOffers,
+  useRedeemablePolicies,
+  useSubscriptions,
+} from '../components/app/data';
+import { useCatalogsForSubsidyRequests } from '../components/hooks';
 
 /**
  * TODO
@@ -119,3 +126,24 @@ export function queryClient(defaultOptions = {}) {
     },
   });
 }
+
+export const defaultSubsidyHooksData = {
+  mockRedeemablePolicies: [],
+  mockCatalogsForSubsidyRequest: [],
+  mockCurrentEnterpriseOffers: [],
+  mockSubscriptionLicense: null,
+  mockCouponCodeAssignments: [],
+};
+export const mockSubsidyHooksReturnValues = ({
+  mockRedeemablePolicies = [],
+  mockCatalogsForSubsidyRequest = [],
+  mockCurrentEnterpriseOffers = [],
+  mockSubscriptionLicense = null,
+  mockCouponCodeAssignments = [],
+}) => {
+  useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: mockRedeemablePolicies } });
+  useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: mockCatalogsForSubsidyRequest });
+  useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
+  useSubscriptions.mockReturnValue({ data: { subscriptionLicense: mockSubscriptionLicense } });
+  useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
+};

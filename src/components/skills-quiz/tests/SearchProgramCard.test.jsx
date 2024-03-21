@@ -7,40 +7,29 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchProgramCard from '../SearchProgramCard';
 import { renderWithRouter } from '../../../utils/tests';
 import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
-import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
-
-const userId = 'batman';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
-
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
-}));
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
 }));
-
 jest.mock('../../search', () => ({
   ...jest.requireActual('../../search'),
   useDefaultSearchFilters: jest.fn(),
 }));
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
@@ -78,10 +67,7 @@ const testIndex = {
 };
 
 const defaultAppState = {
-  authenticatedUser: {
-    username: 'b.wayne',
-    userId,
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultSearchContext = {
@@ -109,38 +95,19 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SearchProgramCardWithContext = ({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
   initialSearchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={defaultSubsidyRequestState}>
-          <SearchContext.Provider value={initialSearchContext}>
-            <SkillsContext.Provider value={initialSkillsState}>
-              <SearchProgramCard index={index} />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SearchContext.Provider value={initialSearchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SearchProgramCard index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );

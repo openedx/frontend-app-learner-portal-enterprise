@@ -5,7 +5,6 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SearchPathways from '../SearchPathways';
 import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContext } from '../SkillsContextProvider';
@@ -75,39 +74,19 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const SearchPathwaysWithContext = ({
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   initialSearchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
-    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-      <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-        <SearchContext.Provider value={initialSearchContext}>
-          <SkillsContext.Provider value={initialSkillsState}>
-            <SearchPathways index={index} />
-          </SkillsContext.Provider>
-        </SearchContext.Provider>
-      </SubsidyRequestsContext.Provider>
-    </UserSubsidyContext.Provider>
+    <SearchContext.Provider value={initialSearchContext}>
+      <SkillsContext.Provider value={initialSkillsState}>
+        <SearchPathways index={index} />
+      </SkillsContext.Provider>
+    </SearchContext.Provider>
   </IntlProvider>
 );
 

@@ -54,7 +54,7 @@ const propsForLoading = {
 const mockEnterpriseCustomer = {
   name: 'test-enterprise',
   slug: 'test-enterprise-slug',
-  uuid: '12345',
+  uuid: 'test-enterprise-uuid',
 };
 
 describe('<SearchCourseCard />', () => {

@@ -7,13 +7,11 @@ import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import SkillsCourses from '../SkillsCourses';
 import { renderWithRouter } from '../../../utils/tests';
 import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
@@ -93,39 +91,19 @@ const defaultSkillsState = {
   },
 };
 
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-};
-
-const defaultSubsidyRequestState = {
-  catalogsForSubsidyRequests: [],
-};
-
 const SkillsCoursesWithContext = ({
   initialAppState = defaultAppState,
   initialSkillsState = defaultSkillsState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
   searchContext = defaultSearchContext,
   index,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <SearchContext.Provider value={searchContext}>
-            <SkillsContext.Provider value={initialSkillsState}>
-              <SkillsCourses index={index} />
-            </SkillsContext.Provider>
-          </SearchContext.Provider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <SearchContext.Provider value={searchContext}>
+        <SkillsContext.Provider value={initialSkillsState}>
+          <SkillsCourses index={index} />
+        </SkillsContext.Provider>
+      </SearchContext.Provider>
     </AppContext.Provider>
   </IntlProvider>
 );
@@ -136,6 +114,7 @@ describe('<SkillsCourses />', () => {
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
     useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
+
   test('renders the correct data', async () => {
     const { container } = renderWithRouter(
       <SkillsCoursesWithContext

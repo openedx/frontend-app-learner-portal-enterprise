@@ -5,12 +5,9 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import ContentHighlightSet from '../ContentHighlightSet';
 import { renderWithRouter } from '../../../../utils/tests';
 import { useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test',
-  uuid: '12345',
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 jest.mock('../../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
