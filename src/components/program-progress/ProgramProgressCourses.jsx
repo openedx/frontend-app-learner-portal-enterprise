@@ -11,25 +11,19 @@ import {
   getCertificatePriceString,
   getEnrolledCourseRunDetails,
   getNotStartedCourseDetails,
-  hasLicenseOrCoupon,
 } from './data/utils';
 import { linkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
-import {
-  useBrowseAndRequest, useCouponCodes, useEnterpriseCustomer, useSubscriptions,
-} from '../app/data';
+import { useHasActiveSubsidy } from '../hooks';
+import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramProgressCourses = ({ courseData }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: { subscriptionPlan, subscriptionLicense } } = useSubscriptions();
-  const { data: { couponsOverview } } = useCouponCodes();
-  const { data: { requests: requestsBySubsidyType } } = useBrowseAndRequest();
-  const userHasLicenseOrCoupon = hasLicenseOrCoupon({
-    requestsBySubsidyType,
-    subscriptionPlan,
-    subscriptionLicense,
-    couponsOverview,
-  });
+  const {
+    hasActiveLicenseOrLicenseRequest,
+    hasAssignedCodesOrCodeRequests,
+  } = useHasActiveSubsidy();
+  const userHasLicenseOrCoupon = hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 
   let coursesCompleted = [];
   let coursesInProgress = [];
@@ -391,4 +385,5 @@ const ProgramProgressCourses = ({ courseData }) => {
 ProgramProgressCourses.propTypes = {
   courseData: PropTypes.shape([]).isRequired,
 };
+
 export default ProgramProgressCourses;

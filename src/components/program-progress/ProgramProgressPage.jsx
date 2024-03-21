@@ -15,7 +15,6 @@ import ProgramProgressSideBar from './ProgramProgressSidebar';
 import ProgramProgressCourses from './ProgramProgressCourses';
 
 import { useLearnerProgramProgressData } from './data/hooks';
-import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import {
   getCoursesEnrolledInAuditMode,
   getNotStartedEnrollableCourseRuns,

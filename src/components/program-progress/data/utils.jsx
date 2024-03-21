@@ -1,5 +1,4 @@
 import dayjs from '../../../utils/dayjs';
-import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { PROGRAM_TYPE_MAP } from '../../program/data/constants';
 
 import MicroMastersProgramDetailsSvgIcon from '../../../assets/icons/micromasters-program-details.svg';
@@ -184,18 +183,4 @@ export function getCoursesEnrolledInAuditMode(courses) {
     ))
   ));
   return courseRuns;
-}
-
-export function hasLicenseOrCoupon({
-  subscriptionPlan,
-  requestsBySubsidyType,
-  subscriptionLicense,
-  couponsOverview,
-}) {
-  const { subscriptionLicenses, couponCodes } = requestsBySubsidyType;
-  const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || subscriptionLicenses?.length > 0;
-  const hasAssignedCodesOrCodeRequests = couponsOverview.length > 0 || couponCodes.length > 0;
-
-  return hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 }

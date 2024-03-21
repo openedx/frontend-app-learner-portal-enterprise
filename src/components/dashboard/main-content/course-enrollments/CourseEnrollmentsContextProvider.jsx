@@ -22,16 +22,19 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
   } = useContext(SubsidyRequestsContext);
 
   const isSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
-  const requestedCourseEnrollments = useMemo(() => {
-    if (!isSubsidyRequestsEnabled) {
-      return [];
-    }
-    const requests = requestsBySubsidyType[subsidyRequestConfiguration.subsidyType];
-    return requests.map(subsidyRequest => transformSubsidyRequest({
-      subsidyRequest,
-      slug: enterpriseCustomer.slug,
-    }));
-  }, [isSubsidyRequestsEnabled, requestsBySubsidyType, subsidyRequestConfiguration.subsidyType, enterpriseCustomer.slug]);
+  const requestedCourseEnrollments = useMemo(
+    () => {
+      if (!isSubsidyRequestsEnabled) {
+        return [];
+      }
+      const requests = requestsBySubsidyType[subsidyRequestConfiguration.subsidyType];
+      return requests.map(subsidyRequest => transformSubsidyRequest({
+        subsidyRequest,
+        slug: enterpriseCustomer.slug,
+      }));
+    },
+    [isSubsidyRequestsEnabled, requestsBySubsidyType, subsidyRequestConfiguration.subsidyType, enterpriseCustomer.slug],
+  );
 
   const {
     courseEnrollmentsByStatus,
