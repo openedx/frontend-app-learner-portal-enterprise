@@ -19,7 +19,7 @@ import {
   fetchLearnerProgramsList,
   fetchInProgressPathways,
   fetchLearnerSkillLevels,
-  fetchAcademies,
+  fetchAcademies, fetchLearnerProgramProgressDetail,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -146,5 +146,12 @@ const user = createQueryKeys('user', {
   }),
 });
 
-const queries = mergeQueryKeys(enterprise, user);
+const program = createQueryKeys('program', {
+  detail: (programUUID) => ({
+    queryKey: [programUUID],
+    queryFn: async ({ queryKey }) => fetchLearnerProgramProgressDetail(queryKey[2]),
+  }),
+});
+
+const queries = mergeQueryKeys(enterprise, user, program);
 export default queries;

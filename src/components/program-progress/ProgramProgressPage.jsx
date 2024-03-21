@@ -22,11 +22,13 @@ import {
 } from './data/utils';
 
 import SubsidiesSummary from '../dashboard/sidebar/SubsidiesSummary';
+import { useQuery } from "@tanstack/react-query";
+import { queryProgramDetails } from "../app/data";
+import useProgramProgressDetails from "../app/data/hooks/useProgramProgressDetails";
 
 const ProgramProgressPage = () => {
-  const { programUUID } = useParams();
-  const [program, fetchError] = useLearnerProgramProgressData(programUUID);
-
+  const { data: program, isError } = useProgramProgressDetails();
+  console.log(program,isError)
   const initialState = useMemo(
     () => {
       if (!program) {
@@ -65,8 +67,8 @@ const ProgramProgressPage = () => {
 
     courseEndDate = getLastEndingCourseDate(subsidyEligibleCourseRuns);
   }
-  if (fetchError) {
-    return <ErrorPage message={fetchError.message} />;
+  if (isError) {
+    return <ErrorPage />;
   }
 
   if (!initialState) {

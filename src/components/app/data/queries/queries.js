@@ -298,3 +298,15 @@ export function queryCouponCodeRequests(enterpriseUuid, userEmail, state = SUBSI
     ._ctx.requests(userEmail, state)
     ._ctx.couponCodeRequests;
 }
+
+/**
+ * Helper function to assist querying with useQuery package
+ *
+ * @param programUUID
+ * @returns {Types.QueryOptions}
+ */
+export function queryProgramDetails(programUUID) {
+  return queries
+    .program
+    .detail(programUUID);
+}

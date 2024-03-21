@@ -81,7 +81,6 @@ export default function createAppRouter(queryClient) {
               const { ProgramProgressPage } = await import('../../program-progress');
               return {
                 Component: ProgramProgressPage,
-                // TODO: Requires a new Program loader with fetchAllProgramData
               };
             }}
             errorElement={(
