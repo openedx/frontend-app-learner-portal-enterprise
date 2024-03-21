@@ -26,23 +26,41 @@ We'll use [Rosie](https://github.com/rosiejs/rosie) as a tool for building JavaS
 Our main use case for Rosie is to use factories in order to mock the data we'd like to fetch when rendering components.
 [axios-mock-adapter](https://www.npmjs.com/package/axios-mock-adapter) allows us to mock the response of an HTTP request.
 
-For example, we may use a factory to build a course metadata object:
+For example, we may use a factory to define an enterprise customer factory:
 
-`const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');`
+```js
+const mockEnterpriseCustomer = Factory.build('enterpriseCustomer');
+```
 
-Then we'd pass that `courseMetadata` object into an axios mock call:
+Then, we can use `mockEnterpriseCustomer` for mocking returned data from hooks:
 
-`axiosMock.onGet('example.com').reply(200, mockEnterpriseCustomer);`
+```js
+jest.mock('./path/to/hooks', () => ({
+  ...jest.requireActual('./path/to/hooks'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+```
+
+Alternatively, the mocked data could be used with an axios mock call:
+
+```js
+axiosMock.onGet('example.com').reply(200, mockEnterpriseCustomer);`
+```
 
 This way, when a component sends a GET request to `example.com` within the test's lifecycle, the request will be intercepted
 by the `axios-mock-adapter`, and the `mockEnterpriseCustomer` object will be returned.
 
-These factories should live within the data directories they intend to mock
+These factories should live within the data directories they intend to mock:
+
 ```
-app
+| app
   | data
-      | __factories__
-          | enterpriseCustomeruser.factory.js /* used to define the Rosie factory */
+    | services
+      | data
+        | __factories__
+          | enterpriseCustomerUser.factory.js /* used to define the Rosie factory */
 ```
 
 ## What to Test
