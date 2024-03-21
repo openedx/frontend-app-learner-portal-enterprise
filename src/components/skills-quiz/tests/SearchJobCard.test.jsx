@@ -20,6 +20,12 @@ jest.mock('../../app/data', () => ({
   useEnterpriseCustomer: jest.fn(),
 }));
 
+const initialAppState = {
+  config: {
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+  },
+};
+
 const SearchJobCardWithContext = ({
   index,
   appState = initialAppState,
@@ -60,12 +66,6 @@ const hitObject = {
 };
 
 const mockEnterpriseCustomer = enterpriseCustomerFactory();
-
-const initialAppState = {
-  config: {
-    LMS_BASE_URL: process.env.LMS_BASE_URL,
-  },
-};
 
 const testIndex = {
   indexName: 'test-index-name',

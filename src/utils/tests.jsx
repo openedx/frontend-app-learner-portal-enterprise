@@ -2,17 +2,9 @@ import React, { isValidElement } from 'react';
 import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { render } from '@testing-library/react';
+import { render } from '@testing-library/react'; // eslint-disable-line import/no-extraneous-dependencies
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { queryCacheOnErrorHandler } from './common';
-import {
-  useCouponCodes,
-  useEnterpriseOffers,
-  useRedeemablePolicies,
-  useSubscriptions,
-} from '../components/app/data';
-import { useCatalogsForSubsidyRequests } from '../components/hooks';
 
 /**
  * TODO

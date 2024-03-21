@@ -8,7 +8,6 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import SearchPathways from '../SearchPathways';
 import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContext } from '../SkillsContextProvider';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { useDefaultSearchFilters } from '../../search';
 import { useEnterpriseCustomer } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
