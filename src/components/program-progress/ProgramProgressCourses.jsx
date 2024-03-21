@@ -17,7 +17,6 @@ import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
 import { useHasActiveSubsidy } from '../hooks';
 import { useEnterpriseCustomer } from '../app/data';
-
 const ProgramProgressCourses = ({ courseData }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
@@ -31,7 +30,6 @@ const ProgramProgressCourses = ({ courseData }) => {
   let coursesNotStarted = [];
 
   const intl = useIntl();
-
   const courseAboutPageURL = (course) => getLinkToCourse(course, enterpriseCustomer.slug);
   const courseSponsoredByEnterprise = intl.formatMessage(
     {
