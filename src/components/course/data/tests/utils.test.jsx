@@ -30,7 +30,7 @@ import {
   getMissingApplicableSubsidyReason,
 } from '../utils';
 
-jest.mock('@edx/frontend-platform/config', () => ({
+jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),
   getConfig: () => ({
     LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL: 'https://limits.url',

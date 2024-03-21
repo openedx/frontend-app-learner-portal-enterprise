@@ -49,6 +49,6 @@ describe('<CourseRecommendations />', () => {
     renderWithRouter(<CourseRecommendationsContext />);
     const courseRecommendationsButton = screen.getByText('Recommend courses for me');
     userEvent.click(courseRecommendationsButton);
-    expect(window.location.pathname).toEqual('/BearsRUs/skills-quiz');
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/skills-quiz`);
   });
 });

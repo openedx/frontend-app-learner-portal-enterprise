@@ -17,7 +17,8 @@ import {
   CONTENT_TYPE_PROGRAM,
   PATHWAY_TITLE, CONTENT_TYPE_PATHWAY, NUM_RESULTS_PATHWAY,
 } from '../constants';
-import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
+import { TEST_IMAGE_URL } from './constants';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 import {
   queryClient,
@@ -61,10 +62,11 @@ const searchContext = {
   dispatch: () => null,
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const initialAppState = {
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const SearchResultsWithContext = (props) => (
@@ -183,12 +185,6 @@ const propsForNoResults = {
   hitComponent: SearchCourseCard,
   title: COURSE_TITLE,
   contentType: CONTENT_TYPE_COURSE,
-};
-
-const mockEnterpriseCustomer = {
-  name: 'BearsRUs',
-  slug: TEST_ENTERPRISE_SLUG,
-  uuid: 'test-enterprise-uuid',
 };
 
 describe('<SearchResults />', () => {
@@ -329,7 +325,11 @@ describe('<SearchResults />', () => {
 
   test('does not render an alert in case of no results for pathways', () => {
     const propsForNoResultsPathway = {
-      ...propsForNoResults, hitComponent: SearchPathwayCard, title: PATHWAY_TITLE, contentType: CONTENT_TYPE_PATHWAY,
+      ...propsForNoResults,
+      hitComponent: SearchPathwayCard,
+      title: PATHWAY_TITLE,
+      contentType: CONTENT_TYPE_PATHWAY,
+      isPathwaySearchResults: true,
     };
     const noResultsMessage = getNoResultsMessage(PATHWAY_TITLE);
     renderWithRouter(

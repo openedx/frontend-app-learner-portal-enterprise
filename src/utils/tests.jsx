@@ -126,24 +126,3 @@ export function queryClient(defaultOptions = {}) {
     },
   });
 }
-
-export const defaultSubsidyHooksData = {
-  mockRedeemablePolicies: [],
-  mockCatalogsForSubsidyRequest: [],
-  mockCurrentEnterpriseOffers: [],
-  mockSubscriptionLicense: null,
-  mockCouponCodeAssignments: [],
-};
-export const mockSubsidyHooksReturnValues = ({
-  mockRedeemablePolicies = [],
-  mockCatalogsForSubsidyRequest = [],
-  mockCurrentEnterpriseOffers = [],
-  mockSubscriptionLicense = null,
-  mockCouponCodeAssignments = [],
-}) => {
-  useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: mockRedeemablePolicies } });
-  useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: mockCatalogsForSubsidyRequest });
-  useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
-  useSubscriptions.mockReturnValue({ data: { subscriptionLicense: mockSubscriptionLicense } });
-  useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
-};
