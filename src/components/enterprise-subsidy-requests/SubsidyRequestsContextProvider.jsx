@@ -8,22 +8,18 @@ import {
 import { LoadingSpinner } from '../loading-spinner';
 import { useCatalogsForSubsidyRequests } from '../hooks';
 import { LOADING_SCREEN_READER_TEXT, SUBSIDY_TYPE } from '../../constants';
-import { useBrowseAndRequestConfiguration, useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer } from '../app/data';
 
 export const SubsidyRequestsContext = createContext();
 
 const SubsidyRequestsContextProvider = ({ children }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
 
-  // const {
-  //   subsidyRequestConfiguration,
-  //   isLoading: isLoadingSubsidyRequestConfiguration,
-  // } = useSubsidyRequestConfiguration(enterpriseCustomer.uuid);
-  //
   const {
-    data: subsidyRequestConfiguration,
+    subsidyRequestConfiguration,
     isLoading: isLoadingSubsidyRequestConfiguration,
-  } = useBrowseAndRequestConfiguration();
+  } = useSubsidyRequestConfiguration(enterpriseCustomer.uuid);
+
   const {
     couponCodeRequests,
     licenseRequests,

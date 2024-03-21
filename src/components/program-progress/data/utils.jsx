@@ -8,7 +8,6 @@ import XSeriesProgramDetailsSvgIcon from '../../../assets/icons/xseries-program-
 import progCertMicroMaster from '../images/program-certificate-micromasters.gif';
 import progCertProfessionalCert from '../images/program-certificate-professional-certificate.gif';
 import progCertXSeries from '../images/program-certificate-xseries.gif';
-import { SUBSIDY_TYPE } from '../../../constants';
 
 export function getProgramIcon(type) {
   switch (type) {
@@ -191,14 +190,12 @@ export function hasLicenseOrCoupon({
   subscriptionPlan,
   requestsBySubsidyType,
   subscriptionLicense,
-  couponCodesCount,
+  couponsOverview,
 }) {
-  const licenseRequests = requestsBySubsidyType[SUBSIDY_TYPE.LICENSE];
-  const couponCodeRequests = requestsBySubsidyType[SUBSIDY_TYPE.COUPON];
-
+  const { subscriptionLicenses, couponCodes } = requestsBySubsidyType;
   const hasActiveLicenseOrLicenseRequest = (subscriptionPlan
-    && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || licenseRequests.length > 0;
-  const hasAssignedCodesOrCodeRequests = couponCodesCount > 0 || couponCodeRequests.length > 0;
+    && subscriptionLicense?.status === LICENSE_STATUS.ACTIVATED) || subscriptionLicenses?.length > 0;
+  const hasAssignedCodesOrCodeRequests = couponsOverview.length > 0 || couponCodes.length > 0;
 
   return hasActiveLicenseOrLicenseRequest || hasAssignedCodesOrCodeRequests;
 }
