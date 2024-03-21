@@ -4,8 +4,18 @@ import PropTypes from 'prop-types';
  * Individual title component of ErrorPage component parent.
  * Includes default styling for error pages.
  */
-const ErrorPageTitle = ({ children }) => (
-  <h2 className="text-danger mb-4">{children}</h2>
+const ErrorPageTitle = ({ children, spannedTitle }) => (
+  <h2 className="text-danger mb-4">
+    {children}
+    {spannedTitle && (
+      <>
+        {' '}
+        <span className="text-primary">
+          {spannedTitle}
+        </span>
+      </>
+    )}
+  </h2>
 );
 
 ErrorPageTitle.propTypes = {

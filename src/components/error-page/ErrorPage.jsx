@@ -16,6 +16,7 @@ import ErrorPageContent from './ErrorPageContent';
 
 const ErrorPage = ({
   title,
+  spannedTitle,
   subtitle,
   showSiteHeader,
   showSiteFooter,
@@ -23,6 +24,7 @@ const ErrorPage = ({
   errorPageContentClassName,
   testId,
   includeHelmet,
+  imageSrc,
 }) => (
   <>
     {includeHelmet && <Helmet title="Error | edX" />}
@@ -30,7 +32,16 @@ const ErrorPage = ({
     <main id="content" className="fill-vertical-space" data-testid={testId}>
       <ErrorPageContent className={errorPageContentClassName}>
         <Col xs={12} lg={{ span: 10, offset: 1 }}>
-          <ErrorPageTitle>{title}</ErrorPageTitle>
+          {imageSrc && (
+            <img
+              src={imageSrc}
+              alt="" // image is decorative only; not pertinent to screen readers.
+              className="mb-4.5"
+            />
+          )}
+          {title && (
+            <ErrorPageTitle spannedTitle={spannedTitle}>{title}</ErrorPageTitle>
+          )}
           {subtitle && (
             <ErrorPageSubtitle>{subtitle}</ErrorPageSubtitle>
           )}
@@ -50,21 +61,25 @@ ErrorPage.propTypes = {
   showSiteHeader: PropTypes.bool,
   children: PropTypes.node.isRequired,
   title: PropTypes.node,
+  spannedTitle: PropTypes.node,
   subtitle: PropTypes.node,
   showSiteFooter: PropTypes.bool,
   errorPageContentClassName: PropTypes.string,
   testId: PropTypes.string,
   includeHelmet: PropTypes.bool,
+  imageSrc: PropTypes.string,
 };
 
 ErrorPage.defaultProps = {
   title: 'Error occurred while processing your request',
+  spannedTitle: null,
   subtitle: null,
   showSiteHeader: true,
   showSiteFooter: true,
   errorPageContentClassName: undefined,
   testId: undefined,
   includeHelmet: false,
+  imageSrc: undefined,
 };
 
 export default ErrorPage;

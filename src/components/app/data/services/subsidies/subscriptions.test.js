@@ -239,15 +239,16 @@ describe('activateOrAutoApplySubscriptionLicense', () => {
       licensesByStatus: mockLicensesByStatus,
     };
     axiosMock.onPost(ACTIVATE_LICENSE_URL).reply(200, {});
+    const mockRequestUrl = {
+      pathname: isLicenseActivationRoute
+        ? `/${mockEnterpriseSlug}/licenses/${mockLicenseActivationKey}/activate`
+        : `/${mockEnterpriseSlug}`,
+    };
     try {
       const response = await activateOrAutoApplySubscriptionLicense({
         enterpriseCustomer: mockEnterpriseCustomer,
         subscriptionsData: mockSubscriptionsData,
-        requestUrl: {
-          pathname: isLicenseActivationRoute
-            ? `/${mockEnterpriseSlug}/licenses/${mockLicenseActivationKey}/activate`
-            : `/${mockEnterpriseSlug}`,
-        },
+        requestUrl: mockRequestUrl,
         allLinkedEnterpriseCustomerUsers: [{
           enterpriseCustomer: mockEnterpriseCustomer,
         }],

@@ -30,11 +30,11 @@ export default function createAppRouter(queryClient) {
           lazy={async () => {
             const {
               default: EnterpriseInviteRoute,
-              enterpriseInviteLoader,
+              makeEnterpriseInviteLoader,
             } = await import('./EnterpriseInviteRoute');
             return {
               Component: EnterpriseInviteRoute,
-              loader: enterpriseInviteLoader,
+              loader: makeEnterpriseInviteLoader(),
             };
           }}
         />
@@ -105,6 +105,15 @@ export default function createAppRouter(queryClient) {
                 showSiteFooter={false}
               />
             )}
+          />
+          <Route
+            path="licenses/:activationKey/activate"
+            lazy={async () => {
+              const { default: LicenseActivationRoute } = await import('./LicenseActivationRoute');
+              return {
+                Component: LicenseActivationRoute,
+              };
+            }}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
