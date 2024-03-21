@@ -1,15 +1,15 @@
 import React from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { screen, render, act } from '@testing-library/react';
+import { screen, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import ProgramPage from '../ProgramPage';
 import { useAllProgramData } from '../data/hooks';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from '../data/constants';
-
-const waitForAsync = () => new Promise((resolve) => { setImmediate(resolve); });
+import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const programData = {
   title: 'Test Program Title',
@@ -42,6 +42,11 @@ jest.mock('../data/hooks', () => ({
   useAllProgramData: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const ProgramWithContext = ({
   initialAppState = {},
   initialUserSubsidyState = {},
@@ -55,39 +60,38 @@ const ProgramWithContext = ({
   </IntlProvider>
 );
 
-describe('<Program />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      name: 'Test Enterprise',
-    },
-    authenticatedUser: {
-      username: 'b.wayne',
-    },
-  };
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
-  const initialUserSubsidyState = {
-    subscriptionLicense: {
-      uuid: 'test-license-uuid',
-    },
-    couponCodes: {
-      couponCodes: [],
-      couponCodesCount: 0,
-    },
-  };
+const initialAppState = {
+  authenticatedUser: mockAuthenticatedUser,
+};
+
+const initialUserSubsidyState = {
+  subscriptionLicense: {
+    uuid: 'test-license-uuid',
+  },
+  couponCodes: {
+    couponCodes: [],
+    couponCodesCount: 0,
+  },
+};
+
+describe('<Program />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
 
   test('renders program.', async () => {
     useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
-
-    await act(async () => {
-      render(
-        <ProgramWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-      await waitForAsync();
-
+    render(
+      <ProgramWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    await waitFor(() => {
       expect(screen.getByText('About this program')).toBeInTheDocument();
       expect(screen.getByText('Test program marketing hook')).toBeInTheDocument();
     });
@@ -108,15 +112,13 @@ describe('<Program />', () => {
     programData.catalogContainsProgram = false;
     useAllProgramData.mockImplementation(() => ([{ programDetails: programData }, null]));
 
-    await act(async () => {
-      render(
-        <ProgramWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-      await waitForAsync();
-
+    render(
+      <ProgramWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    await waitFor(() => {
       expect(screen.getByText(PROGRAM_NOT_FOUND_TITLE)).toBeInTheDocument();
       expect(screen.getByText(PROGRAM_NOT_FOUND_MESSAGE)).toBeInTheDocument();
     });
@@ -124,16 +126,13 @@ describe('<Program />', () => {
 
   test('handle invalid data.', async () => {
     useAllProgramData.mockImplementation(() => ([null, null]));
-
-    await act(async () => {
-      render(
-        <ProgramWithContext
-          initialAppState={initialAppState}
-          initialUserSubsidyState={initialUserSubsidyState}
-        />,
-      );
-      await waitForAsync();
-
+    render(
+      <ProgramWithContext
+        initialAppState={initialAppState}
+        initialUserSubsidyState={initialUserSubsidyState}
+      />,
+    );
+    await waitFor(() => {
       expect(screen.getByText('loading program')).toBeInTheDocument();
     });
   });

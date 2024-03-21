@@ -41,7 +41,7 @@ describe('fetchEnterpriseOffers', () => {
     };
     axiosMock.onGet(ENTERPRISE_OFFERS_URL).reply(200, enterpriseOffers);
     const result = await fetchEnterpriseOffers(mockEnterpriseId);
-    expect(result).toEqual(enterpriseOffers);
+    expect(result).toEqual(enterpriseOffers.results);
   });
 });
 

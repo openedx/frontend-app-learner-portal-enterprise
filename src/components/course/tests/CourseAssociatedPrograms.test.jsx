@@ -11,17 +11,23 @@ import { initialAppState } from '../../../utils/tests';
 import { CourseContextProvider } from '../CourseContextProvider';
 import CourseAssociatedPrograms from '../CourseAssociatedPrograms';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
   hasFeatureFlagEnabled: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
 const baseSubsidyRequestContextValue = {
   catalogsForSubsidyRequests: [],
 };
 
-const INITIAL_APP_STATE = initialAppState({});
+const INITIAL_APP_STATE = initialAppState();
 
 const CourseAssociatedProgramsWithCourseContext = ({
   initialState,
@@ -49,6 +55,10 @@ CourseAssociatedProgramsWithCourseContext.defaultProps = {
 };
 
 describe('<CourseAssociatedPrograms />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+  });
   const initialState = {
     course: {
       programs: [

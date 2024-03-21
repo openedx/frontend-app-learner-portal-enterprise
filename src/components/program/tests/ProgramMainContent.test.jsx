@@ -6,10 +6,16 @@ import '@testing-library/jest-dom/extend-expect';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { ProgramContextProvider } from '../ProgramContextProvider';
 import ProgramMainContent from '../ProgramMainContent';
+import { useEnterpriseCustomer } from '../../app/data';
 
 jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
   useParams: jest.fn().mockReturnValue({ programUuid: '00000000-0000-0000-0000-000000000000' }),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const ProgramMainContentWithContext = ({
@@ -27,10 +33,12 @@ const ProgramMainContentWithContext = ({
 );
 
 describe('<ProgramMainContent />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: { uuid: 'test-enterprise-uuid' } });
+  });
+
   const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-    },
     authenticatedUser: {
       username: 'b.wayne',
     },

@@ -21,7 +21,6 @@ const UnenrollModal = ({
   onClose,
   onSuccess,
 }) => {
-  // const { removeCourseEnrollment } = useContext(CourseEnrollmentsContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const { addToast } = useContext(ToastsContext);
   const queryClient = useQueryClient();
@@ -35,24 +34,25 @@ const UnenrollModal = ({
   };
 
   const handleUnenrollButtonClick = async () => {
+    setBtnState('pending');
     try {
-      setBtnState('pending');
       await unenrollFromCourse({ courseId: courseRunId });
-      const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
-      const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
-      // Optimistically remove the unenrolled course from the list of enrollments in
-      // the cache for the `queryEnterpriseCourseEnrollments` query.
-      queryClient.setQueryData(
-        enrollmentsQueryKey,
-        existingEnrollments.filter((enrollment) => enrollment.courseRunId !== courseRunId),
-      );
-      addToast('You have been unenrolled from the course.');
-      onSuccess();
     } catch (err) {
       logError(err);
       setError(err);
       setBtnState('default');
+      return;
     }
+    const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+    const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
+    // Optimistically remove the unenrolled course from the list of enrollments in
+    // the cache for the `queryEnterpriseCourseEnrollments` query.
+    queryClient.setQueryData(
+      enrollmentsQueryKey,
+      existingEnrollments.filter((enrollment) => enrollment.courseRunId !== courseRunId),
+    );
+    addToast('You have been unenrolled from the course.');
+    onSuccess();
   };
 
   return (

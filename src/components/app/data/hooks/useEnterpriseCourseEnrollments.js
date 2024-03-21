@@ -16,7 +16,7 @@ import { COURSE_STATUSES } from '../../../../constants';
 /**
  * Retrieves the relevant enterprise course enrollments, subsidy requests (e.g., license
  * requests), and content assignments for the active enterprise customer user.
- * @returns {Types.UseQueryResult}} The query results.
+ * @returns {Types.UseQueryResult} The query results.
  */
 export default function useEnterpriseCourseEnrollments() {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
@@ -46,7 +46,10 @@ export default function useEnterpriseCourseEnrollments() {
         if (!Array.isArray(value)) {
           return;
         }
-        transformedAssignments[key] = value.map(transformLearnerContentAssignment);
+        transformedAssignments[key] = value.map((item) => transformLearnerContentAssignment(
+          item,
+          enterpriseCustomer.slug,
+        ));
       });
       return transformedAssignments;
     },

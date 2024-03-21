@@ -6,6 +6,7 @@ import { waitFor } from '@testing-library/react';
 
 import useNProgressLoader from './useNProgressLoader';
 import useNotices from './useNotices';
+import { authenticatedUserFactory } from '../services/data/__factories__';
 
 jest.mock('./useNotices');
 
@@ -20,17 +21,19 @@ jest.mock('react-router-dom', () => ({
   useFetchers: jest.fn(),
 }));
 
-const defaultAppContextValue = {
-  authenticatedUser: {
-    userId: 3,
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockHydratedAuthenticatedUser = authenticatedUserFactory({
+  extended_profile: {
+    extra_metadata: true,
   },
+});
+
+const defaultAppContextValue = {
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const appContextValueWithHydratedUser = {
-  authenticatedUser: {
-    userId: 3,
-    profileImage: 'profileImage',
-  },
+  authenticatedUser: mockHydratedAuthenticatedUser,
 };
 
 describe('useNProgressLoader', () => {

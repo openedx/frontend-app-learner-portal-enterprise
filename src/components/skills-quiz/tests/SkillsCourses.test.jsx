@@ -6,27 +6,29 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import SkillsCourses from '../SkillsCourses';
 
+import SkillsCourses from '../SkillsCourses';
 import { renderWithRouter } from '../../../utils/tests';
-import { TEST_IMAGE_URL, TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { TEST_IMAGE_URL } from '../../search/tests/constants';
 import { NO_COURSES_ALERT_MESSAGE_AGAINST_SKILLS } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { useEnterpriseCustomer } from '../../app/data';
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(() => ({ data: { subscriptionLicense: null } })),
-  useRedeemablePolicies: jest.fn(() => ({ data: { redeemablePolicies: [] } })),
-  useCouponCodes: jest.fn(() => ({ data: { couponCodeAssignments: [] } })),
-  useEnterpriseOffers: jest.fn(() => ({ data: { currentEnterpriseOffers: [] } })),
-  useBrowseAndRequestConfiguration: jest.fn(() => ({ data: {} })),
-}));
+import { useDefaultSearchFilters } from '../../search';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 const TEST_COURSE_KEY = 'test-course-key';
@@ -55,6 +57,8 @@ const testIndex = {
   indexName: 'test-index-name',
   search: jest.fn().mockImplementation(() => Promise.resolve(courses)),
 };
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 const defaultAppState = {
   authenticatedUser: {
@@ -94,7 +98,6 @@ const SkillsCoursesWithContext = ({
   index,
 }) => (
   <IntlProvider locale="en">
-
     <AppContext.Provider value={initialAppState}>
       <SearchContext.Provider value={searchContext}>
         <SkillsContext.Provider value={initialSkillsState}>
@@ -105,15 +108,11 @@ const SkillsCoursesWithContext = ({
   </IntlProvider>
 );
 
-const mockEnterpriseCustomer = {
-  slug: 'test-enterprise-slug',
-  uuid: 'test-enterprise-uuid',
-};
-
 describe('<SkillsCourses />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
 
   test('renders the correct data', async () => {
@@ -137,7 +136,7 @@ describe('<SkillsCourses />', () => {
     });
 
     userEvent.click(screen.getByTestId('skills-quiz-course-card'));
-    expect(window.location.pathname).toContain(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
+    expect(window.location.pathname).toContain(`/${mockEnterpriseCustomer.slug}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders an alert in case of no courses returned', async () => {

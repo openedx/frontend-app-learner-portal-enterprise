@@ -23,7 +23,7 @@ import {
 import {
   getActiveCourseRun,
   getAvailableCourseRuns,
-  linkToCourse,
+  getLinkToCourse,
   pathContainsCourseTypeSlug,
   getCourseTypeConfig,
   getEntitlementPrice,
@@ -35,7 +35,7 @@ import NotFoundPage from '../NotFoundPage';
 import { CourseEnrollmentsContextProvider } from '../dashboard/main-content/course-enrollments';
 import { UserSubsidyContext } from '../enterprise-user-subsidy/UserSubsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
-import { useSearchCatalogs } from '../search/data/hooks';
+import { useSearchCatalogs } from '../search/data';
 import { useEnterpriseCuration } from '../search/content-highlights/data';
 import CoursePageRoutes from './routes/CoursePageRoutes';
 import { useEnterpriseCustomer } from '../app/data';
@@ -227,7 +227,7 @@ const CoursePage = () => {
         courseState.course.courseType,
       )
     ) {
-      const newUrl = linkToCourse(
+      const newUrl = getLinkToCourse(
         courseState.course,
         enterpriseSlug,
       );

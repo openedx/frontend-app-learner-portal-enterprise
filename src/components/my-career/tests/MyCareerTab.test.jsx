@@ -3,16 +3,13 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 
 import * as hooks from '../data/hooks';
-
 import { renderWithRouter } from '../../../utils/tests';
 import MyCareerTab from '../MyCareerTab';
-import { POLICY_TYPES } from '../../enterprise-user-subsidy/enterprise-offers/data/constants';
-import { SUBSIDY_TYPE } from '../../../constants';
+import { useEnterpriseCustomer, useIsAssignmentsOnlyLearner, useLearnerSkillLevels } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-platform/i18n', () => ({
   ...jest.requireActual('@edx/frontend-platform/i18n'),
@@ -24,36 +21,19 @@ jest.mock('plotly.js-dist', () => {});
 
 jest.mock('../data/hooks', () => ({
   usePlotlySpiderChart: jest.fn(),
-  useLearnerSkillLevels: jest.fn(),
-  useLearnerProfileData: jest.fn(),
 }));
 
-const testUserProfileData = {
-  username: 'edx',
-  id: 23,
-  extended_profile: [
-    {
-      field_name: 'enterprise_learner_current_job',
-      field_value: 27,
-    },
-  ],
-};
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useLearnerSkillLevels: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn(),
+}));
 
-const userDataNoCurrentJob = {
-  username: 'edx',
-  id: 23,
-  extended_profile: [
-    {
-      field_name: 'enterprise_learner_current_job',
-      field_value: null,
-    },
-  ],
-};
-
-hooks.useLearnerProfileData.mockReturnValue([
-  camelCaseObject(testUserProfileData),
-  null,
-]);
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
+}));
 
 hooks.usePlotlySpiderChart.mockReturnValue({});
 
@@ -102,137 +82,100 @@ hooks.usePlotlySpiderChart.mockReturnValue({
   },
 });
 
-hooks.useLearnerSkillLevels.mockReturnValue([
-  {
-    id: 27,
-    name: 'Applications developer',
-    skillCategories: [
-      {
-        id: 1,
-        name: 'Information Technology',
-        skills: [
-          { id: 78, name: 'Query Languages', score: null },
-          { id: 79, name: 'MongoDB', score: null },
-          { id: 81, name: 'Technology Roadmap', score: null },
-          { id: 83, name: 'Sprint Planning', score: null },
-          { id: 84, name: 'Blocker Resolution', score: null },
-          { id: 85, name: 'Technical Communication', score: null },
-        ],
-        skillsSubcategories: [
-          {
-            id: 1,
-            name: 'Databases',
-            skills: [
-              { id: 78, name: 'Query Languages', score: null },
-              { id: 79, name: 'MongoDB', score: null },
-            ],
-          },
-          {
-            id: 2,
-            name: 'IT Management',
-            skills: [
-              { id: 81, name: 'Technology Roadmap', score: null },
-              { id: 83, name: 'Sprint Planning', score: null },
-              { id: 84, name: 'Blocker Resolution', score: null },
-              { id: 85, name: 'Technical Communication', score: null },
-            ],
-          },
-        ],
-        userScore: 0,
-        edxAverageScore: null,
-      },
-      {
-        id: 2,
-        name: 'Business',
-        skills: [
-          { id: 80, name: 'Need Assesment', score: null },
-          { id: 82, name: 'Comprehension', score: null },
-        ],
-        skillsSubcategories: [
-          {
-            id: 6,
-            name: 'Sales',
-            skills: [{ id: 80, name: 'Need Assesment', score: null }],
-          },
-          {
-            id: 7,
-            name: 'Communication',
-            skills: [{ id: 82, name: 'Comprehension', score: null }],
-          },
-        ],
-        userScore: 0,
-        edxAverageScore: null,
-      },
-    ],
-  },
-  null,
-]);
+const mockLearnerSkillsData = {
+  id: 27,
+  name: 'Applications developer',
+  skillCategories: [
+    {
+      id: 1,
+      name: 'Information Technology',
+      skills: [
+        { id: 78, name: 'Query Languages', score: null },
+        { id: 79, name: 'MongoDB', score: null },
+        { id: 81, name: 'Technology Roadmap', score: null },
+        { id: 83, name: 'Sprint Planning', score: null },
+        { id: 84, name: 'Blocker Resolution', score: null },
+        { id: 85, name: 'Technical Communication', score: null },
+      ],
+      skillsSubcategories: [
+        {
+          id: 1,
+          name: 'Databases',
+          skills: [
+            { id: 78, name: 'Query Languages', score: null },
+            { id: 79, name: 'MongoDB', score: null },
+          ],
+        },
+        {
+          id: 2,
+          name: 'IT Management',
+          skills: [
+            { id: 81, name: 'Technology Roadmap', score: null },
+            { id: 83, name: 'Sprint Planning', score: null },
+            { id: 84, name: 'Blocker Resolution', score: null },
+            { id: 85, name: 'Technical Communication', score: null },
+          ],
+        },
+      ],
+      userScore: 0,
+      edxAverageScore: null,
+    },
+    {
+      id: 2,
+      name: 'Business',
+      skills: [
+        { id: 80, name: 'Need Assesment', score: null },
+        { id: 82, name: 'Comprehension', score: null },
+      ],
+      skillsSubcategories: [
+        {
+          id: 6,
+          name: 'Sales',
+          skills: [{ id: 80, name: 'Need Assesment', score: null }],
+        },
+        {
+          id: 7,
+          name: 'Communication',
+          skills: [{ id: 82, name: 'Comprehension', score: null }],
+        },
+      ],
+      userScore: 0,
+      edxAverageScore: null,
+    },
+  ],
+};
 
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
-const mockAuthenticatedUser = { username: 'edx', name: 'John Doe' };
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const defaultAppState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise',
-  },
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const defaultSubsidyRequestState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-};
-
-const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
-};
-
-const expiringSubscriptionUserSubsidyState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
-  subscriptionPlan: {
-    daysUntilExpiration: 60,
-  },
-  showExpirationNotifications: false,
-  couponCodes: defaultCouponCodesState,
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [{
-      policyType: POLICY_TYPES.PER_LEARNER_CREDIT,
-    }],
-    learnerContentAssignments: [],
-  },
-};
-
 const MyCareerTabWithContext = ({
+  learnerCurrentJobID = 27,
   initialAppState = defaultAppState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
-  initialUserSubsidyState = expiringSubscriptionUserSubsidyState,
 }) => (
   <IntlProvider locale="en">
     <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <MyCareerTab jobId={27} />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
+      <MyCareerTab learnerCurrentJobID={learnerCurrentJobID} />
     </AppContext.Provider>
   </IntlProvider>
 );
 
 describe('<MyCareerTab />', () => {
   global.URL.createObjectURL = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useLearnerSkillLevels.mockReturnValue({ data: mockLearnerSkillsData });
+    useIsAssignmentsOnlyLearner.mockReturnValue(false);
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
+  });
 
   it('renders the VisualizeCareer component when learner has a current job', () => {
     renderWithRouter(<MyCareerTabWithContext />);
@@ -243,24 +186,14 @@ describe('<MyCareerTab />', () => {
   });
 
   it('renders the AddJobRole when learner doesnt have any current job', () => {
-    hooks.useLearnerProfileData.mockReturnValue([camelCaseObject(userDataNoCurrentJob), null, false]);
-    renderWithRouter(<MyCareerTabWithContext />);
-  });
-
-  it('renders the LoadingSpinner component when data is not loaded yet', () => {
-    hooks.useLearnerProfileData.mockReturnValue([null, null, true]);
-    renderWithRouter(<MyCareerTabWithContext />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    useLearnerSkillLevels.mockReturnValue({ data: { skillCategories: [] } });
+    renderWithRouter(<MyCareerTabWithContext learnerCurrentJobID={null} />);
+    expect(screen.getByRole('button', { name: 'Add Role', exact: false })).toBeInTheDocument();
   });
 
   it('renders the ErrorPage component when there is problem loading data', () => {
-    hooks.useLearnerProfileData.mockReturnValue([
-      null,
-      {
-        status: 'Error loading data',
-      },
-      false,
-    ]);
+    useLearnerSkillLevels.mockReturnValue({ data: null, error: { status: 'Error loading data' } });
     renderWithRouter(<MyCareerTabWithContext />);
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
   });
 });

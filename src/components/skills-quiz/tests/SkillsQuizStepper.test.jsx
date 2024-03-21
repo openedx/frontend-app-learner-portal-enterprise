@@ -1,3 +1,7 @@
+// [tech debt] Several warnings/errors output related to
+// "Cannot log after tests are done. Did you forget to wait
+// for something async in your test" and Algolia.
+
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +12,7 @@ import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { renderWithRouter } from '../../../utils/tests';
+import edxLogo from '../images/edx-logo.svg';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { SkillsContext, SkillsContextProvider } from '../SkillsContextProvider';
 import {
@@ -18,20 +23,9 @@ import {
   GOAL_DROPDOWN_DEFAULT_OPTION,
   INDUSTRY_FACET,
 } from '../constants';
-
-import edxLogo from '../images/edx-logo.svg';
 import { useEnterpriseCustomer } from '../../app/data';
 import { useDefaultSearchFilters } from '../../search';
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('../../search', () => ({
-  ...jest.requireActual('../../search'),
-  useDefaultSearchFilters: jest.fn(),
-}));
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -46,11 +40,24 @@ jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   removeFromRefinementArray: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const defaultAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: { username: 'myspace-tom' },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultSearchContext = {
@@ -97,12 +104,6 @@ const SkillsQuizStepperWrapper = ({
     </AppContext.Provider>,
   </IntlProvider>
 );
-
-const mockEnterpriseCustomer = {
-  name: 'BearsRUs',
-  slug: 'BearsRYou',
-  uuid: 'UnBearable',
-};
 
 describe('<SkillsQuizStepper />', () => {
   beforeEach(() => {

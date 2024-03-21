@@ -1,16 +1,17 @@
 import { renderHook } from '@testing-library/react-hooks';
 import '@testing-library/jest-dom/extend-expect';
-import {
-  useSearchCatalogs,
-} from '.';
+import useSearchCatalogs from './useSearchCatalogs';
 import { LICENSE_STATUS } from '../../../enterprise-user-subsidy/data/constants';
 import { features } from '../../../../config';
 import {
+  useCouponCodes,
   useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useRedeemablePolicies,
+  useSubscriptions,
 } from '../../../app/data';
-import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues } from '../../../../utils/tests';
-
-const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+import { useCatalogsForSubsidyRequests } from '../../../hooks';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
@@ -40,21 +41,21 @@ jest.mock('../../../../config', () => ({
   features: { ENROLL_WITH_CODES: true },
 }));
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test',
-  uuid: TEST_ENTERPRISE_UUID,
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
+const mockCouponCodeCatalog = 'test-coupon-code-catalog-uuid';
+const mockEnterpriseOfferCatalog = 'test-enterprise-offer-catalog-uuid';
+const mockPolicyCatalog = 'test-policy-catalog-uuid';
 
 describe('useSearchCatalogs', () => {
-  const mockSubscriptionCatalog = 'test-subscription-catalog-uuid';
-  const mockCouponCodeCatalog = 'test-coupon-code-catalog-uuid';
-  const mockEnterpriseOfferCatalog = 'test-enterprise-offer-catalog-uuid';
-  const mockPolicyCatalog = 'test-policy-catalog-uuid';
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+    useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: [] } });
+    useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: [] });
+    useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: [] } });
+    useSubscriptions.mockReturnValue({ data: { subscriptionLicense: [] } });
+    useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: [] } });
   });
 
   it.each('should include catalog from subscription (%s)', ({ isSubscriptionPlanExpired }) => {
@@ -64,7 +65,9 @@ describe('useSearchCatalogs', () => {
         enterpriseCatalogUuid: mockSubscriptionCatalog,
       },
     };
-    mockSubsidyHooksReturnValues({ mockSubscriptionLicense });
+    useSubscriptions.mockReturnValue({
+      data: { subscriptionLicense: mockSubscriptionLicense },
+    });
     const { result } = renderHook((() => useSearchCatalogs()));
     if (isSubscriptionPlanExpired) {
       expect(result.current).toEqual([]);
@@ -86,7 +89,7 @@ describe('useSearchCatalogs', () => {
         available: !isCouponExpired,
       },
     ];
-    mockSubsidyHooksReturnValues({ mockCouponCodeAssignments });
+    useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
     const { result } = renderHook(() => useSearchCatalogs());
     if (isCouponExpired) {
       expect(result.current).toEqual([]);
@@ -97,12 +100,8 @@ describe('useSearchCatalogs', () => {
 
   it('should not include catalogs from coupon codes if features.ENROLL_WITH_CODES = false', () => {
     features.ENROLL_WITH_CODES = false;
-    const mockCouponCodeAssignments = [
-      {
-        catalog: mockCouponCodeCatalog,
-      },
-    ];
-    mockSubsidyHooksReturnValues({ mockCouponCodeAssignments });
+    const mockCouponCodeAssignments = [{ catalog: mockCouponCodeCatalog }];
+    useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
     const { result } = renderHook(() => useSearchCatalogs());
     expect(result.current).toEqual([]);
   });
@@ -110,7 +109,7 @@ describe('useSearchCatalogs', () => {
   it('should include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true', () => {
     features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = true;
     const mockCurrentEnterpriseOffers = [{ enterpriseCatalogUuid: mockEnterpriseOfferCatalog }];
-    mockSubsidyHooksReturnValues({ mockCurrentEnterpriseOffers });
+    useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
     const { result } = renderHook(() => useSearchCatalogs());
     expect(result.current).toEqual([mockEnterpriseOfferCatalog]);
   });
@@ -118,14 +117,14 @@ describe('useSearchCatalogs', () => {
   it('should not include catalogs from enterprise offers if features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = false', () => {
     features.FEATURE_ENROLL_WITH_ENTERPRISE_OFFERS = false;
     const mockCurrentEnterpriseOffers = [{ enterpriseCatalogUuid: mockEnterpriseOfferCatalog }];
-    mockSubsidyHooksReturnValues({ mockCurrentEnterpriseOffers });
+    useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
     const { result } = renderHook(() => useSearchCatalogs());
     expect(result.current).toEqual([]);
   });
 
   it('should include catalogs for browse and request', () => {
     const mockCatalogsForSubsidyRequest = ['test-catalog-uuid-1', 'test-catalog-uuid-2'];
-    mockSubsidyHooksReturnValues({ mockCatalogsForSubsidyRequest });
+    useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: mockCatalogsForSubsidyRequest });
     const { result } = renderHook(() => useSearchCatalogs());
     expect(result.current).toEqual(mockCatalogsForSubsidyRequest);
   });
@@ -151,7 +150,7 @@ describe('useSearchCatalogs', () => {
       active: !isPolicyExpired,
       catalogUuid: mockPolicyCatalog,
     }] : [];
-    mockSubsidyHooksReturnValues({ mockRedeemablePolicies });
+    useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: mockRedeemablePolicies } });
     const { result } = renderHook(() => useSearchCatalogs());
 
     if (!hasDefinedPolicies) {

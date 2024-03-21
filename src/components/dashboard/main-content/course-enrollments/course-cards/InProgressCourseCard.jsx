@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
+import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import dayjs from '../../../../../utils/dayjs';
@@ -13,6 +14,7 @@ import Notification from './Notification';
 import { UpgradeableCourseEnrollmentContext } from '../UpgradeableCourseEnrollmentContextProvider';
 import UpgradeCourseButton from './UpgradeCourseButton';
 import { useEnterpriseCustomer } from '../../../../app/data';
+import { useUpdateCourseEnrollmentStatus } from '../data';
 
 export const InProgressCourseCard = ({
   linkToCourse,
@@ -30,17 +32,15 @@ export const InProgressCourseCard = ({
     licenseUpgradeUrl,
     couponUpgradeUrl,
   } = useContext(UpgradeableCourseEnrollmentContext);
+  const navigate = useNavigate();
 
   // The upgrade button is only for upgrading via coupon, upgrades via license are automatic through the course link.
   const shouldShowUpgradeButton = !!couponUpgradeUrl;
 
-  // const {
-  //   updateCourseEnrollmentStatus,
-  //   setShowMarkCourseCompleteSuccess,
-  // } = useContext(CourseEnrollmentsContext);
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const { courseCards } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
 
   const renderButtons = () => (
     <>
@@ -106,7 +106,6 @@ export const InProgressCourseCard = ({
     );
   };
 
-  // eslint-disable-next-line no-unused-vars
   const handleMarkCompleteModalOnSuccess = ({ response, resetModalState }) => {
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
@@ -117,15 +116,18 @@ export const InProgressCourseCard = ({
     );
     setIsMarkCompleteModalOpen(false);
     resetModalState();
-    // updateCourseEnrollmentStatus(
-    //   {
-    //     courseRunId: response.courseRunId,
-    //     originalStatus: courseRunStatus,
-    //     newStatus: response.courseRunStatus,
-    //     savedForLater: response.savedForLater,
-    //   },
-    // );
-    // setShowMarkCourseCompleteSuccess(true);
+    updateCourseEnrollmentStatus({
+      courseRunId: response.courseRunId,
+      newStatus: response.courseRunStatus,
+      savedForLater: response.savedForLater,
+    });
+    navigate('.', {
+      replace: true,
+      state: {
+        markedSavedForLaterSuccess: true,
+        markedInProgressSuccess: false,
+      },
+    });
   };
 
   const renderNotifications = () => {

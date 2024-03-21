@@ -47,8 +47,8 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ enterpriseSlug: 'test-enterprise-uuid', academyUUID: ACADEMY_UUID }),
 }));
-jest.mock('@edx/frontend-platform/config', () => ({
-  ...jest.requireActual('@edx/frontend-platform/config'),
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
   getConfig: jest.fn(() => APP_CONFIG),
 }));
 jest.mock('@edx/frontend-platform/auth');

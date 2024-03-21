@@ -9,7 +9,7 @@ import { CourseContext } from '../../CourseContextProvider';
 import {
   useOptimizelyEnrollmentClickHandler,
   useTrackSearchConversionClickHandler,
-} from '../../data/hooks';
+} from '../../data';
 
 /**
  * ToEcom page component implemention for Enroll Button.

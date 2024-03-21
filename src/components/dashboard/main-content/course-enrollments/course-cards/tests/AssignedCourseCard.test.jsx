@@ -1,9 +1,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { AppContext } from '@edx/frontend-platform/react';
 
-import { CourseEnrollmentsContext } from '../../CourseEnrollmentsContextProvider';
 import AssignedCourseCard from '../AssignedCourseCard';
 import { UserSubsidyContext } from '../../../../../enterprise-user-subsidy';
 import { renderWithRouter } from '../../../../../../utils/tests';
@@ -13,19 +11,19 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+jest.mock('../../../../../app/data', () => ({
+  ...jest.requireActual('../../../../../app/data'),
+  useEnterpriseCustomer: jest.fn().mockReturnValue({ data: { uuid: 123 } }),
+}));
+
 const basicProps = {
   title: 'edX Demonstration Course',
   linkToCourse: 'https://edx.org',
-  courseStatus: 'upcoming',
+  courseRunStatus: 'upcoming',
   courseRunId: 'my+course+key',
   courseKey: 'my+course+key',
   notifications: [],
   mode: 'executive-education',
-};
-const initialAppContextValueState = {
-  enterpriseConfig: {
-    uuid: 123,
-  },
 };
 
 const initialUserSubsidyContextValue = {
@@ -33,24 +31,13 @@ const initialUserSubsidyContextValue = {
     couponCodes: [],
   },
 };
-
-const initialCourseEnrollmentsContextValue = {
-  updateCourseEnrollmentStatus: jest.fn(),
-  setShowMarkCourseCompleteSuccess: jest.fn(),
-};
 const AssignedCourseCardWrapper = ({
-  appContextValue = initialAppContextValueState,
   userSubsidyContextValue = initialUserSubsidyContextValue,
-  courseEnrollmentsContextValue = initialCourseEnrollmentsContextValue,
   ...rest
 }) => (
-  <AppContext.Provider value={appContextValue}>
-    <UserSubsidyContext.Provider value={userSubsidyContextValue}>
-      <CourseEnrollmentsContext.Provider value={courseEnrollmentsContextValue}>
-        <AssignedCourseCard {...rest} />
-      </CourseEnrollmentsContext.Provider>
-    </UserSubsidyContext.Provider>
-  </AppContext.Provider>
+  <UserSubsidyContext.Provider value={userSubsidyContextValue}>
+    <AssignedCourseCard {...rest} />
+  </UserSubsidyContext.Provider>
 );
 
 describe('<AssignedCourseCard />', () => {

@@ -12,12 +12,6 @@ import { renderWithRouter } from '../../../utils/tests';
 import { TEST_ENTERPRISE_SLUG, TEST_IMAGE_URL } from './constants';
 import { useEnterpriseCustomer } from '../../app/data';
 
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
-}));
-
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
   useEnterpriseCustomer: jest.fn(),
@@ -65,8 +59,13 @@ const mockEnterpriseCustomer = {
 
 describe('<SearchCourseCard />', () => {
   beforeEach(() => {
-    mockedNavigate.mockClear();
+    jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+
+    // reset the router history between tests
+    beforeEach(() => {
+      window.history.pushState({}, '', '/');
+    });
   });
 
   test('renders the correct data', () => {
@@ -89,7 +88,7 @@ describe('<SearchCourseCard />', () => {
     renderWithRouter(<SearchCourseCardWithAppContext {...defaultProps} />);
     const cardEl = screen.getByTestId('search-course-card');
     userEvent.click(cardEl);
-    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}?`, { state: undefined });
+    expect(window.location.pathname).toEqual(`/${TEST_ENTERPRISE_SLUG}/course/${TEST_COURSE_KEY}`);
   });
 
   test('renders the loading state', () => {
@@ -102,7 +101,7 @@ describe('<SearchCourseCard />', () => {
     // does not do anything when clicked
     const cardEl = screen.getByTestId('search-course-card');
     userEvent.click(cardEl);
-    expect(mockedNavigate).not.toHaveBeenCalled();
+    expect(window.location.pathname).toEqual('/');
   });
 
   test('render course_length field in place of course text', () => {

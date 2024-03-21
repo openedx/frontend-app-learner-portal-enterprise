@@ -1,20 +1,17 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import ContentHighlightSet from '../ContentHighlightSet';
 import { renderWithRouter } from '../../../../utils/tests';
 import { useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
 
 jest.mock('../../../app/data', () => ({
-  ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
 }));
-
-const defaultAppContextValue = {
-  authenticatedUser: { username: 'test-username' },
-};
 
 const mockHighlightSetTitle = 'Test Highlight Set';
 const mockHighlightedContentItemTitle = 'Demonstration Course';
@@ -33,23 +30,11 @@ const mockHighlightSet = {
   title: mockHighlightSetTitle,
 };
 
-const ContentHighlightSetWrapper = ({
-  appContextValue = defaultAppContextValue,
-  highlightSet = mockHighlightSet,
-  ...rest
-}) => (
+const ContentHighlightSetWrapper = ({ ...props }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={appContextValue}>
-      <ContentHighlightSet highlightSet={highlightSet} {...rest} />
-    </AppContext.Provider>
+    <ContentHighlightSet {...props} />
   </IntlProvider>
 );
-
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test-enterprise-slug',
-  uuid: 'test-enterprise-uuid',
-};
 
 describe('ContentHighlightSet', () => {
   beforeEach(() => {
@@ -58,7 +43,7 @@ describe('ContentHighlightSet', () => {
   });
 
   it('renders stuff', () => {
-    renderWithRouter(<ContentHighlightSetWrapper />);
+    renderWithRouter(<ContentHighlightSetWrapper {...mockHighlightSet} />);
 
     expect(screen.getByText(mockHighlightSetTitle)).toBeInTheDocument();
     expect(screen.getByText(mockHighlightedContentItemTitle)).toBeInTheDocument();

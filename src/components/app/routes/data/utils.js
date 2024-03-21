@@ -188,13 +188,16 @@ export function redirectToRemoveTrailingSlash(requestUrl) {
   throw redirect(requestUrl.pathname.slice(0, -1));
 }
 
-configureLogging(NewRelicLoggingService, {
-  config: getConfig(),
-});
-configureAuth(AxiosJwtAuthService, {
-  loggingService: getLoggingService(),
-  config: getConfig(),
-});
+// Configure the logging and authentication services, only for non-test environments.
+if (process.env.NODE_ENV !== 'test') {
+  configureLogging(NewRelicLoggingService, {
+    config: getConfig(),
+  });
+  configureAuth(AxiosJwtAuthService, {
+    loggingService: getLoggingService(),
+    config: getConfig(),
+  });
+}
 
 /**
  * Ensures that the user is authenticated. If not, redirects to the login page.

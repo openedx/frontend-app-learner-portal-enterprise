@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import {
@@ -100,8 +100,6 @@ const SearchPathwayCard = ({
     );
     if (isAcademyPathway) {
       openLearnerPathwayModal();
-    } else {
-      navigate(linkToPathway);
     }
   };
 
@@ -121,6 +119,8 @@ const SearchPathwayCard = ({
         data-testid="search-pathway-card"
         isClickable
         isLoading={isLoading}
+        as={Link}
+        to={isAcademyPathway ? undefined : linkToPathway}
         onClick={handleCardClick}
         variant="dark"
         {...rest}
@@ -131,12 +131,12 @@ const SearchPathwayCard = ({
           alt=""
         />
         <Card.Header
-          title={(
+          title={pathway.title && (
             <Truncate lines={3}>{pathway.title}</Truncate>
           )}
         />
-        <Card.Section>
-          {pathway.skillNames && (
+        {pathway.skillNames && (
+          <Card.Section>
             <Stack direction="horizontal" gap={2} className="flex-wrap">
               {filterSkillNames(pathway.skillNames).slice(0, MAX_VISIBLE_SKILLS_PATHWAY).map(skillName => (
                 <Badge
@@ -147,8 +147,8 @@ const SearchPathwayCard = ({
                 </Badge>
               ))}
             </Stack>
-          )}
-        </Card.Section>
+          </Card.Section>
+        )}
       </Card>
     </>
   );

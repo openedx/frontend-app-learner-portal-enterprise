@@ -36,8 +36,16 @@ jest.mock('@edx/frontend-platform/logging', () => ({
 jest.mock('../Root', () => jest.fn());
 jest.mock('../Layout', () => jest.fn());
 
-jest.mock('./DashboardRoute', () => jest.fn(() => <div data-testid="dashboard" />));
-jest.mock('./SearchRoute', () => jest.fn(() => <div data-testid="search" />));
+jest.mock('../../dashboard', () => ({
+  ...jest.requireActual('../../dashboard'),
+  DashboardPage: jest.fn(() => <div data-testid="dashboard" />),
+  makeDashboardLoader: jest.fn(),
+}));
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  SearchPage: jest.fn(() => <div data-testid="search" />),
+  makeSearchLoader: jest.fn(),
+}));
 jest.mock('./CourseRoute', () => jest.fn(() => <div data-testid="course" />));
 jest.mock('../../NotFoundPage', () => jest.fn(() => <div data-testid="not-found" />));
 

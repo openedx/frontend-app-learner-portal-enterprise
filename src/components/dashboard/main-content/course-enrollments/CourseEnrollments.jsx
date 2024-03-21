@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'universal-cookie';
+import { useLocation } from 'react-router-dom';
 import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 
 import CourseSection from './CourseSection';
@@ -24,9 +25,42 @@ function useIsFirstDashboardVisit() {
   return isFirstVisit;
 }
 
+function useSaveForLaterAlerts() {
+  const { state } = useLocation();
+  const [shouldShowMarkSavedForLaterCourseSuccess, setShouldShowMarkSavedForLaterCourseSuccess] = useState(false);
+  const [shouldShowMoveToInProgressCourseSuccess, setShouldShowMoveToInProgressCourseSuccess] = useState(false);
+
+  useEffect(() => {
+    if (state?.markedSavedForLaterSuccess) {
+      setShouldShowMarkSavedForLaterCourseSuccess(true);
+    } else {
+      setShouldShowMarkSavedForLaterCourseSuccess(false);
+    }
+  }, [state?.markedSavedForLaterSuccess]);
+
+  useEffect(() => {
+    if (state?.markedInProgressSuccess) {
+      setShouldShowMoveToInProgressCourseSuccess(true);
+    } else {
+      setShouldShowMoveToInProgressCourseSuccess(false);
+    }
+  }, [state?.markedInProgressSuccess]);
+
+  return {
+    shouldShowMarkSavedForLaterCourseSuccess,
+    setShouldShowMarkSavedForLaterCourseSuccess,
+    shouldShowMoveToInProgressCourseSuccess,
+    setShouldShowMoveToInProgressCourseSuccess,
+  };
+}
+
 const CourseEnrollments = ({ children }) => {
   const intl = useIntl();
-  const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
+  const {
+    data: {
+      allEnrollmentsByStatus,
+    },
+  } = useEnterpriseCourseEnrollments();
 
   const {
     hasCourseEnrollments,
@@ -45,22 +79,12 @@ const CourseEnrollments = ({ children }) => {
 
   const isFirstVisit = useIsFirstDashboardVisit();
 
-  function useSaveForLater() {
-    const [showMarkCourseCompleteSuccess, setShowMarkCourseCompleteSuccess] = useState(false);
-    const [showMoveToInProgressCourseSuccess, setShowMoveToInProgressCourseSuccess] = useState(false);
-    return {
-      showMarkCourseCompleteSuccess,
-      showMoveToInProgressCourseSuccess,
-      setShowMarkCourseCompleteSuccess,
-      setShowMoveToInProgressCourseSuccess,
-    };
-  }
   const {
-    showMarkCourseCompleteSuccess,
-    showMoveToInProgressCourseSuccess,
-    setShowMarkCourseCompleteSuccess,
-    setShowMoveToInProgressCourseSuccess,
-  } = useSaveForLater();
+    shouldShowMarkSavedForLaterCourseSuccess,
+    setShouldShowMarkSavedForLaterCourseSuccess,
+    shouldShowMoveToInProgressCourseSuccess,
+    setShouldShowMoveToInProgressCourseSuccess,
+  } = useSaveForLaterAlerts();
 
   // If there are no enrollments or assignments, render the children. This
   // allows the parent component to customize what gets displayed as empty
@@ -89,8 +113,8 @@ const CourseEnrollments = ({ children }) => {
             })}
             isAcknowledgingAssignments={isAcknowledgingAssignments}
           />
-          {showMarkCourseCompleteSuccess && (
-            <CourseEnrollmentsAlert variant="success" onClose={() => setShowMarkCourseCompleteSuccess(false)}>
+          {shouldShowMarkSavedForLaterCourseSuccess && (
+            <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMarkSavedForLaterCourseSuccess(false)}>
               <FormattedMessage
                 id="enterprise.dashboard.course.enrollment.saved.for.later.alert.text"
                 defaultMessage="Your course was saved for later."
@@ -98,8 +122,8 @@ const CourseEnrollments = ({ children }) => {
               />
             </CourseEnrollmentsAlert>
           )}
-          {showMoveToInProgressCourseSuccess && (
-            <CourseEnrollmentsAlert variant="success" onClose={() => setShowMoveToInProgressCourseSuccess(false)}>
+          {shouldShowMoveToInProgressCourseSuccess && (
+            <CourseEnrollmentsAlert variant="success" onClose={() => setShouldShowMoveToInProgressCourseSuccess(false)}>
               <FormattedMessage
                 id="enterprise.dashboard.course.enrollment.moved.to.progress.alert.text"
                 defaultMessage="Your course was moved to In Progress."

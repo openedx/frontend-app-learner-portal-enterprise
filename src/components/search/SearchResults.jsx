@@ -16,7 +16,6 @@ import SearchError from './SearchError';
 
 import { isDefinedAndNotNull } from '../../utils/common';
 import {
-  CONTENT_TYPE_PATHWAY,
   PROGRAM_TITLE,
   CARDGRID_COLUMN_SIZES,
 } from './constants';
@@ -32,6 +31,7 @@ const SearchResults = ({
   title,
   contentType,
   translatedTitle,
+  isPathwaySearchResults,
 }) => {
   const { refinements, dispatch } = useContext(SearchContext);
   const nbHits = useNbHitsFromSearchResults(searchResults);
@@ -117,6 +117,17 @@ const SearchResults = ({
     [searchResults?.hits],
   );
 
+  if (!isSearchStalled && nbHits === 0) {
+    if (isPathwaySearchResults) {
+      return null;
+    }
+    return (
+      <Container size="lg" className="search-results">
+        <SearchNoResults title={title} />
+      </Container>
+    );
+  }
+
   return (
     <Container size="lg" className={classNames('search-results', className)}>
       <div className="d-flex align-items-center mb-2">
@@ -162,9 +173,6 @@ const SearchResults = ({
           )}
         </>
       )}
-      {!isSearchStalled && nbHits === 0 && getContentTypeFromTitle(title) !== CONTENT_TYPE_PATHWAY && (
-        <SearchNoResults title={title} />
-      )}
       {!isSearchStalled && isDefinedAndNotNull(error) && showMessage(contentType, title) && (
         <SearchError title={title} />
       )}
@@ -188,6 +196,7 @@ SearchResults.propTypes = {
   hitComponent: PropTypes.elementType.isRequired,
   title: PropTypes.string.isRequired,
   translatedTitle: PropTypes.string,
+  isPathwaySearchResults: PropTypes.bool,
 };
 
 SearchResults.defaultProps = {
@@ -197,6 +206,7 @@ SearchResults.defaultProps = {
   error: undefined,
   contentType: undefined,
   translatedTitle: undefined,
+  isPathwaySearchResults: false,
 };
 
 export default connectStateResults(SearchResults);

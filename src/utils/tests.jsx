@@ -2,17 +2,9 @@ import React, { isValidElement } from 'react';
 import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import dayjs from 'dayjs';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { render } from '@testing-library/react';
+import { render } from '@testing-library/react'; // eslint-disable-line import/no-extraneous-dependencies
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { queryCacheOnErrorHandler } from './common';
-import {
-  useCouponCodes,
-  useEnterpriseOffers,
-  useRedeemablePolicies,
-  useSubscriptions,
-} from '../components/app/data';
-import { useCatalogsForSubsidyRequests } from '../components/hooks';
 
 /**
  * TODO
@@ -65,12 +57,10 @@ export function renderWithRouter(
  * e.g., <AppContext.Provider value={appInitialState()}/>
  */
 export const initialAppState = ({
-  enterpriseConfig = { slug: 'test-enterprise-slug' },
   config = {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-}) => ({
-  enterpriseConfig,
+} = {}) => ({
   config,
 });
 
@@ -115,7 +105,7 @@ export const A_100_PERCENT_COUPON_CODE = {
   couponEndDate: dayjs().add(8, 'w').toISOString(),
 };
 
-export function queryClient(options = {}) {
+export function queryClient(defaultOptions = {}) {
   return new QueryClient({
     queryCache: new QueryCache({
       onError: queryCacheOnErrorHandler,
@@ -124,28 +114,7 @@ export function queryClient(options = {}) {
       queries: {
         retry: false,
       },
-      ...options,
+      ...defaultOptions,
     },
   });
 }
-
-export const defaultSubsidyHooksData = {
-  mockRedeemablePolicies: [],
-  mockCatalogsForSubsidyRequest: [],
-  mockCurrentEnterpriseOffers: [],
-  mockSubscriptionLicense: null,
-  mockCouponCodeAssignments: [],
-};
-export const mockSubsidyHooksReturnValues = ({
-  mockRedeemablePolicies = [],
-  mockCatalogsForSubsidyRequest = [],
-  mockCurrentEnterpriseOffers = [],
-  mockSubscriptionLicense = null,
-  mockCouponCodeAssignments = [],
-}) => {
-  useRedeemablePolicies.mockReturnValue({ data: { redeemablePolicies: mockRedeemablePolicies } });
-  useCatalogsForSubsidyRequests.mockReturnValue({ catalogsForSubsidyRequests: mockCatalogsForSubsidyRequest });
-  useEnterpriseOffers.mockReturnValue({ data: { currentEnterpriseOffers: mockCurrentEnterpriseOffers } });
-  useSubscriptions.mockReturnValue({ data: { subscriptionLicense: mockSubscriptionLicense } });
-  useCouponCodes.mockReturnValue({ data: { couponCodeAssignments: mockCouponCodeAssignments } });
-};
