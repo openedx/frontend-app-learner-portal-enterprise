@@ -5,43 +5,13 @@ import { AppContext } from '@edx/frontend-platform/react';
 import { SearchData } from '@edx/frontend-enterprise-catalog-search';
 import { hasFeatureFlagEnabled } from '@edx/frontend-enterprise-utils';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
-import {
-  defaultSubsidyHooksData, mockSubsidyHooksReturnValues,
-  renderWithRouter,
-} from '../../../utils/tests';
+import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
+import { renderWithRouter } from '../../../utils/tests';
 import SkillsQuiz from '../SkillsQuiz';
 import { SkillsContextProvider } from '../SkillsContextProvider';
-import {
-  useEnterpriseCustomer,
-} from '../../app/data';
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(),
-  useRedeemablePolicies: jest.fn(),
-  useCouponCodes: jest.fn(),
-  useEnterpriseOffers: jest.fn(),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useCatalogsForSubsidyRequests: jest.fn(),
-}));
-
-const mockLocation = {
-  pathname: '/welcome',
-  hash: '',
-  search: '',
-  state: { activationSuccess: true },
-};
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => (mockLocation),
-}));
+import { useEnterpriseCustomer } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -49,13 +19,19 @@ jest.mock('@edx/frontend-enterprise-utils', () => ({
   hasFeatureFlagEnabled: jest.fn().mockReturnValue(false),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const defaultAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const SkillsQuizWithContext = ({
@@ -72,18 +48,10 @@ const SkillsQuizWithContext = ({
   </SearchData>
 );
 
-mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
-
-const mockEnterpriseCustomer = {
-  name: 'BearsRUs',
-  slug: 'BearsRYou',
-};
-
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
 describe('<SkillsQuiz />', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders skills quiz V1 page successfully.', () => {

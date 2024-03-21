@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getConfig } from '@edx/frontend-platform/config';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
 import { Card, Truncate } from '@openedx/paragon';
@@ -16,10 +16,10 @@ const SearchCourseCard = ({
   key, hit, isLoading, parentRoute, ...rest
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const navigate = useNavigate();
 
   const eventName = useMemo(
     () => {
+      // [tech debt] `key` is not intended to be used as a prop (see warning in tests).
       if (key?.startsWith('career-tab')) {
         return 'edx.ui.enterprise.learner_portal.career_tab.course_recommendation.clicked';
       }
@@ -86,7 +86,6 @@ const SearchCourseCard = ({
         courseKey: course.key,
       },
     );
-    navigate(linkToCourse, { state: parentRoute });
   };
 
   return (
@@ -94,9 +93,10 @@ const SearchCourseCard = ({
       data-testid="search-course-card"
       isLoading={isLoading}
       isClickable
-      onClick={(e) => {
-        handleCardClick(e);
-      }}
+      as={Link}
+      to={linkToCourse}
+      state={{ parentRoute }}
+      onClick={handleCardClick}
       {...rest}
     >
       <Card.ImageCap
@@ -107,9 +107,7 @@ const SearchCourseCard = ({
         logoAlt={primaryPartnerLogo?.alt}
       />
       <Card.Header
-        title={(
-          <Truncate lines={3}>{course.title}</Truncate>
-        )}
+        title={(course.title && <Truncate lines={3}>{course.title}</Truncate>)}
         subtitle={course.partners?.length > 0 && (
           <Truncate lines={2}>
             {course.partners.map(partner => partner.name).join(', ')}

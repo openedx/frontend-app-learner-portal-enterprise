@@ -1,13 +1,14 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { SkillsContextProvider } from '../SkillsContextProvider';
 
+import { SkillsContextProvider } from '../SkillsContextProvider';
 import SearchJobCard from '../SearchJobCard';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('react-loading-skeleton', () => ({
   __esModule: true,
@@ -23,7 +24,6 @@ const initialAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: { username: 'myspace-tom' },
 };
 
 const SearchJobCardWithContext = ({
@@ -65,6 +65,8 @@ const hitObject = {
   ],
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 const testIndex = {
   indexName: 'test-index-name',
   search: jest.fn().mockImplementation(() => Promise.resolve(hitObject)),
@@ -82,49 +84,41 @@ const initialJobsState = {
   dispatch: () => null,
 };
 
-const mockEnterpriseCustomer = {
-  slug: 'test-enterprise-slug',
-  uuid: 'test-enterprise-uuid',
-  hideLaborMarketData: false,
-};
-
 describe('<SearchJobCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
-
   test('renders the data in job cards correctly', async () => {
-    await act(async () => {
-      render(
-        <SearchJobCardWithContext
-          index={testIndex}
-          initialSearchState={initialSearchState}
-          initialJobsState={initialJobsState}
-        />,
-      );
-    });
-    expect(await screen.getByText(TEST_JOB_TITLE)).toBeInTheDocument();
-    expect(await screen.getByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
-    expect(await screen.getByText(TRANSFORMED_JOB_POSTINGS)).toBeInTheDocument();
+    render(
+      <SearchJobCardWithContext
+        index={testIndex}
+        initialAppState={initialAppState}
+        initialSearchState={initialSearchState}
+        initialJobsState={initialJobsState}
+      />,
+    );
+    expect(await screen.findByText(TEST_JOB_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(TRANSFORMED_MEDIAN_SALARY)).toBeInTheDocument();
+    expect(screen.getByText(TRANSFORMED_JOB_POSTINGS)).toBeInTheDocument();
   });
 
   test('does not render salary data when hideLaborMarketData is true ', async () => {
-    const enableHideLaborMarketData = {
-      ...mockEnterpriseCustomer,
-      hideLaborMarketData: true,
-    };
-    useEnterpriseCustomer.mockReturnValue({ data: enableHideLaborMarketData });
-    await act(async () => {
-      render(
-        <SearchJobCardWithContext
-          index={testIndex}
-          initialSearchState={initialSearchState}
-          initialJobsState={initialJobsState}
-        />,
-      );
+    const mockEnterpriseCustomerWithHideLaborMarketData = enterpriseCustomerFactory({
+      hide_labor_market_data: true,
     });
-    expect(await screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).not.toBeInTheDocument();
-    expect(await screen.queryByText(TRANSFORMED_JOB_POSTINGS)).not.toBeInTheDocument();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHideLaborMarketData });
+    render(
+      <SearchJobCardWithContext
+        index={testIndex}
+        initialAppState={initialAppState}
+        initialSearchState={initialSearchState}
+        initialJobsState={initialJobsState}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByText(TRANSFORMED_MEDIAN_SALARY)).not.toBeInTheDocument();
+      expect(screen.queryByText(TRANSFORMED_JOB_POSTINGS)).not.toBeInTheDocument();
+    });
   });
 });

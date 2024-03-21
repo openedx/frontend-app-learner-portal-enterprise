@@ -15,9 +15,11 @@ export default function useEnterpriseOffers(queryOptions = {}) {
       }
       const transformedEnterpriseOffers = data.map(offer => transformEnterpriseOffer(offer));
       const currentEnterpriseOffers = transformedEnterpriseOffers.filter(offer => offer.isCurrent);
+
       return {
         enterpriseOffers: transformedEnterpriseOffers,
         currentEnterpriseOffers,
+        // Note: canEnrollWithEnterpriseOffers should be true even if there are no current offers.
         canEnrollWithEnterpriseOffers: data.length > 0,
         hasCurrentEnterpriseOffers: currentEnterpriseOffers.length > 0,
         hasLowEnterpriseOffersBalance: currentEnterpriseOffers.some(offer => offer.isLowOnBalance),

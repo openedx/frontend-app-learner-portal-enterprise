@@ -5,20 +5,20 @@ import { v4 as uuidv4 } from 'uuid';
 
 import ContentHighlightSet from './ContentHighlightSet';
 import { useEnterpriseCustomer } from '../../app/data';
-import { useContentHighlights } from '../../hooks';
+import { useContentHighlightSets } from '../../hooks';
 
 const ContentHighlights = ({ className }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { data: contentHighlights } = useContentHighlights(enterpriseCustomer.uuid);
+  const { data: contentHighlights } = useContentHighlightSets(enterpriseCustomer.uuid);
 
   const mappedContentHighlightSetCards = useMemo(() => {
     const contentHighlightSets = contentHighlights || [];
     return contentHighlightSets.map(
-      (highlightSet) => <ContentHighlightSet key={uuidv4()} highlightSet={highlightSet} />,
+      (highlightSet) => <ContentHighlightSet key={uuidv4()} {...highlightSet} />,
     );
   }, [contentHighlights]);
 
-  if (contentHighlights.length === 0) {
+  if (mappedContentHighlightSetCards.length === 0) {
     return null;
   }
 

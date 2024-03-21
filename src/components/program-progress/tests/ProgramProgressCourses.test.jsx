@@ -1,15 +1,21 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen, render } from '@testing-library/react';
-
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+
 import dayjs from '../../../utils/dayjs';
 import ProgramProgressCourses from '../ProgramProgressCourses';
 import { UserSubsidyContext } from '../../enterprise-user-subsidy';
 import { NotCurrentlyAvailable } from '../data/constants';
 import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import { SUBSIDY_REQUEST_STATE, SUBSIDY_TYPE } from '../../../constants';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
 
 const mockCatalogUUID = 'uuid';
 const initialSubscriptions = [
@@ -32,12 +38,8 @@ const userSubsidyState = {
     couponCodesCount: 0,
   },
 };
-const appState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-    name: 'test',
-  },
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 const subsidyRequestsState = {
   requestsBySubsidyType: {
     [SUBSIDY_TYPE.LICENSE]: [],
@@ -46,20 +48,25 @@ const subsidyRequestsState = {
 };
 
 const ProgramProgressCoursesWithContext = ({
-  initialAppState, initialUserSubsidyState, courseData, initialSubsidyRequestsState,
+  initialUserSubsidyState,
+  courseData,
+  initialSubsidyRequestsState,
 }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
-          <ProgramProgressCourses courseData={courseData} />
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <SubsidyRequestsContext.Provider value={initialSubsidyRequestsState}>
+        <ProgramProgressCourses courseData={courseData} />
+      </SubsidyRequestsContext.Provider>
+    </UserSubsidyContext.Provider>
   </IntlProvider>
 );
 
 describe('<ProgramProgressCourses />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   it('displays the completed course with enrolled course run', () => {
     const courseDataCompletedCourse = {
       inProgress: [],
@@ -94,12 +101,11 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
-    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.completed[0].key}`;
+    const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.completed[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.completed[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
   });
@@ -140,12 +146,11 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
-    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
+    const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
   });
@@ -188,13 +193,12 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
 
-    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
+    const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[1].title)).toBeInTheDocument();
     expect(screen.queryByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeNull();
     expect(screen.getByText('View Course').closest('a')).toHaveAttribute('href', courseLink);
@@ -275,17 +279,16 @@ describe('<ProgramProgressCourses />', () => {
 
     render((
       <ProgramProgressCoursesWithContext
-        initialAppState={appState}
         initialUserSubsidyState={customUserSubsidyState}
         initialSubsidyRequestsState={customSubsidyRequestsState}
         courseData={courseDataCompletedCourse}
       />
     ));
-    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
+    const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Archived Course').closest('a')).toHaveAttribute('href', courseLink);
     expect(screen.getByText('Upgrade to Verified').closest('a')).toHaveAttribute('href', courseLink);
-    expect(screen.getByText('Sponsored by test')).toBeInTheDocument();
+    expect(screen.getByText(`Sponsored by ${mockEnterpriseCustomer.name}`)).toBeInTheDocument();
   });
 
   it('displays the in progress course which is not open for enrollment anymore', () => {
@@ -325,12 +328,11 @@ describe('<ProgramProgressCourses />', () => {
       ],
     };
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataCompletedCourse}
     />);
-    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
+    const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataCompletedCourse.inProgress[0].key}`;
     expect(screen.getByText(courseDataCompletedCourse.inProgress[0].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText('View Archived Course').closest('a')).toHaveAttribute('href', courseLink);
   });
@@ -362,12 +364,11 @@ describe('<ProgramProgressCourses />', () => {
     };
     const courseRunEnrollable = courseDataNotStartedCourse.notStarted[0].courseRuns;
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
-    const courseLink = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
+    const courseLink = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
     expect(screen.getByText(courseRunEnrollable[0].title)).toBeInTheDocument();
     expect(screen.getByText('Enroll now').closest('a')).toHaveAttribute('href', courseLink);
   });
@@ -400,7 +401,6 @@ describe('<ProgramProgressCourses />', () => {
     };
 
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
@@ -452,12 +452,11 @@ describe('<ProgramProgressCourses />', () => {
     const courseRunDateNotEnrollable = `${dayjs(courseRun[0].start)
       .format('MMMM Do, YYYY')} - ${dayjs(courseRun[0].end).format('MMMM Do, YYYY')}`;
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
-    const courseLink1 = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
+    const courseLink1 = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();
     expect(screen.queryByText(courseRunDateNotEnrollable)).not.toBeInTheDocument();
     expect(screen.getByTestId('course-run-single-date')).toBeVisible();
@@ -527,13 +526,12 @@ describe('<ProgramProgressCourses />', () => {
     const courseRunDateWithEnd = `${dayjs(courseRun[1].start)
       .format('MMMM Do, YYYY')} - ${dayjs(courseRun[1].end).format('MMMM Do, YYYY')}`;
     render(<ProgramProgressCoursesWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       initialSubsidyRequestsState={subsidyRequestsState}
       courseData={courseDataNotStartedCourse}
     />);
-    const courseLink1 = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
-    const courseLink2 = `/${appState.enterpriseConfig.slug}/course/${courseDataNotStartedCourse.notStarted[1].key}`;
+    const courseLink1 = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[0].key}`;
+    const courseLink2 = `/${mockEnterpriseCustomer.slug}/course/${courseDataNotStartedCourse.notStarted[1].key}`;
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[0].title)).toBeInTheDocument();
     expect(screen.getByText(courseDataNotStartedCourse.notStarted[1].courseRuns[0].title)).toBeInTheDocument();
     expect(screen.getByText(courseRunDateWithOutEnd)).toBeInTheDocument();

@@ -22,8 +22,10 @@ import { getHasUnacknowledgedAssignments } from '../../../data/utils';
 import { ASSIGNMENT_TYPES } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import {
   groupCourseEnrollmentsByStatus,
+  queryEnterpriseCourseEnrollments,
   queryRedeemablePolicies,
   transformCourseEnrollment,
+  useEnterpriseCourseEnrollments,
   useEnterpriseCustomer,
 } from '../../../../app/data';
 import {
@@ -252,9 +254,10 @@ export function useAcknowledgeContentAssignments({
  * - showExpiredAssignmentsAlert: Boolean indicating whether to display the expired assignments alert.
  * - handleAcknowledgeAssignments: Function to handle dismissal of canceled/expired assignments from the dashboard.
  */
-export function useContentAssignments(learnerContentAssignments) {
+export function useContentAssignments() {
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const { data: { allEnrollmentsByStatus } } = useEnterpriseCourseEnrollments();
   const [assignments, setAssignments] = useState([]);
   const [showCanceledAssignmentsAlert, setShowCanceledAssignmentsAlert] = useState(false);
   const [showExpiredAssignmentsAlert, setShowExpiredAssignmentsAlert] = useState(false);
@@ -316,7 +319,7 @@ export function useContentAssignments(learnerContentAssignments) {
       assignmentsForDisplay,
       canceledAssignments,
       expiredAssignments,
-    } = learnerContentAssignments;
+    } = allEnrollmentsByStatus.assigned;
 
     // Sort and transform the list of assignments for display.
     const sortedAssignmentsForDisplay = sortAssignmentsByAssignmentStatus(assignmentsForDisplay);
@@ -329,7 +332,7 @@ export function useContentAssignments(learnerContentAssignments) {
     // Determine whether there are unacknowledged expired assignments. If so, display alert.
     const hasUnacknowledgedExpiredAssignments = getHasUnacknowledgedAssignments(expiredAssignments);
     setShowExpiredAssignmentsAlert(hasUnacknowledgedExpiredAssignments);
-  }, [learnerContentAssignments, enterpriseCustomer.slug]);
+  }, [allEnrollmentsByStatus.assigned, enterpriseCustomer.slug]);
 
   return {
     assignments,
@@ -389,3 +392,30 @@ export function useCourseEnrollmentsBySection(courseEnrollmentsByStatus) {
     savedForLaterCourseEnrollments,
   };
 }
+
+export const useUpdateCourseEnrollmentStatus = ({ enterpriseCustomer }) => {
+  const queryClient = useQueryClient();
+
+  const updateCourseEnrollmentStatus = useCallback(({ courseRunId, newStatus, savedForLater }) => {
+    const enrollmentsQueryKey = queryEnterpriseCourseEnrollments(enterpriseCustomer.uuid).queryKey;
+    const existingEnrollments = queryClient.getQueryData(enrollmentsQueryKey);
+    queryClient.setQueryData(
+      enrollmentsQueryKey,
+      existingEnrollments.map((enrollment) => {
+        if (enrollment.courseRunId === courseRunId) {
+          return {
+            ...enrollment,
+            courseRunStatus: newStatus,
+            savedForLater,
+          };
+        }
+        return enrollment;
+      }),
+    );
+  }, [
+    enterpriseCustomer.uuid,
+    queryClient,
+  ]);
+
+  return updateCourseEnrollmentStatus;
+};

@@ -20,6 +20,7 @@ import {
   querySubscriptions,
   updateUserActiveEnterprise,
 } from '../../../data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../../data/services/data/__factories__';
 
 jest.mock('../../data', () => ({
   ...jest.requireActual('../../data'),
@@ -41,24 +42,12 @@ jest.mock('@edx/frontend-platform/logging', () => ({
   getLoggingService: jest.fn(),
 }));
 
-const mockUsername = 'edx';
-const mockUserEmail = 'edx@example.com';
-const mockEnterpriseId = 'test-enterprise-uuid';
-const mockEnterpriseIdTwo = 'another-enterprise-uuid';
-const mockEnterpriseSlug = 'test-enterprise-slug';
-const mockEnterpriseSlugTwo = 'another-enterprise-slug';
-const mockEnterpriseCustomer = {
-  uuid: mockEnterpriseId,
-  slug: mockEnterpriseSlug,
-};
-const mockEnterpriseCustomerTwo = {
-  uuid: mockEnterpriseIdTwo,
-  slug: mockEnterpriseSlugTwo,
-};
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCustomerTwo = enterpriseCustomerFactory();
 
 const mockQueryClient = {
   ensureQueryData: jest.fn().mockResolvedValue({}),
-  fetchQuery: jest.fn().mockResolvedValue({}),
 };
 
 let locationPathname;
@@ -74,12 +63,8 @@ describe('rootLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
-    ensureAuthenticatedUser.mockResolvedValue({
-      userId: 3,
-      email: mockUserEmail,
-      username: mockUsername,
-    });
-    extractEnterpriseId.mockResolvedValue(mockEnterpriseId);
+    ensureAuthenticatedUser.mockResolvedValue(mockAuthenticatedUser);
+    extractEnterpriseId.mockResolvedValue(mockEnterpriseCustomer.uuid);
   });
 
   it('does nothing if the user is not authenticated', async () => {
@@ -89,19 +74,18 @@ describe('rootLoader', () => {
       element: <div>hello world</div>,
       loader: makeRootLoader(mockQueryClient),
     }, {
-      initialEntries: [`/${mockEnterpriseSlug}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}`],
     });
 
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
     // Assert that the expected number of queries were made.
-    expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(0);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(0);
   });
 
   it('ensures only the enterprise-learner query is called if there is no active enterprise customer user', async () => {
-    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, mockEnterpriseSlug);
-    when(mockQueryClient.fetchQuery).calledWith(
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, mockEnterpriseCustomer.slug);
+    when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
       }),
@@ -115,14 +99,13 @@ describe('rootLoader', () => {
       element: <div>hello world</div>,
       loader: makeRootLoader(mockQueryClient),
     }, {
-      initialEntries: [`/${mockEnterpriseSlug}`],
+      initialEntries: [`/${mockEnterpriseCustomer.slug}`],
     });
 
     expect(await screen.findByText('hello world')).toBeInTheDocument();
 
     // Assert that the expected number of queries were made.
-    expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(1);
-    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(0);
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -196,10 +179,10 @@ describe('rootLoader', () => {
     allLinkedEnterpriseCustomerUsers,
     shouldRedirectToSearch,
   }) => {
-    const enterpriseLearnerQuery = queryEnterpriseLearner(mockUsername, enterpriseSlug);
-    const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockUsername, enterpriseCustomer.slug);
+    const enterpriseLearnerQuery = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseSlug);
+    const enterpriseLearnerQueryTwo = queryEnterpriseLearner(mockAuthenticatedUser.username, enterpriseCustomer.slug);
     // Mock the enterprise-learner query to return an active enterprise customer user.
-    when(mockQueryClient.fetchQuery).calledWith(
+    when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
       }),
@@ -209,7 +192,7 @@ describe('rootLoader', () => {
       allLinkedEnterpriseCustomerUsers,
       staffEnterpriseCustomer: isStaffUser ? enterpriseCustomer : undefined,
     });
-    when(mockQueryClient.fetchQuery).calledWith(
+    when(mockQueryClient.ensureQueryData).calledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQueryTwo.queryKey,
       }),
@@ -257,12 +240,12 @@ describe('rootLoader', () => {
       // Assert that the expected number of queries were made.
       if (enterpriseSlug !== activeEnterpriseCustomer.slug) {
         if (isLinked || isStaffUser) {
-          expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(1);
+          expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
         } else {
-          expect(mockQueryClient.fetchQuery).toHaveBeenCalledTimes(2);
+          expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(2);
         }
       }
-      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(8);
+      expect(mockQueryClient.ensureQueryData).toHaveBeenCalledTimes(9);
     });
 
     function getExpectedSlugPath() {
@@ -283,7 +266,7 @@ describe('rootLoader', () => {
     }
 
     // Enterprise learner query
-    expect(mockQueryClient.fetchQuery).toHaveBeenCalledWith(
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: enterpriseLearnerQuery.queryKey,
         queryFn: expect.any(Function),
@@ -343,7 +326,7 @@ describe('rootLoader', () => {
     );
 
     // Browse and Request license requests query
-    const licenseRequestsQuery = queryLicenseRequests(enterpriseCustomer.uuid, mockUserEmail);
+    const licenseRequestsQuery = queryLicenseRequests(enterpriseCustomer.uuid, mockAuthenticatedUser.email);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: licenseRequestsQuery.queryKey,
@@ -352,7 +335,7 @@ describe('rootLoader', () => {
     );
 
     // Browse and Request coupon codes requests query
-    const couponCodeRequestsQuery = queryCouponCodeRequests(enterpriseCustomer.uuid, mockUserEmail);
+    const couponCodeRequestsQuery = queryCouponCodeRequests(enterpriseCustomer.uuid, mockAuthenticatedUser.email);
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: couponCodeRequestsQuery.queryKey,

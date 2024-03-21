@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { logError } from '@edx/frontend-platform/logging';
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { getConfig } from '@edx/frontend-platform/config';
+import { getConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { useQuery } from '@tanstack/react-query';
@@ -431,13 +431,13 @@ export const useExtractAndRemoveSearchParamsFromURL = () => {
  * internal hyperlinks (e.g., using ``Link``).
  */
 export const useTrackSearchConversionClickHandler = ({ href = undefined, eventName }) => {
+  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const {
     state: {
       activeCourseRun: { key: courseKey },
       algoliaSearchParams,
     },
   } = useContext(CourseContext);
-  const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const handleClick = useCallback(
     (e) => {
       const { queryId, objectId } = algoliaSearchParams;

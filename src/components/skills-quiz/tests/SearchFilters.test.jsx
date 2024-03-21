@@ -17,31 +17,32 @@ import {
 import '../__mocks__/react-instantsearch-dom';
 import SkillsQuizStepper from '../SkillsQuizStepper';
 import { useEnterpriseCustomer } from '../../app/data';
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
-const mockEnterpriseCustomer = {
-  name: 'BearsRUs',
-  slug: 'BearsRYou',
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
+const defaultAppState = {
+  authenticatedUser: mockAuthenticatedUser,
 };
 
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
 const facetsToTest = [DESIRED_JOB_FACET, INDUSTRY_FACET, CURRENT_JOB_FACET];
-describe('<SkillsQuizStepper />', () => {
-  const defaultAppState = {
-    authenticatedUser: {
-      username: 'myspace-tom',
-    },
-  };
+
+describe('<SearchFilters />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
 
   test('renders skills and jobs dropdown with a label', async () => {
     renderWithRouter(

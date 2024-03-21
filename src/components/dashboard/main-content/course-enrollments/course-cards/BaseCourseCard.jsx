@@ -218,7 +218,6 @@ const BaseCourseCard = ({
                   key={menuItem.key}
                   as={menuItem.type}
                   onClick={menuItem.onClick}
-                  role="menuitem"
                 >
                   {menuItem.children}
                 </Dropdown.Item>

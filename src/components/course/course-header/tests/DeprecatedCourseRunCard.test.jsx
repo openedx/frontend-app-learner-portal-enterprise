@@ -4,12 +4,12 @@ import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+
 import {
   renderWithRouter,
   initialAppState,
   mockCourseState,
 } from '../../../../utils/tests';
-
 import {
   COURSE_MODES_MAP,
   COURSE_AVAILABILITY_MAP,
@@ -21,6 +21,8 @@ import { UserSubsidyContext } from '../../../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests/SubsidyRequestsContextProvider';
 import * as subsidyRequestsHooks from '../../data/hooks';
 import { enrollButtonTypes } from '../../enrollment/constants';
+import { useEnterpriseCustomer } from '../../../app/data';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 const COURSE_UUID = 'foo';
 const COURSE_RUN_START = dayjs().format();
@@ -42,6 +44,10 @@ jest.mock('../../data/hooks', () => ({
   useUserHasSubsidyRequestForCourse: jest.fn(() => false),
   useCourseEnrollmentUrl: jest.fn(() => false),
   useCoursePriceForUserSubsidy: jest.fn(() => []),
+}));
+
+jest.mock('../../../app/data', () => ({
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const INITIAL_APP_STATE = initialAppState({});
@@ -125,7 +131,14 @@ const renderCard = ({
   );
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<DeprecatedCourseRunCard />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
+
   test('Course archived card', () => {
     renderCard({ courseRun: generateCourseRun({ availability: COURSE_AVAILABILITY_MAP.ARCHIVED }) });
     expect(screen.getByText('Course archived')).toBeInTheDocument();

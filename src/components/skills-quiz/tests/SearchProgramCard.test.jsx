@@ -6,38 +6,30 @@ import { AppContext } from '@edx/frontend-platform/react';
 import '@testing-library/jest-dom/extend-expect';
 import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import SearchProgramCard from '../SearchProgramCard';
 
-import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues, renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import SearchProgramCard from '../SearchProgramCard';
+import { renderWithRouter } from '../../../utils/tests';
 import { NO_PROGRAMS_ALERT_MESSAGE } from '../constants';
 import { SkillsContext } from '../SkillsContextProvider';
 import { useEnterpriseCustomer } from '../../app/data';
+import { useDefaultSearchFilters } from '../../search';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
-const userId = 'batman';
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(),
-  useRedeemablePolicies: jest.fn(),
-  useCouponCodes: jest.fn(),
-  useEnterpriseOffers: jest.fn(),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useCatalogsForSubsidyRequests: jest.fn(),
-}));
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
-
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
 }));
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const PROGRAM_UUID = 'a9cbdeb6-5fc0-44ef-97f7-9ed605a149db';
 const PROGRAM_TITLE = 'Intro to BatVerse';
@@ -75,10 +67,7 @@ const testIndex = {
 };
 
 const defaultAppState = {
-  authenticatedUser: {
-    username: 'b.wayne',
-    userId,
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const defaultSearchContext = {
@@ -123,17 +112,11 @@ const SearchProgramCardWithContext = ({
   </IntlProvider>
 );
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: TEST_ENTERPRISE_SLUG,
-  uuid: 'test-enterprise-uuid',
-};
-
 describe('<SearchProgramCard />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
 
   test('renders the correct data', async () => {
@@ -161,7 +144,7 @@ describe('<SearchProgramCard />', () => {
 
     // handles click
     userEvent.click(searchProgramCard);
-    expect(mockedNavigate).toHaveBeenCalledWith(`/${TEST_ENTERPRISE_SLUG}/program/${PROGRAM_UUID}`);
+    expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/${PROGRAM_UUID}`);
   });
 
   test('renders the correct data with skills', async () => {

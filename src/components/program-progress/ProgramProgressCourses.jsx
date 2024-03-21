@@ -5,7 +5,7 @@ import {
 } from '@openedx/paragon';
 import { CheckCircle } from '@openedx/paragon/icons';
 
-import { FormattedDate, FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
+import { FormattedMessage, useIntl } from '@edx/frontend-platform/i18n';
 import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import {
@@ -15,7 +15,7 @@ import {
   getNotStartedCourseDetails,
   hasLicenseOrCoupon,
 } from './data/utils';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
 import dayjs from '../../utils/dayjs';
 import { useEnterpriseCustomer } from '../app/data';
 
@@ -42,7 +42,7 @@ const ProgramProgressCourses = ({ courseData }) => {
 
   const intl = useIntl();
 
-  const courseAboutPageURL = (course) => linkToCourse(course, enterpriseCustomer.slug);
+  const courseAboutPageURL = (course) => getLinkToCourse(course, enterpriseCustomer.slug);
   const courseSponsoredByEnterprise = intl.formatMessage(
     {
       id: 'enterprise.dashboard.programs.about.page.course.sponsored',
@@ -169,12 +169,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                       description="Placeholder for in-progress course pacing type and start date on programs about page."
                       values={{
                         pacingType: course?.pacingType.replace('_', '-'),
-                        startDate: (
-                          <FormattedDate
-                            value={dayjs(course.start)}
-                            format="MMMM Do, YYYY"
-                          />
-                        ),
+                        startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                       }}
                     />
                   </p>
@@ -232,12 +227,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                           description="Placeholder for remaining course pacing type and start date on programs about page."
                           values={{
                             pacingType: course?.pacingType.replace('_', '-'),
-                            startDate: (
-                              <FormattedDate
-                                value={dayjs(course.start)}
-                                format="MMMM Do, YYYY"
-                              />
-                            ),
+                            startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                           }}
                         />
                       </p>
@@ -288,7 +278,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                               </Form.Label>
                               <Form.Control as="select">
                                 {course.courseRunDate.map(cRunDate => (
-                                  <option>{cRunDate}</option>
+                                  <option key={cRunDate}>{cRunDate}</option>
                                 ))}
                               </Form.Control>
                             </Form.Group>
@@ -301,12 +291,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                                 description="Placeholder for the pacing type and start date of a course with a single course run date on programs about page."
                                 values={{
                                   pacingType: course?.pacingType.replace('_', '-'),
-                                  startDate: (
-                                    <FormattedDate
-                                      value={dayjs(course.start)}
-                                      format="MMMM Do, YYYY"
-                                    />
-                                  ),
+                                  startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                                 }}
                               />
                             </span>
@@ -361,12 +346,7 @@ const ProgramProgressCourses = ({ courseData }) => {
                     description="Placeholder for completed course pacing type and start date on programs about page."
                     values={{
                       pacingType: course?.pacingType.replace('_', '-'),
-                      startDate: (
-                        <FormattedDate
-                          value={dayjs(course.start)}
-                          format="MMMM Do, YYYY"
-                        />
-                      ),
+                      startDate: dayjs(course.start).format('MMMM Do, YYYY'),
                     }}
                   />
                 </p>

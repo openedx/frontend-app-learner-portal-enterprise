@@ -1,5 +1,4 @@
 import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -19,21 +18,20 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-const PathwayProgressListingCardWithContext = ({ initialAppState, initialUserSubsidyState, pathwayData }) => (
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn().mockReturnValue({
+    data: { slug: 'test-enterprise-slug' },
+  }),
+}));
+
+const PathwayProgressListingCardWithContext = ({ initialUserSubsidyState, pathwayData }) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <PathwayProgressCard pathway={pathwayData} />
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
+    <UserSubsidyContext.Provider value={initialUserSubsidyState}>
+      <PathwayProgressCard pathway={pathwayData} />
+    </UserSubsidyContext.Provider>
   </IntlProvider>
 );
-
-const appState = {
-  enterpriseConfig: {
-    slug: 'test-enterprise-slug',
-  },
-};
 
 const userSubsidyState = {
   subscriptionLicense: {
@@ -49,7 +47,6 @@ const pathwayData = camelCaseObject(LearnerPathwayProgressData[0]);
 describe('<PathwayProgressCard />', () => {
   it('renders all data related to pathway progress correctly', () => {
     const { getByAltText } = renderWithRouter(<PathwayProgressListingCardWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       pathwayData={pathwayData}
     />);
@@ -67,7 +64,6 @@ describe('<PathwayProgressCard />', () => {
 
   it('redirects to correct page when clicked', () => {
     const { container } = renderWithRouter(<PathwayProgressListingCardWithContext
-      initialAppState={appState}
       initialUserSubsidyState={userSubsidyState}
       pathwayData={pathwayData}
     />);

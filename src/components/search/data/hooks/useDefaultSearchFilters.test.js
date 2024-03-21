@@ -3,29 +3,16 @@ import * as frontendEnterpriseCatalogSearch from '@edx/frontend-enterprise-catal
 import React from 'react';
 import { SearchContext, SHOW_ALL_NAME } from '@edx/frontend-enterprise-catalog-search';
 import { useDefaultSearchFilters } from './index';
-import {
-  useEnterpriseCustomer,
-} from '../../../app/data';
+import { useEnterpriseCustomer } from '../../../app/data';
 import useSearchCatalogs from './useSearchCatalogs';
-import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues } from '../../../../utils/tests';
-
-const TEST_ENTERPRISE_UUID = 'test-enterprise-uuid';
+import { enterpriseCustomerFactory } from '../../../app/data/services/data/__factories__';
 
 jest.mock('../../../app/data', () => ({
   ...jest.requireActual('../../../app/data'),
   useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(),
-  useRedeemablePolicies: jest.fn(),
-  useCouponCodes: jest.fn(),
-  useEnterpriseOffers: jest.fn(),
 }));
 
-jest.mock('./useSearchCatalogs');
-
-jest.mock('../../../hooks', () => ({
-  ...jest.requireActual('../../../hooks'),
-  useCatalogsForSubsidyRequests: jest.fn(),
-}));
+jest.mock('./useSearchCatalogs', () => jest.fn());
 
 jest.mock('@edx/frontend-enterprise-catalog-search', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-catalog-search'),
@@ -40,29 +27,24 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ enterpriseSlug: 'test' }),
 }));
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 const SearchWrapper = (value) => function BaseSearchWrapper({ children }) {
   // eslint-disable-next-line react/jsx-filename-extension
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
 };
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: 'test',
-  uuid: TEST_ENTERPRISE_UUID,
-};
+const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
 
 // TODO: Test and hook may have to be refactored
 describe('useDefaultSearchFilters', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+    useSearchCatalogs.mockReturnValue([]);
   });
 
-  const refinementsShowAll = { refinements: { [SHOW_ALL_NAME]: 1 } };
-
   it('should set SHOW_ALL_NAME to 1 if searchCatalogs.length === 0', () => {
-    useSearchCatalogs.mockReturnValue([]);
     const mockDispatch = jest.fn();
     const {
       result,
@@ -71,21 +53,18 @@ describe('useDefaultSearchFilters', () => {
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
     const { filters } = result.current;
-    expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    expect(filters).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
     expect(mockDispatch).toHaveBeenCalled();
   });
 
   it('should return default search filters if refinements[SHOW_ALL_NAME] = 1', () => {
-    useSearchCatalogs.mockReturnValue([]);
     const mockDispatch = jest.fn();
-    const {
-      result,
-    } = renderHook(
+    const { result } = renderHook(
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ ...refinementsShowAll, dispatch: mockDispatch }) },
     );
     const { filters } = result.current;
-    expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    expect(filters).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 
   // TODO: Fix this test
@@ -104,15 +83,12 @@ describe('useDefaultSearchFilters', () => {
   });
 
   it('should return aggregated catalog string if searchCatalogs.length === 0', () => {
-    useSearchCatalogs.mockReturnValue([]);
     const mockDispatch = jest.fn();
-    const {
-      result,
-    } = renderHook(
+    const { result } = renderHook(
       () => useDefaultSearchFilters(),
       { wrapper: SearchWrapper({ refinements: {}, dispatch: mockDispatch }) },
     );
     const { filters } = result.current;
-    expect(filters).toEqual(`enterprise_customer_uuids:${TEST_ENTERPRISE_UUID}`);
+    expect(filters).toEqual(`enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}`);
   });
 });

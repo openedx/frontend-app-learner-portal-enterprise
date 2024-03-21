@@ -6,29 +6,33 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { breakpoints } from '@openedx/paragon';
 import Cookies from 'universal-cookie';
 import userEvent from '@testing-library/user-event';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import { camelCaseObject } from '@edx/frontend-platform/utils';
-import { UserSubsidyContext } from '../../enterprise-user-subsidy';
-import { CourseContextProvider } from '../../course/CourseContextProvider';
 import { SUBSCRIPTION_EXPIRED_MODAL_TITLE, SUBSCRIPTION_EXPIRING_MODAL_TITLE } from '../SubscriptionExpirationModal';
 import { SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX } from '../../../config/constants';
 import { features } from '../../../config';
-import * as courseEnrollmentsHooks from '../main-content/course-enrollments/data/hooks';
-import * as myCareerHooks from '../../my-career/data/hooks';
-import * as pathwayProgressHooks from '../../pathway-progress/data/hooks';
-import * as programsHooks from '../../program-progress/data/hooks';
-import { renderWithRouter } from '../../../utils/tests';
+import { queryClient, renderWithRouter } from '../../../utils/tests';
 import DashboardPage from '../DashboardPage';
 import { LICENSE_ACTIVATION_MESSAGE } from '../data/constants';
-import { TEST_OWNER } from '../../course/tests/data/constants';
-import { COURSE_PACING_MAP } from '../../course/data/constants';
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
-import { SubsidyRequestsContext } from '../../enterprise-subsidy-requests';
 import learnerPathwayData from '../../pathway-progress/data/__mocks__/PathwayProgressListData.json';
-import { emptyRedeemableLearnerCreditPolicies } from '../../app/data';
-import { SUBSIDY_TYPE } from '../../../constants';
-import { sortAssignmentsByAssignmentStatus } from '../main-content/course-enrollments/data/utils';
+import {
+  emptyRedeemableLearnerCreditPolicies,
+  useBrowseAndRequest,
+  useCanOnlyViewHighlights,
+  useCouponCodes,
+  useEnterpriseCourseEnrollments,
+  useEnterpriseCustomer,
+  useEnterpriseOffers,
+  useEnterprisePathwaysList,
+  useEnterpriseProgramsList,
+  useIsAssignmentsOnlyLearner,
+  useRedeemablePolicies,
+  useSubscriptions,
+} from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 const dummyProgramData = {
   uuid: 'test-uuid',
@@ -70,12 +74,29 @@ const dummyProgramData = {
 };
 
 const defaultCouponCodesState = {
-  couponCodes: [],
-  loading: false,
-  couponCodesCount: 0,
+  couponCodeAssignments: [],
 };
 
-const mockAuthenticatedUser = { username: 'myspace-tom', name: 'John Doe' };
+const mockAuthenticatedUser = authenticatedUserFactory();
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
+  enable_pathways: true,
+  enable_programs: true,
+});
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+  useSubscriptions: jest.fn(),
+  useCouponCodes: jest.fn(),
+  useEnterpriseOffers: jest.fn(),
+  useRedeemablePolicies: jest.fn(),
+  useEnterpriseProgramsList: jest.fn(),
+  useEnterprisePathwaysList: jest.fn(),
+  useEnterpriseCourseEnrollments: jest.fn(),
+  useCanOnlyViewHighlights: jest.fn(),
+  useBrowseAndRequest: jest.fn(),
+  useIsAssignmentsOnlyLearner: jest.fn(),
+}));
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
@@ -90,87 +111,34 @@ jest.mock('../../../config', () => ({
   },
 }));
 
-jest.mock('../main-content/course-enrollments/data/utils', () => ({
-  ...jest.requireActual('../main-content/course-enrollments/data/utils'),
-  sortAssignmentsByAssignmentStatus: jest.fn(),
-}));
-
 const defaultAppState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    uuid: 'BearsRUs',
-    disableSearch: false,
-    adminUsers: [{ email: 'admin@foo.com' }],
-  },
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
   authenticatedUser: mockAuthenticatedUser,
 };
 
-const defaultUserSubsidyState = {
-  couponCodes: defaultCouponCodesState,
-  enterpriseOffers: [],
-  redeemableLearnerCreditPolicies: {
-    redeemablePolicies: [{
-      learnerContentAssignments: [
-        { state: 'allocated' },
-      ],
-    },
-    {
-      learnerContentAssignments: [
-        { state: 'cancelled' },
-      ],
-    }],
-    learnerContentAssignments: {
-      ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
-      assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
-      hasAssignments: true,
-      allocatedAssignments: [{ state: 'allocated' }],
-      hasAllocatedAssignments: true,
-      canceledAssignments: [{ state: 'cancelled' }],
-      assignmentsForDisplay: [{ state: 'allocated' }, { state: 'cancelled' }],
-      hasAssignmentsForDisplay: true,
-    },
+const defaultRedeemablePoliciesState = {
+  redeemablePolicies: [{
+    learnerContentAssignments: [
+      { state: 'allocated' },
+    ],
   },
-};
-
-const defaultCourseState = {
-  course: {
-    subjects: [{
-      name: 'Test Subject 1',
-      slug: 'test-subject-slug',
-    }],
-    shortDescription: 'Course short description.',
-    title: 'Test Course Title',
-    owners: [TEST_OWNER],
-    programs: [],
-    image: {
-      src: 'http://test-image.url',
-    },
+  {
+    learnerContentAssignments: [
+      { state: 'cancelled' },
+    ],
+  }],
+  learnerContentAssignments: {
+    ...emptyRedeemableLearnerCreditPolicies.learnerContentAssignments,
+    assignments: [{ state: 'allocated' }, { state: 'cancelled' }],
+    hasAssignments: true,
+    allocatedAssignments: [{ state: 'allocated' }],
+    hasAllocatedAssignments: true,
+    canceledAssignments: [{ state: 'cancelled' }],
+    assignmentsForDisplay: [{ state: 'allocated' }, { state: 'cancelled' }],
+    hasAssignmentsForDisplay: true,
   },
-  activeCourseRun: {
-    isEnrollable: true,
-    key: 'test-course-run-key',
-    pacingType: COURSE_PACING_MAP.SELF_PACED,
-    start: '2020-09-09T04:00:00Z',
-    availability: 'Current',
-    courseUuid: 'Foo',
-  },
-  userEnrollments: [],
-  userEntitlements: [],
-  catalog: {
-    containsContentItems: true,
-  },
-};
-
-const defaultSubsidyRequestState = {
-  subsidyRequestConfiguration: null,
-  requestsBySubsidyType: {
-    [SUBSIDY_TYPE.LICENSE]: [],
-    [SUBSIDY_TYPE.COUPON]: [],
-  },
-  catalogsForSubsidyRequests: [],
 };
 
 const mockWindowConfig = {
@@ -179,78 +147,25 @@ const mockWindowConfig = {
   height: 800,
 };
 
-let mockLocation = {
-  pathname: '/welcome',
-  hash: '',
-  search: '',
-  state: { activationSuccess: true },
-};
-
+let mockQueryClient;
 const DashboardWithContext = ({
   initialAppState = defaultAppState,
-  initialUserSubsidyState = defaultUserSubsidyState,
-  courseState = defaultCourseState,
-  initialSubsidyRequestState = defaultSubsidyRequestState,
-}) => (
-  <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <UserSubsidyContext.Provider value={initialUserSubsidyState}>
-        <SubsidyRequestsContext.Provider value={initialSubsidyRequestState}>
-          <CourseContextProvider courseState={courseState}>
-            <DashboardPage />
-          </CourseContextProvider>
-        </SubsidyRequestsContext.Provider>
-      </UserSubsidyContext.Provider>
-    </AppContext.Provider>
-  </IntlProvider>
-);
+}) => {
+  mockQueryClient = queryClient();
+  return (
+    <QueryClientProvider client={mockQueryClient}>
+      <IntlProvider locale="en">
+        <AppContext.Provider value={initialAppState}>
+          <DashboardPage />
+        </AppContext.Provider>
+      </IntlProvider>
+    </QueryClientProvider>
+  );
+};
 
 jest.mock('plotly.js-dist', () => {});
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(() => mockLocation),
-}));
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  ...jest.requireActual('@edx/frontend-platform/auth'),
-  getAuthenticatedHttpClient: jest.fn(() => ({
-    get: jest.fn(() => ({})),
-  })),
-}));
-
 jest.mock('universal-cookie');
-jest.mock('../main-content/course-enrollments/data/hooks');
-jest.mock('../../my-career/data/hooks');
-jest.mock('../../pathway-progress/data/hooks');
-jest.mock('../../program-progress/data/hooks');
-courseEnrollmentsHooks.useCourseEnrollments.mockReturnValue({
-  courseEnrollmentsByStatus: {
-    inProgress: [],
-    upcoming: [],
-    completed: [],
-    savedForLater: [],
-    requested: [],
-  },
-});
-const mockHandleOnCloseCancelAlert = jest.fn();
-const mockHandleOnCloseExpiredAlert = jest.fn();
-courseEnrollmentsHooks.useContentAssignments.mockReturnValue({
-  assignments: [],
-  showCanceledAssignmentsAlert: false,
-  showExpiredAssignmentsAlert: false,
-  handleOnCloseCancelAlert: mockHandleOnCloseCancelAlert,
-  handleOnCloseExpiredAlert: mockHandleOnCloseExpiredAlert,
-});
-courseEnrollmentsHooks.useCourseEnrollmentsBySection.mockReturnValue({
-  hasCourseEnrollments: false,
-  currentCourseEnrollments: [],
-  completedCourseEnrollments: [],
-  savedForLaterCourseEnrollments: [],
-});
-myCareerHooks.useLearnerProfileData.mockReturnValue([{}, null, false]);
-pathwayProgressHooks.useInProgressPathwaysData.mockReturnValue([{}, null, false]);
-programsHooks.useLearnerProgramsListData.mockReturnValue([[], null]);
+
 // eslint-disable-next-line no-console
 console.error = jest.fn();
 
@@ -261,40 +176,83 @@ describe('<Dashboard />', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    sortAssignmentsByAssignmentStatus.mockReturnValue([]);
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useSubscriptions.mockReturnValue({
+      data: {
+        subscriptionLicense: undefined,
+        subscriptionPlan: undefined,
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    useRedeemablePolicies.mockReturnValue({ data: defaultRedeemablePoliciesState });
+    useCouponCodes.mockReturnValue({ data: defaultCouponCodesState });
+    useEnterpriseOffers.mockReturnValue({ data: { enterpriseOffers: [] } });
+    useEnterpriseProgramsList.mockReturnValue({ data: [] });
+    useEnterprisePathwaysList.mockReturnValue({ data: [] });
+    useEnterpriseCourseEnrollments.mockReturnValue({
+      data: {
+        allEnrollmentsByStatus: {
+          inProgress: [],
+          upcoming: [],
+          completed: [],
+          savedForLater: [],
+          requested: [],
+          assigned: {
+            assignments: [],
+            hasAssignments: false,
+            allocatedAssignments: [],
+            hasAllocatedAssignments: false,
+            canceledAssignments: [],
+            hasCanceledAssignments: false,
+            expiredAssignments: [],
+            hasExpiredAssignments: false,
+            assignmentsForDisplay: [],
+            hasAssignmentsForDisplay: false,
+          },
+        },
+      },
+    });
+    useCanOnlyViewHighlights.mockReturnValue({ data: false });
+    useBrowseAndRequest.mockReturnValue({
+      data: {
+        requests: {
+          subscriptionLicenses: [],
+          couponCodes: [],
+        },
+      },
+    });
+    useIsAssignmentsOnlyLearner.mockReturnValue(false);
   });
 
   it('renders user first name if available', () => {
     renderWithRouter(<DashboardWithContext />);
-    expect(screen.getByText('Welcome, John!')).toBeInTheDocument();
+    expect(screen.getByText(`Welcome, ${mockAuthenticatedUser.name.split(' ')[0]}!`)).toBeInTheDocument();
   });
 
   it('does not render user first name if not available', () => {
+    const mockAuthenticatedUserWithoutName = authenticatedUserFactory({ name: '' });
     const appState = {
       ...defaultAppState,
-      authenticatedUser: {
-        ...defaultAppState.authenticatedUser,
-        name: '',
-      },
+      authenticatedUser: mockAuthenticatedUserWithoutName,
     };
     renderWithRouter(<DashboardWithContext initialAppState={appState} />);
     expect(screen.getByText('Welcome!')).toBeInTheDocument();
   });
 
   it('renders license activation alert on activation success', () => {
-    renderWithRouter(
-      <DashboardWithContext />,
-      { route: '/?activationSuccess=true' },
-    );
+    useSubscriptions.mockReturnValue({
+      data: {
+        subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
+        subscriptionPlan: { uuid: 'test-uuid' },
+        shouldShowActivationSuccessMessage: true,
+      },
+    });
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.getByText(LICENSE_ACTIVATION_MESSAGE)).toBeInTheDocument();
   });
 
   it('does not render license activation alert without activation success', () => {
-    // NOTE: This modifies the original mockLocation
-    mockLocation = { ...mockLocation, state: { activationSuccess: false } };
-    renderWithRouter(
-      <DashboardWithContext />,
-    );
+    renderWithRouter(<DashboardWithContext />);
     expect(screen.queryByText(LICENSE_ACTIVATION_MESSAGE)).toBeFalsy();
   });
 
@@ -306,7 +264,7 @@ describe('<Dashboard />', () => {
     expect(screen.getByTestId('courses-tab-sidebar')).toBeInTheDocument();
   });
 
-  it('renders a add job sidebar on a large screen', async () => {
+  it('renders an add job sidebar on a large screen', async () => {
     features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
     window.matchMedia.setConfig(mockWindowConfig);
     renderWithRouter(
@@ -319,17 +277,9 @@ describe('<Dashboard />', () => {
   });
 
   it('renders pathway tab', () => {
-    pathwayProgressHooks.useInProgressPathwaysData.mockReturnValue([camelCaseObject(learnerPathwayData), null]);
-    const appState = {
-      ...defaultAppState,
-      enterpriseConfig: {
-        ...defaultAppState.enterpriseConfig,
-        enablePathways: true,
-      },
-    };
-
+    useEnterprisePathwaysList.mockReturnValue({ data: camelCaseObject(learnerPathwayData) });
     renderWithRouter(
-      <DashboardWithContext initialAppState={appState} />,
+      <DashboardWithContext />,
     );
 
     userEvent.click(screen.getByText('Pathways'));
@@ -338,16 +288,9 @@ describe('<Dashboard />', () => {
   });
 
   it('renders programs tab', async () => {
-    programsHooks.useLearnerProgramsListData.mockImplementation(() => [[dummyProgramData], null]);
-    const appState = {
-      ...defaultAppState,
-      enterpriseConfig: {
-        ...defaultAppState.enterpriseConfig,
-        enablePrograms: true,
-      },
-    };
+    useEnterpriseProgramsList.mockReturnValue({ data: camelCaseObject(dummyProgramData) });
     renderWithRouter(
-      <DashboardWithContext initialAppState={appState} />,
+      <DashboardWithContext />,
     );
 
     userEvent.click(screen.getByText('Programs'));
@@ -355,17 +298,25 @@ describe('<Dashboard />', () => {
     expect(screen.getByTestId('program-listing-page')).toBeInTheDocument();
   });
 
+  it('renders My Career when feature is enabled', () => {
+    features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
+    renderWithRouter(
+      <DashboardWithContext />,
+    );
+    expect(screen.getByText('My Career')).toBeInTheDocument();
+  });
+
   it('renders subsidies summary on a small screen', () => {
     window.matchMedia.setConfig({ ...mockWindowConfig, width: breakpoints.large.minWidth - 1 });
-    renderWithRouter(
-      <DashboardWithContext initialUserSubsidyState={{
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 60,
-        },
+    useSubscriptions.mockReturnValue({
+      data: {
         subscriptionLicense: { status: LICENSE_STATUS.ACTIVATED },
-      }}
-      />,
+        subscriptionPlan: { uuid: 'test-uuid' },
+        shouldShowActivationSuccessMessage: false,
+      },
+    });
+    renderWithRouter(
+      <DashboardWithContext />,
     );
     expect(screen.getByTestId('subsidies-summary')).toBeInTheDocument();
   });
@@ -378,49 +329,13 @@ describe('<Dashboard />', () => {
     expect(screen.getByText('Find a course')).toBeInTheDocument();
   });
 
-  it('renders Pathways when feature is enabled', () => {
-    const appState = {
-      ...defaultAppState,
-      enterpriseConfig: {
-        name: 'BearsRUs',
-        uuid: 'BearsRUs',
-        disableSearch: true,
-        adminUsers: [{ email: 'admin@foo.com' }],
-        enablePathways: true,
-      },
-    };
-
-    renderWithRouter(
-      <DashboardWithContext initialAppState={appState} />,
-    );
-    expect(screen.getByText('Pathways')).toBeInTheDocument();
-  });
-
-  it('renders My Career when feature is enabled', () => {
-    features.FEATURE_ENABLE_MY_CAREER.mockImplementation(() => true);
+  it('does not render "Find a course" when search is disabled for the customer', () => {
+    const mockEnterpriseCustomerWithoutSearch = enterpriseCustomerFactory({
+      disableSearch: true,
+    });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithoutSearch });
     renderWithRouter(
       <DashboardWithContext />,
-    );
-    expect(screen.getByText('My Career')).toBeInTheDocument();
-  });
-
-  it('does not render "Find a course" when search is disabled for the customer', () => {
-    const appState = {
-      ...defaultAppState,
-      enterpriseConfig: {
-        name: 'BearsRUs',
-        uuid: 'BearsRUs',
-        disableSearch: true,
-        adminUsers: [{ email: 'admin@foo.com' }],
-      },
-      config: {
-        LMS_BASE_URL: process.env.LMS_BASE_URL,
-      },
-    };
-    renderWithRouter(
-      <DashboardWithContext
-        initialAppState={appState}
-      />,
     );
     expect(screen.queryByText('Find a course')).toBeFalsy();
   });
@@ -485,86 +400,80 @@ describe('<Dashboard />', () => {
     });
 
     it('should render when 60 >= daysUntilExpiration > 0', () => {
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 60,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            daysUntilExpiration: 60,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
     it('should render the expired version of the modal when 0 >= daysUntilExpiration', () => {
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 0,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            daysUntilExpiration: 0,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeTruthy();
     });
 
     it('should not render when 0 >= daysUntilExpiration and expiration messages are disabled ', () => {
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 0,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: false,
+          subscriptionPlan: {
+            daysUntilExpiration: 0,
+          },
         },
-        showExpirationNotifications: false,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
     it('should not render when 60 >= daysUntilExpiration > 0 and expiration messages are disabled', () => {
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 60,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: false,
+          subscriptionPlan: {
+            daysUntilExpiration: 60,
+          },
         },
-        showExpirationNotifications: false,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
     });
 
     it('should render the expiration warning version of the modal when 60 >= daysUntilExpiration > 0', () => {
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 60,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            daysUntilExpiration: 60,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
@@ -575,25 +484,24 @@ describe('<Dashboard />', () => {
       Cookies.mockReturnValue({ get: () => null, set: mockSetCookies });
 
       const subscriptionPlanId = 'expiring-plan-60';
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          uuid: subscriptionPlanId,
-          daysUntilExpiration: 60,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            uuid: subscriptionPlanId,
+            daysUntilExpiration: 60,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       const modal = screen.getByRole('dialog');
       userEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
+        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}60-${mockEnterpriseCustomer.uuid}-${subscriptionPlanId}`,
         true,
         { sameSite: 'strict' },
       );
@@ -601,17 +509,16 @@ describe('<Dashboard />', () => {
 
     it('should not show the modal if 60 >= daysUntilExpiration > 30 and the 60 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 60,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            daysUntilExpiration: 60,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
@@ -622,25 +529,24 @@ describe('<Dashboard />', () => {
       Cookies.mockReturnValue({ get: () => null, set: mockSetCookies });
 
       const subscriptionPlanId = 'expiring-plan-30';
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          uuid: subscriptionPlanId,
-          daysUntilExpiration: 30,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            uuid: subscriptionPlanId,
+            daysUntilExpiration: 30,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeTruthy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();
       const modal = screen.getByRole('dialog');
       userEvent.click(modal.querySelector('button'));
       expect(mockSetCookies).toHaveBeenCalledWith(
-        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${defaultAppState.enterpriseConfig.uuid}-${subscriptionPlanId}`,
+        `${SEEN_SUBSCRIPTION_EXPIRATION_MODAL_COOKIE_PREFIX}30-${mockEnterpriseCustomer.uuid}-${subscriptionPlanId}`,
         true,
         { sameSite: 'strict' },
       );
@@ -648,17 +554,16 @@ describe('<Dashboard />', () => {
 
     it('should not show the modal if 30 >= daysUntilExpiration > 0 and the 30 day cookie has been set', () => {
       Cookies.mockReturnValue({ get: () => 'cookie' });
-      const expiringSubscriptionUserSubsidyState = {
-        ...defaultUserSubsidyState,
-        subscriptionPlan: {
-          daysUntilExpiration: 30,
+      useSubscriptions.mockReturnValue({
+        data: {
+          showExpirationNotifications: true,
+          subscriptionPlan: {
+            daysUntilExpiration: 30,
+          },
         },
-        showExpirationNotifications: true,
-      };
+      });
       renderWithRouter(
-        <DashboardWithContext
-          initialUserSubsidyState={expiringSubscriptionUserSubsidyState}
-        />,
+        <DashboardWithContext />,
       );
       expect(screen.queryByText(SUBSCRIPTION_EXPIRING_MODAL_TITLE)).toBeFalsy();
       expect(screen.queryByText(SUBSCRIPTION_EXPIRED_MODAL_TITLE)).toBeFalsy();

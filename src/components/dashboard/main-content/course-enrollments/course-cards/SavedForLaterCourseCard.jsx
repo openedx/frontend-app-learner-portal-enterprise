@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
 import BaseCourseCard from './BaseCourseCard';
@@ -9,25 +10,23 @@ import { MoveToInProgressModal } from './move-to-in-progress-modal';
 import { isCourseEnded } from '../../../../../utils/common';
 import { COURSE_STATUSES } from '../data/constants';
 import { useEnterpriseCustomer } from '../../../../app/data';
+import { useUpdateCourseEnrollmentStatus } from '../data';
 
 const SavedForLaterCourseCard = (props) => {
   const {
     title,
     linkToCourse,
     courseRunId,
-    // courseRunStatus,
     endDate,
     isRevoked,
     startDate,
     mode,
     resumeCourseRunUrl,
   } = props;
-  // const {
-  //   updateCourseEnrollmentStatus,
-  //   setShowMoveToInProgressCourseSuccess,
-  // } = useContext(CourseEnrollmentsContext);
 
+  const navigate = useNavigate();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+  const updateCourseEnrollmentStatus = useUpdateCourseEnrollmentStatus({ enterpriseCustomer });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -42,7 +41,6 @@ const SavedForLaterCourseCard = (props) => {
     );
   };
 
-  // eslint-disable-next-line no-unused-vars
   const handleMoveToInProgressOnSuccess = ({ response, resetModalState }) => {
     sendEnterpriseTrackEvent(
       enterpriseCustomer.uuid,
@@ -53,13 +51,18 @@ const SavedForLaterCourseCard = (props) => {
     );
     setIsModalOpen(false);
     resetModalState();
-    // updateCourseEnrollmentStatus({
-    //   courseRunId: response.courseRunId,
-    //   originalStatus: courseRunStatus,
-    //   newStatus: response.courseRunStatus,
-    //   savedForLater: response.savedForLater,
-    // });
-    // setShowMoveToInProgressCourseSuccess(true);
+    updateCourseEnrollmentStatus({
+      courseRunId: response.courseRunId,
+      newStatus: response.courseRunStatus,
+      savedForLater: response.savedForLater,
+    });
+    navigate('.', {
+      replace: true,
+      state: {
+        markedSavedForLaterSuccess: false,
+        markedInProgressSuccess: true,
+      },
+    });
   };
 
   const getDropdownMenuItems = () => {
@@ -138,7 +141,6 @@ SavedForLaterCourseCard.propTypes = {
   title: PropTypes.string.isRequired,
   linkToCertificate: PropTypes.string,
   isRevoked: PropTypes.bool.isRequired,
-  courseRunStatus: PropTypes.string.isRequired,
   endDate: PropTypes.string,
   startDate: PropTypes.string,
   mode: PropTypes.string,

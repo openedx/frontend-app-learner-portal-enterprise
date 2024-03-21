@@ -9,6 +9,7 @@ import { SkillsContextProvider } from '../SkillsContextProvider';
 import SelectJobCard from '../SelectJobCard';
 import { NOT_AVAILABLE } from '../constants';
 import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
   ...jest.requireActual('../../app/data'),
@@ -44,10 +45,10 @@ const TRANSFORMED_MEDIAN_SALARY_2 = '$250,000';
 const MEDIAN_SALARY = 'Median U.S. Salary:';
 const JOB_POSTINGS = 'Job Postings:';
 
-const mockEnterpriseCustomer = {
-  name: 'BearsRUs',
-  hideLaborMarketData: false,
-};
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockEnterpriseCustomerWithHiddenLaborMarketData = enterpriseCustomerFactory({
+  hide_labor_market_data: true,
+});
 
 describe('<SelectJobCard />', () => {
   beforeEach(() => {
@@ -96,13 +97,10 @@ describe('<SelectJobCard />', () => {
       },
       ],
     };
-    const hideLaborMarketConfig = {
-      ...mockEnterpriseCustomer,
-      hideLaborMarketData: true,
-    };
-    useEnterpriseCustomer.mockReturnValue({ data: hideLaborMarketConfig });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithHiddenLaborMarketData });
     renderWithRouter(
       <SelectJobCardWithContext
+        initialAppState={initialAppState}
         initialJobCardState={initialJobCardState}
       />,
     );

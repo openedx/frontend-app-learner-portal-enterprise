@@ -7,42 +7,30 @@ import { mergeConfig } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { SKILLS_QUIZ_SEARCH_PAGE_MESSAGE } from '../constants';
 
-import {
-  renderWithRouter,
-} from '../../../utils/tests';
+import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContextProvider } from '../SkillsContextProvider';
 import SkillsQuizPage from '../SkillsQuizPage';
 import { useEnterpriseCustomer } from '../../app/data';
-
-const mockLocation = {
-  pathname: '/welcome',
-  hash: '',
-  search: '',
-  state: { activationSuccess: true },
-};
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-}));
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => (mockLocation),
-}));
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
 }));
 
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
+
 const defaultAppState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: {
-    username: 'myspace-tom',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const SkillsQuizPageWithContext = ({
@@ -65,16 +53,10 @@ const SkillsQuizPageWithContext = ({
   );
 };
 
-const mockEnterpriseCustomer = {
-  slug: 'test-enterprise-slug',
-  uuid: 'test-enterprise-uuid',
-};
-
-useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-
 describe('SkillsQuizPage', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
   it('should render SkillsQuiz', async () => {
     renderWithRouter(

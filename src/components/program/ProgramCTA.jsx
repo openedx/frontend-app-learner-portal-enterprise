@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import { Dropdown } from '@openedx/paragon';
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ProgramContext } from './ProgramContextProvider';
 import { getProgramDuration } from './data/utils';
-import { linkToCourse } from '../course/data/utils';
+import { getLinkToCourse } from '../course/data/utils';
 import { useEnterpriseCustomer } from '../app/data';
 
 const ProgramCTA = () => {
@@ -167,8 +167,8 @@ const ProgramCTA = () => {
               course.enterpriseHasCourse ? (
                 <Dropdown.Item
                   key={course.title}
-                  as="a"
-                  href={linkToCourse(course, enterpriseCustomer.slug)}
+                  as={Link}
+                  to={getLinkToCourse(course, enterpriseCustomer.slug)}
                   className="wrap-word"
                   onClick={() => {
                     sendEnterpriseTrackEvent(

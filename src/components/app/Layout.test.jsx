@@ -8,24 +8,16 @@ import '@testing-library/jest-dom/extend-expect';
 
 import Layout from './Layout';
 import { queryClient, renderWithRouterProvider } from '../../utils/tests';
-import { useEnterpriseLearner } from './data';
+import { useEnterpriseCustomer } from './data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from './data/services/data/__factories__';
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+const mockAuthenticatedUser = authenticatedUserFactory();
 
 const mockDefaultAppContextValue = {
-  authenticatedUser: {
-    userId: 3,
-  },
+  authenticatedUser: mockAuthenticatedUser,
   config: {
     LMS_BASE_URL: 'https://test-lms.url',
-  },
-};
-
-const mockEnterpriseCustomer = {
-  uuid: 'test-enterprise-uuid',
-  brandingConfiguration: {
-    logo: 'https://test-logo.url',
-    primaryColor: '#000000',
-    secondaryColor: '#FF0000',
-    tertiaryColor: '#0000FF',
   },
 };
 
@@ -48,11 +40,7 @@ jest.mock('../../utils/common', () => ({
 
 jest.mock('./data', () => ({
   ...jest.requireActual('./data'),
-  useEnterpriseLearner: jest.fn().mockReturnValue({
-    data: {
-      enterpriseCustomer: null,
-    },
-  }),
+  useEnterpriseCustomer: jest.fn(),
 }));
 
 const LayoutWrapper = ({
@@ -70,9 +58,11 @@ const LayoutWrapper = ({
 describe('Layout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
   });
 
   it('renders the not found page when the user is not linked to an enterprise customer', () => {
+    useEnterpriseCustomer.mockReturnValue({ data: null });
     renderWithRouterProvider(<LayoutWrapper />);
     expect(screen.getByText('404', { selector: 'h1' })).toBeInTheDocument();
   });
@@ -103,12 +93,6 @@ describe('Layout', () => {
     maintenanceMessage,
     maintenanceStartTimestamp,
   }) => {
-    useEnterpriseLearner.mockReturnValue({
-      data: {
-        enterpriseCustomer: mockEnterpriseCustomer,
-      },
-    });
-
     if (maintenanceMessage) {
       mergeConfig({
         IS_MAINTENANCE_ALERT_ENABLED: isSystemMaintenanceAlertOpen,

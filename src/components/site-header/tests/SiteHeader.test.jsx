@@ -4,47 +4,50 @@ import '@testing-library/jest-dom/extend-expect';
 import { breakpoints } from '@openedx/paragon';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-
-import { QueryClientProvider } from '@tanstack/react-query';
+import { faker } from '@faker-js/faker';
 import { AppContext } from '@edx/frontend-platform/react';
+import { getConfig } from '@edx/frontend-platform/config';
 import SiteHeader from '../SiteHeader';
 
-import { renderWithRouter, queryClient, renderWithRouterProvider } from '../../../utils/tests';
-import { useEnterpriseLearner } from '../../app/data';
+import { renderWithRouter, renderWithRouterProvider } from '../../../utils/tests';
+import { useEnterpriseCustomer, useEnterpriseLearner } from '../../app/data';
+import { authenticatedUserFactory, enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
   useEnterpriseLearner: jest.fn(),
+  useEnterpriseCustomer: jest.fn(),
   useIsAssignmentsOnlyLearner: jest.fn(),
 }));
 
-const appState = {
-  enterpriseConfig: {
-    name: 'BearsRUs',
-    uuid: 'BearsRUs',
-    slug: 'bears-r-us',
-    branding: {
-      logo: 'the-logo.jpg',
-    },
-    disableSearch: false,
+jest.mock('@edx/frontend-platform/config', () => ({
+  ...jest.requireActual('@edx/frontend-platform/config'),
+  getConfig: jest.fn(),
+}));
+
+const mockEnterpriseCustomer = enterpriseCustomerFactory({
+  disableSearch: false,
+});
+const mockAuthenticatedUser = authenticatedUserFactory({
+  profile_image: {
+    image_url_medium: faker.image.avatar(),
   },
+});
+
+const appState = {
   config: {
     LMS_BASE_URL: process.env.LMS_BASE_URL,
   },
-  authenticatedUser: {
-    username: 'papa',
-    profileImage: 'papa-bear-image',
-  },
+  authenticatedUser: mockAuthenticatedUser,
 };
 
 const SiteHeaderWithContext = ({
   initialAppState = appState,
 }) => (
   <IntlProvider locale="en">
-    <QueryClientProvider client={queryClient()}>
-      <AppContext.Provider value={initialAppState}>
-        <SiteHeader />
-      </AppContext.Provider>
-    </QueryClientProvider>
+    <AppContext.Provider value={initialAppState}>
+      <SiteHeader />
+    </AppContext.Provider>
   </IntlProvider>
 );
 
@@ -55,20 +58,12 @@ const mockWindowConfig = {
 };
 
 const baseEnterpriseLearner = {
-  enterpriseCustomer: {
-    name: 'BearsRUs',
-    slug: 'bears-r-us',
-    brandingConfiguration: {
-      logo: 'test-logo.jpg',
-    },
-    disableSearch: false,
-  },
+  enterpriseCustomer: mockEnterpriseCustomer,
   allLinkedEnterpriseCustomerUsers: [
     {
-      enterpriseCustomer: {
-        name: 'BearsRUs',
-        slug: 'bears-r-us',
-      },
+      id: 3,
+      active: true,
+      enterpriseCustomer: mockEnterpriseCustomer,
     }],
 };
 
@@ -76,10 +71,26 @@ describe('<SiteHeader />', () => {
   beforeEach(() => {
     window.matchMedia.setConfig(mockWindowConfig);
     jest.clearAllMocks();
+    getConfig.mockReturnValue({
+      BASE_URL: process.env.BASE_URL,
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+      LOGOUT_URL: process.env.LOGOUT_URL,
+    });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+    useEnterpriseLearner.mockReturnValue({
+      data: {
+        enterpriseCustomer: mockEnterpriseCustomer,
+        allLinkedEnterpriseCustomerUsers: [
+          {
+            active: true,
+            enterpriseCustomer: mockEnterpriseCustomer,
+          },
+        ],
+      },
+    });
   });
 
   test('renders link with logo to dashboard', () => {
-    useEnterpriseLearner.mockReturnValue({ data: baseEnterpriseLearner });
     renderWithRouter(
       <SiteHeaderWithContext />,
     );
@@ -87,22 +98,23 @@ describe('<SiteHeader />', () => {
     expect(screen.getByTestId('header-logo-link-id'));
   });
   test('does not render link with logo to dashboard when search is disabled', () => {
-    const disabledSearchEnterpriseLearner = {
-      ...baseEnterpriseLearner,
-      enterpriseCustomer: {
-        ...baseEnterpriseLearner.enterpriseCustomer,
-        disableSearch: true,
+    const mockEnterpriseCustomerWithDisabledSearch = enterpriseCustomerFactory({
+      disableSearch: true,
+    });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithDisabledSearch });
+    useEnterpriseLearner.mockReturnValue({
+      data: {
+        enterpriseCustomer: mockEnterpriseCustomerWithDisabledSearch,
+        allLinkedEnterpriseCustomerUsers: [
+          {
+            active: true,
+            enterpriseCustomer: mockEnterpriseCustomerWithDisabledSearch,
+          },
+        ],
       },
-    };
-    useEnterpriseLearner.mockReturnValue({ data: disabledSearchEnterpriseLearner });
-    const disableSearchAppState = {
-      ...appState,
-    };
-    disableSearchAppState.enterpriseConfig.disableSearch = true;
+    });
     renderWithRouter(
-      <SiteHeaderWithContext
-        initialAppState={disableSearchAppState}
-      />,
+      <SiteHeaderWithContext />,
     );
     expect(screen.getByTestId('header-logo-image-id'));
     expect(screen.queryByTestId('header-logo-link-id')).toBeFalsy();
@@ -113,37 +125,38 @@ describe('<SiteHeader />', () => {
       <SiteHeaderWithContext initialAppState={appState} />,
     );
 
-    userEvent.click(screen.getByText('papa'));
+    userEvent.click(screen.getByText(mockAuthenticatedUser.username));
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js
-    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us');
+    expect(logoutLink.getAttribute('href')).toBe(`http://localhost:18000/logout?next=http://localhost:8734/${mockEnterpriseCustomer.slug}`);
   });
   test('renders logout-specific logout link in presence of IDP', () => {
-    const idpEnterpriseLearner = {
-      ...baseEnterpriseLearner,
-      enterpriseCustomer: {
-        ...baseEnterpriseLearner.enterpriseCustomer,
-        identityProvider: 'a-provider',
+    const mockEnterpriseCustomerWithIDP = enterpriseCustomerFactory({
+      identity_provider: 'a-provider',
+    });
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithIDP });
+    useEnterpriseLearner.mockReturnValue({
+      data: {
+        enterpriseCustomer: mockEnterpriseCustomerWithIDP,
+        allLinkedEnterpriseCustomerUsers: [
+          {
+            active: true,
+            enterpriseCustomer: mockEnterpriseCustomerWithIDP,
+          },
+        ],
       },
-    };
-    useEnterpriseLearner.mockReturnValue({ data: idpEnterpriseLearner });
-    const appStateWithIDP = {
-      ...appState,
-      enterpriseConfig: {
-        ...appState.enterpriseConfig,
-        identityProvider: 'a-provider',
-      },
-    };
+    });
     renderWithRouter(
-      <SiteHeaderWithContext initialAppState={appStateWithIDP} />,
+      <SiteHeaderWithContext />,
     );
-
-    userEvent.click(screen.getByText('papa'));
+    userEvent.click(screen.getByText(mockAuthenticatedUser.username));
     expect(screen.getByText('Sign out')).toBeInTheDocument();
     const logoutLink = screen.getByText('Sign out');
     // note: the values of these come from the process.env vars in setupTest.js
-    expect(logoutLink.getAttribute('href')).toBe('http://localhost:18000/logout?next=http://localhost:8734/bears-r-us%3Flogout=true');
+    expect(logoutLink.getAttribute('href')).toEqual(
+      `http://localhost:18000/logout?next=http://localhost:8734/${mockEnterpriseCustomer.slug}%3Flogout=true`,
+    );
   });
 
   test.each([

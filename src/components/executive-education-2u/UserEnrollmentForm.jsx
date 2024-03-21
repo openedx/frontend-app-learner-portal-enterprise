@@ -328,7 +328,6 @@ const UserEnrollmentForm = ({
                     </Form.Group>
                   </Col>
                 </Row>
-
                 {enterpriseCustomer.enableDataSharingConsent && (
                   <Row>
                     <Col>

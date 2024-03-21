@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   breakpoints, Card, Truncate,
@@ -13,11 +13,6 @@ import { useEnterpriseCustomer } from '../app/data';
 const ProgramListingCard = ({ program }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    navigate(`/${enterpriseCustomer.slug}/program/${program.uuid}/progress`);
-  };
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -57,7 +52,8 @@ const ProgramListingCard = ({ program }) => {
     <Card
       className="progress-listing-card"
       isClickable
-      onClick={handleCardClick}
+      as={Link}
+      to={`/${enterpriseCustomer.slug}/program/${program.uuid}/progress`}
     >
       <Card.ImageCap
         src={getBannerImageURL() || cardFallbackImg}
@@ -72,11 +68,11 @@ const ProgramListingCard = ({ program }) => {
         title={(
           <Truncate lines={2}>{program.title}</Truncate>
         )}
-        subtitle={program.authoringOrganizations?.length > 0 ? (
+        subtitle={program.authoringOrganizations?.length > 0 && (
           <Truncate lines={2}>
             {program.authoringOrganizations.map(org => org.key).join(', ')}
           </Truncate>
-        ) : undefined}
+        )}
       />
       <Card.Section>
         <div className="d-flex align-items-center">

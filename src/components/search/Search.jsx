@@ -31,7 +31,7 @@ import {
   useCanOnlyViewHighlights,
 } from '../app/data';
 import { useAlgoliaSearch } from '../../utils/hooks';
-import useEnterpriseFeatures from '../hooks/useEnterpriseFeatures';
+import { useEnterpriseFeatures } from '../hooks';
 import ContentTypeSearchResultsContainer from './ContentTypeSearchResultsContainer';
 import { useDefaultSearchFilters } from './data';
 
@@ -63,7 +63,7 @@ function useSearchPathwayModal() {
 const Search = () => {
   const config = getConfig();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const enterpriseFeatures = useEnterpriseFeatures();
+  const { data: enterpriseFeatures } = useEnterpriseFeatures();
   const intl = useIntl();
   const navigate = useNavigate();
 
@@ -75,9 +75,11 @@ const Search = () => {
   const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   const isAssignmentOnlyLearner = useIsAssignmentsOnlyLearner();
   const {
-    hasLowEnterpriseOffersBalance,
-    hasNoEnterpriseOffersBalance,
-    canEnrollWithEnterpriseOffers,
+    data: {
+      hasLowEnterpriseOffersBalance,
+      hasNoEnterpriseOffersBalance,
+      canEnrollWithEnterpriseOffers,
+    },
   } = useEnterpriseOffers();
   const shouldDisplayBalanceAlert = hasNoEnterpriseOffersBalance || hasLowEnterpriseOffersBalance;
 

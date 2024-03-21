@@ -1,21 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   ActionRow, Button, MailtoLink, StandardModal,
 } from '@openedx/paragon';
-
 import dayjs from '../../utils/dayjs';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { SUBSCRIPTION_EXPIRING_MODAL_TITLE } from './data/constants';
-import { useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, useSubscriptions } from '../app/data';
 
 const SubscriptionExpirationWarningModal = ({
   isSubscriptionExpiringWarningModalOpen,
   onSubscriptionExpiringWarningModalClose,
 }) => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { subscriptionPlan: { expirationDate } } = useContext(UserSubsidyContext);
-  if (isSubscriptionExpiringWarningModalOpen === false) { return null; }
+  const { data: { subscriptionPlan } } = useSubscriptions();
   const renderTitle = () => (
     <h3>{SUBSCRIPTION_EXPIRING_MODAL_TITLE}</h3>
   );
@@ -41,7 +38,7 @@ const SubscriptionExpirationWarningModal = ({
         If you plan to complete the program, please {renderContactText()} to ensure your subscription access is renewed.
       </p>
       <i>
-        Access expires: {dayjs(expirationDate).format('MMMM Do, YYYY')}.
+        Access expires: {dayjs(subscriptionPlan.expirationDate).format('MMMM Do, YYYY')}.
       </i>
     </>
   );

@@ -55,7 +55,7 @@ describe('fetchLicenseRequests', () => {
     const LICENSE_REQUESTS_URL = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/license-requests/?${queryParams.toString()}`;
     axiosMock.onGet(LICENSE_REQUESTS_URL).reply(200, mockLicenseRequests);
     const result = await fetchLicenseRequests(mockEnterpriseId, mockUserEmail);
-    expect(result).toEqual(mockLicenseRequests);
+    expect(result).toEqual(mockLicenseRequests.results);
   });
 });
 
@@ -72,6 +72,6 @@ describe('fetchCouponCodeRequests', () => {
     const COUPON_CODE_REQUESTS_URL = `${APP_CONFIG.ENTERPRISE_ACCESS_BASE_URL}/api/v1/coupon-code-requests/?${queryParams.toString()}`;
     axiosMock.onGet(COUPON_CODE_REQUESTS_URL).reply(200, mockCouponCodeRequests);
     const result = await fetchCouponCodeRequests(mockEnterpriseId, mockUserEmail);
-    expect(result).toEqual(mockCouponCodeRequests);
+    expect(result).toEqual(mockCouponCodeRequests.results);
   });
 });

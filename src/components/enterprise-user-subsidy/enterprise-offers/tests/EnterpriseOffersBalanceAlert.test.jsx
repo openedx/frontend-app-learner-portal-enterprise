@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { AppContext } from '@edx/frontend-platform/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import EnterpriseOffersBalanceAlert from '../EnterpriseOffersBalanceAlert';
 import {
@@ -9,52 +8,46 @@ import {
   LOW_BALANCE_CONTACT_ADMIN_TEXT,
   NO_BALANCE_ALERT_TEXT,
 } from '../data/constants';
+import { useEnterpriseCustomer } from '../../../app/data';
+import { authenticatedUserFactory } from '../../../app/data/services/data/__factories__';
 
-const EnterpriseOffersBalanceAlertWrapper = ({
-  enterpriseConfig = {
-    adminUsers: [],
-  },
-  hasNoEnterpriseOffersBalance,
-}) => (
+const mockEnterpriseCustomerWithoutAdminUsers = authenticatedUserFactory({
+  admin_users: [],
+});
+const mockEnterpriseCustomerWithAdminUsers = authenticatedUserFactory({
+  admin_users: ['edx@example.org'],
+});
+
+jest.mock('../../../app/data', () => ({
+  ...jest.requireActual('../../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const EnterpriseOffersBalanceAlertWrapper = (props) => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={{
-      enterpriseConfig,
-    }}
-    >
-      <EnterpriseOffersBalanceAlert
-        hasNoEnterpriseOffersBalance={hasNoEnterpriseOffersBalance}
-      />
-    </AppContext.Provider>
+    <EnterpriseOffersBalanceAlert {...props} />
   </IntlProvider>
 );
 
 describe('<EnterpriseOffersBalanceAlert />', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithAdminUsers });
+  });
+
   it('should not render mailto link if there are no enterprise admins', () => {
-    render(<EnterpriseOffersBalanceAlertWrapper />);
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomerWithoutAdminUsers });
+    render(<EnterpriseOffersBalanceAlertWrapper hasLowBalance />);
     expect(screen.queryByText(LOW_BALANCE_CONTACT_ADMIN_TEXT)).not.toBeInTheDocument();
   });
 
   it('should render mailto link with no_balance text if there are enterprise admins', () => {
-    const enterpriseConfig = {
-      adminUsers: ['edx@example.org'],
-    };
-    render(
-      <EnterpriseOffersBalanceAlertWrapper
-        enterpriseConfig={enterpriseConfig}
-        hasNoEnterpriseOffersBalance
-      />,
-    );
+    render(<EnterpriseOffersBalanceAlertWrapper hasNoBalance />);
     expect(screen.getByText(NO_BALANCE_ALERT_TEXT)).toBeInTheDocument();
   });
 
   it('should render mailto link with low_balance text if there are enterprise admins', () => {
-    const enterpriseConfig = {
-      adminUsers: ['edx@example.org'],
-    };
-    render(<EnterpriseOffersBalanceAlertWrapper
-      enterpriseConfig={enterpriseConfig}
-      hasNoEnterpriseOffersBalance={false}
-    />);
+    render(<EnterpriseOffersBalanceAlertWrapper hasLowBalance />);
     expect(screen.getByText(LOW_BALANCE_ALERT_TEXT)).toBeInTheDocument();
   });
 });

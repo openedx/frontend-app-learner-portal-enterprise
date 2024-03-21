@@ -6,28 +6,25 @@ import { SearchContext } from '@edx/frontend-enterprise-catalog-search';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import SearchPathways from '../SearchPathways';
-import { defaultSubsidyHooksData, mockSubsidyHooksReturnValues, renderWithRouter } from '../../../utils/tests';
-import { TEST_ENTERPRISE_SLUG } from '../../search/tests/constants';
+import { renderWithRouter } from '../../../utils/tests';
 import { SkillsContext } from '../SkillsContextProvider';
+import { useDefaultSearchFilters } from '../../search';
 import { useEnterpriseCustomer } from '../../app/data';
-
-jest.mock('../../app/data', () => ({
-  ...jest.requireActual('../../app/data'),
-  useEnterpriseCustomer: jest.fn(),
-  useSubscriptions: jest.fn(),
-  useRedeemablePolicies: jest.fn(),
-  useCouponCodes: jest.fn(),
-  useEnterpriseOffers: jest.fn(),
-}));
-
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useCatalogsForSubsidyRequests: jest.fn(),
-}));
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 jest.mock('@edx/frontend-enterprise-utils', () => ({
   ...jest.requireActual('@edx/frontend-enterprise-utils'),
   sendEnterpriseTrackEvent: jest.fn(),
+}));
+
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+jest.mock('../../search', () => ({
+  ...jest.requireActual('../../search'),
+  useDefaultSearchFilters: jest.fn(),
 }));
 
 const TEST_PATHWAY_UUID = 'test-pathway-uuid';
@@ -76,6 +73,8 @@ const defaultSkillsState = {
   },
 };
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 const SearchPathwaysWithContext = ({
   initialSkillsState = defaultSkillsState,
   initialSearchContext = defaultSearchContext,
@@ -90,19 +89,12 @@ const SearchPathwaysWithContext = ({
   </IntlProvider>
 );
 
-const mockEnterpriseCustomer = {
-  name: 'test-enterprise',
-  slug: TEST_ENTERPRISE_SLUG,
-  uuid: 'test-enterprise-uuid',
-};
-
 describe('<SearchPathways />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
-    mockSubsidyHooksReturnValues(defaultSubsidyHooksData);
+    useDefaultSearchFilters.mockReturnValue({ filters: `enterprise_customer_uuids:${mockEnterpriseCustomer.uuid}` });
   });
-
   test('renders the correct data', async () => {
     renderWithRouter(<SearchPathwaysWithContext index={testIndex} />);
     await waitFor(() => {

@@ -2,14 +2,14 @@ import React, { useContext, useMemo } from 'react';
 import {
   Badge, Card, Stack, Truncate,
 } from '@openedx/paragon';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import PropTypes from 'prop-types';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import cardFallbackImg from '@edx/brand/paragon/images/card-imagecap-fallback.png';
 
 import getCommonSkills from './data/utils';
-import { linkToCourse, shortenString } from '../course/data/utils';
+import { getLinkToCourse, shortenString } from '../course/data/utils';
 import { ELLIPSIS_STR } from '../course/data/constants';
 import { isDefinedAndNotNull } from '../../utils/common';
 import { MAX_VISIBLE_SKILLS_COURSE, SKILL_NAME_CUTOFF_LIMIT } from './constants';
@@ -18,7 +18,6 @@ import { useEnterpriseCustomer } from '../app/data';
 const CourseCard = ({
   isLoading, course, allSkills,
 }) => {
-  const navigate = useNavigate();
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const partnerDetails = useMemo(() => {
@@ -45,13 +44,13 @@ const CourseCard = ({
       'edx.ui.enterprise.learner_portal.skills_quiz.course.clicked',
       { userId, enterprise: enterpriseCustomer.slug, selectedCourse: course.key },
     );
-
-    navigate(linkToCourse(course, enterpriseCustomer.slug));
   };
 
   return (
     <Card
       isClickable
+      as={Link}
+      to={getLinkToCourse(course, enterpriseCustomer.slug)}
       isLoading={isLoading}
       onClick={handleCardClick}
       data-testid="skills-quiz-course-card"

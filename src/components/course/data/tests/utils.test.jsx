@@ -18,7 +18,7 @@ import {
   getAvailableCourseRunKeysFromCourseData,
   getAvailableCourseRuns,
   getSubsidyToApplyForCourse,
-  linkToCourse,
+  getLinkToCourse,
   pathContainsCourseTypeSlug,
   getCourseStartDate,
   getMissingSubsidyReasonActions,
@@ -30,7 +30,7 @@ import {
   getMissingApplicableSubsidyReason,
 } from '../utils';
 
-jest.mock('@edx/frontend-platform/config', () => ({
+jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),
   getConfig: () => ({
     LEARNER_SUPPORT_SPEND_ENROLLMENT_LIMITS_URL: 'https://limits.url',
@@ -415,7 +415,7 @@ describe('pathContainsCourseTypeSlug', () => {
   });
 });
 
-describe('linkToCourse', () => {
+describe('getLinkToCourse', () => {
   const slug = 'testenterprise';
   const mockEntitlementCourse = {
     key: 'mock_entitlement_course',
@@ -435,15 +435,15 @@ describe('linkToCourse', () => {
   };
 
   it('returns url with course type slug', () => {
-    expect(linkToCourse(mockEntitlementCourse, slug)).toEqual('/testenterprise/executive-education-2u/course/mock_entitlement_course');
+    expect(getLinkToCourse(mockEntitlementCourse, slug)).toEqual('/testenterprise/executive-education-2u/course/mock_entitlement_course');
   });
 
   it('returns url without course type slug', () => {
-    expect(linkToCourse(mockNonEntitlementCourse, slug)).toEqual('/testenterprise/course/mock_non_entitlement_course');
+    expect(getLinkToCourse(mockNonEntitlementCourse, slug)).toEqual('/testenterprise/course/mock_non_entitlement_course');
   });
 
   it('returns url with course queryId, objectId', () => {
-    expect(linkToCourse(mockQueryObjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
+    expect(getLinkToCourse(mockQueryObjectIdCourse, slug)).toEqual('/testenterprise/course/mock_query_object_id_course?queryId=testqueryid&objectId=testobjectid');
   });
 });
 

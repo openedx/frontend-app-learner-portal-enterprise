@@ -171,7 +171,11 @@ describe('fetchEnterpriseLearnerData', () => {
 });
 
 describe('fetchEnterpriseCourseEnrollments', () => {
-  const COURSE_ENROLLMENTS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?enterprise_id=${mockEnterpriseId}`;
+  const courseEnrollmentsQueryParams = new URLSearchParams({
+    enterprise_id: mockEnterpriseId,
+    is_active: true,
+  });
+  const COURSE_ENROLLMENTS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/enterprise_learner_portal/api/v1/enterprise_course_enrollments/?${courseEnrollmentsQueryParams.toString()}`;
 
   beforeEach(() => {
     jest.clearAllMocks();

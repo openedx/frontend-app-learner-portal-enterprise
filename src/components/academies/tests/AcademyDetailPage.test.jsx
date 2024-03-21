@@ -1,8 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
-import { AppContext } from '@edx/frontend-platform/react';
-import { screen, act } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import '@testing-library/jest-dom/extend-expect';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
@@ -12,6 +11,8 @@ import {
 import { renderWithRouter } from '../../../utils/tests';
 
 import AcademyDetailPage from '../AcademyDetailPage';
+import { useEnterpriseCustomer } from '../../app/data';
+import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
 // config
 const APP_CONFIG = {
@@ -103,32 +104,28 @@ jest.mock('algoliasearch/lite', () => {
   return jest.fn(() => ({ initIndex: mockInitIndex }));
 });
 
-const AcademyDetailPageWithContext = ({
-  initialAppState = {},
-}) => (
+jest.mock('../../app/data', () => ({
+  ...jest.requireActual('../../app/data'),
+  useEnterpriseCustomer: jest.fn(),
+}));
+
+const AcademyDetailPageWithContext = () => (
   <IntlProvider locale="en">
-    <AppContext.Provider value={initialAppState}>
-      <AcademyDetailPage />
-    </AppContext.Provider>
+    <AcademyDetailPage />
   </IntlProvider>
 );
 
+const mockEnterpriseCustomer = enterpriseCustomerFactory();
+
 describe('<AcademyDetailPage />', () => {
-  const initialAppState = {
-    enterpriseConfig: {
-      slug: 'test-enterprise-slug',
-      uuid: '11111111-1111-1111-1111-111111111111',
-    },
-  };
-
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useEnterpriseCustomer.mockReturnValue({ data: mockEnterpriseCustomer });
+  });
   it('renders academy detail page', async () => {
-    await act(async () => renderWithRouter(
-      <AcademyDetailPageWithContext
-        initialAppState={initialAppState}
-      />,
-    ));
+    renderWithRouter(<AcademyDetailPageWithContext />);
 
-    const headingElement = screen.getByRole('heading', { level: 2 });
+    const headingElement = await screen.findByRole('heading', { level: 2 });
     expect(headingElement.textContent).toBe(ACADEMY_MOCK_DATA.title);
     expect(screen.getByTestId('academy-description')).toHaveTextContent(ACADEMY_MOCK_DATA.long_description);
     const academyTags = screen.getAllByTestId('academy-tag').map((tag) => tag.textContent);

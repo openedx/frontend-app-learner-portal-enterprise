@@ -15,7 +15,6 @@ const addIcon = () => (
     src={Plus}
     id="add-job-role-icon"
     className="add-job-icon"
-    screenReaderText="Add Role"
   />
 );
 
