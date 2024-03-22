@@ -61,8 +61,8 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
   const enterpriseLearnerUrl = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/`;
   const queryParams = new URLSearchParams({
     username,
-    ...options,
     page: 1,
+    ...options,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
   try {

@@ -18,7 +18,7 @@ export async function fetchBrowseAndRequestConfiguration(enterpriseUUID) {
     return camelCaseObject(response.data);
   } catch (error) {
     if (getErrorResponseStatusCode(error) !== 404) {
-      logError();
+      logError(error);
     }
     return null;
   }

@@ -61,7 +61,22 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
     logError(error);
     return {
       redeemablePolicies: [],
-      learnerContentAssignments: [],
+      learnerContentAssignments: {
+        assignments: [],
+        hasAssignments: false,
+        allocatedAssignments: [],
+        hasAllocatedAssignments: false,
+        acceptedAssignments: [],
+        hasAcceptedAssignments: false,
+        canceledAssignments: [],
+        hasCanceledAssignments: false,
+        expiredAssignments: [],
+        hasExpiredAssignments: false,
+        erroredAssignments: [],
+        hasErroredAssignments: false,
+        assignmentsForDisplay: [],
+        hasAssignmentsForDisplay: false,
+      },
     };
   }
 }

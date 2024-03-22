@@ -5,6 +5,8 @@ import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-
 import {
   fetchEnterpriseCourseEnrollments,
   fetchEnterpriseLearnerData,
+  fetchInProgressPathways,
+  fetchLearnerProgramsList,
   postLinkEnterpriseLearner,
   updateUserActiveEnterprise,
 } from './enterpriseCustomerUser';
@@ -43,6 +45,7 @@ describe('updateUserActiveEnterprise', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
   });
 
   it('passes correct POST body', async () => {
@@ -58,6 +61,7 @@ describe('updateUserActiveEnterprise', () => {
 describe('fetchEnterpriseLearnerData', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
   });
 
   it.each([
@@ -168,6 +172,26 @@ describe('fetchEnterpriseLearnerData', () => {
       staffEnterpriseCustomer: isStaffUser ? expectedEnterpriseCustomer : undefined,
     });
   });
+
+  it('catches API error', async () => {
+    const username = 'test-username';
+    const enterpriseLearnerQueryParams = new URLSearchParams({
+      username,
+      page: 1,
+    });
+    const enterpriseLearnerUrl = `${APP_CONFIG.LMS_BASE_URL}/enterprise/api/v1/enterprise-learner/?${enterpriseLearnerQueryParams.toString()}`;
+    axiosMock.onGet(enterpriseLearnerUrl).reply(500);
+    const response = await fetchEnterpriseLearnerData(username, mockEnterpriseSlug);
+    expect(response).toEqual({
+      enterpriseFeatures: {},
+      enterpriseCustomer: null,
+      enterpriseCustomerUserRoleAssignments: [],
+      activeEnterpriseCustomer: null,
+      activeEnterpriseCustomerUserRoleAssignments: [],
+      allLinkedEnterpriseCustomerUsers: [],
+      staffEnterpriseCustomer: null,
+    });
+  });
 });
 
 describe('fetchEnterpriseCourseEnrollments', () => {
@@ -179,6 +203,7 @@ describe('fetchEnterpriseCourseEnrollments', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
   });
 
   it('returns course enrollments', async () => {
@@ -188,8 +213,8 @@ describe('fetchEnterpriseCourseEnrollments', () => {
     expect(response).toEqual(courseEnrollments);
   });
 
-  it('returns empty array when 404 error occurs', async () => {
-    axiosMock.onGet(COURSE_ENROLLMENTS_ENDPOINT).reply(404);
+  it.each([404, 500])('returns empty array when 404 error occurs', async (httpStatusCode) => {
+    axiosMock.onGet(COURSE_ENROLLMENTS_ENDPOINT).reply(httpStatusCode);
     const response = await fetchEnterpriseCourseEnrollments(mockEnterpriseId);
     expect(response).toEqual([]);
   });
@@ -201,6 +226,7 @@ describe('postLinkEnterpriseLearner', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
   });
 
   it('passes correct POST body', async () => {
@@ -214,5 +240,56 @@ describe('postLinkEnterpriseLearner', () => {
         enterpriseCustomerSlug: mockEnterpriseSlug,
       }),
     );
+  });
+});
+
+describe('fetchLearnerProgramsList', () => {
+  const PROGRAMS_ENDPOINT = `${APP_CONFIG.LMS_BASE_URL}/api/dashboard/v0/programs/${mockEnterpriseId}/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns programs list', async () => {
+    const programsList = [{ key: 'edX+DemoX' }];
+    axiosMock.onGet(PROGRAMS_ENDPOINT).reply(200, programsList);
+    const response = await fetchLearnerProgramsList(mockEnterpriseId);
+    expect(response).toEqual(programsList);
+  });
+
+  it('returns empty array when 404 error occurs', async () => {
+    axiosMock.onGet(PROGRAMS_ENDPOINT).reply(500);
+    const response = await fetchLearnerProgramsList(mockEnterpriseId);
+    expect(response).toEqual([]);
+  });
+});
+
+describe('fetchInProgressPathways', () => {
+  const mockPathways = [
+    { id: 1 },
+    { id: 2 },
+  ];
+  const mockPathwaysResponse = {
+    results: mockPathways,
+  };
+
+  const PATHWAYS_PROGRESS_URL = `${APP_CONFIG.LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('returns in-progress pathways', async () => {
+    axiosMock.onGet(PATHWAYS_PROGRESS_URL).reply(200, mockPathwaysResponse);
+    const response = await fetchInProgressPathways();
+    expect(response).toEqual(mockPathways);
+  });
+
+  it('returns empty array when 500 error occurs', async () => {
+    axiosMock.onGet(PATHWAYS_PROGRESS_URL).reply(500);
+    const response = await fetchInProgressPathways();
+    expect(response).toEqual([]);
   });
 });
