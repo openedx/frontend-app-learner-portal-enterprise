@@ -41,7 +41,7 @@ export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
   try {
     const response = await getAuthenticatedHttpClient().get(url);
     const { results } = camelCaseObject(response.data);
-    return results[0];
+    return results[0] ?? null;
   } catch (error) {
     logError(error);
     return null;
