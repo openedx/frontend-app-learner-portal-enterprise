@@ -20,10 +20,12 @@ const ErrorPageTitle = ({ children, spannedTitle }) => (
 
 ErrorPageTitle.propTypes = {
   children: PropTypes.node,
+  spannedTitle: PropTypes.node,
 };
 
 ErrorPageTitle.defaultProps = {
   children: 'Error occurred while processing your request',
+  spannedTitle: null,
 };
 
 export default ErrorPageTitle;

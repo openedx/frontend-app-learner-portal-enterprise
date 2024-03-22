@@ -13,7 +13,6 @@ import ErrorPageContent from './ErrorPageContent';
  * React component for the error case when attempting to link a user to a customer. Renders
  * a header, error alert, and a footer.
  */
-
 const ErrorPage = ({
   title,
   spannedTitle,

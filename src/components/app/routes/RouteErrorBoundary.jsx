@@ -42,11 +42,8 @@ const RouteErrorBoundary = ({
   showSiteHeader,
   showSiteFooter,
 }) => {
-  // const intl = useIntl();
+  const intl = useIntl();
   const routeError = useRouteError();
-  console.log(routeError);
-  return null;
-
   const asyncError = useAsyncError();
 
   useEffect(() => {
