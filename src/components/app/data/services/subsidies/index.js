@@ -1,5 +1,7 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { logError } from '@edx/frontend-platform/logging';
+
 import { ENTERPRISE_OFFER_STATUS, ENTERPRISE_OFFER_USAGE_TYPE } from '../../../../enterprise-user-subsidy/enterprise-offers/data/constants';
 import { getAssignmentsByState, transformRedeemablePoliciesData } from '../../utils';
 import { fetchPaginatedData } from '../utils';
@@ -21,8 +23,13 @@ export async function fetchEnterpriseOffers(enterpriseId, options = {}) {
     ...options,
   });
   const url = `${getConfig().ECOMMERCE_BASE_URL}/api/v2/enterprise/${enterpriseId}/enterprise-learner-offers/?${queryParams.toString()}`;
-  const { results } = await fetchPaginatedData(url);
-  return results;
+  try {
+    const { results } = await fetchPaginatedData(url);
+    return results;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
 }
 
 // Redeemable Policies
@@ -39,16 +46,24 @@ export async function fetchRedeemablePolicies(enterpriseUUID, userID) {
     lms_user_id: userID,
   });
   const url = `${getConfig().ENTERPRISE_ACCESS_BASE_URL}/api/v1/policy-redemption/credits_available/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  const responseData = camelCaseObject(response.data);
-  const redeemablePolicies = transformRedeemablePoliciesData(responseData);
-  const learnerContentAssignments = getAssignmentsByState(
-    redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
-  );
-  return {
-    redeemablePolicies,
-    learnerContentAssignments,
-  };
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    const responseData = camelCaseObject(response.data);
+    const redeemablePolicies = transformRedeemablePoliciesData(responseData);
+    const learnerContentAssignments = getAssignmentsByState(
+      redeemablePolicies?.flatMap(item => item.learnerContentAssignments || []),
+    );
+    return {
+      redeemablePolicies,
+      learnerContentAssignments,
+    };
+  } catch (error) {
+    logError(error);
+    return {
+      redeemablePolicies: [],
+      learnerContentAssignments: [],
+    };
+  }
 }
 
 export * from './browseAndRequest';

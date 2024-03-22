@@ -1,5 +1,6 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient, getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { logError } from '@edx/frontend-platform/logging';
 
 import { determineEnterpriseCustomerUserForDisplay, transformEnterpriseCustomer } from '../utils';
 import { fetchPaginatedData } from './utils';
@@ -37,9 +38,14 @@ export async function postLinkEnterpriseLearner(inviteKeyUUID) {
 export async function fetchEnterpriseCustomerForSlug(enterpriseSlug) {
   const queryParams = new URLSearchParams({ slug: enterpriseSlug });
   const url = `${getConfig().LMS_BASE_URL}/enterprise/api/v1/enterprise-customer/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  const { results } = camelCaseObject(response.data);
-  return results[0];
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    const { results } = camelCaseObject(response.data);
+    return results[0];
+  } catch (error) {
+    logError(error);
+    return null;
+  }
 }
 
 /**
@@ -59,61 +65,75 @@ export async function fetchEnterpriseLearnerData(username, enterpriseSlug, optio
     page: 1,
   });
   const url = `${enterpriseLearnerUrl}?${queryParams.toString()}`;
-  const {
-    results: enterpriseCustomersUsers,
-    response: enterpriseCustomerUsersResponse,
-  } = await fetchPaginatedData(url);
-  const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
+  try {
+    const {
+      results: enterpriseCustomersUsers,
+      response: enterpriseCustomerUsersResponse,
+    } = await fetchPaginatedData(url);
+    const { enterpriseFeatures } = enterpriseCustomerUsersResponse;
 
-  // Transform enterprise customer user results
-  const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
-    enterpriseCustomerUser => ({
-      ...enterpriseCustomerUser,
-      enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
-    }),
-  );
+    // Transform enterprise customer user results
+    const transformedEnterpriseCustomersUsers = enterpriseCustomersUsers.map(
+      enterpriseCustomerUser => ({
+        ...enterpriseCustomerUser,
+        enterpriseCustomer: transformEnterpriseCustomer(enterpriseCustomerUser.enterpriseCustomer),
+      }),
+    );
 
-  const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(enterprise => enterprise.active);
-  const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
-  const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
+    const activeLinkedEnterpriseCustomerUser = transformedEnterpriseCustomersUsers.find(
+      enterprise => enterprise.active,
+    );
+    const activeEnterpriseCustomer = activeLinkedEnterpriseCustomerUser?.enterpriseCustomer;
+    const activeEnterpriseCustomerUserRoleAssignments = activeLinkedEnterpriseCustomerUser?.roleAssignments || [];
 
-  // Find enterprise customer metadata for the currently viewed
-  // enterprise slug in the page route params.
-  const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
-    enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
-  );
+    // Find enterprise customer metadata for the currently viewed
+    // enterprise slug in the page route params.
+    const foundEnterpriseCustomerUserForCurrentSlug = transformedEnterpriseCustomersUsers.find(
+      enterpriseCustomerUser => enterpriseCustomerUser.enterpriseCustomer?.slug === enterpriseSlug,
+    );
 
-  // If no enterprise customer is found (i.e., authenticated user not explicitly
-  // linked), but the authenticated user is staff, attempt to retrieve enterprise
-  // customer metadata from the `/enterprise-customer` LMS API.
-  let staffEnterpriseCustomer;
-  if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
-    const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
-    if (originalStaffEnterpriseCustomer) {
-      staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
+    // If no enterprise customer is found (i.e., authenticated user not explicitly
+    // linked), but the authenticated user is staff, attempt to retrieve enterprise
+    // customer metadata from the `/enterprise-customer` LMS API.
+    let staffEnterpriseCustomer;
+    if (getAuthenticatedUser().administrator && enterpriseSlug && !foundEnterpriseCustomerUserForCurrentSlug) {
+      const originalStaffEnterpriseCustomer = await fetchEnterpriseCustomerForSlug(enterpriseSlug);
+      if (originalStaffEnterpriseCustomer) {
+        staffEnterpriseCustomer = transformEnterpriseCustomer(originalStaffEnterpriseCustomer);
+      }
     }
+
+    const {
+      enterpriseCustomer,
+      roleAssignments,
+    } = determineEnterpriseCustomerUserForDisplay({
+      activeEnterpriseCustomer,
+      activeEnterpriseCustomerUserRoleAssignments,
+      enterpriseSlug,
+      foundEnterpriseCustomerUserForCurrentSlug,
+      staffEnterpriseCustomer,
+    });
+    return {
+      enterpriseCustomer,
+      enterpriseCustomerUserRoleAssignments: roleAssignments,
+      activeEnterpriseCustomer,
+      activeEnterpriseCustomerUserRoleAssignments,
+      allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
+      enterpriseFeatures,
+      staffEnterpriseCustomer,
+    };
+  } catch (error) {
+    logError(error);
+    return {
+      enterpriseCustomer: null,
+      enterpriseCustomerUserRoleAssignments: [],
+      activeEnterpriseCustomer: null,
+      activeEnterpriseCustomerUserRoleAssignments: [],
+      allLinkedEnterpriseCustomerUsers: [],
+      enterpriseFeatures: {},
+      staffEnterpriseCustomer: null,
+    };
   }
-
-  const {
-    enterpriseCustomer,
-    roleAssignments,
-  } = determineEnterpriseCustomerUserForDisplay({
-    activeEnterpriseCustomer,
-    activeEnterpriseCustomerUserRoleAssignments,
-    enterpriseSlug,
-    foundEnterpriseCustomerUserForCurrentSlug,
-    staffEnterpriseCustomer,
-  });
-
-  return {
-    enterpriseCustomer,
-    enterpriseCustomerUserRoleAssignments: roleAssignments,
-    activeEnterpriseCustomer,
-    activeEnterpriseCustomerUserRoleAssignments,
-    allLinkedEnterpriseCustomerUsers: transformedEnterpriseCustomersUsers,
-    enterpriseFeatures,
-    staffEnterpriseCustomer,
-  };
 }
 
 /**
@@ -133,10 +153,10 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    if (getErrorResponseStatusCode(error) === 404) {
-      return [];
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
     }
-    throw error;
+    return [];
   }
 }
 
@@ -147,8 +167,15 @@ export async function fetchEnterpriseCourseEnrollments(enterpriseId, options = {
  */
 export async function fetchLearnerProgramsList(enterpriseUUID) {
   const url = `${getConfig().LMS_BASE_URL}/api/dashboard/v0/programs/${enterpriseUUID}/`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  return camelCaseObject(response.data);
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
+    }
+    return [];
+  }
 }
 
 /**
@@ -164,9 +191,9 @@ export async function fetchInProgressPathways(enterpriseUUID) { // eslint-disabl
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    if (getErrorResponseStatusCode(error) === 404) {
-      return [];
+    if (getErrorResponseStatusCode(error) !== 404) {
+      logError(error);
     }
-    throw error;
+    return [];
   }
 }

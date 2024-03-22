@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import { generatePath, matchPath, redirect } from 'react-router-dom';
 import { features } from '../../../../../config';
 import { LICENSE_STATUS } from '../../../../enterprise-user-subsidy/data/constants';
+import { fetchPaginatedData } from '../utils';
 
 // Subscriptions
 
@@ -188,25 +189,6 @@ export async function fetchSubscriptions(enterpriseUUID) {
     include_revoked: true,
   });
   const url = `${getConfig().LICENSE_MANAGER_URL}/api/v1/learner-licenses/?${queryParams.toString()}`;
-  const response = await getAuthenticatedHttpClient().get(url);
-  const {
-    customerAgreement,
-    results: subscriptionLicenses,
-  } = camelCaseObject(response.data);
-  const licensesByStatus = {
-    [LICENSE_STATUS.ACTIVATED]: [],
-    [LICENSE_STATUS.ASSIGNED]: [],
-    [LICENSE_STATUS.REVOKED]: [],
-  };
-  const subscriptionsData = {
-    subscriptionLicenses,
-    customerAgreement,
-    subscriptionLicense: null,
-    subscriptionPlan: null,
-    licensesByStatus,
-    showExpirationNotifications: !customerAgreement?.disableExpirationNotifications,
-    shouldShowActivationSuccessMessage: false,
-  };
   /**
    * Ordering of these status keys (i.e., activated, assigned, revoked) is important as the first
    * license found when iterating through each status key in this order will be selected as the
@@ -215,22 +197,47 @@ export async function fetchSubscriptions(enterpriseUUID) {
    * Example: an activated license will be chosen as the applicable license because activated licenses
    * come first in ``licensesByStatus`` even if the user also has a revoked license.
    */
-  subscriptionLicenses.forEach((license) => {
-    const { subscriptionPlan, status } = license;
-    const { isActive, daysUntilExpiration } = subscriptionPlan;
-    const isCurrent = daysUntilExpiration > 0;
-    const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
-    if (isUnassignedLicense || !isCurrent || !isActive) {
-      return;
+  const licensesByStatus = {
+    [LICENSE_STATUS.ACTIVATED]: [],
+    [LICENSE_STATUS.ASSIGNED]: [],
+    [LICENSE_STATUS.REVOKED]: [],
+  };
+  const subscriptionsData = {
+    subscriptionLicenses: [],
+    customerAgreement: null,
+    subscriptionLicense: null,
+    subscriptionPlan: null,
+    licensesByStatus,
+    showExpirationNotifications: false,
+    shouldShowActivationSuccessMessage: false,
+  };
+  try {
+    const {
+      results: subscriptionLicenses,
+      response,
+    } = await fetchPaginatedData(url);
+    const { customerAgreement } = response;
+    subscriptionsData.subscriptionsLicenses = subscriptionLicenses;
+    subscriptionsData.customerAgreement = customerAgreement;
+    subscriptionLicenses.forEach((license) => {
+      const { subscriptionPlan, status } = license;
+      const { isActive, daysUntilExpiration } = subscriptionPlan;
+      const isCurrent = daysUntilExpiration > 0;
+      const isUnassignedLicense = status === LICENSE_STATUS.UNASSIGNED;
+      if (isUnassignedLicense || !isCurrent || !isActive) {
+        return;
+      }
+      licensesByStatus[license.status].push(license);
+    });
+    const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
+    if (applicableSubscriptionLicense) {
+      subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
+      subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
     }
-    licensesByStatus[license.status].push(license);
-  });
-  const applicableSubscriptionLicense = Object.values(licensesByStatus).flat()[0];
-  if (applicableSubscriptionLicense) {
-    subscriptionsData.subscriptionLicense = applicableSubscriptionLicense;
-    subscriptionsData.subscriptionPlan = applicableSubscriptionLicense.subscriptionPlan;
+    subscriptionsData.licensesByStatus = licensesByStatus;
+    return subscriptionsData;
+  } catch (error) {
+    logError(error);
+    return subscriptionsData;
   }
-  subscriptionsData.licensesByStatus = licensesByStatus;
-
-  return subscriptionsData;
 }

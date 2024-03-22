@@ -46,13 +46,15 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
   };
 
   if (learnerSkillLevelsFetchError) {
-    return <ErrorPage status={learnerSkillLevelsFetchError.status} />;
+    return (
+      <ErrorPage message={learnerSkillLevelsFetchError.message} />
+    );
   }
 
   if (isLoadingLearnerSkills) {
     return (
       <div className="py-5">
-        <LoadingSpinner data-testid="loading-spinner" screenReaderText="Visualize Career Tab" />
+        <LoadingSpinner data-testid="loading-spinner" screenReaderText="loading your skills" />
       </div>
     );
   }
