@@ -3,7 +3,7 @@ import { getConfig } from '@edx/frontend-platform';
 
 import { ErrorPage } from '../../error-page';
 
-export { enterpriseInviteLoader } from './loaders';
+export { makeEnterpriseInviteLoader } from './loaders';
 
 /**
  * The UI associated with the enterprise invite route. It should only render
