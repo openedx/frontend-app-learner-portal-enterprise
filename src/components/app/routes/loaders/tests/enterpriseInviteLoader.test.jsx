@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { renderWithRouterProvider } from '../../../../../utils/tests';
-import enterpriseInviteLoader from '../enterpriseInviteLoader';
+import makeEnterpriseInviteLoader from '../enterpriseInviteLoader';
 import {
   extractEnterpriseId, postLinkEnterpriseLearner,
 } from '../../../data';
@@ -62,7 +62,7 @@ describe('enterpriseInviteLoader', () => {
     renderWithRouterProvider({
       path: '/invite/:enterpriseCustomerInviteKey',
       element: <EnterpriseInviteRouteWrapper />,
-      loader: enterpriseInviteLoader,
+      loader: makeEnterpriseInviteLoader(),
     }, {
       routes: [
         {
@@ -84,7 +84,7 @@ describe('enterpriseInviteLoader', () => {
     renderWithRouterProvider({
       path: '/invite/:enterpriseCustomerInviteKey',
       element: <div data-testid="invite-link" />,
-      loader: enterpriseInviteLoader,
+      loader: makeEnterpriseInviteLoader(),
     }, {
       routes: [
         {
@@ -106,7 +106,7 @@ describe('enterpriseInviteLoader', () => {
     renderWithRouterProvider({
       path: '/invite/:enterpriseCustomerInviteKey',
       element: <EnterpriseInviteRouteWrapper />,
-      loader: enterpriseInviteLoader,
+      loader: makeEnterpriseInviteLoader(),
     }, {
       routes: [
         {
