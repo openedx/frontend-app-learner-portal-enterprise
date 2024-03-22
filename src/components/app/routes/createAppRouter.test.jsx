@@ -13,6 +13,7 @@ import {
 import Root from '../Root';
 import Layout from '../Layout';
 import { makeDashboardLoader } from '../../dashboard';
+import { makeEnterpriseInviteLoader } from './EnterpriseInviteRoute';
 
 jest.mock('./loaders', () => ({
   ...jest.requireActual('./loaders'),
@@ -46,6 +47,12 @@ jest.mock('../../search', () => ({
   SearchPage: jest.fn(() => <div data-testid="search" />),
   makeSearchLoader: jest.fn(),
 }));
+jest.mock('./EnterpriseInviteRoute', () => ({
+  __esModule: true,
+  default: jest.fn(() => <div data-testid="invite" />),
+  makeEnterpriseInviteLoader: jest.fn(),
+}));
+jest.mock('./LicenseActivationRoute', () => jest.fn(() => <div data-testid="license-activation" />));
 jest.mock('./CourseRoute', () => jest.fn(() => <div data-testid="course" />));
 jest.mock('../../NotFoundPage', () => jest.fn(() => <div data-testid="not-found" />));
 
@@ -65,6 +72,8 @@ const mockQueryClient = queryClient();
 describe('createAppRouter', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset history state before each test
+    window.history.pushState({}, '', '/');
   });
 
   it.each([
@@ -74,14 +83,20 @@ describe('createAppRouter', () => {
       expectedRouteLoaders: [],
     },
     {
-      currentRoutePath: '/',
-      expectedRouteTestId: 'dashboard',
-      expectedRouteLoaders: [makeDashboardLoader],
+      currentRoutePath: '/invite/enterprise-customer-invite-key',
+      expectedRouteTestId: 'invite',
+      expectedRouteLoaders: [{
+        loader: makeEnterpriseInviteLoader,
+        usesQueryClient: false,
+      }],
     },
     {
       currentRoutePath: '/test-enterprise',
       expectedRouteTestId: 'dashboard',
-      expectedRouteLoaders: [makeDashboardLoader],
+      expectedRouteLoaders: [{
+        loader: makeDashboardLoader,
+        usesQueryClient: true,
+      }],
     },
     {
       currentRoutePath: '/test-enterprise/search',
@@ -91,22 +106,39 @@ describe('createAppRouter', () => {
     {
       currentRoutePath: '/test-enterprise/course/edX+DemoX',
       expectedRouteTestId: 'course',
-      expectedRouteLoaders: [makeCourseLoader],
+      expectedRouteLoaders: [{
+        loader: makeCourseLoader,
+        usesQueryClient: true,
+      }],
     },
     {
       currentRoutePath: '/test-enterprise/executive-education/course/edX+DemoX',
       expectedRouteTestId: 'course',
-      expectedRouteLoaders: [makeCourseLoader],
+      expectedRouteLoaders: [{
+        loader: makeCourseLoader,
+        usesQueryClient: true,
+      }],
     },
     {
       currentRoutePath: '/test-enterprise/executive-education/course/edX+DemoX/enroll',
       expectedRouteTestId: 'course',
-      expectedRouteLoaders: [makeCourseLoader],
+      expectedRouteLoaders: [{
+        loader: makeCourseLoader,
+        usesQueryClient: true,
+      }],
     },
     {
       currentRoutePath: '/test-enterprise/executive-education/course/edX+DemoX/enroll/complete',
       expectedRouteTestId: 'course',
-      expectedRouteLoaders: [makeCourseLoader],
+      expectedRouteLoaders: [{
+        loader: makeCourseLoader,
+        usesQueryClient: true,
+      }],
+    },
+    {
+      currentRoutePath: '/test-enterprise/licenses/license-activation-key/activate',
+      expectedRouteTestId: 'license-activation',
+      expectedRouteLoaders: [],
     },
   ])('renders expected route components for given route path (%s)', async ({
     currentRoutePath,
@@ -115,11 +147,12 @@ describe('createAppRouter', () => {
   }) => {
     const router = createAppRouter(mockQueryClient);
     render(<RouterProvider router={router} />);
+
     await waitFor(() => {
-      expect(screen.getByTestId('root')).toBeInTheDocument();
-      expect(screen.getByTestId('layout')).toBeInTheDocument();
       expect(makeRootLoader).toHaveBeenCalledTimes(1);
       expect(makeRootLoader).toHaveBeenCalledWith(mockQueryClient);
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+      expect(screen.getByTestId('layout')).toBeInTheDocument();
     });
 
     act(() => {
@@ -130,10 +163,12 @@ describe('createAppRouter', () => {
       expect(screen.getByTestId(expectedRouteTestId)).toBeInTheDocument();
     });
 
-    if (expectedRouteLoaders?.length > 0) {
+    if (expectedRouteLoaders.length > 0) {
       expectedRouteLoaders.forEach((expectedLoader) => {
-        expect(expectedLoader).toHaveBeenCalledTimes(1);
-        expect(expectedLoader).toHaveBeenCalledWith(mockQueryClient);
+        expect(expectedLoader.loader).toHaveBeenCalledTimes(1);
+        if (expectedLoader.usesQueryClient) {
+          expect(expectedLoader.loader).toHaveBeenCalledWith(mockQueryClient);
+        }
       });
     }
   });
