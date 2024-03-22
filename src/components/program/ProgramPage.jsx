@@ -25,7 +25,7 @@ import { useEnterpriseCustomer } from '../app/data';
 const ProgramPage = () => {
   const { programUuid } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-
+  console.log(programUuid);
   const [programData, fetchError] = useAllProgramData({ enterpriseUuid: enterpriseCustomer.uuid, programUuid });
 
   const initialState = useMemo(
