@@ -78,9 +78,10 @@ export default function createAppRouter(queryClient) {
           <Route
             path="program/:programUUID/progress"
             lazy={async () => {
-              const { ProgramProgressPage } = await import('../../program-progress');
+              const { ProgramProgressPage, makeProgramProgressLoader } = await import('../../program-progress');
               return {
                 Component: ProgramProgressPage,
+                loader: makeProgramProgressLoader(queryClient),
               };
             }}
             errorElement={(
