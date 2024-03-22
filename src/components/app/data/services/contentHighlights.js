@@ -2,7 +2,6 @@ import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
 
-import { getErrorResponseStatusCode } from '../../../../utils/common';
 import { fetchPaginatedData } from './utils';
 
 /**
@@ -24,9 +23,7 @@ export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
     // Return first result, given that there should only be one result, if any.
     return data.results[0] ?? null;
   } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
+    logError(error);
     return null;
   }
 }
@@ -47,9 +44,7 @@ export async function fetchContentHighlights(enterpriseUUID, options = {}) {
     const { results } = await fetchPaginatedData(url);
     return results;
   } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
+    logError(error);
     return [];
   }
 }

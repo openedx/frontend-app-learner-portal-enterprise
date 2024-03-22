@@ -171,9 +171,7 @@ export async function fetchLearnerProgramsList(enterpriseUUID) {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);
   } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
+    logError(error);
     return [];
   }
 }
@@ -188,12 +186,10 @@ export async function fetchInProgressPathways(enterpriseUUID) { // eslint-disabl
   // TODO: after adding support of filtering on enterprise UUID, send the uuid to endpoint as well
   const url = `${getConfig().LMS_BASE_URL}/api/learner-pathway-progress/v1/progress/`;
   try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    return camelCaseObject(response.data);
+    const { results } = await fetchPaginatedData(url);
+    return results;
   } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
+    logError(error);
     return [];
   }
 }

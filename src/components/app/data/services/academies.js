@@ -2,7 +2,6 @@ import { getConfig } from '@edx/frontend-platform';
 import { logError } from '@edx/frontend-platform/logging';
 
 import { fetchPaginatedData } from './utils';
-import { getErrorResponseStatusCode } from '../../../../utils/common';
 
 export async function fetchAcademies(enterpriseUUID, options = {}) {
   const queryParams = new URLSearchParams({
@@ -16,9 +15,7 @@ export async function fetchAcademies(enterpriseUUID, options = {}) {
     const { results } = await fetchPaginatedData(url);
     return results;
   } catch (error) {
-    if (getErrorResponseStatusCode(error) !== 404) {
-      logError(error);
-    }
+    logError(error);
     return [];
   }
 }
