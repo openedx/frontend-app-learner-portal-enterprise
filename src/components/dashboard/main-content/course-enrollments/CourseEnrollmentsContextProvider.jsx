@@ -6,10 +6,7 @@ import { Container } from '@openedx/paragon';
 import { useCourseEnrollments } from './data/hooks';
 import { LoadingSpinner } from '../../../loading-spinner';
 import { SubsidyRequestsContext } from '../../../enterprise-subsidy-requests';
-import {
-  transformSubsidyRequest,
-  useEnterpriseCustomer,
-} from '../../../app/data';
+import { transformSubsidyRequest, useEnterpriseCustomer } from '../../../app/data';
 
 export const CourseEnrollmentsContext = createContext();
 
@@ -22,19 +19,17 @@ const CourseEnrollmentsContextProvider = ({ children }) => {
   } = useContext(SubsidyRequestsContext);
 
   const isSubsidyRequestsEnabled = subsidyRequestConfiguration?.subsidyRequestsEnabled;
-  const requestedCourseEnrollments = useMemo(
-    () => {
-      if (!isSubsidyRequestsEnabled) {
-        return [];
-      }
-      const requests = requestsBySubsidyType[subsidyRequestConfiguration.subsidyType];
-      return requests.map(subsidyRequest => transformSubsidyRequest({
-        subsidyRequest,
-        slug: enterpriseCustomer.slug,
-      }));
-    },
-    [isSubsidyRequestsEnabled, requestsBySubsidyType, subsidyRequestConfiguration.subsidyType, enterpriseCustomer.slug],
-  );
+
+  const requestedCourseEnrollments = useMemo(() => {
+    if (!isSubsidyRequestsEnabled) {
+      return [];
+    }
+    const requests = requestsBySubsidyType[subsidyRequestConfiguration.subsidyType];
+    return requests.map(subsidyRequest => transformSubsidyRequest({
+      subsidyRequest,
+      slug: enterpriseCustomer.slug,
+    }));
+  }, [isSubsidyRequestsEnabled, requestsBySubsidyType, enterpriseCustomer.slug, subsidyRequestConfiguration]);
 
   const {
     courseEnrollmentsByStatus,
