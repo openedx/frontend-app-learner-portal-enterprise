@@ -6,16 +6,7 @@ import { defineMessages, useIntl } from '@edx/frontend-platform/i18n';
 import { Button, Hyperlink } from '@openedx/paragon';
 
 import { ErrorPage } from '../../error-page';
-
-const retrieveErrorBoundaryErrorMessage = (error) => {
-  if (!error) {
-    return null;
-  }
-  if (error.customAttributes) {
-    return error.customAttributes.httpErrorResponseData;
-  }
-  return error.message;
-};
+import { retrieveErrorMessage } from '../data';
 
 const messages = defineMessages({
   errorTitle: {
@@ -60,7 +51,7 @@ const RouteErrorBoundary = ({
 
   const error = routeError || asyncError;
 
-  const errorMessage = retrieveErrorBoundaryErrorMessage(error);
+  const errorMessage = retrieveErrorMessage(error);
 
   return (
     <ErrorPage

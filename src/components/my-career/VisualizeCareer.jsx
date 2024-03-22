@@ -8,7 +8,7 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 
-import { useEnterpriseCustomer, useLearnerSkillLevels } from '../app/data';
+import { retrieveErrorMessage, useEnterpriseCustomer, useLearnerSkillLevels } from '../app/data';
 import CategoryCard from './CategoryCard';
 import SearchJobRole from './SearchJobRole';
 import SpiderChart from './SpiderChart';
@@ -47,7 +47,7 @@ const VisualizeCareer = ({ jobId, submitClickHandler }) => {
 
   if (learnerSkillLevelsFetchError) {
     return (
-      <ErrorPage message={learnerSkillLevelsFetchError.message} />
+      <ErrorPage message={retrieveErrorMessage(learnerSkillLevelsFetchError)} />
     );
   }
 

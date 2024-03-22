@@ -16,8 +16,7 @@ export async function fetchAcademies(enterpriseUUID, options = {}) {
     const { results } = await fetchPaginatedData(url);
     return results;
   } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode !== 404) {
+    if (getErrorResponseStatusCode(error) !== 404) {
       logError(error);
     }
     return [];
