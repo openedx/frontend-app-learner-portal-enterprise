@@ -110,4 +110,34 @@ describe('<ProgramListingCard />', () => {
     userEvent.click(container.firstElementChild);
     expect(window.location.pathname).toEqual(`/${mockEnterpriseCustomer.slug}/program/test-uuid/progress`);
   });
+
+  it.each([{
+    width: 1450,
+    size: 'large',
+  },
+  {
+    width: 1300,
+    size: 'large',
+  },
+  {
+    width: 1000,
+    size: 'large',
+  },
+  {
+    width: 800,
+    size: 'medium',
+  },
+  {
+    width: 600,
+    size: 'small',
+  },
+  {
+    width: 500,
+    size: 'xSmall',
+  }])('tests window size', ({ width, size }) => {
+    global.innerWidth = width;
+    renderWithRouter(<ProgramListingCardWithContext programData={dummyProgramData} />);
+    const imageCapSrc = screen.getByAltText('Program banner image').src;
+    expect(imageCapSrc).toContain(size);
+  });
 });

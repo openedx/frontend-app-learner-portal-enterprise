@@ -5,7 +5,6 @@ import '@testing-library/jest-dom/extend-expect';
 
 import userEvent from '@testing-library/user-event';
 import ProgramListingPage from '../ProgramListingPage';
-import { useLearnerProgramsListData } from '../data/hooks';
 import { renderWithRouter } from '../../../utils/tests';
 import { CONTENT_TYPE_PROGRAM } from '../../search/constants';
 import { useCanOnlyViewHighlights, useEnterpriseCustomer, useEnterpriseProgramsList } from '../../app/data';
@@ -53,10 +52,6 @@ const dummyProgramData = {
 jest.mock('@edx/frontend-platform/react', () => ({
   ...jest.requireActual('@edx/frontend-platform/react'),
   ErrorPage: () => <div data-testid="error-page" />,
-}));
-
-jest.mock('../data/hooks', () => ({
-  useLearnerProgramsListData: jest.fn(),
 }));
 
 jest.mock('../../app/data', () => ({
@@ -110,7 +105,6 @@ describe('<ProgramListing />', () => {
   });
 
   it('renders no programs message when data received is empty', async () => {
-    useLearnerProgramsListData.mockImplementation(() => ([[], null]));
     renderWithRouter(
       <ProgramListingWithContext />,
     );
@@ -121,8 +115,6 @@ describe('<ProgramListing />', () => {
   });
 
   it('redirects to correct url when clicked on explore programs', async () => {
-    useLearnerProgramsListData.mockImplementation(() => ([[], null]));
-
     renderWithRouter(
       <ProgramListingWithContext />,
     );
@@ -135,7 +127,6 @@ describe('<ProgramListing />', () => {
   });
 
   it('does not render button when canOnlyViewHighlightSets is true', () => {
-    useLearnerProgramsListData.mockImplementation(() => ([[], null]));
     useCanOnlyViewHighlights.mockReturnValue({ data: true });
     renderWithRouter(
       <ProgramListingWithContext />,
