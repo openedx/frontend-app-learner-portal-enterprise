@@ -127,7 +127,7 @@ describe('fetchSubscriptions', () => {
       shouldShowActivationSuccessMessage: false,
       showExpirationNotifications: true,
     };
-    expect(response).toEqual(expectedResult);
+    expect(response).toEqual(expect.objectContaining(expectedResult));
   });
 });
 

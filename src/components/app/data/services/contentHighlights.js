@@ -1,7 +1,8 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { logError } from '@edx/frontend-platform/logging';
 
-import { getErrorResponseStatusCode } from '../../../../utils/common';
+import { fetchPaginatedData } from './utils';
 
 /**
  * Content Highlights Configuration
@@ -22,11 +23,8 @@ export async function fetchEnterpriseCuration(enterpriseUUID, options = {}) {
     // Return first result, given that there should only be one result, if any.
     return data.results[0] ?? null;
   } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return null;
-    }
-    throw error;
+    logError(error);
+    return null;
   }
 }
 
@@ -41,18 +39,12 @@ export async function fetchContentHighlights(enterpriseUUID, options = {}) {
     enterprise_customer: enterpriseUUID,
     ...options,
   });
-
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/highlight-sets/?${queryParams.toString()}`;
-
   try {
-    const response = await getAuthenticatedHttpClient().get(url);
-    const data = camelCaseObject(response.data);
-    return data.results ?? null;
+    const { results } = await fetchPaginatedData(url);
+    return results;
   } catch (error) {
-    const errorResponseStatusCode = getErrorResponseStatusCode(error);
-    if (errorResponseStatusCode === 404) {
-      return null;
-    }
-    throw error;
+    logError(error);
+    return [];
   }
 }

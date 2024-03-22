@@ -38,8 +38,9 @@ function getCouponsOverviewUrl(enterpriseUuid) {
 }
 
 describe('fetchCouponCodeAssignments', () => {
+  const COUPON_CODE_ASSIGNMENTS_URL = getCouponCodeAssignmentsUrl(enterpriseId);
+
   it('returns coupon code assignments', async () => {
-    const COUPON_CODE_ASSIGNMENTS_URL = getCouponCodeAssignmentsUrl(enterpriseId);
     const couponCodeAssignmentsResponse = {
       results: [{ id: 123 }],
     };
@@ -47,17 +48,30 @@ describe('fetchCouponCodeAssignments', () => {
     const result = await fetchCouponCodeAssignments(enterpriseId);
     expect(result).toEqual(couponCodeAssignmentsResponse.results);
   });
+
+  it('returns empty array on error', async () => {
+    axiosMock.onGet(COUPON_CODE_ASSIGNMENTS_URL).reply(500);
+    const result = await fetchCouponCodeAssignments(enterpriseId);
+    expect(result).toEqual([]);
+  });
 });
 
 describe('fetchCouponsOverview', () => {
+  const COUPONS_OVERVIEW_URL = getCouponsOverviewUrl(enterpriseId);
+
   it('returns coupons overview', async () => {
-    const COUPONS_OVERVIEW_URL = getCouponsOverviewUrl(enterpriseId);
     const couponsOverviewResponse = {
       results: [{ id: 123 }],
     };
     axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(200, couponsOverviewResponse);
     const result = await fetchCouponsOverview(enterpriseId);
     expect(result).toEqual(couponsOverviewResponse.results);
+  });
+
+  it('returns empty array on error', async () => {
+    axiosMock.onGet(COUPONS_OVERVIEW_URL).reply(500);
+    const result = await fetchCouponsOverview(enterpriseId);
+    expect(result).toEqual([]);
   });
 });
 

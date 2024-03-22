@@ -35,6 +35,7 @@ describe('fetchCourseMetadata', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
   });
 
   it('returns course metadata', async () => {
@@ -47,8 +48,8 @@ describe('fetchCourseMetadata', () => {
     expect(result).toEqual(courseMetadata);
   });
 
-  it('catches 404 error and returns null', async () => {
-    axiosMock.onGet(CONTENT_METADATA_URL).reply(404);
+  it.each([404, 500])('catches error and returns null (%s)', async (httpStatusCode) => {
+    axiosMock.onGet(CONTENT_METADATA_URL).reply(httpStatusCode);
     const result = await fetchCourseMetadata(mockEnterpriseId, mockCourseKey);
     expect(result).toBeNull();
   });
@@ -62,20 +63,25 @@ describe('fetchCanRedeem', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosMock.reset();
+  });
+
+  it('handles no available course runs', async () => {
+    const result = await fetchCanRedeem(mockEnterpriseId, []);
+    expect(axiosMock.history.get.length).toBe(0);
+    expect(result).toEqual([]);
   });
 
   it('returns can-redeem response', async () => {
-    const canRedeemData = {
-      canRedeem: true,
-    };
+    const canRedeemData = [{ canRedeem: true }];
     axiosMock.onGet(CAN_REDEEM_URL).reply(200, canRedeemData);
     const result = await fetchCanRedeem(mockEnterpriseId, [mockCourseKey, mockCourseKeyTwo]);
     expect(result).toEqual(canRedeemData);
   });
 
-  it('catches 404 error and returns empty array', async () => {
-    axiosMock.onGet(CAN_REDEEM_URL).reply(404);
-    const result = await fetchCanRedeem(mockEnterpriseId, [mockCourseKey]);
+  it.each([404, 500])('catches error and returns empty array (%s)', async (httpStatusCode) => {
+    axiosMock.onGet(CAN_REDEEM_URL).reply(httpStatusCode);
+    const result = await fetchCanRedeem(mockEnterpriseId, [mockCourseKey, mockCourseKeyTwo]);
     expect(result).toEqual([]);
   });
 });
