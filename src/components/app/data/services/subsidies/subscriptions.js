@@ -174,7 +174,9 @@ export async function activateOrAutoApplySubscriptionLicense({
       customerAgreement,
     });
   }
-  checkLicenseActivationRouteAndRedirectToDashboard();
+  if (activatedOrAutoAppliedLicense) {
+    checkLicenseActivationRouteAndRedirectToDashboard();
+  }
   return activatedOrAutoAppliedLicense;
 }
 
