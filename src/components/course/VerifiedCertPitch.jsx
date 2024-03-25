@@ -13,7 +13,7 @@ const VerifiedCertPitchIcon = ({ icon }) => (
 );
 
 VerifiedCertPitchIcon.propTypes = {
-  icon: PropTypes.shape().isRequired,
+  icon: PropTypes.elementType.isRequired,
 };
 
 const VerifiedCertPitch = () => (

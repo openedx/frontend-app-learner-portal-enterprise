@@ -55,3 +55,21 @@ export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
     return [];
   }
 }
+
+export async function fetchEnterpriseCustomerContainsContent(enterpriseId, courseKey) {
+  // This API call will *only* obtain the enterprise's catalogs whose
+  // catalog queries return/contain the specified courseKey.
+  const queryParams = new URLSearchParams({
+    course_run_ids: courseKey,
+    get_catalogs_containing_specified_content_ids: true,
+  });
+
+  const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/contains_content_items/?${queryParams.toString()}`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    logError(error);
+    return null;
+  }
+}

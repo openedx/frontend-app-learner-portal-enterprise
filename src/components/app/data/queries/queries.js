@@ -103,6 +103,20 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
 }
 
 /**
+ * Helper function to assist querying the content key catalog inclusion.
+ * @param {string} enterpriseUuid
+ * @param {string} courseKey
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseCustomerCatalogsContainsContent(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course
+    ._ctx.enterpriseCustomerCatalogsContainsContent(courseKey);
+}
+
+/**
  * Helper function to assist querying with useQuery package
  * queries
  * .enterprise
@@ -162,8 +176,11 @@ export function queryContentHighlightSets(enterpriseUuid) {
  * ._ctx.canRedeem(availableCourseRunKeys)
  * @returns {Types.QueryOptions}
  */
-export function queryCanRedeem(enterpriseUuid, courseMetadata) {
-  const availableCourseRunKeys = getAvailableCourseRuns(courseMetadata).map(courseRun => courseRun.key);
+export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBufferDays) {
+  const availableCourseRunKeys = getAvailableCourseRuns({
+    course: courseMetadata,
+    isEnrollableBufferDays,
+  }).map(courseRun => courseRun.key);
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)

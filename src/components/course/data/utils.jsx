@@ -497,12 +497,12 @@ export const getCouponCodesDisabledEnrollmentReasonType = ({
 };
 
 export const getSubscriptionDisabledEnrollmentReasonType = ({
-  customerAgreementConfig,
+  customerAgreement,
   catalogsWithCourse,
   subscriptionLicense,
   hasEnterpriseAdminUsers,
 }) => {
-  const subscriptionsApplicableToCourse = customerAgreementConfig?.subscriptions?.filter(
+  const subscriptionsApplicableToCourse = customerAgreement?.subscriptions?.filter(
     subscription => catalogsWithCourse.includes(subscription?.enterpriseCatalogUuid),
   ) || [];
 
@@ -692,7 +692,7 @@ export const getMissingApplicableSubsidyReason = ({
   catalogsWithCourse,
   couponCodes,
   couponsOverview,
-  customerAgreementConfig,
+  customerAgreement,
   subscriptionLicense,
   containsContentItems,
   missingSubsidyAccessPolicyReason,
@@ -716,7 +716,7 @@ export const getMissingApplicableSubsidyReason = ({
     hasEnterpriseAdminUsers,
   });
   const subscriptionsDisabledEnrollmentReasonType = getSubscriptionDisabledEnrollmentReasonType({
-    customerAgreementConfig,
+    customerAgreement,
     catalogsWithCourse,
     subscriptionLicense,
     hasEnterpriseAdminUsers,

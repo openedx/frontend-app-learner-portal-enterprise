@@ -5,6 +5,9 @@ import { CourseContext } from './CourseContextProvider';
 import CourseRecommendationCard from './CourseRecommendationCard';
 
 const CourseRecommendations = () => {
+  return null;
+
+  // TODO:
   const { state } = useContext(CourseContext);
   const { course, courseRecommendations } = state;
   const { allRecommendations, samePartnerRecommendations } = courseRecommendations;
@@ -31,9 +34,9 @@ const CourseRecommendations = () => {
           <h3 className="mb-3">
             <FormattedMessage
               id="enterprise.course.about.course.sidebar.recommendations.same.partner"
-              defaultMessage="More from { firtstCourseOwner }:"
+              defaultMessage="More from { firstCourseOwner }:"
               description="Title for the section that lists the courses that are recommended from the same partner."
-              values={{ firtstCourseOwner: course.owners[0].name }}
+              values={{ firstCourseOwner: course.owners[0].name }}
             />
           </h3>
           <CardGrid>

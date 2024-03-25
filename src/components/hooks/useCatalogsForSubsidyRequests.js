@@ -6,6 +6,16 @@ import {
 
 import { SUBSIDY_TYPE } from '../../constants';
 
+/**
+ * A custom hook that returns the catalogs that can be used for subsidy requests.
+ *
+ * TODO: This currently relies on learners having a subscription license before they can
+ * request, but we need to know the list of subscription catalog uuids *before* the learner
+ * has a subscription license. We need to rely on the customer agreement metadata returning
+ * the list of subscription catalog uuids that are available for subsidy requests.
+ *
+ * @returns {Object} - An object containing the catalogs that can be used for subsidy requests.
+ */
 export default function useCatalogForSubsidyRequest() {
   const { data: browseAndRequestConfiguration } = useBrowseAndRequestConfiguration();
   const { data: { subscriptionLicenses } } = useSubscriptions();

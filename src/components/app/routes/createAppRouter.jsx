@@ -1,6 +1,8 @@
 import { PageWrap } from '@edx/frontend-platform/react';
 import {
-  Route, createBrowserRouter, createRoutesFromElements,
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
 } from 'react-router-dom';
 
 import RouteErrorBoundary from './RouteErrorBoundary';
@@ -93,9 +95,9 @@ export default function createAppRouter(queryClient) {
           <Route
             path=":courseType?/course/:courseKey/*"
             lazy={async () => {
-              const { default: CourseRoute } = await import('./CourseRoute');
+              const { CoursePage } = await import('../../course');
               return {
-                Component: CourseRoute,
+                Component: CoursePage,
                 loader: makeCourseLoader(queryClient),
               };
             }}
@@ -105,7 +107,25 @@ export default function createAppRouter(queryClient) {
                 showSiteFooter={false}
               />
             )}
-          />
+          >
+            <Route
+              index
+              lazy={async () => {
+                const { default: CourseAbout } = await import('../../course/routes/CourseAbout');
+                return {
+                  Component: CourseAbout,
+                };
+              }}
+            />
+            <Route
+              path="enroll"
+              element={<h3>Enroll!</h3>}
+            />
+            <Route
+              path="enroll/complete"
+              element={<h3>Enroll Complete!</h3>}
+            />
+          </Route>
           <Route
             path="licenses/:activationKey/activate"
             lazy={async () => {

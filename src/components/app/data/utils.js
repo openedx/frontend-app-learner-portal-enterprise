@@ -5,6 +5,7 @@ import { ASSIGNMENT_TYPES, POLICY_TYPES } from '../../enterprise-user-subsidy/en
 import { LICENSE_STATUS } from '../../enterprise-user-subsidy/data/constants';
 import { getBrandColorsFromCSSVariables } from '../../../utils/common';
 import { COURSE_STATUSES } from '../../../constants';
+import { LATE_ENROLLMENTS_BUFFER_DAYS } from '../../../config/constants';
 
 /**
  * Check if system maintenance alert is open, based on configuration.
@@ -408,4 +409,22 @@ export function retrieveErrorMessage(error) {
     return error.customAttributes.httpErrorResponseData;
   }
   return error.message;
+}
+
+/**
+ * Retrieves the number of buffer days allowed for late enrollments, if any policy
+ * has late redemption enabled.
+ * @param {Array} redeemablePolicies List of redeemable policies.
+ * @returns {number|undefined} - Returns the number of late redemption buffer days
+ *  if any policy has late redemption enabled.
+ */
+export function getLateRedemptionBufferDays(redeemablePolicies) {
+  const anyPolicyHasLateRedemptionEnabled = redeemablePolicies.some((policy) => (
+    // is_late_redemption_enabled=True on the serialized policy represents the fact that late
+    // redemption has been temporarily enabled by an operator for the policy. It will toggle
+    // itself back to False after a finite period of time.
+    policy.isLateRedemptionEnabled
+  ));
+  const isEnrollableBufferDays = anyPolicyHasLateRedemptionEnabled ? LATE_ENROLLMENTS_BUFFER_DAYS : undefined;
+  return isEnrollableBufferDays;
 }

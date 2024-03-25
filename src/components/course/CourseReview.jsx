@@ -10,12 +10,15 @@ import { CourseContext } from './CourseContextProvider';
 import { REVIEW_SECTION_CONTENT } from './data/constants';
 
 const CourseReview = () => {
+  return null;
+
+  // TODO:
   const { state } = useContext(CourseContext);
   const { courseReviews } = state;
   const [showInfoContent, setShowInfoContent] = useState('');
   const intl = useIntl();
   if (!courseReviews) {
-    return '';
+    return null;
   }
   let infoContent;
   if (showInfoContent === REVIEW_SECTION_CONTENT.AVERAGE_RATING) {

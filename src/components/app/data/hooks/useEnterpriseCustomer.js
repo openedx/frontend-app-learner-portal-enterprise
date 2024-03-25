@@ -15,6 +15,5 @@ export default function useEnterpriseCustomer(queryOptions = {}) {
       }
       return enterpriseLearner.enterpriseCustomer;
     },
-    ...queryOptions,
   });
 }

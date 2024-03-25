@@ -219,6 +219,8 @@ export async function fetchSubscriptions(enterpriseUUID) {
       response,
     } = await fetchPaginatedData(url);
     const { customerAgreement } = response;
+    // TODO: this should come from `learner-licenses` API, but hardcoded to empty array for now.
+    customerAgreement.availableSubscriptionCatalogs = [];
     subscriptionsData.subscriptionLicenses = subscriptionLicenses;
     subscriptionsData.customerAgreement = customerAgreement;
     subscriptionsData.showExpirationNotifications = !(customerAgreement?.disableExpirationNotifications);

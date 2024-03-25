@@ -1,4 +1,3 @@
-import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import ISO6391 from 'iso-639-1';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
@@ -7,7 +6,6 @@ import {
   AccessTime, Equalizer, Institution, Person, School, Speed, Tag, VideoFile,
 } from '@openedx/paragon/icons';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { CourseContext } from './CourseContextProvider';
 import CourseSidebarListItem from './CourseSidebarListItem';
 import CourseAssociatedPrograms from './CourseAssociatedPrograms';
 import CourseSidebarPrice from './CourseSidebarPrice';
@@ -20,24 +18,23 @@ import {
   useCoursePacingType,
 } from './data/hooks';
 import { processCourseSubjects } from './data/utils';
-import { useEnterpriseCustomer } from '../app/data';
+import { useCourseMetadata, useEnterpriseCustomer } from '../app/data';
 
 const CourseSidebar = () => {
-  const { state } = useContext(CourseContext);
-  const { course, activeCourseRun } = state;
-  const { primarySubject } = processCourseSubjects(course);
-  const [partners, institutionLabel] = useCoursePartners(course);
-  const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(activeCourseRun);
-  const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(activeCourseRun);
-  const [pacingType, pacingTypeContent] = useCoursePacingType(activeCourseRun);
+  const { data: courseMetadata } = useCourseMetadata();
+  const { primarySubject } = processCourseSubjects(courseMetadata);
+  const [partners, institutionLabel] = useCoursePartners(courseMetadata);
+  const [weeksToComplete, weeksLabel] = useCourseRunWeeksToComplete(courseMetadata.activeCourseRun);
+  const [transcriptLanguages, transcriptLabel] = useCourseTranscriptLanguages(courseMetadata.activeCourseRun);
+  const [pacingType, pacingTypeContent] = useCoursePacingType(courseMetadata.activeCourseRun);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
   const intl = useIntl();
   return (
     <>
       <ul className="pl-0 mb-5 course-details-sidebar">
-        {isDefinedAndNotNull(activeCourseRun) && (
+        {isDefinedAndNotNull(courseMetadata.activeCourseRun) && (
           <>
-            {hasTruthyValue(activeCourseRun.weeksToComplete) && (
+            {hasTruthyValue(courseMetadata.activeCourseRun.weeksToComplete) && (
               <CourseSidebarListItem
                 icon={AccessTime}
                 label={
@@ -50,7 +47,7 @@ const CourseSidebar = () => {
                 content={`${weeksToComplete} ${weeksLabel}`}
               />
             )}
-            {hasTruthyValue([activeCourseRun.minEffort, activeCourseRun.maxEffort]) && (
+            {hasTruthyValue([courseMetadata.activeCourseRun.minEffort, courseMetadata.activeCourseRun.maxEffort]) && (
               <CourseSidebarListItem
                 icon={Speed}
                 label={
@@ -60,7 +57,7 @@ const CourseSidebar = () => {
                     description: 'Label for the effort required to complete the course. (hours per week)',
                   })
                 }
-                content={`${activeCourseRun.minEffort}-${activeCourseRun.maxEffort} hours per week`}
+                content={`${courseMetadata.activeCourseRun.minEffort}-${courseMetadata.activeCourseRun.maxEffort} hours per week`}
               />
             )}
           </>
@@ -128,7 +125,7 @@ const CourseSidebar = () => {
             )}
           />
         )}
-        {activeCourseRun.levelType && (
+        {courseMetadata.activeCourseRun.levelType && (
           <CourseSidebarListItem
             icon={Equalizer}
             label={
@@ -138,10 +135,10 @@ const CourseSidebar = () => {
                 description: 'Label for the level of the course. (Introductory, Intermediate, Advanced)',
               })
             }
-            content={activeCourseRun.levelType}
+            content={courseMetadata.activeCourseRun.levelType}
           />
         )}
-        {activeCourseRun.contentLanguage && (
+        {courseMetadata.activeCourseRun.contentLanguage && (
           <CourseSidebarListItem
             icon={Institution}
             label={
@@ -151,7 +148,7 @@ const CourseSidebar = () => {
                 description: 'Label for the language of the course. (English, Spanish, etc.)',
               })
             }
-            content={ISO6391.getNativeName(activeCourseRun.contentLanguage.slice(0, 2))}
+            content={ISO6391.getNativeName(courseMetadata.activeCourseRun.contentLanguage.slice(0, 2))}
           />
         )}
         {transcriptLanguages?.length > 0 && (
@@ -177,14 +174,14 @@ const CourseSidebar = () => {
           />
         )}
       </ul>
-      {enterpriseCustomer.enablePrograms && course?.programs.length > 0 && (
+      {enterpriseCustomer.enablePrograms && courseMetadata.programs.length > 0 && (
         <CourseAssociatedPrograms />
       )}
-      {course.prerequisitesRaw && (
+      {courseMetadata.prerequisitesRaw && (
         <div className="prerequisites mb-5">
           <h3>Prerequisites</h3>
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: course.prerequisitesRaw }} />
+          <div dangerouslySetInnerHTML={{ __html: courseMetadata.prerequisitesRaw }} />
         </div>
       )}
     </>

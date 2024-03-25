@@ -46,7 +46,7 @@ import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../constants';
-import { useEnterpriseCustomer } from '../../app/data';
+import { useCourseMetadata, useEnterpriseCustomer, useRedeemablePolicies, useSubscriptions } from '../../app/data';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -667,7 +667,6 @@ export const useUserSubsidyApplicableToCourse = ({
   redeemableSubsidyAccessPolicy,
   missingSubsidyAccessPolicyReason,
   isPolicyRedemptionEnabled,
-  subscriptionLicense,
   courseService,
   couponCodes,
   couponsOverview,
@@ -677,8 +676,14 @@ export const useUserSubsidyApplicableToCourse = ({
   enterpriseAdminUsers: fallbackAdminUsers,
   contactEmail,
   courseListPrice,
-  customerAgreementConfig,
 }) => {
+  const {
+    data: {
+      customerAgreement,
+      subscriptionLicense,
+    },
+  } = useSubscriptions();
+
   const [userSubsidyApplicableToCourse, setUserSubsidyApplicableToCourse] = useState();
   const [missingUserSubsidyReason, setMissingUserSubsidyReason] = useState();
 
@@ -742,7 +747,7 @@ export const useUserSubsidyApplicableToCourse = ({
           catalogsWithCourse,
           couponCodes,
           couponsOverview,
-          customerAgreementConfig,
+          customerAgreement,
           subscriptionLicense,
           containsContentItems,
           missingSubsidyAccessPolicyReason,
@@ -881,12 +886,14 @@ export const useExternalEnrollmentFailureReason = () => {
  * @param {string} courseKey - The key of the course to check.
  * @returns {boolean} - Returns true if the course is assigned to the learner, false otherwise.
  */
-export const useIsCourseAssigned = (learnerContentAssignments, courseKey) => {
+export const useIsCourseAssigned = () => {
+  const { data: { learnerContentAssignments } } = useRedeemablePolicies();
+  const { data: courseMetadata } = useCourseMetadata();
   if (!learnerContentAssignments.hasAllocatedAssignments) {
     return false;
   }
   const isCourseAssigned = learnerContentAssignments.allocatedAssignments.some(
-    (assignment) => assignment.contentKey === courseKey,
+    (assignment) => assignment.contentKey === courseMetadata.key,
   );
   return isCourseAssigned;
 };

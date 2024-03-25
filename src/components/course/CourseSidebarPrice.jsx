@@ -9,25 +9,21 @@ import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
 import { useIsCourseAssigned } from './data/hooks';
-import { UserSubsidyContext } from '../enterprise-user-subsidy';
 import { useEnterpriseCustomer } from '../app/data';
 
 const CourseSidebarPrice = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  return null;
+
+  // TODO:
   const {
     userSubsidyApplicableToCourse,
     coursePrice,
     currency,
     subsidyRequestCatalogsApplicableToCourse,
-    state: {
-      course,
-    },
   } = useContext(CourseContext);
-  const { redeemableLearnerCreditPolicies } = useContext(UserSubsidyContext);
-  const isCourseAssigned = useIsCourseAssigned(
-    redeemableLearnerCreditPolicies.learnerContentAssignments,
-    course?.key,
-  );
+  const isCourseAssigned = useIsCourseAssigned();
   const intl = useIntl();
   const { subsidyRequestConfiguration } = useContext(SubsidyRequestsContext);
 
