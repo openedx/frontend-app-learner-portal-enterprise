@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '@edx/frontend-platform/react';
 import { Collapsible, Hyperlink } from '@openedx/paragon';
 import { AddCircle, RemoveCircle } from '@openedx/paragon/icons';
-import { ProgramContext } from './ProgramContextProvider';
+import { useProgramDetails } from '../app/data';
 
 const ProgramStaff = ({ program }) => {
   const { config } = useContext(AppContext);
@@ -56,8 +56,7 @@ ProgramStaff.propTypes = {
 };
 
 const ProgramInstructors = () => {
-  const { program } = useContext(ProgramContext);
-
+  const { data: program } = useProgramDetails();
   return (
     <div className="mb-5">
       <h3>Meet your instructors</h3>

@@ -11,10 +11,9 @@ import {
 import { AppContext } from '@edx/frontend-platform/react';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { useParams } from 'react-router-dom';
-import { ProgramContext } from './ProgramContextProvider';
 
 import { PROGRAM_PACING_MAP } from './data/constants';
-import { useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, useProgramDetails } from '../app/data';
 
 export const DATE_FORMAT = 'MMM D, YYYY';
 
@@ -28,7 +27,7 @@ const getCourseRun = course => (
 const ProgramCourses = () => {
   const { authenticatedUser: { userId } } = useContext(AppContext);
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { program } = useContext(ProgramContext);
+  const { data: program } = useProgramDetails();
   const { programUuid } = useParams();
 
   return (

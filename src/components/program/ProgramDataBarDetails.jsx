@@ -1,17 +1,15 @@
 import React, {
-  useCallback, useContext, useRef, useState, useEffect,
+  useCallback, useRef, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
-import { ProgramContext } from './ProgramContextProvider';
 import { appendProgramToProgramType } from './data/utils';
+import { useProgramDetails } from '../app/data';
 
 const ProgramDataBarDetails = ({ handleStick, handleRelease }) => {
+  const { data: program } = useProgramDetails();
   const {
-    program: {
-      title, authoringOrganizations: owners, type,
-    },
-  } = useContext(ProgramContext);
-
+    title, authoringOrganizations: owners, type,
+  } = program;
   const wrapper = useRef(null);
   const [sticky, setSticky] = useState(false);
   const [componentTop, setComponentTop] = useState(0);

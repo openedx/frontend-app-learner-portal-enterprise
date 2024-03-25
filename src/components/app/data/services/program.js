@@ -46,38 +46,44 @@ export async function fetchProgramDetails(enterpriseUuid, programUuid) {
   try {
     const programResponse = await getAuthenticatedHttpClient({ useCache: USE_API_CACHE }).get(url);
     const programDetails = camelCaseObject(programResponse.data);
-    if (programDetails) {
-      const programDetailsCopy = structuredClone(programDetails);
-      const { courses } = programDetailsCopy;
-      // Retrieve course keys
-      const courseKeys = courses.map(({ key }) => key);
-
-      // Verify program belongs to customer
-      const programContent = await fetchEnterpriseContainsContentItemProgram(enterpriseUuid, programUuid);
-
-      // Build contains course object { courseKey: Boolean, ...}
-      let courseContent;
-      if (!programContent.containsContentItems) {
-        courseContent = await fetchEnterpriseContainsContentItemsCourseRuns(enterpriseUuid, courseKeys);
-        courseContent = Object.fromEntries(courseContent);
-      } else {
-        courseContent = Object.fromEntries(courseKeys.map(courseKey => [courseKey, true]));
-      }
-      let catalogContainsCourse = false;
-      // Assign computed metadata to the program details object
-      courses.forEach((course, index) => {
-        console.log(courses, 'here');
-        const availableCourseRuns = getAvailableCourseRuns({ course });
-        programDetailsCopy.courses[index].enterpriseHasCourse = courseContent[programDetailsCopy.courses[index].key];
-        if (courseContent[programDetailsCopy.courses[index].key] === true) {
-          catalogContainsCourse = true;
-        }
-      });
-      return {
-        ...programDetailsCopy,
-        catalogContainsCourse,
-      };
+    if (!programDetails) {
+      return {};
     }
+    const programDetailsCopy = structuredClone(programDetails);
+    const { courses } = programDetailsCopy;
+    // Retrieve course keys
+    const courseKeys = courses.map(({ key }) => key);
+
+    // Verify program belongs to customer
+    const programContent = await fetchEnterpriseContainsContentItemProgram(enterpriseUuid, programUuid);
+
+    // Build contains course object { courseKey: Boolean, ...}
+    let courseContent;
+    if (!programContent.containsContentItems) {
+      courseContent = await fetchEnterpriseContainsContentItemsCourseRuns(enterpriseUuid, courseKeys);
+      courseContent = Object.fromEntries(courseContent);
+    } else {
+      courseContent = Object.fromEntries(courseKeys.map(courseKey => [courseKey, true]));
+    }
+    let catalogContainsProgram = false;
+    // Assign computed metadata to the program details object
+    courses.forEach((course, index) => {
+      const availableCourseRuns = getAvailableCourseRuns({ course });
+      // TODO: Run a more deliberate selection of the activeCourseRun based on the advertisedCourseRunUuid
+      // from the catalog service vs discovery
+      // programDetailsCopy.courses[index].activeCourseRun = availableCourseRuns.find(
+      //   courseRun => courseRun.uuid === course.advertisedCourseRunUuid,
+      // );
+      programDetailsCopy.courses[index].activeCourseRun = availableCourseRuns ? availableCourseRuns[0] : undefined;
+      programDetailsCopy.courses[index].enterpriseHasCourse = courseContent[programDetailsCopy.courses[index].key];
+      if (courseContent[programDetailsCopy.courses[index].key] === true) {
+        catalogContainsProgram = true;
+      }
+    });
+    return {
+      ...programDetailsCopy,
+      catalogContainsProgram,
+    };
   } catch (error) {
     logError(error);
     return {};

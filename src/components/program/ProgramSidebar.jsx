@@ -1,9 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   AccessTime, LibraryBooks, Person, Speed,
 } from '@openedx/paragon/icons';
 import ProgramSidebarListItem from './ProgramSidebarListItem';
-import { ProgramContext } from './ProgramContextProvider';
 import {
   getProgramPacing,
   getProgramPacingTypeContent,
@@ -12,9 +11,10 @@ import {
   getTotalEstimatedEffortInHoursPerWeek,
   getVerboseProgramPacing,
 } from './data/utils';
+import { useProgramDetails } from '../app/data';
 
 const ProgramSidebar = () => {
-  const { program } = useContext(ProgramContext);
+  const { data: program } = useProgramDetails();
   const expertInstructionSecondaryContent = getExpertInstructionSecondaryContent(program);
   const programPacingType = getProgramPacing(program);
   const verboseProgramPacingType = getVerboseProgramPacing(programPacingType);

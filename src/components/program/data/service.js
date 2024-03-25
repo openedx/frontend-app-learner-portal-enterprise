@@ -34,7 +34,6 @@ export default class ProgramService {
     programDetails.catalogContainsProgram = programDetails.courses.map(
       course => course.enterpriseHasCourse,
     ).includes(true);
-    console.log(programDetails, 'old');
     return {
       programDetails,
     };

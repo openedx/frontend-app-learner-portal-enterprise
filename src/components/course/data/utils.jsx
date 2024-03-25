@@ -139,7 +139,6 @@ export function getActiveCourseRun(course) {
  * @returns List of course runs.
  */
 export function getAvailableCourseRuns({ course, isEnrollableBufferDays }) {
-  console.log(course);
   if (!course?.courseRuns) {
     return [];
   }

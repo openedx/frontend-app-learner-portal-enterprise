@@ -1,14 +1,13 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import ProgramInstructors from './ProgramInstructors';
 import ProgramCourses from './ProgramCourses';
 import { PreviewExpand } from '../preview-expand';
-import { ProgramContext } from './ProgramContextProvider';
 import BulletList from './BulletList';
+import { useProgramDetails } from '../app/data';
 
 const ProgramMainContent = () => {
-  const { program } = useContext(ProgramContext);
-  const { expectedLearningItems } = program;
-  const { overview } = program;
+  const { data: program } = useProgramDetails();
+  const { expectedLearningItems, overview } = program;
   return (
     <div className="program-main-content">
       {expectedLearningItems && expectedLearningItems.length > 0 && (

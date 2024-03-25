@@ -1,20 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Parallax } from 'react-parallax';
 import { breakpoints, Breadcrumb } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform/config';
 import { useParams } from 'react-router-dom';
-import { ProgramContext } from './ProgramContextProvider';
 import { fixedEncodeURIComponent } from '../../utils/common';
+import { useProgramDetails } from '../app/data';
 
 const ProgramHeader = () => {
   const config = getConfig();
   const { enterpriseSlug } = useParams();
+  const { data: program } = useProgramDetails();
   const {
-    program: {
-      title, authoringOrganizations, subjects, marketingHook,
-    },
-  } = useContext(ProgramContext);
-
+    title, authoringOrganizations, subjects, marketingHook,
+  } = program;
   let isMobileWindow = true;
   // Use the first subject as the primary subject
   const primarySubject = subjects?.length > 0 ? subjects[0] : '';
