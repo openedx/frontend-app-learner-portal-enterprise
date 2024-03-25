@@ -20,6 +20,7 @@ import {
   fetchInProgressPathways,
   fetchLearnerSkillLevels,
   fetchAcademies,
+  fetchProgramDetails,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -70,6 +71,12 @@ const enterprise = createQueryKeys('enterprise', {
       programs: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchLearnerProgramsList(queryKey[2]),
+        contextQueries: {
+          program: (programUuid) => ({
+            queryKey: [programUuid],
+            queryFn: async ({ queryKey }) => fetchProgramDetails(queryKey[2], queryKey[5]),
+          }),
+        },
       },
       pathways: {
         queryKey: null,

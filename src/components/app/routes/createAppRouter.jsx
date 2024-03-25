@@ -76,7 +76,7 @@ export default function createAppRouter(queryClient) {
             )}
           />
           <Route
-            path="program/:programUUID"
+            path="program/:programUuid"
             lazy={async () => {
               const { ProgramPage, makeProgramLoader } = await import('../../program');
               return {

@@ -75,6 +75,22 @@ export function queryEnterpriseProgramsList(enterpriseUuid) {
  * queries
  * .enterprise
  * .enterpriseCustomer(enterpriseUuid)
+ * ._ctx.programs
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseProgram(enterpriseUuid, programUuid) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.programs
+    ._ctx.program(programUuid);
+}
+
+/**
+ * Helper function to assist querying with useQuery package
+ * queries
+ * .enterprise
+ * .enterpriseCustomer(enterpriseUuid)
  * ._ctx.pathways
  * @returns {Types.QueryOptions}
  */

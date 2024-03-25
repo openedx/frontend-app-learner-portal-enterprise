@@ -7,7 +7,6 @@ import ProgramService from './service';
 export function useAllProgramData({ enterpriseUuid, programUuid }) {
   const [programData, setProgramData] = useState();
   const [fetchError, setFetchError] = useState();
-
   useEffect(() => {
     const fetchProgramData = async () => {
       if (programUuid) {

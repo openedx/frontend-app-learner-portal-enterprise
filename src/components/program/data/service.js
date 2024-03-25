@@ -24,7 +24,6 @@ export default class ProgramService {
 
     const { courses } = programDataRaw[0];
     const programCoursesInfo = await this.fetchProgramContainsCourses(Array.from(courses, course => course.key));
-
     const programData = camelCaseObject(programDataRaw);
     const programDetails = programData[0];
     programDetails.courses.forEach((course, index) => {
@@ -32,11 +31,10 @@ export default class ProgramService {
       programDetails.courses[index].activeCourseRun = availableCourseRuns ? availableCourseRuns[0] : undefined;
       programDetails.courses[index].enterpriseHasCourse = programCoursesInfo[programDetails.courses[index].key];
     });
-
     programDetails.catalogContainsProgram = programDetails.courses.map(
       course => course.enterpriseHasCourse,
     ).includes(true);
-
+    console.log(programDetails, 'old');
     return {
       programDetails,
     };
@@ -52,13 +50,11 @@ export default class ProgramService {
 
     // if the program uuid belongs to enterprise then all the courses belong to program
     const programBelongsToCustomer = await this.fetchEnterpriseContainsContentItems(this.programUuid);
-
     // construct the response for all the courses of this program
     if (programBelongsToCustomer[this.programUuid]) {
       courseKeys.forEach((courseKey) => {
         response[courseKey] = true;
       });
-
     // if program uuid is not present in any catalog belong to enterprise
     // then check individual courses to see if the course belong to enterprise
     } else {

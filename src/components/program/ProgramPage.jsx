@@ -6,6 +6,7 @@ import {
 } from '@openedx/paragon';
 import { ErrorPage } from '@edx/frontend-platform/react';
 
+import { useQuery } from '@tanstack/react-query';
 import { MainContent, Sidebar } from '../layout';
 import { LoadingSpinner } from '../loading-spinner';
 import { ProgramContextProvider } from './ProgramContextProvider';
@@ -20,14 +21,14 @@ import ProgramCTA from './ProgramCTA';
 import NotFoundPage from '../NotFoundPage';
 import { PROGRAM_NOT_FOUND_MESSAGE, PROGRAM_NOT_FOUND_TITLE } from './data/constants';
 import ProgramDataBar from './ProgramDataBar';
-import { useEnterpriseCustomer } from '../app/data';
+import { useEnterpriseCustomer, queryEnterpriseProgram } from '../app/data';
 
 const ProgramPage = () => {
   const { programUuid } = useParams();
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  console.log(programUuid);
   const [programData, fetchError] = useAllProgramData({ enterpriseUuid: enterpriseCustomer.uuid, programUuid });
-
+  const { data } = useQuery(queryEnterpriseProgram(enterpriseCustomer.uuid, programUuid));
+  console.log(data);
   const initialState = useMemo(
     () => {
       if (!programData) {
