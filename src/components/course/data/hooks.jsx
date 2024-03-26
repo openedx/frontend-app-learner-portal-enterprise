@@ -46,7 +46,12 @@ import { getExternalCourseEnrollmentUrl } from '../enrollment/utils';
 import { createExecutiveEducationFailureMessage } from '../../executive-education-2u/ExecutiveEducation2UError';
 import { enterpriseUserSubsidyQueryKeys } from '../../enterprise-user-subsidy/data/constants';
 import { SUBSIDY_TYPE } from '../../../constants';
-import { useCourseMetadata, useEnterpriseCustomer, useRedeemablePolicies, useSubscriptions } from '../../app/data';
+import {
+  useCourseMetadata,
+  useEnterpriseCustomer,
+  useRedeemablePolicies,
+  useSubscriptions,
+} from '../../app/data';
 
 // How long to delay an event, so that we allow enough time for any async analytics event call to resolve
 const CLICK_DELAY_MS = 300; // 300ms replicates Segment's ``trackLink`` function
@@ -646,7 +651,6 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @param {object} args.courseData Metadata about the course.
  * @param {object} args.redeemableSubsidyAccessPolicy Metadata about the redeemability subsidy access policy, if any.
  * @param {boolean} args.isPolicyRedemptionEnabled Whether there is a redeemable subsidy access policy.
- * @param {object} args.subscriptionLicense Metadata pertaining to learner's subscription license, if any.
  * @param {object} args.courseService Instance of the CourseService.
  * @param {array} args.couponCodes List of assigned coupon codes, if any.
  * @param {array} args.couponsOverview Return from `useQuery` hook to fetch all coupons
@@ -656,7 +660,6 @@ export const useCheckSubsidyAccessPolicyRedeemability = ({
  * @param {function} args.onSubscriptionLicenseForCourseValidationError Callback to handle subscription
  *  license validation error.
  * @param {array} args.enterpriseAdminUsers List of enterprise admin users, if any.
- * @param {object} args.customerAgreementConfig Customer agreement config, if any.
  * @param {object} args.missingSubsidyAccessPolicyReason Reason why the subsidy access policy is not redeemable
  * @param {number} args.courseListPrice List price for course
  *
@@ -775,8 +778,8 @@ export const useUserSubsidyApplicableToCourse = ({
     courseService,
     courseData,
     courseListPrice,
-    customerAgreementConfig,
     onSubscriptionLicenseForCourseValidationError,
+    customerAgreement,
     subscriptionLicense,
     couponCodes,
     canEnrollWithEnterpriseOffers,

@@ -105,15 +105,14 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
 /**
  * Helper function to assist querying the content key catalog inclusion.
  * @param {string} enterpriseUuid
- * @param {string} courseKey
+ * @param {string} contentIdentifer
  * @returns {Types.QueryOptions}
  */
-export function queryEnterpriseCustomerCatalogsContainsContent(enterpriseUuid, courseKey) {
+export function queryEnterpriseCustomerContainsContent(enterpriseUuid, contentIdentifer) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course(courseKey)
-    ._ctx.enterpriseCustomerCatalogsContainsContent;
+    ._ctx.containsContent(contentIdentifer);
 }
 
 /**

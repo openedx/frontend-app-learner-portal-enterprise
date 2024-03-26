@@ -63,15 +63,15 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
-          enterpriseCustomerCatalogsContainsContent: {
-            queryKey: null,
-            queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], queryKey[4]),
-          },
           reviews: ({
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[4]),
           }),
         },
+      }),
+      containsContent: (contentIdentifier) => ({
+        queryKey: [contentIdentifier],
+        queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], contentIdentifier),
       }),
       enrollments: {
         queryKey: null,

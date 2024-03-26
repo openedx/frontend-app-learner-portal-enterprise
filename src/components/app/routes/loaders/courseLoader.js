@@ -8,7 +8,6 @@ import {
   extractEnterpriseId,
   queryRedeemablePolicies,
   getLateRedemptionBufferDays,
-  queryEnterpriseCustomerCatalogsContainsContent,
   querySubscriptions,
   queryLicenseRequests,
   queryCouponCodeRequests,
@@ -16,6 +15,7 @@ import {
   queryEnterpriseLearnerOffers,
   queryCouponCodes,
   queryCourseReviews,
+  queryEnterpriseCustomerContainsContent,
 } from '../../data';
 import { ensureAuthenticatedUser } from '../data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from '../../../course/data';
@@ -111,7 +111,7 @@ export default function makeCourseLoader(queryClient) {
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
       queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerCatalogsContainsContent(enterpriseId, courseKey)),
+      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseId, courseKey)),
     ]);
 
     return null;

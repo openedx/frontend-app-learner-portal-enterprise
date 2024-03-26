@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Container, Alert } from '@openedx/paragon';
 import Cookies from 'universal-cookie';
 
@@ -14,7 +15,8 @@ import { useBrowseAndRequest, useEnterpriseCustomerContainsContent, useSubscript
  * Once dismissed, the learner will not see this alert again until the cookies are cleared.
  */
 const LicenseRequestedAlert = () => {
-  const { data: { catalogList } } = useEnterpriseCustomerContainsContent();
+  const { courseKey } = useParams();
+  const { data: { catalogList } } = useEnterpriseCustomerContainsContent(courseKey);
   const cookies = new Cookies();
   const previouslyDismissed = cookies.get(LICENSE_REQUESTED_ALERT_DISMISSED_COOKIE_NAME);
   const [isAlertOpen, setIsAlertOpen] = useState(!previouslyDismissed);
