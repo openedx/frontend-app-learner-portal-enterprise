@@ -23,6 +23,9 @@ export async function fetchEnterpriseCustomerContainsContent(enterpriseId, conte
     return camelCaseObject(response.data);
   } catch (error) {
     logError(error);
-    return null;
+    return {
+      containsContentItems: false,
+      catalogList: [],
+    };
   }
 }
