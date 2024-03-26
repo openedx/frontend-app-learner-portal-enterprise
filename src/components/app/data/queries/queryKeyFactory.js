@@ -21,6 +21,7 @@ import {
   fetchLearnerSkillLevels,
   fetchAcademies,
   fetchEnterpriseCustomerContainsContent,
+  fetchCourseReviews,
 } from '../services';
 
 import { SUBSIDY_REQUEST_STATE } from '../../../../constants';
@@ -51,23 +52,27 @@ const enterprise = createQueryKeys('enterprise', {
           },
         },
       },
-      course: {
-        queryKey: null,
+      course: (courseKey) => ({
+        queryKey: [courseKey],
         contextQueries: {
-          contentMetadata: (courseKey) => ({
-            queryKey: [courseKey],
-            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], courseKey),
-          }),
+          contentMetadata: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchCourseMetadata(queryKey[2], queryKey[4]),
+          },
           canRedeem: (availableCourseRunKeys) => ({
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
-          enterpriseCustomerCatalogsContainsContent: (courseKey) => ({
-            queryKey: [courseKey],
-            queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], courseKey),
+          enterpriseCustomerCatalogsContainsContent: {
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], queryKey[4]),
+          },
+          reviews: ({
+            queryKey: null,
+            queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[4]),
           }),
         },
-      },
+      }),
       enrollments: {
         queryKey: null,
         queryFn: async ({ queryKey }) => fetchEnterpriseCourseEnrollments(queryKey[2]),
@@ -152,4 +157,10 @@ const user = createQueryKeys('user', {
 });
 
 const queries = mergeQueryKeys(enterprise, user);
+
+console.log(
+  'queryKeyFactory',
+  queries.enterprise.enterpriseCustomer('enterpriseUuid')._ctx.course('courseKey')._ctx.contentMetadata,
+);
+
 export default queries;

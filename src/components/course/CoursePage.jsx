@@ -114,7 +114,7 @@ const CoursePage = () => {
 
   // const { data: browseAndRequest } = useBrowseAndRequest();
   // browseAndRequest.configuration
-  // const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
+  // const catalogsForSubsidyRequests = useCatalogsForSubsidyRequests();
   // const { data: canOnlyViewHighlightSets } = useCanOnlyViewHighlights();
   // const searchCatalogs = useSearchCatalogs();
   // const isEnrollableBufferDays = useLateRedemptionBufferDays();

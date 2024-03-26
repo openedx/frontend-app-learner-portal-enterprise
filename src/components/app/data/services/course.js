@@ -56,6 +56,8 @@ export async function fetchCanRedeem(enterpriseId, courseRunKeys) {
   }
 }
 
+// TODO: move outside of course since it may also be
+// used for program content inclusion as well.
 export async function fetchEnterpriseCustomerContainsContent(enterpriseId, courseKey) {
   // This API call will *only* obtain the enterprise's catalogs whose
   // catalog queries return/contain the specified courseKey.
@@ -65,6 +67,17 @@ export async function fetchEnterpriseCustomerContainsContent(enterpriseId, cours
   });
 
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/contains_content_items/?${queryParams.toString()}`;
+  try {
+    const response = await getAuthenticatedHttpClient().get(url);
+    return camelCaseObject(response.data);
+  } catch (error) {
+    logError(error);
+    return null;
+  }
+}
+
+export async function fetchCourseReviews(courseKey) {
+  const url = `${getConfig().DISCOVERY_API_BASE_URL}/api/v1/course_review/${courseKey}/`;
   try {
     const response = await getAuthenticatedHttpClient().get(url);
     return camelCaseObject(response.data);

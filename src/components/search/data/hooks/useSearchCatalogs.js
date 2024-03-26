@@ -17,7 +17,7 @@ export default function useSearchCatalogs() {
   const { data: { redeemablePolicies } } = useRedeemablePolicies();
   const { data: { couponCodeAssignments } } = useCouponCodes();
   const { data: { currentEnterpriseOffers } } = useEnterpriseOffers();
-  const { catalogsForSubsidyRequests } = useCatalogsForSubsidyRequests();
+  const catalogsForSubsidyRequests = useCatalogsForSubsidyRequests();
 
   return useMemo(() => {
     // Track catalog uuids to include in search with a Set to avoid duplicates.

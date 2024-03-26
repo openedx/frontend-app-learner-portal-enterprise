@@ -15,6 +15,7 @@ import {
   determineLearnerHasContentAssignmentsOnly,
   queryEnterpriseLearnerOffers,
   queryCouponCodes,
+  queryCourseReviews,
 } from '../../data';
 import { ensureAuthenticatedUser } from '../data';
 import { getCourseTypeConfig, getLinkToCourse, pathContainsCourseTypeSlug } from '../../../course/data';
@@ -43,6 +44,7 @@ export default function makeCourseLoader(queryClient) {
 
     const courseMetadataAndSubsidies = Promise.all([
       queryClient.ensureQueryData(queryCourseMetadata(enterpriseId, courseKey)),
+      queryClient.ensureQueryData(queryCourseReviews(enterpriseId, courseKey)),
       queryClient.ensureQueryData(queryRedeemablePolicies({
         enterpriseUuid: enterpriseId,
         lmsUserId: authenticatedUser.userId,
@@ -60,12 +62,12 @@ export default function makeCourseLoader(queryClient) {
       // of `course-metadata` to avoid an unnecessary request waterfall.
       courseMetadataAndSubsidies.then((responses) => {
         const courseMetadata = responses[0];
-        const redeemableLearnerCreditPolicies = responses[1];
-        const { subscriptionPlan, subscriptionLicense } = responses[2];
-        const { hasCurrentEnterpriseOffers } = responses[3];
-        const { couponCodeAssignments } = responses[4];
-        const licenseRequests = responses[5];
-        const couponCodeRequests = responses[6];
+        const redeemableLearnerCreditPolicies = responses[2];
+        const { subscriptionPlan, subscriptionLicense } = responses[3];
+        const { hasCurrentEnterpriseOffers } = responses[4];
+        const { couponCodeAssignments } = responses[5];
+        const licenseRequests = responses[6];
+        const couponCodeRequests = responses[7];
 
         const isAssignmentOnlyLearner = determineLearnerHasContentAssignmentsOnly({
           subscriptionPlan,

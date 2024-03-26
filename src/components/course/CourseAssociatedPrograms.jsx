@@ -1,4 +1,4 @@
-import { Hyperlink } from '@openedx/paragon';
+import { Link } from 'react-router-dom';
 import { sendEnterpriseTrackEvent } from '@edx/frontend-enterprise-utils';
 import { FormattedMessage } from '@edx/frontend-platform/i18n';
 
@@ -35,11 +35,10 @@ const CourseAssociatedPrograms = () => {
               </div>
             </div>
             <div className="col">
-              <Hyperlink
-                destination={features.ENABLE_PROGRAMS
+              <Link
+                to={features.ENABLE_PROGRAMS
                   ? `/${enterpriseCustomer.slug}/program/${program.uuid}`
                   : program.marketingUrl}
-                target="_blank"
                 onClick={() => {
                   sendEnterpriseTrackEvent(
                     enterpriseCustomer.uuid,
@@ -52,7 +51,7 @@ const CourseAssociatedPrograms = () => {
                 }}
               >
                 {program.title}
-              </Hyperlink>
+              </Link>
             </div>
           </li>
         ))}

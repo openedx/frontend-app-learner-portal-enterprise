@@ -98,8 +98,8 @@ export function queryCourseMetadata(enterpriseUuid, courseKey) {
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
-    ._ctx.contentMetadata(courseKey);
+    ._ctx.course(courseKey)
+    ._ctx.contentMetadata;
 }
 
 /**
@@ -112,8 +112,22 @@ export function queryEnterpriseCustomerCatalogsContainsContent(enterpriseUuid, c
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
-    ._ctx.enterpriseCustomerCatalogsContainsContent(courseKey);
+    ._ctx.course(courseKey)
+    ._ctx.enterpriseCustomerCatalogsContainsContent;
+}
+
+/**
+ * Helper function to assist with generating the query.
+ * @param {string} enterpriseUuid
+ * @param {string} courseKey
+ * @returns {Types.QueryOptions}
+ */
+export function queryCourseReviews(enterpriseUuid, courseKey) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.course(courseKey)
+    ._ctx.reviews;
 }
 
 /**
@@ -184,7 +198,7 @@ export function queryCanRedeem(enterpriseUuid, courseMetadata, isEnrollableBuffe
   return queries
     .enterprise
     .enterpriseCustomer(enterpriseUuid)
-    ._ctx.course
+    ._ctx.course(courseMetadata.key)
     ._ctx.canRedeem(availableCourseRunKeys);
 }
 
