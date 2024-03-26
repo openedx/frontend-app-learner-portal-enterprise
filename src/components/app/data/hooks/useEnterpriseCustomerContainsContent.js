@@ -1,18 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
 
-import { queryEnterpriseCustomerCatalogsContainsContent } from '../queries';
+import { queryEnterpriseCustomerContainsContent } from '../queries';
 import useEnterpriseCustomer from './useEnterpriseCustomer';
 
 /**
- * TODO
- * @returns
+ * Determines whether the given content identifier is contained within the enterprise customer's catalogs.
+ * @returns {Types.UseQueryResult}
  */
-export default function useEnterpriseCustomerContainsContent(queryOptions = {}) {
+export default function useEnterpriseCustomerContainsContent(contentIdentifers, queryOptions = {}) {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
-  const { courseKey } = useParams();
   return useQuery({
-    ...queryEnterpriseCustomerCatalogsContainsContent(enterpriseCustomer.uuid, courseKey),
+    ...queryEnterpriseCustomerContainsContent(enterpriseCustomer.uuid, contentIdentifers),
     ...queryOptions,
   });
 }

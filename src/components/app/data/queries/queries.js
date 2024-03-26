@@ -131,6 +131,19 @@ export function queryCourseReviews(enterpriseUuid, courseKey) {
 }
 
 /**
+ * Helper function to assist querying the content key catalog inclusion.
+ * @param {string} enterpriseUuid
+ * @param {string} contentIdentifers
+ * @returns {Types.QueryOptions}
+ */
+export function queryEnterpriseCustomerContainsContent(enterpriseUuid, contentIdentifers) {
+  return queries
+    .enterprise
+    .enterpriseCustomer(enterpriseUuid)
+    ._ctx.containsContent(contentIdentifers);
+}
+
+/**
  * Helper function to assist querying with useQuery package
  * queries
  * .enterprise

@@ -63,15 +63,15 @@ const enterprise = createQueryKeys('enterprise', {
             queryKey: [availableCourseRunKeys],
             queryFn: async ({ queryKey }) => fetchCanRedeem(queryKey[2], availableCourseRunKeys),
           }),
-          enterpriseCustomerCatalogsContainsContent: {
-            queryKey: null,
-            queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], queryKey[4]),
-          },
           reviews: ({
             queryKey: null,
             queryFn: async ({ queryKey }) => fetchCourseReviews(queryKey[4]),
           }),
         },
+      }),
+      containsContent: (contentIdentifiers) => ({
+        queryKey: [contentIdentifiers],
+        queryFn: async ({ queryKey }) => fetchEnterpriseCustomerContainsContent(queryKey[2], contentIdentifiers),
       }),
       enrollments: {
         queryKey: null,
@@ -157,10 +157,5 @@ const user = createQueryKeys('user', {
 });
 
 const queries = mergeQueryKeys(enterprise, user);
-
-console.log(
-  'queryKeyFactory',
-  queries.enterprise.enterpriseCustomer('enterpriseUuid')._ctx.course('courseKey')._ctx.contentMetadata,
-);
 
 export default queries;
