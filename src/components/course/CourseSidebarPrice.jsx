@@ -8,19 +8,21 @@ import { numberWithPrecision } from './data/utils';
 import { SubsidyRequestsContext } from '../enterprise-subsidy-requests';
 import { ENTERPRISE_OFFER_SUBSIDY_TYPE, LEARNER_CREDIT_SUBSIDY_TYPE, LICENSE_SUBSIDY_TYPE } from './data/constants';
 import { canUserRequestSubsidyForCourse } from './enrollment/utils';
-import { useIsCourseAssigned } from './data/hooks';
+import { useCourseListPrice, useIsCourseAssigned } from './data/hooks';
 import { useEnterpriseCustomer } from '../app/data';
 
 const CourseSidebarPrice = () => {
   const { data: enterpriseCustomer } = useEnterpriseCustomer();
+
+  const { data: courseListPrice } = useCourseListPrice();
 
   return null;
 
   // TODO:
   const {
     userSubsidyApplicableToCourse,
-    coursePrice,
     currency,
+    coursePrice,
     subsidyRequestCatalogsApplicableToCourse,
   } = useContext(CourseContext);
   const isCourseAssigned = useIsCourseAssigned();

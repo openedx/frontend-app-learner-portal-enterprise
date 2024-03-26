@@ -321,9 +321,6 @@ export const findEnterpriseOfferForCourse = ({
   }
   const orderedEnterpriseOffers = enterpriseOffers
     .filter((enterpriseOffer) => {
-      if (!enterpriseOffer.isCurrent) {
-        return false;
-      }
       const isCourseInCatalog = catalogsWithCourse.includes(enterpriseOffer.enterpriseCatalogUuid);
       if (!isCourseInCatalog) {
         return false;
@@ -968,7 +965,7 @@ export const getCourseRunPrice = ({
   firstEnrollablePaidSeatPrice,
 }) => {
   if (courseUsesEntitlementPricing(courseDetails)) {
-    return getEntitlementPrice(courseDetails?.entitlements);
+    return getEntitlementPrice(courseDetails.entitlements);
   }
   if (firstEnrollablePaidSeatPrice) {
     return firstEnrollablePaidSeatPrice;

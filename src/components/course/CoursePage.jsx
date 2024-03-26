@@ -52,27 +52,14 @@ const CoursePage = () => {
 
   const algoliaSearchParams = useExtractAndRemoveSearchParamsFromURL();
 
-  // const {
-  //   userSubsidyApplicableToCourse,
-  //   missingUserSubsidyReason,
-  // } = useUserSubsidyApplicableToCourse({
-  //   isLoadingAny,
-  //   courseData,
-  //   redeemableSubsidyAccessPolicy,
-  //   isPolicyRedemptionEnabled,
-  //   subscriptionLicense,
-  //   courseService,
-  //   couponCodes,
-  //   couponsOverview,
-  //   canEnrollWithEnterpriseOffers,
-  //   enterpriseOffers,
-  //   onSubscriptionLicenseForCourseValidationError,
-  //   missingSubsidyAccessPolicyReason,
-  //   enterpriseAdminUsers,
-  //   contactEmail,
-  //   courseListPrice,
-  //   customerAgreementConfig,
-  // });
+  const {
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+  } = useUserSubsidyApplicableToCourse();
+  console.log('useUserSubsidyApplicableToCourse', {
+    userSubsidyApplicableToCourse,
+    missingUserSubsidyReason,
+  });
 
   const contextValue = useMemo(() => ({
     algoliaSearchParams,
