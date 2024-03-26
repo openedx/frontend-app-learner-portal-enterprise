@@ -27,24 +27,50 @@ const mockCourseKey = 'test-course-key-1';
 const mockCatalogUUID = uuidv4();
 
 describe('fetchEnterpriseCustomerContainsContent', () => {
-  const queryParams = new URLSearchParams({
+  let queryParams = new URLSearchParams({
     get_catalogs_containing_specified_content_ids: true,
-    course_run_ids: mockCourseKey,
   });
-  const CONTAINS_CONTENT_ITEMS_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${mockEnterpriseCustomer.uuid}/contains_content_items/?${queryParams.toString()}`;
+  const CONTAINS_CONTENT_ITEMS_URL = `${APP_CONFIG.ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${mockEnterpriseCustomer.uuid}/contains_content_items/`;
 
   beforeEach(() => {
     jest.clearAllMocks();
     axiosMock.reset();
+    queryParams = new URLSearchParams({
+      get_catalogs_containing_specified_content_ids: true,
+    });
   });
 
-  it('returns expected contains_content_items response', async () => {
+  it.each([
+    // {
+    //   courseIdentifiers: [mockCourseKey],
+    //   programIdentifiers: [],
+    // },
+    {
+      courseIdentifiers: [],
+      programIdentifiers: [uuidv4()],
+    },
+    // {
+    //   courseIdentifiers: [mockCourseKey, 'test-course-key-2'],
+    //   programIdentifiers: [uuidv4(), uuidv4()],
+    // },
+  ])('uses correct query params and returns expected contains_content_items response (%s)', async ({
+    courseIdentifiers,
+    programIdentifiers,
+  }) => {
+    const allContentIdentifiers = [...courseIdentifiers, ...programIdentifiers];
     const mockResponse = {
       containsContentItems: true,
       catalogList: [mockCatalogUUID],
     };
-    axiosMock.onGet(CONTAINS_CONTENT_ITEMS_URL).reply(200, mockResponse);
-    const result = await fetchEnterpriseCustomerContainsContent(mockEnterpriseCustomer.uuid, [mockCourseKey]);
+    if (courseIdentifiers.length > 0) {
+      queryParams.append('course_run_ids', courseIdentifiers.join(','));
+    }
+    if (programIdentifiers.length > 0) {
+      queryParams.append('program_uuids', programIdentifiers.join(','));
+    }
+    const url = `${CONTAINS_CONTENT_ITEMS_URL}?${queryParams.toString()}`;
+    axiosMock.onGet(url).reply(200, mockResponse);
+    const result = await fetchEnterpriseCustomerContainsContent(mockEnterpriseCustomer.uuid, allContentIdentifiers);
     expect(result).toEqual(mockResponse);
   });
 
