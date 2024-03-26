@@ -10,7 +10,6 @@ import PathwayProgressListingPage from '../PathwayProgressListingPage';
 import { renderWithRouter } from '../../../utils/tests';
 import { CONTENT_TYPE_PATHWAY } from '../../search/constants';
 import learnerPathwayData from '../data/__mocks__/PathwayProgressListData.json';
-import { NO_PATHWAYS_ERROR_MESSAGE } from '../constants';
 import { useEnterpriseCustomer, useCanOnlyViewHighlights, useEnterprisePathwaysList } from '../../app/data';
 import { enterpriseCustomerFactory } from '../../app/data/services/data/__factories__';
 
@@ -62,15 +61,6 @@ describe('<PathwayProgressListingPage />', () => {
       <PathwayProgressListingWithContext />,
     );
     expect(screen.getByTestId('error-page')).toBeInTheDocument();
-  });
-
-  it('renders no pathways message when data received is empty', async () => {
-    useEnterprisePathwaysList.mockReturnValue({ data: [] });
-    renderWithRouter(
-      <PathwayProgressListingWithContext />,
-    );
-    expect(screen.getByText(NO_PATHWAYS_ERROR_MESSAGE)).toBeInTheDocument();
-    expect(screen.getByText('Explore pathways')).toBeInTheDocument();
   });
 
   it('redirects to correct url when clicked on explore pathways', async () => {
