@@ -41,18 +41,18 @@ describe('fetchEnterpriseCustomerContainsContent', () => {
   });
 
   it.each([
-    // {
-    //   courseIdentifiers: [mockCourseKey],
-    //   programIdentifiers: [],
-    // },
+    {
+      courseIdentifiers: [mockCourseKey],
+      programIdentifiers: [],
+    },
     {
       courseIdentifiers: [],
       programIdentifiers: [uuidv4()],
     },
-    // {
-    //   courseIdentifiers: [mockCourseKey, 'test-course-key-2'],
-    //   programIdentifiers: [uuidv4(), uuidv4()],
-    // },
+    {
+      courseIdentifiers: [mockCourseKey, 'test-course-key-2'],
+      programIdentifiers: [uuidv4(), uuidv4()],
+    },
   ])('uses correct query params and returns expected contains_content_items response (%s)', async ({
     courseIdentifiers,
     programIdentifiers,
