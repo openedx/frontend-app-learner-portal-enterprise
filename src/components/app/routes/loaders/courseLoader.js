@@ -4,6 +4,7 @@ import {
   queryCourseMetadata,
   queryEnterpriseCourseEnrollments,
   extractEnterpriseId,
+  queryEnterpriseCustomerContainsContent,
 } from '../../data';
 import { ensureAuthenticatedUser } from '../data';
 
@@ -45,6 +46,7 @@ export default function makeCourseLoader(queryClient) {
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
       queryClient.ensureQueryData(queryUserEntitlements()),
+      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent([courseKey])),
     ]);
 
     return null;
