@@ -1,6 +1,7 @@
 import { camelCaseObject, getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { logError } from '@edx/frontend-platform/logging';
+import { validate as isValidUUID } from 'uuid';
 
 /**
   * This API call will *only* obtain the enterprise's catalog(s) whose catalog queries
@@ -11,11 +12,26 @@ import { logError } from '@edx/frontend-platform/logging';
   * `parent_content_key` is checked by the API.
   * */
 export async function fetchEnterpriseCustomerContainsContent(enterpriseId, contentIdentifers) {
-  const courseRunIds = contentIdentifers;
+  const contentIdentifersMap = {
+    course: [],
+    program: [],
+  };
+  contentIdentifers.forEach((contentIdentifier) => {
+    if (isValidUUID(contentIdentifier)) {
+      contentIdentifersMap.program.push(contentIdentifier);
+    } else {
+      contentIdentifersMap.course.push(contentIdentifier);
+    }
+  });
   const queryParams = new URLSearchParams({
-    course_run_ids: courseRunIds,
     get_catalogs_containing_specified_content_ids: true,
   });
+  if (contentIdentifersMap.course.length > 0) {
+    queryParams.append('course_run_ids', contentIdentifersMap.course.join(','));
+  }
+  if (contentIdentifersMap.program.length > 0) {
+    queryParams.append('program_uuids', contentIdentifersMap.program.join(','));
+  }
 
   const url = `${getConfig().ENTERPRISE_CATALOG_API_BASE_URL}/api/v1/enterprise-customer/${enterpriseId}/contains_content_items/?${queryParams.toString()}`;
   try {
