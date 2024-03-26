@@ -46,7 +46,7 @@ export default function makeCourseLoader(queryClient) {
       }),
       queryClient.ensureQueryData(queryEnterpriseCourseEnrollments(enterpriseId)),
       queryClient.ensureQueryData(queryUserEntitlements()),
-      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent([courseKey])),
+      queryClient.ensureQueryData(queryEnterpriseCustomerContainsContent(enterpriseId, [courseKey])),
     ]);
 
     return null;
